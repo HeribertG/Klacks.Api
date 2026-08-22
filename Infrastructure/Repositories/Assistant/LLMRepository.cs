@@ -216,7 +216,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     public async Task<LLMConversation> GetOrCreateConversationAsync(string conversationId, string userId)
     {
         var conversation = await context.Set<LLMConversation>()
-            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId)
             .FirstOrDefaultAsync();
 
         if (conversation == null)
@@ -275,10 +275,10 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         return message;
     }
 
-    public async Task<List<Domain.Models.Assistant.LLMMessage>> GetConversationMessagesAsync(string conversationId, int limit = 20)
+    public async Task<List<Domain.Models.Assistant.LLMMessage>> GetConversationMessagesAsync(string conversationId, string userId, int limit = 20)
     {
         var conversation = await context.Set<LLMConversation>()
-            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId)
             .FirstOrDefaultAsync();
 
         if (conversation == null)
@@ -297,10 +297,10 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     }
 
     public async Task<List<Domain.Models.Assistant.LLMMessage>> GetOldestMessagesAsync(
-        string conversationId, int skipNewest, int limit = 40)
+        string conversationId, string userId, int skipNewest, int limit = 40)
     {
         var conversation = await context.Set<LLMConversation>()
-            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId)
             .FirstOrDefaultAsync();
 
         if (conversation == null)
@@ -325,17 +325,17 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             .ToListAsync();
     }
 
-    public async Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId)
+    public async Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId, string userId)
     {
         return await context.Set<LLMConversation>()
-            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId)
             .FirstOrDefaultAsync();
     }
 
-    public async Task<int> GetConversationTokenCountAsync(string conversationId)
+    public async Task<int> GetConversationTokenCountAsync(string conversationId, string userId)
     {
         var conversation = await context.Set<LLMConversation>()
-            .Where(c => !c.IsDeleted && c.ConversationId == conversationId)
+            .Where(c => !c.IsDeleted && c.ConversationId == conversationId && c.UserId == userId)
             .FirstOrDefaultAsync();
 
         return conversation?.TotalTokens ?? 0;

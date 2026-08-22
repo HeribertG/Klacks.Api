@@ -177,7 +177,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
 
         await _messagingService.SendMessageAsync(
             MessagingConstants.ProviderSlack,
-            new SendMessageRequest(message.Sender, response.Message),
+            new SendMessageRequest(message.Sender, response.Message, SenderDisplayName: MessagingConstants.KlacksySenderDisplayName),
             ct);
     }
 

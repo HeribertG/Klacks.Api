@@ -2,9 +2,24 @@
 
 /// <summary>
 /// Searches and filters clients by combinable criteria — search term, canton, entity type,
-/// active contract, city, zip prefix and currently valid qualification — scoped to the
-/// caller's visible groups. The canton/city/zip filters intentionally match ANY address type
-/// of the client, while the returned display columns always show the employee address.
+/// active contract, city, zip prefix and currently valid qualification. The canton/city/zip
+/// filters intentionally match ANY address type of the client, while the returned display
+/// columns always show the employee address.
+/// <para>
+/// Group visibility is NOT applied uniformly across this repository, so read the per-method
+/// contract before adding a caller:
+/// <list type="bullet">
+/// <item><description><c>SearchAsync</c> (both overloads, including its fuzzy fallback) and
+/// <c>GetClientsForReplacement</c> run every result through
+/// <see cref="IClientGroupFilterService"/> and are therefore scoped to the caller's visible
+/// groups — the total count is taken after that scoping so an invisible client never shows up
+/// as a hidden remainder either.</description></item>
+/// <item><description><c>FindByMail</c>, <c>FindList</c> and <c>FindStatePostCode</c> are
+/// deliberately unscoped identity/synchronisation lookups: they run in contexts that have no
+/// calling user whose visibility could apply, and must not be used to answer user-facing
+/// search requests.</description></item>
+/// </list>
+/// </para>
 /// </summary>
 /// <param name="searchTerm">Optional free-text term matched against client names and mail.</param>
 /// <param name="qualificationValidityDate">Reference date a qualification must be valid on.</param>
@@ -145,6 +160,8 @@ public class ClientSearchRepository : IClientSearchRepository
             .AsNoTracking()
             .AsQueryable();
 
+        query = await _groupFilterService.FilterClientsByGroupId(null, query);
+
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var tokens = searchTerm.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -172,7 +189,8 @@ public class ClientSearchRepository : IClientSearchRepository
             .ToListAsync(cancellationToken);
 
         // A spoken or misheard name never survives the substring token filter — rank the term
-        // fuzzily (trigram + phonetics) and keep only candidates the structured filters permit.
+        // fuzzily (trigram + phonetics) and keep only candidates the caller may see and the
+        // structured filters permit.
         if (items.Count == 0 && !string.IsNullOrWhiteSpace(searchTerm))
         {
             var fuzzyItems = await SearchFuzzyAsync(
@@ -223,6 +241,11 @@ public class ClientSearchRepository : IClientSearchRepository
             .Where(c => !c.IsDeleted && rankedIds.Contains(c.Id))
             .AsNoTracking()
             .AsQueryable();
+
+        // The fuzzy service ranks by name similarity across all groups; the caller-visible
+        // subset is established here, exactly as the other fuzzy fallbacks do it.
+        query = await _groupFilterService.FilterClientsByGroupId(null, query);
+
         query = ApplyStructuredFilters(
             query, canton, entityType, contractId, city, zipPrefix, qualificationId, qualificationValidityDate);
 

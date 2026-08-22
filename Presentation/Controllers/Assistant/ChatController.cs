@@ -75,14 +75,14 @@ public class ChatController : ControllerBase
         _activityTracker = activityTracker;
     }
 
-    private async Task<bool> IsOngoingConversationAsync(string? conversationId)
+    private async Task<bool> IsOngoingConversationAsync(string? conversationId, string userId)
     {
         if (string.IsNullOrWhiteSpace(conversationId))
         {
             return false;
         }
 
-        var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId);
+        var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId, userId);
         return conversation is { MessageCount: > 0 };
     }
 
@@ -100,7 +100,8 @@ public class ChatController : ControllerBase
     /// <param name="navMatch">The navigation match for the normalized utterance</param>
     /// <param name="rawMessage">The original user message, used for navigation-intent detection</param>
     /// <param name="conversationId">The conversation the message belongs to, if any</param>
-    private async Task<bool> ShouldFastPathAsync(NavigationMatchResult navMatch, string rawMessage, string? conversationId)
+    /// <param name="userId">The calling user, who must own the conversation for its history to count</param>
+    private async Task<bool> ShouldFastPathAsync(NavigationMatchResult navMatch, string rawMessage, string? conversationId, string userId)
     {
         if (!navMatch.IsFastPath)
         {
@@ -112,7 +113,7 @@ public class ChatController : ControllerBase
             return true;
         }
 
-        return !await IsOngoingConversationAsync(conversationId);
+        return !await IsOngoingConversationAsync(conversationId, userId);
     }
 
     [HttpPost]
@@ -140,7 +141,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, HttpContext.RequestAborted);
 
-        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId))
+        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId, userId))
         {
             return Ok(new LLMResponse
             {
@@ -215,7 +216,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, cancellationToken);
 
-        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId))
+        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId, userId))
         {
             var navMetadata = new SseChunk
             {
@@ -396,7 +397,8 @@ public class ChatController : ControllerBase
                 Parameters = request.Parameters,
                 UserId = userId,
                 UserRights = userRights,
-                AccessToken = Request.GetBearerToken()
+                AccessToken = Request.GetBearerToken(),
+                PageContext = request.PageContext
             });
 
             results.Add(response);
@@ -433,7 +435,7 @@ public class ChatController : ControllerBase
         var result = await _mediator.Send(command, cancellationToken);
         if (result == null)
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         return Ok(result);

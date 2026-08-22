@@ -63,6 +63,7 @@ public class ModelsController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("check-speech")]
     public async Task<ActionResult<SpeechModelCheckResponse>> CheckSpeechModels(CancellationToken ct)
     {

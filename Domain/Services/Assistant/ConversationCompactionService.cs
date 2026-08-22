@@ -12,6 +12,7 @@
 /// when an AgentPlan completes.
 /// </summary>
 /// <param name="conversationId">Unique conversation ID for identifying the conversation</param>
+/// <param name="userId">Owner of the conversation; a conversation belonging to anyone else is never compacted</param>
 
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -57,21 +58,37 @@ public class ConversationCompactionService : IConversationCompactionService
         _llmRepository = llmRepository;
     }
 
-    public Task CompactIfNeededAsync(string conversationId, CancellationToken cancellationToken = default) =>
-        CompactIfNeededAsync(conversationId, CompactionThreshold, cancellationToken);
+    public Task CompactIfNeededAsync(string conversationId, string userId, CancellationToken cancellationToken = default) =>
+        CompactIfNeededAsync(conversationId, userId, CompactionThreshold, cancellationToken);
 
-    public async Task CompactIfNeededAsync(string conversationId, int minMessages, CancellationToken cancellationToken = default)
+    public async Task CompactIfNeededAsync(string conversationId, string userId, int minMessages, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            _logger.LogWarning(
+                "Conversation compaction skipped for {ConversationId}: no owner was supplied",
+                conversationId.ForLog());
+            return;
+        }
+
         try
         {
-            var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId);
-            if (conversation == null || conversation.MessageCount < minMessages)
+            var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId, userId);
+            if (conversation == null)
+            {
+                _logger.LogWarning(
+                    "Conversation compaction skipped: {ConversationId} does not exist for the supplied owner",
+                    conversationId.ForLog());
+                return;
+            }
+
+            if (conversation.MessageCount < minMessages)
             {
                 return;
             }
 
             var oldMessages = await _llmRepository.GetOldestMessagesAsync(
-                conversationId, skipNewest: KeepRecentMessages, limit: 40);
+                conversationId, userId, skipNewest: KeepRecentMessages, limit: 40);
 
             if (oldMessages.Count == 0)
             {

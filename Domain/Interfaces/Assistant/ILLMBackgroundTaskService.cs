@@ -18,8 +18,9 @@ public interface ILLMBackgroundTaskService
     /// need a different message-count threshold than the default post-turn compaction.
     /// </summary>
     /// <param name="conversationId">Unique conversation ID whose old messages may be compacted.</param>
+    /// <param name="userId">Owner of the conversation; a conversation belonging to anyone else is never compacted.</param>
     /// <param name="minMessages">Minimum message count required before compaction runs.</param>
-    void TriggerConversationCompaction(string conversationId, int minMessages);
+    void TriggerConversationCompaction(string conversationId, string userId, int minMessages);
 
     /// <summary>
     /// Fire-and-forget reflection trigger for any caller that observes a turn going wrong outside the

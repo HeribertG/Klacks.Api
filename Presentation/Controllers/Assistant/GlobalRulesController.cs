@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
 
@@ -30,6 +31,7 @@ public class GlobalRulesController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPut("{name}")]
     public async Task<IActionResult> Upsert(string name, [FromBody] UpsertGlobalRuleRequest request, CancellationToken ct)
     {
@@ -44,6 +46,7 @@ public class GlobalRulesController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpDelete("{name}")]
     public async Task<IActionResult> Deactivate(string name, CancellationToken ct)
     {

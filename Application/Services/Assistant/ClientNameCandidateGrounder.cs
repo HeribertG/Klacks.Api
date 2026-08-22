@@ -4,10 +4,12 @@
 /// Detects person-name candidates in the user message (capitalized token pairs, hyphenated
 /// names and tokens following title markers like Herr/Frau/Mr/Mme; for short all-lowercase
 /// voice transcripts, trailing token bigrams under a stricter validation), resolves them via
-/// the client search repository with a fuzzy trigram/phonetic fallback, validates hits with
+/// the client search repository — whose own trigram/phonetic fallback supplies the misheard-name
+/// second chance and keeps the result scoped to the caller's visible groups — validates hits with
 /// normalized fuzzy plus Kölner Phonetik name matching and renders the grounding block with
-/// canonical spellings and visible id numbers. Purely additive: failures are swallowed and
-/// leave the context untouched.
+/// canonical spellings and visible id numbers. Because the rendered block is injected into the
+/// system prompt, it must never carry a client the caller may not see. Purely additive: failures
+/// are swallowed and leave the context untouched.
 /// </summary>
 
 using System.Text;
@@ -39,16 +41,13 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
     };
 
     private readonly IClientSearchRepository _clientSearchRepository;
-    private readonly IClientFuzzySearchService _fuzzySearchService;
     private readonly ILogger<ClientNameCandidateGrounder> _logger;
 
     public ClientNameCandidateGrounder(
         IClientSearchRepository clientSearchRepository,
-        IClientFuzzySearchService fuzzySearchService,
         ILogger<ClientNameCandidateGrounder> logger)
     {
         _clientSearchRepository = clientSearchRepository;
-        _fuzzySearchService = fuzzySearchService;
         _logger = logger;
     }
 
@@ -185,25 +184,15 @@ public partial class ClientNameCandidateGrounder : IEntityCandidateGrounder
         return terms;
     }
 
+    // SearchAsync already runs the trigram/phonetic fallback itself, over a larger candidate pool
+    // and scoped to the caller's visible groups. A second direct call to the fuzzy service could
+    // only ever return rows this one already rejected — and would return them unscoped.
     private async Task<List<ClientSearchItem>> SearchTermAsync(string term, CancellationToken cancellationToken)
     {
         var result = await _clientSearchRepository.SearchAsync(
             term, limit: SearchLimitPerTerm, cancellationToken: cancellationToken);
-        if (result.Items.Count > 0)
-        {
-            return result.Items.ToList();
-        }
 
-        var fuzzy = await _fuzzySearchService.SearchAsync(term, SearchLimitPerTerm, cancellationToken) ?? [];
-        return fuzzy
-            .Select(c => new ClientSearchItem
-            {
-                Id = c.Id,
-                IdNumber = c.IdNumber,
-                FirstName = c.FirstName,
-                LastName = c.Name
-            })
-            .ToList();
+        return result.Items.ToList();
     }
 
     private static bool IsPlausibleMatch(string term, string? firstName, string? lastName, bool strict)

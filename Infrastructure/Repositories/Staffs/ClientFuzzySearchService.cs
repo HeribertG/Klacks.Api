@@ -6,8 +6,17 @@
 /// persisted phonetic_tokens column (misheard spoken names like "Meier" vs "Mayer"). The raw
 /// SQL keeps the is_deleted filter and the lower(...) search-text expression in sync with the
 /// GIN indexes ix_client_search_text_trgm / ix_client_phonetic_tokens from the
-/// AddClientPhoneticTokensAndTrigram migration. Callers apply their own permission/group
-/// filters on the returned ids — this service only ranks by name similarity.
+/// AddClientPhoneticTokensAndTrigram migration.
+/// <para>
+/// 🔴 This service only RANKS by name similarity. Its raw SQL bypasses every EF query filter
+/// and knows nothing about group visibility, so the returned rows span ALL groups. Every caller
+/// MUST intersect the ranked ids with a query that has already been run through
+/// <see cref="IClientGroupFilterService"/>, and must never surface a ranked row directly.
+/// The three current callers all follow that contract:
+/// <c>ClientSearchRepository.SearchFuzzyAsync</c>, <c>ClientBaseQueryService</c> and
+/// <c>ClientFilterRepository.TryFuzzyFallbackAsync</c> each re-run the ranked ids against an
+/// already group-filtered query. A new caller that skips that step is a visibility leak.
+/// </para>
 /// </summary>
 /// <param name="context">Database context the raw SQL runs against</param>
 

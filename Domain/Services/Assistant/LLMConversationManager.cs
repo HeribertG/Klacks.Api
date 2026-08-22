@@ -14,6 +14,8 @@ public class LLMConversationManager
     // load the same conversation history within one turn — memoize to save a duplicate DB read.
     private readonly Dictionary<string, List<Providers.LLMMessage>> _historyCache = new();
 
+    private const string HistoryCacheKeySeparator = "|";
+
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
@@ -29,14 +31,15 @@ public class LLMConversationManager
             userId);
     }
 
-    public async Task<List<Providers.LLMMessage>> GetConversationHistoryAsync(string conversationId)
+    public async Task<List<Providers.LLMMessage>> GetConversationHistoryAsync(string conversationId, string userId)
     {
-        if (_historyCache.TryGetValue(conversationId, out var cached))
+        var cacheKey = BuildHistoryCacheKey(conversationId, userId);
+        if (_historyCache.TryGetValue(cacheKey, out var cached))
         {
             return new List<Providers.LLMMessage>(cached);
         }
 
-        var history = await _repository.GetConversationMessagesAsync(conversationId);
+        var history = await _repository.GetConversationMessagesAsync(conversationId, userId);
         var mapped = history.Select(m => new Providers.LLMMessage
         {
             Role = m.Role,
@@ -44,9 +47,12 @@ public class LLMConversationManager
             Timestamp = m.CreateTime ?? DateTime.UtcNow
         }).ToList();
 
-        _historyCache[conversationId] = mapped;
+        _historyCache[cacheKey] = mapped;
         return new List<Providers.LLMMessage>(mapped);
     }
+
+    private static string BuildHistoryCacheKey(string conversationId, string userId) =>
+        $"{userId}{HistoryCacheKeySeparator}{conversationId}";
 
     public async Task SaveConversationMessagesAsync(
         LLMConversation conversation,
@@ -89,7 +95,7 @@ public class LLMConversationManager
         }
 
         await _repository.UpdateConversationAsync(conversation);
-        _historyCache.Remove(conversation.ConversationId);
+        _historyCache.Remove(BuildHistoryCacheKey(conversation.ConversationId, conversation.UserId));
     }
 
     public async Task TrackUsageAsync(

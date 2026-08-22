@@ -32,10 +32,10 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task<bool> ArchiveConversationAsync(string conversationId, string userId);
     
     Task<LLMMessage> SaveMessageAsync(LLMMessage message);
-    Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, int limit = 20);
-    Task<List<LLMMessage>> GetOldestMessagesAsync(string conversationId, int skipNewest, int limit = 40);
-    Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId);
-    Task<int> GetConversationTokenCountAsync(string conversationId);
+    Task<List<LLMMessage>> GetConversationMessagesAsync(string conversationId, string userId, int limit = 20);
+    Task<List<LLMMessage>> GetOldestMessagesAsync(string conversationId, string userId, int skipNewest, int limit = 40);
+    Task<LLMConversation?> GetConversationByConversationIdAsync(string conversationId, string userId);
+    Task<int> GetConversationTokenCountAsync(string conversationId, string userId);
 
     Task<List<LLMSyncNotification>> GetUnreadSyncNotificationsAsync();
     Task<LLMSyncNotification> CreateSyncNotificationAsync(LLMSyncNotification notification);

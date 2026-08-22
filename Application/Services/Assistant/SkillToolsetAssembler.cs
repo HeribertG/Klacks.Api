@@ -123,7 +123,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         {
             // History-anchored query: a bare confirmation turn ("yes, correct") must still retrieve
             // the task skill of the earlier turns.
-            var retrievalQuery = await _retrievalQueryBuilder.BuildAsync(userMessage, conversationId, cancellationToken);
+            var retrievalQuery = await _retrievalQueryBuilder.BuildAsync(userMessage, conversationId, userId, cancellationToken);
 
             // Skills only, the other half of the kind filter the recipe pass already uses. A toolset
             // can never contain anything else: the mapping below matches candidates against skill

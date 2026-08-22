@@ -3,6 +3,7 @@
 /// <summary>
 /// Endpoints for retrieving and dismissing LLM model sync notifications.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -47,6 +48,7 @@ public class ModelSyncController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("trigger")]
     public async Task<ActionResult> TriggerSync(CancellationToken cancellationToken)
     {
@@ -54,6 +56,7 @@ public class ModelSyncController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPost("mark-read")]
     public async Task<ActionResult> MarkAllRead()
     {

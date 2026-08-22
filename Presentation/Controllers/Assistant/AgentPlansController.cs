@@ -87,7 +87,7 @@ public class AgentPlansController : ControllerBase
         var userId = GetCurrentUserId();
         if (!string.Equals(plan.UserId, userId, StringComparison.Ordinal))
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         var providerResolution = await _planChatService.ResolveExecutionProviderAsync(cancellationToken);
@@ -107,7 +107,7 @@ public class AgentPlansController : ControllerBase
         var userId = GetCurrentUserId();
         if (!string.Equals(plan.UserId, userId, StringComparison.Ordinal))
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         if (PlanStatus.IsTerminal(plan.Status))
@@ -146,7 +146,7 @@ public class AgentPlansController : ControllerBase
         var userId = GetCurrentUserId();
         if (!string.Equals(plan.UserId, userId, StringComparison.Ordinal))
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         return Ok(plan);

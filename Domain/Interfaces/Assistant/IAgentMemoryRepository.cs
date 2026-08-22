@@ -8,15 +8,15 @@ public interface IAgentMemoryRepository
 {
     Task<List<MemorySearchResult>> HybridSearchAsync(Guid agentId, string query, float[]? queryEmbedding, int limit = 10, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
-    Task<List<AgentMemory>> GetAllAsync(Guid agentId, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetAllAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetAllWithTagsAsync(Guid agentId, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByIdsAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken = default);
-    Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByCategoryAndKeysAsync(Guid agentId, string category, IReadOnlyCollection<string> keys, int limit, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByUserAsync(Guid agentId, Guid userId, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
-    Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, Guid? userId = null, CancellationToken cancellationToken = default);
     Task AddAsync(AgentMemory memory, CancellationToken cancellationToken = default);
     Task UpdateAsync(AgentMemory memory, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);

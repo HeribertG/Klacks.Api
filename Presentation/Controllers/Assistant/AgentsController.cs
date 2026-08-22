@@ -19,6 +19,8 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AgentsController : ControllerBase
 {
+    private const string SystemUserId = "system";
+
     private readonly IMediator _mediator;
 
     public AgentsController(IMediator mediator)
@@ -78,7 +80,7 @@ public class AgentsController : ControllerBase
     [HttpGet("{id:guid}/sessions")]
     public async Task<IActionResult> GetSessions(Guid id, CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? SystemUserId;
         var result = await _mediator.Send(new GetAgentSessionsQuery { AgentId = id, UserId = userId });
         return Ok(result);
     }
@@ -86,7 +88,8 @@ public class AgentsController : ControllerBase
     [HttpGet("{id:guid}/sessions/{sessionId:guid}")]
     public async Task<IActionResult> GetSession(Guid id, Guid sessionId, CancellationToken ct)
     {
-        var result = await _mediator.Send(new GetAgentSessionMessagesQuery { AgentId = id, SessionId = sessionId });
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? SystemUserId;
+        var result = await _mediator.Send(new GetAgentSessionMessagesQuery { AgentId = id, SessionId = sessionId, UserId = userId });
         return Ok(result);
     }
 }

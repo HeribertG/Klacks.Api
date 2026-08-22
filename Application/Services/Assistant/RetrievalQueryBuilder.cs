@@ -8,6 +8,7 @@
 /// </summary>
 /// <param name="userMessage">The raw user message of the current turn</param>
 /// <param name="conversationId">Conversation whose user turns anchor the query (null for a fresh chat)</param>
+/// <param name="userId">Owner of the conversation; history from another owner never anchors the query</param>
 
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -34,7 +35,7 @@ public class RetrievalQueryBuilder : IRetrievalQueryBuilder
         _logger = logger;
     }
 
-    public async Task<string> BuildAsync(string userMessage, string? conversationId, CancellationToken cancellationToken = default)
+    public async Task<string> BuildAsync(string userMessage, string? conversationId, string userId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(conversationId))
         {
@@ -43,7 +44,7 @@ public class RetrievalQueryBuilder : IRetrievalQueryBuilder
 
         try
         {
-            var history = await _conversationManager.GetConversationHistoryAsync(conversationId);
+            var history = await _conversationManager.GetConversationHistoryAsync(conversationId, userId);
             if (history.Count == 0)
             {
                 return userMessage;

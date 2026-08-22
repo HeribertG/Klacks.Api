@@ -70,7 +70,7 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var memories = await _agentMemoryRepository.SearchAsync(agent.Id, searchTerm, cancellationToken);
+            var memories = await _agentMemoryRepository.SearchAsync(agent.Id, searchTerm, context.UserId, cancellationToken);
             var result = memories.Select(m => new { m.Id, m.Key, m.Content, m.Category, m.Importance, m.IsPinned, m.Source, CreatedAt = m.CreateTime }).ToList();
             var (filteredResult, removedResult) = FilterInjected(result, m => m.Id, injectedIds);
 
@@ -81,7 +81,7 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
 
         if (!string.IsNullOrWhiteSpace(category))
         {
-            var memories = await _agentMemoryRepository.GetByCategoryAsync(agent.Id, category, cancellationToken);
+            var memories = await _agentMemoryRepository.GetByCategoryAsync(agent.Id, category, context.UserId, cancellationToken);
             var result = memories.Select(m => new { m.Id, m.Key, m.Content, m.Category, m.Importance, m.IsPinned, m.Source, CreatedAt = m.CreateTime }).ToList();
             var (filteredResult, removedResult) = FilterInjected(result, m => m.Id, injectedIds);
 
@@ -90,7 +90,7 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
                 AppendAlreadyInContextNote($"Found {filteredResult.Count} memories in category '{category}'.", removedResult));
         }
 
-        var allMemories = await _agentMemoryRepository.GetAllAsync(agent.Id, cancellationToken);
+        var allMemories = await _agentMemoryRepository.GetAllAsync(agent.Id, context.UserId, cancellationToken);
 
         var categories = allMemories
             .GroupBy(m => string.IsNullOrWhiteSpace(m.Category) ? "uncategorized" : m.Category)

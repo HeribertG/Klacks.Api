@@ -8,4 +8,5 @@ public class GetAgentSessionMessagesQuery : IRequest<object>
 {
     public Guid AgentId { get; set; }
     public Guid SessionId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 }

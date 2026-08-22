@@ -1,7 +1,7 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider, to a Klacks client (default) or to an application user. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. For recipientType 'client' (default): recipient values are 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID; provider is required. For recipientType 'user': recipient is an application-user name, resolved by name search; provider is optional — omit it to use that user's preferred paired channel. If the name search finds more than one match, the skill returns the candidate names instead of guessing — ask the user which one they meant and call the skill again with a more specific name.",
+    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider, to a Klacks client (default) or to an application user. ALWAYS call this directly when the user says 'send/schick' a message, even if no provider/channel is named — do not ask for confirmation, do not first check the provider list, do not ask which provider/channel to use before calling the skill; the skill itself resolves the provider automatically when only one is enabled. For recipientType 'client' (default): recipient values are 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID; provider is optional — omit it and the skill uses the one enabled messaging provider automatically, only asking (or erroring) if none or more than one is enabled. For recipientType 'user': recipient is an application-user name, resolved by name search; provider is optional — omit it to use that user's preferred paired channel. If the name search finds more than one match, the skill returns the candidate names instead of guessing — ask the user which one they meant and call the skill again with a more specific name.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
@@ -16,7 +16,7 @@
       },
       {
         "name": "provider",
-        "description": "The messaging provider name (e.g., telegram, whatsapp). Required when recipientType is 'client'. Optional when recipientType is 'user' — omit it to use the user's preferred paired channel.",
+        "description": "The messaging provider name (e.g., telegram, whatsapp). Optional for both recipientType 'client' and 'user' — for 'client', omitting it uses the single enabled provider automatically (the skill only asks when none or more than one is enabled); for 'user', omitting it uses that user's preferred paired channel.",
         "type": "String",
         "required": false
       },
@@ -46,7 +46,7 @@
     "isEnabled": true,
     "alwaysOn": false,
     "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "threema", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
-    "version": 10
+    "version": 12
   },
   {
     "name": "read_messages",

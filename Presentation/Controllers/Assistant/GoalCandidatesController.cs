@@ -79,7 +79,7 @@ public class GoalCandidatesController : ControllerBase
         var userId = GetCurrentUserId();
         if (!await IsPlannerAsync(userId, cancellationToken))
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         var candidates = await _mediator.Send(new GetGoalCandidatesQuery
@@ -101,7 +101,7 @@ public class GoalCandidatesController : ControllerBase
         var userId = GetCurrentUserId();
         if (!await IsPlannerAsync(userId, cancellationToken))
         {
-            return Forbid();
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         if (request.Decision != GoalCandidateStatus.Approved && request.Decision != GoalCandidateStatus.Rejected)

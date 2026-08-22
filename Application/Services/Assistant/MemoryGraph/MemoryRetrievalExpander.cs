@@ -9,10 +9,13 @@
 /// </summary>
 /// <param name="relationRepository">Source of the memory-relationship edges for the agent</param>
 /// <param name="memoryRepository">Loads the full content of the selected neighbour memories</param>
+/// <param name="userId">Caller the expansion runs for; a neighbour that is another user's personal
+/// memory is dropped, because the graph edges are built across all users of the agent</param>
 /// <param name="logger">Diagnostic logging</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.MemoryGraph;
 
@@ -35,6 +38,7 @@ public class MemoryRetrievalExpander : IMemoryRetrievalExpander
         IReadOnlyList<AgentMemory> pinnedMemories,
         IReadOnlyList<MemorySearchResult> hybridResults,
         int freeBudget,
+        Guid? userId = null,
         CancellationToken cancellationToken = default)
     {
         if (freeBudget <= 0 || hybridResults.Count == 0)
@@ -60,7 +64,9 @@ public class MemoryRetrievalExpander : IMemoryRetrievalExpander
         }
 
         var memories = await _memoryRepository.GetByIdsAsync(pickedIds, cancellationToken);
-        var memoriesById = memories.ToDictionary(m => m.Id);
+        var memoriesById = memories
+            .Where(m => AgentMemoryAccessPolicy.CanRead(m, userId))
+            .ToDictionary(m => m.Id);
         var ordered = pickedIds.Where(memoriesById.ContainsKey).Select(id => memoriesById[id]).ToList();
 
         _logger.LogDebug("Memory retrieval expansion added {Count} neighbour memories for agent {AgentId}", ordered.Count, agentId);

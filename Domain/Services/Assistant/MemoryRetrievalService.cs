@@ -133,7 +133,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             return new MemoryRetrievalResult(string.Empty, Array.Empty<Guid>());
         }
 
-        var expansionMemories = await TryExpandAsync(agentId, pinnedMemories, searchResults, maxMemoriesPerTurn, cancellationToken);
+        var expansionMemories = await TryExpandAsync(agentId, pinnedMemories, searchResults, maxMemoriesPerTurn, userId, cancellationToken);
 
         var sb = new StringBuilder();
         sb.AppendLine();
@@ -192,6 +192,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         List<AgentMemory> pinnedMemories,
         List<MemorySearchResult> searchResults,
         int maxMemoriesPerTurn,
+        Guid? userId,
         CancellationToken cancellationToken)
     {
         var freeBudget = maxMemoriesPerTurn - searchResults.Count;
@@ -202,7 +203,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
 
         try
         {
-            return await _expander.ExpandAsync(agentId, pinnedMemories, searchResults, freeBudget, cancellationToken);
+            return await _expander.ExpandAsync(agentId, pinnedMemories, searchResults, freeBudget, userId, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

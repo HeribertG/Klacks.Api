@@ -535,7 +535,15 @@ public class PlanStepExecutor : IPlanStepExecutor
             return;
         }
 
-        _backgroundTaskService.TriggerConversationCompaction(sessionId.ToString(), TaskBoundaryMinMessages);
+        if (string.IsNullOrWhiteSpace(plan.UserId))
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} completed with session {SessionId} but carries no UserId; skipping task-boundary compaction",
+                plan.Id, sessionId);
+            return;
+        }
+
+        _backgroundTaskService.TriggerConversationCompaction(sessionId.ToString(), plan.UserId, TaskBoundaryMinMessages);
     }
 
     private async Task<SkillResult> ExecuteSingleStepAsync(

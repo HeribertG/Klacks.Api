@@ -11,5 +11,6 @@ public interface IMemoryRetrievalExpander
         IReadOnlyList<AgentMemory> pinnedMemories,
         IReadOnlyList<MemorySearchResult> hybridResults,
         int freeBudget,
+        Guid? userId = null,
         CancellationToken cancellationToken = default);
 }

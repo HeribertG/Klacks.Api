@@ -210,8 +210,8 @@ public class PeriodHoursService : IPeriodHoursService
             .Include(c => c.GroupItems)
             .Where(c => c.Type != EntityTypeEnum.Customer)
             .Where(c => c.Membership != null
-                && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue)
-                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue)));
+                && c.Membership.ValidFrom <= endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc)
+                && (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)));
 
         query = await _clientGroupFilterService.FilterClientsByGroupId(groupId, query);
 

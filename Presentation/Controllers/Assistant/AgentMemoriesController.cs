@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -43,6 +45,11 @@ public class AgentMemoriesController : ControllerBase
     [HttpPost("{id:guid}/memories")]
     public async Task<IActionResult> CreateMemory(Guid id, [FromBody] CreateMemoryRequest request, CancellationToken ct)
     {
+        if (AgentMemoryAccessPolicy.CreatesSharedMemory(request.Category) && !User.IsInRole(Roles.Admin))
+        {
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
+        }
+
         var result = await _mediator.Send(new CreateAgentMemoryCommand
         {
             AgentId = id,

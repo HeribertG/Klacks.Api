@@ -39,10 +39,10 @@ public class AgentSessionRepository : IAgentSessionRepository
         return session;
     }
 
-    public async Task<List<AgentSessionMessage>> GetActiveMessagesAsync(Guid sessionId, CancellationToken cancellationToken = default)
+    public async Task<List<AgentSessionMessage>> GetActiveMessagesAsync(Guid sessionId, string userId, CancellationToken cancellationToken = default)
     {
         var session = await _context.AgentSessions
-            .FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
+            .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId, cancellationToken);
 
         if (session == null) return [];
 

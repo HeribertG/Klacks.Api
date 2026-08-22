@@ -692,7 +692,7 @@ public class LLMService : ILLMService
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
 
         stageWatch.Restart();
-        var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId);
+        var llmHistory = await _conversationManager.GetConversationHistoryAsync(conversation.ConversationId, conversation.UserId);
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "GetConversationHistory", stageWatch.ElapsedMilliseconds);
 
@@ -1026,16 +1026,54 @@ public class LLMService : ILLMService
             || content.Contains("[REPLIES:", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null)
+    // Prompt-injection containment. Tool results are fed back as a "user" message, so anything they
+    // contain reads to the model like input from this system. Three measures apply here:
+    // (1) every result gets its own [Result: name] … [/Result] frame, so a newline inside a result can
+    //     no longer forge a sibling entry the way the former "- name: result" line format allowed;
+    // (2) the skill name and the result body are escaped against all four delimiters, so content cannot
+    //     close its own frame or open a new one — this covers trusted skills too, because ERP-imported
+    //     and user-entered strings flow through ordinary read skills;
+    // (3) results from skills whose content is authored outside this system are flagged untrusted and
+    //     carry an explicit data-not-instructions notice, matched by the system prompt's
+    //     UNTRUSTED TOOL CONTENT rule.
+    // Internal (not private): covered by LLMServiceFormatFunctionResultsTests.
+    internal static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null)
     {
         var effectiveMaxToolResultChars = maxToolResultChars ?? MaxToolResultChars;
         var sb = new StringBuilder();
-        sb.AppendLine("[Function Results]");
+        sb.AppendLine(ToolResultMarkers.BlockHeader);
         foreach (var call in functionCalls)
         {
-            sb.AppendLine($"- {call.FunctionName}: {CapToolResult(call.Result, effectiveMaxToolResultChars) ?? "OK"}");
+            var isUntrusted = UntrustedSkillOutputs.Contains(call.FunctionName);
+
+            // Escape BEFORE capping: escaping replaces a 9-character delimiter with a 16-character
+            // placeholder, so capping first would let a result built from repeated forged delimiters
+            // grow ~1.8x past MaxToolResultChars — attacker-controlled history inflation, which is the
+            // very thing the cap exists to prevent.
+            var body = call.Result is null
+                ? ToolResultMarkers.EmptyResultPlaceholder
+                : CapToolResult(ToolResultSanitizer.EscapeDelimiters(call.Result), effectiveMaxToolResultChars)
+                  ?? ToolResultMarkers.EmptyResultPlaceholder;
+
+            sb.Append(ToolResultMarkers.ResultOpenPrefix);
+            sb.Append(ToolResultSanitizer.EscapeDelimiters(call.FunctionName));
+            if (isUntrusted)
+            {
+                sb.Append(ToolResultMarkers.ResultUntrustedFlag);
+            }
+
+            sb.AppendLine(ToolResultMarkers.ResultOpenSuffix);
+
+            if (isUntrusted)
+            {
+                sb.AppendLine(ToolResultMarkers.UntrustedContentNotice);
+            }
+
+            sb.AppendLine(body);
+            sb.AppendLine(ToolResultMarkers.ResultClose);
         }
-        sb.AppendLine("[/Function Results]");
+
+        sb.AppendLine(ToolResultMarkers.BlockFooter);
         return sb.ToString();
     }
 
@@ -1190,10 +1228,8 @@ public class LLMService : ILLMService
         foreach (var call in functionCalls)
         {
             var isReadOnlyOrNavigation =
-                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.Get) ||
-                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.List) ||
-                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.Search) ||
-                call.FunctionName == SkillNames.NavigateTo;
+                ReadOnlySkillPrefixes.HasReadOnlyPrefix(call.FunctionName) ||
+                string.Equals(call.FunctionName, SkillNames.NavigateTo, StringComparison.OrdinalIgnoreCase);
 
             if (!isReadOnlyOrNavigation && previouslyCalledNames.Contains(call.FunctionName))
             {

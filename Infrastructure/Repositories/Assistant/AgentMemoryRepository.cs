@@ -210,10 +210,10 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<AgentMemory>> GetAllAsync(Guid agentId, CancellationToken cancellationToken = default)
+    public async Task<List<AgentMemory>> GetAllAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
-            .Where(m => m.AgentId == agentId)
+            .Where(m => m.AgentId == agentId && (m.UserId == userId || m.UserId == null))
             .OrderByDescending(m => m.Importance)
             .ThenByDescending(m => m.CreateTime)
             .AsNoTracking()
@@ -258,10 +258,10 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default)
+    public async Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
-            .Where(m => m.AgentId == agentId && m.Category == category)
+            .Where(m => m.AgentId == agentId && m.Category == category && (m.UserId == userId || m.UserId == null))
             .OrderByDescending(m => m.Importance)
             .ThenByDescending(m => m.CreateTime)
             .AsNoTracking()
@@ -293,10 +293,11 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .FirstOrDefaultAsync(m => m.Key == key, cancellationToken);
     }
 
-    public async Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, CancellationToken cancellationToken = default)
+    public async Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
             .Where(m => m.AgentId == agentId &&
+                        (m.UserId == userId || m.UserId == null) &&
                         (EF.Functions.ILike(m.Key, $"%{searchTerm}%") ||
                          EF.Functions.ILike(m.Content, $"%{searchTerm}%")))
             .OrderByDescending(m => m.Importance)

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
 
@@ -35,6 +36,7 @@ public class AgentSoulController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpPut("{id:guid}/soul/{sectionType}")]
     public async Task<IActionResult> UpsertSoulSection(
         Guid id, string sectionType, [FromBody] UpsertSoulRequest request, CancellationToken ct)
@@ -51,6 +53,7 @@ public class AgentSoulController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     [HttpDelete("{id:guid}/soul/{sectionType}")]
     public async Task<IActionResult> DeactivateSoulSection(Guid id, string sectionType, CancellationToken ct)
     {

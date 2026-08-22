@@ -39,7 +39,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             {
                 using var scope = _scopeFactory.CreateScope();
                 var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
-                await compactionService.CompactIfNeededAsync(conversation.ConversationId);
+                await compactionService.CompactIfNeededAsync(conversation.ConversationId, conversation.UserId);
             }
             catch (Exception ex)
             {
@@ -156,7 +156,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             Guid.TryParse(context.UserId, out var userId) ? userId : null);
     }
 
-    public void TriggerConversationCompaction(string conversationId, int minMessages)
+    public void TriggerConversationCompaction(string conversationId, string userId, int minMessages)
     {
         _ = Task.Run(async () =>
         {
@@ -164,7 +164,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             {
                 using var scope = _scopeFactory.CreateScope();
                 var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
-                await compactionService.CompactIfNeededAsync(conversationId, minMessages);
+                await compactionService.CompactIfNeededAsync(conversationId, userId, minMessages);
             }
             catch (Exception ex)
             {

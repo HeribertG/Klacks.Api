@@ -17,7 +17,7 @@ public class GetAgentSessionMessagesQueryHandler : IRequestHandler<GetAgentSessi
 
     public async Task<object> Handle(GetAgentSessionMessagesQuery request, CancellationToken cancellationToken)
     {
-        var messages = await _sessionRepository.GetActiveMessagesAsync(request.SessionId, cancellationToken);
+        var messages = await _sessionRepository.GetActiveMessagesAsync(request.SessionId, request.UserId, cancellationToken);
         return messages.Select(m => new
         {
             m.Id, m.Role, m.Content, m.TokenCount,

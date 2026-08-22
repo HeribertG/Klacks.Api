@@ -83,7 +83,7 @@ public class KlacksyKnowledgeMemorySeed
             return;
         }
 
-        var existingByKey = (await _memoryRepository.GetByCategoryAsync(agent.Id, Category, cancellationToken))
+        var existingByKey = (await _memoryRepository.GetByCategoryAsync(agent.Id, Category, cancellationToken: cancellationToken))
             .Where(m => m.Source == MemorySources.SystemImport)
             .ToDictionary(m => m.Key, StringComparer.OrdinalIgnoreCase);
 

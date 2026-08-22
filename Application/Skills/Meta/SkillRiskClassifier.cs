@@ -9,6 +9,7 @@
 /// defaults to irreversible.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -195,12 +196,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         SkillCategory.Action
     ];
 
-    private static readonly string[] ReadOnlyNamePrefixes =
-    [
-        "get_", "list_", "search_", "find_", "read_", "lookup_", "verify_",
-        "check_", "detect_", "interpret_", "validate_", "test_", "evaluate_", "generate_"
-    ];
-
     public SkillRiskClass Classify(SkillDescriptor descriptor)
     {
         if (SensitiveSkills.Contains(descriptor.Name))
@@ -254,7 +249,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
             return false;
         }
 
-        return ReadOnlyNamePrefixes.Any(prefix =>
-            descriptor.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+        return ReadOnlySkillPrefixes.HasReadOnlyPrefix(descriptor.Name);
     }
 }
