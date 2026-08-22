@@ -6,6 +6,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
@@ -86,7 +87,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 work.AnalyseToken,
                 cancellationToken);
 
-            await EnsureNoStructuralCollisionAsync(work, existingWork, cancellationToken);
+            await EnsureNoHardBlockingConflictAsync(work, existingWork, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
@@ -150,10 +151,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     }
 
     /// <summary>
-    /// Refuses an edit that would leave the client with an overlapping shift. Same severity rule as the
-    /// create path: structural errors only, so a rule configured as Block still reports into the error
-    /// list instead of stopping the planner, while a collision is refused because the same person cannot
-    /// be in two places at once.
+    /// Refuses an edit only for the one Error class that can never be reported after the fact instead:
+    /// a missing mandatory qualification. Same severity rule as the create path otherwise: a rule
+    /// configured as Block still reports into the error list instead of stopping the write, and so does
+    /// a schedule collision (owner decision 2026-08-22) - it is persisted and the async post-commit
+    /// check surfaces it into the error list rather than refusing the edit.
     /// The PROJECTED row is checked and the pre-write row is handed over as a removal - without it every
     /// retiming would collide with its own still-persisted predecessor.
     /// Scenario writes are skipped, mirroring the day-lock contract, and so are container children: the
@@ -162,7 +164,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     /// </summary>
     /// <param name="work">The projected row (new client, date and times)</param>
     /// <param name="existingWork">The row as persisted before the edit; null when there is nothing to update</param>
-    private async Task EnsureNoStructuralCollisionAsync(
+    private async Task EnsureNoHardBlockingConflictAsync(
         Domain.Models.Schedules.Work work,
         Domain.Models.Schedules.Work? existingWork,
         CancellationToken cancellationToken)
@@ -191,8 +193,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         if (conflictCheck.HasHardBlocking)
         {
             throw new ConflictException(
-                $"Work update blocked: client {work.ClientId} would have a structural schedule collision " +
-                $"on {work.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+                $"Work update blocked: client {work.ClientId} would introduce " +
+                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
+                $"non-overridable schedule conflict(s) on {work.CurrentDate:yyyy-MM-dd}. Not committed.");
         }
     }
 }

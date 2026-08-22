@@ -5,6 +5,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -96,7 +97,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 }
             }
 
-            await EnsureNoStructuralCollisionAsync(works, cancellationToken);
+            await EnsureNoHardBlockingConflictAsync(works, cancellationToken);
 
             if (works.Count > 0)
             {
@@ -185,12 +186,14 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     }
 
     /// <summary>
-    /// Refuses the whole batch when any real-mode row would leave its client with an overlapping shift,
-    /// so nothing is persisted. Gated on structural errors only: bulk planning stays advisory for
-    /// compliance rules, exactly like the single-work path, but a collision cannot be waved through by
-    /// anyone. Scenario rows are skipped, mirroring the day-lock contract.
+    /// Refuses the whole batch only when a real-mode row would introduce the one Error class that can
+    /// never be reported after the fact instead: a missing mandatory qualification. Bulk planning stays
+    /// advisory otherwise, exactly like the single-work path - a compliance rule configured as Block
+    /// reports into the error list, and so does a schedule collision (owner decision 2026-08-22): the
+    /// batch persists and the async post-commit check surfaces it into the error list rather than
+    /// refusing the write. Scenario rows are skipped, mirroring the day-lock contract.
     /// </summary>
-    private async Task EnsureNoStructuralCollisionAsync(
+    private async Task EnsureNoHardBlockingConflictAsync(
         IReadOnlyList<Work> works,
         CancellationToken cancellationToken)
     {
@@ -208,8 +211,9 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         if (conflictCheck.HasHardBlocking)
         {
             throw new ConflictException(
-                "Bulk write blocked: at least one row would create a structural schedule collision " +
-                "(overlapping shift). Nothing was committed.");
+                "Bulk write blocked: at least one row would introduce " +
+                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
+                "non-overridable schedule conflict(s). Nothing was committed.");
         }
     }
 }

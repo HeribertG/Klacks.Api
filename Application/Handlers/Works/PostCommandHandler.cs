@@ -6,6 +6,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
@@ -83,7 +84,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             await EnsureNoSporadicConflictAsync(work, cancellationToken);
 
-            await EnsureNoStructuralCollisionAsync(work, cancellationToken);
+            await EnsureNoHardBlockingConflictAsync(work, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
@@ -137,13 +138,15 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     }
 
     /// <summary>
-    /// Refuses a real write that would leave the client with an overlapping shift. Deliberately gated on
-    /// structural errors only: manual planning stays advisory, so a rule configured as Block reports into
-    /// the error list rather than stopping the planner here. A collision is different in kind - it cannot
-    /// be resolved by a supervisor decision, because the same person cannot be in two places at once.
-    /// Scenario writes are skipped, mirroring the day-lock contract.
+    /// Refuses a real write only for the one Error class that can never be reported after the fact
+    /// instead: a missing mandatory qualification. Manual planning otherwise stays advisory - a
+    /// Block-mode compliance rule reports into the error list rather than stopping the write, and a
+    /// schedule collision (owner decision 2026-08-22) does too: it is persisted and the async
+    /// post-commit check (<c>ScheduleTimelineBackgroundService</c>) surfaces it into the error list like
+    /// any other finding, instead of refusing the save. Scenario writes are skipped, mirroring the
+    /// day-lock contract.
     /// </summary>
-    private async Task EnsureNoStructuralCollisionAsync(
+    private async Task EnsureNoHardBlockingConflictAsync(
         Domain.Models.Schedules.Work work,
         CancellationToken cancellationToken)
     {
@@ -163,8 +166,9 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         if (conflictCheck.HasHardBlocking)
         {
             throw new ConflictException(
-                $"Work blocked: client {work.ClientId} would have a structural schedule collision on " +
-                $"{work.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+                $"Work blocked: client {work.ClientId} would introduce " +
+                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
+                $"non-overridable schedule conflict(s) on {work.CurrentDate:yyyy-MM-dd}. Not committed.");
         }
     }
 

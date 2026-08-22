@@ -251,11 +251,17 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
 
     /// <summary>
     /// K1 supervisor override: only ever applies to a check whose Error entries are exclusively
-    /// Block-mode compliance escalations. A structural Error (collision, missing mandatory
-    /// qualification) is never overridable, by construction, regardless of role or request flag.
+    /// Block-mode compliance escalations. Deliberately keyed on <see cref="PreCommitCheckResult.
+    /// HasNonOverridableBlocking"/> rather than <see cref="PreCommitCheckResult.HasHardBlocking"/>: a
+    /// batch/row here can mix rows from multiple clients, so a schedule collision on one client -
+    /// no longer hard-blocking on the direct write paths since the 2026-08-22 owner decision - must
+    /// still stop an override from riding it through here; the automated planner/autofill stays
+    /// conservative about collisions even though the direct write paths no longer are. A missing
+    /// mandatory qualification is never overridable either way, by construction, regardless of role or
+    /// request flag.
     /// </summary>
     private static bool CanOverride(PreCommitCheckResult check, bool authorized)
-        => authorized && !check.HasHardBlocking && check.HasOverridableBlocking;
+        => authorized && !check.HasNonOverridableBlocking && check.HasOverridableBlocking;
 
     // Everything an accepted check reports: warnings plus any Error entry that was overridden rather
     // than blocked (a structural Error never reaches an accepted check, by construction).

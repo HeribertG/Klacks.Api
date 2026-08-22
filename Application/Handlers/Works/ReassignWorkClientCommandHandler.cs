@@ -6,6 +6,7 @@ using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -73,7 +74,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             await _dayLockService.EnsureNotLockedAsync(
                 existingWork.CurrentDate, request.TargetClientId, existingWork.AnalyseToken, cancellationToken);
 
-            await EnsureNoStructuralCollisionAsync(existingWork, request.TargetClientId, cancellationToken);
+            await EnsureNoHardBlockingConflictAsync(existingWork, request.TargetClientId, cancellationToken);
 
             var work = await _workRepository.Get(request.Id);
             if (work == null)
@@ -133,9 +134,12 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     }
 
     /// <summary>
-    /// Refuses handing the shift to a client who is already occupied at that time. Same severity rule as
-    /// the create path: structural errors only, so a Block-mode compliance rule still reports into the
-    /// error list rather than stopping the planner here.
+    /// Refuses the reassignment only for the one Error class that can never be reported after the fact
+    /// instead: a missing mandatory qualification for the target client. Same severity rule as the
+    /// create path otherwise: a Block-mode compliance rule still reports into the error list rather than
+    /// stopping the write, and so does a schedule collision with the target client's existing schedule
+    /// (owner decision 2026-08-22) - the reassignment persists and the async post-commit check surfaces
+    /// it into the error list.
     /// The target client is checked with the shift's existing times, and the source client's row is
     /// handed over as a removal so the source is judged on the state it is left in rather than on a
     /// double-booked intermediate.
@@ -144,7 +148,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     /// </summary>
     /// <param name="existingWork">The work as persisted, supplying date, times, shift and source client</param>
     /// <param name="targetClientId">Client the work would be handed to</param>
-    private async Task EnsureNoStructuralCollisionAsync(
+    private async Task EnsureNoHardBlockingConflictAsync(
         Domain.Models.Schedules.Work existingWork,
         Guid targetClientId,
         CancellationToken cancellationToken)
@@ -173,8 +177,9 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         if (conflictCheck.HasHardBlocking)
         {
             throw new ConflictException(
-                $"Reassignment blocked: client {targetClientId} would have a structural schedule " +
-                $"collision on {existingWork.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+                $"Reassignment blocked: client {targetClientId} would introduce " +
+                $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
+                $"non-overridable schedule conflict(s) on {existingWork.CurrentDate:yyyy-MM-dd}. Not committed.");
         }
     }
 }

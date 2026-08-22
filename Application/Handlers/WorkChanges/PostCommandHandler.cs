@@ -130,9 +130,10 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     /// Pre-commit guard for replacement work changes: when a change moves a different client into the
     /// parent shift (ReplaceClientId set) on the real schedule (AnalyseToken null), it rejects the
     /// change if that client would end up with a blocking conflict on the same day. It applies the same
-    /// severity rule as place_work — a structural error such as an overlapping shift blocks
-    /// unconditionally, a block-mode compliance escalation blocks unless an authorized supervisor
-    /// overrides it — so a rule configured as Block can no longer stop one path and pass the other.
+    /// severity rule as place_work: a missing mandatory qualification blocks unconditionally, a
+    /// block-mode compliance escalation blocks unless an authorized supervisor overrides it. A schedule
+    /// collision no longer blocks either path (owner decision 2026-08-22) — it is persisted and the
+    /// async post-commit check surfaces it into the error list instead of refusing the write.
     /// Pure corrections (no ReplaceClientId) and scenario writes are skipped: a correction retimes the
     /// same client's own work and would only self-collide with the parent, and scenarios run in a
     /// sandbox that bypasses the hard write guards, mirroring the day-lock contract.
@@ -159,15 +160,17 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             parentWork.ShiftId);
 
         var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);
-        if (!conflictCheck.HasBlocking)
+        if (!conflictCheck.HasHardBlocking && !conflictCheck.HasOverridableBlocking)
         {
+            // Nothing but a schedule collision (or nothing at all): a collision alone never blocks the
+            // write, it is reported into the error list by the async post-commit check instead.
             return;
         }
 
-        // Same severity rule as place_work: a structural error blocks unconditionally, a block-mode
-        // compliance escalation blocks unless an authorized supervisor is overriding. Before this the
-        // replacement path only looked at structural errors, so a rule configured as Block stopped one
-        // path and waved the other through.
+        // A missing mandatory qualification blocks unconditionally, a block-mode compliance escalation
+        // blocks unless an authorized supervisor is overriding. Before this the replacement path only
+        // looked at structural errors, so a rule configured as Block stopped one path and waved the
+        // other through.
         var authorized = await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested);
         if (authorized && !conflictCheck.HasHardBlocking)
         {
