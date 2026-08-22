@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
@@ -59,5 +60,28 @@ public class ClientAvailabilityRepository : BaseRepository<ClientAvailability>, 
                 await _context.ClientAvailability.AddAsync(item);
             }
         }
+    }
+
+    public async Task<List<ClientAvailabilityTotalResource>> GetTotalsByClientsAndDateRange(
+        List<Guid> clientIds, DateOnly start, DateOnly end)
+    {
+        var dailyHourCounts = await _context.ClientAvailability
+            .Where(ca => clientIds.Contains(ca.ClientId)
+                         && ca.Date >= start
+                         && ca.Date <= end
+                         && ca.IsAvailable)
+            .GroupBy(ca => new { ca.ClientId, ca.Date })
+            .Select(g => new { g.Key.ClientId, g.Key.Date, HourCount = g.Count() })
+            .ToListAsync();
+
+        return dailyHourCounts
+            .GroupBy(x => x.ClientId)
+            .Select(g => new ClientAvailabilityTotalResource
+            {
+                ClientId = g.Key,
+                TotalHours = g.Sum(x => x.HourCount),
+                DaysWithAvailability = g.Count()
+            })
+            .ToList();
     }
 }

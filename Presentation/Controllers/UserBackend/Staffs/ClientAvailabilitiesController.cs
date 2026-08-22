@@ -42,4 +42,23 @@ public class ClientAvailabilitiesController : BaseController
         var result = await _mediator.Send(new ListClientAvailabilityClientsQuery(filter));
         return Ok(result);
     }
+
+    [HttpGet("Ranges")]
+    public async Task<ActionResult<List<ClientAvailabilityRangeResource>>> Ranges(
+        [FromQuery] DateOnly startDate,
+        [FromQuery] DateOnly endDate,
+        [FromQuery] List<Guid> clientIds)
+    {
+        var result = await _mediator.Send(new GetClientAvailabilityRangesQuery(startDate, endDate, clientIds));
+        return Ok(result);
+    }
+
+    [HttpPost("Totals")]
+    public async Task<ActionResult<List<ClientAvailabilityTotalResource>>> Totals(
+        [FromBody] ClientAvailabilityTotalsRequest request)
+    {
+        var result = await _mediator.Send(
+            new GetClientAvailabilityTotalsQuery(request.StartDate, request.EndDate, request.ClientIds));
+        return Ok(result);
+    }
 }
