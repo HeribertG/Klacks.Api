@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Seed data for default report templates, providing Absence and Schedule report templates plus the
-/// six quick-print templates from <see cref="QuickPrintReportTemplatesSql"/> and the two
-/// client-availability templates from <see cref="ClientAvailabilityReportTemplatesSql"/> on fresh databases.
+/// six quick-print templates from <see cref="QuickPrintReportTemplatesSql"/>, the two
+/// client-availability templates from <see cref="ClientAvailabilityReportTemplatesSql"/> and the
+/// group detail template from <see cref="EditGroupReportTemplatesSql"/> on fresh databases.
 /// IDs match the canonical production values stored in REPORT_DEFAULT_TEMPLATES settings.
 /// </summary>
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -98,6 +99,7 @@ namespace Klacks.Api.Data.Seed
 
             QuickPrintReportTemplatesSql.Apply(migrationBuilder);
             ClientAvailabilityReportTemplatesSql.Apply(migrationBuilder);
+            EditGroupReportTemplatesSql.Apply(migrationBuilder);
         }
     }
 }
