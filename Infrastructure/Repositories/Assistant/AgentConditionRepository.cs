@@ -223,6 +223,15 @@ public class AgentConditionRepository : IAgentConditionRepository
     /// Base query shared by every planner-facing read of the ledger (Etappe 3f/3g): the
     /// AgentConditionPlannerRelevantStatuses.Values status filter, plus - when not unrestricted - the same
     /// GroupId-to-Group left join and root comparison GetTopForContextAsync originally introduced.
+    ///
+    /// A null GroupId is ungated for a genuinely installation-wide kind (target_hours_drift and the other
+    /// client- or period-borne findings) and withheld for an AgentTriggerGroupScopedKinds.Values kind, where
+    /// it can only mean the group of a group-owned entity was not determined - historical rows predating the
+    /// live-push fix keep a null GroupId for as long as they stay open, because a re-detection only moves
+    /// LastSeenAtUtc and never rewrites the row. Handing those to every scoped planner would leak exactly the
+    /// group-scoped detail the join below withholds, so they fall back to Admins, who take the isUnrestricted
+    /// branch and skip this filter entirely - the same fallback the live push applies via
+    /// IAgentTriggerEvent.RequiresGroupScope.
     /// </summary>
     private IQueryable<AgentCondition> ScopedPlannerRelevantQuery(bool isUnrestricted, IReadOnlySet<Guid> visibleRootIds)
     {
@@ -231,6 +240,14 @@ public class AgentConditionRepository : IAgentConditionRepository
 
         if (!isUnrestricted)
         {
+            // Deliberately a separate Where ahead of the join rather than an extra term inside its
+            // predicate: the join's "c.GroupId == null || ..." short circuits before the outer side's
+            // "g.Root ?? g.Id" is touched, and folding the kind test into that disjunction makes the
+            // GroupId-null rows reach the fallback with a null g - which real Postgres answers with SQL
+            // null semantics but the EF InMemory provider throws on. Filtering first keeps the proven join
+            // untouched and leaves no such row for it to see.
+            query = query.Where(c => c.GroupId != null || !AgentTriggerGroupScopedKinds.Values.Contains(c.TriggerKind));
+
             query =
                 from c in query
                 join g in _context.Group on c.GroupId equals g.Id into groupJoin

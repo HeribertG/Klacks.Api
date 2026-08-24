@@ -42,9 +42,13 @@ public static class AgentConditionLedgerPolicy
     /// <summary>
     /// The single group a ledger row records for an event that may concern several. AgentCondition has
     /// one GroupId column, while a shift-borne finding can name two or three groups; the first of the
-    /// ordered set is kept as a stable representative. This is a reporting attribute only - the live
-    /// audience of a notification is recomputed from the full GroupIds set at dispatch time and is
-    /// never read back from this column, so narrowing it here cannot widen anybody's reach.
+    /// ordered set is kept as a stable representative. The live audience of a notification is recomputed
+    /// from the full GroupIds set at dispatch time and never read back from this column, so narrowing it
+    /// here cannot widen anybody's reach on the push path. The ledger READ path does read the column
+    /// (AgentConditionRepository's planner-facing queries), and there this narrowing can only withhold: a
+    /// planner scoped to the second group of a multi-group shift will not find the row through
+    /// list_open_findings, the context block or the digest even though the live push correctly reached
+    /// them. Under-sharing, not a leak - closing it needs a join table this column cannot express.
     /// </summary>
     public static Guid? LedgerGroupIdFor(IAgentTriggerEvent triggerEvent)
     {

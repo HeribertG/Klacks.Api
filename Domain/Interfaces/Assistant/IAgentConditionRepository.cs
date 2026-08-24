@@ -50,14 +50,16 @@ public interface IAgentConditionRepository
     /// newer open row of the same underlying condition can legitimately both be in the result at once - that
     /// is the correct picture ("escalated after N attempts, and re-detected since"), not a duplicate to be
     /// collapsed. Scope shape mirrors <see cref="GetTopForContextAsync"/>: same isUnrestricted/visibleRootIds
-    /// contract, same GroupId-null-is-everyone-visible rule, same root-comparison against the group's Nested
+    /// contract, same kind-dependent GroupId-null rule, same root-comparison against the group's Nested
     /// Set root (not a flattened subtree list) via the GroupId-to-Group join.
     /// </summary>
     /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
     /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise a row is
-    /// included when its GroupId is null, or its group's Nested Set root is in this set. An empty set fails
-    /// closed to GroupId-null rows only - the same semantics AgentConditionVisibilityScope.Restricted with an
-    /// empty set already carries for a planner with no GroupVisibility row.</param>
+    /// included when its group's Nested Set root is in this set, or its GroupId is null AND its TriggerKind is
+    /// not one of AgentTriggerGroupScopedKinds.Values - for those group-borne kinds a null GroupId means the
+    /// group was not determined, so the row stays with Admins instead of reaching every planner. An empty set
+    /// fails closed to those ungated rows only - the same semantics AgentConditionVisibilityScope.Restricted
+    /// with an empty set already carries for a planner with no GroupVisibility row.</param>
     /// <param name="take">Row cap applied after sorting, so the most urgent rows are the ones kept.</param>
     Task<List<AgentCondition>> GetOpenForScopeAsync(
         bool isUnrestricted,
@@ -131,9 +133,10 @@ public interface IAgentConditionRepository
     /// (Etappe 3g). Never loads the full open set: severity, status and scope are filtered and the row
     /// count capped inside the database query itself, since this runs on every chat turn that carries a
     /// user id. <paramref name="isUnrestricted"/> true (Admin) skips the scope filter entirely; otherwise
-    /// only rows with no GroupId, or whose group's Nested Set root is in <paramref name="visibleRootIds"/>,
-    /// are eligible - the same subtree-via-root comparison PlanningAudienceResolver already uses for
-    /// notification audience (Etappe 3e). Ranking: rows whose GroupId equals
+    /// only rows whose group's Nested Set root is in <paramref name="visibleRootIds"/>, plus rows with no
+    /// GroupId whose TriggerKind is not one of AgentTriggerGroupScopedKinds.Values, are eligible - the same
+    /// subtree-via-root comparison PlanningAudienceResolver already uses for notification audience
+    /// (Etappe 3e), under the same RequiresGroupScope fallback. Ranking: rows whose GroupId equals
     /// <paramref name="preferredGroupId"/> first (ranking only - never widens or narrows visibility), then
     /// Severity descending, then DetectedAtUtc ascending - the same priority order Etappe 5b specifies for
     /// the action dispatcher, reused here for consistency.
