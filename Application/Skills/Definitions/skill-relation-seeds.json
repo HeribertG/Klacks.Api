@@ -1480,6 +1480,46 @@
       "contradictionCount": 0,
       "provenance": "curated:explains",
       "status": 1
+    },
+    {
+      "skillAName": "evaluate_scenario",
+      "skillBName": "accept_scenario",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_autonomy_level_change",
+      "skillBName": "set_autonomy_level",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_location_group_candidates",
+      "skillBName": "create_group",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_grouping_by_qualification",
+      "skillBName": "create_group",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
     }
   ]
 }

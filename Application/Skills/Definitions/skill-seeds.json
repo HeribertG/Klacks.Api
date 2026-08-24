@@ -25,10 +25,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_system_info",
@@ -40,10 +41,11 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_user_context",
@@ -55,6 +57,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
@@ -88,7 +91,7 @@
           "dove mi trovo nel sistema"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "validate_calendar_rule",
@@ -125,6 +128,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -188,7 +192,7 @@
           "regola data"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "navigate_to",
@@ -255,6 +259,7 @@
         }
       ],
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
@@ -286,7 +291,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 16
+      "version": 17
     },
     {
       "name": "get_page_controls",
@@ -307,10 +312,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_ai_memory",
@@ -387,6 +393,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -440,7 +447,7 @@
           "memorizzare"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_personal_memory",
@@ -506,6 +513,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -551,7 +559,7 @@
           "la mia preferenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_client_to_group",
@@ -599,6 +607,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -660,7 +669,7 @@
           "forza lavoro"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_shift_to_group",
@@ -708,6 +717,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -754,7 +764,7 @@
           "assegnazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "bulk_add_shifts_to_group",
@@ -794,6 +804,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -826,7 +837,7 @@
           "tutti i turni"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_client_to_nearest_group",
@@ -858,6 +869,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -909,7 +921,7 @@
           "indirizzo"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_calendars",
@@ -932,6 +944,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -973,7 +986,7 @@
           "cantone"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "assign_contract_to_client",
@@ -1028,6 +1041,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1089,7 +1103,7 @@
           "forza lavoro"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "configure_heartbeat",
@@ -1133,6 +1147,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1183,7 +1198,7 @@
           "health check"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "create_branch",
@@ -1230,6 +1245,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1282,7 +1298,7 @@
           "punto vendita"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_contract",
@@ -1406,6 +1422,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1443,7 +1460,7 @@
           "aggiungere un contratto"
         ]
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "create_employee",
@@ -1587,6 +1604,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1658,7 +1676,7 @@
           "forza lavoro"
         ]
       },
-      "version": 15
+      "version": 16
     },
     {
       "name": "create_user",
@@ -1697,6 +1715,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1756,7 +1775,7 @@
           "permesso"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_ai_memory",
@@ -1779,6 +1798,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1832,7 +1852,7 @@
           "memorizzare"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_branch",
@@ -1855,6 +1875,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1906,7 +1927,7 @@
           "punto vendita"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_system_user",
@@ -1929,6 +1950,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -1985,7 +2007,7 @@
           "permesso"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_ai_guidelines",
@@ -1999,6 +2021,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2048,7 +2071,7 @@
           "comportamento"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_ai_memories",
@@ -2101,6 +2124,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2155,7 +2179,7 @@
           "memorizzare"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_ai_soul",
@@ -2187,6 +2211,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2242,7 +2267,7 @@
           "persona"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_client_details",
@@ -2265,6 +2290,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2347,7 +2373,7 @@
           "forza lavoro"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_general_settings",
@@ -2361,10 +2387,11 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_company_registration",
@@ -2378,6 +2405,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2395,7 +2423,7 @@
           "company registration"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_data_retention_settings",
@@ -2409,10 +2437,11 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_user_permissions",
@@ -2424,10 +2453,11 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "assign_user_permissions",
@@ -2470,6 +2500,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2526,7 +2557,7 @@
           "concedere"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_macro",
@@ -2565,6 +2596,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2614,7 +2646,7 @@
           "regola"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_personal_access_token",
@@ -2628,6 +2660,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2684,7 +2717,7 @@
           "token per app esterna"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_personal_access_tokens",
@@ -2696,6 +2729,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2728,7 +2762,7 @@
           "quali token api ho"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "revoke_personal_access_token",
@@ -2751,6 +2785,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2783,7 +2818,7 @@
           "invalidare il token api"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_my_account",
@@ -2828,6 +2863,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2864,7 +2900,7 @@
           "cambiare la mia e-mail di accesso"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_navigation_targets",
@@ -2908,6 +2944,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -2939,7 +2976,7 @@
           "stato dei sinonimi di navigazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_navigation_synonyms",
@@ -2978,6 +3015,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3010,7 +3048,7 @@
           "insegnare questa formulazione a klacksy"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_navigation_feedback",
@@ -3041,6 +3079,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3072,7 +3111,7 @@
           "cosa non ha capito klacksy"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_macros",
@@ -3095,6 +3134,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3141,7 +3181,7 @@
           "regola"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_macro",
@@ -3172,6 +3212,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3218,7 +3259,7 @@
           "calcolo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_branches",
@@ -3240,6 +3281,7 @@
         }
       ],
       "handlerType": "generic-list",
+      "effect": "Read",
       "handlerConfig": {
         "repositoryInterface": "IBranchRepository",
         "method": "List",
@@ -3311,7 +3353,7 @@
           "punto vendita"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_contracts",
@@ -3342,6 +3384,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3390,7 +3433,7 @@
           "convenzione"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "list_groups",
@@ -3453,6 +3496,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3502,7 +3546,7 @@
           "organizzazione"
         ]
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "lookup_location",
@@ -3531,6 +3575,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -3587,7 +3632,7 @@
           "localita"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_llm_models",
@@ -3617,6 +3662,7 @@
         }
       ],
       "handlerType": "generic-list",
+      "effect": "Read",
       "handlerConfig": {
         "repositoryInterface": "ILLMRepository",
         "method": "GetModelsAsync",
@@ -3710,7 +3756,7 @@
           "configurazione IA"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_llm_providers",
@@ -3732,6 +3778,7 @@
         }
       ],
       "handlerType": "generic-list",
+      "effect": "Read",
       "handlerConfig": {
         "repositoryInterface": "ILLMRepository",
         "method": "GetProvidersAsync",
@@ -3805,7 +3852,7 @@
           "fornitore IA"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_scheduling_rules",
@@ -3827,6 +3874,7 @@
         }
       ],
       "handlerType": "generic-list",
+      "effect": "Read",
       "handlerConfig": {
         "repositoryInterface": "ISchedulingRuleRepository",
         "method": "List",
@@ -3936,7 +3984,7 @@
           "lavora"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "list_system_users",
@@ -3959,6 +4007,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4020,7 +4069,7 @@
           "permesso"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "search_in_list",
@@ -4083,6 +4132,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": {
@@ -4148,7 +4198,7 @@
           "tutti i clienti"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "select_group",
@@ -4176,6 +4226,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4228,7 +4279,7 @@
           "seleziona il gruppo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "open_schedule",
@@ -4251,6 +4302,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4294,7 +4346,7 @@
           "orari"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "search_and_navigate",
@@ -4348,10 +4400,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 5
+      "version": 6
     },
     {
       "name": "search_employees",
@@ -4415,6 +4468,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4505,7 +4559,7 @@
           "lavora"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "set_user_group_scope",
@@ -4536,6 +4590,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4593,7 +4648,7 @@
           "permesso"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_user_group_scope",
@@ -4616,6 +4671,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4673,7 +4729,7 @@
           "ambito dei gruppi"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "test_imap_connection",
@@ -4687,6 +4743,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4746,7 +4803,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "test_smtp_connection",
@@ -4760,6 +4817,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4819,7 +4877,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_ai_guidelines",
@@ -4850,6 +4908,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -4900,7 +4959,7 @@
           "comportamento"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_ai_memory",
@@ -4978,6 +5037,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5030,7 +5090,7 @@
           "memorizzare"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_ai_soul",
@@ -5081,6 +5141,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5137,7 +5198,7 @@
           "persona"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_spam_filter_settings",
@@ -5176,6 +5237,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5226,7 +5288,7 @@
           "regola filtro"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_web_search_settings",
@@ -5268,6 +5330,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5315,7 +5378,7 @@
           "provider ricerca"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "validate_address",
@@ -5360,6 +5423,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5412,7 +5476,7 @@
           "CAP"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "web_search",
@@ -5443,10 +5507,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_general_settings",
@@ -5489,6 +5554,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5538,7 +5604,7 @@
           "preferenza"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_data_retention_settings",
@@ -5581,6 +5647,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5632,7 +5699,7 @@
           "eliminazione dei dati"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_owner_address",
@@ -5870,6 +5937,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -5922,7 +5990,7 @@
           "azienda"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_owner_locale_settings",
@@ -5969,6 +6037,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -6019,7 +6088,7 @@
           "paese"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_email_settings",
@@ -6301,6 +6370,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -6363,7 +6433,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_imap_settings",
@@ -6557,6 +6627,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -6616,7 +6687,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_work_settings",
@@ -6876,6 +6947,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -6933,7 +7005,7 @@
           "ore settimanali"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_scheduling_defaults",
@@ -7347,6 +7419,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -7401,7 +7474,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_deepl_settings",
@@ -7463,6 +7536,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -7513,7 +7587,7 @@
           "tradurre"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_llm_provider",
@@ -7723,6 +7797,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -7777,7 +7852,7 @@
           "fornitore IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_llm_provider",
@@ -7954,6 +8029,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -8008,7 +8084,7 @@
           "fornitore IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_llm_provider",
@@ -8054,6 +8130,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -8106,7 +8183,7 @@
           "fornitore IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_llm_model",
@@ -8425,6 +8502,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -8482,7 +8560,7 @@
           "configurazione IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_llm_model",
@@ -8754,6 +8832,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -8810,7 +8889,7 @@
           "configurazione IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_llm_model",
@@ -8856,6 +8935,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -8912,7 +8992,7 @@
           "configurazione IA"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_scheduling_rule",
@@ -9387,6 +9467,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -9442,7 +9523,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_scheduling_rule",
@@ -9678,6 +9759,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -9733,7 +9815,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_scheduling_rule",
@@ -9779,6 +9861,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -9831,7 +9914,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_branch",
@@ -9979,6 +10062,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10030,7 +10114,7 @@
           "punto vendita"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_email_settings",
@@ -10044,6 +10128,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10104,7 +10189,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_imap_settings",
@@ -10118,6 +10203,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10175,7 +10261,7 @@
           "configurazione email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_owner_address",
@@ -10189,6 +10275,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10241,7 +10328,7 @@
           "azienda"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_work_settings",
@@ -10255,6 +10342,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10318,7 +10406,7 @@
           "ore settimanali"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_scheduling_defaults",
@@ -10332,6 +10420,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10396,7 +10485,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_deepl_settings",
@@ -10410,6 +10499,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10461,7 +10551,7 @@
           "tradurre"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_spam_filter_settings",
@@ -10475,6 +10565,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10524,7 +10615,7 @@
           "regola filtro"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_web_search_settings",
@@ -10538,6 +10629,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10583,7 +10675,7 @@
           "provider ricerca"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_agent_skills",
@@ -10617,6 +10709,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10664,7 +10757,7 @@
           "skill agente"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "create_agent_skill",
@@ -10733,6 +10826,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10784,7 +10878,7 @@
           "skill agente"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_agent_skill",
@@ -10847,6 +10941,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10895,7 +10990,7 @@
           "skill agente"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_agent_skill",
@@ -10918,6 +11013,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -10966,7 +11062,7 @@
           "skill agente"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "review_skill_suggestions",
@@ -11001,6 +11097,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11028,7 +11125,7 @@
           "ability suggestion"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_absence_types",
@@ -11064,6 +11161,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11108,7 +11206,7 @@
           "vacances"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "create_absence_type",
@@ -11203,6 +11301,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11235,7 +11334,7 @@
           "definire una nuova categoria di assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_absence_type",
@@ -11346,6 +11445,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11377,7 +11477,7 @@
           "cambiare il colore del tipo di assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_absence_type",
@@ -11408,6 +11508,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11435,7 +11536,7 @@
           "eliminare un tipo di assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "search_client_absences",
@@ -11498,6 +11599,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11552,7 +11654,7 @@
           "vacances"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_shift",
@@ -11679,6 +11781,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11732,7 +11835,7 @@
           "orario"
         ]
       },
-      "version": 13
+      "version": 14
     },
     {
       "name": "find_customer_candidates",
@@ -11755,6 +11858,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11791,7 +11895,7 @@
           "cliente"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "find_split_shift_candidates",
@@ -11822,6 +11926,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11860,7 +11965,7 @@
           "turno diviso"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cut_shift",
@@ -11899,6 +12004,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -11938,7 +12044,7 @@
           "tagliare il turno"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_test_environment",
@@ -12031,6 +12137,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12070,7 +12177,7 @@
           "ambiente di test"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "start_autowizard",
@@ -12141,6 +12248,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12194,7 +12302,7 @@
           "autopilota"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "place_work",
@@ -12273,6 +12381,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12318,7 +12427,7 @@
           "mettere sul turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_work",
@@ -12341,6 +12450,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12381,7 +12491,7 @@
           "cancellare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_work",
@@ -12436,6 +12546,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12470,7 +12581,7 @@
           "adattare l'impiego pianificato"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_period_hours",
@@ -12517,6 +12628,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12551,7 +12663,7 @@
           "mostrare le ore del periodo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "accept_scenario",
@@ -12574,6 +12686,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12611,7 +12724,7 @@
           "confermare scenario"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "confirm_work",
@@ -12634,6 +12747,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12674,7 +12788,7 @@
           "convalidare l'assegnazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "unconfirm_work",
@@ -12697,6 +12811,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12734,7 +12849,7 @@
           "revocare la conferma"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_schedule_command",
@@ -12790,6 +12905,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12840,7 +12956,7 @@
           "forzare notte"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_scenarios",
@@ -12871,6 +12987,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12909,7 +13026,7 @@
           "alternative"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "approve_day",
@@ -12940,6 +13057,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -12977,7 +13095,7 @@
           "liberare il giorno"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "revoke_day_approval",
@@ -13008,6 +13126,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13038,7 +13157,7 @@
           "annullare la convalida"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "close_period",
@@ -13093,6 +13212,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13130,7 +13250,7 @@
           "finalizzare mese"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "reopen_period",
@@ -13185,6 +13305,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13219,7 +13340,7 @@
           "sbloccare mese"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_period_status",
@@ -13266,6 +13387,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13298,7 +13420,7 @@
           "stato della chiusura del periodo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_period_issues",
@@ -13353,6 +13475,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13385,7 +13508,7 @@
           "verifica prima della chiusura"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_period_audit_log",
@@ -13424,6 +13547,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13458,7 +13582,7 @@
           "quando è stato sigillato il periodo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_open_periods",
@@ -13481,6 +13605,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13513,7 +13638,7 @@
           "quali periodi sono pronti per la chiusura"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_break",
@@ -13536,6 +13661,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13569,7 +13695,7 @@
           "annullare assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "verify_my_last_action",
@@ -13581,6 +13707,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13613,7 +13740,7 @@
           "verifica ultima azione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "rollback_my_last_change",
@@ -13625,6 +13752,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13663,7 +13791,7 @@
           "ripristinare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_open_wizard_jobs",
@@ -13686,6 +13814,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13719,7 +13848,7 @@
           "ancora in esecuzione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "bulk_add_absence_for_group",
@@ -13783,6 +13912,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13814,7 +13944,7 @@
           "formazione del gruppo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_break",
@@ -13893,6 +14023,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -13941,7 +14072,7 @@
           "formazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_workchange",
@@ -14039,6 +14170,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14097,7 +14229,7 @@
           "debriefing"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "start_wizard1",
@@ -14144,6 +14276,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14181,7 +14314,7 @@
           "piano iniziale"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "start_wizard2",
@@ -14228,6 +14361,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14270,7 +14404,7 @@
           "equilibrare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "start_wizard3",
@@ -14325,6 +14459,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14365,7 +14500,7 @@
           "rifinitura llm"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cancel_wizard_job",
@@ -14388,6 +14523,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14424,7 +14560,7 @@
           "interrompere wizard"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "reject_scenario",
@@ -14447,6 +14583,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14483,7 +14620,7 @@
           "scartare scenario"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_client",
@@ -14615,6 +14752,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14671,7 +14809,7 @@
           "aggiornare cliente"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "delete_client",
@@ -14694,6 +14832,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14751,7 +14890,7 @@
           "cancellare cliente"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_group",
@@ -14827,6 +14966,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14876,7 +15016,7 @@
           "aggiungere reparto"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_group",
@@ -14952,6 +15092,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -14995,7 +15136,7 @@
           "aggiornare filiale"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_group_details",
@@ -15024,6 +15165,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15061,7 +15203,7 @@
           "posizione del gruppo nell'albero"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_group_members",
@@ -15098,6 +15240,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15130,7 +15273,7 @@
           "chi è nel gruppo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "move_group",
@@ -15177,6 +15320,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15211,7 +15355,7 @@
           "riagganciare il gruppo a un altro padre"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_group",
@@ -15242,6 +15386,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15285,7 +15430,7 @@
           "rimuovere sede"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_calendar_selection",
@@ -15324,6 +15469,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15367,7 +15513,7 @@
           "unire calendari festivi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_calendar_selection",
@@ -15438,6 +15584,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15478,7 +15625,7 @@
           "contrassegnare calendario come solo promemoria"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_calendar_selection",
@@ -15509,6 +15656,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15542,7 +15690,7 @@
           "eliminare calendario festivo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_groups_hierarchical",
@@ -15573,6 +15721,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15615,7 +15764,7 @@
           "struttura ad albero"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_absence",
@@ -15718,6 +15867,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15760,7 +15910,7 @@
           "aggiungere tipo malattia"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_absence",
@@ -15871,6 +16021,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15910,7 +16061,7 @@
           "riconfigurare assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_absence",
@@ -15933,6 +16084,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -15972,7 +16124,7 @@
           "cancellare tipo malattia"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_holidays_for_period",
@@ -16019,6 +16171,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16065,7 +16218,7 @@
           "feste nazionali"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "validate_holiday_overlap",
@@ -16104,6 +16257,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16145,7 +16299,7 @@
           "sovrapposizione festività"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_report_templates",
@@ -16173,6 +16327,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16212,7 +16367,7 @@
           "elenca modelli"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "generate_period_summary",
@@ -16251,6 +16406,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16290,7 +16446,7 @@
           "panoramica mese"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "read_schedule_state",
@@ -16337,6 +16493,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16381,7 +16538,7 @@
           "piano attuale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "detect_conflicts",
@@ -16428,6 +16585,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16471,7 +16629,7 @@
           "valida pianificazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "interpret_resource_monitor",
@@ -16502,6 +16660,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16546,7 +16705,7 @@
           "analisi copertura"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "find_replacement",
@@ -16601,6 +16760,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16644,7 +16804,7 @@
           "dipendenti disponibili"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "propose_plan",
@@ -16691,6 +16851,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16731,7 +16892,7 @@
           "scenario di proposta"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cover_absence",
@@ -16794,6 +16955,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16836,7 +16998,7 @@
           "gestire un'assenza improvvisa"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "evaluate_scenario",
@@ -16867,6 +17029,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Advise",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -16905,7 +17068,7 @@
           "il piano è valido"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_client_qualification",
@@ -16968,6 +17131,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17004,7 +17168,7 @@
           "registrare un certificato"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_shift_required_qualification",
@@ -17051,6 +17215,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17087,7 +17252,7 @@
           "il turno richiede una qualifica"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_qualification",
@@ -17166,6 +17331,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17202,7 +17368,7 @@
           "definire una competenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_qualifications",
@@ -17216,6 +17382,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17251,7 +17418,7 @@
           "competenze disponibili"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_shift_preferences",
@@ -17293,6 +17460,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17331,7 +17499,7 @@
           "escludere dal turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_shift",
@@ -17426,6 +17594,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17462,7 +17631,7 @@
           "cambiare il turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_shift",
@@ -17485,6 +17654,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17517,7 +17687,7 @@
           "rimuovere il turno"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "email_schedule_to_client",
@@ -17556,6 +17726,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17597,7 +17768,7 @@
           "programma via email"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "import_calendar_rules",
@@ -17636,6 +17807,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17675,7 +17847,7 @@
           "importare feste cantonali"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_client_phone",
@@ -17714,6 +17886,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17749,7 +17922,7 @@
           "numero"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_client_email",
@@ -17788,6 +17961,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17814,7 +17988,7 @@
         "fr": [],
         "it": []
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "add_client_note",
@@ -17853,6 +18027,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17881,7 +18056,7 @@
         "fr": [],
         "it": []
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "add_client_to_group_by_name",
@@ -17934,6 +18109,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -17959,7 +18135,7 @@
         "fr": [],
         "it": []
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "add_selected_clients_to_group",
@@ -17999,6 +18175,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18027,7 +18204,7 @@
         "fr": [],
         "it": []
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "fill_group_by_criteria",
@@ -18127,6 +18304,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18154,7 +18332,7 @@
         "fr": [],
         "it": []
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -18182,6 +18360,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Advise",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18218,7 +18397,7 @@
           "creare gruppi per qualifica"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -18258,6 +18437,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18287,7 +18467,7 @@
         "fr": [],
         "it": []
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "remove_client_from_group",
@@ -18326,6 +18506,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18352,7 +18533,7 @@
         "fr": [],
         "it": []
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_client_birthdate",
@@ -18391,6 +18572,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18405,7 +18587,7 @@
           "birthday"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_client_gender",
@@ -18449,6 +18631,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18464,7 +18647,7 @@
           "female"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "assign_contract_by_name",
@@ -18525,6 +18708,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18560,7 +18744,7 @@
           "assegnare un contratto nominalmente al dipendente"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "set_group_location",
@@ -18597,7 +18781,9 @@
           "enumValues": null
         }
       ],
-      "handlerConfig": null
+      "handlerConfig": null,
+      "effect": "Mutate",
+      "version": 2
     },
     {
       "name": "evaluate_location_group_candidates",
@@ -18625,6 +18811,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Advise",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18661,7 +18848,7 @@
           "creare gruppi per località più grandi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "propose_grouping",
@@ -18689,6 +18876,7 @@
         }
       ],
       "handlerConfig": null,
+      "effect": "Read",
       "synonyms": {
         "de": [
           "zeig mir unverbindlich wie die gruppierung aussaehe",
@@ -18710,7 +18898,7 @@
           "prova a vuoto della distribuzione nei gruppi di localita"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "geocode_location_groups",
@@ -18732,6 +18920,7 @@
         }
       ],
       "handlerConfig": null,
+      "effect": "Mutate",
       "synonyms": {
         "de": [
           "ermittle fuer alle standortgruppen automatisch die koordinaten",
@@ -18753,7 +18942,7 @@
           "geocodificare automaticamente tutti i gruppi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "check_group_geocoding_status",
@@ -18765,7 +18954,9 @@
         "CanViewGroups"
       ],
       "parameters": [],
-      "handlerConfig": null
+      "handlerConfig": null,
+      "effect": "Read",
+      "version": 2
     },
     {
       "name": "apply_grouping",
@@ -18799,8 +18990,9 @@
         }
       ],
       "handlerConfig": null,
+      "effect": "Mutate",
       "synonyms": {},
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_macro",
@@ -18855,6 +19047,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -18897,7 +19090,7 @@
           "modificare il calcolo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_qualification",
@@ -19045,6 +19238,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19081,7 +19275,7 @@
           "rinominare la qualifica"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_qualification",
@@ -19112,6 +19306,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19147,7 +19342,7 @@
           "cancellare una competenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "search_shifts",
@@ -19178,6 +19373,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19222,7 +19418,7 @@
           "lista dei turni"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_shift_details",
@@ -19245,6 +19441,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19283,7 +19480,7 @@
           "orari del turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_schedule_notes",
@@ -19306,6 +19503,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19344,7 +19542,7 @@
           "annotazioni del piano"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_schedule_note",
@@ -19391,6 +19589,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19429,7 +19628,7 @@
           "aggiungere un'annotazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_schedule_note",
@@ -19452,6 +19651,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19486,7 +19686,7 @@
           "rimuovere la nota del piano"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_client_memberships",
@@ -19509,6 +19709,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19554,7 +19755,7 @@
           "pianificabile da"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_membership",
@@ -19609,6 +19810,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19650,7 +19852,7 @@
           "adeguare affiliazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "end_client_membership",
@@ -19689,6 +19891,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19728,7 +19931,7 @@
           "registrare l'ultimo giorno di lavoro"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_contract_details",
@@ -19751,6 +19954,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19794,7 +19998,7 @@
           "condizioni contrattuali"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_contract",
@@ -19937,6 +20141,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -19980,7 +20185,7 @@
           "rinominare contratto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_contract",
@@ -20003,6 +20208,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20040,7 +20246,7 @@
           "cancellare modello di contratto"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_client_availabilities",
@@ -20071,6 +20277,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20117,7 +20324,7 @@
           "panoramica disponibilità"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_client_availability",
@@ -20188,6 +20395,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20233,7 +20441,7 @@
           "modificare la disponibilità"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_expenses",
@@ -20247,6 +20455,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20293,7 +20502,7 @@
           "nota spese"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_expense",
@@ -20340,6 +20549,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20383,7 +20593,7 @@
           "contabilizzare spese"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_expense",
@@ -20430,6 +20640,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20466,7 +20677,7 @@
           "aggiornare l'importo della spesa"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_expense",
@@ -20489,6 +20700,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20525,7 +20737,7 @@
           "rimuovere spese"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_autonomy_level",
@@ -20537,6 +20749,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20576,7 +20789,7 @@
           "perché chiedi conferma"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_autonomy_level",
@@ -20608,6 +20821,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20651,7 +20865,7 @@
           "cambiare il livello di autonomia"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "evaluate_autonomy_level_change",
@@ -20681,6 +20895,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Advise",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20717,7 +20932,7 @@
           "dovrei aumentare il livello di autonomia"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "get_dashboard_summary",
@@ -20731,6 +20946,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20778,7 +20994,7 @@
           "stato di conferma"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_dashboard_overview",
@@ -20799,6 +21015,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20835,7 +21052,7 @@
           "servizi per gruppo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_client_locations_overview",
@@ -20870,6 +21087,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -20915,7 +21133,7 @@
           "mappa dei clienti"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_sealed_orders",
@@ -20962,6 +21180,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21003,7 +21222,7 @@
           "elenca ordini da esportare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_recent_exports",
@@ -21034,6 +21253,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21074,7 +21294,7 @@
           "registro esportazioni"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "open_order_export",
@@ -21103,6 +21323,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21144,7 +21365,7 @@
           "scaricare esportazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_email_folders",
@@ -21158,6 +21379,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21203,7 +21425,7 @@
           "quante email non lette"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_emails",
@@ -21242,6 +21464,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21291,7 +21514,7 @@
           "controllare la posta"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "read_email",
@@ -21314,6 +21537,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21359,7 +21583,7 @@
           "cosa dice l'email"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "mark_email_read",
@@ -21390,6 +21614,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21422,7 +21647,7 @@
           "segnare l'email come non letta"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "fetch_new_emails",
@@ -21436,6 +21661,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21468,7 +21694,7 @@
           "aggiornare la posta in arrivo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "move_email_to_folder",
@@ -21499,6 +21725,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21538,7 +21765,7 @@
           "l'email non è spam"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_email",
@@ -21561,6 +21788,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21590,7 +21818,7 @@
           "spostare l'email nel cestino"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "restore_email",
@@ -21613,6 +21841,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21642,7 +21871,7 @@
           "recuperare l'email dal cestino"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_email_analysis",
@@ -21665,6 +21894,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21696,7 +21926,7 @@
           "cosa è stato rilevato nella mail"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "translate_email",
@@ -21727,6 +21957,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21756,7 +21987,7 @@
           "tradurre la mail in italiano"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_transcription_dictionary_entries",
@@ -21787,6 +22018,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21835,7 +22067,7 @@
           "quali termini vengono corretti"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_transcription_dictionary_entry",
@@ -21890,6 +22122,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -21930,7 +22163,7 @@
           "creare una correzione vocale"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_transcription_dictionary_entry",
@@ -21993,6 +22226,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22027,7 +22261,7 @@
           "cambiare le varianti fonetiche"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_transcription_dictionary_entry",
@@ -22050,6 +22284,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22083,7 +22318,7 @@
           "eliminare una correzione vocale"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_speech_settings",
@@ -22097,6 +22332,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22144,7 +22380,7 @@
           "impostazioni di riconoscimento vocale"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_languages",
@@ -22158,6 +22394,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22204,7 +22441,7 @@
           "lingue disponibili"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_translation_status",
@@ -22218,6 +22455,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22256,7 +22494,7 @@
           "la traduzione funziona"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "install_language_pack",
@@ -22279,6 +22517,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22315,7 +22554,7 @@
           "aggiungere una lingua"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "uninstall_language_pack",
@@ -22338,6 +22577,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22374,7 +22614,7 @@
           "rimuovere una lingua"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_countries",
@@ -22386,6 +22626,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22434,7 +22675,7 @@
           "quali paesi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_states",
@@ -22455,6 +22696,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22508,7 +22750,7 @@
           "stati federati"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_identity_providers",
@@ -22522,6 +22764,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22574,7 +22817,7 @@
           "panoramica single sign-on"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_identity_provider",
@@ -22754,6 +22997,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -22807,7 +23051,7 @@
           "configurare il single sign-on"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_identity_provider",
@@ -22995,6 +23239,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -23048,7 +23293,7 @@
           "disattivare un provider di accesso"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_identity_provider",
@@ -23071,6 +23316,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -23120,7 +23366,7 @@
           "rimuovere un provider di accesso"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "confirm_pending_action",
@@ -23141,6 +23387,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": {
@@ -23177,7 +23424,7 @@
           "confermo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_planning_divide_et_impera",
@@ -23188,6 +23435,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_planning_divide_et_impera"
       },
@@ -23242,7 +23490,7 @@
           "prestare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_planning_sheets_modular",
@@ -23253,6 +23501,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_planning_sheets_modular"
       },
@@ -23302,7 +23551,7 @@
           "riferimento"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_planning_assistant",
@@ -23313,6 +23562,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_planning_assistant"
       },
@@ -23362,7 +23612,7 @@
           "proposta"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_macro_editor",
@@ -23373,6 +23623,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_macro_editor"
       },
@@ -23429,7 +23680,7 @@
           "stipendio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_shift_type_preferences",
@@ -23440,6 +23691,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_shift_type_preferences"
       },
@@ -23502,7 +23754,7 @@
           "desiderio"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_shift_sporadic",
@@ -23513,6 +23765,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_shift_sporadic"
       },
@@ -23568,7 +23821,7 @@
           "bloccato"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_shift_time_range",
@@ -23579,6 +23832,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_shift_time_range"
       },
@@ -23627,7 +23881,7 @@
           "durata"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_shift_container",
@@ -23638,6 +23892,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_shift_container"
       },
@@ -23697,7 +23952,7 @@
           "espansione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_shift_lifecycle_order_to_shift",
@@ -23708,6 +23963,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_shift_lifecycle_order_to_shift"
       },
@@ -23776,7 +24032,7 @@
           "taglio"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_dashboard",
@@ -23787,6 +24043,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_dashboard"
       },
@@ -23858,7 +24115,7 @@
           "monitor risorse"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_page_schedule",
@@ -23882,6 +24139,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_schedule"
       },
@@ -24007,7 +24265,7 @@
           "andamento giornaliero"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_absence",
@@ -24030,6 +24288,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_absence"
       },
@@ -24126,7 +24385,7 @@
           "cosa significa prenotato"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_availability",
@@ -24150,6 +24409,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_availability"
       },
@@ -24238,7 +24498,7 @@
           "disponibilità mezza giornata"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_shifts",
@@ -24262,6 +24522,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_shifts"
       },
@@ -24377,7 +24638,7 @@
           "perché non posso modificare questo servizio"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_employees",
@@ -24401,6 +24662,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_employees"
       },
@@ -24526,7 +24788,7 @@
           "ordinare la lista"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_groups",
@@ -24550,6 +24812,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_groups"
       },
@@ -24669,7 +24932,7 @@
           "visibilità dei gruppi"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_page_period_closing",
@@ -24693,6 +24956,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_period_closing"
       },
@@ -24819,7 +25083,7 @@
           "esportare il giustificativo"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_page_inbox",
@@ -24843,6 +25107,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_inbox"
       },
@@ -24990,7 +25255,7 @@
           "perché non vedo la posta in arrivo"
         ]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "explain_page_settings_overview",
@@ -25014,6 +25279,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_settings_overview"
       },
@@ -25115,7 +25381,7 @@
           "icona dell'ingranaggio"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_page_profile",
@@ -25139,6 +25405,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_profile"
       },
@@ -25247,7 +25514,7 @@
           "riconoscimento vocale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "start_guided_tour",
@@ -25261,6 +25528,7 @@
         "steps": []
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25312,7 +25580,7 @@
           "inizia il tour"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_communication",
@@ -25335,6 +25603,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25371,7 +25640,7 @@
           "eliminare il numero di telefono"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_communication",
@@ -25426,6 +25695,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25462,7 +25732,7 @@
           "correggere il numero di telefono"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_address",
@@ -25533,6 +25803,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25569,7 +25840,7 @@
           "registrare l'indirizzo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_address",
@@ -25640,6 +25911,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25676,7 +25948,7 @@
           "correggere l'indirizzo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_address",
@@ -25699,6 +25971,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25735,7 +26008,7 @@
           "cancellare l'indirizzo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_annotation",
@@ -25766,6 +26039,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25802,7 +26076,7 @@
           "cambiare l'osservazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_annotation",
@@ -25825,6 +26099,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25861,7 +26136,7 @@
           "cancellare l'osservazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_membership",
@@ -25884,6 +26159,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25920,7 +26196,7 @@
           "cancellare il periodo di appartenenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_schedule_note",
@@ -25959,6 +26235,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -25996,7 +26273,7 @@
           "correggere la nota"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_break",
@@ -26067,6 +26344,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26105,7 +26383,7 @@
           "correggere il giorno di malattia"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_workchange",
@@ -26184,6 +26462,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26222,7 +26501,7 @@
           "regolare la sostituzione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_workchange",
@@ -26245,6 +26524,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26283,7 +26563,7 @@
           "eliminare la sostituzione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_weather",
@@ -26336,6 +26616,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26435,7 +26716,7 @@
           "che tempo fa"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "stash_pending_note",
@@ -26480,10 +26761,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 1
+      "version": 2
     },
     {
       "name": "manage_pending_notes",
@@ -26515,10 +26797,11 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 1
+      "version": 2
     },
     {
       "name": "recall_delivered_notes",
@@ -26530,10 +26813,11 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
-      "version": 1
+      "version": 2
     },
     {
       "name": "schedule_recurring_task",
@@ -26623,6 +26907,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26690,7 +26975,7 @@
           "pianifica un promemoria"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_recurring_tasks",
@@ -26702,6 +26987,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26744,7 +27030,7 @@
           "quali attivita ricorrenti"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cancel_recurring_task",
@@ -26773,6 +27059,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -26809,7 +27096,7 @@
           "elimina attivita pianificata"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_erp_import_status",
@@ -26822,6 +27109,7 @@
       ],
       "parameters": [],
       "handlerType": null,
+      "effect": "Read",
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
@@ -26863,7 +27151,7 @@
           "prossima esecuzione import"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "trigger_erp_import_run",
@@ -26876,6 +27164,7 @@
       ],
       "parameters": [],
       "handlerType": null,
+      "effect": "Mutate",
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
@@ -26914,7 +27203,7 @@
           "esegui importazione ora"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_erp_import_schedule",
@@ -26944,6 +27233,7 @@
         }
       ],
       "handlerType": null,
+      "effect": "Mutate",
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
@@ -26982,7 +27272,7 @@
           "intervallo importazione erp"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_page_settings_erp_drop_points",
@@ -27006,6 +27296,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_page_settings_erp_drop_points"
       },
@@ -27059,7 +27350,7 @@
           "token di accesso erp"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_break_placeholder",
@@ -27114,6 +27405,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27152,7 +27444,7 @@
           "prenotazione assenza"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_schedule_commands_range",
@@ -27216,6 +27508,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27253,7 +27546,7 @@
           "più giorni liberi"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_break_placeholder",
@@ -27324,6 +27617,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27362,7 +27656,7 @@
           "prolungare le ferie"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "delete_break_placeholder",
@@ -27401,6 +27695,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27434,7 +27729,7 @@
           "eliminare l'assenza pianificata"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "check_absence_conflicts",
@@ -27473,6 +27768,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27507,7 +27803,7 @@
           "ferie possibili"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "check_absence_capacity_reserve",
@@ -27562,6 +27858,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27594,7 +27891,7 @@
           "carenza di risorse"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "find_absence_capacity_windows",
@@ -27665,6 +27962,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27696,7 +27994,7 @@
           "quando c'è ancora spazio"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "get_client_absence_summary",
@@ -27727,6 +28025,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27760,7 +28059,7 @@
           "saldo ferie"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "seal_shift",
@@ -27783,6 +28082,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27826,7 +28126,7 @@
           "rilasciare"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_sealed_order_until_date",
@@ -27857,6 +28157,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27895,7 +28196,7 @@
           "chiudere l'ordine"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_shift_cuts",
@@ -27918,6 +28219,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -27956,7 +28258,7 @@
           "mostra le parti del turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "reset_shift_cuts",
@@ -27987,6 +28289,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28023,7 +28326,7 @@
           "unisci le parti del turno"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cut_shift_by_date",
@@ -28070,6 +28373,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28106,7 +28410,7 @@
           "dividi il turno da una data"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "remove_shift_from_group",
@@ -28138,6 +28442,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28178,7 +28483,7 @@
           "elimina collegamento gruppo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "remove_shift_required_qualification",
@@ -28209,6 +28514,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28249,7 +28555,7 @@
           "annulla condizione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_container_template",
@@ -28280,6 +28586,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28319,7 +28626,7 @@
           "modello del giorno contenitore"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "add_container_template_task",
@@ -28366,6 +28673,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28405,7 +28713,7 @@
           "inserisci attività nel contenitore"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_container_template",
@@ -28497,6 +28805,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28536,7 +28845,7 @@
           "configura giorno del contenitore"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "remove_container_template_task",
@@ -28575,6 +28884,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28614,7 +28924,7 @@
           "rimuovi elemento dal contenitore"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "reset_container_day",
@@ -28645,6 +28955,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28684,7 +28995,7 @@
           "torna al modello"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "check_client_availability",
@@ -28731,6 +29042,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28767,7 +29079,7 @@
           "verificare la disponibilità"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_availability_overview",
@@ -28830,6 +29142,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28863,7 +29176,7 @@
           "panoramica delle disponibilità"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "clear_client_availability",
@@ -28918,6 +29231,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -28950,7 +29264,7 @@
           "eliminare le disponibilità"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_group_hours_balance",
@@ -28989,6 +29303,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29023,7 +29338,7 @@
           "chi ha ore straordinarie nel gruppo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_group_absence_overlap",
@@ -29063,6 +29378,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29099,7 +29415,7 @@
           "sovrapposizione ferie del gruppo"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_expiring_contracts",
@@ -29138,6 +29454,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29178,7 +29495,7 @@
           "contratti che scadono presto"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "analyze_group_semantics",
@@ -29205,6 +29522,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29243,7 +29561,7 @@
           "secondo quale criterio sono organizzati i gruppi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "start_company_rule",
@@ -29286,6 +29604,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29337,7 +29656,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_company_rule_parameters",
@@ -29360,6 +29679,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29410,7 +29730,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "preview_company_rule",
@@ -29424,6 +29744,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29474,7 +29795,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "apply_company_rule",
@@ -29488,6 +29809,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29539,7 +29861,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cancel_company_rule",
@@ -29553,6 +29875,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29604,7 +29927,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_company_rules",
@@ -29618,6 +29941,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29669,7 +29993,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "revert_company_rule",
@@ -29692,6 +30016,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29743,7 +30068,7 @@
           "regola di conteggio"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "start_planning_profile_setup",
@@ -29766,6 +30091,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29808,7 +30134,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "set_planning_profile_parameters",
@@ -29831,6 +30157,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29872,7 +30199,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "preview_planning_profile",
@@ -29886,6 +30213,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29927,7 +30255,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "apply_planning_profile",
@@ -29941,6 +30269,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -29983,7 +30312,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "cancel_planning_profile_setup",
@@ -29997,6 +30326,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -30038,7 +30368,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_plan",
@@ -30061,6 +30391,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -30076,7 +30407,7 @@
           "several tasks at once"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "plan erstellen",
@@ -30125,6 +30456,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -30142,7 +30474,7 @@
           "is the plan done"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "plan status",
@@ -30189,6 +30521,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -30204,7 +30537,7 @@
           "review the schedule for problems"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "analysiere den dienstplan",
@@ -30330,6 +30663,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -30368,7 +30702,7 @@
           "riempire automaticamente un contenitore con attività ottimizzate per il percorso"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_klacksy_memory",
@@ -30379,6 +30713,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_memory"
       },
@@ -30437,7 +30772,7 @@
           "cosa sai di me"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_autonomy",
@@ -30448,6 +30783,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_autonomy"
       },
@@ -30505,7 +30841,7 @@
           "annullare"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_personality",
@@ -30516,6 +30852,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_personality"
       },
@@ -30578,7 +30915,7 @@
           "limiti"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_llm_setup",
@@ -30589,6 +30926,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_llm_setup"
       },
@@ -30650,7 +30988,7 @@
           "quale modello"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_learning",
@@ -30661,6 +30999,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_learning"
       },
@@ -30716,7 +31055,7 @@
           "miglioramento"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_contracts",
@@ -30727,6 +31066,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_contracts"
       },
@@ -30794,7 +31134,7 @@
           "contratto scade"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_qualifications",
@@ -30805,6 +31145,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_qualifications"
       },
@@ -30869,7 +31210,7 @@
           "chi può fare questo turno"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_planning_wizards",
@@ -30880,6 +31221,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_planning_wizards"
       },
@@ -30935,7 +31277,7 @@
           "annullare la pianificazione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_company_rules",
@@ -30946,6 +31288,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_company_rules"
       },
@@ -30998,7 +31341,7 @@
           "annullare una regola"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_system_context",
@@ -31009,6 +31352,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_system_context"
       },
@@ -31072,7 +31416,7 @@
           "ora attuale"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_address_management",
@@ -31083,6 +31427,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_address_management"
       },
@@ -31145,7 +31490,7 @@
           "vecchio indirizzo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_email_setup",
@@ -31156,6 +31501,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_email_setup"
       },
@@ -31219,7 +31565,7 @@
           "crittografia"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_absence_model",
@@ -31230,6 +31576,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_absence_model"
       },
@@ -31283,7 +31630,7 @@
           "le assenze contano nelle ore"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_period_closing_model",
@@ -31294,6 +31641,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_period_closing_model"
       },
@@ -31355,7 +31703,7 @@
           "esportazione paghe"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_group_model",
@@ -31366,6 +31714,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_group_model"
       },
@@ -31421,7 +31770,7 @@
           "gruppo più vicino"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_roles_and_permissions",
@@ -31432,6 +31781,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_roles_and_permissions"
       },
@@ -31499,7 +31849,7 @@
           "token di accesso"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_guided_tour",
@@ -31510,6 +31860,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_guided_tour"
       },
@@ -31569,7 +31920,7 @@
           "primi passi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_navigation_learning",
@@ -31580,6 +31931,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_navigation_learning"
       },
@@ -31631,7 +31983,7 @@
           "insegnare a klacksy"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "list_monthly_target_hours",
@@ -31654,6 +32006,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -31698,7 +32051,7 @@
           "quota oraria mensile"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_monthly_target_hours",
@@ -31737,6 +32090,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -31777,7 +32131,7 @@
           "fissare le ore del mese"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_monthly_target_hours",
@@ -31824,6 +32178,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -31864,7 +32219,7 @@
           "adeguare le ore del mese"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_monthly_target_hours",
@@ -31887,6 +32242,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -31925,7 +32281,7 @@
           "annullare le ore del mese"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_counter_rules",
@@ -31939,6 +32295,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -31983,7 +32340,7 @@
           "numero di notti consentite"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_counter_rule",
@@ -32057,6 +32414,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32097,7 +32455,7 @@
           "limitare il numero di notti"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_counter_rule",
@@ -32171,6 +32529,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32210,7 +32569,7 @@
           "trasformare un avviso in blocco"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_counter_rule",
@@ -32233,6 +32592,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32272,7 +32632,7 @@
           "smettere di conteggiare"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_period_cap_rules",
@@ -32286,6 +32646,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32329,7 +32690,7 @@
           "tetto straordinari"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_period_cap_rule",
@@ -32416,6 +32777,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32456,7 +32818,7 @@
           "limitare la media settimanale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_period_cap_rule",
@@ -32543,6 +32905,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32582,7 +32945,7 @@
           "abbassare il tetto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_period_cap_rule",
@@ -32605,6 +32968,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32644,7 +33008,7 @@
           "togliere il tetto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_restricted_time_window_rules",
@@ -32658,6 +33022,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32698,7 +33063,7 @@
           "quali ore sono bloccate"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_restricted_time_window_rule",
@@ -32769,6 +33134,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32808,7 +33174,7 @@
           "niente di notte in inverno"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_restricted_time_window_rule",
@@ -32887,6 +33253,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32925,7 +33292,7 @@
           "adeguare il periodo bloccato"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_restricted_time_window_rule",
@@ -32948,6 +33315,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -32986,7 +33354,7 @@
           "liberare quella fascia"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_individual_periods",
@@ -33000,6 +33368,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33042,7 +33411,7 @@
           "schema di date individuale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_individual_period",
@@ -33073,6 +33442,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33111,7 +33481,7 @@
           "creare uno schema di date"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_individual_period",
@@ -33150,6 +33520,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33188,7 +33559,7 @@
           "sostituire i tratti di date"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_individual_period",
@@ -33211,6 +33582,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33249,7 +33621,7 @@
           "tornare al mese solare"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_spam_rules",
@@ -33263,6 +33635,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33306,7 +33679,7 @@
           "domini bloccati"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_spam_rule",
@@ -33342,6 +33715,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33383,7 +33757,7 @@
           "aggiungere un modello di spam"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_spam_rule",
@@ -33443,6 +33817,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33482,7 +33857,7 @@
           "disattivare un blocco"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_spam_rule",
@@ -33505,6 +33880,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33544,7 +33920,7 @@
           "consentire di nuovo quel dominio"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_export_format_overrides",
@@ -33567,6 +33943,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33604,7 +33981,7 @@
           "separatore personalizzato"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "set_export_format_override",
@@ -33651,6 +34028,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33688,7 +34066,7 @@
           "rinominare una colonna dell esportazione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_export_format_override",
@@ -33711,6 +34089,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33744,7 +34123,7 @@
           "rimuovere l adattamento dell esportazione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_erp_drop_point_settings",
@@ -33758,6 +34137,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33798,7 +34178,7 @@
           "cartella di prelievo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_erp_drop_point_settings",
@@ -33845,6 +34225,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33884,7 +34265,7 @@
           "disattivare il prelievo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_erp_import_tokens",
@@ -33907,6 +34288,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33944,7 +34326,7 @@
           "chiavi per consegnare file"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_erp_import_token",
@@ -33958,6 +34340,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -33991,7 +34374,7 @@
           "nuova chiave per il sistema esterno"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "revoke_erp_import_token",
@@ -34022,6 +34405,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34055,7 +34439,7 @@
           "invalidare la chiave del sistema esterno"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "create_report_template",
@@ -34115,6 +34499,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34149,7 +34534,7 @@
           "nuovo modello di rapporto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_report_template",
@@ -34217,6 +34602,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34250,7 +34636,7 @@
           "rinominare un modello di rapporto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_report_template",
@@ -34273,6 +34659,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34306,7 +34693,7 @@
           "rimuovere un modello di rapporto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_user",
@@ -34369,6 +34756,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34403,7 +34791,7 @@
           "cambiare il nome di accesso di un utente"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_feature_plugins",
@@ -34426,6 +34814,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34463,7 +34852,7 @@
           "moduli disponibili"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "install_feature_plugin",
@@ -34486,6 +34875,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34519,7 +34909,7 @@
           "aggiungere un estensione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "uninstall_feature_plugin",
@@ -34542,6 +34932,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34575,7 +34966,7 @@
           "rimuovere un estensione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "enable_feature_plugin",
@@ -34598,6 +34989,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34631,7 +35023,7 @@
           "accendere un estensione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "disable_feature_plugin",
@@ -34654,6 +35046,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34687,7 +35080,7 @@
           "mettere in pausa un estensione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_active_industries_settings",
@@ -34701,6 +35094,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34737,7 +35131,7 @@
           "profilo settoriale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_active_industries_settings",
@@ -34760,6 +35154,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34794,7 +35189,7 @@
           "passare a regole interne"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_compliance_enforcement_settings",
@@ -34808,6 +35203,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -34846,7 +35242,7 @@
           "un superiore puo forzare"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_compliance_enforcement_settings",
@@ -34981,6 +35377,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35018,7 +35415,7 @@
           "consentire la forzatura"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_compensatory_rest_settings",
@@ -35032,6 +35429,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35069,7 +35467,7 @@
           "quanto resta aperto il diritto"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_compensatory_rest_settings",
@@ -35100,6 +35498,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35131,7 +35530,7 @@
           "modificare il termine di compensazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_surcharge_mode_settings",
@@ -35145,6 +35544,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35184,7 +35584,7 @@
           "quando inizia la notte"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_surcharge_mode_settings",
@@ -35303,6 +35703,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35340,7 +35741,7 @@
           "spostare la fascia notturna"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_overtime_settings",
@@ -35354,6 +35755,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35388,7 +35790,7 @@
           "scaglioni delle ore aggiuntive"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_overtime_settings",
@@ -35467,6 +35869,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35500,7 +35903,7 @@
           "spostare uno scaglione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_wizard_settings",
@@ -35514,6 +35917,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35546,7 +35950,7 @@
           "modello per rielaborare l intero piano"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_wizard_settings",
@@ -35569,6 +35973,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35599,7 +36004,7 @@
           "cambiare il modello dell armonizzatore"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_export_formats_settings",
@@ -35613,6 +36018,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35646,7 +36052,7 @@
           "sistema paghe predefinito"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_export_formats_settings",
@@ -35677,6 +36083,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35710,7 +36117,7 @@
           "impostare il sistema paghe predefinito"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_grid_color_settings",
@@ -35724,6 +36131,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35760,7 +36168,7 @@
           "colore di sfondo dei giorni festivi"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_grid_color_settings",
@@ -35919,6 +36327,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -35953,7 +36362,7 @@
           "ricolorare lo sfondo del tabellone"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_openroute_settings",
@@ -35967,6 +36376,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36002,7 +36412,7 @@
           "da quale tragitto si conteggia"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_openroute_settings",
@@ -36049,6 +36459,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36082,7 +36493,7 @@
           "salvare la chiave del servizio di percorso"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_speech_settings",
@@ -36225,6 +36636,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36263,7 +36675,7 @@
           "attivare la lettura ad alta voce"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_skill_relations",
@@ -36286,6 +36698,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36320,7 +36733,7 @@
           "collegamenti appresi tra capacita"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "accept_skill_relation",
@@ -36343,6 +36756,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36376,7 +36790,7 @@
           "approvare il collegamento"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "dismiss_skill_relation",
@@ -36399,6 +36813,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36432,7 +36847,7 @@
           "quel collegamento e sbagliato"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_whisper_plugin_status",
@@ -36446,6 +36861,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36479,7 +36895,7 @@
           "modello locale di riconoscimento vocale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "install_whisper_plugin",
@@ -36505,6 +36921,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36538,7 +36955,7 @@
           "installare il modello vocale locale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "uninstall_whisper_plugin",
@@ -36552,6 +36969,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36585,7 +37003,7 @@
           "disinstallare il modello vocale locale"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "optimize_llm_models_for_klacksy",
@@ -36599,6 +37017,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36634,7 +37053,7 @@
           "provare i modelli e selezionarli"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "set_default_llm_model",
@@ -36657,6 +37076,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36691,7 +37111,7 @@
           "far usare questo modello all assistente"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_llm_sync_log",
@@ -36714,6 +37134,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -36748,7 +37169,7 @@
           "perche un modello e sparito"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_scheduling_rules_model",
@@ -36772,6 +37193,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_scheduling_rules_model"
       },
@@ -36842,7 +37264,7 @@
           "limite superato"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_compliance_rules_model",
@@ -36866,6 +37288,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_compliance_rules_model"
       },
@@ -36937,7 +37360,7 @@
           "quanti turni notturni"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_calendar_model",
@@ -36961,6 +37384,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_calendar_model"
       },
@@ -37028,7 +37452,7 @@
           "festività cantonale"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_active_industries",
@@ -37039,6 +37463,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_active_industries"
       },
@@ -37101,7 +37526,7 @@
           "qualifica mancante nell elenco"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_overtime_model",
@@ -37125,6 +37550,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_overtime_model"
       },
@@ -37177,7 +37603,7 @@
           "perché nessuno straordinario"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_identity_providers",
@@ -37201,6 +37627,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_identity_providers"
       },
@@ -37256,7 +37683,7 @@
           "accesso con account aziendale"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_individual_periods",
@@ -37267,6 +37694,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_individual_periods"
       },
@@ -37313,7 +37741,7 @@
           "definizione del periodo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_export_formats_model",
@@ -37337,6 +37765,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_export_formats_model"
       },
@@ -37397,7 +37826,7 @@
           "correzione esportazione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_report_designer",
@@ -37421,6 +37850,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_report_designer"
       },
@@ -37479,7 +37909,7 @@
           "modello predefinito"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_spam_rules",
@@ -37490,6 +37920,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_spam_rules"
       },
@@ -37546,7 +37977,7 @@
           "cartella posta indesiderata"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_surcharge_mode",
@@ -37570,6 +38001,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_surcharge_mode"
       },
@@ -37625,7 +38057,7 @@
           "finestra notturna"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_software_updates",
@@ -37649,6 +38081,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_software_updates"
       },
@@ -37705,7 +38138,7 @@
           "canale beta"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_speech_setup",
@@ -37729,6 +38162,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_speech_setup"
       },
@@ -37790,7 +38224,7 @@
           "dizionario di trascrizione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_whisper_setup",
@@ -37801,6 +38235,7 @@
       "requiredPermissions": [],
       "parameters": [],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_whisper_setup"
       },
@@ -37854,7 +38289,7 @@
           "scaricare il modello"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_klacksy_skill_relations",
@@ -37878,6 +38313,7 @@
         }
       ],
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "handlerConfig": {
         "memoryKey": "explain_klacksy_skill_relations"
       },
@@ -37931,7 +38367,7 @@
           "rifiutare osservazione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "set_my_theme",
@@ -37977,6 +38413,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -37992,7 +38429,7 @@
           "colour scheme"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "dunkelmodus einschalten",
@@ -38060,6 +38497,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38075,7 +38513,7 @@
           "switch language"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "meine anzeigesprache umstellen",
@@ -38135,6 +38573,7 @@
         ]
       },
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38150,7 +38589,7 @@
           "absences as pdf"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "ferienplan ausdrucken",
@@ -38207,6 +38646,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38222,7 +38662,7 @@
           "new folder"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "neuen e-mail-ordner erstellen",
@@ -38275,6 +38715,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38290,7 +38731,7 @@
           "remove folder"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "e-mail-ordner löschen",
@@ -38367,6 +38808,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38382,7 +38824,7 @@
           "emails from"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "mails von kunde",
@@ -38439,6 +38881,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38454,7 +38897,7 @@
           "group emails"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "mails vom team",
@@ -38494,6 +38937,7 @@
       "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38509,7 +38953,7 @@
           "unread overview"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "wo liegt unbearbeitete post",
@@ -38574,6 +39018,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Read",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38586,7 +39031,7 @@
           "work entries in the order"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "was steckt im auftrag",
@@ -38663,6 +39108,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38675,7 +39121,7 @@
           "reclassify as"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "personentyp wechseln",
@@ -38740,6 +39186,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38752,7 +39199,7 @@
           "unassign contract"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "vertrag beim mitarbeiter aufheben",
@@ -38817,6 +39264,7 @@
       ],
       "handlerConfig": null,
       "handlerType": null,
+      "effect": "Mutate",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38829,7 +39277,7 @@
           "revoke certificate"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "qualifikation beim mitarbeiter entfernen",
@@ -38869,6 +39317,7 @@
         "memoryKey": "explain_absence_blocks_planning"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38884,7 +39333,7 @@
           "absence interrupts consecutive run"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "blockiert eine absenz die planung",
@@ -38929,6 +39378,7 @@
         "memoryKey": "explain_absence_value_vs_hours"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -38944,7 +39394,7 @@
           "where do absence hours come from"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "wert spalte stimmt nicht mit den stunden überein",
@@ -38986,6 +39436,7 @@
         "memoryKey": "explain_absence_overlap_not_blocked"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39001,7 +39452,7 @@
           "duplicate absence"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "kann ich zwei überlappende ferien anlegen",
@@ -39045,6 +39496,7 @@
         "memoryKey": "explain_absence_type_flags"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39060,7 +39512,7 @@
           "unpaid keeps unchecking"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "was bewirkt samstag wird berechnet",
@@ -39104,6 +39556,7 @@
         "memoryKey": "explain_group_hierarchy_inheritance"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39120,7 +39573,7 @@
           "inherit settings"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "vererbt sich das zahlungsintervall an untergruppen",
@@ -39166,6 +39619,7 @@
         "memoryKey": "explain_group_visibility_blind_spots"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39181,7 +39635,7 @@
           "group-less still visible"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "was sieht ein benutzer ohne sichtbarkeitsbereich",
@@ -39225,6 +39679,7 @@
         "memoryKey": "explain_group_membership_validity"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39240,7 +39695,7 @@
           "planner candidate pool"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "warum schlägt der planungs-assistent diese person nicht vor",
@@ -39284,6 +39739,7 @@
         "memoryKey": "explain_legal_entity_rule"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39299,7 +39755,7 @@
           "legal entity must be customer"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "juristische person kunde pflicht",
@@ -39344,6 +39800,7 @@
         "memoryKey": "explain_membership_single_row"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39359,7 +39816,7 @@
           "re-entry"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "mitgliedschaft hat keine historie",
@@ -39400,6 +39857,7 @@
         "memoryKey": "explain_user_account_creation"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39415,7 +39873,7 @@
           "receive password"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "neuer benutzer bekommt keine mail",
@@ -39455,6 +39913,7 @@
         "memoryKey": "explain_personal_access_tokens"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39470,7 +39929,7 @@
           "token validity"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "token hat dieselben rechte wie login",
@@ -39508,6 +39967,7 @@
         "memoryKey": "explain_email_action_automation"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39525,7 +39985,7 @@
           "sick leave from email"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "warum wurde automatisch eine krankmeldung angelegt",
@@ -39569,6 +40029,7 @@
         "memoryKey": "explain_email_storage_and_deletion"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39586,7 +40047,7 @@
           "email disappeared"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "ist die mail wirklich weg",
@@ -39632,6 +40093,7 @@
         "memoryKey": "explain_shift_classification"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39650,7 +40112,7 @@
           "shift classification"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "wann gilt eine schicht als nachtschicht",
@@ -39689,6 +40151,7 @@
         "memoryKey": "explain_payroll_export_handoff"
       },
       "handlerType": "knowledge-happen",
+      "effect": "Explain",
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": {
@@ -39706,7 +40169,7 @@
           "payroll add-on"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "warum fehlt die lohndatei nach dem versiegeln",

@@ -23,6 +23,9 @@ public class AgentSkillConfiguration : IEntityTypeConfiguration<AgentSkill>
         builder.HasIndex(p => new { p.AgentId, p.IsEnabled, p.SortOrder });
         builder.Property(e => e.PairedApplySkill)
             .HasMaxLength(AgentSkillDefaults.SkillNameMaxLength);
+        builder.Property(e => e.Effect)
+            .HasDefaultValue(AgentSkillDefaults.Effect)
+            .ValueGeneratedNever();
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
 

@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260824103416_FixAgentSkillEffectFailClosedDefault")]
+    partial class FixAgentSkillEffectFailClosedDefault
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,221 +151,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasFilter("\"is_deleted\" = false");
 
                     b.ToTable("agent_autonomy_preferences", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentCondition", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("AttemptCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("attempt_count");
-
-                    b.Property<Guid?>("CausedByConditionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("caused_by_condition_id");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<Guid?>("DelegatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("delegated_by_user_id");
-
-                    b.Property<int?>("DelegatedMaxAction")
-                        .HasColumnType("integer")
-                        .HasColumnName("delegated_max_action");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<DateTime>("DetectedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("detected_at_utc");
-
-                    b.Property<Guid?>("EntityId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("entity_id");
-
-                    b.Property<DateTime?>("EscalatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("escalated_at_utc");
-
-                    b.Property<string>("Fingerprint")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("fingerprint");
-
-                    b.Property<Guid?>("GroupId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("group_id");
-
-                    b.Property<DateTime?>("HandledAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("handled_at_utc");
-
-                    b.Property<int>("HandlingKind")
-                        .HasColumnType("integer")
-                        .HasColumnName("handling_kind");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("LastAttemptAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_attempt_at_utc");
-
-                    b.Property<DateTime>("LastSeenAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_seen_at_utc");
-
-                    b.Property<string>("PayloadJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("payload_json");
-
-                    b.Property<int?>("RejectReason")
-                        .HasColumnType("integer")
-                        .HasColumnName("reject_reason");
-
-                    b.Property<Guid?>("RejectedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rejected_by_user_id");
-
-                    b.Property<DateTime?>("ResolvedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("resolved_at_utc");
-
-                    b.Property<Guid?>("ScenarioId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("scenario_id");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
-                        .HasColumnName("severity");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TriggerKind")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("trigger_kind");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.HasKey("Id")
-                        .HasName("pk_agent_conditions");
-
-                    b.HasIndex("CausedByConditionId")
-                        .HasDatabaseName("ix_agent_conditions_caused_by_condition_id");
-
-                    b.HasIndex("Fingerprint")
-                        .IsUnique()
-                        .HasDatabaseName("ix_agent_conditions_fingerprint")
-                        .HasFilter("\"is_deleted\" = false AND \"status\" NOT IN (3, 4, 5, 6)");
-
-                    b.HasIndex("GroupId")
-                        .HasDatabaseName("ix_agent_conditions_group_id");
-
-                    b.HasIndex("ScenarioId")
-                        .HasDatabaseName("ix_agent_conditions_scenario_id");
-
-                    b.HasIndex("Status", "TriggerKind")
-                        .HasDatabaseName("ix_agent_conditions_status_trigger_kind");
-
-                    b.ToTable("agent_conditions", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentConditionEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("AtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("at_utc");
-
-                    b.Property<Guid>("ConditionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("condition_id");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<string>("Detail")
-                        .HasColumnType("text")
-                        .HasColumnName("detail");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("event_type");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_agent_condition_events");
-
-                    b.HasIndex("ConditionId")
-                        .HasDatabaseName("ix_agent_condition_events_condition_id");
-
-                    b.ToTable("agent_condition_events", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
@@ -12644,31 +12432,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnName("password_reset_token_expires");
 
                     b.HasDiscriminator().HasValue("AppUser");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentCondition", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentCondition", null)
-                        .WithMany()
-                        .HasForeignKey("CausedByConditionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_agent_conditions_agent_conditions_caused_by_condition_id");
-
-                    b.HasOne("Klacks.Api.Domain.Models.Schedules.AnalyseScenario", null)
-                        .WithMany()
-                        .HasForeignKey("ScenarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_agent_conditions_analyse_scenarios_scenario_id");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentConditionEvent", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentCondition", null)
-                        .WithMany()
-                        .HasForeignKey("ConditionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_agent_condition_events_agent_conditions_condition_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
