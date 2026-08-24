@@ -10,9 +10,16 @@
 /// this detector's. Already-ended shifts (UntilDate before today) are excluded so old, resolved
 /// duties never resurface; a shift already under way (FromDate in the past, UntilDate still open)
 /// is kept and, being closest to today, ranks as the most urgent finding rather than being dropped
-/// as stale. Ranks candidates by proximity to today (nearest FromDate first, in either time
-/// direction) before capping emission at MaxFindingsPerTick, so a large backlog of long-since-
-/// started duties cannot crowd out genuinely upcoming ones.
+/// as stale. The MaxCandidatesToScan pre-filter is ordered by FromDate (oldest first), Id as
+/// tiebreaker, so which candidates make it into the scan window is deterministic and drains oldest-
+/// first as duties get cut, rather than depending on physical storage order. Within that window,
+/// candidates are then ranked by proximity to today (nearest FromDate first, in either time
+/// direction) before capping emission at MaxFindingsPerTick. Note this two-stage ranking is not
+/// symmetric: a backlog of long-since-started duties exceeding MaxCandidatesToScan can still crowd a
+/// genuinely upcoming one out of the pre-filter itself, because the pre-filter orders one-
+/// directionally (oldest FromDate first) while the in-memory ranking that follows it is
+/// bidirectional (nearest to today, past or future). Only the second stage delivers the "does not
+/// crowd out" guarantee; the first stage merely makes candidate selection deterministic.
 /// </summary>
 /// <param name="shiftRepository">Read-only shift scans via GetQuery().</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -55,6 +62,8 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector
                 && s.ScenarioSourceShiftId == null
                 && !s.IsDeleted
                 && (s.UntilDate == null || s.UntilDate >= today))
+            .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Id)
             .Take(MaxCandidatesToScan)
             .ToListAsync(cancellationToken);
 

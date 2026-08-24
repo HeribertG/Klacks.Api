@@ -8,6 +8,9 @@
 /// two set-based round-trips total, never one query per shift, mirroring the pattern
 /// ContainerAvailableTasksService uses for the same kind of exclusion. Emission is capped at
 /// MaxFindingsPerTick events per tick (this scan has no time window, unlike UnstaffedShift7dDetector).
+/// Ordered by FromDate (oldest gap first), Id as tiebreaker, before the cap applies -- without an
+/// explicit order the cap would otherwise pick from physical storage order, an oldest-first triage
+/// queue that drains as containers get a template, rather than a fixed 50 that starve out the rest.
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
@@ -55,6 +58,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector
             .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
             .Where(s => !s.IsDeleted)
             .Where(s => !containerIdsWithTemplate.Contains(s.Id))
+            .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Id)
             .Take(MaxFindingsPerTick)
             .ToListAsync(cancellationToken);
 

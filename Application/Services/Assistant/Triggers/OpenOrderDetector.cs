@@ -6,7 +6,12 @@
 /// OpenOrderTriggerEvent per open order. Scenario clones (AnalyseToken/ScenarioSourceShiftId set)
 /// and soft-deleted rows are excluded so a what-if scenario or a removed order never reaches the
 /// real notification stream. No upper date bound: severity alone (High/Medium/Low) reflects how far
-/// out FromDate lies. The background scanner calls this every 60 minutes.
+/// out FromDate lies -- this is a deliberate design choice, not something the
+/// MaxCandidatesToScan cap below changes. The scan is capped at MaxCandidatesToScan rows, ordered by
+/// FromDate (soonest first, Id as tiebreaker) so the cap -- a defensive bound against unbounded
+/// growth, mirroring UnstaffedShift7dDetector.FilterRowCount -- keeps exactly the highest-severity
+/// candidates rather than an arbitrary storage-order subset. The background scanner calls this every
+/// 60 minutes.
 /// </summary>
 /// <param name="shiftRepository">Read-only Shift query source.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -21,6 +26,8 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class OpenOrderDetector : IAgentTriggerDetector
 {
+    public const int MaxCandidatesToScan = 1000;
+
     private readonly IShiftRepository _shiftRepository;
     private readonly ILogger<OpenOrderDetector> _logger;
 
@@ -44,6 +51,9 @@ public class OpenOrderDetector : IAgentTriggerDetector
                 && s.AnalyseToken == null
                 && s.ScenarioSourceShiftId == null
                 && !s.IsDeleted)
+            .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Id)
+            .Take(MaxCandidatesToScan)
             .ToListAsync(cancellationToken);
 
         if (openOrders.Count == 0)
