@@ -42,6 +42,40 @@ public interface IAgentConditionRepository
     Task<List<AgentCondition>> GetOpenByKindAsync(string triggerKind, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The AgentConditionPlannerRelevantStatuses.Values rows a planner in this scope may see, up to
+    /// <paramref name="take"/>, sorted severity (High before Medium before Low) then
+    /// <see cref="AgentCondition.DetectedAtUtc"/> ascending (oldest first) within the same severity.
+    /// Deliberately does NOT exclude Escalated: it is a terminal status only for the partial unique index (a
+    /// re-arm can open a fresh Detected row for the same fingerprint alongside it), so an Escalated row and a
+    /// newer open row of the same underlying condition can legitimately both be in the result at once - that
+    /// is the correct picture ("escalated after N attempts, and re-detected since"), not a duplicate to be
+    /// collapsed. Scope shape mirrors <see cref="GetTopForContextAsync"/>: same isUnrestricted/visibleRootIds
+    /// contract, same GroupId-null-is-everyone-visible rule, same root-comparison against the group's Nested
+    /// Set root (not a flattened subtree list) via the GroupId-to-Group join.
+    /// </summary>
+    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
+    /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise a row is
+    /// included when its GroupId is null, or its group's Nested Set root is in this set. An empty set fails
+    /// closed to GroupId-null rows only - the same semantics AgentConditionVisibilityScope.Restricted with an
+    /// empty set already carries for a planner with no GroupVisibility row.</param>
+    /// <param name="take">Row cap applied after sorting, so the most urgent rows are the ones kept.</param>
+    Task<List<AgentCondition>> GetOpenForScopeAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        int take,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Total count of AgentConditionPlannerRelevantStatuses.Values rows a planner in this scope may see,
+    /// ignoring <see cref="GetOpenForScopeAsync"/>'s take cap - so a caller can report "showing N of M" instead
+    /// of silently truncating. Same scope contract as <see cref="GetOpenForScopeAsync"/>.
+    /// </summary>
+    Task<int> CountOpenForScopeAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists a freshly detected condition together with its first audit event in one SaveChangesAsync,
     /// so a ledger row can never exist without the event that opened it. Returns null - not an exception -
     /// when the partial unique index on Fingerprint rejected the insert because another instance opened a
@@ -89,4 +123,25 @@ public interface IAgentConditionRepository
     /// through <see cref="TryTransitionAsync"/> instead, which is atomic with the status change.
     /// </summary>
     Task<AgentConditionEvent> InsertEventAsync(AgentConditionEvent conditionEvent, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns up to <paramref name="take"/> planner-relevant open conditions (Detected, Reported,
+    /// Prepared, Escalated - deliberately NOT AgentConditionStateMachine.OpenStatuses, which excludes
+    /// Escalated, see that type's remarks) with High or Medium severity, for the per-turn context block
+    /// (Etappe 3g). Never loads the full open set: severity, status and scope are filtered and the row
+    /// count capped inside the database query itself, since this runs on every chat turn that carries a
+    /// user id. <paramref name="isUnrestricted"/> true (Admin) skips the scope filter entirely; otherwise
+    /// only rows with no GroupId, or whose group's Nested Set root is in <paramref name="visibleRootIds"/>,
+    /// are eligible - the same subtree-via-root comparison PlanningAudienceResolver already uses for
+    /// notification audience (Etappe 3e). Ranking: rows whose GroupId equals
+    /// <paramref name="preferredGroupId"/> first (ranking only - never widens or narrows visibility), then
+    /// Severity descending, then DetectedAtUtc ascending - the same priority order Etappe 5b specifies for
+    /// the action dispatcher, reused here for consistency.
+    /// </summary>
+    Task<IReadOnlyList<AgentCondition>> GetTopForContextAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        Guid? preferredGroupId,
+        int take,
+        CancellationToken cancellationToken = default);
 }

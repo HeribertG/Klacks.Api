@@ -8,6 +8,7 @@
 /// clause, winner decided by the affected row count.
 /// </summary>
 
+using System.Linq.Expressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -21,6 +22,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 public class AgentConditionRepository : IAgentConditionRepository
 {
     private const string UniqueViolationSqlState = "23505";
+
+    private static readonly string[] ContextRelevantSeverities = [AgentTriggerSeverity.High, AgentTriggerSeverity.Medium];
 
     private readonly DataBaseContext _context;
 
@@ -170,6 +173,73 @@ public class AgentConditionRepository : IAgentConditionRepository
         }
 
         return conditionEvent;
+    }
+
+    public async Task<IReadOnlyList<AgentCondition>> GetTopForContextAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        Guid? preferredGroupId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        var query = ScopedPlannerRelevantQuery(isUnrestricted, visibleRootIds)
+            .Where(c => ContextRelevantSeverities.Contains(c.Severity));
+
+        return await query
+            .OrderBy(c => preferredGroupId.HasValue && c.GroupId == preferredGroupId ? 0 : 1)
+            .ThenBy(c => c.Severity == AgentTriggerSeverity.High ? 0 : 1)
+            .ThenBy(c => c.DetectedAtUtc)
+            .Take(take)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<AgentCondition>> GetOpenForScopeAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await ScopedPlannerRelevantQuery(isUnrestricted, visibleRootIds)
+            .OrderBy(SeverityRank)
+            .ThenBy(c => c.DetectedAtUtc)
+            .Take(take)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountOpenForScopeAsync(
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default)
+    {
+        return await ScopedPlannerRelevantQuery(isUnrestricted, visibleRootIds).CountAsync(cancellationToken);
+    }
+
+    private static readonly Expression<Func<AgentCondition, int>> SeverityRank =
+        c => c.Severity == AgentTriggerSeverity.High ? 0 : c.Severity == AgentTriggerSeverity.Medium ? 1 : 2;
+
+    /// <summary>
+    /// Base query shared by every planner-facing read of the ledger (Etappe 3f/3g): the
+    /// AgentConditionPlannerRelevantStatuses.Values status filter, plus - when not unrestricted - the same
+    /// GroupId-to-Group left join and root comparison GetTopForContextAsync originally introduced.
+    /// </summary>
+    private IQueryable<AgentCondition> ScopedPlannerRelevantQuery(bool isUnrestricted, IReadOnlySet<Guid> visibleRootIds)
+    {
+        IQueryable<AgentCondition> query = _context.AgentConditions
+            .Where(c => AgentConditionPlannerRelevantStatuses.Values.Contains(c.Status));
+
+        if (!isUnrestricted)
+        {
+            query =
+                from c in query
+                join g in _context.Group on c.GroupId equals g.Id into groupJoin
+                from g in groupJoin.DefaultIfEmpty()
+                where c.GroupId == null || visibleRootIds.Contains(g.Root ?? g.Id)
+                select c;
+        }
+
+        return query;
     }
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>

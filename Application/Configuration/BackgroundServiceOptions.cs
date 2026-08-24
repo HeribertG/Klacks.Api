@@ -297,4 +297,23 @@ public class BackgroundServiceOptions
     /// not leave the chain standing while planners wait unnotified.
     /// </summary>
     public int EscalationChainStartupDelaySeconds { get; set; } = 15;
+
+    /// <summary>
+    /// Enables the daily condition-ledger digest (Etappe 3h of the Klacksy-proactive plan): once per
+    /// day, at most one aggregated inbox message per planner summarising their open/new findings.
+    /// Default ON: it is the behaviour the plan specifies for every installation, it is a pure read plus
+    /// a bounded number of dispatch-row writes, and AgentConditionDigestService's own persisted-marker
+    /// compare-and-swap already makes it multi-instance-safe, unlike most services in this file that
+    /// need pinning to one instance. Override via env <c>BackgroundServices__AgentConditionDigest=false</c>.
+    /// </summary>
+    public bool AgentConditionDigest { get; set; } = true;
+
+    /// <summary>
+    /// Local time of day (HH:mm) the daily digest fires, evaluated in the installation's configured
+    /// address time zone (falls back to the address country's zone, then UTC). Defaults to
+    /// AgentConditionDigestDefaults.DefaultTimeOfDayLocal. Override via env
+    /// <c>BackgroundServices__AgentConditionDigestTimeOfDayLocal=07:00</c>.
+    /// </summary>
+    public string AgentConditionDigestTimeOfDayLocal { get; set; } =
+        Klacks.Api.Domain.Constants.AgentConditionDigestDefaults.DefaultTimeOfDayLocal;
 }

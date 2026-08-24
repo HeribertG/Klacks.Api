@@ -17,7 +17,8 @@
 ///     Klacks.Ui/src/assets/i18n/fr.json
 ///     Klacks.Ui/src/assets/i18n/it.json
 /// Affected keys: assistant.proactive.unstaffedShift, assistant.proactive.workDroppedByErpImport,
-/// assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert.
+/// assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert,
+/// assistant.proactive.dailyDigest.
 /// Change one of those four files and the same edit belongs here, otherwise the inbox and the
 /// messenger tell the same recipient two different sentences. The drift is caught by
 /// MessengerProactiveTextsTests.CatalogueMatchesTheFrontendTranslationFiles, which reads the Ui
@@ -72,6 +73,13 @@ public static class MessengerProactiveTexts
                 [English] = "{{employee}} is out for the shift on {{date}}. Please reply by {{dueTime}} whether you can take it.",
                 [French] = "{{employee}} est absent(e) pour le service du {{date}}. Merci de répondre avant {{dueTime}} si tu peux le prendre.",
                 [Italian] = "{{employee}} non è disponibile per il turno del {{date}}. Rispondi entro le {{dueTime}} se puoi coprirlo."
+            },
+            [ProactiveMessageI18nKeys.DailyDigest] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Tages-Digest: {{totalCount}} offene Feststellung(en) - {{highCount}} hoch, {{mediumCount}} mittel, {{lowCount}} niedrig priorisiert ({{newCount}} neu seit gestern).",
+                [English] = "Daily digest: {{totalCount}} open finding(s) - {{highCount}} high, {{mediumCount}} medium, {{lowCount}} low priority ({{newCount}} new since yesterday).",
+                [French] = "Résumé quotidien : {{totalCount}} constat(s) ouvert(s) - {{highCount}} haute, {{mediumCount}} moyenne, {{lowCount}} basse priorité ({{newCount}} nouveau(x) depuis hier).",
+                [Italian] = "Riepilogo giornaliero: {{totalCount}} rilevazione/i aperta/e - {{highCount}} alta, {{mediumCount}} media, {{lowCount}} bassa priorità ({{newCount}} nuova/e da ieri)."
             }
         };
 

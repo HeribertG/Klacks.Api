@@ -150,6 +150,8 @@ namespace Klacks.Api.Application.Constants
         public const string UPDATE_PINNED_VERSION = "UPDATE_PINNED_VERSION";
 
         public const string SLACK_OWNER_BRIDGE_WATERMARK = "SLACK_OWNER_BRIDGE_WATERMARK";
+
+        public const string AGENT_CONDITION_DIGEST_LAST_RUN_DATE = "AGENT_CONDITION_DIGEST_LAST_RUN_DATE";
     }
 }
 

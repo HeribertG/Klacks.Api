@@ -34,6 +34,12 @@ public static class MessengerWakeUpPolicy
     /// bypasses AgentTriggerService.OnEventAsync entirely (its own narrow delivery path ignores
     /// mute, daily budget and dedup, see the escalation chain design), but still needs a listing
     /// here so IProactiveMessengerTextComposer, which it reuses, finds a sentence for it.</item>
+    /// <item>DailyDigest: unlike every other member of this list, it does not describe "acting
+    /// tonight" at all — it fires at most once per day, at the installation's configured local
+    /// time (default 06:30), so reaching an offline planner through the messenger IS the delivery
+    /// the feature exists for, not a night-time interruption. Its severity is High only when the
+    /// aggregated findings for that planner include at least one High-severity condition, so a
+    /// quiet morning with only Medium/Low findings stays inbox-only exactly like any other kind here.</item>
     /// </list>
     /// Deliberately excluded, with the reason each fails the "acting tonight changes the outcome"
     /// test: CuriosityQuestion, MuteSuggestion, SkillSequenceSuggestion and PlanPausedForApproval
@@ -48,7 +54,8 @@ public static class MessengerWakeUpPolicy
         AgentTriggerKinds.UnstaffedShift,
         AgentTriggerKinds.WorkDroppedByErpImport,
         AgentTriggerKinds.OrderImportFailed,
-        AgentTriggerKinds.EscalationStageAlert
+        AgentTriggerKinds.EscalationStageAlert,
+        AgentTriggerKinds.DailyDigest
     };
 
     /// <summary>

@@ -330,6 +330,8 @@ if (bgOptions.PendingNoteBroadcastCleanup)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
 if (bgOptions.ScheduledTask)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Scheduling.ScheduledTaskBackgroundService>();
+if (bgOptions.AgentConditionDigest)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.AgentConditionDigestBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache(options =>
