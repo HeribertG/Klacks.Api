@@ -301,12 +301,15 @@ public class BackgroundServiceOptions
     /// <summary>
     /// Enables the daily condition-ledger digest (Etappe 3h of the Klacksy-proactive plan): once per
     /// day, at most one aggregated inbox message per planner summarising their open/new findings.
-    /// Default ON: it is the behaviour the plan specifies for every installation, it is a pure read plus
-    /// a bounded number of dispatch-row writes, and AgentConditionDigestService's own persisted-marker
-    /// compare-and-swap already makes it multi-instance-safe, unlike most services in this file that
-    /// need pinning to one instance. Override via env <c>BackgroundServices__AgentConditionDigest=false</c>.
+    /// Default OFF (security-review finding, 2026-08-24): the four shift/container-related trigger
+    /// kinds (open_order, empty_container, uncut_fullday_shift, unstaffed_shift) never populate
+    /// GroupId on their events, and AgentConditionRepository's scope query fails OPEN for
+    /// GroupId == null — so until that gap is closed, enabling this pushes every planner in every
+    /// installation a daily summary that includes findings outside their configured GroupVisibility.
+    /// Re-enable only after the GroupId-per-shift gap is resolved. Override via env
+    /// <c>BackgroundServices__AgentConditionDigest=true</c>.
     /// </summary>
-    public bool AgentConditionDigest { get; set; } = true;
+    public bool AgentConditionDigest { get; set; } = false;
 
     /// <summary>
     /// Local time of day (HH:mm) the daily digest fires, evaluated in the installation's configured
