@@ -116,7 +116,28 @@ public static class GoalTypeCatalog
                 "escalationStageAlert",
                 "an escalation chain had to wake someone up because an absence report was not acknowledged before its deadline",
                 "Reduce unacknowledged absence escalations",
-                "An escalation wake-up came up {0} time(s) in the last {1} days.")
+                "An escalation wake-up came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.OpenOrder] = Define(
+                AgentTriggerKinds.OpenOrder,
+                "openOrder",
+                "an imported or manually created order has not yet been sealed into a staffable shift",
+                "Seal open orders earlier",
+                "An open order came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.UncutFulldayShift] = Define(
+                AgentTriggerKinds.UncutFulldayShift,
+                "uncutFulldayShift",
+                "a full-day duty has not yet been cut into day and night pieces",
+                "Cut full-day duties into pieces earlier",
+                "An uncut full-day duty came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.EmptyContainer] = Define(
+                AgentTriggerKinds.EmptyContainer,
+                "emptyContainer",
+                "a container shift has no slot definitions configured at all",
+                "Configure empty container slots earlier",
+                "An empty container came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>
