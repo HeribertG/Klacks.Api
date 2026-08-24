@@ -1964,6 +1964,10 @@
     "listar los destinos de navegación",
     "estado de los sinónimos de navegación"
   ],
+  "list_open_findings": [
+    "mostrar hallazgos abiertos",
+    "qué ha encontrado klacksy"
+  ],
   "list_open_periods": [
     "lista de periodos abiertos",
     "qué periodos están listos para cerrar"

@@ -1980,6 +1980,10 @@
     "lista celów nawigacji",
     "status synonimów nawigacji"
   ],
+  "list_open_findings": [
+    "pokaż otwarte ustalenia",
+    "co znalazł klacksy"
+  ],
   "list_open_periods": [
     "lista otwartych okresów",
     "które okresy są gotowe do zamknięcia"

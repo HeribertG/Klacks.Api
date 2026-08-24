@@ -1974,6 +1974,10 @@
     "navigatiedoelen weergeven",
     "status van navigatiesynoniemen"
   ],
+  "list_open_findings": [
+    "open bevindingen tonen",
+    "wat heeft klacksy gevonden"
+  ],
   "list_open_periods": [
     "lijst met open perioden",
     "welke perioden zijn klaar om af te sluiten"

@@ -1961,6 +1961,10 @@
     "listar os destinos de navegação",
     "estado dos sinônimos de navegação"
   ],
+  "list_open_findings": [
+    "mostrar constatações abertas",
+    "o que o klacksy encontrou"
+  ],
   "list_open_periods": [
     "lista de períodos abertos",
     "quais períodos estão prontos para fechar"

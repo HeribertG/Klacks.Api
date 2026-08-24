@@ -1920,6 +1920,10 @@
     "daftar target navigasi",
     "status sinonim navigasi"
   ],
+  "list_open_findings": [
+    "tampilkan temuan terbuka",
+    "apa yang ditemukan klacksy"
+  ],
   "list_open_periods": [
     "daftar periode terbuka",
     "periode mana yang siap ditutup"

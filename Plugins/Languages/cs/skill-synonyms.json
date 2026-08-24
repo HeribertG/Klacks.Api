@@ -1971,6 +1971,10 @@
     "seznam navigačních cílů",
     "stav synonym navigace"
   ],
+  "list_open_findings": [
+    "zobrazit otevřená zjištění",
+    "co klacksy našel"
+  ],
   "list_open_periods": [
     "seznam otevřených období",
     "která období jsou připravena k uzavření"

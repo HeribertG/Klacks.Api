@@ -1948,6 +1948,10 @@
     "liste over navigationsmål",
     "status for navigationssynonymer"
   ],
+  "list_open_findings": [
+    "vis åbne fund",
+    "hvad har klacksy fundet"
+  ],
   "list_open_periods": [
     "liste over åbne perioder",
     "hvilke perioder er klar til afslutning"

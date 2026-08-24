@@ -1953,6 +1953,10 @@
     "luettele navigointikohteet",
     "navigoinnin synonyymien tila"
   ],
+  "list_open_findings": [
+    "näytä avoimet havainnot",
+    "mitä klacksy on löytänyt"
+  ],
   "list_open_periods": [
     "avoimien jaksojen luettelo",
     "mitkä jaksot ovat valmiita suljettaviksi"

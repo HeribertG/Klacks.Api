@@ -1944,6 +1944,10 @@
     "lista navigeringsmål",
     "status för navigeringssynonymer"
   ],
+  "list_open_findings": [
+    "visa öppna fynd",
+    "vad har klacksy hittat"
+  ],
   "list_open_periods": [
     "lista över öppna perioder",
     "vilka perioder är redo att avslutas"

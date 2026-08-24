@@ -1928,6 +1928,10 @@
     "senarai sasaran navigasi",
     "status sinonim navigasi"
   ],
+  "list_open_findings": [
+    "papar penemuan terbuka",
+    "apa yang klacksy jumpa"
+  ],
   "list_open_periods": [
     "senarai tempoh terbuka",
     "tempoh mana yang sedia untuk ditutup"

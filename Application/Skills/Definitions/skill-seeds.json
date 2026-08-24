@@ -13641,6 +13641,63 @@
       "version": 3
     },
     {
+      "name": "list_open_findings",
+      "area": "klacksy",
+      "description": "Lists the open findings Klacksy's background detectors have already noticed - unstaffed shifts, lock conflicts, target-hours drift, pending scenarios, contracts expiring soon, overdue periods and more - filtered to the groups the caller may see, sorted by severity then age. Use this when the user asks what's currently open, what problems Klacksy has spotted, or wants a status overview without waiting for the next proactive message.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "limit",
+          "description": "Maximum number of findings to return, most urgent first (default 20)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "offene befunde",
+          "offene feststellungen",
+          "aktuelle befunde"
+        ],
+        "en": [
+          "open findings",
+          "current findings"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "offene befunde anzeigen",
+          "was hat klacksy gefunden",
+          "was ist gerade offen"
+        ],
+        "en": [
+          "list open findings",
+          "what has klacksy found",
+          "what's currently open"
+        ],
+        "fr": [
+          "afficher les constatations ouvertes",
+          "qu'est-ce que klacksy a trouvé"
+        ],
+        "it": [
+          "elencare i riscontri aperti",
+          "cosa ha trovato klacksy"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "delete_break",
       "area": "absence",
       "description": "Soft-deletes a single Break entry (absence: vacation/sick/training). Period-hour recalc runs automatically. Inverse of add_break for rollback purposes.",

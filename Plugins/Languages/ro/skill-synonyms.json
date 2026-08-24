@@ -1954,6 +1954,10 @@
     "lista țintelor de navigare",
     "starea sinonimelor de navigare"
   ],
+  "list_open_findings": [
+    "afișează constatările deschise",
+    "ce a găsit klacksy"
+  ],
   "list_open_periods": [
     "lista perioadelor deschise",
     "care perioade sunt gata de închidere"

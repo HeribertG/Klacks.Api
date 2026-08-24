@@ -1926,6 +1926,10 @@
     "danh sách đích điều hướng",
     "trạng thái từ đồng nghĩa điều hướng"
   ],
+  "list_open_findings": [
+    "hiển thị phát hiện đang mở",
+    "klacksy đã tìm thấy gì"
+  ],
   "list_open_periods": [
     "danh sách các kỳ đang mở",
     "kỳ nào sẵn sàng để khóa sổ"

@@ -1922,6 +1922,10 @@
     "liste over navigasjonsmål",
     "status for navigasjonssynonymer"
   ],
+  "list_open_findings": [
+    "vis åpne funn",
+    "hva har klacksy funnet"
+  ],
   "list_open_periods": [
     "liste over åpne perioder",
     "hvilke perioder er klare for avslutning"
