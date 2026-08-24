@@ -4,7 +4,9 @@
 /// A future, not-yet-locked Work entry was cancelled because its order was superseded by an
 /// ERP import update. Client (the roster employee) has no login account to notify directly --
 /// AppUser and Client are unrelated identities in this system -- so this reaches planners
-/// instead, same audience as UnstaffedShiftTriggerEvent, so they can re-plan the gap.
+/// instead, same audience as UnstaffedShiftTriggerEvent, so they can re-plan the gap. GroupIds
+/// carries every group of the Work's Shift and narrows that audience to the planners who may see it;
+/// a cancellation whose shift has no group membership reaches Admins only (RequiresGroupScope).
 /// </summary>
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -15,11 +17,13 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public sealed record WorkDroppedByErpImportTriggerEvent(
     Guid WorkId,
     string EmployeeName,
-    DateOnly Workday) : IAgentTriggerEvent
+    DateOnly Workday,
+    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.WorkDroppedByErpImport;
     public string Severity => AgentTriggerSeverity.High;
     public bool PlannersOnly => true;
+    public bool RequiresGroupScope => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.WorkDroppedByErpImport;
 
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
@@ -34,6 +38,7 @@ public sealed record WorkDroppedByErpImportTriggerEvent(
     {
         ["workId"] = WorkId,
         ["employee"] = EmployeeName,
-        ["workday"] = Workday
+        ["workday"] = Workday,
+        ["groupIds"] = GroupIds
     };
 }

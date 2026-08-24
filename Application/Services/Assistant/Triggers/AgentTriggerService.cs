@@ -21,7 +21,7 @@
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
 /// <param name="conditionRepository">Resolves the condition-ledger row a ledger-tracked event reports, so a later dismissal can write its reject reason back onto the finding.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
-/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to a group's GroupVisibility scope when the event carries a GroupId.</param>
+/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
 /// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
 /// <param name="logger">Structured log per dispatch.</param>
@@ -349,19 +349,50 @@ public class AgentTriggerService : IAgentTriggerService
 
         if (triggerEvent.PlannersOnly)
         {
-            if (triggerEvent.GroupId is Guid groupId)
-            {
-                var scopedPlannerIds = await _planningAudienceResolver.GetPlanningUserIdsForGroupAsync(groupId, cancellationToken);
-                return scopedPlannerIds.ToList();
-            }
-
-            var plannerIds = await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
+            var plannerIds = await ResolvePlannerAudienceAsync(triggerEvent, cancellationToken);
             return plannerIds.ToList();
         }
 
         // Companion broadcasts (curiosity / onboarding style events without an audience gate) go to
         // currently connected users only — deliberately no mass persistence for every known user.
         return connectedUserIds;
+    }
+
+    /// <summary>
+    /// The planner audience of one event. A shift can belong to several groups at once, so the scoped
+    /// audience is the UNION over every group the event names: a planner who may see any one of those
+    /// groups may see the finding. GetPlanningUserIdsForGroupAsync already returns every Admin plus the
+    /// planners scoped to that group, so the union stays admin-inclusive and is cached per Nested Set
+    /// root underneath.
+    /// </summary>
+    private async Task<IReadOnlySet<string>> ResolvePlannerAudienceAsync(
+        IAgentTriggerEvent triggerEvent,
+        CancellationToken cancellationToken)
+    {
+        var groupIds = triggerEvent.GroupIds;
+        if (groupIds.Count > 0)
+        {
+            var scopedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var groupId in groupIds)
+            {
+                scopedIds.UnionWith(await _planningAudienceResolver.GetPlanningUserIdsForGroupAsync(groupId, cancellationToken));
+            }
+
+            return scopedIds;
+        }
+
+        // An event that is only ever about a group-owned entity and still names no group means the
+        // group could NOT be determined — a shift with no membership row. That is the empty case of
+        // the union above, whose limit is the always-unrestricted admins, and NOT a licence to fall
+        // through to the unscoped broadcast: the broadcast exists for installation-wide alerts, and
+        // routing an unattributable shift finding through it would hand every planner exactly the
+        // group-scoped detail the scoping above is there to withhold.
+        if (triggerEvent.RequiresGroupScope)
+        {
+            return await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        }
+
+        return await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
     }
 
     private static Dictionary<string, string> BuildConnectedLookup(IReadOnlyList<string> connectedUserIds)

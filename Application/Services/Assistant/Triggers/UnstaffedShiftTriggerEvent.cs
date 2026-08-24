@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Phase 4 skeleton example trigger event: a shift slot N days from now is still unstaffed.
-/// Constructed by a background scanner (TODO) and posted to IAgentTriggerService.
+/// A shift slot N days from now is still unstaffed. Emitted by UnstaffedShift7dDetector and posted to
+/// IAgentTriggerService. GroupIds carries every group the shift belongs to and narrows the audience to
+/// the planners who may see it; a shift with no group membership at all — the detector scans with
+/// ShowUngroupedShifts on, so these do occur — reaches Admins only (RequiresGroupScope). The
+/// navigation hint in ActionParams can only preselect one group and takes the first of the ordered set.
 /// </summary>
 
 using System.Globalization;
@@ -15,13 +18,14 @@ public sealed record UnstaffedShiftTriggerEvent(
     Guid ShiftId,
     DateOnly Workday,
     int DaysUntil,
-    Guid? GroupId) : IAgentTriggerEvent
+    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.UnstaffedShift;
     public string Severity => DaysUntil <= 3 ? AgentTriggerSeverity.High
         : DaysUntil <= 7 ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
+    public bool RequiresGroupScope => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.UnstaffedShift;
 
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
@@ -50,9 +54,9 @@ public sealed record UnstaffedShiftTriggerEvent(
             {
                 [ProactiveActionParamKeys.Date] = Workday.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
             };
-            if (GroupId is Guid groupId)
+            if (GroupIds.Count > 0)
             {
-                actionParams[ProactiveActionParamKeys.GroupId] = groupId.ToString();
+                actionParams[ProactiveActionParamKeys.GroupId] = GroupIds.First().ToString();
             }
 
             return actionParams;
@@ -64,6 +68,6 @@ public sealed record UnstaffedShiftTriggerEvent(
         ["shiftId"] = ShiftId,
         ["workday"] = Workday,
         ["daysUntil"] = DaysUntil,
-        ["groupId"] = GroupId
+        ["groupIds"] = GroupIds
     };
 }

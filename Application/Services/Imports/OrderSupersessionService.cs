@@ -8,6 +8,13 @@
 /// actually differ from the sealed data, so a full nightly ERP extract does not re-trigger this
 /// on every unchanged order.
 /// </summary>
+/// <param name="shiftRepository">Closes the sealed order, lists its derived shifts and adds the new draft.</param>
+/// <param name="workRepository">Finds and cancels the future, not-yet-locked Work of the superseded order.</param>
+/// <param name="clientRepository">Resolves the roster employee's name for the cancellation notice.</param>
+/// <param name="triggerService">Delivers one proactive cancellation notice per dropped Work.</param>
+/// <param name="groupScopeReader">Resolves the groups of the dropped Work's Shift, which scope that notice's audience.</param>
+/// <param name="unitOfWork">Wraps close, cancel and re-open in one transaction.</param>
+/// <param name="logger">Structured log per superseded order.</param>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant.Triggers;
@@ -24,6 +31,7 @@ public class OrderSupersessionService
     private readonly IWorkRepository _workRepository;
     private readonly IClientRepository _clientRepository;
     private readonly IAgentTriggerService _triggerService;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OrderSupersessionService> _logger;
 
@@ -32,6 +40,7 @@ public class OrderSupersessionService
         IWorkRepository workRepository,
         IClientRepository clientRepository,
         IAgentTriggerService triggerService,
+        IShiftGroupScopeReader groupScopeReader,
         IUnitOfWork unitOfWork,
         ILogger<OrderSupersessionService> logger)
     {
@@ -39,6 +48,7 @@ public class OrderSupersessionService
         _workRepository = workRepository;
         _clientRepository = clientRepository;
         _triggerService = triggerService;
+        _groupScopeReader = groupScopeReader;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -80,11 +90,23 @@ public class OrderSupersessionService
             "ERP import: superseded order {Reference}, closed {ClosedId}, dropped {Count} future work entr(y/ies)",
             order.ExternalOrderReference, sealedOrder.Id, droppedWork.Count);
 
+        // Resolved by SHIFT id, not by work id: the works above have just been soft-deleted, and the
+        // work-keyed lookup excludes deleted rows, so it would resolve every cancellation to no group
+        // and quietly narrow this alert to admins.
+        var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
+            droppedWork.Select(work => work.ShiftId).Distinct().ToList(), cancellationToken);
+
         foreach (var work in droppedWork)
         {
             var employee = await _clientRepository.GetNoTracking(work.ClientId);
             var employeeName = employee != null ? $"{employee.FirstName} {employee.Name}".Trim() : work.ClientId.ToString();
-            await _triggerService.OnEventAsync(new WorkDroppedByErpImportTriggerEvent(work.Id, employeeName, work.CurrentDate), cancellationToken);
+            await _triggerService.OnEventAsync(
+                new WorkDroppedByErpImportTriggerEvent(
+                    work.Id,
+                    employeeName,
+                    work.CurrentDate,
+                    ShiftGroupScope.For(groupsByShift, work.ShiftId)),
+                cancellationToken);
         }
     }
 }

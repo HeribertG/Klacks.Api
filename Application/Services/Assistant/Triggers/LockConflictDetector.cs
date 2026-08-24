@@ -5,14 +5,20 @@
 /// indicates a lock_level conflict (typical phrasing: "locked at level", "lock_level",
 /// "immutable"). Emits one LockConflictDetectedTriggerEvent per failure. Lock level is
 /// best-effort extracted from the error text via regex; defaults to 1 (Confirmed) when
-/// no digit is parsable, which is the most common lock for a Disponent.
+/// no digit is parsable, which is the most common lock for a Disponent. The work id is likewise
+/// best-effort extracted; it is resolved to the groups of the Work's Shift in ONE batched lookup for
+/// the whole tick, because that group set is what narrows the notification to the planners who may see
+/// the schedule concerned. A conflict whose work id is not parsable keeps Guid.Empty, resolves to no
+/// group, and therefore reaches Admins only.
 /// </summary>
 /// <param name="executionRepository">Reads recent skill executions.</param>
+/// <param name="groupScopeReader">Batched work-to-groups lookup for audience scoping.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Schedules;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -35,13 +41,16 @@ public class LockConflictDetector : IAgentTriggerDetector
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private readonly IAgentSkillExecutionRepository _executionRepository;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ILogger<LockConflictDetector> _logger;
 
     public LockConflictDetector(
         IAgentSkillExecutionRepository executionRepository,
+        IShiftGroupScopeReader groupScopeReader,
         ILogger<LockConflictDetector> logger)
     {
         _executionRepository = executionRepository;
+        _groupScopeReader = groupScopeReader;
         _logger = logger;
     }
 
@@ -56,7 +65,7 @@ public class LockConflictDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var events = new List<IAgentTriggerEvent>();
+        var conflicts = new List<(Guid WorkId, DateOnly Workday, int LockLevel)>();
         foreach (var execution in failed)
         {
             if (string.IsNullOrEmpty(execution.ErrorMessage) && string.IsNullOrEmpty(execution.ResultMessage))
@@ -73,12 +82,20 @@ public class LockConflictDetector : IAgentTriggerDetector
             var lockLevel = TryParseLockLevel(combined) ?? DefaultLockLevel;
             var workId = TryParseWorkId(combined) ?? Guid.Empty;
 
-            events.Add(new LockConflictDetectedTriggerEvent(
-                workId,
-                DateOnly.FromDateTime(execution.CreateTime ?? DateTime.UtcNow),
-                lockLevel,
-                null));
+            conflicts.Add((workId, DateOnly.FromDateTime(execution.CreateTime ?? DateTime.UtcNow), lockLevel));
         }
+
+        var groupsByWork = await _groupScopeReader.GetGroupIdsByWorkIdsAsync(
+            conflicts.Select(conflict => conflict.WorkId).Where(workId => workId != Guid.Empty).ToList(),
+            cancellationToken);
+
+        var events = conflicts
+            .Select(conflict => (IAgentTriggerEvent)new LockConflictDetectedTriggerEvent(
+                conflict.WorkId,
+                conflict.Workday,
+                conflict.LockLevel,
+                ShiftGroupScope.For(groupsByWork, conflict.WorkId)))
+            .ToList();
 
         _logger.LogInformation(
             "LockConflict scan: {Failed} failed execution(s) scanned, {Events} lock conflict event(s) emitted",

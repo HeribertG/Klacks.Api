@@ -248,6 +248,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
+        services.AddScoped<IShiftGroupScopeReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftGroupScopeReadRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();
         services.AddScoped<IContainerWorkChildrenReadRepository, ContainerWorkChildrenReadRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();

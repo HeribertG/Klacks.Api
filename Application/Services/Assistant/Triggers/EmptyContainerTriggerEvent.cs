@@ -5,6 +5,9 @@
 /// ShiftStatus.OriginalShift) has zero ContainerTemplate rows -- a slot-definition gap the
 /// planner has not configured at all. Distinct from unstaffed_shift, which flags missing
 /// employees on slots that already exist; EmptyContainerDetector emits one event per container.
+/// GroupIds carries every group the container belongs to, which is what narrows the audience to the
+/// planners who may see it; a container with no group membership at all reaches Admins only
+/// (RequiresGroupScope).
 /// </summary>
 
 using System.Globalization;
@@ -17,7 +20,8 @@ public sealed record EmptyContainerTriggerEvent(
     Guid ShiftId,
     string ContainerName,
     DateOnly FromDate,
-    DateOnly? UntilDate) : IAgentTriggerEvent
+    DateOnly? UntilDate,
+    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.EmptyContainer;
 
@@ -26,6 +30,8 @@ public sealed record EmptyContainerTriggerEvent(
         : AgentTriggerSeverity.Medium;
 
     public bool PlannersOnly => true;
+
+    public bool RequiresGroupScope => true;
 
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.EmptyContainer;
 
@@ -58,7 +64,8 @@ public sealed record EmptyContainerTriggerEvent(
         ["shiftId"] = ShiftId,
         ["containerName"] = ContainerName,
         ["fromDate"] = FromDate,
-        ["untilDate"] = UntilDate
+        ["untilDate"] = UntilDate,
+        ["groupIds"] = GroupIds
     };
 
     private static bool IsPeriodActive(DateOnly fromDate, DateOnly? untilDate)

@@ -38,4 +38,17 @@ public static class AgentConditionLedgerPolicy
 
     public static string FingerprintFor(IAgentTriggerEvent triggerEvent) =>
         FingerprintFor(triggerEvent.Kind, triggerEvent.DedupKey);
+
+    /// <summary>
+    /// The single group a ledger row records for an event that may concern several. AgentCondition has
+    /// one GroupId column, while a shift-borne finding can name two or three groups; the first of the
+    /// ordered set is kept as a stable representative. This is a reporting attribute only - the live
+    /// audience of a notification is recomputed from the full GroupIds set at dispatch time and is
+    /// never read back from this column, so narrowing it here cannot widen anybody's reach.
+    /// </summary>
+    public static Guid? LedgerGroupIdFor(IAgentTriggerEvent triggerEvent)
+    {
+        var groupIds = triggerEvent.GroupIds;
+        return groupIds.Count > 0 ? groupIds.First() : null;
+    }
 }

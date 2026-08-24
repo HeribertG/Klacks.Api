@@ -6,7 +6,9 @@
 /// employees on slots that already exist). The anti-join against ContainerTemplate first materializes
 /// the set of container ids that already have a template, then filters shifts against that set --
 /// two set-based round-trips total, never one query per shift, mirroring the pattern
-/// ContainerAvailableTasksService uses for the same kind of exclusion. Emission is capped at
+/// ContainerAvailableTasksService uses for the same kind of exclusion. The groups of the surviving
+/// containers are then read in ONE batched lookup (never one query per container), because that group
+/// set is what narrows the notification to the planners who may see the container. Emission is capped at
 /// MaxFindingsPerTick events per tick (this scan has no time window, unlike UnstaffedShift7dDetector).
 /// Ordered by FromDate (oldest gap first), Id as tiebreaker, before the cap applies -- without an
 /// explicit order the cap would otherwise pick from physical storage order, an oldest-first triage
@@ -14,6 +16,7 @@
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
+/// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -32,15 +35,18 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ILogger<EmptyContainerDetector> _logger;
 
     public EmptyContainerDetector(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
+        IShiftGroupScopeReader groupScopeReader,
         ILogger<EmptyContainerDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
+        _groupScopeReader = groupScopeReader;
         _logger = logger;
     }
 
@@ -61,12 +67,16 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             return Array.Empty<IAgentTriggerEvent>();
         }
 
+        var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
+            emptyContainers.Select(container => container.Id).ToList(), cancellationToken);
+
         var events = emptyContainers
             .Select(container => (IAgentTriggerEvent)new EmptyContainerTriggerEvent(
                 container.Id,
                 string.IsNullOrWhiteSpace(container.Name) ? container.Abbreviation : container.Name,
                 container.FromDate,
-                container.UntilDate))
+                container.UntilDate,
+                ShiftGroupScope.For(groupsByShift, container.Id)))
             .ToList();
 
         _logger.LogInformation(

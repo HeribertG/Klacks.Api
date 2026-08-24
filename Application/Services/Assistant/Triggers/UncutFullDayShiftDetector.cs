@@ -20,8 +20,12 @@
 /// directionally (oldest FromDate first) while the in-memory ranking that follows it is
 /// bidirectional (nearest to today, past or future). Only the second stage delivers the "does not
 /// crowd out" guarantee; the first stage merely makes candidate selection deterministic.
+/// The groups of the shifts that survive both stages are read in ONE batched lookup (never one query
+/// per shift), because that group set is what narrows the notification to the planners who may see the
+/// shift.
 /// </summary>
 /// <param name="shiftRepository">Read-only shift scans via GetQuery().</param>
+/// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -40,13 +44,16 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
     private const int MaxCandidatesToScan = 500;
 
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ILogger<UncutFullDayShiftDetector> _logger;
 
     public UncutFullDayShiftDetector(
         IShiftRepository shiftRepository,
+        IShiftGroupScopeReader groupScopeReader,
         ILogger<UncutFullDayShiftDetector> logger)
     {
         _shiftRepository = shiftRepository;
+        _groupScopeReader = groupScopeReader;
         _logger = logger;
     }
 
@@ -67,7 +74,7 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var events = candidates
+        var ranked = candidates
             .Select(shift => new
             {
                 Shift = shift,
@@ -75,11 +82,17 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
             })
             .OrderBy(x => Math.Abs(x.DaysUntil))
             .Take(MaxFindingsPerTick)
+            .ToList();
+
+        var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
+            ranked.Select(x => x.Shift.Id).ToList(), cancellationToken);
+
+        var events = ranked
             .Select(x => (IAgentTriggerEvent)new UncutFullDayShiftTriggerEvent(
                 x.Shift.Id,
                 x.Shift.FromDate,
                 x.DaysUntil,
-                null))
+                ShiftGroupScope.For(groupsByShift, x.Shift.Id)))
             .ToList();
 
         _logger.LogInformation(

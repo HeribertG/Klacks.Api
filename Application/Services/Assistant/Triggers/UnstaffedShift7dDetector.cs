@@ -5,14 +5,20 @@
 /// (= still unstaffed) and emits one UnstaffedShiftTriggerEvent per shortfall. The
 /// background scanner calls this every 60 minutes; the trigger service rate-limits
 /// per user per UTC day so a single unfilled slot does not spam the user.
+/// ShiftDayAssignment carries no group of its own, so the groups of the shifts behind the findings are
+/// read afterwards in ONE batched lookup (never one query per finding); that group set is what narrows
+/// the notification to the planners who may see the shift. The filter keeps ShowUngroupedShifts on, so
+/// shifts without any group membership are still found - they simply reach Admins only.
 /// </summary>
 /// <param name="shiftScheduleRepository">Returns ShiftDayAssignment rows with SumEmployees vs Quantity.</param>
+/// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Schedules;
@@ -26,13 +32,16 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
     private const int UncappedRowCount = int.MaxValue;
 
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ILogger<UnstaffedShift7dDetector> _logger;
 
     public UnstaffedShift7dDetector(
         IShiftScheduleRepository shiftScheduleRepository,
+        IShiftGroupScopeReader groupScopeReader,
         ILogger<UnstaffedShift7dDetector> logger)
     {
         _shiftScheduleRepository = shiftScheduleRepository;
+        _groupScopeReader = groupScopeReader;
         _logger = logger;
     }
 
@@ -49,12 +58,17 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var events = SelectUnstaffed(assignments, today)
+        var findings = SelectUnstaffed(assignments, today).ToList();
+
+        var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
+            findings.Select(finding => finding.Assignment.ShiftId).ToList(), cancellationToken);
+
+        var events = findings
             .Select(finding => (IAgentTriggerEvent)new UnstaffedShiftTriggerEvent(
                 finding.Assignment.ShiftId,
                 finding.Assignment.Date,
                 finding.DaysUntil,
-                null))
+                ShiftGroupScope.For(groupsByShift, finding.Assignment.ShiftId)))
             .ToList();
 
         _logger.LogInformation(

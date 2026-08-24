@@ -7,13 +7,16 @@
 /// and soft-deleted rows are excluded so a what-if scenario or a removed order never reaches the
 /// real notification stream. No upper date bound: severity alone (High/Medium/Low) reflects how far
 /// out FromDate lies -- this is a deliberate design choice, not something the
-/// MaxCandidatesToScan cap below changes. The scan is capped at MaxCandidatesToScan rows, ordered by
+/// MaxCandidatesToScan cap below changes. Every emitted event carries the groups of its shift, read in
+/// ONE batched lookup for the whole scan (never one query per order), because the group set is what
+/// narrows the notification to the planners who may see that order. The scan is capped at MaxCandidatesToScan rows, ordered by
 /// FromDate (soonest first, Id as tiebreaker) so the cap -- a defensive bound against unbounded
 /// growth, mirroring UnstaffedShift7dDetector.FilterRowCount -- keeps exactly the highest-severity
 /// candidates rather than an arbitrary storage-order subset. The background scanner calls this every
 /// 60 minutes.
 /// </summary>
 /// <param name="shiftRepository">Read-only Shift query source.</param>
+/// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -31,13 +34,16 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
     public const int MaxCandidatesToScan = 1000;
 
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly ILogger<OpenOrderDetector> _logger;
 
     public OpenOrderDetector(
         IShiftRepository shiftRepository,
+        IShiftGroupScopeReader groupScopeReader,
         ILogger<OpenOrderDetector> logger)
     {
         _shiftRepository = shiftRepository;
+        _groupScopeReader = groupScopeReader;
         _logger = logger;
     }
 
@@ -58,6 +64,9 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
             return Array.Empty<IAgentTriggerEvent>();
         }
 
+        var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
+            openOrders.Select(shift => shift.Id).ToList(), cancellationToken);
+
         var events = new List<IAgentTriggerEvent>();
         foreach (var shift in openOrders)
         {
@@ -68,7 +77,8 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
                 shift.ClientId,
                 shift.FromDate,
                 shift.UntilDate,
-                daysUntil));
+                daysUntil,
+                ShiftGroupScope.For(groupsByShift, shift.Id)));
         }
 
         _logger.LogInformation(

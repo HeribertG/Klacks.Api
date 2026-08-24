@@ -5,7 +5,9 @@
 /// is today or later -- an ERP-imported or manually created order that has not yet been sealed into
 /// a staffable shift. Unlike UnstaffedShiftTriggerEvent this never looks at staffing counts: an
 /// order can be fully staffed and still be an open, unsealed draft. Severity escalates the closer
-/// FromDate is.
+/// FromDate is. GroupIds carries every group the order's shift belongs to, which is what narrows the
+/// audience to the planners who may see it; an order with no group membership at all reaches Admins
+/// only (RequiresGroupScope).
 /// </summary>
 
 using System.Globalization;
@@ -19,13 +21,15 @@ public sealed record OpenOrderTriggerEvent(
     Guid? ClientId,
     DateOnly FromDate,
     DateOnly? UntilDate,
-    int DaysUntil) : IAgentTriggerEvent
+    int DaysUntil,
+    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.OpenOrder;
     public string Severity => DaysUntil <= 7 ? AgentTriggerSeverity.High
         : DaysUntil <= 30 ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
+    public bool RequiresGroupScope => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.OpenOrder;
 
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
@@ -58,6 +62,7 @@ public sealed record OpenOrderTriggerEvent(
         ["clientId"] = ClientId,
         ["fromDate"] = FromDate,
         ["untilDate"] = UntilDate,
-        ["daysUntil"] = DaysUntil
+        ["daysUntil"] = DaysUntil,
+        ["groupIds"] = GroupIds
     };
 }

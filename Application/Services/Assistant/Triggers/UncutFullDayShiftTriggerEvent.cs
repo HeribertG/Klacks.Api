@@ -5,7 +5,10 @@
 /// StartShift == EndShift, the FullDay convention TimeRange.ForWorkingTime assigns equal bounds:
 /// a 24 hour duty rather than a zero-length span. DaysUntil is negative once FromDate has passed,
 /// which the Severity mapping below treats as the most urgent case (an active, unstaffed-by-shift-
-/// pattern duty), not as stale data to ignore.
+/// pattern duty), not as stale data to ignore. GroupIds carries every group the shift belongs to and
+/// narrows the audience to the planners who may see it; a shift with no group membership at all
+/// reaches Admins only (RequiresGroupScope). The navigation hint in ActionParams can only preselect
+/// one group and therefore takes the first of the ordered set.
 /// </summary>
 
 using System.Globalization;
@@ -18,13 +21,14 @@ public sealed record UncutFullDayShiftTriggerEvent(
     Guid ShiftId,
     DateOnly FromDate,
     int DaysUntil,
-    Guid? GroupId) : IAgentTriggerEvent
+    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.UncutFulldayShift;
     public string Severity => DaysUntil <= 7 ? AgentTriggerSeverity.High
         : DaysUntil <= 30 ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
+    public bool RequiresGroupScope => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.UncutFulldayShift;
 
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
@@ -54,9 +58,9 @@ public sealed record UncutFullDayShiftTriggerEvent(
             {
                 [ProactiveActionParamKeys.Date] = FromDate.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
             };
-            if (GroupId is Guid groupId)
+            if (GroupIds.Count > 0)
             {
-                actionParams[ProactiveActionParamKeys.GroupId] = groupId.ToString();
+                actionParams[ProactiveActionParamKeys.GroupId] = GroupIds.First().ToString();
             }
 
             return actionParams;
@@ -68,6 +72,6 @@ public sealed record UncutFullDayShiftTriggerEvent(
         ["shiftId"] = ShiftId,
         ["fromDate"] = FromDate,
         ["daysUntil"] = DaysUntil,
-        ["groupId"] = GroupId
+        ["groupIds"] = GroupIds
     };
 }
