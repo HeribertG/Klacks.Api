@@ -28,11 +28,13 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
-public class UncutFullDayShiftDetector : IAgentTriggerDetector
+public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 25;
     private const int MaxCandidatesToScan = 500;
@@ -52,16 +54,9 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = Today();
 
-        var candidates = await _shiftRepository.GetQuery()
-            .Where(s => s.Status == ShiftStatus.OriginalShift
-                && s.ShiftType == ShiftType.IsTask
-                && s.StartShift == s.EndShift
-                && s.AnalyseToken == null
-                && s.ScenarioSourceShiftId == null
-                && !s.IsDeleted
-                && (s.UntilDate == null || s.UntilDate >= today))
+        var candidates = await BuildCandidateQuery(today)
             .OrderBy(s => s.FromDate)
             .ThenBy(s => s.Id)
             .Take(MaxCandidatesToScan)
@@ -93,4 +88,35 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector
 
         return events;
     }
+
+    /// <summary>
+    /// Skips BOTH caps DetectAsync applies - the MaxCandidatesToScan pre-filter in the database and the
+    /// MaxFindingsPerTick proximity ranking in memory - because a set missing either one would not be
+    /// complete. Only the ordering and the two Take calls fall away; the business predicates are the
+    /// shared BuildCandidateQuery.
+    /// </summary>
+    public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
+    {
+        var shiftIds = await BuildCandidateQuery(Today())
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+
+        return shiftIds
+            .Select(shiftId => AgentConditionLedgerPolicy.FingerprintFor(
+                Kind,
+                UncutFullDayShiftTriggerEvent.DedupKeyFor(shiftId)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static DateOnly Today() => DateOnly.FromDateTime(DateTime.UtcNow);
+
+    private IQueryable<Shift> BuildCandidateQuery(DateOnly today) =>
+        _shiftRepository.GetQuery()
+            .Where(s => s.Status == ShiftStatus.OriginalShift
+                && s.ShiftType == ShiftType.IsTask
+                && s.StartShift == s.EndShift
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null
+                && !s.IsDeleted
+                && (s.UntilDate == null || s.UntilDate >= today));
 }

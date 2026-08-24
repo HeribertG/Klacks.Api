@@ -34,7 +34,16 @@ public sealed record OpenOrderTriggerEvent(
         ["days"] = DaysUntil.ToString(CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => $"{ShiftId}:{FromDate:yyyy-MM-dd}";
+    public string DedupKey => DedupKeyFor(ShiftId, FromDate);
+
+    public Guid? EntityId => ShiftId;
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key fields, so OpenOrderDetector's uncapped
+    /// fingerprint scan can build the identical key from a key-only projection instead of restating
+    /// the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid shiftId, DateOnly fromDate) => $"{shiftId}:{fromDate:yyyy-MM-dd}";
 
     public string? ActionRoute => ProactiveActionRoutes.Schedule;
 

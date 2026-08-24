@@ -33,7 +33,16 @@ public sealed record UncutFullDayShiftTriggerEvent(
         ["days"] = DaysUntil.ToString(CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => ShiftId.ToString();
+    public string DedupKey => DedupKeyFor(ShiftId);
+
+    public Guid? EntityId => ShiftId;
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key field, so UncutFullDayShiftDetector's uncapped
+    /// fingerprint scan can build the identical key from a key-only projection instead of restating
+    /// the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid shiftId) => shiftId.ToString();
 
     public string? ActionRoute => ProactiveActionRoutes.Schedule;
 

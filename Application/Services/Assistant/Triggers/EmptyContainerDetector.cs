@@ -20,11 +20,13 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
-public class EmptyContainerDetector : IAgentTriggerDetector
+public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 50;
 
@@ -46,18 +48,9 @@ public class EmptyContainerDetector : IAgentTriggerDetector
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var containerIdsWithTemplate = await _containerTemplateRepository.GetQuery()
-            .Where(t => !t.IsDeleted)
-            .Select(t => t.ContainerId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+        var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
 
-        var emptyContainers = await _shiftRepository.GetQuery()
-            .Where(s => s.ShiftType == ShiftType.IsContainer)
-            .Where(s => s.Status == ShiftStatus.OriginalShift)
-            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
-            .Where(s => !s.IsDeleted)
-            .Where(s => !containerIdsWithTemplate.Contains(s.Id))
+        var emptyContainers = await BuildCandidateQuery(containerIdsWithTemplate)
             .OrderBy(s => s.FromDate)
             .ThenBy(s => s.Id)
             .Take(MaxFindingsPerTick)
@@ -82,4 +75,34 @@ public class EmptyContainerDetector : IAgentTriggerDetector
 
         return events;
     }
+
+    public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
+    {
+        var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
+
+        var containerIds = await BuildCandidateQuery(containerIdsWithTemplate)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+
+        return containerIds
+            .Select(containerId => AgentConditionLedgerPolicy.FingerprintFor(
+                Kind,
+                EmptyContainerTriggerEvent.DedupKeyFor(containerId)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private async Task<List<Guid>> LoadContainerIdsWithTemplateAsync(CancellationToken cancellationToken) =>
+        await _containerTemplateRepository.GetQuery()
+            .Where(t => !t.IsDeleted)
+            .Select(t => t.ContainerId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+    private IQueryable<Shift> BuildCandidateQuery(List<Guid> containerIdsWithTemplate) =>
+        _shiftRepository.GetQuery()
+            .Where(s => s.ShiftType == ShiftType.IsContainer)
+            .Where(s => s.Status == ShiftStatus.OriginalShift)
+            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
+            .Where(s => !s.IsDeleted)
+            .Where(s => !containerIdsWithTemplate.Contains(s.Id));
 }

@@ -58,6 +58,14 @@ public interface IAgentTriggerEvent
     IReadOnlyDictionary<string, string>? ActionParams => null;
 
     /// <summary>
+    /// The single domain entity this event is about (the shift, the client, ...), when there is one.
+    /// The condition ledger stores it so a later remediation knows what to act on and so a cascade can
+    /// be recognised by entity. Null (the default) means the event is not about one identifiable row;
+    /// a ledger row then carries only its fingerprint.
+    /// </summary>
+    Guid? EntityId => null;
+
+    /// <summary>
     /// Group this event concerns, if any. When set and <see cref="PlannersOnly"/> is true, the
     /// audience additionally narrows to planners whose GroupVisibility (including the group's whole
     /// Nested Set subtree) covers this group; Admins stay unrestricted. Null (the default) keeps the

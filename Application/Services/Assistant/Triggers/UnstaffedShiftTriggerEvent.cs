@@ -30,7 +30,15 @@ public sealed record UnstaffedShiftTriggerEvent(
         ["days"] = DaysUntil.ToString(CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => $"{ShiftId}:{Workday:yyyy-MM-dd}";
+    public string DedupKey => DedupKeyFor(ShiftId, Workday);
+
+    public Guid? EntityId => ShiftId;
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key fields, so UnstaffedShift7dDetector's uncapped
+    /// fingerprint scan can build the identical key without restating the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid shiftId, DateOnly workday) => $"{shiftId}:{workday:yyyy-MM-dd}";
 
     public string? ActionRoute => ProactiveActionRoutes.Schedule;
 

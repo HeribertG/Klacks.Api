@@ -36,7 +36,15 @@ public sealed record ClientMissingCoreDataTriggerEvent(
         ["name"] = ClientName
     };
 
-    public string DedupKey => $"{ClientId}:{MissingField}";
+    public string DedupKey => DedupKeyFor(ClientId, MissingField);
+
+    public Guid? EntityId => ClientId;
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key fields, so ClientMissingCoreDataDetector's
+    /// uncapped fingerprint scan can build the identical key without restating the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid clientId, string missingField) => $"{clientId}:{missingField}";
 
     public string? ActionRoute => ProactiveActionRoutes.ClientEdit;
 

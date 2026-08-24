@@ -38,7 +38,15 @@ public sealed record AvailabilityGapTriggerEvent(
         ["until"] = PeriodEnd.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => $"{ClientId}:{PeriodStart:yyyy-MM}";
+    public string DedupKey => DedupKeyFor(ClientId, PeriodStart);
+
+    public Guid? EntityId => ClientId;
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key fields, so AvailabilityGapDetector's uncapped
+    /// fingerprint scan can build the identical key without restating the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid clientId, DateOnly periodStart) => $"{clientId}:{periodStart:yyyy-MM}";
 
     public string? ActionRoute => ProactiveActionRoutes.ClientAvailability;
 

@@ -11,13 +11,17 @@
 /// <param name="timeProvider">Clock used to derive the reference date.</param>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
-public class ClientMissingCoreDataDetector : IAgentTriggerDetector
+public class ClientMissingCoreDataDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 25;
+
+    private const int UncappedResultCount = int.MaxValue;
 
     private readonly IClientCoreDataReadRepository _coreDataReadRepository;
     private readonly ILogger<ClientMissingCoreDataDetector> _logger;
@@ -37,9 +41,8 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
         var statuses = await _coreDataReadRepository.GetActiveClientsWithMissingCoreDataAsync(
-            today, MaxFindingsPerTick, cancellationToken);
+            Today(), MaxFindingsPerTick, cancellationToken);
         if (statuses.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
@@ -48,21 +51,13 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector
         var events = new List<IAgentTriggerEvent>();
         foreach (var status in statuses)
         {
-            if (events.Count >= MaxFindingsPerTick) break;
+            var displayName = DisplayName(status);
 
-            var clientName = $"{status.FirstName} {status.Name}".Trim();
-            var displayName = string.IsNullOrEmpty(clientName) ? status.ClientId.ToString() : clientName;
-
-            if (!status.HasActiveAddress)
+            foreach (var missingField in MissingFields(status))
             {
-                events.Add(new ClientMissingCoreDataTriggerEvent(
-                    status.ClientId, displayName, ClientMissingCoreDataTriggerEvent.AddressField));
-            }
+                if (events.Count >= MaxFindingsPerTick) break;
 
-            if (!status.HasEmailOrPhone && events.Count < MaxFindingsPerTick)
-            {
-                events.Add(new ClientMissingCoreDataTriggerEvent(
-                    status.ClientId, displayName, ClientMissingCoreDataTriggerEvent.ContactField));
+                events.Add(new ClientMissingCoreDataTriggerEvent(status.ClientId, displayName, missingField));
             }
         }
 
@@ -72,4 +67,44 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector
 
         return events;
     }
+
+    /// <summary>
+    /// Calls the very same repository method for the very same reference date, only without the result
+    /// cap, and derives the missing fields through the same MissingFields mapping DetectAsync uses - so
+    /// a client with two gaps yields both fingerprints here exactly as it yields two events there.
+    /// </summary>
+    public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
+    {
+        var statuses = await _coreDataReadRepository.GetActiveClientsWithMissingCoreDataAsync(
+            Today(), UncappedResultCount, cancellationToken);
+
+        return statuses
+            .SelectMany(status => MissingFields(status)
+                .Select(missingField => AgentConditionLedgerPolicy.FingerprintFor(
+                    Kind,
+                    ClientMissingCoreDataTriggerEvent.DedupKeyFor(status.ClientId, missingField))))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static IEnumerable<string> MissingFields(ClientCoreDataStatus status)
+    {
+        if (!status.HasActiveAddress)
+        {
+            yield return ClientMissingCoreDataTriggerEvent.AddressField;
+        }
+
+        if (!status.HasEmailOrPhone)
+        {
+            yield return ClientMissingCoreDataTriggerEvent.ContactField;
+        }
+    }
+
+    private static string DisplayName(ClientCoreDataStatus status)
+    {
+        var clientName = $"{status.FirstName} {status.Name}".Trim();
+
+        return string.IsNullOrEmpty(clientName) ? status.ClientId.ToString() : clientName;
+    }
+
+    private DateOnly Today() => DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
 }
