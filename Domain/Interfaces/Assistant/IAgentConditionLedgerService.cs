@@ -65,4 +65,29 @@ public interface IAgentConditionLedgerService
         string? detail = null,
         AgentConditionTransitionFields? fields = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Writes a human's rejection of this finding onto the ledger row: reads the status the row is
+    /// actually in and moves it from exactly there to Rejected, recording the reason and the rejecting
+    /// user. Deliberately total rather than throwing - unlike <see cref="TryTransitionAsync"/> this is
+    /// driven by a user action whose primary effect (the dismissal on the notification itself) has
+    /// already been persisted by the caller, so every way of not reaching Rejected is a false, never an
+    /// exception: an unknown id, a row already Executed, Resolved, Escalated or still Detected (the
+    /// state machine grants Rejected only from Reported and Prepared), and a lost compare-and-swap.
+    /// A false therefore means "the finding was not marked rejected", never "the dismissal failed".
+    ///
+    /// FIRST REJECTER WINS, and the others are not recorded. One finding is reported to every planner
+    /// in its audience, so several people hold their own notification of the same ledger row. The first
+    /// to dismiss moves the row to Rejected and stamps their reason; every later dismissal of the same
+    /// row finds it terminal and returns false, so that person's reason is lost - their own dismissal
+    /// is still stored on their notification, and they are told nothing. That is deliberate for the
+    /// row's lifecycle (the ledger holds world state, not one opinion per user) but it means
+    /// RejectReason is a sample of one, not a consensus. A stage that learns from these reasons
+    /// (Etappe 6) must either accept that sample or collect reasons per user somewhere else first.
+    /// </summary>
+    Task<bool> TryRejectAsync(
+        Guid conditionId,
+        AgentConditionRejectReason rejectReason,
+        Guid? rejectedByUserId,
+        CancellationToken cancellationToken = default);
 }

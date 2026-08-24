@@ -19,6 +19,7 @@
 /// <param name="preferenceService">Per-user mute / snooze / severity threshold.</param>
 /// <param name="notificationService">Pushes proactive messages and inbox changes via SignalR.</param>
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
+/// <param name="conditionRepository">Resolves the condition-ledger row a ledger-tracked event reports, so a later dismissal can write its reject reason back onto the finding.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
 /// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to a group's GroupVisibility scope when the event carries a GroupId.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
@@ -30,6 +31,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -41,6 +43,7 @@ public class AgentTriggerService : IAgentTriggerService
     private readonly IAgentTriggerPreferenceService _preferenceService;
     private readonly IAssistantNotificationService _notificationService;
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
+    private readonly IAgentConditionRepository _conditionRepository;
     private readonly IUserActivityTracker _activityTracker;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
@@ -52,6 +55,7 @@ public class AgentTriggerService : IAgentTriggerService
         IAgentTriggerPreferenceService preferenceService,
         IAssistantNotificationService notificationService,
         IProactiveTriggerDispatchRepository dispatchRepository,
+        IAgentConditionRepository conditionRepository,
         IUserActivityTracker activityTracker,
         IPlanningAudienceResolver planningAudienceResolver,
         IOfflineMessengerNotifier offlineMessengerNotifier,
@@ -62,6 +66,7 @@ public class AgentTriggerService : IAgentTriggerService
         _preferenceService = preferenceService;
         _notificationService = notificationService;
         _dispatchRepository = dispatchRepository;
+        _conditionRepository = conditionRepository;
         _activityTracker = activityTracker;
         _planningAudienceResolver = planningAudienceResolver;
         _offlineMessengerNotifier = offlineMessengerNotifier;
@@ -91,6 +96,7 @@ public class AgentTriggerService : IAgentTriggerService
 
         var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
+        var conditionId = await ResolveConditionIdAsync(triggerEvent, cancellationToken);
         var persisted = 0;
         var livePushed = 0;
         var inboxSignaled = 0;
@@ -134,7 +140,8 @@ public class AgentTriggerService : IAgentTriggerService
                     ContentParamsJson = contentParamsJson,
                     Severity = triggerEvent.Severity,
                     ActionRoute = triggerEvent.ActionRoute,
-                    ActionParamsJson = actionParamsJson
+                    ActionParamsJson = actionParamsJson,
+                    ConditionId = conditionId
                 }, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 persisted++;
@@ -171,6 +178,46 @@ public class AgentTriggerService : IAgentTriggerService
         _logger.LogInformation(
             "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
             triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, triggerEvent.Summary);
+    }
+
+    /// <summary>
+    /// Links this event's dispatch rows to the condition-ledger row it reports, so a dismissal months
+    /// later still knows which finding was rejected. Resolved once per event rather than per recipient:
+    /// the fingerprint depends on the event alone, and every recipient of one event reports the same
+    /// finding. Kept as a lookup by fingerprint instead of a value handed down from the tick, because
+    /// the same linkage has to work for the dispatch rows other call sites write.
+    ///
+    /// Null is the ordinary answer for everything the ledger does not track (companion broadcasts,
+    /// per-user events, anything posted outside the trigger tick) and also for a tracked event whose
+    /// row another instance has meanwhile closed. A lookup failure degrades to null as well: the
+    /// notification itself matters more than its provenance link, so it is never worth losing.
+    /// </summary>
+    private async Task<Guid?> ResolveConditionIdAsync(
+        IAgentTriggerEvent triggerEvent,
+        CancellationToken cancellationToken)
+    {
+        if (!AgentConditionLedgerPolicy.IsLedgerTracked(triggerEvent))
+        {
+            return null;
+        }
+
+        try
+        {
+            var condition = await _conditionRepository.FindOpenByFingerprintAsync(
+                AgentConditionLedgerPolicy.FingerprintFor(triggerEvent),
+                cancellationToken);
+
+            return condition?.Id;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Trigger {Kind} could not be linked to its condition-ledger row; the dispatch rows are written without a condition reference",
+                triggerEvent.Kind);
+
+            return null;
+        }
     }
 
     /// <summary>

@@ -136,6 +136,43 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
             cancellationToken);
     }
 
+    public async Task<bool> TryRejectAsync(
+        Guid conditionId,
+        AgentConditionRejectReason rejectReason,
+        Guid? rejectedByUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var condition = await _repository.GetByIdAsync(conditionId, cancellationToken);
+        if (condition == null)
+        {
+            _logger.LogInformation(
+                "Condition {ConditionId} was rejected by a user but no ledger row carries that id; the rejection is recorded on the notification only.",
+                conditionId);
+
+            return false;
+        }
+
+        if (!AgentConditionStateMachine.IsLegalTransition(condition.Status, AgentConditionStatus.Rejected))
+        {
+            _logger.LogInformation(
+                "Condition {ConditionId} is {Status} and can no longer be rejected; the rejection is recorded on the notification only.",
+                conditionId,
+                condition.Status);
+
+            return false;
+        }
+
+        return await TryTransitionAsync(
+            conditionId,
+            condition.Status,
+            AgentConditionStatus.Rejected,
+            rejectedByUserId,
+            fields: new AgentConditionTransitionFields(
+                RejectReason: rejectReason,
+                RejectedByUserId: rejectedByUserId),
+            cancellationToken: cancellationToken);
+    }
+
     private static AgentCondition NewCondition(
         string triggerKind,
         string fingerprint,

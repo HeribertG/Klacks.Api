@@ -30,6 +30,14 @@ public interface IAgentConditionRepository
     /// </summary>
     Task<AgentCondition?> FindOpenByFingerprintAsync(string fingerprint, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The row with this id whatever its status, or null. Unlike <see cref="FindOpenByFingerprintAsync"/>
+    /// this deliberately returns terminal rows too: a caller that wants to move a row along needs to see
+    /// the status it is actually in before it can pick a compare-and-swap source, and "already terminal"
+    /// is an answer it must be able to distinguish from "gone".
+    /// </summary>
+    Task<AgentCondition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     /// <summary>All open (non-terminal) rows of one detector kind, oldest detection first.</summary>
     Task<List<AgentCondition>> GetOpenByKindAsync(string triggerKind, CancellationToken cancellationToken = default);
 

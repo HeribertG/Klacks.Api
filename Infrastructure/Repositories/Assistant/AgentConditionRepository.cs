@@ -39,6 +39,13 @@ public class AgentConditionRepository : IAgentConditionRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<AgentCondition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentConditions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
+
     public async Task<List<AgentCondition>> GetOpenByKindAsync(string triggerKind, CancellationToken cancellationToken = default)
     {
         var terminalStatuses = AgentConditionStateMachine.TerminalStatuses;

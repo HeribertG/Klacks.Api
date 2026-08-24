@@ -3,17 +3,22 @@
 /// <summary>
 /// Stores a user's reaction (helpful / dismissed) on a proactive message they received. Returns
 /// false when the dispatch row does not exist or belongs to a different user, so the caller can
-/// answer with not found without leaking foreign rows. After a stored dismissal the dismiss-streak
-/// evaluator may ask the user once whether the trigger kind should be muted; an evaluator failure
-/// never fails the reaction request.
+/// answer with not found without leaking foreign rows. After a stored dismissal two follow-ups run,
+/// both strictly secondary to the stored reaction and neither able to fail the request: the
+/// dismiss-streak evaluator may ask the user once whether the trigger kind should be muted, and a
+/// dismissal of a message that reported a condition-ledger finding rejects that finding with the
+/// given reason. The reaction is persisted before either runs, because it is the one effect the user
+/// asked for and the only one that is guaranteed to be possible.
 /// </summary>
 /// <param name="dispatchRepository">Persistence of the proactive trigger dispatch rows.</param>
 /// <param name="dismissStreakEvaluator">Fires a mute suggestion after repeated dismissals.</param>
-/// <param name="logger">Logs evaluator failures without failing the request.</param>
+/// <param name="ledgerService">Writes the rejection back onto the condition-ledger row the message reported.</param>
+/// <param name="logger">Logs follow-up failures without failing the request.</param>
 
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
@@ -22,15 +27,18 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
 {
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IDismissStreakEvaluator _dismissStreakEvaluator;
+    private readonly IAgentConditionLedgerService _ledgerService;
     private readonly ILogger<SetProactiveReactionCommandHandler> _logger;
 
     public SetProactiveReactionCommandHandler(
         IProactiveTriggerDispatchRepository dispatchRepository,
         IDismissStreakEvaluator dismissStreakEvaluator,
+        IAgentConditionLedgerService ledgerService,
         ILogger<SetProactiveReactionCommandHandler> logger)
     {
         _dispatchRepository = dispatchRepository;
         _dismissStreakEvaluator = dismissStreakEvaluator;
+        _ledgerService = ledgerService;
         _logger = logger;
     }
 
@@ -48,6 +56,8 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
 
         if (request.Reaction == ProactiveReaction.Dismissed)
         {
+            await RejectLedgerConditionAsync(row, request.RejectReason, cancellationToken);
+
             try
             {
                 await _dismissStreakEvaluator.EvaluateAsync(row.UserId, row.TriggerKind, cancellationToken);
@@ -60,4 +70,57 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
 
         return true;
     }
+
+    /// <summary>
+    /// Best-effort write-back of the rejection onto the finding the message reported. Only rows that
+    /// carry a ConditionId take part - the majority do not, because only detector events admitted by
+    /// AgentConditionLedgerPolicy ever open a ledger row. Not reaching Rejected is an ordinary outcome
+    /// and stays at information level: the row may already be Executed, Resolved or Escalated, or still
+    /// Detected, from none of which the state machine grants Rejected. The dismissal itself is already
+    /// persisted at this point and must survive every one of those cases.
+    /// </summary>
+    private async Task RejectLedgerConditionAsync(
+        ProactiveTriggerDispatchRow row,
+        AgentConditionRejectReason? rejectReason,
+        CancellationToken cancellationToken)
+    {
+        if (row.ConditionId is not Guid conditionId)
+        {
+            return;
+        }
+
+        try
+        {
+            var rejected = await _ledgerService.TryRejectAsync(
+                conditionId,
+                rejectReason ?? AgentConditionRejectReason.NoReason,
+                RejectingUserId(row.UserId),
+                cancellationToken);
+
+            if (!rejected)
+            {
+                _logger.LogInformation(
+                    "Condition {ConditionId} was not marked rejected after user {UserId} dismissed its message; the dismissal itself is stored",
+                    conditionId,
+                    row.UserId);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Rejecting condition {ConditionId} after a dismissal by user {UserId} failed; the dismissal itself is stored",
+                conditionId,
+                row.UserId);
+        }
+    }
+
+    /// <summary>
+    /// The ledger stores the rejecting user as a Guid while a dispatch row carries the identity user id
+    /// as a string. Every Klacks user id is a Guid, so a value that does not parse means the row was
+    /// written by something that is not a user; the rejection is then recorded without an author rather
+    /// than abandoned, because who rejected matters less than that the finding was rejected.
+    /// </summary>
+    private static Guid? RejectingUserId(string userId) =>
+        Guid.TryParse(userId, out var parsed) ? parsed : null;
 }

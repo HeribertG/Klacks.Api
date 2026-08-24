@@ -30,6 +30,16 @@ public class ProactiveTriggerDispatchRow : BaseEntity
 
     public string? ActionParamsJson { get; set; }
 
+    /// <summary>
+    /// The condition-ledger row this notification reported, when the event took part in the ledger at
+    /// all. Null is the normal case, not an anomaly: only detector events that
+    /// AgentConditionLedgerPolicy.IsLedgerTracked admits ever open a ledger row, so companion
+    /// broadcasts, per-user events and everything posted outside the trigger tick stay unlinked. Set at
+    /// dispatch time by matching Kind + DedupKey through AgentConditionLedgerPolicy.FingerprintFor,
+    /// which is what lets a later dismissal write its reject reason back onto the finding.
+    /// </summary>
+    public Guid? ConditionId { get; set; }
+
     public ProactiveReaction Reaction { get; set; } = ProactiveReaction.None;
 
     public DateTime? ReactionAtUtc { get; set; }

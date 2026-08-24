@@ -4,7 +4,8 @@
 /// REST API for the proactive assistant message inbox: lists a user's own messages, exposes the
 /// unread count for the assistant badge, marks a single message, a listed page of messages or all
 /// messages as read and stores the user's reaction (helpful / dismissed), keyed by the message id
-/// the notification hub sent.
+/// the notification hub sent. A dismissal may carry a reject reason, which is written back onto the
+/// condition-ledger finding the message reported; sending one without a dismissal is a client error.
 /// </summary>
 /// <param name="mediator">Dispatches the inbox queries and commands.</param>
 
@@ -27,6 +28,12 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class ProactiveMessagesController : ControllerBase
 {
     private const string InvalidReactionMessage = "Invalid reaction. Allowed values: helpful, dismissed.";
+
+    private const string InvalidRejectReasonMessage =
+        "Invalid reject reason. Allowed values: generallyUnwanted, wrongThisTime, alreadyHandled, noReason.";
+
+    private const string RejectReasonWithoutDismissMessage =
+        "A reject reason is only allowed together with the dismissed reaction.";
 
     private const string TooManyIdsMessage = "Too many message ids in one request.";
 
@@ -114,11 +121,29 @@ public class ProactiveMessagesController : ControllerBase
             return BadRequest(InvalidReactionMessage);
         }
 
+        AgentConditionRejectReason? rejectReason = null;
+        if (!string.IsNullOrWhiteSpace(request.RejectReason))
+        {
+            if (reaction != ProactiveReaction.Dismissed)
+            {
+                return BadRequest(RejectReasonWithoutDismissMessage);
+            }
+
+            if (!Enum.TryParse<AgentConditionRejectReason>(request.RejectReason, ignoreCase: true, out var parsedReason)
+                || !Enum.IsDefined(parsedReason))
+            {
+                return BadRequest(InvalidRejectReasonMessage);
+            }
+
+            rejectReason = parsedReason;
+        }
+
         var found = await _mediator.Send(new SetProactiveReactionCommand
         {
             Id = id,
             UserId = GetCurrentUserId(),
-            Reaction = reaction
+            Reaction = reaction,
+            RejectReason = rejectReason
         }, cancellationToken);
 
         return found ? NoContent() : NotFound();
