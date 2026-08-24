@@ -7,7 +7,7 @@
 /// deleted scenario or cascade condition never silently drops ledger history.
 /// </summary>
 
-using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +23,9 @@ public class AgentConditionConfiguration : IEntityTypeConfiguration<AgentConditi
 
     private static readonly string OpenFingerprintFilter =
         "\"is_deleted\" = false AND \"status\" NOT IN (" +
-        $"{(int)AgentConditionStatus.Executed}, {(int)AgentConditionStatus.Rejected}, " +
-        $"{(int)AgentConditionStatus.Resolved}, {(int)AgentConditionStatus.Escalated})";
+        string.Join(", ", AgentConditionStateMachine.TerminalStatuses
+            .Select(status => (int)status)
+            .OrderBy(value => value)) + ")";
 
     public void Configure(EntityTypeBuilder<AgentCondition> builder)
     {

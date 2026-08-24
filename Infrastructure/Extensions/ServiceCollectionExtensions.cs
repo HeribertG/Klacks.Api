@@ -705,6 +705,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerRateLimiter, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerRateLimiter>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentTriggerPreferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveTriggerDispatchRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProactiveTriggerDispatchRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentConditionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentConditionRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentConditionLedgerService, Klacks.Api.Application.Services.Assistant.Conditions.AgentConditionLedgerService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDismissStreakEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.DismissStreakEvaluator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IUserActivityTracker, Klacks.Api.Application.Services.Assistant.Triggers.UserActivityTracker>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
