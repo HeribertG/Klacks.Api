@@ -32,7 +32,14 @@ public sealed record TargetHoursDriftTriggerEvent(
     };
 
     // Dedup once per employee + period (magnitude-independent): the same drift is alerted at most once.
-    public string DedupKey => $"{ClientId}:{PeriodLabel}";
+    public string DedupKey => DedupKeyFor(ClientId, PeriodLabel);
+
+    /// <summary>
+    /// The DedupKey spelling as a function of its key fields, so TargetHoursDriftDetector's
+    /// fingerprint scan can build the identical key from a key-only projection instead of restating
+    /// the format.
+    /// </summary>
+    public static string DedupKeyFor(Guid clientId, string periodLabel) => $"{clientId}:{periodLabel}";
 
     public string? ActionRoute => ProactiveActionRoutes.Schedule;
 

@@ -12,6 +12,7 @@ public interface IClientRepository : IBaseRepository<Client>
 {
     Task<int> CountAsync();
     Task<LastChangeMetaData> LastChangeMetaData();
+    IQueryable<Client> GetQuery();
     Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithAddressesAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);
     Task<List<Client>> GetByTypeWithQualificationsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default);

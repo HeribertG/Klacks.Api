@@ -293,6 +293,11 @@ public class ClientRepository : IClientRepository
         this.context.Entry(client).State = EntityState.Detached;
     }
 
+    public IQueryable<Client> GetQuery()
+    {
+        return context.Client.AsNoTracking();
+    }
+
     public async Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default)
     {
         return await context.Client
