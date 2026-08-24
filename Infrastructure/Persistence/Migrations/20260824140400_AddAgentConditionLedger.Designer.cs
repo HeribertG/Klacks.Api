@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20260824131859_AddAgentConditionLedger")]
+    [Migration("20260824140400_AddAgentConditionLedger")]
     partial class AddAgentConditionLedger
     {
         /// <inheritdoc />
@@ -951,6 +951,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
+
+                    b.Property<int>("Effect")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(3)
+                        .HasColumnName("effect");
 
                     b.Property<string>("ExecutionType")
                         .IsRequired()
