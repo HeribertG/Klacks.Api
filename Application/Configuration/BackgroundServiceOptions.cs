@@ -301,13 +301,17 @@ public class BackgroundServiceOptions
     /// <summary>
     /// Enables the daily condition-ledger digest (Etappe 3h of the Klacksy-proactive plan): once per
     /// day, at most one aggregated inbox message per planner summarising their open/new findings.
-    /// Default OFF (security-review finding, 2026-08-24): the four shift/container-related trigger
-    /// kinds (open_order, empty_container, uncut_fullday_shift, unstaffed_shift) never populate
-    /// GroupId on their events, and AgentConditionRepository's scope query fails OPEN for
-    /// GroupId == null — so until that gap is closed, enabling this pushes every planner in every
-    /// installation a daily summary that includes findings outside their configured GroupVisibility.
-    /// Re-enable only after the GroupId-per-shift gap is resolved. Override via env
-    /// <c>BackgroundServices__AgentConditionDigest=true</c>.
+    /// Turned OFF by a security-review finding on 2026-08-24: the shift/container-related trigger kinds
+    /// (open_order, empty_container, uncut_fullday_shift, unstaffed_shift) never populated GroupId on
+    /// their events, and AgentConditionRepository's scope query failed OPEN for GroupId == null, so a
+    /// digest would have summarised findings outside a planner's configured GroupVisibility.
+    ///
+    /// BOTH halves of that gap are closed since 2026-08-25: the events carry every group of their shift
+    /// (IAgentTriggerEvent.GroupIds) and declare RequiresGroupScope, and the scope query now withholds a
+    /// GroupId-null row of an AgentTriggerGroupScopedKinds.Values kind from scoped planners instead of
+    /// showing it to all of them. The default is deliberately left at false regardless - re-enabling a
+    /// background service that writes an inbox message per planner per day is an operator decision, not
+    /// a side effect of the fix. Override via env <c>BackgroundServices__AgentConditionDigest=true</c>.
     /// </summary>
     public bool AgentConditionDigest { get; set; } = false;
 
