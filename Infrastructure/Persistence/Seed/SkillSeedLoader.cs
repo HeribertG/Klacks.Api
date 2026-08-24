@@ -13,6 +13,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed.Models;
@@ -378,6 +379,7 @@ public class SkillSeedLoader
             IsEnabled = definition.IsEnabled,
             AlwaysOn = definition.AlwaysOn,
             PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill),
+            Effect = ParseEffect(definition.Effect),
             Version = definition.Version
         };
     }
@@ -398,7 +400,18 @@ public class SkillSeedLoader
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
         skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
+        skill.Effect = ParseEffect(definition.Effect);
         skill.Version = definition.Version;
+    }
+
+    private static SkillEffect ParseEffect(string? effect)
+    {
+        if (!string.IsNullOrWhiteSpace(effect) && Enum.TryParse<SkillEffect>(effect, ignoreCase: true, out var parsed))
+        {
+            return parsed;
+        }
+
+        return AgentSkillDefaults.Effect;
     }
 
     /// <summary>

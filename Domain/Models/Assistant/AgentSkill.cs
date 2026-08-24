@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -26,6 +27,8 @@ public class AgentSkill : BaseEntity
     public int SortOrder { get; set; }
 
     public string HandlerType { get; set; } = AgentSkillDefaults.HandlerType;
+
+    public SkillEffect Effect { get; set; } = AgentSkillDefaults.Effect;
 
     public string HandlerConfig { get; set; } = "{}";
 

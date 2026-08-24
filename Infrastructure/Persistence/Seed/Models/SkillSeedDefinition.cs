@@ -14,6 +14,10 @@
 /// the toolset assembler offer the apply skill again on a bare confirmation turn ("ja", "oui").
 /// It only affects which tools are offered — the apply call still passes the autonomy gate.
 /// </param>
+/// <param name="Effect">
+/// Skill effect taxonomy value (Explain, Read, Advise or Mutate) as a string, parsed case-insensitively.
+/// Missing or unparsable values fall back to AgentSkillDefaults.Effect (fail-closed: Mutate).
+/// </param>
 namespace Klacks.Api.Infrastructure.Persistence.Seed.Models;
 
 public class SkillSeedDefinition
@@ -29,6 +33,7 @@ public class SkillSeedDefinition
     public bool IsEnabled { get; set; } = true;
     public bool AlwaysOn { get; set; }
     public string? PairedApplySkill { get; set; }
+    public string? Effect { get; set; }
     [System.Text.Json.Serialization.JsonConverter(typeof(TriggerKeywordGroupsConverter))]
     public Dictionary<string, List<string>>? TriggerKeywords { get; set; }
     public Dictionary<string, List<string>>? Synonyms { get; set; }
