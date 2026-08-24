@@ -16,4 +16,12 @@ public interface IPlanningAudienceResolver
     /// (e.g. an ERP import failure) rather than a scheduling gap every planner should see.
     /// </summary>
     Task<IReadOnlySet<string>> GetAdminUserIdsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resolves the planning audience for an event scoped to a specific group: every Admin
+    /// (unrestricted, as with <see cref="GetPlanningUserIdsAsync"/>) plus every Authorised planner
+    /// whose GroupVisibility covers the group, including its whole Nested Set subtree. A planner
+    /// with zero GroupVisibility rows is excluded (fail-closed) rather than treated as unrestricted.
+    /// </summary>
+    Task<IReadOnlySet<string>> GetPlanningUserIdsForGroupAsync(Guid groupId, CancellationToken cancellationToken = default);
 }

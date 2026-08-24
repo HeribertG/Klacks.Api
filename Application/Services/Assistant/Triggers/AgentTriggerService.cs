@@ -20,7 +20,7 @@
 /// <param name="notificationService">Pushes proactive messages and inbox changes via SignalR.</param>
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
-/// <param name="planningAudienceResolver">Resolves the full planner / admin audience.</param>
+/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to a group's GroupVisibility scope when the event carries a GroupId.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
 /// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
 /// <param name="logger">Structured log per dispatch.</param>
@@ -302,6 +302,12 @@ public class AgentTriggerService : IAgentTriggerService
 
         if (triggerEvent.PlannersOnly)
         {
+            if (triggerEvent.GroupId is Guid groupId)
+            {
+                var scopedPlannerIds = await _planningAudienceResolver.GetPlanningUserIdsForGroupAsync(groupId, cancellationToken);
+                return scopedPlannerIds.ToList();
+            }
+
             var plannerIds = await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
             return plannerIds.ToList();
         }

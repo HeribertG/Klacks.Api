@@ -56,4 +56,12 @@ public interface IAgentTriggerEvent
     /// no parameters or <see cref="ActionRoute"/> is null.
     /// </summary>
     IReadOnlyDictionary<string, string>? ActionParams => null;
+
+    /// <summary>
+    /// Group this event concerns, if any. When set and <see cref="PlannersOnly"/> is true, the
+    /// audience additionally narrows to planners whose GroupVisibility (including the group's whole
+    /// Nested Set subtree) covers this group; Admins stay unrestricted. Null (the default) keeps the
+    /// unscoped planner/admin broadcast unchanged.
+    /// </summary>
+    Guid? GroupId => null;
 }

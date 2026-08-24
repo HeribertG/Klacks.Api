@@ -39,6 +39,10 @@ public sealed record PeriodOverdueTriggerEvent(
 
     public string DedupKey => $"{GroupId}:{PeriodEndDate:yyyy-MM-dd}";
 
+    // Bridges the record's non-nullable GroupId to the interface's nullable member: a plain public
+    // property of type Guid does not implicitly satisfy a Guid? interface member.
+    Guid? IAgentTriggerEvent.GroupId => GroupId;
+
     public string? ActionRoute => ProactiveActionRoutes.PeriodClosing;
 
     public IReadOnlyDictionary<string, string>? ActionParams => new Dictionary<string, string>
