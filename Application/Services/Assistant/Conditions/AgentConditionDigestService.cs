@@ -38,6 +38,9 @@ public class AgentConditionDigestService : IAgentConditionDigestService
     private const string DateKeyFormat = "yyyy-MM-dd";
     private const string NeverRanMarker = "";
 
+    private static readonly TimeSpan FallbackTimeOfDay =
+        TimeSpan.Parse(AgentConditionDigestDefaults.DefaultTimeOfDayLocal, CultureInfo.InvariantCulture);
+
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IAgentConditionScopeResolver _scopeResolver;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
@@ -137,7 +140,8 @@ public class AgentConditionDigestService : IAgentConditionDigestService
     private bool IsPastTargetTimeOfDay(TimeSpan nowLocalTimeOfDay)
     {
         var configured = _options.AgentConditionDigestTimeOfDayLocal;
-        if (TimeSpan.TryParse(configured, CultureInfo.InvariantCulture, out var target))
+        if (TimeSpan.TryParse(configured, CultureInfo.InvariantCulture, out var target)
+            && target >= TimeSpan.Zero && target < TimeSpan.FromDays(1))
         {
             return nowLocalTimeOfDay >= target;
         }
@@ -146,8 +150,7 @@ public class AgentConditionDigestService : IAgentConditionDigestService
             "Daily digest: invalid AgentConditionDigestTimeOfDayLocal '{Value}', falling back to {Default}",
             configured, AgentConditionDigestDefaults.DefaultTimeOfDayLocal);
 
-        var fallback = TimeSpan.Parse(AgentConditionDigestDefaults.DefaultTimeOfDayLocal, CultureInfo.InvariantCulture);
-        return nowLocalTimeOfDay >= fallback;
+        return nowLocalTimeOfDay >= FallbackTimeOfDay;
     }
 
     private async Task<TimeZoneInfo> ResolveTimeZoneAsync()
@@ -206,33 +209,17 @@ public class AgentConditionDigestService : IAgentConditionDigestService
                 continue;
             }
 
-            var scope = await _scopeResolver.ResolveAsync(plannerIdText, cancellationToken);
-            if (!scope.IsPlanner)
+            try
             {
-                continue;
+                if (await TryDispatchOneDigestAsync(plannerId, plannerIdText, localDigestDate, newCutoffUtc, cancellationToken))
+                {
+                    notified++;
+                }
             }
-
-            var visible = await _conditionRepository.GetOpenForScopeAsync(
-                scope.IsUnrestricted, scope.VisibleRootIds, AgentConditionDigestDefaults.ScopeQueryCap, cancellationToken);
-
-            if (visible.Count == 0)
+            catch (Exception ex)
             {
-                continue;
+                _logger.LogWarning(ex, "Daily digest: build/dispatch failed for planner {PlannerId}, skipped for today", plannerId);
             }
-
-            var totalCount = visible.Count;
-            if (visible.Count >= AgentConditionDigestDefaults.ScopeQueryCap)
-            {
-                totalCount = await _conditionRepository.CountOpenForScopeAsync(
-                    scope.IsUnrestricted, scope.VisibleRootIds, cancellationToken);
-                _logger.LogWarning(
-                    "Daily digest: planner {PlannerId} scope hit the {Cap}-row query cap ({True} truly open) - severity breakdown reflects only the capped sample",
-                    plannerId, AgentConditionDigestDefaults.ScopeQueryCap, totalCount);
-            }
-
-            var digestEvent = BuildDigestEvent(plannerId, localDigestDate, totalCount, visible, newCutoffUtc);
-            await _triggerService.OnEventAsync(digestEvent, cancellationToken);
-            notified++;
         }
 
         _logger.LogInformation("Daily digest dispatched to {Count} planner(s) for {Date}", notified, localDigestDate);
@@ -240,8 +227,50 @@ public class AgentConditionDigestService : IAgentConditionDigestService
     }
 
     /// <summary>
+    /// Builds and dispatches one planner's digest. Isolated per planner so that one planner's scope
+    /// throwing (transient DB error, broken GroupVisibility row) does not cost every other planner in the
+    /// same run their digest for the day - the watermark is already claimed before this loop runs, so a
+    /// loop-wide abort would silently skip the remaining recipients until tomorrow.
+    /// </summary>
+    private async Task<bool> TryDispatchOneDigestAsync(
+        Guid plannerId,
+        string plannerIdText,
+        DateOnly localDigestDate,
+        DateTime newCutoffUtc,
+        CancellationToken cancellationToken)
+    {
+        var scope = await _scopeResolver.ResolveAsync(plannerIdText, cancellationToken);
+        if (!scope.IsPlanner)
+        {
+            return false;
+        }
+
+        var visible = await _conditionRepository.GetOpenForScopeAsync(
+            scope.IsUnrestricted, scope.VisibleRootIds, AgentConditionDigestDefaults.ScopeQueryCap, cancellationToken);
+
+        if (visible.Count == 0)
+        {
+            return false;
+        }
+
+        var totalCount = visible.Count;
+        if (visible.Count >= AgentConditionDigestDefaults.ScopeQueryCap)
+        {
+            totalCount = await _conditionRepository.CountOpenForScopeAsync(
+                scope.IsUnrestricted, scope.VisibleRootIds, cancellationToken);
+            _logger.LogWarning(
+                "Daily digest: planner {PlannerId} scope hit the {Cap}-row query cap ({True} truly open) - severity breakdown reflects only the capped sample",
+                plannerId, AgentConditionDigestDefaults.ScopeQueryCap, totalCount);
+        }
+
+        var digestEvent = BuildDigestEvent(plannerId, localDigestDate, totalCount, visible, newCutoffUtc);
+        await _triggerService.OnEventAsync(digestEvent, cancellationToken);
+        return true;
+    }
+
+    /// <summary>
     /// <paramref name="visible"/> arrives already sorted severity-then-age by GetOpenForScopeAsync, so
-    /// its first TopFindingsCount rows are exactly the "wichtigste 3-5" short list without a second sort.
+    /// its first TopFindingsCount rows are exactly the top-priority short list without a second sort.
     /// </summary>
     private static AgentConditionDigestTriggerEvent BuildDigestEvent(
         Guid plannerId,

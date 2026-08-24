@@ -38,5 +38,10 @@ public enum AgentConditionDigestOutcome
     Ran
 }
 
-/// <summary>Outcome of one RunIfDueAsync call, together with how many planners actually received a message when it ran.</summary>
+/// <summary>
+/// Outcome of one RunIfDueAsync call, together with RecipientsNotified: how many planners had a
+/// non-empty digest built and handed off to IAgentTriggerService.OnEventAsync. This counts hand-off, not
+/// confirmed delivery - a planner's own mute preference, an existing dedup row, or an exhausted rate
+/// limit inside OnEventAsync can still silently drop that planner's message afterwards.
+/// </summary>
 public sealed record AgentConditionDigestRunResult(AgentConditionDigestOutcome Outcome, int RecipientsNotified);

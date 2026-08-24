@@ -26,11 +26,15 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     // CuriosityQuestion is Klacksy's own generated output — feeding it back into reflection would
     // recreate the self-referential loop the design spec calls out as Risk 1. MuteSuggestion is
     // meta-noise about the trigger system itself, excluded here for the same reason
-    // DismissStreakEvaluator excludes it from dismiss-streak evaluation.
+    // DismissStreakEvaluator excludes it from dismiss-streak evaluation. DailyDigest is likewise
+    // Klacksy's own aggregating output rather than a discoverable business-signal class: it fires once
+    // per planner every day by design, not because of a recurring problem, so reflecting on "reduce daily
+    // digests" would be meaningless.
     private static readonly HashSet<string> ExcludedTriggerKinds = new(StringComparer.Ordinal)
     {
         AgentTriggerKinds.CuriosityQuestion,
-        AgentTriggerKinds.MuteSuggestion
+        AgentTriggerKinds.MuteSuggestion,
+        AgentTriggerKinds.DailyDigest
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
