@@ -24,4 +24,7 @@ public static class ProactiveMessageI18nKeys
     public const string MuteSuggestion = "assistant.proactive.muteSuggestion";
     public const string PlanPausedForApproval = "assistant.proactive.planPausedForApproval";
     public const string EscalationStageAlert = "assistant.proactive.escalationStageAlert";
+    public const string OpenOrder = "assistant.proactive.openOrder";
+    public const string UncutFulldayShift = "assistant.proactive.uncutFulldayShift";
+    public const string EmptyContainer = "assistant.proactive.emptyContainer";
 }

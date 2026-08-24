@@ -1,0 +1,80 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/// <summary>
+/// Scans for active container shifts (ShiftType.IsContainer, ShiftStatus.OriginalShift) that have
+/// no ContainerTemplate row at all -- a slot-definition gap, distinct from unstaffed_shift (missing
+/// employees on slots that already exist). The anti-join against ContainerTemplate first materializes
+/// the set of container ids that already have a template, then filters shifts against that set --
+/// two set-based round-trips total, never one query per shift, mirroring the pattern
+/// ContainerAvailableTasksService uses for the same kind of exclusion. Emission is capped at
+/// MaxFindingsPerTick events per tick (this scan has no time window, unlike UnstaffedShift7dDetector).
+/// </summary>
+/// <param name="shiftRepository">Read-only access to container shift candidates.</param>
+/// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
+/// <param name="logger">Structured log per tick.</param>
+
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Schedules;
+using Microsoft.EntityFrameworkCore;
+
+namespace Klacks.Api.Application.Services.Assistant.Triggers;
+
+public class EmptyContainerDetector : IAgentTriggerDetector
+{
+    public const int MaxFindingsPerTick = 50;
+
+    private readonly IShiftRepository _shiftRepository;
+    private readonly IContainerTemplateRepository _containerTemplateRepository;
+    private readonly ILogger<EmptyContainerDetector> _logger;
+
+    public EmptyContainerDetector(
+        IShiftRepository shiftRepository,
+        IContainerTemplateRepository containerTemplateRepository,
+        ILogger<EmptyContainerDetector> logger)
+    {
+        _shiftRepository = shiftRepository;
+        _containerTemplateRepository = containerTemplateRepository;
+        _logger = logger;
+    }
+
+    public string Kind => AgentTriggerKinds.EmptyContainer;
+
+    public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
+    {
+        var containerIdsWithTemplate = await _containerTemplateRepository.GetQuery()
+            .Where(t => !t.IsDeleted)
+            .Select(t => t.ContainerId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var emptyContainers = await _shiftRepository.GetQuery()
+            .Where(s => s.ShiftType == ShiftType.IsContainer)
+            .Where(s => s.Status == ShiftStatus.OriginalShift)
+            .Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
+            .Where(s => !s.IsDeleted)
+            .Where(s => !containerIdsWithTemplate.Contains(s.Id))
+            .Take(MaxFindingsPerTick)
+            .ToListAsync(cancellationToken);
+
+        if (emptyContainers.Count == 0)
+        {
+            return Array.Empty<IAgentTriggerEvent>();
+        }
+
+        var events = emptyContainers
+            .Select(container => (IAgentTriggerEvent)new EmptyContainerTriggerEvent(
+                container.Id,
+                string.IsNullOrWhiteSpace(container.Name) ? container.Abbreviation : container.Name,
+                container.FromDate,
+                container.UntilDate))
+            .ToList();
+
+        _logger.LogInformation(
+            "EmptyContainer scan: {Events} empty container(s) with no template found",
+            events.Count);
+
+        return events;
+    }
+}

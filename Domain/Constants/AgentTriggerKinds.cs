@@ -25,6 +25,9 @@ public static class AgentTriggerKinds
     public const string MuteSuggestion = "mute_suggestion";
     public const string PlanPausedForApproval = "plan_paused_for_approval";
     public const string EscalationStageAlert = "escalation_stage_alert";
+    public const string OpenOrder = "open_order";
+    public const string UncutFulldayShift = "uncut_fullday_shift";
+    public const string EmptyContainer = "empty_container";
 }
 
 public static class AgentTriggerSeverity
