@@ -707,6 +707,7 @@ public class LLMService : ILLMService
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
                 userId: userId,
                 conversationId: context.ConversationId,
+                pageContext: context.PageContext,
                 isVoiceMode: context.IsVoiceMode,
                 budgetProfile: budgetProfile);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)

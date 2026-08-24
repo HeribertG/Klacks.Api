@@ -110,6 +110,7 @@ public class TurnReplayService : ITurnReplayService
                 agent.Id, context.Message, context.Language, availableSkillNames, context.ScopedClientPolicy,
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
                 userId: parsedUserId,
+                pageContext: context.PageContext,
                 isVoiceMode: false,
                 budgetProfile: budgetProfile,
                 cancellationToken: cancellationToken);

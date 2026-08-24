@@ -12,6 +12,8 @@
 /// <param name="sentimentAnalyzer">Analyzes user message sentiment for mood hints</param>
 /// <param name="ruleContextProvider">Builds the situational scheduling rule-pack when a scheduling skill is in scope</param>
 /// <param name="pendingUserNoteRepository">Provides the count of undelivered notes stashed for the user, surfaced as a proactive hint</param>
+/// <param name="agentConditionScopeResolver">Resolves which condition-ledger findings a given user is allowed to see</param>
+/// <param name="agentConditionRepository">Provides the open condition-ledger findings for the OPEN_FINDINGS context block</param>
 /// <param name="logger">Logger instance</param>
 
 using System.Text;
@@ -29,6 +31,8 @@ public class ContextAssemblyPipeline
     private readonly IRuleContextProvider _ruleContextProvider;
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly IRecentEntityRepository _recentEntityRepository;
+    private readonly IAgentConditionScopeResolver _agentConditionScopeResolver;
+    private readonly IAgentConditionRepository _agentConditionRepository;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
@@ -40,6 +44,7 @@ public class ContextAssemblyPipeline
     // saves one sentiment call + one embedding round-trip per such turn.
     private const int MinLengthForSemanticEnrichment = 8;
     private const int DefaultMaxLessonsPerTurn = 5;
+    private const int MaxConditionFindingsInContext = 3;
 
     public ContextAssemblyPipeline(
         IIdentityContextProvider identityContextProvider,
@@ -49,6 +54,8 @@ public class ContextAssemblyPipeline
         IRuleContextProvider ruleContextProvider,
         IPendingUserNoteRepository pendingUserNoteRepository,
         IRecentEntityRepository recentEntityRepository,
+        IAgentConditionScopeResolver agentConditionScopeResolver,
+        IAgentConditionRepository agentConditionRepository,
         ILogger<ContextAssemblyPipeline> logger)
     {
         _identityContextProvider = identityContextProvider;
@@ -58,6 +65,8 @@ public class ContextAssemblyPipeline
         _ruleContextProvider = ruleContextProvider;
         _pendingUserNoteRepository = pendingUserNoteRepository;
         _recentEntityRepository = recentEntityRepository;
+        _agentConditionScopeResolver = agentConditionScopeResolver;
+        _agentConditionRepository = agentConditionRepository;
         _logger = logger;
     }
 
@@ -79,6 +88,7 @@ public class ContextAssemblyPipeline
         bool hasDomainSkillContext = true,
         Guid? userId = null,
         string? conversationId = null,
+        AssistantPageContext? pageContext = null,
         bool isVoiceMode = false,
         ContextBudgetProfile? budgetProfile = null,
         CancellationToken cancellationToken = default)
@@ -110,6 +120,21 @@ public class ContextAssemblyPipeline
                 {
                     volatileSb.AppendLine();
                     volatileSb.AppendLine(recentBlock);
+                    volatileSb.AppendLine();
+                }
+            }
+
+            var scope = await _agentConditionScopeResolver.ResolveAsync(userId.Value.ToString(), cancellationToken);
+            if (scope.IsPlanner)
+            {
+                var preferredGroupId = ParsePreferredGroupId(pageContext?.SelectedGroupId);
+                var findings = await _agentConditionRepository.GetTopForContextAsync(
+                    scope.IsUnrestricted, scope.VisibleRootIds, preferredGroupId, MaxConditionFindingsInContext, cancellationToken);
+                var findingsBlock = AgentConditionContextRenderer.Render(findings);
+                if (!string.IsNullOrEmpty(findingsBlock))
+                {
+                    volatileSb.AppendLine();
+                    volatileSb.AppendLine(findingsBlock);
                     volatileSb.AppendLine();
                 }
             }
@@ -197,6 +222,9 @@ public class ContextAssemblyPipeline
 
         volatileSb.AppendLine();
     }
+
+    private static Guid? ParsePreferredGroupId(string? rawGroupId) =>
+        Guid.TryParse(rawGroupId, out var groupId) ? groupId : null;
 
     private static IReadOnlyList<Guid>? CombineIds(IReadOnlyList<Guid>? memoryIds, IReadOnlyList<AgentMemory> lessons)
     {
