@@ -1,0 +1,23 @@
+﻿using Klacks.Api.Data.Seed;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Klacks.Api.Infrastructure.Persistence.Migrations
+{
+    /// <inheritdoc />
+    public partial class ExtendAddressDetailReportTemplateWithBirthdate : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            QuickPrintReportTemplatesSql.ExtendAddressDetailWithBirthdate(migrationBuilder);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            QuickPrintReportTemplatesSql.RevertAddressDetailBirthdateExtension(migrationBuilder);
+        }
+    }
+}
