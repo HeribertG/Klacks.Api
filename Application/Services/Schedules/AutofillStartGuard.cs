@@ -25,6 +25,15 @@ public sealed class AutofillStartGuard
     private readonly ConcurrentDictionary<Guid, AutofillRunKey> _keyByJob = new();
 
     /// <summary>
+    /// Whether any family currently holds a run lock. Every runner across all five families -
+    /// including WizardBenchmarkService, which never registers into a per-family JobRegistry - calls
+    /// AcquireRunLock before starting and ReleaseRunLock in its finally block, so this is a strict
+    /// superset of "any of the per-family JobRegistry.RunningCount is greater than zero" and the
+    /// single cheapest signal for "an optimizer job is going right now".
+    /// </summary>
+    public bool HasActiveRuns => !_keyByJob.IsEmpty;
+
+    /// <summary>
     /// Refuses a run that is larger than its family allows.
     /// </summary>
     /// <param name="family">Autofill family of the run.</param>

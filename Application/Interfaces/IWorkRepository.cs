@@ -39,4 +39,12 @@ public interface IWorkRepository : IBaseRepository<Work>
         CancellationToken cancellationToken = default);
 
     Task<List<Work>> GetFutureUnlockedByShiftIdsAsync(IEnumerable<Guid> shiftIds, DateOnly fromDate, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether the shift has any non-scenario Work row whose LockLevel is above None - the
+    /// item-level seal signal QuietWindowService checks before proposing a remediation for it.
+    /// </summary>
+    /// <param name="shiftId">Shift whose Work rows are checked.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<bool> HasLockedWorkForShiftAsync(Guid shiftId, CancellationToken cancellationToken = default);
 }

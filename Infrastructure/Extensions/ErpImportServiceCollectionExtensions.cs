@@ -38,6 +38,7 @@ public static class ErpImportServiceCollectionExtensions
         services.AddScoped<OrderSupersessionService>();
         services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
+        services.AddSingleton<ErpImportRunState>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
 
         var bgOptions = configuration

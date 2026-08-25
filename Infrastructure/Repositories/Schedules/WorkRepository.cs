@@ -436,5 +436,15 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> HasLockedWorkForShiftAsync(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .AsNoTracking()
+            .AnyAsync(w => !w.IsDeleted
+                        && w.ShiftId == shiftId
+                        && w.AnalyseToken == null
+                        && w.LockLevel != WorkLockLevel.None, cancellationToken);
+    }
+
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
 }

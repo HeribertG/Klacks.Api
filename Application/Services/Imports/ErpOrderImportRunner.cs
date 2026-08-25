@@ -50,6 +50,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly IAgentTriggerService _triggerService;
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ErpImportRunState _runState;
     private readonly ILogger<ErpOrderImportRunner> _logger;
 
     public ErpOrderImportRunner(
@@ -63,6 +64,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         IAgentTriggerService triggerService,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
+        ErpImportRunState runState,
         ILogger<ErpOrderImportRunner> logger)
     {
         _dropPointRepository = dropPointRepository;
@@ -75,6 +77,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _triggerService = triggerService;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _runState = runState;
         _logger = logger;
     }
 
@@ -85,10 +88,18 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             return;
         }
 
-        var dropPoints = await _dropPointRepository.List();
-        foreach (var dropPoint in dropPoints.Where(d => d.IsEnabled))
+        _runState.MarkStarted();
+        try
         {
-            await ProcessDropPointAsync(dropPoint.SourceSystemId, dropPoint.BucketPrefix, cancellationToken);
+            var dropPoints = await _dropPointRepository.List();
+            foreach (var dropPoint in dropPoints.Where(d => d.IsEnabled))
+            {
+                await ProcessDropPointAsync(dropPoint.SourceSystemId, dropPoint.BucketPrefix, cancellationToken);
+            }
+        }
+        finally
+        {
+            _runState.MarkFinished();
         }
     }
 
