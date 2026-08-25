@@ -72,6 +72,8 @@ FakeSettings.UseDumpFile = builder.Configuration.GetValue("Fake:UseDumpFile", tr
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
 
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SectionName));
+
 // Fail fast outside Development if the JWT secret is missing, a placeholder, or too weak.
 // Development is skipped so local runs and WebApplicationFactory-based integration tests
 // (which boot as Development and read the secret from user secrets) are not broken.
