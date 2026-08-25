@@ -4943,6 +4943,17 @@
     "obsolete": false
   },
   {
+    "targetId": "klacksy-proactive-governance",
+    "route": "/workplace/settings",
+    "labelKey": "settings.klacksyProactiveGovernance",
+    "category": "settings.ai",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-08-25T01:05:42.248Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "klacksy-training",
     "route": "/workplace/klacksy-training",
     "labelKey": "nav.klacksy-training",
