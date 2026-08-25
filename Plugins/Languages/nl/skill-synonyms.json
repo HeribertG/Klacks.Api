@@ -1587,6 +1587,11 @@
     "controleer de planstatus",
     "is het plan klaar"
   ],
+  "get_proactive_governance": [
+    "wat kun je zelf afhandelen",
+    "toon de grens van zelfstandig handelen",
+    "staat de noodstop aan"
+  ],
   "get_scheduling_defaults": [
     "planningsinstellingen",
     "dienstinstellingen",
@@ -2455,6 +2460,11 @@
   "set_planning_profile_parameters": [
     "stel parameters van het planningsprofiel in",
     "voer waarden van het planningsprofiel in"
+  ],
+  "set_proactive_governance": [
+    "laat dat zelf afhandelen",
+    "meld dat alleen maar",
+    "zet de noodstop aan"
   ],
   "set_sealed_order_until_date": [
     "stel een einddatum in voor de verzegelde order",

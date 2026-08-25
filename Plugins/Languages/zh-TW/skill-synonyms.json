@@ -1545,6 +1545,11 @@
     "查看計劃狀態",
     "計劃完成了嗎"
   ],
+  "get_proactive_governance": [
+    "你可以自己處理哪些事情",
+    "顯示自主處理的上限",
+    "總開關是否已經開啟"
+  ],
   "get_scheduling_defaults": [
     "排班預設值",
     "班表設定",
@@ -2400,6 +2405,11 @@
   "set_planning_profile_parameters": [
     "設定排班規劃設定檔的參數",
     "輸入排班規劃設定檔的數值"
+  ],
+  "set_proactive_governance": [
+    "那件事讓你自己處理",
+    "那件事只需要回報",
+    "開啟總停止開關"
   ],
   "set_sealed_order_until_date": [
     "為已密封訂單設定結束日期",

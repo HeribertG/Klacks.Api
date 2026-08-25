@@ -1540,6 +1540,11 @@
     "查看计划状态",
     "计划完成了吗"
   ],
+  "get_proactive_governance": [
+    "你可以自己处理哪些事情",
+    "显示自主处理的上限",
+    "总开关是否已经打开"
+  ],
   "get_scheduling_defaults": [
     "查看排班默认值",
     "获取值班默认配置",
@@ -2396,6 +2401,11 @@
   "set_planning_profile_parameters": [
     "设置排班规划配置的参数",
     "输入排班规划配置的数值"
+  ],
+  "set_proactive_governance": [
+    "那件事让你自己处理",
+    "那件事只需要报告",
+    "打开总停止开关"
   ],
   "set_sealed_order_until_date": [
     "为已封存订单设置结束日期",

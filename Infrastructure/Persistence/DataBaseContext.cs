@@ -259,6 +259,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<EscalationStage> EscalationStages { get; set; }
     public DbSet<AgentCondition> AgentConditions { get; set; }
     public DbSet<AgentConditionEvent> AgentConditionEvents { get; set; }
+    public DbSet<AgentTriggerGovernance> AgentTriggerGovernances { get; set; }
 
     // Global Agent Rules DbSets
     public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }

@@ -1543,6 +1543,11 @@
     "periksa status rencana",
     "apakah rencana selesai"
   ],
+  "get_proactive_governance": [
+    "apa yang bisa kamu tangani sendiri",
+    "tampilkan batas tindakan mandiri",
+    "apakah sakelar mati utama aktif"
+  ],
   "get_scheduling_defaults": [
     "menampilkan pengaturan penjadwalan",
     "melihat nilai bawaan jadwal kerja",
@@ -2388,6 +2393,11 @@
   "set_planning_profile_parameters": [
     "atur parameter profil perencanaan",
     "masukkan nilai profil perencanaan"
+  ],
+  "set_proactive_governance": [
+    "biarkan itu ditangani sendiri",
+    "cukup laporkan saja itu",
+    "aktifkan sakelar mati utama"
   ],
   "set_sealed_order_until_date": [
     "tetapkan tanggal akhir untuk pesanan yang disegel",

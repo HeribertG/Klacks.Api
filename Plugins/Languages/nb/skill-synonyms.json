@@ -1552,6 +1552,11 @@
     "sjekk planstatus",
     "er planen ferdig"
   ],
+  "get_proactive_governance": [
+    "hva kan du ordne selv",
+    "vis grensen for selvstendig handling",
+    "er hovedbryteren slått på"
+  ],
   "get_scheduling_defaults": [
     "planleggingsinnstillinger",
     "vaktinnstillinger",
@@ -2395,6 +2400,11 @@
   "set_planning_profile_parameters": [
     "angi parametere for planleggingsprofilen",
     "skriv inn verdier for planleggingsprofilen"
+  ],
+  "set_proactive_governance": [
+    "la det bli ordnet selv",
+    "bare meld fra om det",
+    "slå på hovedbryteren"
   ],
   "set_sealed_order_until_date": [
     "sett sluttdato på den forseglede ordren",

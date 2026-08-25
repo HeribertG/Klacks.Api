@@ -1577,6 +1577,11 @@
     "tjek planens status",
     "er planen færdig"
   ],
+  "get_proactive_governance": [
+    "hvad kan du klare selv",
+    "vis grænsen for selvstændig handling",
+    "er hovedafbryderen slået til"
+  ],
   "get_scheduling_defaults": [
     "planlægningsindstillinger",
     "vagtplanindstillinger",
@@ -2422,6 +2427,11 @@
   "set_planning_profile_parameters": [
     "angiv parametre for planlægningsprofilen",
     "indtast værdier for planlægningsprofilen"
+  ],
+  "set_proactive_governance": [
+    "lad det blive klaret selv",
+    "meld det kun",
+    "slå hovedafbryderen til"
   ],
   "set_sealed_order_until_date": [
     "sæt slutdato på den forseglede ordre",

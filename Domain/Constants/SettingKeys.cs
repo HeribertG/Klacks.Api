@@ -106,6 +106,16 @@ public static class SettingKeys
     public const string ComplianceCompensatoryRestEnabled = "COMPLIANCE_COMPENSATORY_REST_ENABLED";
     public const string ComplianceCompensatoryRestDeadlineDays = "COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS";
 
+    /// <summary>
+    /// Master off switch for Klacksy's proactive ACTION branch. True pins every trigger kind to Hint
+    /// no matter what its governance row says; findings are still reported. Kept as a plain settings
+    /// row rather than a sentinel governance row so nothing has to special-case a kind named "*", and
+    /// deliberately absent from SettingsEncryptionService.SensitiveSettingTypes: an encrypted value
+    /// would not survive a database dump transfer, which the proactive plan forbids for Klacksy's
+    /// memory. ProactiveGovernanceKillSwitchGuardTests pins that exclusion.
+    /// </summary>
+    public const string KlacksyProactiveKillSwitch = "KLACKSY_PROACTIVE_KILL_SWITCH";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

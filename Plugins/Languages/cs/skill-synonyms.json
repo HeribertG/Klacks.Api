@@ -1582,6 +1582,11 @@
     "zkontrolovat stav plánu",
     "je plán hotový"
   ],
+  "get_proactive_governance": [
+    "co můžeš vyřídit sám",
+    "zobraz meze samostatného jednání",
+    "je zapnutý hlavní vypínač"
+  ],
   "get_scheduling_defaults": [
     "nastavení plánování",
     "nastavení směn",
@@ -2457,6 +2462,11 @@
   "set_planning_profile_parameters": [
     "nastavit parametry plánovacího profilu",
     "zadat hodnoty plánovacího profilu"
+  ],
+  "set_proactive_governance": [
+    "nech to vyřídit samostatně",
+    "jen to hlaš",
+    "zapni hlavní vypínač"
   ],
   "set_sealed_order_until_date": [
     "nastav datum konce zapečetěné zakázky",

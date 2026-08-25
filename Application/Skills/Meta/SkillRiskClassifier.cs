@@ -26,6 +26,13 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "assign_user_permissions",
         "set_user_group_scope",
         "set_autonomy_level",
+        // Klacksy never widens its own mandate. set_proactive_governance decides how far the
+        // heartbeat may act per trigger kind and holds the global kill switch, so leaving it
+        // unlisted would let an autonomous run grant itself Execute and switch its own brake off.
+        // Sensitive is what makes that impossible: UnattendedSkillPolicy denies every sensitive
+        // skill on the background paths, and AutonomyGateService asks a human at every level.
+        // Klacksy may still PROPOSE a change through the approval queue.
+        "set_proactive_governance",
         "create_identity_provider",
         "update_identity_provider",
         "delete_identity_provider",

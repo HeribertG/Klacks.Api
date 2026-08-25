@@ -20925,6 +20925,213 @@
       "version": 4
     },
     {
+      "name": "get_proactive_governance",
+      "area": "klacksy",
+      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states whether the master off switch is set.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "eigenmächtig",
+          "von selbst erledigen",
+          "leine"
+        ],
+        "en": [
+          "act on its own",
+          "leash"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was darfst du von selbst erledigen",
+          "wie weit darfst du bei feststellungen gehen",
+          "obergrenze pro fundtyp anzeigen",
+          "ist der not-aus gesetzt",
+          "tagesbudget für selbständige aktionen"
+        ],
+        "en": [
+          "what may you handle on your own",
+          "how far may you go on a finding",
+          "show the ceiling per finding type",
+          "is the master off switch set",
+          "daily budget for self-directed actions"
+        ],
+        "fr": [
+          "que peux-tu traiter de toi-même",
+          "jusqu'où peux-tu aller sur un constat",
+          "l'interrupteur d'arrêt est-il activé"
+        ],
+        "it": [
+          "cosa puoi gestire da solo",
+          "fino a che punto puoi spingerti su un rilievo",
+          "l'interruttore di arresto è attivo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_proactive_governance",
+      "area": "klacksy",
+      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, and flips the master off switch that pins everything back to reporting. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanPlan"
+      ],
+      "parameters": [
+        {
+          "name": "trigger_kind",
+          "description": "Which finding type the rule applies to, e.g. unstaffed_shift, empty_container, open_order. Omit when only the master off switch is being flipped. Never state this identifier to the user; use its translated label.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "availability_gap",
+            "client_missing_core_data",
+            "contract_expiring_soon",
+            "empty_container",
+            "lock_conflict",
+            "open_order",
+            "order_import_failed",
+            "period_close_due",
+            "period_overdue",
+            "scenario_pending",
+            "target_hours_drift",
+            "uncut_fullday_shift",
+            "unstaffed_shift",
+            "work_dropped_by_erp_import"
+          ]
+        },
+        {
+          "name": "max_action",
+          "description": "How far Klacksy may go: Hint reports only, Prepare additionally lays a ready scenario next to it, Execute additionally carries it out",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Hint",
+            "Prepare",
+            "Execute"
+          ]
+        },
+        {
+          "name": "enabled",
+          "description": "False pins this finding type back to reporting only; it never silences the message itself",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "responsible_owner_user_id",
+          "description": "The account under whose rights a prepared or executed action runs. Mandatory from Prepare upwards",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clear_responsible_owner",
+          "description": "True removes the accountable person again; only valid while this finding type reports only",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "daily_action_budget",
+          "description": "How many actions Klacksy may take for this finding type per day",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "window_action_limit",
+          "description": "How many actions are allowed inside one time window before the breaker trips",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "window_minutes",
+          "description": "Length of that time window in minutes",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "kill_switch",
+          "description": "True pins every finding type back to reporting only, whatever its own rule says",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "group_id",
+          "description": "Restricts the rule to one group instead of the whole installation",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "not-aus",
+          "selbständig erledigen lassen"
+        ],
+        "en": [
+          "master off switch",
+          "let it handle on its own"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "lass das von selbst erledigen",
+          "leg mir dafür ein szenario bereit",
+          "melde das nur noch",
+          "setze den not-aus für selbständige aktionen",
+          "wer ist dafür verantwortlich wenn du handelst"
+        ],
+        "en": [
+          "let that be handled on its own",
+          "lay a ready scenario next to it",
+          "only report that from now on",
+          "set the master off switch for self-directed actions",
+          "who is accountable when you act"
+        ],
+        "fr": [
+          "laisse cela être traité de soi-même",
+          "prépare-moi un scénario pour cela",
+          "contente-toi de le signaler",
+          "active l'interrupteur d'arrêt"
+        ],
+        "it": [
+          "lascia che venga gestito da solo",
+          "preparami uno scenario per questo",
+          "limitati a segnalarlo",
+          "attiva l'interruttore di arresto"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "evaluate_autonomy_level_change",
       "area": "klacksy",
       "description": "Explains what would concretely change if the autonomy level were set to a given value: how many currently registered skills would start or stop needing a confirmation before running, broken down by risk (reversible, scenario-bound, irreversible; sensitive actions always keep asking regardless of level). Use this before recommending a level change, so the user sees the real effect first — changing the level itself still happens via set_autonomy_level.",

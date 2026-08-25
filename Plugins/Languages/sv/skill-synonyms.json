@@ -1569,6 +1569,11 @@
     "kontrollera planstatus",
     "är planen klar"
   ],
+  "get_proactive_governance": [
+    "vad kan du sköta själv",
+    "visa gränsen för självständigt handlande",
+    "är huvudbrytaren påslagen"
+  ],
   "get_scheduling_defaults": [
     "schemainställningar",
     "skiftinställningar",
@@ -2415,6 +2420,11 @@
   "set_planning_profile_parameters": [
     "ange parametrar för planeringsprofilen",
     "mata in värden för planeringsprofilen"
+  ],
+  "set_proactive_governance": [
+    "låt det skötas själv",
+    "rapportera bara det",
+    "slå på huvudbrytaren"
   ],
   "set_sealed_order_until_date": [
     "sätt slutdatum på den förseglade ordern",

@@ -1539,6 +1539,11 @@
     "kiểm tra trạng thái kế hoạch",
     "kế hoạch đã xong chưa"
   ],
+  "get_proactive_governance": [
+    "bạn có thể tự xử lý những gì",
+    "hiển thị giới hạn hành động tự chủ",
+    "công tắc dừng khẩn có bật không"
+  ],
   "get_scheduling_defaults": [
     "cấu hình lập lịch mặc định",
     "cài đặt phân ca mặc định",
@@ -2402,6 +2407,11 @@
   "set_planning_profile_parameters": [
     "đặt tham số hồ sơ lập kế hoạch",
     "nhập giá trị hồ sơ lập kế hoạch"
+  ],
+  "set_proactive_governance": [
+    "hãy để việc đó tự được xử lý",
+    "chỉ báo cáo việc đó thôi",
+    "bật công tắc dừng khẩn"
   ],
   "set_sealed_order_until_date": [
     "đặt ngày kết thúc cho đơn đã niêm phong",

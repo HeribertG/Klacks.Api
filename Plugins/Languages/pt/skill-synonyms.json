@@ -1578,6 +1578,11 @@
     "verificar o status do plano",
     "o plano já terminou"
   ],
+  "get_proactive_governance": [
+    "o que podes resolver sozinho",
+    "mostra a margem de atuação",
+    "o interruptor geral está ligado"
+  ],
   "get_scheduling_defaults": [
     "configuração de planeamento",
     "configuração de turnos",
@@ -2446,6 +2451,11 @@
   "set_planning_profile_parameters": [
     "definir parâmetros do perfil de planeamento",
     "introduzir valores do perfil de planeamento"
+  ],
+  "set_proactive_governance": [
+    "deixa isso ser resolvido sozinho",
+    "limita-te a comunicar isso",
+    "liga o interruptor geral"
   ],
   "set_sealed_order_until_date": [
     "define data de fim para o pedido selado",

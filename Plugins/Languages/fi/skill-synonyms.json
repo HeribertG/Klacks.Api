@@ -1567,6 +1567,11 @@
     "tarkista suunnitelman tila",
     "onko suunnitelma valmis"
   ],
+  "get_proactive_governance": [
+    "mitä voit hoitaa itse",
+    "näytä itsenäisen toiminnan raja",
+    "onko pääkatkaisin päällä"
+  ],
   "get_scheduling_defaults": [
     "suunnitteluasetukset",
     "vuoroasetukset",
@@ -2432,6 +2437,11 @@
   "set_planning_profile_parameters": [
     "aseta suunnitteluprofiilin parametrit",
     "syötä suunnitteluprofiilin arvot"
+  ],
+  "set_proactive_governance": [
+    "anna sen hoitua itsestään",
+    "ilmoita siitä vain",
+    "kytke pääkatkaisin päälle"
   ],
   "set_sealed_order_until_date": [
     "aseta päättymispäivä sinetöidylle tilaukselle",

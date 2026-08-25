@@ -1548,6 +1548,11 @@
     "semak status pelan",
     "adakah pelan selesai"
   ],
+  "get_proactive_governance": [
+    "apa yang boleh anda uruskan sendiri",
+    "tunjukkan had tindakan sendiri",
+    "adakah suis mati utama dihidupkan"
+  ],
   "get_scheduling_defaults": [
     "semak tetapan lalai penjadualan",
     "konfigurasi asas syif kerja",
@@ -2399,6 +2404,11 @@
   "set_planning_profile_parameters": [
     "tetapkan parameter profil perancangan",
     "masukkan nilai profil perancangan"
+  ],
+  "set_proactive_governance": [
+    "biarkan ia diuruskan sendiri",
+    "laporkan sahaja perkara itu",
+    "hidupkan suis mati utama"
   ],
   "set_sealed_order_until_date": [
     "tetapkan tarikh tamat untuk tempahan bermeterai",

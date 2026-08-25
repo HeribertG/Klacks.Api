@@ -1591,6 +1591,11 @@
     "sprawdź status planu",
     "czy plan jest gotowy"
   ],
+  "get_proactive_governance": [
+    "co możesz załatwić samodzielnie",
+    "pokaż granicę samodzielnego działania",
+    "czy wyłącznik awaryjny jest włączony"
+  ],
   "get_scheduling_defaults": [
     "ustawienia planowania",
     "ustawienia zmian",
@@ -2476,6 +2481,11 @@
   "set_planning_profile_parameters": [
     "ustaw parametry profilu planowania",
     "wprowadź wartości profilu planowania"
+  ],
+  "set_proactive_governance": [
+    "pozwól to załatwić samodzielnie",
+    "tylko to zgłaszaj",
+    "włącz wyłącznik awaryjny"
   ],
   "set_sealed_order_until_date": [
     "ustaw datę końca zapieczętowanego zamówienia",

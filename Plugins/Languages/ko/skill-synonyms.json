@@ -1538,6 +1538,11 @@
     "계획 상태 확인",
     "계획이 끝났나요"
   ],
+  "get_proactive_governance": [
+    "혼자서 처리할 수 있는 일이 무엇인가요",
+    "자율 행동 한도를 보여줘",
+    "비상 정지 스위치가 켜져 있나요"
+  ],
   "get_scheduling_defaults": [
     "일정 기본 설정 조회",
     "근무 기본값 확인",
@@ -2399,6 +2404,11 @@
   "set_planning_profile_parameters": [
     "계획 프로필 매개변수 설정",
     "계획 프로필 값 입력"
+  ],
+  "set_proactive_governance": [
+    "그건 알아서 처리하게 해줘",
+    "그건 알리기만 해줘",
+    "비상 정지 스위치를 켜줘"
   ],
   "set_sealed_order_until_date": [
     "봉인된 주문에 종료일을 설정해",

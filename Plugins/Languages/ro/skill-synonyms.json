@@ -1571,6 +1571,11 @@
     "verifică starea planului",
     "planul s-a terminat"
   ],
+  "get_proactive_governance": [
+    "ce poți rezolva singur",
+    "arată limita acțiunii independente",
+    "este pornit întrerupătorul general"
+  ],
   "get_scheduling_defaults": [
     "setări planificare",
     "setări ture",
@@ -2430,6 +2435,11 @@
   "set_planning_profile_parameters": [
     "setează parametrii profilului de planificare",
     "introdu valorile profilului de planificare"
+  ],
+  "set_proactive_governance": [
+    "lasă asta să fie rezolvat singur",
+    "doar raportează asta",
+    "pornește întrerupătorul general"
   ],
   "set_sealed_order_until_date": [
     "setează dată de sfârșit pentru comanda sigilată",
