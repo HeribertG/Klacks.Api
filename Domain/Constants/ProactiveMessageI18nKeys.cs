@@ -28,4 +28,5 @@ public static class ProactiveMessageI18nKeys
     public const string UncutFulldayShift = "assistant.proactive.uncutFulldayShift";
     public const string EmptyContainer = "assistant.proactive.emptyContainer";
     public const string DailyDigest = "assistant.proactive.dailyDigest";
+    public const string ScenarioPrepared = "assistant.proactive.scenarioPrepared";
 }

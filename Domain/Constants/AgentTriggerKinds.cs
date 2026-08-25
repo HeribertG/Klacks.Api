@@ -29,6 +29,7 @@ public static class AgentTriggerKinds
     public const string UncutFulldayShift = "uncut_fullday_shift";
     public const string EmptyContainer = "empty_container";
     public const string DailyDigest = "daily_digest";
+    public const string ScenarioPrepared = "scenario_prepared";
 }
 
 public static class AgentTriggerSeverity

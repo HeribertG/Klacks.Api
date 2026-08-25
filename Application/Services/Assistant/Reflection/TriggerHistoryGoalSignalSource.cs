@@ -29,12 +29,15 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     // DismissStreakEvaluator excludes it from dismiss-streak evaluation. DailyDigest is likewise
     // Klacksy's own aggregating output rather than a discoverable business-signal class: it fires once
     // per planner every day by design, not because of a recurring problem, so reflecting on "reduce daily
-    // digests" would be meaningless.
+    // digests" would be meaningless. ScenarioPrepared is the same category: it announces what Klacksy
+    // itself just did, so a goal derived from it would say "prepare fewer remediations" - a target on
+    // Klacksy's own helpfulness rather than on any business condition.
     private static readonly HashSet<string> ExcludedTriggerKinds = new(StringComparer.Ordinal)
     {
         AgentTriggerKinds.CuriosityQuestion,
         AgentTriggerKinds.MuteSuggestion,
-        AgentTriggerKinds.DailyDigest
+        AgentTriggerKinds.DailyDigest,
+        AgentTriggerKinds.ScenarioPrepared
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;

@@ -38,6 +38,18 @@ public interface IAgentConditionRepository
     /// </summary>
     Task<AgentCondition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The row whose remediation is this AnalyseScenario, or null. Identity by scenario id rather than
+    /// by the scenario's CreatedByUser string: only a row Klacksy prepared ever carries a ScenarioId, so
+    /// a hit IS a Klacksy scenario and a human-authored one can never be mistaken for one. Terminal rows
+    /// are returned too, so a caller can tell "already rejected" from "never was Klacksy's".
+    /// Newest detection first, which only matters if a scenario were ever linked twice - it is written
+    /// exactly once, in the transition to Prepared. Indexed already, without a migration of its own:
+    /// AgentConditionConfiguration declares ScenarioId as a foreign key to AnalyseScenario, and EF backs
+    /// every foreign key with an index (ix_agent_conditions_scenario_id).
+    /// </summary>
+    Task<AgentCondition?> FindByScenarioIdAsync(Guid scenarioId, CancellationToken cancellationToken = default);
+
     /// <summary>All open (non-terminal) rows of one detector kind, oldest detection first.</summary>
     Task<List<AgentCondition>> GetOpenByKindAsync(string triggerKind, CancellationToken cancellationToken = default);
 

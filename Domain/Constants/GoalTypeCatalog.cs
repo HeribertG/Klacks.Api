@@ -5,8 +5,9 @@
 /// kind each one is derived from. The reflection LLM selects from this catalogue instead of writing
 /// free prose, which is what keeps the proposal texts localizable (the frontend renders TitleKey and
 /// RationaleKey in the user's UI language, the same way ProactiveMessageI18nKeys works) and keeps
-/// technical identifiers out of anything a user reads. CuriosityQuestion, MuteSuggestion and DailyDigest
-/// have no entry on purpose — TriggerHistoryGoalSignalSource already excludes them as Klacksy's own output.
+/// technical identifiers out of anything a user reads. CuriosityQuestion, MuteSuggestion, DailyDigest and
+/// ScenarioPrepared have no entry on purpose — TriggerHistoryGoalSignalSource already excludes them as
+/// Klacksy's own output.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant;
