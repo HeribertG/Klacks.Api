@@ -712,6 +712,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentConditionDigestService, Klacks.Api.Application.Services.Assistant.Conditions.AgentConditionDigestService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerGovernanceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentTriggerGovernanceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveGovernanceResolver, Klacks.Api.Application.Services.Assistant.Conditions.ProactiveGovernanceResolver>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IConditionRemediationRegistry, Klacks.Api.Application.Services.Assistant.Conditions.ConditionRemediationRegistry>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveActionIdentityProvider, Klacks.Api.Application.Services.Assistant.Conditions.ProactiveActionIdentityProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConditionScenarioPreparationService, Klacks.Api.Application.Services.Assistant.Conditions.ConditionScenarioPreparationService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDismissStreakEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.DismissStreakEvaluator>();

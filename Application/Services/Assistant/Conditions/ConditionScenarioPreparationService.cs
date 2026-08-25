@@ -201,7 +201,7 @@ public sealed class ConditionScenarioPreparationService : IConditionScenarioPrep
 
                 await _triggerService.OnEventAsync(
                     new ScenarioPreparedTriggerEvent(
-                        scenario.Id, scenario.Name, groupId, condition.TriggerKind, recipientId),
+                        scenario.Id, scenario.FromDate, groupId, condition.TriggerKind, recipientId),
                     cancellationToken);
             }
         }

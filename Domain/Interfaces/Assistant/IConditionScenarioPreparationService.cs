@@ -15,8 +15,13 @@ public interface IConditionScenarioPreparationService
 {
     /// <summary>
     /// Creates the scenario, links it to the ledger row and moves that row to Prepared, then tells the
-    /// planners it is waiting. Deliberately total: every way of not preparing comes back as an outcome,
-    /// never an exception, because the caller is a background tick that must go on to the next finding.
+    /// planners it is waiting. Every way of not preparing THIS finding comes back as an outcome rather
+    /// than an exception - a status that does not admit a proposal, a lost compare-and-swap, an
+    /// undeliverable notification. Infrastructure failures are NOT swallowed: a failed commit or a
+    /// dropped connection still propagates. A caller working through several findings in one tick must
+    /// therefore wrap each call itself, exactly as ScheduledTaskRunner.RunDueAsync and
+    /// AgentTriggerBackgroundService already do per task and per detector - otherwise one broken row
+    /// costs every later row its turn, the failure mode Etappe 3h already paid for once.
     ///
     /// ORDER IS PART OF THE CONTRACT. The scenario is created and COMMITTED before the ledger
     /// transition, because AgentConditionRepository.TryTransitionAsync opens its own database

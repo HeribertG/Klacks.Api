@@ -21,6 +21,8 @@ namespace Klacks.Api.Application.Services.Assistant.Conditions;
 public class AgentConditionLedgerService : IAgentConditionLedgerService
 {
     private const string EmptyPayloadJson = "{}";
+    private const string DelegatedEventType = "Delegated";
+    private const string DelegatedEventDetailFormat = "MaxAction={0}";
 
     private readonly IAgentConditionRepository _repository;
     private readonly TimeProvider _timeProvider;
@@ -171,6 +173,33 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
                 RejectReason: rejectReason,
                 RejectedByUserId: rejectedByUserId),
             cancellationToken: cancellationToken);
+    }
+
+    public async Task<bool> TryDelegateAsync(
+        Guid conditionId,
+        ProactiveMaxAction maxAction,
+        Guid delegatingUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var delegated = await _repository.SetDelegationAsync(conditionId, maxAction, delegatingUserId, cancellationToken);
+        if (!delegated)
+        {
+            return false;
+        }
+
+        await _repository.InsertEventAsync(
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = DelegatedEventType,
+                AtUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                UserId = delegatingUserId,
+                Detail = string.Format(DelegatedEventDetailFormat, maxAction)
+            },
+            cancellationToken);
+
+        return true;
     }
 
     private static AgentCondition NewCondition(

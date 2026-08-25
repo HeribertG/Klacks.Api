@@ -167,6 +167,25 @@ public class AgentConditionRepository : IAgentConditionRepository
         return affected > 0;
     }
 
+    public async Task<bool> SetDelegationAsync(
+        Guid id,
+        ProactiveMaxAction maxAction,
+        Guid delegatingUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var plannerRelevantStatuses = AgentConditionPlannerRelevantStatuses.Values;
+
+        var affected = await _context.AgentConditions
+            .Where(c => c.Id == id && plannerRelevantStatuses.Contains(c.Status))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.DelegatedMaxAction, maxAction)
+                    .SetProperty(c => c.DelegatedByUserId, delegatingUserId),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
     public async Task<AgentConditionEvent> InsertEventAsync(AgentConditionEvent conditionEvent, CancellationToken cancellationToken = default)
     {
         await _context.AgentConditionEvents.AddAsync(conditionEvent, cancellationToken);
@@ -223,6 +242,18 @@ public class AgentConditionRepository : IAgentConditionRepository
         CancellationToken cancellationToken = default)
     {
         return await ScopedPlannerRelevantQuery(isUnrestricted, visibleRootIds).CountAsync(cancellationToken);
+    }
+
+    public async Task<AgentCondition?> GetOpenForScopeByIdAsync(
+        Guid id,
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default)
+    {
+        return await ScopedPlannerRelevantQuery(isUnrestricted, visibleRootIds)
+            .Where(c => c.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private static readonly Expression<Func<AgentCondition, int>> SeverityRank =

@@ -90,6 +90,20 @@ public interface IAgentConditionRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The single planner-relevant row with this id, under the same scope contract as
+    /// <see cref="GetOpenForScopeAsync"/>, or null when it does not exist, is not currently
+    /// AgentConditionPlannerRelevantStatuses.Values, or falls outside the caller's scope. Etappe 4e
+    /// delegation uses this so it can answer "not found" rather than "forbidden" for a condition outside
+    /// the delegating user's own visibility - matching how the scoped list queries already hide
+    /// out-of-scope rows instead of revealing that they exist.
+    /// </summary>
+    Task<AgentCondition?> GetOpenForScopeByIdAsync(
+        Guid id,
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Persists a freshly detected condition together with its first audit event in one SaveChangesAsync,
     /// so a ledger row can never exist without the event that opened it. Returns null - not an exception -
     /// when the partial unique index on Fingerprint rejected the insert because another instance opened a
@@ -130,6 +144,19 @@ public interface IAgentConditionRepository
     /// move the clock backwards. Returns whether a row was updated.
     /// </summary>
     Task<bool> TouchLastSeenAsync(Guid id, DateTime seenAtUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Writes a human's single-condition delegation grant (Etappe 4e, "mach du"): DelegatedMaxAction and
+    /// DelegatedByUserId, nothing else - this never touches Status, so it carries no compare-and-swap.
+    /// Guarded the same way as <see cref="TouchLastSeenAsync"/>, on the row still being
+    /// AgentConditionPlannerRelevantStatuses.Values: delegating a row that is Resolved, Rejected or
+    /// Executed has nothing left to act on. Returns whether a row was updated.
+    /// </summary>
+    Task<bool> SetDelegationAsync(
+        Guid id,
+        ProactiveMaxAction maxAction,
+        Guid delegatingUserId,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Appends a standalone audit event, for occurrences that are not status transitions (a failed

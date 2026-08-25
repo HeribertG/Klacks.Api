@@ -65,11 +65,13 @@ public class AgentCondition : BaseEntity
     public Guid? CausedByConditionId { get; set; }
 
     /// <summary>
-    /// Single-condition override of the kind's governance MaxAction (Etappe 4 delegation). Left as a
-    /// plain int until Etappe 4 introduces ProactiveMaxAction (Hint/Prepare/Execute) - no migration
-    /// needed to retarget the CLR type onto that enum later, the stored column stays integer.
+    /// Single-condition override of the kind's governance MaxAction (Etappe 4e delegation, "mach du").
+    /// Retargeted from plain int onto ProactiveMaxAction now that Etappe 4a introduced it - no migration
+    /// needed, EF maps an unconverted enum to the same integer column a plain int would. Never widens
+    /// what the kind's governance allows by itself; the delegating user's own rights against this value
+    /// are enforced in DelegateConditionCommandHandler, before this column is ever written.
     /// </summary>
-    public int? DelegatedMaxAction { get; set; }
+    public ProactiveMaxAction? DelegatedMaxAction { get; set; }
 
     public Guid? DelegatedByUserId { get; set; }
 

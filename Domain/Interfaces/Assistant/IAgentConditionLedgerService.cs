@@ -90,4 +90,21 @@ public interface IAgentConditionLedgerService
         AgentConditionRejectReason rejectReason,
         Guid? rejectedByUserId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records a human's one-off "handle this yourself" grant for a single condition row (Etappe 4e).
+    /// Only ever narrows what MaxAction the row may reach beyond the kind's own governance for exactly
+    /// this row - it never widens governance, and it never touches Status. Returns false when the row
+    /// does not exist or is no longer AgentConditionPlannerRelevantStatuses.Values: delegating a
+    /// resolved, rejected or executed finding has nothing left to act on. Whether
+    /// <paramref name="delegatingUserId"/> is even allowed to request <paramref name="maxAction"/> - both
+    /// their role tier and whether this condition is within their own group-visibility scope - is the
+    /// caller's responsibility (DelegateConditionCommandHandler); by the time this runs, the grant is
+    /// already authorised.
+    /// </summary>
+    Task<bool> TryDelegateAsync(
+        Guid conditionId,
+        ProactiveMaxAction maxAction,
+        Guid delegatingUserId,
+        CancellationToken cancellationToken = default);
 }

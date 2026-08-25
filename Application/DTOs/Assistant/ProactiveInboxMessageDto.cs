@@ -23,4 +23,12 @@ public record ProactiveInboxMessageDto
     public DateTime? CreatedUtc { get; init; }
 
     public DateTime? ReadAtUtc { get; init; }
+
+    /// <summary>
+    /// Whether this message reported a condition-ledger finding, i.e. whether the "mach du" delegate
+    /// action (Etappe 4e) has anything to act on. False for the majority of dispatch rows, which never
+    /// carry a ConditionId - the client uses this to hide the delegate button rather than offer an
+    /// action that would answer not-found.
+    /// </summary>
+    public bool CanDelegate { get; init; }
 }

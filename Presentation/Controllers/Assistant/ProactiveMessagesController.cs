@@ -37,6 +37,9 @@ public class ProactiveMessagesController : ControllerBase
 
     private const string TooManyIdsMessage = "Too many message ids in one request.";
 
+    private const string InvalidMaxActionMessage =
+        "Invalid maxAction. Allowed values: 1 (Prepare) or 2 (Execute); 0 (Hint) needs no delegation.";
+
     private readonly IMediator _mediator;
 
     public ProactiveMessagesController(IMediator mediator)
@@ -147,6 +150,34 @@ public class ProactiveMessagesController : ControllerBase
         }, cancellationToken);
 
         return found ? NoContent() : NotFound();
+    }
+
+    [HttpPut("{id:guid}/delegate")]
+    public async Task<IActionResult> Delegate(Guid id, [FromBody] DelegateConditionRequest request, CancellationToken cancellationToken)
+    {
+        if (!Enum.IsDefined(typeof(ProactiveMaxAction), request.MaxAction) || request.MaxAction <= (int)ProactiveMaxAction.Hint)
+        {
+            return BadRequest(InvalidMaxActionMessage);
+        }
+
+        if (!Guid.TryParse(GetCurrentUserId(), out var delegatingUserId))
+        {
+            return Unauthorized();
+        }
+
+        var outcome = await _mediator.Send(new DelegateConditionCommand
+        {
+            MessageId = id,
+            DelegatingUserId = delegatingUserId,
+            MaxAction = (ProactiveMaxAction)request.MaxAction
+        }, cancellationToken);
+
+        return outcome switch
+        {
+            DelegateConditionOutcome.Delegated => NoContent(),
+            DelegateConditionOutcome.Forbidden => Forbid(JwtBearerDefaults.AuthenticationScheme),
+            _ => NotFound()
+        };
     }
 
     private string GetCurrentUserId()
