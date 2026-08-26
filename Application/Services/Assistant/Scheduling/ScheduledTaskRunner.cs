@@ -10,9 +10,11 @@
 /// outcome. No LLM and no further user input are involved at
 /// fire time. Rights come from the owner's CURRENT roles, not from a set frozen at authoring time, so a
 /// revoked role takes effect on the next run. Because nobody is there to confirm anything, skill actions
-/// pass <see cref="IUnattendedSkillPolicy"/> first; a refusal there disables the task instead of
-/// retrying it every tick, while a refusal to mint a token leaves it enabled — that condition is
-/// usually temporary.
+/// pass <see cref="IUnattendedSkillPolicy"/> first, judged against the owner's CURRENT autonomy level.
+/// A refusal there disables the task instead of retrying it every tick — except when the only obstacle
+/// is the missing opt-in for an irreversible skill, which pauses the task and keeps both the owner's
+/// enabled intent and the schedule, so the owner can lift it again. A refusal to mint a token leaves the
+/// task untouched — that condition is usually temporary.
 /// </summary>
 
 using System.Text.Json;
@@ -36,6 +38,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
     private readonly IPendingUserNoteRepository _pendingNotes;
     private readonly IAgentRepository _agentRepository;
     private readonly IUnattendedSkillPolicy _unattendedPolicy;
+    private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<ScheduledTaskRunner> _logger;
     private readonly ScheduledTaskDuePolicy _policy = new();
@@ -47,6 +50,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         IPendingUserNoteRepository pendingNotes,
         IAgentRepository agentRepository,
         IUnattendedSkillPolicy unattendedPolicy,
+        IAgentAutonomyPreferenceRepository autonomyRepository,
         IInternalTokenIssuer internalTokenIssuer,
         ILogger<ScheduledTaskRunner> logger)
     {
@@ -56,6 +60,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         _pendingNotes = pendingNotes;
         _agentRepository = agentRepository;
         _unattendedPolicy = unattendedPolicy;
+        _autonomyRepository = autonomyRepository;
         _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
@@ -113,26 +118,34 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
                 "Missed while the server was offline at the scheduled time; advanced to the next run.",
                 newNext,
                 incrementRun: false,
-                disable: false,
+                ScheduledTaskFollowUp.None,
                 cancellationToken);
             return;
         }
 
-        var (status, body, disable) = await ExecuteActionAsync(task, cancellationToken);
+        var (status, body, followUp) = await ExecuteActionAsync(task, cancellationToken);
         await DeliverAsync(task, body, cancellationToken);
-        await RecordOutcomeAsync(task, now, status, body, newNext, incrementRun: true, disable, cancellationToken);
+        await RecordOutcomeAsync(
+            task,
+            now,
+            status,
+            body,
+            newNext,
+            incrementRun: followUp != ScheduledTaskFollowUp.Pause,
+            followUp,
+            cancellationToken);
     }
 
-    private async Task<(string Status, string Body, bool Disable)> ExecuteActionAsync(ScheduledTask task, CancellationToken cancellationToken)
+    private async Task<(string Status, string Body, ScheduledTaskFollowUp FollowUp)> ExecuteActionAsync(ScheduledTask task, CancellationToken cancellationToken)
     {
         if (string.Equals(task.ActionType, ScheduledTaskActionTypes.Reminder, StringComparison.OrdinalIgnoreCase))
         {
-            return (ScheduledTaskRunStatus.Ok, task.MessageText ?? string.Empty, false);
+            return (ScheduledTaskRunStatus.Ok, task.MessageText ?? string.Empty, ScheduledTaskFollowUp.None);
         }
 
         if (string.IsNullOrWhiteSpace(task.SkillName))
         {
-            return (ScheduledTaskRunStatus.Error, "No skill configured for this task.", false);
+            return (ScheduledTaskRunStatus.Error, "No skill configured for this task.", ScheduledTaskFollowUp.None);
         }
 
         // The run acts under a freshly minted token carrying the owner's CURRENT roles, not the
@@ -145,17 +158,29 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             _logger.LogWarning(
                 "Scheduled task {TaskId} could not run skill {SkillName}: {Reason}",
                 task.Id, task.SkillName, token.Reason);
-            return (ScheduledTaskRunStatus.Error, token.Reason!, false);
+            return (ScheduledTaskRunStatus.Error, token.Reason!, ScheduledTaskFollowUp.None);
         }
 
         var ownerPermissions = Permissions.ExpandRoles(token.Roles);
-        var decision = _unattendedPolicy.Decide(task.SkillName, ownerPermissions);
+        var autonomyLevel = await GetAutonomyLevelAsync(task.OwnerUserId, cancellationToken);
+        var decision = _unattendedPolicy.Decide(new UnattendedSkillRequest(
+            task.SkillName,
+            ownerPermissions,
+            autonomyLevel,
+            UnattendedExecutionKind.ScheduledTask,
+            task.AllowIrreversibleUnattended));
+
         if (!decision.Allowed)
         {
+            var followUp = decision.DenyReason == UnattendedDenyReason.IrreversibleWithoutOptIn
+                ? ScheduledTaskFollowUp.Pause
+                : ScheduledTaskFollowUp.Disable;
+
             _logger.LogWarning(
-                "Scheduled task {TaskId} refused and disabled before running skill {SkillName}: {Reason}",
-                task.Id, task.SkillName, decision.Reason);
-            return (ScheduledTaskRunStatus.Error, decision.Reason!, true);
+                "Scheduled task {TaskId} refused before running skill {SkillName} ({DenyReason}, follow-up {FollowUp}): {Reason}",
+                task.Id, task.SkillName, decision.DenyReason, followUp, decision.Reason);
+
+            return (ScheduledTaskRunStatus.Error, decision.Reason!, followUp);
         }
 
         var context = new SkillExecutionContext
@@ -179,8 +204,14 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         var result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
         var message = string.IsNullOrWhiteSpace(result.Message) ? "Done." : result.Message!;
         return result.Success
-            ? (ScheduledTaskRunStatus.Ok, message, false)
-            : (ScheduledTaskRunStatus.Error, message, false);
+            ? (ScheduledTaskRunStatus.Ok, message, ScheduledTaskFollowUp.None)
+            : (ScheduledTaskRunStatus.Error, message, ScheduledTaskFollowUp.None);
+    }
+
+    private async Task<AutonomyLevel> GetAutonomyLevelAsync(Guid ownerUserId, CancellationToken cancellationToken)
+    {
+        var row = await _autonomyRepository.GetAsync(ownerUserId.ToString(), cancellationToken);
+        return row?.Level ?? AutonomyDefaults.DefaultLevel;
     }
 
     /// <summary>
@@ -258,7 +289,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         string resultText,
         DateTime? newNext,
         bool incrementRun,
-        bool disable,
+        ScheduledTaskFollowUp followUp,
         CancellationToken cancellationToken)
     {
         task.LastRunUtc = now;
@@ -271,7 +302,15 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             task.RunCount += 1;
         }
 
-        if (disable || (task.MaxRuns is { } max && task.RunCount >= max))
+        // A pause keeps IsEnabled and NextRunUtc: the owner's on/off intent is untouched and the schedule
+        // survives, so lifting the pause is a pure toggle instead of a recreation.
+        if (followUp == ScheduledTaskFollowUp.Pause)
+        {
+            task.IsPaused = true;
+            task.PausedReason = Truncate(resultText);
+        }
+
+        if (followUp == ScheduledTaskFollowUp.Disable || (task.MaxRuns is { } max && task.RunCount >= max))
         {
             task.IsEnabled = false;
             task.NextRunUtc = null;

@@ -60,4 +60,21 @@ public class ScheduledTask : BaseEntity
 
     /// <summary>Optional cap on total runs; null means unlimited. The task disables itself when reached.</summary>
     public int? MaxRuns { get; set; }
+
+    /// <summary>
+    /// Explicit per-task opt-in that lets an irreversible skill run unattended. Off by default: a
+    /// background run has nobody to confirm anything, so the destructive classes stay refused unless the
+    /// owner deliberately accepted that for this one task.
+    /// </summary>
+    public bool AllowIrreversibleUnattended { get; set; }
+
+    /// <summary>
+    /// Set when a run was refused for a cause the owner can still fix. Deliberately separate from
+    /// IsEnabled, which carries the owner's own on/off intent: lifting a pause must not have to guess
+    /// whether the task was switched off by its owner or by the policy.
+    /// </summary>
+    public bool IsPaused { get; set; }
+
+    /// <summary>Why the task was paused; null while it is not paused.</summary>
+    public string? PausedReason { get; set; }
 }
