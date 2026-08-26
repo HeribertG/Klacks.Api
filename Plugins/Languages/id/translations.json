@@ -1432,6 +1432,7 @@
   "new-address": "+ Buat alamat",
   "new-group": "+ Buat grup",
   "new-work": "+ Buat dinas",
+  "new-work-tooltip": "Dinas ini terkait dengan klien dan pesanan.",
   "new-plannable-work": "+ Buat layanan",
   "new-plannable-work-tooltip": "Dinas ini tidak memiliki klien yang memesan atau membayarnya. Ini untuk pekerjaan umum yang tidak terkait dengan klien tertentu.",
   "no-access.message": "Anda tidak memiliki hak untuk mengakses fungsi ini.",

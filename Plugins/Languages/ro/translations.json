@@ -1432,6 +1432,7 @@
   "new-address": "+ Adăugare adresă",
   "new-group": "+ Adăugare grup",
   "new-work": "+ Adăugare tură",
+  "new-work-tooltip": "Acest serviciu este legat de un client și de o comandă.",
   "new-plannable-work": "+ Adăugare serviciu",
   "new-plannable-work-tooltip": "Acest serviciu nu are un client care să îl comande sau să îl plătească. Este destinat muncii generale, care nu este legată de un anumit client.",
   "no-access.message": "Nu aveți drepturi de acces la această funcție.",

@@ -1432,6 +1432,7 @@
   "new-address": "+ Opret adresse",
   "new-group": "+ Opret gruppe",
   "new-work": "+ Opret vagt",
+  "new-work-tooltip": "Denne vagt er knyttet til en kunde og en ordre.",
   "new-plannable-work": "+ Opret tjeneste",
   "new-plannable-work-tooltip": "Denne vagt har ingen kunde, der bestiller eller betaler for den. Den er beregnet til generelt arbejde, der ikke er knyttet til en bestemt kunde.",
   "no-access.message": "Du har ikke rettigheder til at tilgå denne funktion.",

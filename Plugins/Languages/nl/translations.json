@@ -1432,6 +1432,7 @@
   "new-address": "+ Adres toevoegen",
   "new-group": "+ Groep toevoegen",
   "new-work": "+ Dienst toevoegen",
+  "new-work-tooltip": "Deze dienst is gekoppeld aan een klant en een bestelling.",
   "new-plannable-work": "+ Algemene dienst toevoegen",
   "new-plannable-work-tooltip": "Deze dienst heeft geen klant die hem bestelt of ervoor betaalt. Hij is bedoeld voor algemeen werk dat niet aan een specifieke klant is gekoppeld.",
   "no-access.message": "U heeft geen rechten om deze functie te openen.",

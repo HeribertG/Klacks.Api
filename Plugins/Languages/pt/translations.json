@@ -1432,6 +1432,7 @@
   "new-address": "+ Registar endereço",
   "new-group": "+ Registar grupo",
   "new-work": "+ Registar serviço",
+  "new-work-tooltip": "Este serviço está vinculado a um cliente e a uma encomenda.",
   "new-plannable-work": "+ Registar serviço geral",
   "new-plannable-work-tooltip": "Este serviço não tem um cliente que o encomende ou pague. Destina-se a trabalho geral, não específico de um cliente.",
   "no-access.message": "Não tem permissão para aceder a esta funcionalidade.",

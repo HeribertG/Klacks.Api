@@ -1432,6 +1432,7 @@
   "new-address": "+ Zadat adresu",
   "new-group": "+ Zadat skupinu",
   "new-work": "+ Zadat službu",
+  "new-work-tooltip": "Tato služba je spojena se zákazníkem a objednávkou.",
   "new-plannable-work": "+ Zadat plánovatelnou službu",
   "new-plannable-work-tooltip": "Tato služba nemá zákazníka, který by ji objednal nebo za ni platil. Je určena pro obecnou práci, která není vázána na konkrétního zákazníka.",
   "no-access.message": "Nemáte oprávnění pro přístup k této funkci.",

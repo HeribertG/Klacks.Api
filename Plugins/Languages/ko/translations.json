@@ -1432,6 +1432,7 @@
   "new-address": "+ 주소 등록",
   "new-group": "+ 그룹 등록",
   "new-work": "+ 근무 등록",
+  "new-work-tooltip": "이 근무는 고객 및 의뢰와 연결되어 있습니다.",
   "new-plannable-work": "+ 서비스 등록",
   "new-plannable-work-tooltip": "이 근무는 의뢰하거나 비용을 지불하는 고객이 없습니다. 특정 고객과 관련되지 않은 일반 업무를 위한 것입니다.",
   "no-access.message": "이 기능에 접근할 권한이 없습니다.",

@@ -1432,6 +1432,7 @@
   "new-address": "+ Uusi osoite",
   "new-group": "+ Uusi ryhmä",
   "new-work": "+ Uusi työvuoro",
+  "new-work-tooltip": "Tämä työvuoro liittyy asiakkaaseen ja tilaukseen.",
   "new-plannable-work": "+ Uusi palvelu",
   "new-plannable-work-tooltip": "Tällä työvuorolla ei ole asiakasta, joka tilaisi tai maksaisi siitä. Se on tarkoitettu yleiseen työhön, joka ei liity tiettyyn asiakkaaseen.",
   "no-access.message": "Sinulla ei ole oikeuksia tähän toimintoon.",
