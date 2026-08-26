@@ -84,6 +84,12 @@
     "adaugă un șablon zilnic la tura container",
     "configurează o zi a săptămânii pentru container"
   ],
+  "create_donation_checkout": [
+    "donează pentru klacks",
+    "creează o donație",
+    "vreau să fac o donație",
+    "sprijină klacks cu o sumă"
+  ],
   "delete_container_template": [
     "șterge șabloanele de zi ale containerului",
     "elimină toate șabloanele containerului",

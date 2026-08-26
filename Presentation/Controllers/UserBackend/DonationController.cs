@@ -8,11 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 /// <summary>
-/// Endpoints for the donation feature (Stripe checkout).
+/// Endpoints for the donation feature (Stripe checkout). A rejected request reports the same text under
+/// both "message" and "detail": the browser dialog reads "message", while KlacksSelfApiClient — the path
+/// the create_donation_checkout skill takes — only unpacks "errors", "detail" or "title" from a failure
+/// body and would otherwise replace the concrete cause (Stripe not configured, unsupported currency)
+/// with a generic "The request was rejected as invalid.".
 /// </summary>
 [ApiController]
 public class DonationController : BaseController
 {
+    private const string UnavailableMessage = "Donation checkout is not available.";
+
     private readonly IMediator mediator;
 
     public DonationController(IMediator mediator)
@@ -28,7 +34,9 @@ public class DonationController : BaseController
 
         if (response.Url == null)
         {
-            return BadRequest(new { message = response.ErrorMessage ?? "Donation checkout is not available." });
+            var failure = response.ErrorMessage ?? UnavailableMessage;
+
+            return BadRequest(new { message = failure, detail = failure });
         }
 
         return Ok(response);

@@ -88,6 +88,12 @@
     "tambahkan template harian ke shift container",
     "atur hari dalam seminggu untuk container"
   ],
+  "create_donation_checkout": [
+    "donasi untuk proyek klacks",
+    "buat tautan donasi",
+    "saya ingin berdonasi",
+    "dukung klacks dengan sejumlah uang"
+  ],
   "delete_container_template": [
     "hapus templat hari kontainer",
     "hapus semua templat kontainer",

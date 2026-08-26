@@ -88,6 +88,12 @@
     "lägg till en dagsmall på containerpasset",
     "konfigurera en veckodag för containern"
   ],
+  "create_donation_checkout": [
+    "donera till klacks",
+    "skapa en donation",
+    "jag vill ge en donation",
+    "stöd klacks med ett belopp"
+  ],
   "delete_container_template": [
     "ta bort containerns veckodagsmallar",
     "radera alla mallar för containern",

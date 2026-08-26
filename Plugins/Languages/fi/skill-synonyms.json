@@ -83,6 +83,12 @@
     "lisää päivämalli konttivuoroon",
     "määritä kontin viikonpäivä"
   ],
+  "create_donation_checkout": [
+    "lahjoita klacks-projektille",
+    "luo lahjoitus",
+    "haluan tehdä lahjoituksen",
+    "tue klacksia summalla"
+  ],
   "delete_container_template": [
     "poista kontin viikonpäiväpohjat",
     "poista kaikki kontin pohjat",
