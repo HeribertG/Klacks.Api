@@ -81,6 +81,17 @@
     "thêm mẫu theo ngày vào ca container",
     "thiết lập ngày trong tuần cho container"
   ],
+  "create_donation_checkout": [
+    "quyên góp cho dự án klacks",
+    "tạo liên kết quyên góp",
+    "tôi muốn quyên góp",
+    "ủng hộ klacks một khoản tiền"
+  ],
+  "delete_container_template": [
+    "xóa các mẫu ngày trong tuần của container",
+    "gỡ bỏ tất cả mẫu của container",
+    "đặt lại kế hoạch tuần của container"
+  ],
   "add_expense": [
     "thêm chi phí cho ca làm việc",
     "ghi nhận khoản chi",

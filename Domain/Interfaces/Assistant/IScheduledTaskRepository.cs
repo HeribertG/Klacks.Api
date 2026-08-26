@@ -6,8 +6,18 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IScheduledTaskRepository
 {
+    /// <summary>
+    /// Returns the tasks that may fire now: enabled, not paused, and with a next run at or before
+    /// nowUtc. Skipping paused tasks is part of the contract - a paused task keeps IsEnabled true, so a
+    /// scan filtering on IsEnabled alone would retry a refused task on every tick.
+    /// </summary>
     Task<List<ScheduledTask>> GetDueAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Returns the owner's tasks. includeDisabled=false narrows the result to the tasks that will
+    /// actually fire, which means enabled AND not paused: a paused task keeps IsEnabled true, so
+    /// filtering on IsEnabled alone would present a task that never runs as an active one.
+    /// </summary>
     Task<List<ScheduledTask>> GetByOwnerAsync(Guid ownerUserId, bool includeDisabled, CancellationToken cancellationToken = default);
 
     Task<ScheduledTask?> GetByOwnerAndNameAsync(Guid ownerUserId, string name, CancellationToken cancellationToken = default);

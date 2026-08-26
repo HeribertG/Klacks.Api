@@ -89,6 +89,17 @@
     "dodaj szablon dzienny do zmiany kontenerowej",
     "skonfiguruj dzień tygodnia kontenera"
   ],
+  "create_donation_checkout": [
+    "przekaż darowiznę na klacks",
+    "utwórz darowiznę",
+    "chcę wpłacić darowiznę",
+    "wesprzyj klacks kwotą"
+  ],
+  "delete_container_template": [
+    "usuń szablony dni tygodnia kontenera",
+    "skasuj wszystkie szablony kontenera",
+    "zresetuj tygodniowy plan kontenera"
+  ],
   "add_expense": [
     "dodaj wydatek",
     "wprowadź wydatek",

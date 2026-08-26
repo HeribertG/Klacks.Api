@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// The condition ledger's write side: turns a detector's per-tick observations into user-independent
@@ -17,10 +17,27 @@ public interface IAgentConditionLedgerService
 {
     /// <summary>
     /// Records that a detector saw this condition in the current tick. An already open row for the
-    /// fingerprint only gets its LastSeenAtUtc moved forward and comes back with IsNew false; otherwise a
+    /// fingerprint gets its LastSeenAtUtc moved forward and comes back with IsNew false; otherwise a
     /// new Detected row is opened and comes back with IsNew true. A fingerprint whose previous row is
     /// Resolved therefore re-arms into a brand-new row and leaves the resolved one intact as history -
     /// no special case, that is simply what the partial unique index permits.
+    ///
+    /// PAYLOAD IS NO LONGER WRITE-ONCE (2026-08-26). Until this change a re-observation moved only
+    /// LastSeenAtUtc, so PayloadJson was frozen at the moment the row was opened. That made the ledger's
+    /// memory actively harmful rather than merely incomplete: a detector that started capturing a new
+    /// field, or a remediation binder that started requiring one, could never reach a row that was already
+    /// open - and since an open row is only closed by resolution, rejection or a successful remediation the
+    /// payload itself has to enable, the backlog was permanently unremediable. A re-observation now also
+    /// REWRITES PayloadJson when the detector reports something different from what is stored.
+    ///
+    /// What deliberately does NOT change, so the row stays the same memory it was: the fingerprint (a
+    /// changed fingerprint would open a second row and split the history), Status, AttemptCount,
+    /// HandledAtUtc, RejectReason, DetectedAtUtc and every other column. Only rows the state machine still
+    /// counts as open are reachable here at all - a terminal row is history and is never returned by the
+    /// fingerprint lookup this method builds on.
+    ///
+    /// The write is skipped when the stored payload already equals the reported one, because a tick
+    /// re-observes every open row and almost none of them have changed.
     /// </summary>
     Task<(AgentCondition Condition, bool IsNew)> UpsertDetectedAsync(
         string triggerKind,
@@ -89,6 +106,41 @@ public interface IAgentConditionLedgerService
         Guid conditionId,
         AgentConditionRejectReason rejectReason,
         Guid? rejectedByUserId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resumes an abandoned remediation claim (Etappe 5b): a Prepared row whose LastAttemptAtUtc is
+    /// older than <paramref name="staleAfter"/> is claimed again, its AttemptCount raised and a
+    /// Reclaimed audit event appended atomically. False means the row is not resumable - it is not
+    /// Prepared, its claim is still fresh, or another instance took it first - and is never an error.
+    /// </summary>
+    /// <param name="conditionId">The Prepared row to resume.</param>
+    /// <param name="staleAfter">Age a claim has to exceed before it counts as abandoned.</param>
+    /// <param name="detail">Audit detail; must carry the action-claim marker to count against budget.</param>
+    Task<bool> TryReclaimStaleAsync(
+        Guid conditionId,
+        TimeSpan staleAfter,
+        string detail,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Appends an audit event that is NOT a status transition - a failed remediation attempt above all,
+    /// where the row deliberately stays Prepared so the stale-claim path can retry it.
+    /// </summary>
+    Task RecordEventAsync(
+        Guid conditionId,
+        string eventType,
+        string detail,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Marks this row as caused by an earlier Klacksy remediation (Etappe 5b cascade guard), so it is
+    /// never auto-handled again and the provenance survives in the ledger. First attribution wins;
+    /// false means the row already carried one or does not exist.
+    /// </summary>
+    Task<bool> TrySetCausedByAsync(
+        Guid conditionId,
+        Guid causedByConditionId,
         CancellationToken cancellationToken = default);
 
     /// <summary>

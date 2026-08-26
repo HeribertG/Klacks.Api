@@ -157,6 +157,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("ApprovedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("approved_by_user_id");
+
                     b.Property<int>("AttemptCount")
                         .HasColumnType("integer")
                         .HasColumnName("attempt_count");
@@ -3440,6 +3444,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("read_at_utc");
 
+                    b.Property<int?>("RejectReason")
+                        .HasColumnType("integer")
+                        .HasColumnName("reject_reason");
+
                     b.Property<string>("Severity")
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)")
@@ -3637,6 +3645,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("action_type");
 
+                    b.Property<bool>("AllowIrreversibleUnattended")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_irreversible_unattended");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -3669,6 +3681,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<bool>("IsPaused")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_paused");
 
                     b.Property<string>("LastResult")
                         .HasColumnType("text")
@@ -3718,6 +3734,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("parameters_json");
 
+                    b.Property<string>("PausedReason")
+                        .HasColumnType("text")
+                        .HasColumnName("paused_reason");
+
                     b.Property<int>("RunCount")
                         .HasColumnType("integer")
                         .HasColumnName("run_count");
@@ -3738,13 +3758,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_scheduled_tasks");
 
-                    b.HasIndex("IsEnabled", "NextRunUtc")
-                        .HasDatabaseName("ix_scheduled_tasks_is_enabled_next_run_utc");
-
                     b.HasIndex("OwnerUserId", "Name")
                         .IsUnique()
                         .HasDatabaseName("ix_scheduled_tasks_owner_user_id_name")
                         .HasFilter("is_deleted = false");
+
+                    b.HasIndex("IsEnabled", "IsPaused", "NextRunUtc")
+                        .HasDatabaseName("ix_scheduled_tasks_is_enabled_is_paused_next_run_utc");
 
                     b.ToTable("scheduled_tasks", (string)null);
                 });

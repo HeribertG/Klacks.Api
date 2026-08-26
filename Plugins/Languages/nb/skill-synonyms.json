@@ -86,6 +86,17 @@
     "legg til en dagsmal på containervakten",
     "konfigurer en ukedag på containervakten"
   ],
+  "create_donation_checkout": [
+    "donere til klacks",
+    "opprett en donasjon",
+    "jeg vil gi en donasjon",
+    "støtt klacks med et beløp"
+  ],
+  "delete_container_template": [
+    "slett ukedagsmalene til containeren",
+    "fjern alle maler fra containeren",
+    "nullstill containerens ukeplan"
+  ],
   "add_expense": [
     "legg til en utgift på arbeidsloggen",
     "registrer utgift",

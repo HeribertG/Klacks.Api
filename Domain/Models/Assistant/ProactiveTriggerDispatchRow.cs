@@ -42,6 +42,20 @@ public class ProactiveTriggerDispatchRow : BaseEntity
 
     public ProactiveReaction Reaction { get; set; } = ProactiveReaction.None;
 
+    /// <summary>
+    /// Why THIS user dismissed THIS notification, kept independently of the ledger row's own RejectReason.
+    /// The two are deliberately not the same value. One finding is reported to every planner in its
+    /// audience, so several people hold their own dispatch row for the same ConditionId, but Rejected is a
+    /// terminal ledger status: the first dismissal wins the compare-and-swap and stamps its reason on the
+    /// finding, and every later dismissal loses it and used to have its reason discarded with no trace.
+    /// The ledger's value is therefore a sample of one by construction. This column keeps every dismisser's
+    /// reason, which is what makes a consensus over a finding computable at all - and it is written even
+    /// when the ledger transition was never attempted, because the row carries no ConditionId. Null means
+    /// the user gave no reason, never dismissed, or has since replaced the dismissal with another
+    /// reaction - the value always describes the reaction currently on the row.
+    /// </summary>
+    public AgentConditionRejectReason? RejectReason { get; set; }
+
     public DateTime? ReactionAtUtc { get; set; }
 
     public DateTime? ReadAtUtc { get; set; }

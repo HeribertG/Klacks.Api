@@ -127,7 +127,28 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // create_group with no human turn in between. Not classified for irreversibility (a fresh,
         // still-empty group is in practice as undoable as create_calendar_selection, deliberately NOT
         // listed here for the same reason); the risk is specifically the automated funnel.
-        "create_group"
+        "create_group",
+        // delete_container_template is the registered inverse of create_container_template, but the REST
+        // endpoint it drives is container-scoped: it deletes EVERY weekday template of the container in
+        // one call, along with every task configured in them, and the handler does not cascade the items,
+        // so a re-create leaves the old ones orphaned under a soft-deleted parent. That blast radius is
+        // unaddressed and bulk, unlike every entry in DestructiveSkillRiskDecisionGuardTests'
+        // AcceptedIrreversibleDeletes, which are all single-row id-addressed deletes — no honest
+        // justification for running it unconfirmed at the default Autonomous level exists. Listing it
+        // here does NOT weaken the reversibility it lends create_container_template: IsReversible only
+        // asks whether an inverse is registered, never what class that inverse itself carries.
+        "delete_container_template",
+        // create_donation_checkout starts a real payment flow: it opens a Stripe Checkout session for a
+        // concrete amount and hands back its hosted payment URL. Owner decision — Sensitive, and the
+        // reason is unattended execution, not irreversibility. Since stage 5a the risk class is what
+        // decides whether a skill may run with nobody watching (a scheduled task or Klacksy's heartbeat):
+        // Reversible passes from autonomy level Autonomous upwards and the dev default already sits at
+        // FullyAutonomous, while the classifier's fall-through default, Irreversible, still slips through
+        // a scheduled task that carries the per-task opt-in. Only Sensitive is unconditionally closed —
+        // UnattendedSkillPolicy refuses it on every background path regardless of level or opt-in, and
+        // AutonomyGateService demands an explicit user confirmation in chat at every level. An assistant
+        // that can initiate a payment flow on its own must not be fail-open.
+        "create_donation_checkout"
         // apply_grouping was listed here and is deliberately NOT anymore (owner decision): unlike every
         // other entry it is the second half of a propose/apply pair, so the user has already seen the
         // full preview (which clients, which target groups, how many memberships end) and approved it

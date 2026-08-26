@@ -25,4 +25,12 @@ public static class SelfApiRoutes
     /// from a resource type at all.
     /// </summary>
     public const string ContainerLocks = BackendPrefix + "ContainerLocks";
+
+    /// <summary>
+    /// Named explicitly for the same reason as ContainerLocks: DonationController is not a generic CRUD
+    /// controller, so ISelfApiRouteResolver — which reflects only over InputBaseController&lt;T&gt; —
+    /// cannot derive it from a resource type at all. The full route is kept here rather than assembled
+    /// at the call site so the single action segment cannot drift from the controller.
+    /// </summary>
+    public const string DonationCheckoutSession = BackendPrefix + "Donation/checkout-session";
 }

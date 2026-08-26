@@ -11,8 +11,11 @@ namespace Klacks.Api.Domain.Models.Assistant;
 /// remediation and resolution, independent of any single user's notification state. Fingerprint is
 /// deterministic from TriggerKind + EntityId + the relevant business date - never from display text -
 /// so the same underlying condition always maps to the same open row. A detector re-reports the same
-/// fingerprint every tick via LastSeenAtUtc while the condition persists; once a tick no longer reports
-/// it, the ledger service marks the row Resolved. A condition detected again after Resolved is a
+/// fingerprint every tick while the condition persists, which moves LastSeenAtUtc forward and refreshes
+/// PayloadJson when the observation changed; once a tick no longer reports it, the ledger service marks
+/// the row Resolved. Nothing else about an open row is ever rewritten by a re-observation - status,
+/// attempt counters and handling stamps belong to the row's own lifecycle, not to the detector's view of
+/// the world. A condition detected again after Resolved is a
 /// re-arm: it inserts a new row with the same fingerprint rather than reopening the old one, which is
 /// what the partial unique index on Fingerprint (open statuses only) allows.
 /// </summary>
@@ -35,7 +38,7 @@ public class AgentCondition : BaseEntity
 
     public DateTime DetectedAtUtc { get; set; }
 
-    /// <summary>Updated on every tick the detector still reports this fingerprint; drives Resolved detection.</summary>
+    /// <summary>Moved forward on every tick the detector still reports this fingerprint; drives Resolved detection.</summary>
     public DateTime LastSeenAtUtc { get; set; }
 
     public DateTime? ResolvedAtUtc { get; set; }
@@ -59,6 +62,16 @@ public class AgentCondition : BaseEntity
     public Guid? RejectedByUserId { get; set; }
 
     /// <summary>
+    /// The human who released Klacksy's prepared remediation, stamped when accepting its scenario moved
+    /// this row to Executed. It exists because the row otherwise records only that a remediation happened,
+    /// never on whose authority: CurrentUserUpdated is BaseEntity audit noise that the next write to the
+    /// row overwrites, and RejectedByUserId is by definition the opposite decision. Null on every row that
+    /// reached Executed through the autonomous action dispatcher, which is the honest answer - nobody
+    /// approved those - and on every row still open.
+    /// </summary>
+    public Guid? ApprovedByUserId { get; set; }
+
+    /// <summary>
     /// Set when this row was itself caused by an earlier Klacksy remediation (Etappe 5 cascade guard:
     /// such rows are never auto-handled again, only hinted).
     /// </summary>
@@ -75,6 +88,11 @@ public class AgentCondition : BaseEntity
 
     public Guid? DelegatedByUserId { get; set; }
 
-    /// <summary>Structured extra data the detector captured about this condition (free-form JSON).</summary>
+    /// <summary>
+    /// Structured extra data the detector captured about this condition (free-form JSON). Refreshed on
+    /// re-observation while the row is open, so a payload shape introduced after the row was opened still
+    /// reaches it; a detector reporting nothing structured leaves the stored value alone rather than
+    /// clearing it.
+    /// </summary>
     public string PayloadJson { get; set; } = "{}";
 }

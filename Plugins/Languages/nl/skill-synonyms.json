@@ -87,6 +87,17 @@
     "voeg een dagsjabloon toe aan de containerdienst",
     "stel een weekdag van de container in"
   ],
+  "create_donation_checkout": [
+    "doneren aan klacks",
+    "een donatie aanmaken",
+    "ik wil een donatie doen",
+    "klacks steunen met een bedrag"
+  ],
+  "delete_container_template": [
+    "verwijder de weekdagsjablonen van de container",
+    "wis alle sjablonen van de container",
+    "reset het weekplan van de container"
+  ],
   "add_expense": [
     "voeg een onkostenpost toe",
     "boek een uitgave in mijn shift",

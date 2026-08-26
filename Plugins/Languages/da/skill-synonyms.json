@@ -88,6 +88,17 @@
     "tilføj en dagsskabelon til containervagten",
     "konfigurer en ugedag på containervagten"
   ],
+  "create_donation_checkout": [
+    "donere til klacks",
+    "opret en donation",
+    "jeg vil give en donation",
+    "støt klacks med et beløb"
+  ],
+  "delete_container_template": [
+    "slet containerens ugedagsskabeloner",
+    "fjern alle skabeloner fra containeren",
+    "nulstil containerens ugeplan"
+  ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",

@@ -2,7 +2,10 @@
 
 /// <summary>
 /// Lists the current user's recurring (cron) tasks with their schedule, next run and last outcome.
-/// Read-only.
+/// Read-only. A task refused by the unattended policy for a cause the owner can fix is PAUSED rather
+/// than disabled - it keeps IsEnabled true - so the paused state and its reason are reported as their
+/// own fields and counted in the summary line. Reporting only "enabled" would show a task the owner was
+/// just told is paused as if it were still running.
 /// </summary>
 
 using Klacks.Api.Application.Services.Assistant.Scheduling;
@@ -32,6 +35,7 @@ public class ListRecurringTasksSkill : BaseSkillImplementation
 
         var items = tasks
             .OrderByDescending(t => t.IsEnabled)
+            .ThenBy(t => t.IsPaused)
             .ThenBy(t => t.NextRunUtc ?? DateTime.MaxValue)
             .Select(t => new
             {
@@ -42,6 +46,9 @@ public class ListRecurringTasksSkill : BaseSkillImplementation
                 actionType = t.ActionType,
                 skillName = t.SkillName,
                 enabled = t.IsEnabled,
+                paused = t.IsPaused,
+                pausedReason = t.PausedReason,
+                allowIrreversibleUnattended = t.AllowIrreversibleUnattended,
                 nextRun = t.NextRunUtc is { } next ? CronSchedule.FormatLocal(next, t.TimeZoneId) : null,
                 lastStatus = t.LastStatus,
                 lastRunUtc = t.LastRunUtc,
@@ -50,9 +57,13 @@ public class ListRecurringTasksSkill : BaseSkillImplementation
             })
             .ToList();
 
+        var pausedCount = tasks.Count(t => t.IsPaused);
         var message = items.Count == 0
             ? "You have no scheduled tasks."
-            : $"You have {items.Count} scheduled task(s).";
+            : pausedCount == 0
+                ? $"You have {items.Count} scheduled task(s)."
+                : $"You have {items.Count} scheduled task(s), {pausedCount} of them paused and not running " +
+                  "until the cause is fixed and the task is scheduled again under the same name.";
 
         return SkillResult.SuccessResult(items, message);
     }

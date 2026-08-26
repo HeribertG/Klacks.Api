@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Write side of the condition ledger. Holds the lifecycle rules (via AgentConditionStateMachine) and the
@@ -52,7 +52,7 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         var existing = await _repository.FindOpenByFingerprintAsync(fingerprint, cancellationToken);
         if (existing != null)
         {
-            return (await TouchAsync(existing, triggerKind, nowUtc, cancellationToken), false);
+            return (await TouchAsync(existing, triggerKind, payloadJson, nowUtc, cancellationToken), false);
         }
 
         var condition = NewCondition(triggerKind, fingerprint, entityId, groupId, severity, payloadJson, nowUtc);
@@ -69,7 +69,7 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
                 $"Opening a ledger row for fingerprint '{fingerprint}' was rejected as a duplicate, but no open row for it exists.");
         }
 
-        return (await TouchAsync(winner, triggerKind, nowUtc, cancellationToken), false);
+        return (await TouchAsync(winner, triggerKind, payloadJson, nowUtc, cancellationToken), false);
     }
 
     public async Task<int> MarkResolvedAsync(
@@ -202,6 +202,53 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         return true;
     }
 
+    public async Task<bool> TryReclaimStaleAsync(
+        Guid conditionId,
+        TimeSpan staleAfter,
+        string detail,
+        CancellationToken cancellationToken = default)
+    {
+        var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+
+        return await _repository.TryReclaimStaleAsync(
+            conditionId,
+            nowUtc - staleAfter,
+            nowUtc,
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = AgentConditionEventTypes.Reclaimed,
+                AtUtc = nowUtc,
+                Detail = detail
+            },
+            cancellationToken);
+    }
+
+    public async Task RecordEventAsync(
+        Guid conditionId,
+        string eventType,
+        string detail,
+        CancellationToken cancellationToken = default)
+    {
+        await _repository.InsertEventAsync(
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = eventType,
+                AtUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                Detail = detail
+            },
+            cancellationToken);
+    }
+
+    public async Task<bool> TrySetCausedByAsync(
+        Guid conditionId,
+        Guid causedByConditionId,
+        CancellationToken cancellationToken = default) =>
+        await _repository.TrySetCausedByAsync(conditionId, causedByConditionId, cancellationToken);
+
     private static AgentCondition NewCondition(
         string triggerKind,
         string fingerprint,
@@ -249,9 +296,22 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         };
     }
 
+    /// <summary>
+    /// Re-observation of a row that is already open: LastSeenAtUtc moves forward, and PayloadJson is
+    /// rewritten when the detector now reports something different from what the row was opened with.
+    ///
+    /// The payload is compared before it is written rather than written unconditionally. A tick re-reports
+    /// every open row of every kind - roughly 2900 in the reference installation - and almost none of them
+    /// have changed, so an unconditional write would spend thousands of UPDATEs and as much WAL per tick to
+    /// store the bytes that are already there. The comparison itself is free: FindOpenByFingerprintAsync has
+    /// already materialised the stored payload. It is an ordinal string comparison, not a semantic JSON one,
+    /// because both sides are produced by the same serializer over the same dictionary shape - equal content
+    /// therefore yields equal bytes, and the worst a spurious difference can cost is one redundant UPDATE.
+    /// </summary>
     private async Task<AgentCondition> TouchAsync(
         AgentCondition condition,
         string triggerKind,
+        string payloadJson,
         DateTime nowUtc,
         CancellationToken cancellationToken)
     {
@@ -264,11 +324,33 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
                 triggerKind);
         }
 
-        if (await _repository.TouchLastSeenAsync(condition.Id, nowUtc, cancellationToken))
+        var refreshedPayload = RefreshedPayloadOrNull(condition, payloadJson);
+
+        if (await _repository.TouchLastSeenAsync(condition.Id, nowUtc, refreshedPayload, cancellationToken))
         {
-            condition.LastSeenAtUtc = nowUtc;
+            condition.LastSeenAtUtc = nowUtc > condition.LastSeenAtUtc ? nowUtc : condition.LastSeenAtUtc;
+
+            if (refreshedPayload != null)
+            {
+                condition.PayloadJson = refreshedPayload;
+            }
         }
 
         return condition;
+    }
+
+    /// <summary>
+    /// The payload to write, or null when the stored one already says the same thing. An empty payload from
+    /// the detector never overwrites a populated one: a detector that reports nothing structured is not
+    /// asserting that what the row knows is wrong.
+    /// </summary>
+    private static string? RefreshedPayloadOrNull(AgentCondition condition, string payloadJson)
+    {
+        if (string.IsNullOrWhiteSpace(payloadJson) || string.Equals(payloadJson, EmptyPayloadJson, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return string.Equals(condition.PayloadJson, payloadJson, StringComparison.Ordinal) ? null : payloadJson;
     }
 }

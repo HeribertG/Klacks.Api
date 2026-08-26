@@ -10,6 +10,20 @@
 /// be muted, and a dismissal of a message that reported a condition-ledger finding rejects that
 /// finding with the given reason. The reaction is persisted before any of them run, because it is
 /// the one effect the user asked for and the only one that is guaranteed to be possible.
+///
+/// A dismissal reason is stored TWICE on purpose, and the two writes are not redundant. It goes onto
+/// this dispatch row unconditionally, in the same write as the reaction - that is this user's own
+/// answer and it is never contested. The write-back onto the shared ledger row is the one that can
+/// lose: the finding reached every planner in its audience, Rejected is terminal, and only the first
+/// dismisser's reason lands there. Without the copy on the dispatch row, every later dismisser's
+/// reason would vanish and the ledger's RejectReason would look like a consensus while being a
+/// sample of one.
+///
+/// The column is written on EVERY reaction, not only on a dismissal, so that a reaction which is no
+/// longer a dismissal clears it again. Writing it only in the Dismissed branch would leave the reason
+/// of a withdrawn dismissal standing next to the new reaction, and any consensus counted over this
+/// column would keep counting a rejection the user has since taken back. Today's Ui does not offer a
+/// second reaction on the same row, but the command accepts one.
 /// </summary>
 /// <param name="dispatchRepository">Persistence of the proactive trigger dispatch rows.</param>
 /// <param name="dismissStreakEvaluator">Fires a mute suggestion after repeated dismissals.</param>
@@ -57,6 +71,9 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
 
         row.Reaction = request.Reaction;
         row.ReactionAtUtc = DateTime.UtcNow;
+
+        row.RejectReason = request.Reaction == ProactiveReaction.Dismissed ? request.RejectReason : null;
+
         await _dispatchRepository.UpdateAsync(row, cancellationToken);
 
         if (request.Reaction == ProactiveReaction.Dismissed)

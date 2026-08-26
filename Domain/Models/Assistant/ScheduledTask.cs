@@ -60,4 +60,42 @@ public class ScheduledTask : BaseEntity
 
     /// <summary>Optional cap on total runs; null means unlimited. The task disables itself when reached.</summary>
     public int? MaxRuns { get; set; }
+
+    /// <summary>
+    /// Explicit per-task opt-in that lets an irreversible skill run unattended. Off by default: a
+    /// background run has nobody to confirm anything, so the destructive classes stay refused unless the
+    /// owner deliberately accepted that for this one task.
+    /// </summary>
+    public bool AllowIrreversibleUnattended { get; set; }
+
+    /// <summary>
+    /// Set when a run was refused for a cause the owner can still fix. Deliberately separate from
+    /// IsEnabled, which carries the owner's own on/off intent: lifting a pause must not have to guess
+    /// whether the task was switched off by its owner or by the policy.
+    /// </summary>
+    public bool IsPaused { get; private set; }
+
+    /// <summary>Why the task was paused; null while it is not paused. Never set directly - the two
+    /// pause fields are only ever moved together through Pause and ClearPause, so a stale reason can
+    /// not survive next to IsPaused=false.</summary>
+    public string? PausedReason { get; private set; }
+
+    /// <summary>
+    /// Pauses the task for a cause its owner can still fix, keeping IsEnabled and the schedule.
+    /// </summary>
+    /// <param name="reason">Human-readable cause shown to the owner when the pause is explained.</param>
+    public void Pause(string reason)
+    {
+        IsPaused = true;
+        PausedReason = reason;
+    }
+
+    /// <summary>
+    /// Lifts the pause and drops its reason in one step, so the reason can never outlive the pause.
+    /// </summary>
+    public void ClearPause()
+    {
+        IsPaused = false;
+        PausedReason = null;
+    }
 }

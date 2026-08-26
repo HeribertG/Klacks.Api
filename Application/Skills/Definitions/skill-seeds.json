@@ -1,5 +1,5 @@
 {
-  "version": 18,
+  "version": 20,
   "skills": [
     {
       "name": "get_current_time",
@@ -27086,7 +27086,7 @@
     {
       "name": "schedule_recurring_task",
       "area": "settings",
-      "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression. Two action types: 'reminder' delivers messageText to the user; 'skill' runs another skill (skillName + optional skillParameters JSON) and delivers its result. Always call first with apply=false to show the preview and the computed next run, ask the user to confirm, then call again with apply=true. Examples: erinnere mich jeden Montag um 8 Uhr, jeden Tag um 18:00 einen Report, remind me every Friday, rappelle-moi chaque lundi, ricordami ogni lunedi.",
+      "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression. Two action types: 'reminder' delivers messageText to the user; 'skill' runs another skill (skillName + optional skillParameters JSON) and delivers its result. Always call first with apply=false to show the preview and the computed next run, ask the user to confirm, then call again with apply=true. This is also how a PAUSED task is resumed: a background run refused for a cause the owner can fix (missing allowIrreversibleUnattended opt-in, autonomy level too low) pauses the task instead of deleting it, and re-applying it here under the SAME name lifts the pause. Examples: erinnere mich jeden Montag um 8 Uhr, jeden Tag um 18:00 einen Report, remind me every Friday, rappelle-moi chaque lundi, ricordami ogni lunedi.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -27158,6 +27158,14 @@
           "type": "Integer",
           "required": false,
           "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "allowIrreversibleUnattended",
+          "description": "Opt-in that lets an IRREVERSIBLE skill run unattended on this one schedule. A new task defaults to false, which makes a background run of such a skill refuse and PAUSE the task instead of executing it. Omitting it when updating an existing task KEEPS that task's current setting. Only set true when the user explicitly accepts that the scheduled skill changes data nobody will confirm at fire time.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
           "enumValues": null
         },
         {
@@ -27239,12 +27247,12 @@
           "pianifica un promemoria"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_recurring_tasks",
       "area": "settings",
-      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Use when the user asks which reminders or scheduled/recurring tasks they have. Read-only. Examples: welche erinnerungen habe ich, meine geplanten aufgaben, show my scheduled tasks, list my reminders, quels rappels ai-je.",
+      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Each entry also reports whether the task is PAUSED and why: a paused task keeps enabled=true but does not run until the reported cause is fixed and the task is scheduled again under the same name. Use when the user asks which reminders or scheduled/recurring tasks exist, or why a scheduled task did not run.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27294,7 +27302,7 @@
           "quali attivita ricorrenti"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "cancel_recurring_task",
@@ -29110,6 +29118,69 @@
         ]
       },
       "version": 2
+    },
+    {
+      "name": "delete_container_template",
+      "area": "shift",
+      "description": "Deletes the weekday templates of a container shift (ShiftType IsContainer) and is the registered inverse of create_container_template. CAUTION: the underlying endpoint is container-scoped, so this removes ALL weekday templates of that container in one call, together with every task configured in them - there is no way to delete a single weekday. Use it to undo a freshly created template on a container that had none before, or when the whole day plan of a container is to be rebuilt from scratch. Acquires the container edit lock before writing and releases it afterwards; a container without any template is reported as a no-op and never takes the lock. Run list_container_template first to see what would be lost. Related: create_container_template, list_container_template, explain_shift_container.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the plannable container shift (Status OriginalShift, ShiftType IsContainer) whose weekday templates are deleted",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "container",
+          "template"
+        ],
+        "de": [
+          "vorlage löschen",
+          "wochentagvorlage löschen",
+          "tagesvorlage löschen"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "containervorlage löschen",
+          "wochentagvorlage entfernen",
+          "tagesvorlage des containers löschen",
+          "container bauplan zurücksetzen"
+        ],
+        "en": [
+          "delete container template",
+          "remove weekday template",
+          "clear container weekday plan",
+          "reset container template"
+        ],
+        "fr": [
+          "supprimer modèle conteneur",
+          "supprimer modèle de jour",
+          "effacer le plan hebdomadaire du conteneur",
+          "réinitialiser le modèle du conteneur"
+        ],
+        "it": [
+          "elimina modello contenitore",
+          "rimuovi modello giornaliero",
+          "cancella il piano settimanale del contenitore",
+          "reimposta il modello del contenitore"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "remove_container_template_task",
@@ -40462,6 +40533,85 @@
           "ottenere i dati corretti dopo la riapertura"
         ]
       }
+    },
+    {
+      "name": "create_donation_checkout",
+      "area": "system",
+      "description": "Creates a Stripe Checkout session for a donation to the Klacks project and returns the hosted payment link, which the user opens themselves; this skill charges nothing on its own. The amount must be between 1 and 10000, the currency is CHF or EUR and defaults to CHF. Reports the concrete reason when the donation checkout is not configured on this installation. Requires an explicit user confirmation and never runs unattended, because it starts a payment flow.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "amount",
+          "description": "Donation amount in the chosen currency; must be between 1 and 10000.",
+          "type": "Decimal",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "currency",
+          "description": "Currency of the donation; defaults to CHF when the user names none.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "CHF",
+          "enumValues": [
+            "CHF",
+            "EUR"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "spenden",
+          "spende",
+          "donation"
+        ],
+        "en": [
+          "donate",
+          "donation"
+        ],
+        "fr": [
+          "faire un don"
+        ],
+        "it": [
+          "donazione"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spende an klacks",
+          "klacks unterstützen",
+          "geld spenden",
+          "spendenlink erstellen",
+          "projekt unterstützen mit betrag"
+        ],
+        "en": [
+          "donate to klacks",
+          "make a donation",
+          "support the klacks project",
+          "create a donation link"
+        ],
+        "fr": [
+          "faire un don à klacks",
+          "créer un lien de don",
+          "soutenir le projet klacks",
+          "je veux faire un don"
+        ],
+        "it": [
+          "fare una donazione a klacks",
+          "creare un link di donazione",
+          "sostenere il progetto klacks",
+          "voglio donare"
+        ]
+      },
+      "version": 1
     }
   ]
 }

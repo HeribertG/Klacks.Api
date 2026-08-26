@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Reads and writes recurring (cron) tasks from the scheduled_task table. The due scan returns enabled,
-/// non-deleted tasks whose next run has passed; <see cref="TryClaimAsync"/> advances the next run with a
+/// unpaused, non-deleted tasks whose next run has passed; <see cref="TryClaimAsync"/> advances the next run with a
 /// conditional update so a tick or a second API instance cannot double-fire the same occurrence.
 /// </summary>
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -24,7 +24,7 @@ public class ScheduledTaskRepository : IScheduledTaskRepository
     public async Task<List<ScheduledTask>> GetDueAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
     {
         return await _context.ScheduledTasks
-            .Where(t => t.IsEnabled && t.NextRunUtc != null && t.NextRunUtc <= nowUtc)
+            .Where(t => t.IsEnabled && !t.IsPaused && t.NextRunUtc != null && t.NextRunUtc <= nowUtc)
             .OrderBy(t => t.NextRunUtc)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
@@ -35,7 +35,7 @@ public class ScheduledTaskRepository : IScheduledTaskRepository
         var query = _context.ScheduledTasks.Where(t => t.OwnerUserId == ownerUserId);
         if (!includeDisabled)
         {
-            query = query.Where(t => t.IsEnabled);
+            query = query.Where(t => t.IsEnabled && !t.IsPaused);
         }
 
         return await query

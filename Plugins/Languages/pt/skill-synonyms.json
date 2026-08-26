@@ -88,6 +88,17 @@
     "adiciona um modelo diário ao turno contêiner",
     "configura um dia da semana do contêiner"
   ],
+  "create_donation_checkout": [
+    "doar ao projeto klacks",
+    "criar uma doação",
+    "quero fazer uma doação",
+    "apoiar o klacks com um valor"
+  ],
+  "delete_container_template": [
+    "excluir os modelos de dia do contêiner",
+    "remover todos os modelos do contêiner",
+    "redefinir o plano semanal do contêiner"
+  ],
   "add_expense": [
     "adicionar despesa a um plantão",
     "registrar gasto no turno",

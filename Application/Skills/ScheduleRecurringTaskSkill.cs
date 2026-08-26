@@ -6,6 +6,10 @@
 /// single deterministic skill invocation — so the scheduled run needs no LLM and no further input. With
 /// apply=false (default) it validates everything and returns a preview with the next run for the user to
 /// confirm; with apply=true it persists the task and captures the owner's identity and permissions.
+/// Re-applying an existing task by name is also the way OUT of a pause: a background run refused for a
+/// cause the owner can fix (a missing irreversible opt-in, a too-low autonomy level) pauses the task
+/// instead of destroying it, and re-authoring it here lifts that pause so the next occurrence is tried
+/// again. Without that path the pause would be a dead end no setting could ever undo.
 /// </summary>
 /// <param name="name">Human-readable label, unique per user; re-using a name updates that task.</param>
 /// <param name="cronExpression">Standard 5-field cron expression derived from the user's natural-language schedule (e.g. "0 8 * * 1" = Mondays 08:00).</param>
@@ -15,6 +19,7 @@
 /// <param name="skillParameters">JSON object of parameters for the skill (optional).</param>
 /// <param name="timeZoneId">IANA time zone for the schedule; defaults to the app owner's address country time zone.</param>
 /// <param name="maxRuns">Optional cap on the number of runs; null means unlimited.</param>
+/// <param name="allowIrreversibleUnattended">Per-task opt-in letting an irreversible skill run unattended; off for a new task, unchanged when omitted on an existing one.</param>
 /// <param name="apply">When true the task is saved; when false (default) only a preview is returned.</param>
 
 using System.Text.Json;
@@ -70,6 +75,7 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         var skillParameters = GetParameter<string>(parameters, "skillParameters");
         var timeZoneId = GetParameter<string>(parameters, "timeZoneId");
         var maxRuns = GetParameter<int?>(parameters, "maxRuns");
+        var requestedIrreversibleOptIn = GetParameter<bool?>(parameters, "allowIrreversibleUnattended");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
         if (actionType != ScheduledTaskActionTypes.Reminder && actionType != ScheduledTaskActionTypes.Skill)
@@ -153,6 +159,15 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         var nextRunLocal = CronSchedule.FormatLocal(nextRunUtc.Value, resolvedTimeZone);
         var effectiveMaxRuns = maxRuns is { } m && m > 0 ? m : (int?)null;
 
+        var existing = await _repository.GetByOwnerAndNameAsync(context.UserId, name, cancellationToken);
+
+        // Omitting the opt-in KEEPS the value an existing task already carries instead of clearing it.
+        // A missing opt-in is one of the two causes that pause a task, and the pause note tells the owner
+        // to schedule the task again under the same name — so a silent reset here would put an owner who
+        // followed that instruction straight back into the pause they just left.
+        var allowIrreversibleUnattended =
+            requestedIrreversibleOptIn ?? existing?.AllowIrreversibleUnattended ?? false;
+
         var preview = new
         {
             name,
@@ -161,7 +176,8 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
             actionType,
             skillName,
             nextRun = nextRunLocal,
-            maxRuns = effectiveMaxRuns
+            maxRuns = effectiveMaxRuns,
+            allowIrreversibleUnattended
         };
 
         if (!apply)
@@ -173,8 +189,8 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
-        var existing = await _repository.GetByOwnerAndNameAsync(context.UserId, name, cancellationToken);
         var ownerPermissions = string.Join(",", context.UserPermissions);
+        var wasPaused = false;
 
         if (existing is null)
         {
@@ -192,7 +208,8 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 OwnerPermissionsCsv = ownerPermissions,
                 IsEnabled = true,
                 NextRunUtc = nextRunUtc,
-                MaxRuns = effectiveMaxRuns
+                MaxRuns = effectiveMaxRuns,
+                AllowIrreversibleUnattended = allowIrreversibleUnattended
             };
 
             await _repository.AddAsync(task, cancellationToken);
@@ -210,14 +227,24 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
             existing.IsEnabled = true;
             existing.NextRunUtc = nextRunUtc;
             existing.MaxRuns = effectiveMaxRuns;
+            existing.AllowIrreversibleUnattended = allowIrreversibleUnattended;
             existing.RunCount = 0;
+
+            // Re-authoring the task is the owner's answer to a pause, so the pause goes with it. Whether
+            // the cause is really gone is not guessed here: the next run judges the task again and pauses
+            // it a second time if it is not, which is self-correcting, while leaving the pause standing
+            // would make it permanent no matter what the owner changed.
+            wasPaused = existing.IsPaused;
+            existing.ClearPause();
 
             await _repository.UpdateAsync(existing, cancellationToken);
         }
 
+        var resumedHint = wasPaused ? " The task was paused and is running again." : string.Empty;
+
         return SkillResult.SuccessResult(
             preview,
-            $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.");
+            $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.{resumedHint}");
     }
 
     private async Task<string> ResolveTimeZoneAsync(string? explicitTimeZoneId, SkillExecutionContext context)

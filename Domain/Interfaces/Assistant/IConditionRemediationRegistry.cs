@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Deterministic, code-defined map from a proactive trigger kind to the one composite Act-skill that
@@ -17,6 +17,13 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IConditionRemediationRegistry
 {
+    /// <summary>
+    /// Every trigger kind that has a remediation. The action dispatcher iterates this rather than the
+    /// governed-kind list, so a kind nothing can remediate never costs a governance lookup or a ledger
+    /// query per tick.
+    /// </summary>
+    IReadOnlyCollection<string> RegisteredKinds { get; }
+
     /// <summary>The registered remediation for this trigger kind, if any.</summary>
     bool TryGetEntry(string triggerKind, out ConditionRemediationEntry? entry);
 

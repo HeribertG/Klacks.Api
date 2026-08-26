@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Dependency injection registrations for application, infrastructure and domain event services.
@@ -715,6 +715,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IConditionRemediationRegistry, Klacks.Api.Application.Services.Assistant.Conditions.ConditionRemediationRegistry>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveActionIdentityProvider, Klacks.Api.Application.Services.Assistant.Conditions.ProactiveActionIdentityProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IConditionScenarioPreparationService, Klacks.Api.Application.Services.Assistant.Conditions.ConditionScenarioPreparationService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IQuietWindowService, Klacks.Api.Application.Services.Assistant.Conditions.QuietWindowService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveActionReporter, Klacks.Api.Application.Services.Assistant.Conditions.ProactiveActionReporter>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentConditionActionService, Klacks.Api.Application.Services.Assistant.Conditions.AgentConditionActionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDismissStreakEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.DismissStreakEvaluator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IHelpfulBoostEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.HelpfulBoostEvaluator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IUserActivityTracker, Klacks.Api.Application.Services.Assistant.Triggers.UserActivityTracker>();

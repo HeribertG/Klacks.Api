@@ -7,10 +7,13 @@
 /// the rights are borrowed, the deed is Klacksy's, and skills stamp that name into CurrentUserCreated.
 /// TokenRenewalOwnerId is set because a proactive remediation is a composite act that can outlive the
 /// five minutes an internal token lives; without it a long step would fail with an authentication error
-/// instead of a domain one.
+/// instead of a domain one. The policy is asked as the heartbeat kind and with the irreversible opt-in
+/// hard-wired to false: unlike a scheduled task, a governance rule carries no per-task consent, so an
+/// irreversible skill can never be executed here — it has to be proposed to a human instead.
 /// </summary>
 /// <param name="tokenIssuer">Mints the short-lived internal token for the responsible owner.</param>
 /// <param name="unattendedPolicy">Fail-closed gate every unwatched skill run has to pass.</param>
+/// <param name="autonomyRepository">Autonomy level of the resolved owner; a missing row falls back to AutonomyDefaults.DefaultLevel.</param>
 /// <param name="logger">Records why an action could not be given an identity.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -29,17 +32,24 @@ public sealed class ProactiveActionIdentityProvider : IProactiveActionIdentityPr
     private const string RefusedLogMessage =
         "Proactive action on condition {ConditionId} could not run skill {SkillName}: {Refusal} - {Reason}";
 
+    // The heartbeat has no per-action consent to point at, so the opt-in that a scheduled task can carry
+    // is never available here. Pinned as a constant so it cannot drift into a configurable value.
+    private const bool HeartbeatAllowsIrreversible = false;
+
     private readonly IInternalTokenIssuer _tokenIssuer;
     private readonly IUnattendedSkillPolicy _unattendedPolicy;
+    private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly ILogger<ProactiveActionIdentityProvider> _logger;
 
     public ProactiveActionIdentityProvider(
         IInternalTokenIssuer tokenIssuer,
         IUnattendedSkillPolicy unattendedPolicy,
+        IAgentAutonomyPreferenceRepository autonomyRepository,
         ILogger<ProactiveActionIdentityProvider> logger)
     {
         _tokenIssuer = tokenIssuer;
         _unattendedPolicy = unattendedPolicy;
+        _autonomyRepository = autonomyRepository;
         _logger = logger;
     }
 
@@ -63,7 +73,14 @@ public sealed class ProactiveActionIdentityProvider : IProactiveActionIdentityPr
         }
 
         var userPermissions = Permissions.ExpandRoles(token.Roles);
-        var decision = _unattendedPolicy.Decide(skillName, userPermissions);
+        var autonomyLevel = await GetAutonomyLevelAsync(ownerUserId, cancellationToken);
+        var decision = _unattendedPolicy.Decide(new UnattendedSkillRequest(
+            skillName,
+            userPermissions,
+            autonomyLevel,
+            UnattendedExecutionKind.ProactiveHeartbeat,
+            HeartbeatAllowsIrreversible));
+
         if (!decision.Allowed)
         {
             return Refuse(
@@ -83,6 +100,12 @@ public sealed class ProactiveActionIdentityProvider : IProactiveActionIdentityPr
         };
 
         return ProactiveActionIdentity.Resolved(context, userPermissions);
+    }
+
+    private async Task<AutonomyLevel> GetAutonomyLevelAsync(Guid ownerUserId, CancellationToken cancellationToken)
+    {
+        var row = await _autonomyRepository.GetAsync(ownerUserId.ToString(), cancellationToken);
+        return row?.Level ?? AutonomyDefaults.DefaultLevel;
     }
 
     private ProactiveActionIdentity Refuse(

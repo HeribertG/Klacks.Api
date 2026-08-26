@@ -87,6 +87,17 @@
     "añade una plantilla diaria al turno contenedor",
     "configura un día de la semana del contenedor"
   ],
+  "create_donation_checkout": [
+    "donar al proyecto klacks",
+    "crear una donación",
+    "quiero hacer una donación",
+    "apoyar klacks con un importe"
+  ],
+  "delete_container_template": [
+    "elimina las plantillas de día del contenedor",
+    "borra todas las plantillas del contenedor",
+    "reinicia el plan semanal del contenedor"
+  ],
   "add_expense": [
     "registrar un gasto en una entrada de trabajo",
     "añadir un gasto a un turno",

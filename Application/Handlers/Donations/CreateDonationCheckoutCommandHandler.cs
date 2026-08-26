@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Donations;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Donations;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -16,10 +17,11 @@ namespace Klacks.Api.Application.Handlers.Donations;
 /// </summary>
 public class CreateDonationCheckoutCommandHandler : BaseHandler, IRequestHandler<CreateDonationCheckoutCommand, CreateDonationCheckoutResponse>
 {
-    private static readonly string[] SupportedCurrencies = ["CHF", "EUR"];
-
-    private const decimal MinAmount = 1m;
-    private const decimal MaxAmount = 10000m;
+    private const string DonationProductName = "Klacks Spende";
+    private const string PaymentMode = "payment";
+    private const string DonateSubmitType = "donate";
+    private const int SingleLineItemQuantity = 1;
+    private const int MinorUnitFactor = 100;
 
     private readonly IOptions<StripeSettings> stripeOptions;
 
@@ -49,36 +51,44 @@ public class CreateDonationCheckoutCommandHandler : BaseHandler, IRequestHandler
                 return new CreateDonationCheckoutResponse { ErrorMessage = "Donation checkout return URLs are not configured." };
             }
 
-            if (!SupportedCurrencies.Contains(currency))
+            if (!DonationCheckoutLimits.SupportedCurrencies.Contains(currency))
             {
-                return new CreateDonationCheckoutResponse { ErrorMessage = "Unsupported currency. Only CHF and EUR are allowed." };
+                return new CreateDonationCheckoutResponse
+                {
+                    ErrorMessage = "Unsupported currency. Only " +
+                        $"{string.Join(" and ", DonationCheckoutLimits.SupportedCurrencies)} are allowed."
+                };
             }
 
-            if (amount < MinAmount || amount > MaxAmount)
+            if (amount < DonationCheckoutLimits.MinAmount || amount > DonationCheckoutLimits.MaxAmount)
             {
-                return new CreateDonationCheckoutResponse { ErrorMessage = $"Amount must be between {MinAmount} and {MaxAmount}." };
+                return new CreateDonationCheckoutResponse
+                {
+                    ErrorMessage = $"Amount must be between {DonationCheckoutLimits.MinAmount} and " +
+                        $"{DonationCheckoutLimits.MaxAmount}."
+                };
             }
 
             StripeConfiguration.ApiKey = settings.SecretKey;
 
             var options = new SessionCreateOptions
             {
-                Mode = "payment",
-                SubmitType = "donate",
+                Mode = PaymentMode,
+                SubmitType = DonateSubmitType,
                 SuccessUrl = settings.SuccessUrl,
                 CancelUrl = settings.CancelUrl,
                 LineItems =
                 [
                     new SessionLineItemOptions
                     {
-                        Quantity = 1,
+                        Quantity = SingleLineItemQuantity,
                         PriceData = new SessionLineItemPriceDataOptions
                         {
                             Currency = currency.ToLowerInvariant(),
-                            UnitAmount = (long)Math.Round(amount * 100, MidpointRounding.AwayFromZero),
+                            UnitAmount = (long)Math.Round(amount * MinorUnitFactor, MidpointRounding.AwayFromZero),
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = "Klacks Spende",
+                                Name = DonationProductName,
                             },
                         },
                     },

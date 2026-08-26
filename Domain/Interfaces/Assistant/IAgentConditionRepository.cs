@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Persistence for the condition ledger (agent_conditions) and its append-only audit history
@@ -139,11 +139,128 @@ public interface IAgentConditionRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Moves LastSeenAtUtc forward on a still-open row. Guarded on the row being open and on the new value
-    /// being strictly newer, so an out-of-order write can neither resurrect a terminal row's timestamp nor
-    /// move the clock backwards. Returns whether a row was updated.
+    /// Takes over a Prepared row whose remediation attempt produced no outcome, and appends
+    /// <paramref name="auditEvent"/> in the same database transaction. The compare-and-swap is on
+    /// LastAttemptAtUtc rather than on Status, because the state machine has no Prepared-to-Prepared
+    /// transition and needs none: the row is already where the execution stage wants it, what has to be
+    /// claimed atomically is the RIGHT TO RETRY. Only a row whose LastAttemptAtUtc lies strictly before
+    /// <paramref name="staleBeforeUtc"/> is taken, so two instances can never both resume the same row,
+    /// and a claim that is still running is left alone. AttemptCount is raised here as well - a crash
+    /// loop that only counted successful outcomes would retry forever without ever escalating.
+    ///
+    /// A row with a NULL LastAttemptAtUtc is deliberately NOT eligible: nothing this service wrote can
+    /// produce one, so it would have to come from a Prepared transition made elsewhere (the scenario
+    /// preparation path), which this must not hijack.
     /// </summary>
-    Task<bool> TouchLastSeenAsync(Guid id, DateTime seenAtUtc, CancellationToken cancellationToken = default);
+    /// <param name="id">The Prepared row to resume.</param>
+    /// <param name="staleBeforeUtc">Cut-off; a claim older than this counts as abandoned.</param>
+    /// <param name="claimedAtUtc">The new LastAttemptAtUtc.</param>
+    /// <param name="auditEvent">Written atomically with the claim, so it also counts against the action budget.</param>
+    Task<bool> TryReclaimStaleAsync(
+        Guid id,
+        DateTime staleBeforeUtc,
+        DateTime claimedAtUtc,
+        AgentConditionEvent auditEvent,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records that this row was itself caused by an earlier Klacksy remediation (Etappe 5b cascade
+    /// guard). Guarded on CausedByConditionId still being null, so the first attribution wins and a
+    /// later tick can never rewrite an existing provenance link. No compare-and-swap on Status: the
+    /// marking is orthogonal to the lifecycle and must also stick on a row that moves on afterwards.
+    /// </summary>
+    Task<bool> TrySetCausedByAsync(Guid id, Guid causedByConditionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The rows of one kind the action dispatcher may still act on - Reported (never claimed) and
+    /// Prepared (claimed; possibly an abandoned claim). Ordered the way Etappe 5b prioritises under
+    /// scarcity: Severity descending, then DetectedAtUtc ascending, so the oldest of the most severe
+    /// findings is served first when the budget cannot cover them all. Capped in the database.
+    /// </summary>
+    Task<List<AgentCondition>> GetActionableByKindAsync(
+        string triggerKind,
+        int take,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// How many action CLAIMS this trigger kind has made since <paramref name="sinceUtc"/>, which is
+    /// what the daily action budget and the circuit breaker are measured in. Counted from
+    /// agent_condition_events - not from an in-memory counter - so several API instances share one
+    /// budget instead of one each. A claim's event is written inside the claim's own transaction, so
+    /// the count can never miss a claim that happened, not even one whose compare-and-swap reported a
+    /// false negative after committing.
+    ///
+    /// The join to agent_conditions is unavoidable: the events table has no trigger_kind column of its
+    /// own, and its only index is on condition_id. Claims are recognised by the
+    /// AgentConditionActionDefaults.ActionClaimDetailPrefix marker on Detail, which is what keeps a
+    /// human-driven preparation of the same kind from consuming the automation's budget.
+    /// </summary>
+    Task<int> CountActionClaimsAsync(
+        string triggerKind,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Every condition executed since <paramref name="sinceUtc"/>, across all kinds - the input of the
+    /// cascade guard, which asks whether a newly detected condition appeared on an entity Klacksy has
+    /// just acted on. Read once per tick and matched in memory rather than queried per candidate.
+    /// </summary>
+    Task<List<AgentCondition>> GetExecutedSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The Executed rows attached to any of <paramref name="entityIds"/>, scoped to what this caller may
+    /// see - the read behind the service grid's "Klacksy handled this one" marker. Ordered stamped rows
+    /// before unstamped ones and newest <see cref="AgentCondition.HandledAtUtc"/> first within each, so a
+    /// caller that wants one attribution per entity can take the first row it sees per id and is
+    /// guaranteed the newest row that actually carries a handling time. That ordering is spelled out with
+    /// two keys on purpose - see the implementation for why one DESC key would mean different things on
+    /// Postgres and on the EF InMemory provider. Rows carrying no EntityId are excluded, since they can
+    /// never be matched to a grid cell. An empty <paramref name="entityIds"/> short-circuits without
+    /// touching the database.
+    ///
+    /// A given entity can legitimately carry SEVERAL Executed rows: the partial unique index on Fingerprint
+    /// covers open statuses only, so once a row reaches Executed a re-detection of the same condition opens
+    /// a fresh row beside it, and a fingerprint carries the business date, so different days differ anyway.
+    /// Collapsing them is the caller's decision, not this method's.
+    ///
+    /// This is NOT <see cref="GetExecutedSinceAsync"/> with a filter bolted on. That method is unscoped by
+    /// design (it feeds the internal cascade guard) and must never be exposed to a user-facing path. It is
+    /// also NOT expressible through the planner-relevant scoped reads: their status filter
+    /// (AgentConditionPlannerRelevantStatuses.Values) excludes Executed outright, so building on it would
+    /// yield an always-empty result. Only the group-scope rule is shared with them, and it is shared by
+    /// reusing the same private helper rather than by copying it.
+    /// </summary>
+    /// <param name="entityIds">The entity ids currently on screen; matched against AgentCondition.EntityId.</param>
+    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
+    /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise carries the
+    /// same contract as <see cref="GetOpenForScopeAsync"/>: a row is included when its group's Nested Set root is
+    /// in this set, or its GroupId is null AND its TriggerKind is not one of AgentTriggerGroupScopedKinds.Values.</param>
+    Task<List<AgentCondition>> GetExecutedForEntitiesAsync(
+        IReadOnlyCollection<Guid> entityIds,
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Moves LastSeenAtUtc forward on a still-open row and, when <paramref name="payloadJson"/> is given,
+    /// replaces PayloadJson in the same UPDATE. Guarded on the row being open, so an out-of-order write
+    /// can never resurrect a terminal row; LastSeenAtUtc itself is written through a GREATEST so the
+    /// clock cannot move backwards even when a payload-only refresh gets the row through the filter.
+    /// Returns whether a row was updated.
+    /// </summary>
+    /// <param name="id">The open row to touch.</param>
+    /// <param name="seenAtUtc">Detection time of the current tick; only applied when it is newer than the stored one.</param>
+    /// <param name="payloadJson">
+    /// The detector's current payload, or null to leave the stored one untouched. Non-null makes this a
+    /// genuine payload REWRITE - the row's fingerprint, status and every counter stay where they are, so
+    /// its memory survives; see IAgentConditionLedgerService.UpsertDetectedAsync for why the ledger stopped
+    /// being write-once on this column.
+    /// </param>
+    Task<bool> TouchLastSeenAsync(
+        Guid id,
+        DateTime seenAtUtc,
+        string? payloadJson = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Writes a human's single-condition delegation grant (Etappe 4e, "mach du"): DelegatedMaxAction and
