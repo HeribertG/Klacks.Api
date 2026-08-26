@@ -181,7 +181,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         }
 
         var budget = new ActionBudget(_repository, triggerKind, nowUtc);
-        var governanceCache = new Dictionary<Guid?, ProactiveGovernanceDecision>();
+        var governanceCache = new GovernanceCache();
         var actionsThisTick = 0;
 
         for (var index = 0; index < candidates.Count; index++)
@@ -212,8 +212,11 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
 
             if (condition.AttemptCount >= AgentConditionActionDefaults.MaxAttemptsBeforeEscalation)
             {
-                await EscalateAsync(condition, governance, cancellationToken);
-                tally.Escalated++;
+                if (await EscalateAsync(condition, governance, cancellationToken))
+                {
+                    tally.Escalated++;
+                }
+
                 continue;
             }
 
@@ -250,6 +253,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
                         TickCapReason,
                         AgentConditionActionDefaults.MaxExecutionsPerKindPerTick),
                     candidates.Count - index,
+                    actionsThisTick,
                     cancellationToken);
                 tally.LeftForBudget += candidates.Count - index;
                 return;
@@ -259,7 +263,12 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             if (blockedReason is not null)
             {
                 await ReportBudgetStopAsync(
-                    triggerKind, ownerUserId, blockedReason, candidates.Count - index, cancellationToken);
+                    triggerKind,
+                    ownerUserId,
+                    blockedReason,
+                    candidates.Count - index,
+                    actionsThisTick,
+                    cancellationToken);
                 tally.LeftForBudget += candidates.Count - index;
                 return;
             }
@@ -306,18 +315,18 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     }
 
     private async Task<ProactiveGovernanceDecision> ResolveGovernanceAsync(
-        Dictionary<Guid?, ProactiveGovernanceDecision> cache,
+        GovernanceCache cache,
         AgentCondition condition,
         CancellationToken cancellationToken)
     {
-        if (cache.TryGetValue(condition.GroupId, out var cached))
+        if (cache.TryGet(condition.GroupId, out var cached))
         {
-            return cached;
+            return cached!;
         }
 
         var decision = await _governanceResolver.ResolveAsync(
             condition.TriggerKind, condition.GroupId, cancellationToken);
-        cache[condition.GroupId] = decision;
+        cache.Set(condition.GroupId, decision);
 
         return decision;
     }
@@ -586,7 +595,12 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             cancellationToken);
     }
 
-    private async Task EscalateAsync(
+    /// <summary>
+    /// Hands one row to a human after MaxAttemptsBeforeEscalation attempts. Returns whether THIS caller
+    /// escalated it: a lost compare-and-swap means another instance got there first, and counting it
+    /// anyway would over-report the one number a planner reads to spot a stuck kind.
+    /// </summary>
+    private async Task<bool> EscalateAsync(
         AgentCondition condition, ProactiveGovernanceDecision governance, CancellationToken cancellationToken)
     {
         var escalated = await _ledgerService.TryTransitionAsync(
@@ -597,37 +611,52 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             detail: Outcome(string.Format(CultureInfo.InvariantCulture, EscalatedDetail, condition.AttemptCount)),
             cancellationToken: cancellationToken);
 
-        if (!escalated || governance.ResponsibleOwnerUserId is not Guid ownerUserId || ownerUserId == Guid.Empty)
+        if (!escalated)
         {
-            return;
+            return false;
         }
 
-        await _reporter.ReportAsync(
-            ownerUserId,
-            string.Format(
-                CultureInfo.InvariantCulture,
-                EscalatedReportFormat,
-                condition.TriggerKind,
-                condition.Id,
-                condition.AttemptCount),
-            cancellationToken);
+        if (governance.ResponsibleOwnerUserId is Guid ownerUserId && ownerUserId != Guid.Empty)
+        {
+            await _reporter.ReportAsync(
+                ownerUserId,
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    EscalatedReportFormat,
+                    condition.TriggerKind,
+                    condition.Id,
+                    condition.AttemptCount),
+                cancellationToken);
+        }
+
+        return true;
     }
 
     /// <summary>
-    /// A budget stop is reported, never only counted. Silently leaving findings unhandled is exactly the
-    /// failure mode this stage was told not to have: the planner would see an automation that works on
-    /// some days and does nothing on others, with no way to tell which.
+    /// A budget stop is never silent: it is logged on EVERY tick it happens, which is what makes the
+    /// difference between "nothing to do" and "not allowed to do it" visible in operations.
+    ///
+    /// The durable note to the owner is deliberately narrower - only on a tick that actually acted. Once
+    /// a day's budget is spent, every remaining tick of that day stops on its first candidate, and
+    /// reporting each one would put nineteen identical notes in the owner's inbox for one exhausted
+    /// budget. The tick on which the budget ran out is the one that carries the information.
     /// </summary>
     private async Task ReportBudgetStopAsync(
         string triggerKind,
         Guid ownerUserId,
         string reason,
         int remaining,
+        int actionsThisTick,
         CancellationToken cancellationToken)
     {
         _logger.LogWarning(
             "Proactive actions on {Kind} stopped: {Reason}. {Remaining} finding(s) stay open this tick",
             triggerKind, reason, remaining);
+
+        if (actionsThisTick == 0)
+        {
+            return;
+        }
 
         await _reporter.ReportAsync(
             ownerUserId,
@@ -641,6 +670,40 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             OutcomeDetailFormat,
             AgentConditionActionDefaults.ActionOutcomeDetailPrefix,
             detail);
+
+    /// <summary>
+    /// Governance decisions already resolved in this tick, per scope. A plain dictionary keyed by
+    /// Guid? cannot express this - Dictionary's key is constrained to notnull - and "no group" is a real,
+    /// distinct scope here (the installation-wide rule), not an absent one, so it gets its own slot
+    /// rather than a Guid.Empty sentinel that a real group id could one day collide with.
+    /// </summary>
+    private sealed class GovernanceCache
+    {
+        private readonly Dictionary<Guid, ProactiveGovernanceDecision> _byGroup = new();
+        private ProactiveGovernanceDecision? _installationWide;
+
+        public bool TryGet(Guid? groupId, out ProactiveGovernanceDecision? decision)
+        {
+            if (groupId is not { } scopedGroupId)
+            {
+                decision = _installationWide;
+                return _installationWide is not null;
+            }
+
+            return _byGroup.TryGetValue(scopedGroupId, out decision);
+        }
+
+        public void Set(Guid? groupId, ProactiveGovernanceDecision decision)
+        {
+            if (groupId is { } scopedGroupId)
+            {
+                _byGroup[scopedGroupId] = decision;
+                return;
+            }
+
+            _installationWide = decision;
+        }
+    }
 
     private sealed class ActionTally
     {

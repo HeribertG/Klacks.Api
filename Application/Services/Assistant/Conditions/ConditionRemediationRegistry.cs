@@ -40,7 +40,9 @@ public sealed class ConditionRemediationRegistry : IConditionRemediationRegistry
                 IsScenarioCapable: false)
         };
 
-    public IReadOnlyCollection<string> RegisteredKinds => (IReadOnlyCollection<string>)Entries.Keys;
+    private static readonly IReadOnlyCollection<string> KindsWithRemediation = Entries.Keys.ToArray();
+
+    public IReadOnlyCollection<string> RegisteredKinds => KindsWithRemediation;
 
     public bool TryGetEntry(string triggerKind, out ConditionRemediationEntry? entry) =>
         Entries.TryGetValue(triggerKind, out entry);
