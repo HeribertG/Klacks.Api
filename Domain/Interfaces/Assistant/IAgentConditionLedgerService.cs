@@ -17,10 +17,27 @@ public interface IAgentConditionLedgerService
 {
     /// <summary>
     /// Records that a detector saw this condition in the current tick. An already open row for the
-    /// fingerprint only gets its LastSeenAtUtc moved forward and comes back with IsNew false; otherwise a
+    /// fingerprint gets its LastSeenAtUtc moved forward and comes back with IsNew false; otherwise a
     /// new Detected row is opened and comes back with IsNew true. A fingerprint whose previous row is
     /// Resolved therefore re-arms into a brand-new row and leaves the resolved one intact as history -
     /// no special case, that is simply what the partial unique index permits.
+    ///
+    /// PAYLOAD IS NO LONGER WRITE-ONCE (2026-08-26). Until this change a re-observation moved only
+    /// LastSeenAtUtc, so PayloadJson was frozen at the moment the row was opened. That made the ledger's
+    /// memory actively harmful rather than merely incomplete: a detector that started capturing a new
+    /// field, or a remediation binder that started requiring one, could never reach a row that was already
+    /// open - and since an open row is only closed by resolution, rejection or a successful remediation the
+    /// payload itself has to enable, the backlog was permanently unremediable. A re-observation now also
+    /// REWRITES PayloadJson when the detector reports something different from what is stored.
+    ///
+    /// What deliberately does NOT change, so the row stays the same memory it was: the fingerprint (a
+    /// changed fingerprint would open a second row and split the history), Status, AttemptCount,
+    /// HandledAtUtc, RejectReason, DetectedAtUtc and every other column. Only rows the state machine still
+    /// counts as open are reachable here at all - a terminal row is history and is never returned by the
+    /// fingerprint lookup this method builds on.
+    ///
+    /// The write is skipped when the stored payload already equals the reported one, because a tick
+    /// re-observes every open row and almost none of them have changed.
     /// </summary>
     Task<(AgentCondition Condition, bool IsNew)> UpsertDetectedAsync(
         string triggerKind,

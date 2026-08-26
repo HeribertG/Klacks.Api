@@ -11,8 +11,24 @@
 /// set is what narrows the notification to the planners who may see the container. Emission is capped at
 /// MaxFindingsPerTick events per tick (this scan has no time window, unlike UnstaffedShift7dDetector).
 /// Ordered by FromDate (oldest gap first), Id as tiebreaker, before the cap applies -- without an
-/// explicit order the cap would otherwise pick from physical storage order, an oldest-first triage
-/// queue that drains as containers get a template, rather than a fixed 50 that starve out the rest.
+/// explicit order the cap would pick from physical storage order, which is not even stable between ticks.
+///
+/// 🔴 KNOWN DEFECT, open as of this commit. The ordering does NOT deliver the oldest-first triage queue
+/// it was meant to whenever the candidates share a FromDate, which is the normal shape of bulk-created
+/// containers: the sort key is then constant and the selection collapses onto the random-GUID tiebreaker,
+/// so the cap picks an ARBITRARY fixed 50 and the rest are never reported. Measured in the reference
+/// installation on 2026-08-26: 260 candidates, every one of them FromDate 2025-01-01, and the 50 ledger
+/// rows of this kind are exactly this query's top 50. A container created today sorts behind all of them
+/// and is never seen while they remain.
+///
+/// The cost is NOT limited to the autonomous remediation. Every emitted event also goes to the planner
+/// notification path unconditionally, so this cap decides what HUMANS are told about as well: 210 of the
+/// 260 findings reach nobody, and nothing else can see them either, because ListOpenFindingsSkill, the
+/// LLM context renderer, the digest and the action dispatcher all read the LEDGER, which only ever learns
+/// about what this scan emitted. ConditionRemediationRegistry does register empty_container ->
+/// create_container_template, so once governance for this kind is raised to Execute the selected 50 drain
+/// at the default budget of 5 actions per day - roughly 52 days for the current backlog, throughout which
+/// a container created today stays invisible.
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>

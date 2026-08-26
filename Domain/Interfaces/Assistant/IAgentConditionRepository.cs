@@ -208,11 +208,25 @@ public interface IAgentConditionRepository
     Task<List<AgentCondition>> GetExecutedSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Moves LastSeenAtUtc forward on a still-open row. Guarded on the row being open and on the new value
-    /// being strictly newer, so an out-of-order write can neither resurrect a terminal row's timestamp nor
-    /// move the clock backwards. Returns whether a row was updated.
+    /// Moves LastSeenAtUtc forward on a still-open row and, when <paramref name="payloadJson"/> is given,
+    /// replaces PayloadJson in the same UPDATE. Guarded on the row being open, so an out-of-order write
+    /// can never resurrect a terminal row; LastSeenAtUtc itself is written through a GREATEST so the
+    /// clock cannot move backwards even when a payload-only refresh gets the row through the filter.
+    /// Returns whether a row was updated.
     /// </summary>
-    Task<bool> TouchLastSeenAsync(Guid id, DateTime seenAtUtc, CancellationToken cancellationToken = default);
+    /// <param name="id">The open row to touch.</param>
+    /// <param name="seenAtUtc">Detection time of the current tick; only applied when it is newer than the stored one.</param>
+    /// <param name="payloadJson">
+    /// The detector's current payload, or null to leave the stored one untouched. Non-null makes this a
+    /// genuine payload REWRITE - the row's fingerprint, status and every counter stay where they are, so
+    /// its memory survives; see IAgentConditionLedgerService.UpsertDetectedAsync for why the ledger stopped
+    /// being write-once on this column.
+    /// </param>
+    Task<bool> TouchLastSeenAsync(
+        Guid id,
+        DateTime seenAtUtc,
+        string? payloadJson = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Writes a human's single-condition delegation grant (Etappe 4e, "mach du"): DelegatedMaxAction and

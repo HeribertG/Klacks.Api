@@ -110,6 +110,7 @@ public class AgentConditionRepository : IAgentConditionRepository
         var rejectedByUserId = fields?.RejectedByUserId;
         var lastAttemptAtUtc = fields?.LastAttemptAtUtc;
         var attemptIncrement = fields?.AttemptIncrement ?? 0;
+        var approvedByUserId = fields?.ApprovedByUserId;
 
         auditEvent.ConditionId = id;
 
@@ -132,6 +133,7 @@ public class AgentConditionRepository : IAgentConditionRepository
                         .SetProperty(c => c.RejectReason, c => rejectReason ?? c.RejectReason)
                         .SetProperty(c => c.RejectedByUserId, c => rejectedByUserId ?? c.RejectedByUserId)
                         .SetProperty(c => c.LastAttemptAtUtc, c => lastAttemptAtUtc ?? c.LastAttemptAtUtc)
+                        .SetProperty(c => c.ApprovedByUserId, c => approvedByUserId ?? c.ApprovedByUserId)
                         .SetProperty(c => c.AttemptCount, c => c.AttemptCount + attemptIncrement),
                     cancellationToken);
 
@@ -267,14 +269,29 @@ public class AgentConditionRepository : IAgentConditionRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> TouchLastSeenAsync(Guid id, DateTime seenAtUtc, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// The filter admits a row whose LastSeenAtUtc is already current when a payload refresh is pending,
+    /// because two detector ticks can share a timestamp - a test driving a fake clock always does, and so
+    /// do two API instances scanning within the same clock resolution. Making the timestamp the sole gate
+    /// would silently drop exactly those refreshes. Monotonicity is preserved in the setter instead,
+    /// which never lowers the stored value.
+    /// </summary>
+    public async Task<bool> TouchLastSeenAsync(
+        Guid id,
+        DateTime seenAtUtc,
+        string? payloadJson = null,
+        CancellationToken cancellationToken = default)
     {
         var terminalStatuses = AgentConditionStateMachine.TerminalStatuses;
 
         var affected = await _context.AgentConditions
-            .Where(c => c.Id == id && c.LastSeenAtUtc < seenAtUtc && !terminalStatuses.Contains(c.Status))
+            .Where(c => c.Id == id
+                && !terminalStatuses.Contains(c.Status)
+                && (c.LastSeenAtUtc < seenAtUtc || payloadJson != null))
             .ExecuteUpdateAsync(
-                setters => setters.SetProperty(c => c.LastSeenAtUtc, seenAtUtc),
+                setters => setters
+                    .SetProperty(c => c.LastSeenAtUtc, c => seenAtUtc > c.LastSeenAtUtc ? seenAtUtc : c.LastSeenAtUtc)
+                    .SetProperty(c => c.PayloadJson, c => payloadJson ?? c.PayloadJson),
                 cancellationToken);
 
         return affected > 0;
@@ -380,8 +397,8 @@ public class AgentConditionRepository : IAgentConditionRepository
     /// A null GroupId is ungated for a genuinely installation-wide kind (target_hours_drift and the other
     /// client- or period-borne findings) and withheld for an AgentTriggerGroupScopedKinds.Values kind, where
     /// it can only mean the group of a group-owned entity was not determined - historical rows predating the
-    /// live-push fix keep a null GroupId for as long as they stay open, because a re-detection only moves
-    /// LastSeenAtUtc and never rewrites the row. Handing those to every scoped planner would leak exactly the
+    /// live-push fix keep a null GroupId for as long as they stay open, because a re-detection refreshes only
+    /// LastSeenAtUtc and PayloadJson, never GroupId. Handing those to every scoped planner would leak exactly the
     /// group-scoped detail the join below withholds, so they fall back to Admins, who take the isUnrestricted
     /// branch and skip this filter entirely - the same fallback the live push applies via
     /// IAgentTriggerEvent.RequiresGroupScope.

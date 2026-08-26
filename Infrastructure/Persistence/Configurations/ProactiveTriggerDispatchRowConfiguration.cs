@@ -3,6 +3,8 @@
 /// <summary>
 /// EF configuration for ProactiveTriggerDispatchRow: table name, soft-delete query filter and a
 /// unique index on (UserId, TriggerKind, DedupKey) so the same alert is recorded at most once.
+/// RejectReason needs no explicit mapping - EF stores the nullable enum in the integer column it would
+/// pick for a nullable int, exactly as AgentCondition.DelegatedMaxAction is stored.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;

@@ -82,6 +82,14 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
 
     private const string NoResultMessage = "no message";
 
+    private const string PayloadChangedDuringClaimMessage =
+        "Condition {ConditionId} had its payload refreshed between the pre-flight binding and the claim; "
+        + "re-binding {Skill} against the current one";
+
+    private const string UnbindableAfterClaimMessage =
+        "Condition {ConditionId} no longer binds {Skill} after the claim, so nothing was executed; the row "
+        + "stays claimed and is left to the stale-claim reclaim";
+
     private static readonly AgentConditionActionTickResult EmptyResult = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
     private readonly IAgentConditionRepository _repository;
@@ -282,7 +290,15 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             budget.RecordClaim();
             actionsThisTick++;
 
-            if (await ExecuteAsync(condition, entry, arguments, ownerUserId, cancellationToken))
+            var claimedArguments = await RebindAfterClaimAsync(entry, condition, arguments, cancellationToken);
+            if (claimedArguments is null)
+            {
+                _logger.LogWarning(UnbindableAfterClaimMessage, condition.Id, entry.RemediationSkillName);
+                tally.Failed++;
+                continue;
+            }
+
+            if (await ExecuteAsync(condition, entry, claimedArguments, ownerUserId, cancellationToken))
             {
                 tally.Executed++;
             }
@@ -402,12 +418,57 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     }
 
     /// <summary>
+    /// The arguments to actually execute with, re-derived from the row as it stands AFTER the claim, or
+    /// null when it no longer binds.
+    ///
+    /// The pre-flight binding runs BEFORE the claim on purpose, so an unbindable row costs neither an
+    /// attempt nor a slot of the daily budget. That makes it a decision taken on a snapshot loaded at the
+    /// top of the tick - and since the payload refresh of 2026-08-26, PayloadJson is no longer write-once:
+    /// any detector tick can rewrite it while this row sits between that snapshot and the claim, because
+    /// Prepared is not a terminal status. This design explicitly expects several API instances to share the
+    /// budget, so that tick need not even be this process's. The compare-and-swap that claims the row
+    /// guards Status alone and would not notice. Executing the pre-flight arguments could therefore write a
+    /// container template from a definition a human has since corrected, silently discarding the correction.
+    ///
+    /// Re-reading closes that window: GetByIdAsync reads AsNoTracking, so this sees what the database holds
+    /// now rather than the snapshot instance the change tracker would hand back. The payload is compared
+    /// first because it is unchanged in almost every claim, and re-binding is pure work over the same
+    /// dictionary shape. A row that stopped binding is deliberately left claimed rather than pushed to a
+    /// terminal status - the stale-claim reclaim exists for exactly this, and the next tick binds it from
+    /// the payload that made it change.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<string, object?>?> RebindAfterClaimAsync(
+        ConditionRemediationEntry entry,
+        AgentCondition condition,
+        IReadOnlyDictionary<string, object?> preflightArguments,
+        CancellationToken cancellationToken)
+    {
+        var claimed = await _repository.GetByIdAsync(condition.Id, cancellationToken);
+        if (claimed is null)
+        {
+            return null;
+        }
+
+        if (string.Equals(claimed.PayloadJson, condition.PayloadJson, StringComparison.Ordinal))
+        {
+            return preflightArguments;
+        }
+
+        _logger.LogInformation(PayloadChangedDuringClaimMessage, condition.Id, entry.RemediationSkillName);
+
+        return TryBindArguments(entry, claimed);
+    }
+
+    /// <summary>
     /// The remediation's arguments, or null when this condition cannot produce them. Null is NOT a
-    /// failure to be retried: a payload that lacks what the binder needs will lack it forever, because a
-    /// re-detection only moves LastSeenAtUtc and never rewrites PayloadJson. Every row already open when
-    /// a binder gains a new required field lands here, which is exactly why the check runs before the
-    /// claim - otherwise deploying a binder change would burn three attempts and an escalation on the
-    /// entire existing backlog.
+    /// failure to be retried, which is why the check runs before the claim: an unbindable row must cost
+    /// neither an attempt nor a slot of the daily action budget.
+    ///
+    /// Since 2026-08-26 a row CAN become bindable while it stays open - a re-observation refreshes
+    /// PayloadJson, so a binder that gains a required field reaches the existing backlog on the next tick
+    /// that still reports it. What stays permanently unbindable is a row whose underlying entity simply
+    /// does not carry what the binder needs (see EmptyContainerRemediationBinder's weekday and
+    /// end-after-start cases); those are skipped quietly on every tick, by design.
     /// </summary>
     private IReadOnlyDictionary<string, object?>? TryBindArguments(
         ConditionRemediationEntry entry, AgentCondition condition)

@@ -22,6 +22,7 @@
 /// <param name="RejectedByUserId">The human who rejected it.</param>
 /// <param name="LastAttemptAtUtc">When the remediation attempt this transition claims was started (Etappe 5b); also what the stale-claim window is measured from.</param>
 /// <param name="AttemptIncrement">Added to AttemptCount inside the same UPDATE. Raised on the CLAIM, never on the outcome, so a run that dies mid-remediation still counts.</param>
+/// <param name="ApprovedByUserId">The human who released a prepared remediation, set on the transition to Executed that their acceptance triggers.</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -36,4 +37,5 @@ public sealed record AgentConditionTransitionFields(
     AgentConditionRejectReason? RejectReason = null,
     Guid? RejectedByUserId = null,
     DateTime? LastAttemptAtUtc = null,
-    int AttemptIncrement = 0);
+    int AttemptIncrement = 0,
+    Guid? ApprovedByUserId = null);

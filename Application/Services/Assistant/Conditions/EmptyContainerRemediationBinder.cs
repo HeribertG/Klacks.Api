@@ -15,8 +15,10 @@
 /// Unbindable rather than wrong, in three cases, each of which returns an INCOMPLETE dictionary that the
 /// dispatcher's required-argument pre-flight rejects before it claims the row - so an unbindable
 /// condition costs neither an attempt nor a slot of the daily action budget:
-/// (a) a payload written before Etappe 5b, which carries no schedule at all - an open row keeps the
-///     payload it was opened with forever, so every row already open at deployment lands here;
+/// (a) a payload written before Etappe 5b, which carries no schedule at all. This case is now TRANSIENT:
+///     since the payload refresh of 2026-08-26 an open row picks up the current payload shape on the next
+///     tick that still reports it, so such a row recovers by itself instead of staying unbindable for the
+///     rest of its life;
 /// (b) a container with no weekday flag set, where there is no weekday to write;
 /// (c) a container whose EndShift is not after its StartShift (a night container crossing midnight),
 ///     which create_container_template refuses by its own validation. Emitting the pair anyway would
