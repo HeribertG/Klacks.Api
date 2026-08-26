@@ -3,16 +3,18 @@
 /// <summary>
 /// Stores a user's reaction (helpful / dismissed) on a proactive message they received. Returns
 /// false when the dispatch row does not exist or belongs to a different user, so the caller can
-/// answer with not found without leaking foreign rows. After a stored dismissal two follow-ups run,
-/// both strictly secondary to the stored reaction and neither able to fail the request: the
-/// dismiss-streak evaluator may ask the user once whether the trigger kind should be muted, and a
-/// dismissal of a message that reported a condition-ledger finding rejects that finding with the
-/// given reason. The reaction is persisted before either runs, because it is the one effect the user
-/// asked for and the only one that is guaranteed to be possible.
+/// answer with not found without leaking foreign rows. After a stored reaction three follow-ups
+/// run, all strictly secondary to the stored reaction and none able to fail the request: the
+/// helpful-boost evaluator recomputes the kind's daily budget boost for the user, and on a
+/// dismissal the dismiss-streak evaluator may ask the user once whether the trigger kind should
+/// be muted, and a dismissal of a message that reported a condition-ledger finding rejects that
+/// finding with the given reason. The reaction is persisted before any of them run, because it is
+/// the one effect the user asked for and the only one that is guaranteed to be possible.
 /// </summary>
 /// <param name="dispatchRepository">Persistence of the proactive trigger dispatch rows.</param>
 /// <param name="dismissStreakEvaluator">Fires a mute suggestion after repeated dismissals.</param>
 /// <param name="ledgerService">Writes the rejection back onto the condition-ledger row the message reported.</param>
+/// <param name="helpfulBoostEvaluator">Recomputes the helpful-learned daily budget boost.</param>
 /// <param name="logger">Logs follow-up failures without failing the request.</param>
 
 using Klacks.Api.Application.Commands.Assistant;
@@ -28,17 +30,20 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IDismissStreakEvaluator _dismissStreakEvaluator;
     private readonly IAgentConditionLedgerService _ledgerService;
+    private readonly IHelpfulBoostEvaluator _helpfulBoostEvaluator;
     private readonly ILogger<SetProactiveReactionCommandHandler> _logger;
 
     public SetProactiveReactionCommandHandler(
         IProactiveTriggerDispatchRepository dispatchRepository,
         IDismissStreakEvaluator dismissStreakEvaluator,
         IAgentConditionLedgerService ledgerService,
+        IHelpfulBoostEvaluator helpfulBoostEvaluator,
         ILogger<SetProactiveReactionCommandHandler> logger)
     {
         _dispatchRepository = dispatchRepository;
         _dismissStreakEvaluator = dismissStreakEvaluator;
         _ledgerService = ledgerService;
+        _helpfulBoostEvaluator = helpfulBoostEvaluator;
         _logger = logger;
     }
 
@@ -66,6 +71,15 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
             {
                 _logger.LogWarning(ex, "Dismiss-streak evaluation failed for user {UserId}, kind {TriggerKind}", row.UserId, row.TriggerKind);
             }
+        }
+
+        try
+        {
+            await _helpfulBoostEvaluator.EvaluateAsync(row.UserId, row.TriggerKind, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Helpful-boost evaluation failed for user {UserId}, kind {TriggerKind}", row.UserId, row.TriggerKind);
         }
 
         return true;
