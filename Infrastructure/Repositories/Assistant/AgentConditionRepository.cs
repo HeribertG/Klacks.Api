@@ -240,6 +240,7 @@ public class AgentConditionRepository : IAgentConditionRepository
 
     public async Task<int> CountActionClaimsAsync(
         string triggerKind,
+        Guid? groupId,
         DateTime sinceUtc,
         CancellationToken cancellationToken = default)
     {
@@ -250,6 +251,7 @@ public class AgentConditionRepository : IAgentConditionRepository
             join condition in _context.AgentConditions
                 on conditionEvent.ConditionId equals condition.Id
             where condition.TriggerKind == triggerKind
+                && condition.GroupId == groupId
                 && conditionEvent.AtUtc >= sinceUtc
                 && conditionEvent.Detail != null
                 && conditionEvent.Detail.StartsWith(claimPrefix)

@@ -194,9 +194,24 @@ public interface IAgentConditionRepository
     /// own, and its only index is on condition_id. Claims are recognised by the
     /// AgentConditionActionDefaults.ActionClaimDetailPrefix marker on Detail, which is what keeps a
     /// human-driven preparation of the same kind from consuming the automation's budget.
+    ///
+    /// Counted per GROUP, not per kind alone, because that is the scope the budget it is compared
+    /// against is configured in: ProactiveGovernanceController lets an admin set DailyActionBudget and
+    /// WindowActionLimit for one group. Pooling the count across groups would let a busy group exhaust a
+    /// quiet one's budget - never the reverse, since the pool always contains at least the group's own
+    /// claims, so the error was toward too little rather than too much, but it made per-group budgets
+    /// meaningless as soon as a second group rule existed.
     /// </summary>
+    /// <param name="triggerKind">The detector kind whose claims are counted.</param>
+    /// <param name="groupId">
+    /// The group whose claims are counted. Null counts the installation-wide bucket - the conditions that
+    /// carry no group at all - and matches the installation-wide governance row, exactly the split the
+    /// governance lookup itself makes.
+    /// </param>
+    /// <param name="sinceUtc">Start of the window; the day boundary for the daily budget.</param>
     Task<int> CountActionClaimsAsync(
         string triggerKind,
+        Guid? groupId,
         DateTime sinceUtc,
         CancellationToken cancellationToken = default);
 

@@ -84,7 +84,7 @@ public class AgentTriggerBackgroundService : BackgroundService
         var ledgerService = scope.ServiceProvider.GetRequiredService<IAgentConditionLedgerService>();
 
         var totalEvents = 0;
-        var totalNotified = 0;
+        var totalDispatched = 0;
         var totalResolved = 0;
 
         foreach (var detector in detectors)
@@ -93,7 +93,7 @@ public class AgentTriggerBackgroundService : BackgroundService
             {
                 var outcome = await RunDetectorAsync(detector, triggerService, ledgerService, cancellationToken);
                 totalEvents += outcome.Events;
-                totalNotified += outcome.Notified;
+                totalDispatched += outcome.Dispatched;
                 totalResolved += outcome.Resolved;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -109,8 +109,8 @@ public class AgentTriggerBackgroundService : BackgroundService
         await RunActionDispatcherAsync(scope, cancellationToken);
 
         _logger.LogDebug(
-            "Agent trigger scan tick complete — {Count} detector(s), {Events} event(s), {Notified} notified, {Resolved} resolved",
-            detectors.Count, totalEvents, totalNotified, totalResolved);
+            "Agent trigger scan tick complete — {Count} detector(s), {Events} event(s), {Dispatched} dispatched, {Resolved} resolved",
+            detectors.Count, totalEvents, totalDispatched, totalResolved);
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ public class AgentTriggerBackgroundService : BackgroundService
     /// budget of five against a detector cap of fifty findings, it would strand the other forty-five
     /// findings in Detected where no remediation can ever see them.
     /// </summary>
-    private async Task<(int Events, int Notified, int Resolved)> RunDetectorAsync(
+    private async Task<(int Events, int Dispatched, int Resolved)> RunDetectorAsync(
         IAgentTriggerDetector detector,
         IAgentTriggerService triggerService,
         IAgentConditionLedgerService ledgerService,

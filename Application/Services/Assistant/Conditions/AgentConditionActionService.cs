@@ -13,9 +13,12 @@
 /// (2) a row that has already been attempted MaxAttemptsBeforeEscalation times is escalated to a human
 ///     rather than retried into a loop;
 /// (3) a quiet window skips WITHOUT counting an attempt, so a long import cannot starve the escalation;
-/// (4) the daily budget and the circuit breaker, counted in the database from the claims' own audit
-///     events so several API instances share one budget instead of one each;
-/// (5) an absolute per-kind-per-tick cap that no governance value can widen.
+/// (4) an absolute per-kind-per-tick cap that no governance value can widen - checked before the budget
+///     because it costs no query;
+/// (5) the daily budget and the circuit breaker, counted in the database from the claims' own audit
+///     events so several API instances share one budget instead of one each, and counted PER GROUP,
+///     because that is the scope an admin configures them in. An exhausted group is skipped, not
+///     returned from: the candidates behind it may belong to groups that have spent nothing.
 ///
 /// Claim BEFORE act, always. The claim is a compare-and-swap that raises AttemptCount in the same
 /// UPDATE, so a run that dies between claim and outcome still counts as an attempt and the row escalates
@@ -85,6 +88,9 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private const string PayloadChangedDuringClaimMessage =
         "Condition {ConditionId} had its payload refreshed between the pre-flight binding and the claim; "
         + "re-binding {Skill} against the current one";
+
+    private const string UnbindableAfterClaimReason =
+        "the condition's payload changed after the claim and no longer supplies the remediation's arguments";
 
     private const string UnbindableAfterClaimMessage =
         "Condition {ConditionId} no longer binds {Skill} after the claim, so nothing was executed; the row "
@@ -267,18 +273,25 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
                 return;
             }
 
-            var blockedReason = await budget.DescribeBlockAsync(governance, cancellationToken);
+            var blockedReason = await budget.DescribeBlockAsync(
+                condition.GroupId, governance, cancellationToken);
             if (blockedReason is not null)
             {
-                await ReportBudgetStopAsync(
-                    triggerKind,
-                    ownerUserId,
-                    blockedReason,
-                    candidates.Count - index,
-                    actionsThisTick,
-                    cancellationToken);
-                tally.LeftForBudget += candidates.Count - index;
-                return;
+                // Walk on instead of returning: the budget belongs to this condition's group, and the
+                // candidates behind it may belong to groups that have spent nothing. Returning here would
+                // let one busy group silence every other group for the rest of the tick.
+                if (budget.TryMarkStopReported(condition.GroupId))
+                {
+                    var leftInGroup = candidates
+                        .Skip(index)
+                        .Count(remaining => remaining.GroupId == condition.GroupId);
+
+                    await ReportBudgetStopAsync(
+                        triggerKind, ownerUserId, blockedReason, leftInGroup, actionsThisTick, cancellationToken);
+                    tally.LeftForBudget += leftInGroup;
+                }
+
+                continue;
             }
 
             if (!await TryClaimAsync(condition, entry, nowUtc, cancellationToken))
@@ -287,13 +300,18 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
                 continue;
             }
 
-            budget.RecordClaim();
+            budget.RecordClaim(condition.GroupId);
             actionsThisTick++;
 
             var claimedArguments = await RebindAfterClaimAsync(entry, condition, arguments, cancellationToken);
             if (claimedArguments is null)
             {
+                // Reported like every other post-claim failure, not merely logged: the claim has already
+                // spent an attempt and a slot of the budget, so staying silent here would let a
+                // remediation burn its three attempts without the owner ever hearing why.
                 _logger.LogWarning(UnbindableAfterClaimMessage, condition.Id, entry.RemediationSkillName);
+                await RecordFailureAsync(
+                    condition, entry, ownerUserId, UnbindableAfterClaimReason, cancellationToken);
                 tally.Failed++;
                 continue;
             }
@@ -808,18 +826,21 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// <summary>
     /// The daily budget and the circuit breaker for one kind in one tick. Both are counted in the
     /// database from the claims' audit events, so several API instances share one budget; the claims
-    /// this tick has made itself are added on top, because the queries ran before them. Window counts
-    /// are cached per window length: governance may configure a different window per scope, and the
-    /// same length must not be re-queried for every condition.
+    /// this tick has made itself are added on top, because the queries ran before them.
+    ///
+    /// Counted in the scope they are CONFIGURED in: one bucket per group, plus one for the conditions
+    /// that carry no group at all. Governance is resolved per group one gate earlier, so a per-kind count
+    /// would compare a group's own limit against every group's activity and let a busy group exhaust a
+    /// quiet one. Window counts are cached per window length within a bucket, because governance may
+    /// configure a different window per scope and the same length must not be re-queried per condition.
     /// </summary>
     private sealed class ActionBudget
     {
         private readonly IAgentConditionRepository _repository;
         private readonly string _triggerKind;
         private readonly DateTime _nowUtc;
-        private readonly Dictionary<int, int> _windowCounts = new();
-        private int? _todayCount;
-        private int _claimsThisTick;
+        private readonly Dictionary<Guid, GroupBudget> _byGroup = new();
+        private readonly GroupBudget _installationWide = new();
 
         public ActionBudget(IAgentConditionRepository repository, string triggerKind, DateTime nowUtc)
         {
@@ -828,29 +849,31 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             _nowUtc = nowUtc;
         }
 
-        public void RecordClaim() => _claimsThisTick++;
+        public void RecordClaim(Guid? groupId) => BudgetFor(groupId).ClaimsThisTick++;
 
-        /// <summary>Why this kind may not act right now, or null when it may.</summary>
+        /// <summary>Why this group may not act right now, or null when it may.</summary>
         public async Task<string?> DescribeBlockAsync(
-            ProactiveGovernanceDecision governance, CancellationToken cancellationToken)
+            Guid? groupId, ProactiveGovernanceDecision governance, CancellationToken cancellationToken)
         {
-            _todayCount ??= await _repository.CountActionClaimsAsync(
-                _triggerKind, _nowUtc.Date, cancellationToken);
+            var budget = BudgetFor(groupId);
 
-            if (_todayCount.Value + _claimsThisTick >= governance.DailyActionBudget)
+            budget.TodayCount ??= await _repository.CountActionClaimsAsync(
+                _triggerKind, groupId, _nowUtc.Date, cancellationToken);
+
+            if (budget.TodayCount.Value + budget.ClaimsThisTick >= governance.DailyActionBudget)
             {
                 return string.Format(
                     CultureInfo.InvariantCulture, DailyBudgetReason, governance.DailyActionBudget);
             }
 
-            if (!_windowCounts.TryGetValue(governance.WindowMinutes, out var windowCount))
+            if (!budget.WindowCounts.TryGetValue(governance.WindowMinutes, out var windowCount))
             {
                 windowCount = await _repository.CountActionClaimsAsync(
-                    _triggerKind, _nowUtc.AddMinutes(-governance.WindowMinutes), cancellationToken);
-                _windowCounts[governance.WindowMinutes] = windowCount;
+                    _triggerKind, groupId, _nowUtc.AddMinutes(-governance.WindowMinutes), cancellationToken);
+                budget.WindowCounts[governance.WindowMinutes] = windowCount;
             }
 
-            if (windowCount + _claimsThisTick >= governance.WindowActionLimit)
+            if (windowCount + budget.ClaimsThisTick >= governance.WindowActionLimit)
             {
                 return string.Format(
                     CultureInfo.InvariantCulture,
@@ -860,6 +883,50 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// True the first time this group is blocked in this tick. The tick walks on to the other groups
+        /// after a block, so without this the same owner would get one budget report per remaining
+        /// candidate of their group.
+        /// </summary>
+        public bool TryMarkStopReported(Guid? groupId)
+        {
+            var budget = BudgetFor(groupId);
+            if (budget.StopReported)
+            {
+                return false;
+            }
+
+            budget.StopReported = true;
+            return true;
+        }
+
+        private GroupBudget BudgetFor(Guid? groupId)
+        {
+            if (groupId is not { } scopedGroupId)
+            {
+                return _installationWide;
+            }
+
+            if (!_byGroup.TryGetValue(scopedGroupId, out var budget))
+            {
+                budget = new GroupBudget();
+                _byGroup[scopedGroupId] = budget;
+            }
+
+            return budget;
+        }
+
+        private sealed class GroupBudget
+        {
+            public Dictionary<int, int> WindowCounts { get; } = new();
+
+            public int? TodayCount { get; set; }
+
+            public int ClaimsThisTick { get; set; }
+
+            public bool StopReported { get; set; }
         }
     }
 }
