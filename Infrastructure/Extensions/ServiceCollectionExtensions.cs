@@ -706,6 +706,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentTriggerPreferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveTriggerDispatchRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProactiveTriggerDispatchRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDismissStreakEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.DismissStreakEvaluator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IHelpfulBoostEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.HelpfulBoostEvaluator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IUserActivityTracker, Klacks.Api.Application.Services.Assistant.Triggers.UserActivityTracker>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
