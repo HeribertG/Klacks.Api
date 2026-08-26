@@ -537,7 +537,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return false;
         }
 
-        await _ledgerService.TryTransitionAsync(
+        var recorded = await _ledgerService.TryTransitionAsync(
             condition.Id,
             AgentConditionStatus.Prepared,
             AgentConditionStatus.Executed,
@@ -545,6 +545,18 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             detail: Outcome(string.Format(CultureInfo.InvariantCulture, ExecutedDetail, entry.RemediationSkillName)),
             fields: new AgentConditionTransitionFields(HandlingKind: AgentConditionHandlingKind.Executed),
             cancellationToken);
+
+        if (!recorded)
+        {
+            // The remediation HAPPENED; only its bookkeeping lost the swap - a concurrent Resolve or
+            // Reject moved the row first. The report below still goes out, because the human-facing
+            // trail must not depend on which write won, but the ledger keeps no Executed event,
+            // HandledAtUtc or HandlingKind for it, so the gap is named here rather than left silent.
+            _logger.LogWarning(
+                "Remediation {Skill} on condition {ConditionId} succeeded but the row had already been "
+                + "moved by somebody else; the execution is not recorded on the ledger",
+                entry.RemediationSkillName, condition.Id);
+        }
 
         await _reporter.ReportAsync(
             ownerUserId,
