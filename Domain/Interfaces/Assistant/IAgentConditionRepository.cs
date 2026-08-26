@@ -208,6 +208,40 @@ public interface IAgentConditionRepository
     Task<List<AgentCondition>> GetExecutedSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The Executed rows attached to any of <paramref name="entityIds"/>, scoped to what this caller may
+    /// see - the read behind the service grid's "Klacksy handled this one" marker. Ordered stamped rows
+    /// before unstamped ones and newest <see cref="AgentCondition.HandledAtUtc"/> first within each, so a
+    /// caller that wants one attribution per entity can take the first row it sees per id and is
+    /// guaranteed the newest row that actually carries a handling time. That ordering is spelled out with
+    /// two keys on purpose - see the implementation for why one DESC key would mean different things on
+    /// Postgres and on the EF InMemory provider. Rows carrying no EntityId are excluded, since they can
+    /// never be matched to a grid cell. An empty <paramref name="entityIds"/> short-circuits without
+    /// touching the database.
+    ///
+    /// A given entity can legitimately carry SEVERAL Executed rows: the partial unique index on Fingerprint
+    /// covers open statuses only, so once a row reaches Executed a re-detection of the same condition opens
+    /// a fresh row beside it, and a fingerprint carries the business date, so different days differ anyway.
+    /// Collapsing them is the caller's decision, not this method's.
+    ///
+    /// This is NOT <see cref="GetExecutedSinceAsync"/> with a filter bolted on. That method is unscoped by
+    /// design (it feeds the internal cascade guard) and must never be exposed to a user-facing path. It is
+    /// also NOT expressible through the planner-relevant scoped reads: their status filter
+    /// (AgentConditionPlannerRelevantStatuses.Values) excludes Executed outright, so building on it would
+    /// yield an always-empty result. Only the group-scope rule is shared with them, and it is shared by
+    /// reusing the same private helper rather than by copying it.
+    /// </summary>
+    /// <param name="entityIds">The entity ids currently on screen; matched against AgentCondition.EntityId.</param>
+    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
+    /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise carries the
+    /// same contract as <see cref="GetOpenForScopeAsync"/>: a row is included when its group's Nested Set root is
+    /// in this set, or its GroupId is null AND its TriggerKind is not one of AgentTriggerGroupScopedKinds.Values.</param>
+    Task<List<AgentCondition>> GetExecutedForEntitiesAsync(
+        IReadOnlyCollection<Guid> entityIds,
+        bool isUnrestricted,
+        IReadOnlySet<Guid> visibleRootIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Moves LastSeenAtUtc forward on a still-open row and, when <paramref name="payloadJson"/> is given,
     /// replaces PayloadJson in the same UPDATE. Guarded on the row being open, so an out-of-order write
     /// can never resurrect a terminal row; LastSeenAtUtc itself is written through a GREATEST so the
