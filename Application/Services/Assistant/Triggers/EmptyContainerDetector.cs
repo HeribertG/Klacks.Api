@@ -13,22 +13,26 @@
 /// Ordered by FromDate (oldest gap first), Id as tiebreaker, before the cap applies -- without an
 /// explicit order the cap would pick from physical storage order, which is not even stable between ticks.
 ///
-/// 🔴 KNOWN DEFECT, open as of this commit. The ordering does NOT deliver the oldest-first triage queue
-/// it was meant to whenever the candidates share a FromDate, which is the normal shape of bulk-created
-/// containers: the sort key is then constant and the selection collapses onto the random-GUID tiebreaker,
-/// so the cap picks an ARBITRARY fixed 50 and the rest are never reported. Measured in the reference
-/// installation on 2026-08-26: 260 candidates, every one of them FromDate 2025-01-01, and the 50 ledger
-/// rows of this kind are exactly this query's top 50. A container created today sorts behind all of them
-/// and is never seen while they remain.
+/// That order alone starves NEW findings, which is why a second, smaller slice is added to it. The
+/// oldest-first sort degenerates whenever candidates share a FromDate - the normal shape of bulk-created
+/// containers: the sort key is then constant, the selection collapses onto the random-GUID tiebreaker, and
+/// the cap picks an arbitrary fixed 50 forever. Measured in the reference installation on 2026-08-26: 260
+/// candidates, every one of them FromDate 2025-01-01. A container created today sorts behind all of them
+/// and would never be reported - and unreported here means invisible everywhere, because the planner
+/// notification, ListOpenFindingsSkill, the LLM context, the digest and the action dispatcher all read the
+/// LEDGER, which only ever learns what this scan emitted.
 ///
-/// The cost is NOT limited to the autonomous remediation. Every emitted event also goes to the planner
-/// notification path unconditionally, so this cap decides what HUMANS are told about as well: 210 of the
-/// 260 findings reach nobody, and nothing else can see them either, because ListOpenFindingsSkill, the
-/// LLM context renderer, the digest and the action dispatcher all read the LEDGER, which only ever learns
-/// about what this scan emitted. ConditionRemediationRegistry does register empty_container ->
-/// create_container_template, so once governance for this kind is raised to Execute the selected 50 drain
-/// at the default budget of 5 actions per day - roughly 52 days for the current backlog, throughout which
-/// a container created today stays invisible.
+/// RecentlyCreatedSlots further rows therefore carry the most recently CREATED candidates. They are added
+/// ON TOP of the cap rather than carved out of it, so the oldest-first selection keeps every one of its
+/// slots and no row that was being reported stops being reported - which matters because a row that stops
+/// being re-observed also stops having its payload refreshed. The slice stays empty unless the cap
+/// actually bit AND something is genuinely newer than everything already selected, so it is a no-op for
+/// any installation whose findings all fit. It orders by CreateTime rather than FromDate precisely so a
+/// container created today is caught even when its period is backdated.
+///
+/// What this does NOT solve: if the newest RecentlyCreatedSlots candidates are themselves never
+/// remediated, the one after them starves again. Bounded and visible, where the old behaviour was
+/// unbounded and silent.
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
@@ -49,6 +53,13 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 50;
+
+    /// <summary>
+    /// Rows reported IN ADDITION to the cap, carrying the most recently created candidates. Not a share of
+    /// MaxFindingsPerTick: taking slots away from the oldest-first selection would stop rows that are being
+    /// reported today from being reported, which also stops their payload being refreshed.
+    /// </summary>
+    public const int RecentlyCreatedSlots = 15;
 
     /// <summary>
     /// ISO weekday number (1 = Monday .. 7 = Sunday) per weekday flag of a Shift, in ascending order, so
@@ -87,8 +98,9 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
         var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
+        var candidates = BuildCandidateQuery(containerIdsWithTemplate);
 
-        var emptyContainers = await BuildCandidateQuery(containerIdsWithTemplate)
+        var emptyContainers = await candidates
             .OrderBy(s => s.FromDate)
             .ThenBy(s => s.Id)
             .Take(MaxFindingsPerTick)
@@ -98,6 +110,9 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         {
             return Array.Empty<IAgentTriggerEvent>();
         }
+
+        emptyContainers.AddRange(
+            await NewerThanEverySelectedAsync(candidates, emptyContainers, cancellationToken));
 
         var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
             emptyContainers.Select(container => container.Id).ToList(), cancellationToken);
@@ -132,6 +147,41 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
                 Kind,
                 EmptyContainerTriggerEvent.DedupKeyFor(containerId)))
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// The most recently created candidates that are newer than EVERY row the oldest-first selection
+    /// already holds, or nothing at all when the cap did not bite.
+    ///
+    /// "Strictly newer than every selected row" is what makes the two sets provably disjoint, so the
+    /// caller appends without de-duplicating. It also makes the slice self-limiting: when all candidates
+    /// fit under the cap there is nothing newer left to find, and when they do not, only containers created
+    /// after the reported ones qualify - which is exactly the population the FromDate order cannot reach.
+    /// A selection carrying no CreateTime at all yields nothing, because there is then no floor to compare
+    /// against; those rows are already covered by the oldest-first stream.
+    /// </summary>
+    private static async Task<List<Shift>> NewerThanEverySelectedAsync(
+        IQueryable<Shift> candidates,
+        List<Shift> selected,
+        CancellationToken cancellationToken)
+    {
+        if (selected.Count < MaxFindingsPerTick)
+        {
+            return [];
+        }
+
+        var newestSelected = selected.Max(container => container.CreateTime);
+        if (newestSelected is null)
+        {
+            return [];
+        }
+
+        return await candidates
+            .Where(container => container.CreateTime > newestSelected)
+            .OrderByDescending(container => container.CreateTime)
+            .ThenBy(container => container.Id)
+            .Take(RecentlyCreatedSlots)
+            .ToListAsync(cancellationToken);
     }
 
     private async Task<List<Guid>> LoadContainerIdsWithTemplateAsync(CancellationToken cancellationToken) =>
