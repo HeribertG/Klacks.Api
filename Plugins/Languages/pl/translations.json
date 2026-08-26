@@ -1432,6 +1432,8 @@
   "new-address": "+ Dodaj adres",
   "new-group": "+ Dodaj grupę",
   "new-work": "+ Dodaj dyżur",
+  "new-plannable-work": "+ Dodaj usługę",
+  "new-plannable-work-tooltip": "Ten dyżur nie ma klienta, który go zleca lub za niego płaci. Jest przeznaczony do ogólnej pracy, niezwiązanej z konkretnym klientem.",
   "no-access.message": "Nie masz uprawnień dostępu do tej funkcji.",
   "none": "<Brak>",
   "page-not-found.message": "Nie znaleziono strony",

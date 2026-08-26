@@ -1432,6 +1432,8 @@
   "new-address": "+ Registrera adress",
   "new-group": "+ Registrera grupp",
   "new-work": "+ Dienst erfassen",
+  "new-plannable-work": "+ Registrera tjänst",
+  "new-plannable-work-tooltip": "Denna tjänst har ingen kund som beställer eller betalar för den. Den är avsedd för allmänt arbete som inte är kopplat till en specifik kund.",
   "no-access.message": "Du har inte behörighet att använda denna funktion.",
   "none": "<Ingen>",
   "page-not-found.message": "Sidan hittades inte",

@@ -1432,6 +1432,8 @@
   "new-address": "+ 新建地址",
   "new-group": "+ 新建分组",
   "new-work": "+ 新建班次",
+  "new-plannable-work": "+ 新建服务",
+  "new-plannable-work-tooltip": "此班次没有客户下单或付款。它用于不针对特定客户的通用工作。",
   "no-access.message": "您没有权限访问此功能。",
   "none": "<无>",
   "page-not-found.message": "页面未找到",

@@ -1432,6 +1432,8 @@
   "new-address": "+ Registrer adresse",
   "new-group": "+ Registrer gruppe",
   "new-work": "+ Registrer vakt",
+  "new-plannable-work": "+ Registrer tjeneste",
+  "new-plannable-work-tooltip": "Denne vakten har ingen klient som bestiller eller betaler for den. Den er beregnet på generelt arbeid som ikke er knyttet til en bestemt klient.",
   "no-access.message": "Du har ikke rettigheter til å bruke denne funksjonen.",
   "none": "<Ingen>",
   "page-not-found.message": "Side ikke funnet",

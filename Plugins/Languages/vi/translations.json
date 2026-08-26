@@ -1432,6 +1432,8 @@
   "new-address": "+ Tạo địa chỉ",
   "new-group": "+ Tạo nhóm",
   "new-work": "+ Tạo ca làm",
+  "new-plannable-work": "+ Tạo dịch vụ",
+  "new-plannable-work-tooltip": "Ca làm này không có khách hàng nào đặt hoặc thanh toán cho nó. Đây là công việc chung, không gắn với một khách hàng cụ thể nào.",
   "no-access.message": "Bạn không có quyền truy cập chức năng này.",
   "none": "<Không>",
   "page-not-found.message": "Không tìm thấy trang",

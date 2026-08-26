@@ -1432,6 +1432,8 @@
   "new-address": "+ Daftar alamat",
   "new-group": "+ Daftar kumpulan",
   "new-work": "+ Daftar syif",
+  "new-plannable-work": "+ Daftar perkhidmatan",
+  "new-plannable-work-tooltip": "Syif ini tiada pelanggan yang menempah atau membayarnya. Ia adalah untuk kerja am yang tidak berkaitan dengan pelanggan tertentu.",
   "no-access.message": "Anda tidak mempunyai hak untuk mengakses fungsi ini.",
   "none": "<Tiada>",
   "page-not-found.message": "Halaman tidak ditemui",

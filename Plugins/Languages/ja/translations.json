@@ -1432,6 +1432,8 @@
   "new-address": "+ 住所を追加",
   "new-group": "+ グループを作成",
   "new-work": "+ シフトを作成",
+  "new-plannable-work": "+ サービスを作成",
+  "new-plannable-work-tooltip": "このシフトには、依頼または支払いを行うクライアントがいません。特定のクライアントに紐づかない一般的な業務のためのものです。",
   "no-access.message": "この機能にアクセスする権限がありません。",
   "none": "<なし>",
   "page-not-found.message": "ページが見つかりません",

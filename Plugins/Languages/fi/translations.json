@@ -1432,6 +1432,8 @@
   "new-address": "+ Uusi osoite",
   "new-group": "+ Uusi ryhmä",
   "new-work": "+ Uusi työvuoro",
+  "new-plannable-work": "+ Uusi palvelu",
+  "new-plannable-work-tooltip": "Tällä työvuorolla ei ole asiakasta, joka tilaisi tai maksaisi siitä. Se on tarkoitettu yleiseen työhön, joka ei liity tiettyyn asiakkaaseen.",
   "no-access.message": "Sinulla ei ole oikeuksia tähän toimintoon.",
   "none": "<Ei mitään>",
   "page-not-found.message": "Sivua ei löytynyt",

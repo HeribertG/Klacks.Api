@@ -1432,6 +1432,8 @@
   "new-address": "+ Registrar dirección",
   "new-group": "+ Registrar grupo",
   "new-work": "+ Registrar turno",
+  "new-plannable-work": "+ Registrar servicio",
+  "new-plannable-work-tooltip": "Este turno no tiene ningún cliente que lo solicite o lo pague. Está pensado para trabajo general que no está vinculado a un cliente específico.",
   "no-access.message": "No tiene permisos para acceder a esta función.",
   "none": "<Ninguno>",
   "page-not-found.message": "Página no encontrada",

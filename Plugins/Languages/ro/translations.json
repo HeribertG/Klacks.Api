@@ -1432,6 +1432,8 @@
   "new-address": "+ Adăugare adresă",
   "new-group": "+ Adăugare grup",
   "new-work": "+ Adăugare tură",
+  "new-plannable-work": "+ Adăugare serviciu",
+  "new-plannable-work-tooltip": "Acest serviciu nu are un client care să îl comande sau să îl plătească. Este destinat muncii generale, care nu este legată de un anumit client.",
   "no-access.message": "Nu aveți drepturi de acces la această funcție.",
   "none": "<Niciunul>",
   "page-not-found.message": "Pagina nu a fost găsită",
