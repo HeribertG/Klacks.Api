@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Write side of the condition ledger. Holds the lifecycle rules (via AgentConditionStateMachine) and the
@@ -201,6 +201,53 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
 
         return true;
     }
+
+    public async Task<bool> TryReclaimStaleAsync(
+        Guid conditionId,
+        TimeSpan staleAfter,
+        string detail,
+        CancellationToken cancellationToken = default)
+    {
+        var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+
+        return await _repository.TryReclaimStaleAsync(
+            conditionId,
+            nowUtc - staleAfter,
+            nowUtc,
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = AgentConditionEventTypes.Reclaimed,
+                AtUtc = nowUtc,
+                Detail = detail
+            },
+            cancellationToken);
+    }
+
+    public async Task RecordEventAsync(
+        Guid conditionId,
+        string eventType,
+        string detail,
+        CancellationToken cancellationToken = default)
+    {
+        await _repository.InsertEventAsync(
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = eventType,
+                AtUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                Detail = detail
+            },
+            cancellationToken);
+    }
+
+    public async Task<bool> TrySetCausedByAsync(
+        Guid conditionId,
+        Guid causedByConditionId,
+        CancellationToken cancellationToken = default) =>
+        await _repository.TrySetCausedByAsync(conditionId, causedByConditionId, cancellationToken);
 
     private static AgentCondition NewCondition(
         string triggerKind,

@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// EF-backed condition ledger. Reads are AsNoTracking because every write here is either a conditional
@@ -108,6 +108,8 @@ public class AgentConditionRepository : IAgentConditionRepository
         var handlingKind = fields?.HandlingKind;
         var rejectReason = fields?.RejectReason;
         var rejectedByUserId = fields?.RejectedByUserId;
+        var lastAttemptAtUtc = fields?.LastAttemptAtUtc;
+        var attemptIncrement = fields?.AttemptIncrement ?? 0;
 
         auditEvent.ConditionId = id;
 
@@ -128,7 +130,9 @@ public class AgentConditionRepository : IAgentConditionRepository
                         .SetProperty(c => c.ScenarioId, c => scenarioId ?? c.ScenarioId)
                         .SetProperty(c => c.HandlingKind, c => handlingKind ?? c.HandlingKind)
                         .SetProperty(c => c.RejectReason, c => rejectReason ?? c.RejectReason)
-                        .SetProperty(c => c.RejectedByUserId, c => rejectedByUserId ?? c.RejectedByUserId),
+                        .SetProperty(c => c.RejectedByUserId, c => rejectedByUserId ?? c.RejectedByUserId)
+                        .SetProperty(c => c.LastAttemptAtUtc, c => lastAttemptAtUtc ?? c.LastAttemptAtUtc)
+                        .SetProperty(c => c.AttemptCount, c => c.AttemptCount + attemptIncrement),
                     cancellationToken);
 
             if (affected == 0)
@@ -152,6 +156,115 @@ public class AgentConditionRepository : IAgentConditionRepository
             await transaction.CommitAsync(cancellationToken);
             return true;
         });
+    }
+
+    public async Task<bool> TryReclaimStaleAsync(
+        Guid id,
+        DateTime staleBeforeUtc,
+        DateTime claimedAtUtc,
+        AgentConditionEvent auditEvent,
+        CancellationToken cancellationToken = default)
+    {
+        auditEvent.ConditionId = id;
+
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
+            var affected = await _context.AgentConditions
+                .Where(c => c.Id == id
+                    && c.Status == AgentConditionStatus.Prepared
+                    && c.LastAttemptAtUtc != null
+                    && c.LastAttemptAtUtc < staleBeforeUtc)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(c => c.LastAttemptAtUtc, claimedAtUtc)
+                        .SetProperty(c => c.AttemptCount, c => c.AttemptCount + 1),
+                    cancellationToken);
+
+            if (affected == 0)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return false;
+            }
+
+            await _context.AgentConditionEvents.AddAsync(auditEvent, cancellationToken);
+
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                Detach(auditEvent);
+                throw;
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return true;
+        });
+    }
+
+    public async Task<bool> TrySetCausedByAsync(
+        Guid id,
+        Guid causedByConditionId,
+        CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.AgentConditions
+            .Where(c => c.Id == id && c.CausedByConditionId == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(c => c.CausedByConditionId, causedByConditionId),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
+    public async Task<List<AgentCondition>> GetActionableByKindAsync(
+        string triggerKind,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentConditions
+            .Where(c => c.TriggerKind == triggerKind
+                && (c.Status == AgentConditionStatus.Reported || c.Status == AgentConditionStatus.Prepared))
+            .OrderBy(SeverityRank)
+            .ThenBy(c => c.DetectedAtUtc)
+            .Take(take)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountActionClaimsAsync(
+        string triggerKind,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var claimPrefix = AgentConditionActionDefaults.ActionClaimDetailPrefix;
+
+        return await (
+            from conditionEvent in _context.AgentConditionEvents
+            join condition in _context.AgentConditions
+                on conditionEvent.ConditionId equals condition.Id
+            where condition.TriggerKind == triggerKind
+                && conditionEvent.AtUtc >= sinceUtc
+                && conditionEvent.Detail != null
+                && conditionEvent.Detail.StartsWith(claimPrefix)
+            select conditionEvent.Id)
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<List<AgentCondition>> GetExecutedSinceAsync(
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentConditions
+            .Where(c => c.Status == AgentConditionStatus.Executed
+                && c.HandledAtUtc != null
+                && c.HandledAtUtc >= sinceUtc)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> TouchLastSeenAsync(Guid id, DateTime seenAtUtc, CancellationToken cancellationToken = default)

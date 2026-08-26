@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Persistence for the condition ledger (agent_conditions) and its append-only audit history
@@ -137,6 +137,75 @@ public interface IAgentConditionRepository
         AgentConditionTransitionFields? fields,
         AgentConditionEvent auditEvent,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Takes over a Prepared row whose remediation attempt produced no outcome, and appends
+    /// <paramref name="auditEvent"/> in the same database transaction. The compare-and-swap is on
+    /// LastAttemptAtUtc rather than on Status, because the state machine has no Prepared-to-Prepared
+    /// transition and needs none: the row is already where the execution stage wants it, what has to be
+    /// claimed atomically is the RIGHT TO RETRY. Only a row whose LastAttemptAtUtc lies strictly before
+    /// <paramref name="staleBeforeUtc"/> is taken, so two instances can never both resume the same row,
+    /// and a claim that is still running is left alone. AttemptCount is raised here as well - a crash
+    /// loop that only counted successful outcomes would retry forever without ever escalating.
+    ///
+    /// A row with a NULL LastAttemptAtUtc is deliberately NOT eligible: nothing this service wrote can
+    /// produce one, so it would have to come from a Prepared transition made elsewhere (the scenario
+    /// preparation path), which this must not hijack.
+    /// </summary>
+    /// <param name="id">The Prepared row to resume.</param>
+    /// <param name="staleBeforeUtc">Cut-off; a claim older than this counts as abandoned.</param>
+    /// <param name="claimedAtUtc">The new LastAttemptAtUtc.</param>
+    /// <param name="auditEvent">Written atomically with the claim, so it also counts against the action budget.</param>
+    Task<bool> TryReclaimStaleAsync(
+        Guid id,
+        DateTime staleBeforeUtc,
+        DateTime claimedAtUtc,
+        AgentConditionEvent auditEvent,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records that this row was itself caused by an earlier Klacksy remediation (Etappe 5b cascade
+    /// guard). Guarded on CausedByConditionId still being null, so the first attribution wins and a
+    /// later tick can never rewrite an existing provenance link. No compare-and-swap on Status: the
+    /// marking is orthogonal to the lifecycle and must also stick on a row that moves on afterwards.
+    /// </summary>
+    Task<bool> TrySetCausedByAsync(Guid id, Guid causedByConditionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The rows of one kind the action dispatcher may still act on - Reported (never claimed) and
+    /// Prepared (claimed; possibly an abandoned claim). Ordered the way Etappe 5b prioritises under
+    /// scarcity: Severity descending, then DetectedAtUtc ascending, so the oldest of the most severe
+    /// findings is served first when the budget cannot cover them all. Capped in the database.
+    /// </summary>
+    Task<List<AgentCondition>> GetActionableByKindAsync(
+        string triggerKind,
+        int take,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// How many action CLAIMS this trigger kind has made since <paramref name="sinceUtc"/>, which is
+    /// what the daily action budget and the circuit breaker are measured in. Counted from
+    /// agent_condition_events - not from an in-memory counter - so several API instances share one
+    /// budget instead of one each. A claim's event is written inside the claim's own transaction, so
+    /// the count can never miss a claim that happened, not even one whose compare-and-swap reported a
+    /// false negative after committing.
+    ///
+    /// The join to agent_conditions is unavoidable: the events table has no trigger_kind column of its
+    /// own, and its only index is on condition_id. Claims are recognised by the
+    /// AgentConditionActionDefaults.ActionClaimDetailPrefix marker on Detail, which is what keeps a
+    /// human-driven preparation of the same kind from consuming the automation's budget.
+    /// </summary>
+    Task<int> CountActionClaimsAsync(
+        string triggerKind,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Every condition executed since <paramref name="sinceUtc"/>, across all kinds - the input of the
+    /// cascade guard, which asks whether a newly detected condition appeared on an entity Klacksy has
+    /// just acted on. Read once per tick and matched in memory rather than queried per candidate.
+    /// </summary>
+    Task<List<AgentCondition>> GetExecutedSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Moves LastSeenAtUtc forward on a still-open row. Guarded on the row being open and on the new value

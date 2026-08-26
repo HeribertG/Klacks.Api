@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Fired when an active, non-scenario container shift (ShiftType.IsContainer,
@@ -13,6 +13,7 @@
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -21,7 +22,8 @@ public sealed record EmptyContainerTriggerEvent(
     string ContainerName,
     DateOnly FromDate,
     DateOnly? UntilDate,
-    IReadOnlyCollection<Guid> GroupIds) : IAgentTriggerEvent
+    IReadOnlyCollection<Guid> GroupIds,
+    ContainerScheduleSnapshot Schedule) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.EmptyContainer;
 
@@ -59,13 +61,22 @@ public sealed record EmptyContainerTriggerEvent(
         [ProactiveActionParamKeys.Date] = FromDate.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
     };
 
+    /// <summary>
+    /// Also the remediation input, not only a description of the finding: the Etappe 5b binder turns
+    /// Schedule into create_container_template's arguments, and it may not read the Shift itself.
+    /// </summary>
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
-        ["shiftId"] = ShiftId,
-        ["containerName"] = ContainerName,
-        ["fromDate"] = FromDate,
-        ["untilDate"] = UntilDate,
-        ["groupIds"] = GroupIds
+        [EmptyContainerPayloadKeys.ShiftId] = ShiftId,
+        [EmptyContainerPayloadKeys.ContainerName] = ContainerName,
+        [EmptyContainerPayloadKeys.FromDate] = FromDate,
+        [EmptyContainerPayloadKeys.UntilDate] = UntilDate,
+        [EmptyContainerPayloadKeys.GroupIds] = GroupIds,
+        [EmptyContainerPayloadKeys.StartShift] = Schedule.StartShift,
+        [EmptyContainerPayloadKeys.EndShift] = Schedule.EndShift,
+        [EmptyContainerPayloadKeys.IsoWeekdays] = Schedule.IsoWeekdays,
+        [EmptyContainerPayloadKeys.IsHoliday] = Schedule.IsHoliday,
+        [EmptyContainerPayloadKeys.IsWeekdayAndHoliday] = Schedule.IsWeekdayAndHoliday
     };
 
     private static bool IsPeriodActive(DateOnly fromDate, DateOnly? untilDate)

@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Scans for active container shifts (ShiftType.IsContainer, ShiftStatus.OriginalShift) that have
@@ -23,6 +23,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,21 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 50;
+
+    /// <summary>
+    /// ISO weekday number (1 = Monday .. 7 = Sunday) per weekday flag of a Shift, in ascending order, so
+    /// the snapshot below is a projection rather than seven branches that can each be mistyped.
+    /// </summary>
+    private static readonly IReadOnlyList<(Func<Shift, bool> IsSet, int IsoWeekday)> WeekdayFlags =
+    [
+        (shift => shift.IsMonday, 1),
+        (shift => shift.IsTuesday, 2),
+        (shift => shift.IsWednesday, 3),
+        (shift => shift.IsThursday, 4),
+        (shift => shift.IsFriday, 5),
+        (shift => shift.IsSaturday, 6),
+        (shift => shift.IsSunday, 7)
+    ];
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
@@ -76,7 +92,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
                 string.IsNullOrWhiteSpace(container.Name) ? container.Abbreviation : container.Name,
                 container.FromDate,
                 container.UntilDate,
-                ShiftGroupScope.For(groupsByShift, container.Id)))
+                ShiftGroupScope.For(groupsByShift, container.Id),
+                ScheduleSnapshotOf(container)))
             .ToList();
 
         _logger.LogInformation(
@@ -107,6 +124,27 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             .Select(t => t.ContainerId)
             .Distinct()
             .ToListAsync(cancellationToken);
+
+    /// <summary>
+    /// The container's own definition, carried into the payload so the Etappe 5b remediation binder can
+    /// stay a pure function over it. Ascending ISO weekdays with Sunday as 7, matching what
+    /// create_container_template expects - the 0-for-Sunday spelling is ContainerTemplate's storage
+    /// form and is converted inside the skill, not here.
+    /// </summary>
+    private static ContainerScheduleSnapshot ScheduleSnapshotOf(Shift container)
+    {
+        var isoWeekdays = WeekdayFlags
+            .Where(flag => flag.IsSet(container))
+            .Select(flag => flag.IsoWeekday)
+            .ToList();
+
+        return new ContainerScheduleSnapshot(
+            container.StartShift,
+            container.EndShift,
+            isoWeekdays,
+            container.IsHoliday,
+            container.IsWeekdayAndHoliday);
+    }
 
     private IQueryable<Shift> BuildCandidateQuery(List<Guid> containerIdsWithTemplate) =>
         _shiftRepository.GetQuery()

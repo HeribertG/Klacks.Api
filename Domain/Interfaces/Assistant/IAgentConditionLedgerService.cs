@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// The condition ledger's write side: turns a detector's per-tick observations into user-independent
@@ -89,6 +89,41 @@ public interface IAgentConditionLedgerService
         Guid conditionId,
         AgentConditionRejectReason rejectReason,
         Guid? rejectedByUserId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resumes an abandoned remediation claim (Etappe 5b): a Prepared row whose LastAttemptAtUtc is
+    /// older than <paramref name="staleAfter"/> is claimed again, its AttemptCount raised and a
+    /// Reclaimed audit event appended atomically. False means the row is not resumable - it is not
+    /// Prepared, its claim is still fresh, or another instance took it first - and is never an error.
+    /// </summary>
+    /// <param name="conditionId">The Prepared row to resume.</param>
+    /// <param name="staleAfter">Age a claim has to exceed before it counts as abandoned.</param>
+    /// <param name="detail">Audit detail; must carry the action-claim marker to count against budget.</param>
+    Task<bool> TryReclaimStaleAsync(
+        Guid conditionId,
+        TimeSpan staleAfter,
+        string detail,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Appends an audit event that is NOT a status transition - a failed remediation attempt above all,
+    /// where the row deliberately stays Prepared so the stale-claim path can retry it.
+    /// </summary>
+    Task RecordEventAsync(
+        Guid conditionId,
+        string eventType,
+        string detail,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Marks this row as caused by an earlier Klacksy remediation (Etappe 5b cascade guard), so it is
+    /// never auto-handled again and the provenance survives in the ledger. First attribution wins;
+    /// false means the row already carried one or does not exist.
+    /// </summary>
+    Task<bool> TrySetCausedByAsync(
+        Guid conditionId,
+        Guid causedByConditionId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
