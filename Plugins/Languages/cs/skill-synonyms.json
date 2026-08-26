@@ -89,6 +89,11 @@
     "přidej denní šablonu do kontejneru",
     "nastav den v týdnu u kontejnerové směny"
   ],
+  "delete_container_template": [
+    "smaž šablony dnů kontejneru",
+    "odstraň všechny šablony kontejneru",
+    "resetuj týdenní plán kontejneru"
+  ],
   "add_expense": [
     "přidat výdaj k pracovnímu záznamu",
     "zapsat výdaj na směnu",

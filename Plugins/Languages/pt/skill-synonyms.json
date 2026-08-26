@@ -88,6 +88,11 @@
     "adiciona um modelo diário ao turno contêiner",
     "configura um dia da semana do contêiner"
   ],
+  "delete_container_template": [
+    "excluir os modelos de dia do contêiner",
+    "remover todos os modelos do contêiner",
+    "redefinir o plano semanal do contêiner"
+  ],
   "add_expense": [
     "adicionar despesa a um plantão",
     "registrar gasto no turno",

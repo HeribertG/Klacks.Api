@@ -88,6 +88,11 @@
     "tilføj en dagsskabelon til containervagten",
     "konfigurer en ugedag på containervagten"
   ],
+  "delete_container_template": [
+    "slet containerens ugedagsskabeloner",
+    "fjern alle skabeloner fra containeren",
+    "nulstil containerens ugeplan"
+  ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",

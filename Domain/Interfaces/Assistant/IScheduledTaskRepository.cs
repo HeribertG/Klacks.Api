@@ -13,6 +13,11 @@ public interface IScheduledTaskRepository
     /// </summary>
     Task<List<ScheduledTask>> GetDueAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Returns the owner's tasks. includeDisabled=false narrows the result to the tasks that will
+    /// actually fire, which means enabled AND not paused: a paused task keeps IsEnabled true, so
+    /// filtering on IsEnabled alone would present a task that never runs as an active one.
+    /// </summary>
     Task<List<ScheduledTask>> GetByOwnerAsync(Guid ownerUserId, bool includeDisabled, CancellationToken cancellationToken = default);
 
     Task<ScheduledTask?> GetByOwnerAndNameAsync(Guid ownerUserId, string name, CancellationToken cancellationToken = default);

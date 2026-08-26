@@ -9,6 +9,11 @@
 /// an autonomy threshold that is stricter than the interactive one. An irreversible skill is refused
 /// outright unless a scheduled task carries an explicit per-task opt-in; the proactive heartbeat has no
 /// such opt-in and therefore never runs an irreversible skill.
+///
+/// Every refusal text states the CAUSE and the REMEDY only. What happens to the caller afterwards -
+/// pausing a scheduled task, disabling it, or nothing at all on the heartbeat, where no task exists to
+/// pause - is decided and worded by that caller, so the same policy text can never claim a consequence
+/// the caller did not apply.
 /// </summary>
 /// <param name="registry">Resolves the skill name to its descriptor</param>
 /// <param name="classifier">Yields the current risk class of that descriptor</param>
@@ -36,8 +41,9 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         if (request.OwnerPermissions.Count == 0)
         {
             return UnattendedSkillDecision.Deny(
-                "The owner permissions of this task were never frozen, so a background run would have " +
-                "no permission check at all. The task was disabled; please create it again.",
+                "The owner of this background run has no permissions at all right now, so there would be " +
+                "no permission check to apply. An administrator has to grant the owner the roles the " +
+                "skill needs.",
                 UnattendedDenyReason.NoPermissions);
         }
 
@@ -45,7 +51,7 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         if (descriptor is null)
         {
             return UnattendedSkillDecision.Deny(
-                $"Skill '{request.SkillName}' no longer exists. The task was disabled.",
+                $"Skill '{request.SkillName}' no longer exists, so there is nothing left to run.",
                 UnattendedDenyReason.UnknownSkill);
         }
 
@@ -61,7 +67,7 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
             SkillRiskClass.Sensitive => DenySensitive(request.SkillName),
             _ => UnattendedSkillDecision.Deny(
                 $"Skill '{request.SkillName}' has an unrecognised risk class and cannot be judged for a " +
-                "background run. The task was disabled; run the skill interactively instead.",
+                "background run at all. Run the skill interactively instead.",
                 UnattendedDenyReason.UnknownRiskClass)
         };
     }
@@ -77,7 +83,7 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         return UnattendedSkillDecision.Deny(
             $"Skill '{request.SkillName}' is classified as {riskClass} and needs autonomy level " +
             $"{minimumLevel} or higher to run unattended, but the owner is at {request.AutonomyLevel}. " +
-            "The task was disabled; raise the autonomy level and create it again.",
+            $"Raise the autonomy level to {minimumLevel} or higher.",
             UnattendedDenyReason.AutonomyLevelTooLow);
     }
 
@@ -96,9 +102,8 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
         {
             return UnattendedSkillDecision.Deny(
                 $"Skill '{request.SkillName}' is classified as irreversible and does not run unattended " +
-                "unless this task explicitly opts in. The task was paused, not disabled, and keeps its " +
-                "schedule. To resume it, either allow irreversible unattended runs for this task or " +
-                "change it to a skill that can be undone.",
+                "unless this task explicitly opts in. Either allow irreversible unattended runs for this " +
+                "task or change it to a skill that can be undone.",
                 UnattendedDenyReason.IrreversibleWithoutOptIn);
         }
 
@@ -108,7 +113,8 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
                 $"Skill '{request.SkillName}' is classified as Irreversible and needs autonomy level " +
                 $"{UnattendedSkillPolicyDefaults.MinimumLevelForIrreversibleOptIn} or higher to run " +
                 $"unattended even with the opt-in, but the owner is at {request.AutonomyLevel}. " +
-                "The task was disabled; raise the autonomy level and create it again.",
+                $"Raise the autonomy level to {UnattendedSkillPolicyDefaults.MinimumLevelForIrreversibleOptIn} " +
+                "or higher.",
                 UnattendedDenyReason.AutonomyLevelTooLow);
         }
 
@@ -118,8 +124,8 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
     private static UnattendedSkillDecision DenySensitive(string skillName)
     {
         return UnattendedSkillDecision.Deny(
-            $"Skill '{skillName}' is now classified as sensitive and must not run unattended. " +
-            "The task was disabled; run the skill interactively instead.",
+            $"Skill '{skillName}' is now classified as sensitive and must never run unattended. " +
+            "Run the skill interactively instead.",
             UnattendedDenyReason.SensitiveSkill);
     }
 }

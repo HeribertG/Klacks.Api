@@ -35,7 +35,7 @@ public class ScheduledTaskRepository : IScheduledTaskRepository
         var query = _context.ScheduledTasks.Where(t => t.OwnerUserId == ownerUserId);
         if (!includeDisabled)
         {
-            query = query.Where(t => t.IsEnabled);
+            query = query.Where(t => t.IsEnabled && !t.IsPaused);
         }
 
         return await query

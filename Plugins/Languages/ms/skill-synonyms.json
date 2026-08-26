@@ -81,6 +81,11 @@
     "tambah template harian pada syif container",
     "tetapkan hari dalam seminggu untuk container"
   ],
+  "delete_container_template": [
+    "padam templat hari kontena",
+    "buang semua templat kontena",
+    "set semula pelan mingguan kontena"
+  ],
   "add_expense": [
     "catat perbelanjaan baru",
     "tambah perbelanjaan pada kerja",

@@ -86,6 +86,11 @@
     "legg til en dagsmal på containervakten",
     "konfigurer en ukedag på containervakten"
   ],
+  "delete_container_template": [
+    "slett ukedagsmalene til containeren",
+    "fjern alle maler fra containeren",
+    "nullstill containerens ukeplan"
+  ],
   "add_expense": [
     "legg til en utgift på arbeidsloggen",
     "registrer utgift",

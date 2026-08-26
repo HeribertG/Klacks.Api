@@ -89,6 +89,11 @@
     "dodaj szablon dzienny do zmiany kontenerowej",
     "skonfiguruj dzień tygodnia kontenera"
   ],
+  "delete_container_template": [
+    "usuń szablony dni tygodnia kontenera",
+    "skasuj wszystkie szablony kontenera",
+    "zresetuj tygodniowy plan kontenera"
+  ],
   "add_expense": [
     "dodaj wydatek",
     "wprowadź wydatek",

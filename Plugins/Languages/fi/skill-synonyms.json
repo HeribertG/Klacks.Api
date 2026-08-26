@@ -83,6 +83,11 @@
     "lisää päivämalli konttivuoroon",
     "määritä kontin viikonpäivä"
   ],
+  "delete_container_template": [
+    "poista kontin viikonpäiväpohjat",
+    "poista kaikki kontin pohjat",
+    "nollaa kontin viikkosuunnitelma"
+  ],
   "add_expense": [
     "lisää kulukorvaus",
     "kirjaa kulu",

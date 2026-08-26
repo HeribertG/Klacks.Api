@@ -88,6 +88,11 @@
     "lägg till en dagsmall på containerpasset",
     "konfigurera en veckodag för containern"
   ],
+  "delete_container_template": [
+    "ta bort containerns veckodagsmallar",
+    "radera alla mallar för containern",
+    "återställ containerns veckoplan"
+  ],
   "add_expense": [
     "lägg till en utlägg",
     "registrera ett utlägg",

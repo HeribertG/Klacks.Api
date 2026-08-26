@@ -11,10 +11,12 @@
 /// fire time. Rights come from the owner's CURRENT roles, not from a set frozen at authoring time, so a
 /// revoked role takes effect on the next run. Because nobody is there to confirm anything, skill actions
 /// pass <see cref="IUnattendedSkillPolicy"/> first, judged against the owner's CURRENT autonomy level.
-/// A refusal there disables the task instead of retrying it every tick — except when the only obstacle
-/// is the missing opt-in for an irreversible skill, which pauses the task and keeps both the owner's
-/// enabled intent and the schedule, so the owner can lift it again. A refusal to mint a token leaves the
-/// task untouched — that condition is usually temporary.
+/// A refusal there disables the task instead of retrying it every tick — except when its cause is one
+/// the owner can still fix from the outside (see <see cref="UnattendedDenyReasonClassification"/>),
+/// which pauses the task and keeps both the owner's enabled intent and the schedule, so the owner can
+/// lift it again. The policy states cause and remedy only; the sentence saying which of the two
+/// follow-ups was applied — and how to undo it — is composed here, because only the caller knows.
+/// A refusal to mint a token leaves the task untouched — that condition is usually temporary.
 /// </summary>
 
 using System.Text.Json;
@@ -31,6 +33,13 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromMinutes(15);
     private const int MaxResultLength = 500;
     private const string NoteTopic = "scheduled-task";
+
+    private const string PauseFollowUpText =
+        "The task was paused, not disabled: it stays switched on and keeps its schedule. Once the cause " +
+        "above is fixed, ask me to schedule it again under the same name and it resumes.";
+
+    private const string DisableFollowUpText =
+        "The task was disabled and its schedule dropped; create it again once the cause above is fixed.";
 
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillExecutor _skillExecutor;
@@ -172,7 +181,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
 
         if (!decision.Allowed)
         {
-            var followUp = decision.DenyReason == UnattendedDenyReason.IrreversibleWithoutOptIn
+            var followUp = UnattendedDenyReasonClassification.IsOwnerFixable(decision.DenyReason)
                 ? ScheduledTaskFollowUp.Pause
                 : ScheduledTaskFollowUp.Disable;
 
@@ -180,7 +189,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
                 "Scheduled task {TaskId} refused before running skill {SkillName} ({DenyReason}, follow-up {FollowUp}): {Reason}",
                 task.Id, task.SkillName, decision.DenyReason, followUp, decision.Reason);
 
-            return (ScheduledTaskRunStatus.Error, decision.Reason!, followUp);
+            return (ScheduledTaskRunStatus.Error, DescribeRefusal(decision.Reason!, followUp), followUp);
         }
 
         var context = new SkillExecutionContext
@@ -206,6 +215,23 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         return result.Success
             ? (ScheduledTaskRunStatus.Ok, message, ScheduledTaskFollowUp.None)
             : (ScheduledTaskRunStatus.Error, message, ScheduledTaskFollowUp.None);
+    }
+
+    /// <summary>
+    /// Appends the follow-up the runner actually applied to the policy's cause-and-remedy text, so the
+    /// owner is told in one message why the run was refused, what to change and what state the task is
+    /// in now. Without the second half a paused task reads exactly like a disabled one.
+    /// </summary>
+    /// <param name="policyReason">Cause and remedy as reported by the unattended policy.</param>
+    /// <param name="followUp">What the runner did to the task after the refusal.</param>
+    private static string DescribeRefusal(string policyReason, ScheduledTaskFollowUp followUp)
+    {
+        return followUp switch
+        {
+            ScheduledTaskFollowUp.Pause => $"{policyReason} {PauseFollowUpText}",
+            ScheduledTaskFollowUp.Disable => $"{policyReason} {DisableFollowUpText}",
+            _ => policyReason
+        };
     }
 
     private async Task<AutonomyLevel> GetAutonomyLevelAsync(Guid ownerUserId, CancellationToken cancellationToken)
@@ -306,8 +332,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         // survives, so lifting the pause is a pure toggle instead of a recreation.
         if (followUp == ScheduledTaskFollowUp.Pause)
         {
-            task.IsPaused = true;
-            task.PausedReason = Truncate(resultText);
+            task.Pause(Truncate(resultText));
         }
 
         if (followUp == ScheduledTaskFollowUp.Disable || (task.MaxRuns is { } max && task.RunCount >= max))

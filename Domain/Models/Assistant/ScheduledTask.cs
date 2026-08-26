@@ -73,8 +73,29 @@ public class ScheduledTask : BaseEntity
     /// IsEnabled, which carries the owner's own on/off intent: lifting a pause must not have to guess
     /// whether the task was switched off by its owner or by the policy.
     /// </summary>
-    public bool IsPaused { get; set; }
+    public bool IsPaused { get; private set; }
 
-    /// <summary>Why the task was paused; null while it is not paused.</summary>
-    public string? PausedReason { get; set; }
+    /// <summary>Why the task was paused; null while it is not paused. Never set directly - the two
+    /// pause fields are only ever moved together through Pause and ClearPause, so a stale reason can
+    /// not survive next to IsPaused=false.</summary>
+    public string? PausedReason { get; private set; }
+
+    /// <summary>
+    /// Pauses the task for a cause its owner can still fix, keeping IsEnabled and the schedule.
+    /// </summary>
+    /// <param name="reason">Human-readable cause shown to the owner when the pause is explained.</param>
+    public void Pause(string reason)
+    {
+        IsPaused = true;
+        PausedReason = reason;
+    }
+
+    /// <summary>
+    /// Lifts the pause and drops its reason in one step, so the reason can never outlive the pause.
+    /// </summary>
+    public void ClearPause()
+    {
+        IsPaused = false;
+        PausedReason = null;
+    }
 }

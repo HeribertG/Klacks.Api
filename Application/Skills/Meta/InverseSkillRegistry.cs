@@ -35,6 +35,12 @@ public static class InverseSkillRegistry
             ["create_employee"] = new("__manual__", "delete_employee / mark inactive skill TODO."),
             ["create_user"] = new("delete_system_user", "Take userId."),
             ["create_shift"] = new("__manual__", "delete_shift skill TODO."),
+            ["create_container_template"] = new(
+                "delete_container_template",
+                "Take containerId from the original execution's result. WARNING: the delete endpoint is " +
+                "container-scoped, so it removes ALL weekday templates of that container, not only the one " +
+                "just created. It is an exact undo only when the container had no template before — " +
+                "otherwise list_container_template first and re-create the ones that must survive."),
             ["add_schedule_command"] = new("__manual__", "delete_schedule_command skill TODO."),
             ["start_autowizard"] = new("cancel_wizard_job", "Cancels in-flight jobs only; produced scenarios stay until accepted or rejected."),
             ["start_wizard1"] = new("cancel_wizard_job", "Cancels in-flight job."),
