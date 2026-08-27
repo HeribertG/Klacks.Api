@@ -244,6 +244,59 @@
             "it": "Certificato di RCP e primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ServSafe Food Handler (Lebensmittelhygiene-Grundzertifikat, National Restaurant Association)",
+            "en": "ServSafe Food Handler certification (National Restaurant Association)",
+            "fr": "Certification ServSafe Food Handler (National Restaurant Association)",
+            "it": "Certificazione ServSafe Food Handler (National Restaurant Association)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ServSafe Manager (Zertifikat Lebensmittelsicherheit für Führungskräfte, National Restaurant Association)",
+            "en": "ServSafe Manager certification (National Restaurant Association)",
+            "fr": "Certification ServSafe Manager (National Restaurant Association)",
+            "it": "Certificazione ServSafe Manager (National Restaurant Association)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Certified Culinarian (CC, American Culinary Federation, Rezertifizierung alle 5 Jahre)",
+            "en": "Certified Culinarian (CC, American Culinary Federation)",
+            "fr": "Certified Culinarian (CC, American Culinary Federation)",
+            "it": "Certified Culinarian (CC, American Culinary Federation)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "TIPS-Zertifizierung für Alkoholausschank (Training for Intervention ProcedureS)",
+            "en": "TIPS alcohol server certification (Training for Intervention ProcedureS)",
+            "fr": "Certification TIPS pour le service d'alcool (Training for Intervention ProcedureS)",
+            "it": "Certificazione TIPS per la somministrazione di alcolici (Training for Intervention ProcedureS)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Certified Hotel Administrator (CHA, American Hotel & Lodging Educational Institute)",
+            "en": "Certified Hotel Administrator (CHA, American Hotel & Lodging Educational Institute)",
+            "fr": "Certified Hotel Administrator (CHA, American Hotel & Lodging Educational Institute)",
+            "it": "Certified Hotel Administrator (CHA, American Hotel & Lodging Educational Institute)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ManageFirst-Zertifikat (Gastronomiemanagement, National Restaurant Association)",
+            "en": "ManageFirst certificate (restaurant management, National Restaurant Association)",
+            "fr": "Certificat ManageFirst (gestion de restauration, National Restaurant Association)",
+            "it": "Certificato ManageFirst (gestione della ristorazione, National Restaurant Association)"
+          }
         }
       ]
     }

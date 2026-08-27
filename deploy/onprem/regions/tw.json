@@ -292,6 +292,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "中餐烹調技術士 (Technikerzertifikat Chinesische Küche)",
+            "en": "Chinese cuisine cook technician certificate",
+            "fr": "Certificat de technicien en cuisine chinoise",
+            "it": "Certificato di tecnico di cucina cinese"
+          }
+        },
+        {
+          "name": {
+            "de": "西餐烹調技術士 (Technikerzertifikat Westliche Küche)",
+            "en": "Western cuisine cook technician certificate",
+            "fr": "Certificat de technicien en cuisine occidentale",
+            "it": "Certificato di tecnico di cucina occidentale"
+          }
+        },
+        {
+          "name": {
+            "de": "烘焙食品技術士 (Technikerzertifikat Bäckerei/Konditorei)",
+            "en": "Baking food technician certificate",
+            "fr": "Certificat de technicien en boulangerie-pâtisserie",
+            "it": "Certificato di tecnico di panificazione e pasticceria"
+          }
+        },
+        {
+          "name": {
+            "de": "餐旅服務技術士 (Technikerzertifikat Gastgewerbe-Service)",
+            "en": "Hospitality service technician certificate",
+            "fr": "Certificat de technicien en service hôtelier et de restauration",
+            "it": "Certificato di tecnico di servizio alberghiero e ristorazione"
+          }
+        },
+        {
+          "name": {
+            "de": "飲料調製技術士 (Technikerzertifikat Getränkezubereitung/Bar)",
+            "en": "Beverage preparation technician certificate",
+            "fr": "Certificat de technicien en préparation de boissons",
+            "it": "Certificato di tecnico di preparazione bevande"
+          }
         }
       ]
     }

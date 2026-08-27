@@ -283,6 +283,46 @@
             "it": "Kurz první pomoci (corso di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Kuchař-číšník, výuční list (Lehrabschluss Koch-Kellner)",
+            "en": "Kuchař-číšník, apprenticeship certificate (cook-waiter)",
+            "fr": "Kuchař-číšník, certificat d'apprentissage (cuisinier-serveur)",
+            "it": "Kuchař-číšník, attestato di apprendistato (cuoco-cameriere)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelnictví, maturitní zkouška (Hotelfach mit Matura)",
+            "en": "Hotelnictví, secondary diploma with maturita (hotel management)",
+            "fr": "Hotelnictví, diplôme secondaire avec maturita (hôtellerie)",
+            "it": "Hotelnictví, diploma secondario con maturità (settore alberghiero)"
+          }
+        },
+        {
+          "name": {
+            "de": "Gastronomie, maturitní zkouška (Gastronomie mit Matura)",
+            "en": "Gastronomie, secondary diploma with maturita (gastronomy)",
+            "fr": "Gastronomie, diplôme secondaire avec maturita (gastronomie)",
+            "it": "Gastronomie, diploma secondario con maturità (gastronomia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Cukrář, výuční list (Lehrabschluss Konditor/in)",
+            "en": "Cukrář, apprenticeship certificate (confectioner)",
+            "fr": "Cukrář, certificat d'apprentissage (pâtissier-confiseur)",
+            "it": "Cukrář, attestato di apprendistato (pasticciere)"
+          }
+        },
+        {
+          "name": {
+            "de": "Zdravotní průkaz pracovníka v potravinářství (Gesundheitsausweis für Lebensmittelarbeit)",
+            "en": "Zdravotní průkaz pracovníka v potravinářství (health certificate for food workers)",
+            "fr": "Zdravotní průkaz pracovníka v potravinářství (certificat de santé pour le travail alimentaire)",
+            "it": "Zdravotní průkaz pracovníka v potravinářství (certificato sanitario per il settore alimentare)"
+          }
         }
       ]
     }

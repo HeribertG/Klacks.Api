@@ -273,6 +273,46 @@
             "it": "Ezra Rishona (certificato di primo soccorso, Magen David Adom)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Te'udat Miktzoa Tabach (staatliches Berufszertifikat Koch/Köchin)",
+            "en": "Te'udat Miktzoa – certified cook (Ministry of Labor vocational certificate)",
+            "fr": "Te'udat Miktzoa – cuisinier/ère certifié/e (certificat professionnel du ministère du Travail)",
+            "it": "Te'udat Miktzoa – cuoco/a certificato/a (certificato professionale del Ministero del Lavoro)"
+          }
+        },
+        {
+          "name": {
+            "de": "Te'udat Miktzoa Konditoria (staatliches Berufszertifikat Konditorei)",
+            "en": "Te'udat Miktzoa – certified pastry chef (Ministry of Labor vocational certificate)",
+            "fr": "Te'udat Miktzoa – pâtissier/ère certifié/e (certificat professionnel du ministère du Travail)",
+            "it": "Te'udat Miktzoa – pasticciere/a certificato/a (certificato professionale del Ministero del Lavoro)"
+          }
+        },
+        {
+          "name": {
+            "de": "Berufszertifikat Meltzarut (Service/Restauration)",
+            "en": "Meltzarut – waiting and restaurant service vocational certificate",
+            "fr": "Meltzarut – certificat professionnel de service en salle",
+            "it": "Meltzarut – certificato professionale di servizio in sala"
+          }
+        },
+        {
+          "name": {
+            "de": "Diplom Hotelmanagement (Tadmor-Hotelfachschule)",
+            "en": "Hotel management diploma (Tadmor Hotel School)",
+            "fr": "Diplôme en gestion hôtelière (école hôtelière Tadmor)",
+            "it": "Diploma in gestione alberghiera (scuola alberghiera Tadmor)"
+          }
+        },
+        {
+          "name": {
+            "de": "Mashgiach Kashrut (Kaschrut-Aufseher, Oberrabbinat)",
+            "en": "Mashgiach Kashrut (kosher supervisor, Chief Rabbinate)",
+            "fr": "Mashgiach Kashrout (surveillant de cacherout, Grand Rabbinat)",
+            "it": "Mashgiach Kashrut (supervisore kasher, Gran Rabbinato)"
+          }
         }
       ]
     }

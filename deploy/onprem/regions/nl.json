@@ -267,6 +267,54 @@
             "it": "EHBO-diploma (certificato di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "MBO-diploma Kok, niveau 2 (Berufsabschluss Koch/Köchin)",
+            "en": "MBO diploma Kok, level 2 (professional cook)",
+            "fr": "MBO-diploma Kok, niveau 2 (diplôme de cuisinier)",
+            "it": "MBO-diploma Kok, livello 2 (diploma di cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "MBO-diploma Zelfstandig werkend kok, niveau 3 (selbständig arbeitender Koch)",
+            "en": "MBO diploma Zelfstandig werkend kok, level 3 (independently working cook)",
+            "fr": "MBO-diploma Zelfstandig werkend kok, niveau 3 (cuisinier autonome)",
+            "it": "MBO-diploma Zelfstandig werkend kok, livello 3 (cuoco autonomo)"
+          }
+        },
+        {
+          "name": {
+            "de": "MBO-diploma Gastheer/Gastvrouw, niveau 2 (Servicefachkraft Gastgewerbe)",
+            "en": "MBO diploma Gastheer/Gastvrouw, level 2 (food and beverage host)",
+            "fr": "MBO-diploma Gastheer/Gastvrouw, niveau 2 (employé de service en restauration)",
+            "it": "MBO-diploma Gastheer/Gastvrouw, livello 2 (addetto al servizio di sala)"
+          }
+        },
+        {
+          "name": {
+            "de": "MBO-diploma Zelfstandig werkend gastheer/-vrouw, niveau 3 (selbständige Servicefachkraft)",
+            "en": "MBO diploma Zelfstandig werkend gastheer/-vrouw, level 3 (independently working host)",
+            "fr": "MBO-diploma Zelfstandig werkend gastheer/-vrouw, niveau 3 (chef de rang autonome)",
+            "it": "MBO-diploma Zelfstandig werkend gastheer/-vrouw, livello 3 (addetto al servizio autonomo)"
+          }
+        },
+        {
+          "name": {
+            "de": "MBO-diploma Leidinggevende bediening, niveau 4 (Führungskraft Service)",
+            "en": "MBO diploma Leidinggevende bediening, level 4 (food and beverage service manager)",
+            "fr": "MBO-diploma Leidinggevende bediening, niveau 4 (responsable de service en salle)",
+            "it": "MBO-diploma Leidinggevende bediening, livello 4 (responsabile del servizio di sala)"
+          }
+        },
+        {
+          "name": {
+            "de": "SVH Diploma Sociale Hygiëne (Schankberechtigung nach Alcoholwet)",
+            "en": "SVH Diploma Sociale Hygiëne (social hygiene certificate, Alcohol Act)",
+            "fr": "SVH Diploma Sociale Hygiëne (certificat d'hygiène sociale, loi néerlandaise sur l'alcool)",
+            "it": "SVH Diploma Sociale Hygiëne (certificato di igiene sociale, legge olandese sugli alcolici)"
+          }
         }
       ]
     }

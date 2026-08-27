@@ -275,6 +275,54 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin",
+            "en": "Chef (state-recognized vocational qualification)",
+            "fr": "Cuisinier/Cuisinière (diplôme professionnel reconnu)",
+            "it": "Cuoco/Cuoca (qualifica professionale riconosciuta)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelfachmann/-frau",
+            "en": "Hotel specialist (state-recognized vocational qualification)",
+            "fr": "Spécialiste en hôtellerie (diplôme professionnel reconnu)",
+            "it": "Specialista alberghiero/a (qualifica professionale riconosciuta)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachmann/-frau",
+            "en": "Restaurant specialist (state-recognized vocational qualification)",
+            "fr": "Spécialiste de la restauration (diplôme professionnel reconnu)",
+            "it": "Specialista di ristorazione (qualifica professionale riconosciuta)"
+          }
+        },
+        {
+          "name": {
+            "de": "Fachkraft Küche",
+            "en": "Certified kitchen worker (two-year vocational qualification)",
+            "fr": "Agent/e de cuisine qualifié/e (formation professionnelle de deux ans)",
+            "it": "Operatore/Operatrice di cucina qualificato/a (formazione professionale biennale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Fachkraft für Gastronomie",
+            "en": "Certified hospitality worker (two-year vocational qualification)",
+            "fr": "Agent/e de restauration qualifié/e (formation professionnelle de deux ans)",
+            "it": "Operatore/Operatrice di gastronomia qualificato/a (formazione professionale biennale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kaufmann/-frau für Hotelmanagement",
+            "en": "Hotel management clerk (state-recognized vocational qualification)",
+            "fr": "Employé/e de commerce en gestion hôtelière (diplôme professionnel reconnu)",
+            "it": "Impiegato/a commerciale in gestione alberghiera (qualifica professionale riconosciuta)"
+          }
         }
       ]
     }

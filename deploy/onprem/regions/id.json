@@ -275,6 +275,50 @@
             "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Tata Boga (BNSP-Kompetenzzertifikat Kochkunst)",
+            "en": "Sertifikat Kompetensi Tata Boga (BNSP culinary arts competence certificate)",
+            "fr": "Sertifikat Kompetensi Tata Boga (certificat de compétence BNSP en arts culinaires)",
+            "it": "Sertifikat Kompetensi Tata Boga (certificato di competenza BNSP in arte culinaria)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Tata Hidang (BNSP-Kompetenzzertifikat Service und Restauration)",
+            "en": "Sertifikat Kompetensi Tata Hidang (BNSP food and beverage service competence certificate)",
+            "fr": "Sertifikat Kompetensi Tata Hidang (certificat de compétence BNSP en service en restauration)",
+            "it": "Sertifikat Kompetensi Tata Hidang (certificato di competenza BNSP nel servizio di sala)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Front Office (BNSP-Kompetenzzertifikat Rezeption)",
+            "en": "Sertifikat Kompetensi Front Office (BNSP front office competence certificate)",
+            "fr": "Sertifikat Kompetensi Front Office (certificat de compétence BNSP en réception)",
+            "it": "Sertifikat Kompetensi Front Office (certificato di competenza BNSP in ricevimento)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Housekeeping (BNSP-Kompetenzzertifikat Hauswirtschaft im Hotel)",
+            "en": "Sertifikat Kompetensi Housekeeping (BNSP housekeeping competence certificate)",
+            "fr": "Sertifikat Kompetensi Housekeeping (certificat de compétence BNSP en entretien des étages)",
+            "it": "Sertifikat Kompetensi Housekeeping (certificato di competenza BNSP in housekeeping)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Ijazah SMK Perhotelan (Berufsschulabschluss Hotelfach, Indonesien)",
+            "en": "Ijazah SMK Perhotelan (vocational high school diploma in hospitality, Indonesia)",
+            "fr": "Ijazah SMK Perhotelan (diplôme d'école professionnelle en hôtellerie, Indonésie)",
+            "it": "Ijazah SMK Perhotelan (diploma di scuola professionale alberghiera, Indonesia)"
+          }
         }
       ]
     }

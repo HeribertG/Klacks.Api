@@ -253,6 +253,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin EFZ",
+            "en": "Cook (federal VET diploma, Swiss system)",
+            "fr": "Cuisinier/Cuisinière CFC",
+            "it": "Cuoco/Cuoca AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurationsfachmann/-frau EFZ",
+            "en": "Restaurant specialist (federal VET diploma, Swiss system)",
+            "fr": "Spécialiste en restauration CFC",
+            "it": "Impiegato/a di ristorazione AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelfachmann/-frau EFZ",
+            "en": "Hotel specialist (federal VET diploma, Swiss system)",
+            "fr": "Spécialiste en hôtellerie CFC",
+            "it": "Impiegato/a d'albergo AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Küchenangestellte/r EBA",
+            "en": "Kitchen employee (federal VET certificate, Swiss system)",
+            "fr": "Employé/e en cuisine AFP",
+            "it": "Addetto/a di cucina CFP"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotellerieangestellte/r EBA",
+            "en": "Hospitality employee (federal VET certificate, Swiss system)",
+            "fr": "Employé/e en hôtellerie AFP",
+            "it": "Addetto/a d'albergo CFP"
+          }
         }
       ]
     }

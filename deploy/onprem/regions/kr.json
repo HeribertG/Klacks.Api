@@ -256,6 +256,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "조리기능사 (Jori Gineungsa, staatliches Berufszertifikat Koch/Köchin)",
+            "en": "Craftsman Cook (Jori Gineungsa, national technical qualification)",
+            "fr": "Craftsman Cook (Jori Gineungsa, qualification technique nationale de cuisinier)",
+            "it": "Craftsman Cook (Jori Gineungsa, qualifica tecnica nazionale di cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "조주기능사 (Joju Gineungsa, staatliches Berufszertifikat Barkeeper)",
+            "en": "Craftsman Bartender (Joju Gineungsa, national technical qualification)",
+            "fr": "Craftsman Bartender (Joju Gineungsa, qualification technique nationale de barman)",
+            "it": "Craftsman Bartender (Joju Gineungsa, qualifica tecnica nazionale di barman)"
+          }
+        },
+        {
+          "name": {
+            "de": "제과기능사 (Jegwa Gineungsa, staatliches Berufszertifikat Konditorei)",
+            "en": "Craftsman Confectionary Making (Jegwa Gineungsa, national technical qualification)",
+            "fr": "Craftsman Confectionary Making (Jegwa Gineungsa, qualification technique nationale de pâtisserie)",
+            "it": "Craftsman Confectionary Making (Jegwa Gineungsa, qualifica tecnica nazionale di pasticceria)"
+          }
+        },
+        {
+          "name": {
+            "de": "호텔경영사 (Hotel Gyeongyeongsa, staatliches Zertifikat Hotelmanagement)",
+            "en": "Hotel Gyeongyeongsa (national hotel management qualification)",
+            "fr": "Hotel Gyeongyeongsa (qualification nationale en gestion hôtelière)",
+            "it": "Hotel Gyeongyeongsa (qualifica nazionale in gestione alberghiera)"
+          }
+        },
+        {
+          "name": {
+            "de": "호텔서비스사 (Hotel Seobiseusa, staatliches Zertifikat Hotelservice)",
+            "en": "Hotel Seobiseusa (national hotel service qualification)",
+            "fr": "Hotel Seobiseusa (qualification nationale de service hôtelier)",
+            "it": "Hotel Seobiseusa (qualifica nazionale di servizio alberghiero)"
+          }
         }
       ]
     }

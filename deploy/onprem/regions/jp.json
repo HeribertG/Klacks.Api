@@ -297,6 +297,46 @@
             "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "調理師免許 (Chōrishi Menkyo, staatliche Kochlizenz)",
+            "en": "Chōrishi menkyo (national cook licence)",
+            "fr": "Chōrishi menkyo (licence nationale de cuisinier)",
+            "it": "Chōrishi menkyo (licenza nazionale di cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "製菓衛生師 (Seika Eiseishi, staatliche Konditor-Hygienelizenz)",
+            "en": "Seika eiseishi (licensed confectionery hygiene master)",
+            "fr": "Seika eiseishi (licence d'hygiène en pâtisserie-confiserie)",
+            "it": "Seika eiseishi (licenza di igiene per pasticceria)"
+          }
+        },
+        {
+          "name": {
+            "de": "レストランサービス技能士 (Restaurant Service Ginōshi, geprüfte Fachkraft Restaurantservice)",
+            "en": "Restaurant service ginōshi (certified restaurant service professional)",
+            "fr": "Restaurant service ginōshi (professionnel certifié du service en restaurant)",
+            "it": "Restaurant service ginōshi (professionista certificato del servizio di ristorante)"
+          }
+        },
+        {
+          "name": {
+            "de": "食品衛生責任者 (Shokuhin Eisei Sekininsha, Lebensmittelhygiene-Verantwortlicher)",
+            "en": "Shokuhin eisei sekininsha (food sanitation supervisor)",
+            "fr": "Shokuhin eisei sekininsha (responsable de l'hygiène alimentaire)",
+            "it": "Shokuhin eisei sekininsha (responsabile dell'igiene alimentare)"
+          }
+        },
+        {
+          "name": {
+            "de": "ホテル・マネジメント技能士 (Hotel Management Ginōshi)",
+            "en": "Hotel management ginōshi (certified hotel management professional)",
+            "fr": "Hotel management ginōshi (professionnel certifié en gestion hôtelière)",
+            "it": "Hotel management ginōshi (professionista certificato in gestione alberghiera)"
+          }
         }
       ]
     }

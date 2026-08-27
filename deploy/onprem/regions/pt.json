@@ -274,6 +274,54 @@
             "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Técnico de Cozinha/Pastelaria (Berufsabschluss Küche/Konditorei, Qualifikationsniveau 4)",
+            "en": "Técnico de Cozinha/Pastelaria (professional cook and pastry qualification, level 4)",
+            "fr": "Técnico de Cozinha/Pastelaria (diplôme professionnel de cuisine/pâtisserie, niveau 4)",
+            "it": "Técnico de Cozinha/Pastelaria (qualifica professionale di cucina/pasticceria, livello 4)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico de Restaurante/Bar (Berufsabschluss Restaurant- und Barservice, Qualifikationsniveau 4)",
+            "en": "Técnico de Restaurante/Bar (professional restaurant and bar service qualification, level 4)",
+            "fr": "Técnico de Restaurante/Bar (diplôme professionnel de service restaurant/bar, niveau 4)",
+            "it": "Técnico de Restaurante/Bar (qualifica professionale di servizio ristorante/bar, livello 4)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico de Receção (Berufsabschluss Hotelrezeption, Qualifikationsniveau 4)",
+            "en": "Técnico de Receção (professional hotel reception qualification, level 4)",
+            "fr": "Técnico de Receção (diplôme professionnel de réception hôtelière, niveau 4)",
+            "it": "Técnico de Receção (qualifica professionale di ricevimento alberghiero, livello 4)"
+          }
+        },
+        {
+          "name": {
+            "de": "Empregado/a de Andares (Housekeeping-Fachkraft, Qualifikationsniveau 2)",
+            "en": "Empregado/a de Andares (housekeeping attendant qualification, level 2)",
+            "fr": "Empregado/a de Andares (employé/e d'étages, niveau 2)",
+            "it": "Empregado/a de Andares (addetto/a ai piani, livello 2)"
+          }
+        },
+        {
+          "name": {
+            "de": "Curso de Gestão Hoteleira (Abschluss Hotelmanagement)",
+            "en": "Curso de Gestão Hoteleira (hotel management programme diploma)",
+            "fr": "Curso de Gestão Hoteleira (diplôme de gestion hôtelière)",
+            "it": "Curso de Gestão Hoteleira (diploma di gestione alberghiera)"
+          }
+        },
+        {
+          "name": {
+            "de": "Formação em Higiene e Segurança Alimentar / HACCP (Lebensmittelhygiene-Schulung)",
+            "en": "Formação em Higiene e Segurança Alimentar (food hygiene and safety / HACCP training)",
+            "fr": "Formação em Higiene e Segurança Alimentar (formation hygiène et sécurité alimentaire / HACCP)",
+            "it": "Formação em Higiene e Segurança Alimentar (formazione igiene e sicurezza alimentare / HACCP)"
+          }
         }
       ]
     }

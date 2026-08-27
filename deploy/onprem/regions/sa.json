@@ -282,6 +282,48 @@
             "it": "Certificato di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "TVTC-Diplom Kochkunst (Culinary Arts)",
+            "en": "TVTC diploma in culinary arts",
+            "fr": "Diplôme TVTC en arts culinaires",
+            "it": "Diploma TVTC in arti culinarie"
+          }
+        },
+        {
+          "name": {
+            "de": "TVTC-Diplom Hotelmanagement",
+            "en": "TVTC diploma in hotel management",
+            "fr": "Diplôme TVTC en gestion hôtelière",
+            "it": "Diploma TVTC in gestione alberghiera"
+          }
+        },
+        {
+          "name": {
+            "de": "Zertifikat Food & Beverage Service (TVTC)",
+            "en": "TVTC food and beverage service certificate",
+            "fr": "Certificat TVTC de service food & beverage",
+            "it": "Certificato TVTC di servizio food & beverage"
+          }
+        },
+        {
+          "name": {
+            "de": "Kommunales Gesundheitszertifikat für Lebensmittelpersonal (Baladiya)",
+            "en": "Municipal health certificate for food handlers (Baladiya)",
+            "fr": "Certificat sanitaire municipal pour le personnel alimentaire (Baladiya)",
+            "it": "Certificato sanitario municipale per il personale alimentare (Baladiya)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "HACCP-/Lebensmittelsicherheitszertifikat",
+            "en": "HACCP / food safety certificate",
+            "fr": "Certificat HACCP / sécurité alimentaire",
+            "it": "Certificato HACCP / sicurezza alimentare"
+          },
+          "isTimeLimited": true
         }
       ]
     }

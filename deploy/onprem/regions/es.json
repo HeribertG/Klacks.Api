@@ -265,6 +265,54 @@
             "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Técnico en Cocina y Gastronomía (Berufsabschluss Küche und Gastronomie, FP grado medio)",
+            "en": "Técnico en Cocina y Gastronomía (vocational qualification in cooking and gastronomy, FP grado medio)",
+            "fr": "Técnico en Cocina y Gastronomía (diplôme professionnel de cuisine et gastronomie, FP grado medio)",
+            "it": "Técnico en Cocina y Gastronomía (qualifica professionale di cucina e gastronomia, FP grado medio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico en Servicios en Restauración (Berufsabschluss Restaurant-Service, FP grado medio)",
+            "en": "Técnico en Servicios en Restauración (vocational qualification in restaurant service, FP grado medio)",
+            "fr": "Técnico en Servicios en Restauración (diplôme professionnel de service en restauration, FP grado medio)",
+            "it": "Técnico en Servicios en Restauración (qualifica professionale di servizio di ristorazione, FP grado medio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico Superior en Dirección de Cocina (höherer Berufsabschluss Küchenleitung, FP grado superior)",
+            "en": "Técnico Superior en Dirección de Cocina (higher vocational qualification in kitchen management, FP grado superior)",
+            "fr": "Técnico Superior en Dirección de Cocina (diplôme professionnel supérieur de direction de cuisine, FP grado superior)",
+            "it": "Técnico Superior en Dirección de Cocina (qualifica professionale superiore di direzione di cucina, FP grado superior)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico Superior en Gestión de Alojamientos Turísticos (höherer Berufsabschluss Beherbergungsmanagement, FP grado superior)",
+            "en": "Técnico Superior en Gestión de Alojamientos Turísticos (higher vocational qualification in tourist accommodation management, FP grado superior)",
+            "fr": "Técnico Superior en Gestión de Alojamientos Turísticos (diplôme professionnel supérieur de gestion des hébergements touristiques, FP grado superior)",
+            "it": "Técnico Superior en Gestión de Alojamientos Turísticos (qualifica professionale superiore di gestione degli alloggi turistici, FP grado superior)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico en Panadería, Repostería y Confitería (Berufsabschluss Bäckerei, Konditorei und Confiserie, FP grado medio)",
+            "en": "Técnico en Panadería, Repostería y Confitería (vocational qualification in bakery, pastry and confectionery, FP grado medio)",
+            "fr": "Técnico en Panadería, Repostería y Confitería (diplôme professionnel de boulangerie, pâtisserie et confiserie, FP grado medio)",
+            "it": "Técnico en Panadería, Repostería y Confitería (qualifica professionale di panetteria, pasticceria e confetteria, FP grado medio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certificado de manipulador de alimentos (Lebensmittelhygiene-Schulungsnachweis)",
+            "en": "Certificado de manipulador de alimentos (food handler hygiene training certificate)",
+            "fr": "Certificado de manipulador de alimentos (certificat de formation à l'hygiène alimentaire)",
+            "it": "Certificado de manipulador de alimentos (certificato di formazione per addetti alimentari)"
+          }
         }
       ]
     }

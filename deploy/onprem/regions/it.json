@@ -244,6 +244,55 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufsqualifikation Restaurationsfachkraft Küche (Operatore della Ristorazione, IeFP)",
+            "en": "Vocational qualification in restaurant operations, kitchen track (Operatore della Ristorazione, IeFP)",
+            "fr": "Qualification professionnelle de restauration, option cuisine (Operatore della Ristorazione, IeFP)",
+            "it": "Operatore della Ristorazione – Preparazione degli Alimenti e Allestimento Piatti (IeFP)"
+          }
+        },
+        {
+          "name": {
+            "de": "Berufsqualifikation Restaurationsfachkraft Service und Bar (Operatore della Ristorazione, IeFP)",
+            "en": "Vocational qualification in restaurant operations, dining room and bar track (Operatore della Ristorazione, IeFP)",
+            "fr": "Qualification professionnelle de restauration, option salle et bar (Operatore della Ristorazione, IeFP)",
+            "it": "Operatore della Ristorazione – Allestimento Sala e Somministrazione Piatti e Bevande (IeFP)"
+          }
+        },
+        {
+          "name": {
+            "de": "Diplom Enogastronomie und Hotellerie (Istituto Alberghiero IPSEOA)",
+            "en": "Vocational school diploma in food, wine and hospitality (Istituto Alberghiero IPSEOA)",
+            "fr": "Diplôme professionnel en œnogastronomie et hôtellerie (Istituto Alberghiero IPSEOA)",
+            "it": "Diploma di Servizi per l'Enogastronomia e l'Ospitalità Alberghiera (IPSEOA)"
+          }
+        },
+        {
+          "name": {
+            "de": "Berufsdiplom Küchentechniker/in (Tecnico di Cucina, IeFP)",
+            "en": "Vocational diploma in professional cooking (Tecnico di Cucina, IeFP)",
+            "fr": "Diplôme professionnel de technicien de cuisine (Tecnico di Cucina, IeFP)",
+            "it": "Tecnico di Cucina (diploma professionale IeFP)"
+          }
+        },
+        {
+          "name": {
+            "de": "Berufsdiplom Empfangs- und Promotionsdienste (Tecnico dei Servizi di Promozione e Accoglienza, IeFP)",
+            "en": "Vocational diploma in reception and promotion services (Tecnico dei Servizi di Promozione e Accoglienza, IeFP)",
+            "fr": "Diplôme professionnel des services d'accueil et de promotion (Tecnico dei Servizi di Promozione e Accoglienza, IeFP)",
+            "it": "Tecnico dei Servizi di Promozione e Accoglienza (diploma professionale IeFP)"
+          }
+        },
+        {
+          "name": {
+            "de": "HACCP-Schulungsnachweis für Lebensmittelpersonal (Attestato Alimentaristi)",
+            "en": "HACCP food handler training certificate (attestato alimentaristi)",
+            "fr": "Attestation de formation HACCP pour le personnel alimentaire (attestato alimentaristi)",
+            "it": "Attestato di Formazione HACCP per Alimentaristi"
+          },
+          "isTimeLimited": true
         }
       ]
     }

@@ -280,6 +280,54 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin EFZ",
+            "en": "Cook (federal VET diploma)",
+            "fr": "Cuisinier/Cuisinière CFC",
+            "it": "Cuoco/Cuoca AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurationsfachmann/-frau EFZ",
+            "en": "Restaurant specialist (federal VET diploma)",
+            "fr": "Spécialiste en restauration CFC",
+            "it": "Impiegato/a di ristorazione AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelfachmann/-frau EFZ",
+            "en": "Hotel specialist (federal VET diploma)",
+            "fr": "Spécialiste en hôtellerie CFC",
+            "it": "Impiegato/a d'albergo AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Küchenangestellte/r EBA",
+            "en": "Kitchen employee (federal VET certificate)",
+            "fr": "Employé/e en cuisine AFP",
+            "it": "Addetto/a di cucina CFP"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotellerieangestellte/r EBA",
+            "en": "Hospitality employee (federal VET certificate)",
+            "fr": "Employé/e en hôtellerie AFP",
+            "it": "Addetto/a d'albergo CFP"
+          }
+        },
+        {
+          "name": {
+            "de": "Dipl. Hôtelier-Restaurateur/-Restauratrice HF",
+            "en": "Hotel and restaurant manager (higher vocational diploma)",
+            "fr": "Hôtelier-restaurateur/-restauratrice diplômé/e ES",
+            "it": "Albergatore-ristoratore/Albergatrice-ristoratrice dipl. SSS"
+          }
         }
       ],
       "restDayRotations": [

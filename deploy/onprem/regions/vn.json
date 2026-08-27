@@ -277,6 +277,46 @@
             "it": "Sơ cứu (certificato di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ sơ cấp Kỹ thuật chế biến món ăn (berufliche Grundqualifikation Kochtechnik)",
+            "en": "Chứng chỉ sơ cấp Kỹ thuật chế biến món ăn (elementary vocational certificate in culinary techniques)",
+            "fr": "Chứng chỉ sơ cấp Kỹ thuật chế biến món ăn (certificat professionnel élémentaire en techniques culinaires)",
+            "it": "Chứng chỉ sơ cấp Kỹ thuật chế biến món ăn (certificato professionale elementare in tecniche di cucina)"
+          }
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ Nghiệp vụ nhà hàng (Zertifikat Restaurantservice)",
+            "en": "Chứng chỉ Nghiệp vụ nhà hàng (restaurant operations certificate)",
+            "fr": "Chứng chỉ Nghiệp vụ nhà hàng (certificat de service en restauration)",
+            "it": "Chứng chỉ Nghiệp vụ nhà hàng (certificato di servizio di ristorazione)"
+          }
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ Nghiệp vụ lễ tân (Zertifikat Rezeption)",
+            "en": "Chứng chỉ Nghiệp vụ lễ tân (front office operations certificate)",
+            "fr": "Chứng chỉ Nghiệp vụ lễ tân (certificat de réception)",
+            "it": "Chứng chỉ Nghiệp vụ lễ tân (certificato di ricevimento)"
+          }
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ Nghiệp vụ buồng (Zertifikat Housekeeping)",
+            "en": "Chứng chỉ Nghiệp vụ buồng (housekeeping operations certificate)",
+            "fr": "Chứng chỉ Nghiệp vụ buồng (certificat d'entretien des étages)",
+            "it": "Chứng chỉ Nghiệp vụ buồng (certificato di housekeeping)"
+          }
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ VTOS (Zertifikat nach dem vietnamesischen Tourismus-Berufsstandard, Vietnam Tourism Occupational Skills Standards)",
+            "en": "Chứng chỉ VTOS (Vietnam Tourism Occupational Skills Standards certificate)",
+            "fr": "Chứng chỉ VTOS (certificat selon les normes vietnamiennes de compétences des métiers du tourisme)",
+            "it": "Chứng chỉ VTOS (certificato secondo gli standard vietnamiti delle competenze turistiche)"
+          }
         }
       ]
     }

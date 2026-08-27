@@ -266,6 +266,55 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufsdiplom Kochkunst und Ernährung (ปวช. อาหารและโภชนาการ, Office of the Vocational Education Commission)",
+            "en": "Vocational certificate in food and nutrition (ปวช. อาหารและโภชนาการ, Office of the Vocational Education Commission)",
+            "fr": "Diplôme professionnel en cuisine et nutrition (ปวช. อาหารและโภชนาการ, Office of the Vocational Education Commission)",
+            "it": "Diploma professionale in cucina e nutrizione (ปวช. อาหารและโภชนาการ, Office of the Vocational Education Commission)"
+          }
+        },
+        {
+          "name": {
+            "de": "Berufsdiplom Hotelfach (ปวช./ปวส. การโรงแรม, Office of the Vocational Education Commission)",
+            "en": "Vocational certificate/diploma in hotel studies (ปวช./ปวส. การโรงแรม, Office of the Vocational Education Commission)",
+            "fr": "Diplôme professionnel en hôtellerie (ปวช./ปวส. การโรงแรม, Office of the Vocational Education Commission)",
+            "it": "Diploma professionale alberghiero (ปวช./ปวส. การโรงแรม, Office of the Vocational Education Commission)"
+          }
+        },
+        {
+          "name": {
+            "de": "Nationaler Fachkompetenznachweis Thai-Koch (ผู้ประกอบอาหารไทย, Department of Skill Development)",
+            "en": "National skill standard certificate for Thai cooks (ผู้ประกอบอาหารไทย, Department of Skill Development)",
+            "fr": "Certificat de compétence professionnelle nationale de cuisinier thaïlandais (Department of Skill Development)",
+            "it": "Certificato dello standard nazionale di competenza di cuoco tailandese (Department of Skill Development)"
+          }
+        },
+        {
+          "name": {
+            "de": "Nationaler Fachkompetenznachweis Restaurantservice (พนักงานบริการอาหารและเครื่องดื่ม, Department of Skill Development)",
+            "en": "National skill standard certificate for food and beverage service (พนักงานบริการอาหารและเครื่องดื่ม, Department of Skill Development)",
+            "fr": "Certificat de compétence professionnelle nationale en service en restauration (Department of Skill Development)",
+            "it": "Certificato dello standard nazionale di competenza nel servizio di sala (Department of Skill Development)"
+          }
+        },
+        {
+          "name": {
+            "de": "Nationaler Fachkompetenznachweis Barkeeper (พนักงานผสมเครื่องดื่ม, Department of Skill Development)",
+            "en": "National skill standard certificate for bartenders (พนักงานผสมเครื่องดื่ม, Department of Skill Development)",
+            "fr": "Certificat de compétence professionnelle nationale de barman (Department of Skill Development)",
+            "it": "Certificato dello standard nazionale di competenza di barman (Department of Skill Development)"
+          }
+        },
+        {
+          "name": {
+            "de": "Lebensmittelhygiene-Schulung für Küchen- und Servicepersonal (ผู้สัมผัสอาหาร, Ministry of Public Health)",
+            "en": "Food handler hygiene training (ผู้สัมผัสอาหาร, Ministry of Public Health)",
+            "fr": "Formation à l'hygiène des manipulateurs d'aliments (ผู้สัมผัสอาหาร, Ministry of Public Health)",
+            "it": "Formazione igienica per addetti alimentari (ผู้สัมผัสอาหาร, Ministry of Public Health)"
+          },
+          "isTimeLimited": true
         }
       ]
     }

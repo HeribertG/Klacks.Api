@@ -279,6 +279,47 @@
             "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Technik żywienia i usług gastronomicznych (Techniker für Ernährung und Gastronomiedienstleistungen)",
+            "en": "Technik żywienia i usług gastronomicznych (technician of catering and gastronomy services)",
+            "fr": "Technik żywienia i usług gastronomicznych (technicien en alimentation et services de restauration)",
+            "it": "Technik żywienia i usług gastronomicznych (tecnico dell'alimentazione e dei servizi gastronomici)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kucharz, kwalifikacja zawodowa HGT.02 (Berufsabschluss Koch/Köchin)",
+            "en": "Kucharz, vocational qualification HGT.02 (cook)",
+            "fr": "Kucharz, qualification professionnelle HGT.02 (cuisinier)",
+            "it": "Kucharz, qualifica professionale HGT.02 (cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kelner, kwalifikacja zawodowa HGT.01 (Berufsabschluss Kellner/in)",
+            "en": "Kelner, vocational qualification HGT.01 (waiter)",
+            "fr": "Kelner, qualification professionnelle HGT.01 (serveur)",
+            "it": "Kelner, qualifica professionale HGT.01 (cameriere)"
+          }
+        },
+        {
+          "name": {
+            "de": "Technik hotelarstwa (Hotelfach-Techniker)",
+            "en": "Technik hotelarstwa (hotel industry technician)",
+            "fr": "Technik hotelarstwa (technicien en hôtellerie)",
+            "it": "Technik hotelarstwa (tecnico del settore alberghiero)"
+          }
+        },
+        {
+          "name": {
+            "de": "Orzeczenie do celów sanitarno-epidemiologicznych (Gesundheitszeugnis für Lebensmittelarbeit)",
+            "en": "Orzeczenie do celów sanitarno-epidemiologicznych (sanitary-epidemiological medical certificate for food handling)",
+            "fr": "Orzeczenie do celów sanitarno-epidemiologicznych (certificat médical sanitaire pour la manipulation de denrées alimentaires)",
+            "it": "Orzeczenie do celów sanitarno-epidemiologicznych (certificato medico sanitario per la manipolazione di alimenti)"
+          },
+          "isTimeLimited": true
         }
       ]
     }

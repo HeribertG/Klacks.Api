@@ -291,6 +291,46 @@
             "it": "Protes Voithies (certificato di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Δίπλωμα ΙΕΚ Τεχνικός Μαγειρικής Τέχνης – Αρχιμάγειρας (IEK-Diplom Kochkunst/Chefkoch)",
+            "en": "IEK diploma Technikos Mageirikis Technis – Archimageiras (culinary arts chef)",
+            "fr": "Diplôme IEK Technikos Mageirikis Technis – Archimageiras (arts culinaires/chef)",
+            "it": "Diploma IEK Technikos Mageirikis Technis – Archimageiras (arte culinaria/chef)"
+          }
+        },
+        {
+          "name": {
+            "de": "Δίπλωμα ΙΕΚ Τεχνικός Τουριστικών Μονάδων και Επιχειρήσεων Φιλοξενίας (IEK-Diplom Hotellerie, Rezeption und Etage)",
+            "en": "IEK diploma Technikos Touristikon Monadon kai Epicheiriseon Filoxenias (hotel operations, reception and floor service)",
+            "fr": "Diplôme IEK Technikos Touristikon Monadon kai Epicheiriseon Filoxenias (hôtellerie, réception et étages)",
+            "it": "Diploma IEK Technikos Touristikon Monadon kai Epicheiriseon Filoxenias (settore alberghiero, ricevimento e piani)"
+          }
+        },
+        {
+          "name": {
+            "de": "Απολυτήριο ΕΠΑ.Λ. Υπάλληλος Τουριστικών Επιχειρήσεων (Berufsschulabschluss Tourismusbetriebe)",
+            "en": "EPAL vocational lyceum diploma Ypallilos Touristikon Epicheiriseon (tourism businesses employee)",
+            "fr": "Diplôme EPAL Ypallilos Touristikon Epicheiriseon (employé d'entreprises touristiques)",
+            "it": "Diploma EPAL Ypallilos Touristikon Epicheiriseon (addetto alle imprese turistiche)"
+          }
+        },
+        {
+          "name": {
+            "de": "Πτυχίο ΕΠΑ.Σ. Μαθητείας ΔΥΠΑ Μαγειρικής Τέχνης (Lehrabschluss Kochkunst)",
+            "en": "EPAS DYPA apprenticeship diploma Mageiriki Techni (culinary arts)",
+            "fr": "Diplôme EPAS Mathiteias DYPA Mageiriki Techni (apprentissage en cuisine)",
+            "it": "Diploma EPAS Mathiteias DYPA Mageiriki Techni (apprendistato di cucina)"
+          }
+        },
+        {
+          "name": {
+            "de": "Βεβαίωση εκπαίδευσης ΕΦΕΤ στην υγιεινή τροφίμων (EFET-Lebensmittelhygiene-Schulung)",
+            "en": "EFET food hygiene training certificate",
+            "fr": "Attestation de formation EFET en hygiène alimentaire",
+            "it": "Attestato di formazione EFET in igiene alimentare"
+          }
         }
       ]
     }

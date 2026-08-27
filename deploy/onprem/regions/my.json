@@ -253,6 +253,46 @@
             "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) Seni Kulinari (malaysisches Kompetenzzertifikat Kochkunst)",
+            "en": "Sijil Kemahiran Malaysia (SKM) Seni Kulinari (Malaysian skills certificate in culinary arts)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) Seni Kulinari (certificat de compétences malaisien en arts culinaires)",
+            "it": "Sijil Kemahiran Malaysia (SKM) Seni Kulinari (certificato di competenze malese in arte culinaria)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) Servis Makanan dan Minuman (Kompetenzzertifikat Restaurantservice)",
+            "en": "Sijil Kemahiran Malaysia (SKM) Servis Makanan dan Minuman (Malaysian skills certificate in food and beverage service)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) Servis Makanan dan Minuman (certificat de compétences malaisien en service en restauration)",
+            "it": "Sijil Kemahiran Malaysia (SKM) Servis Makanan dan Minuman (certificato di competenze malese nel servizio di sala)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) Operasi Hotel (Kompetenzzertifikat Hotelfach/Rezeption)",
+            "en": "Sijil Kemahiran Malaysia (SKM) Operasi Hotel (Malaysian skills certificate in hotel operations/front office)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) Operasi Hotel (certificat de compétences malaisien en opérations hôtelières/réception)",
+            "it": "Sijil Kemahiran Malaysia (SKM) Operasi Hotel (certificato di competenze malese in operazioni alberghiere/ricevimento)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) Pengemasan Hotel (Kompetenzzertifikat Housekeeping)",
+            "en": "Sijil Kemahiran Malaysia (SKM) Pengemasan Hotel (Malaysian skills certificate in hotel housekeeping)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) Pengemasan Hotel (certificat de compétences malaisien en entretien des étages)",
+            "it": "Sijil Kemahiran Malaysia (SKM) Pengemasan Hotel (certificato di competenze malese in housekeeping alberghiero)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sijil Latihan Pengendali Makanan (Lebensmittelhygiene-Pflichtschulung, Gesundheitsministerium KKM)",
+            "en": "Sijil Latihan Pengendali Makanan (mandatory food handler training certificate, Ministry of Health)",
+            "fr": "Sijil Latihan Pengendali Makanan (certificat de formation obligatoire des manipulateurs d'aliments, ministère de la Santé)",
+            "it": "Sijil Latihan Pengendali Makanan (certificato di formazione obbligatoria per addetti alimentari, Ministero della Salute)"
+          }
         }
       ]
     }

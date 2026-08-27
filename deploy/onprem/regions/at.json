@@ -270,6 +270,54 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin",
+            "en": "Cook (certified apprenticeship qualification)",
+            "fr": "Cuisinier/Cuisinière (apprentissage certifié)",
+            "it": "Cuoco/Cuoca (apprendistato certificato)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachmann/-frau",
+            "en": "Restaurant specialist (certified apprenticeship qualification)",
+            "fr": "Spécialiste de la restauration (apprentissage certifié)",
+            "it": "Specialista di ristorazione (apprendistato certificato)"
+          }
+        },
+        {
+          "name": {
+            "de": "Gastronomiefachmann/-frau",
+            "en": "Gastronomy specialist (dual apprenticeship cook and restaurant service)",
+            "fr": "Spécialiste en gastronomie (double apprentissage cuisine et service)",
+            "it": "Specialista in gastronomia (doppio apprendistato cucina e servizio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotel- und Gastgewerbeassistent/in",
+            "en": "Hotel and hospitality assistant (certified apprenticeship qualification)",
+            "fr": "Assistant/e en hôtellerie et restauration (apprentissage certifié)",
+            "it": "Assistente d'albergo e di ristorazione (apprendistato certificato)"
+          }
+        },
+        {
+          "name": {
+            "de": "Systemgastronomiefachmann/-frau",
+            "en": "System catering specialist (certified apprenticeship qualification)",
+            "fr": "Spécialiste en restauration de système (apprentissage certifié)",
+            "it": "Specialista in ristorazione di sistema (apprendistato certificato)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelkaufmann/-frau",
+            "en": "Hotel management clerk (certified apprenticeship qualification)",
+            "fr": "Employé/e de commerce hôtelier (apprentissage certifié)",
+            "it": "Impiegato/a commerciale d'albergo (apprendistato certificato)"
+          }
         }
       ]
     }

@@ -270,6 +270,48 @@
             "it": "Certificato di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Person-in-Charge-Zertifikat (PIC, Dubai Municipality)",
+            "en": "Person in Charge (PIC) certificate (Dubai Municipality)",
+            "fr": "Certificat Person in Charge (PIC, municipalité de Dubaï)",
+            "it": "Certificato Person in Charge (PIC, municipalità di Dubai)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Essential Food Safety Training (EFST, Abu Dhabi)",
+            "en": "Essential Food Safety Training (EFST, Abu Dhabi)",
+            "fr": "Essential Food Safety Training (EFST, Abou Dabi)",
+            "it": "Essential Food Safety Training (EFST, Abu Dhabi)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Diplom Kochkunst (Culinary Arts Diploma)",
+            "en": "Culinary arts diploma",
+            "fr": "Diplôme d'arts culinaires",
+            "it": "Diploma di arti culinarie"
+          }
+        },
+        {
+          "name": {
+            "de": "Diplom Hotelmanagement (Hospitality Management Diploma)",
+            "en": "Hospitality management diploma",
+            "fr": "Diplôme en management hôtelier",
+            "it": "Diploma in gestione alberghiera"
+          }
+        },
+        {
+          "name": {
+            "de": "Zertifikat Food & Beverage Service",
+            "en": "Food and beverage service certificate",
+            "fr": "Certificat de service food & beverage",
+            "it": "Certificato di servizio food & beverage"
+          }
         }
       ]
     }

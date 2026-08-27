@@ -283,6 +283,54 @@
             "it": "Curs de prim ajutor (corso di primo soccorso)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Bucătar, certificat de calificare profesională (Berufsabschluss Koch/Köchin)",
+            "en": "Bucătar, professional qualification certificate (cook)",
+            "fr": "Bucătar, certificat de qualification professionnelle (cuisinier)",
+            "it": "Bucătar, certificato di qualifica professionale (cuoco)"
+          }
+        },
+        {
+          "name": {
+            "de": "Ospătar (chelner) vânzător în unități de alimentație (Berufsabschluss Kellner/in)",
+            "en": "Ospătar (chelner) vânzător în unități de alimentație (waiter, qualification certificate)",
+            "fr": "Ospătar (chelner) vânzător în unități de alimentație (serveur, certificat de qualification)",
+            "it": "Ospătar (chelner) vânzător în unități de alimentație (cameriere, certificato di qualifica)"
+          }
+        },
+        {
+          "name": {
+            "de": "Cofetar-patiser, certificat de calificare (Konditor/in und Patissier)",
+            "en": "Cofetar-patiser, qualification certificate (confectioner and pastry chef)",
+            "fr": "Cofetar-patiser, certificat de qualification (confiseur-pâtissier)",
+            "it": "Cofetar-patiser, certificato di qualifica (pasticciere)"
+          }
+        },
+        {
+          "name": {
+            "de": "Tehnician în hotelărie (Hotelfach-Techniker)",
+            "en": "Tehnician în hotelărie (hotel industry technician)",
+            "fr": "Tehnician în hotelărie (technicien en hôtellerie)",
+            "it": "Tehnician în hotelărie (tecnico del settore alberghiero)"
+          }
+        },
+        {
+          "name": {
+            "de": "Recepționer de hotel, certificat de calificare (Hotelrezeptionist/in)",
+            "en": "Recepționer de hotel, qualification certificate (hotel receptionist)",
+            "fr": "Recepționer de hotel, certificat de qualification (réceptionniste d'hôtel)",
+            "it": "Recepționer de hotel, certificato di qualifica (receptionist d'albergo)"
+          }
+        },
+        {
+          "name": {
+            "de": "Cameristă hotel, certificat de calificare (Housekeeping-Fachkraft)",
+            "en": "Cameristă hotel, qualification certificate (hotel housekeeper)",
+            "fr": "Cameristă hotel, certificat de qualification (femme/valet de chambre)",
+            "it": "Cameristă hotel, certificato di qualifica (cameriera ai piani)"
+          }
         }
       ]
     }

@@ -276,6 +276,55 @@
             "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "中式烹调师 (Koch für chinesische Küche, nationales Berufskompetenz-Zertifikat)",
+            "en": "中式烹调师 (Chinese cuisine cook, national vocational skill certificate)",
+            "fr": "中式烹调师 (cuisinier de cuisine chinoise, certificat national de compétence professionnelle)",
+            "it": "中式烹调师 (cuoco di cucina cinese, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "西式烹调师 (Koch für westliche Küche, nationales Berufskompetenz-Zertifikat)",
+            "en": "西式烹调师 (Western cuisine cook, national vocational skill certificate)",
+            "fr": "西式烹调师 (cuisinier de cuisine occidentale, certificat national de compétence professionnelle)",
+            "it": "西式烹调师 (cuoco di cucina occidentale, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "餐厅服务员 (Restaurantfachkraft, nationales Berufskompetenz-Zertifikat)",
+            "en": "餐厅服务员 (restaurant service attendant, national vocational skill certificate)",
+            "fr": "餐厅服务员 (serveur/euse de restaurant, certificat national de compétence professionnelle)",
+            "it": "餐厅服务员 (addetto al servizio di ristorante, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "前厅服务员 (Hotelrezeptions-Fachkraft, nationales Berufskompetenz-Zertifikat)",
+            "en": "前厅服务员 (hotel front office attendant, national vocational skill certificate)",
+            "fr": "前厅服务员 (agent de réception d'hôtel, certificat national de compétence professionnelle)",
+            "it": "前厅服务员 (addetto al ricevimento d'albergo, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "客房服务员 (Housekeeping-Fachkraft, nationales Berufskompetenz-Zertifikat)",
+            "en": "客房服务员 (hotel housekeeping attendant, national vocational skill certificate)",
+            "fr": "客房服务员 (employé/e d'étage, certificat national de compétence professionnelle)",
+            "it": "客房服务员 (addetto ai piani, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "食品从业人员健康证 (Gesundheitszeugnis für Lebensmittelpersonal, jährliche Erneuerung)",
+            "en": "食品从业人员健康证 (food worker health certificate, annual renewal)",
+            "fr": "食品从业人员健康证 (certificat de santé pour le personnel alimentaire, renouvellement annuel)",
+            "it": "食品从业人员健康证 (certificato sanitario per il personale alimentare, rinnovo annuale)"
+          },
+          "isTimeLimited": true
         }
       ]
     }
