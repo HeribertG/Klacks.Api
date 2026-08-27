@@ -83,23 +83,6 @@
     "dopisz zadanie do dnia w szablonie kontenera",
     "umieść task w szablonie kontenera"
   ],
-  "create_container_template": [
-    "utwórz szablon dnia tygodnia dla kontenera",
-    "załóż nowy szablon kontenera",
-    "dodaj szablon dzienny do zmiany kontenerowej",
-    "skonfiguruj dzień tygodnia kontenera"
-  ],
-  "create_donation_checkout": [
-    "przekaż darowiznę na klacks",
-    "utwórz darowiznę",
-    "chcę wpłacić darowiznę",
-    "wesprzyj klacks kwotą"
-  ],
-  "delete_container_template": [
-    "usuń szablony dni tygodnia kontenera",
-    "skasuj wszystkie szablony kontenera",
-    "zresetuj tygodniowy plan kontenera"
-  ],
   "add_expense": [
     "dodaj wydatek",
     "wprowadź wydatek",
@@ -253,6 +236,11 @@
     "odwołaj generowanie",
     "zatrzymaj wizard"
   ],
+  "check_absence_capacity_reserve": [
+    "rezerwa kadrowa na urlop",
+    "czy jest zapas na ten urlop",
+    "luka zasobów przy urlopie"
+  ],
   "check_absence_conflicts": [
     "sprawdź konflikt nieobecności",
     "czy urlop jest możliwy",
@@ -264,6 +252,11 @@
     "sprawdzić dostępność pracownika",
     "czy może pracować w tym dniu",
     "zweryfikować dostępność w przedziale czasu"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "sprawdź stan folderu punktu odbioru",
+    "czy folder przetrwa restart",
+    "utwórz foldery processed i error"
   ],
   "clear_client_availability": [
     "zresetować dostępność pracownika",
@@ -343,6 +336,12 @@
     "utwórz wybór kalendarza",
     "utwórz kalendarz świąt"
   ],
+  "create_container_template": [
+    "utwórz szablon dnia tygodnia dla kontenera",
+    "załóż nowy szablon kontenera",
+    "dodaj szablon dzienny do zmiany kontenerowej",
+    "skonfiguruj dzień tygodnia kontenera"
+  ],
   "create_contract": [
     "utwórz umowę",
     "nowa umowa",
@@ -357,6 +356,12 @@
     "pozwól maksymalnie na 4 nocne zmiany",
     "ustaw, że można pracować maksymalnie 5 dni w tygodniu",
     "dodaj regułę, która blokuje przekroczenie liczby"
+  ],
+  "create_donation_checkout": [
+    "przekaż darowiznę na klacks",
+    "utwórz darowiznę",
+    "chcę wpłacić darowiznę",
+    "wesprzyj klacks kwotą"
   ],
   "create_email_folder": [
     "utwórz nowy folder na e-maile",
@@ -601,6 +606,11 @@
     "usuń wpis kontaktu",
     "usuń dane kontaktowe",
     "usuń komunikację"
+  ],
+  "delete_container_template": [
+    "usuń szablony dni tygodnia kontenera",
+    "skasuj wszystkie szablony kontenera",
+    "zresetuj tygodniowy plan kontenera"
   ],
   "delete_contract": [
     "usuń umowę",
@@ -1181,11 +1191,6 @@
     "co oznaczają ikony na liście usług",
     "jak działa cięcie usługi"
   ],
-  "explain_shift_classification": [
-    "kiedy zmiana liczy się jako zmiana nocna",
-    "dlaczego moja zmiana ranna jest traktowana jako popołudniowa",
-    "gdzie jest granica między zmianą ranną a popołudniową"
-  ],
   "explain_payroll_export_handoff": [
     "dlaczego plik płacowy brakuje po przypieczętowaniu",
     "plik płacowy nadal pokazuje stare liczby po ponownym otwarciu",
@@ -1234,6 +1239,12 @@
     "jaka jest różnica między trzema etapami planowania",
     "czy planowanie automatyczne używa sztucznej inteligencji"
   ],
+  "explain_plugin_architecture": [
+    "wyjaśnij architekturę wtyczek w backendzie",
+    "jak działa system wtyczek w kodzie?",
+    "jak zbudować całkiem nową wtyczkę?",
+    "czym są kontrakty wtyczek w klacks?"
+  ],
   "explain_qualifications": [
     "dlaczego nie mogę zaplanować tej osoby",
     "zapisanie certyfikatu pracownika",
@@ -1259,6 +1270,11 @@
     "co oznacza limit godzin w tygodniu?",
     "ile dni z rzędu mogę pracować?",
     "jaka jest minimalna przerwa między zmianami?"
+  ],
+  "explain_shift_classification": [
+    "kiedy zmiana liczy się jako zmiana nocna",
+    "dlaczego moja zmiana ranna jest traktowana jako popołudniowa",
+    "gdzie jest granica między zmianą ranną a popołudniową"
   ],
   "explain_shift_container": [
     "co to jest zmiana kontenerowa",
@@ -1354,6 +1370,11 @@
     "znajdź [count] pracowników z umową [contractname] i dodaj do [groupname]",
     "przypisz osoby z regionu [canton] do grupy [groupname]",
     "uzupełnij grupę [groupname] według kryteriów"
+  ],
+  "find_absence_capacity_windows": [
+    "znajdź odpowiedni okres na urlop",
+    "kiedy jest jeszcze miejsce na urlop",
+    "szukaj wolnego okna na nieobecność"
   ],
   "find_customer_candidates": [
     "znajdź klienta",
@@ -3103,15 +3124,5 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
-  ],
-  "check_absence_capacity_reserve": [
-    "rezerwa kadrowa na urlop",
-    "czy jest zapas na ten urlop",
-    "luka zasobów przy urlopie"
-  ],
-  "find_absence_capacity_windows": [
-    "znajdź odpowiedni okres na urlop",
-    "kiedy jest jeszcze miejsce na urlop",
-    "szukaj wolnego okna na nieobecność"
   ]
 }

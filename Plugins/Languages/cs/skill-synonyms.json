@@ -83,23 +83,6 @@
     "zapiš úkol na den v šabloně kontejneru",
     "doplnit úkol do kontejnerové šablony"
   ],
-  "create_container_template": [
-    "vytvoř šablonu kontejneru pro den v týdnu",
-    "založ novou šablonu kontejneru",
-    "přidej denní šablonu do kontejneru",
-    "nastav den v týdnu u kontejnerové směny"
-  ],
-  "create_donation_checkout": [
-    "darovat projektu klacks",
-    "vytvořit dar pro klacks",
-    "chci poslat dar",
-    "podpořit klacks částkou"
-  ],
-  "delete_container_template": [
-    "smaž šablony dnů kontejneru",
-    "odstraň všechny šablony kontejneru",
-    "resetuj týdenní plán kontejneru"
-  ],
   "add_expense": [
     "přidat výdaj k pracovnímu záznamu",
     "zapsat výdaj na směnu",
@@ -259,6 +242,11 @@
     "zrušit generování plánu",
     "ukončit wizard proces"
   ],
+  "check_absence_capacity_reserve": [
+    "kapacitní rezerva pro dovolenou",
+    "je dost rezervy na dovolenou",
+    "mezera ve zdrojích při dovolené"
+  ],
   "check_absence_conflicts": [
     "zkontrolovat konflikt absence",
     "je dovolená možná",
@@ -270,6 +258,11 @@
     "ověřit dostupnost zaměstnance",
     "může v ten den pracovat",
     "zkontrolovat dostupnost v časovém okně"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "zkontrolovat funkčnost složky pro předání",
+    "přežije složka restart",
+    "vytvořit složky processed a error"
   ],
   "clear_client_availability": [
     "resetovat dostupnost zaměstnance",
@@ -348,6 +341,12 @@
     "vytvořit výběr kalendáře",
     "vytvořit svátkový kalendář"
   ],
+  "create_container_template": [
+    "vytvoř šablonu kontejneru pro den v týdnu",
+    "založ novou šablonu kontejneru",
+    "přidej denní šablonu do kontejneru",
+    "nastav den v týdnu u kontejnerové směny"
+  ],
   "create_contract": [
     "vytvořit smlouvu",
     "nová smlouva",
@@ -361,6 +360,12 @@
     "chtěl bych omezit počet nočních na 5",
     "zadej nové počítací pravidlo",
     "chci nastavit, že smí být jen 3 dlouhé služby"
+  ],
+  "create_donation_checkout": [
+    "darovat projektu klacks",
+    "vytvořit dar pro klacks",
+    "chci poslat dar",
+    "podpořit klacks částkou"
   ],
   "create_email_folder": [
     "vytvořit novou e-mailovou složku",
@@ -608,6 +613,11 @@
     "odstraň email klienta",
     "vymaž telefonní číslo",
     "zruš kontaktní údaj"
+  ],
+  "delete_container_template": [
+    "smaž šablony dnů kontejneru",
+    "odstraň všechny šablony kontejneru",
+    "resetuj týdenní plán kontejneru"
   ],
   "delete_contract": [
     "smazat smlouvu",
@@ -1183,11 +1193,6 @@
     "vysvětli úpravu směny a její detaily",
     "krátce: přehled stránky směn"
   ],
-  "explain_shift_classification": [
-    "kdy se směna počítá jako noční",
-    "proč je moje ranní směna brána jako odpolední",
-    "kde je hranice mezi ranní a odpolední směnou"
-  ],
   "explain_payroll_export_handoff": [
     "proč chybí výplatní soubor po uzavření",
     "výplatní soubor stále zobrazuje stará čísla po znovuotevření",
@@ -1233,6 +1238,12 @@
     "jaký je rozdíl mezi třemi fázemi plánování",
     "používá automatické plánování umělou inteligenci"
   ],
+  "explain_plugin_architecture": [
+    "vysvětli mi architekturu pluginů",
+    "jak funguje systém pluginů na backendu",
+    "jak vytvořím nový plugin od nuly",
+    "co jsou to plugin contracts"
+  ],
   "explain_qualifications": [
     "proč nelze tuto osobu naplánovat",
     "zaznamenat certifikát zaměstnance",
@@ -1258,6 +1269,11 @@
     "co znamená maximální denní hodiny",
     "jak dlouho můžu pracovat v kuse",
     "kolik hodin musím mít mezi směnami"
+  ],
+  "explain_shift_classification": [
+    "kdy se směna počítá jako noční",
+    "proč je moje ranní směna brána jako odpolední",
+    "kde je hranice mezi ranní a odpolední směnou"
   ],
   "explain_shift_container": [
     "vysvětli kontejnerovou směnu",
@@ -1347,6 +1363,11 @@
     "přidat lidi do skupiny podle smlouvy",
     "najít zaměstnance a přiřadit do skupiny",
     "zaplnit skupinu zaměstnanci splňujícími podmínky"
+  ],
+  "find_absence_capacity_windows": [
+    "najdi vhodné období pro dovolenou",
+    "kdy je ještě místo na dovolenou",
+    "hledat volné okno pro absenci"
   ],
   "find_customer_candidates": [
     "najít zákazníka",
@@ -3083,15 +3104,5 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
-  ],
-  "check_absence_capacity_reserve": [
-    "kapacitní rezerva pro dovolenou",
-    "je dost rezervy na dovolenou",
-    "mezera ve zdrojích při dovolené"
-  ],
-  "find_absence_capacity_windows": [
-    "najdi vhodné období pro dovolenou",
-    "kdy je ještě místo na dovolenou",
-    "hledat volné okno pro absenci"
   ]
 }

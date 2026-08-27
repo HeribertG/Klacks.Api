@@ -77,23 +77,6 @@
     "lisää tehtävä konttipohjan viikonpäivälle",
     "vie tehtävä konttivuoron malliin"
   ],
-  "create_container_template": [
-    "luo viikonpäivän malli kontille",
-    "tee uusi konttimalli",
-    "lisää päivämalli konttivuoroon",
-    "määritä kontin viikonpäivä"
-  ],
-  "create_donation_checkout": [
-    "lahjoita klacks-projektille",
-    "luo lahjoitus",
-    "haluan tehdä lahjoituksen",
-    "tue klacksia summalla"
-  ],
-  "delete_container_template": [
-    "poista kontin viikonpäiväpohjat",
-    "poista kaikki kontin pohjat",
-    "nollaa kontin viikkosuunnitelma"
-  ],
   "add_expense": [
     "lisää kulukorvaus",
     "kirjaa kulu",
@@ -248,6 +231,11 @@
     "pysäytä wizard",
     "peru suunnittelutyö"
   ],
+  "check_absence_capacity_reserve": [
+    "kapasiteettivara lomalle",
+    "onko lomalle tilaa",
+    "resurssivaje loman kanssa"
+  ],
   "check_absence_conflicts": [
     "tarkista poissaolon ristiriidat",
     "onko loma mahdollinen",
@@ -259,6 +247,11 @@
     "tarkista työntekijän saatavuus",
     "voiko hän työskennellä sinä päivänä",
     "tarkista käytettävyys aikavälillä"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "tarkista pudotuspisteen kansion kunto",
+    "selviääkö kansio uudelleenkäynnistyksestä",
+    "luo processed ja error kansiot"
   ],
   "clear_client_availability": [
     "nollaa työntekijän saatavuus",
@@ -336,6 +329,12 @@
     "luo kalenterivalinta",
     "luo pyhäpäiväkalenteri"
   ],
+  "create_container_template": [
+    "luo viikonpäivän malli kontille",
+    "tee uusi konttimalli",
+    "lisää päivämalli konttivuoroon",
+    "määritä kontin viikonpäivä"
+  ],
   "create_contract": [
     "luo sopimus",
     "uusi sopimus",
@@ -350,6 +349,12 @@
     "aseta raja sille, kuinka monta kertaa saa tapahtua",
     "tee sääntö, joka laskee yövuorot",
     "aseta enimmäismäärä yövuoroille"
+  ],
+  "create_donation_checkout": [
+    "lahjoita klacks-projektille",
+    "luo lahjoitus",
+    "haluan tehdä lahjoituksen",
+    "tue klacksia summalla"
   ],
   "create_email_folder": [
     "luo uusi sähköpostikansio",
@@ -591,6 +596,11 @@
     "poista sähköpostiosoite",
     "poista puhelinnumero",
     "poista yhteystieto"
+  ],
+  "delete_container_template": [
+    "poista kontin viikonpäiväpohjat",
+    "poista kaikki kontin pohjat",
+    "nollaa kontin viikkosuunnitelma"
   ],
   "delete_contract": [
     "poista sopimus",
@@ -1163,11 +1173,6 @@
     "selitä vuoron leikkaus",
     "mitä konttimalli tarkoittaa vuorosivulla"
   ],
-  "explain_shift_classification": [
-    "milloin vuoro lasketaan yövuoroksi",
-    "miksi aamuvuoroni käsitellään iltavuorona",
-    "missä menee raja aamu- ja iltavuoron välillä"
-  ],
   "explain_payroll_export_handoff": [
     "miksi palkkatiedosto puuttuu sinetöinnin jälkeen?",
     "miksi palkkatiedostossa on vanhat luvut uudelleenavaamisen jälkeen?",
@@ -1215,6 +1220,12 @@
     "mikä ero on kolmella suunnitteluvaiheella",
     "käyttääkö automaattinen suunnittelu tekoälyä"
   ],
+  "explain_plugin_architecture": [
+    "selitä pluginarkkitehtuuri",
+    "miten plugin-järjestelmä toimii taustajärjestelmässä",
+    "miten rakennan uuden pluginin koodissa",
+    "mitä ovat plugin contractsit"
+  ],
   "explain_qualifications": [
     "miksi tätä henkilöä ei voi sijoittaa",
     "kirjaa työntekijän todistus",
@@ -1240,6 +1251,11 @@
     "mikä on maksimi työpäivän pituus?",
     "mitä tapahtuu jos ylittää viikkotuntirajan?",
     "selitä lepoaikasäännöt"
+  ],
+  "explain_shift_classification": [
+    "milloin vuoro lasketaan yövuoroksi",
+    "miksi aamuvuoroni käsitellään iltavuorona",
+    "missä menee raja aamu- ja iltavuoron välillä"
   ],
   "explain_shift_container": [
     "mitä konttivuoro tarkoittaa",
@@ -1334,6 +1350,11 @@
     "lisää työntekijöitä ryhmään kriteerien mukaan",
     "etsi työntekijät ja lisää ryhmään",
     "populoi ryhmä ehdoilla"
+  ],
+  "find_absence_capacity_windows": [
+    "etsi sopiva jakso lomalle",
+    "milloin lomalle on vielä tilaa",
+    "hae vapaa ikkuna poissaololle"
   ],
   "find_customer_candidates": [
     "etsi asiakasta",
@@ -3042,15 +3063,5 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
-  ],
-  "check_absence_capacity_reserve": [
-    "kapasiteettivara lomalle",
-    "onko lomalle tilaa",
-    "resurssivaje loman kanssa"
-  ],
-  "find_absence_capacity_windows": [
-    "etsi sopiva jakso lomalle",
-    "milloin lomalle on vielä tilaa",
-    "hae vapaa ikkuna poissaololle"
   ]
 }

@@ -81,23 +81,6 @@
     "neem een taak op in de template van de container",
     "voeg een task toe aan een weekdag van het containersjabloon"
   ],
-  "create_container_template": [
-    "maak een weekdagsjabloon voor de container",
-    "maak een nieuwe containertemplate aan",
-    "voeg een dagsjabloon toe aan de containerdienst",
-    "stel een weekdag van de container in"
-  ],
-  "create_donation_checkout": [
-    "doneren aan klacks",
-    "een donatie aanmaken",
-    "ik wil een donatie doen",
-    "klacks steunen met een bedrag"
-  ],
-  "delete_container_template": [
-    "verwijder de weekdagsjablonen van de container",
-    "wis alle sjablonen van de container",
-    "reset het weekplan van de container"
-  ],
   "add_expense": [
     "voeg een onkostenpost toe",
     "boek een uitgave in mijn shift",
@@ -252,6 +235,11 @@
     "stoppen met de wizard",
     "kill de job"
   ],
+  "check_absence_capacity_reserve": [
+    "capaciteitsreserve voor verlof",
+    "is er ruimte voor dit verlof",
+    "resourcetekort door verlof"
+  ],
   "check_absence_conflicts": [
     "afwezigheidsconflict controleren",
     "is vakantie mogelijk",
@@ -263,6 +251,11 @@
     "beschikbaarheid van een medewerker controleren",
     "kan hij op die datum werken",
     "controleer inzetbaarheid in een tijdvak"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "check de status van de afleverpuntmap",
+    "overleeft de map een herstart",
+    "maak processed en error mappen aan"
   ],
   "clear_client_availability": [
     "beschikbaarheid van de medewerker resetten",
@@ -341,6 +334,12 @@
     "kalenderselectie aanmaken",
     "feestdagenkalender aanmaken"
   ],
+  "create_container_template": [
+    "maak een weekdagsjabloon voor de container",
+    "maak een nieuwe containertemplate aan",
+    "voeg een dagsjabloon toe aan de containerdienst",
+    "stel een weekdag van de container in"
+  ],
   "create_contract": [
     "contract aanmaken",
     "nieuw contract",
@@ -353,6 +352,12 @@
     "beperk het aantal nachtdiensten per maand tot vier",
     "leg vast dat iemand maximaal vijf dagen per week mag werken",
     "maak een regel die telt hoe vaak iets voorkomt"
+  ],
+  "create_donation_checkout": [
+    "doneren aan klacks",
+    "een donatie aanmaken",
+    "ik wil een donatie doen",
+    "klacks steunen met een bedrag"
   ],
   "create_email_folder": [
     "nieuwe e-mailmap aanmaken",
@@ -598,6 +603,11 @@
     "e-mailadres wissen",
     "telefoonnummer verwijderen",
     "contactvermelding weghalen"
+  ],
+  "delete_container_template": [
+    "verwijder de weekdagsjablonen van de container",
+    "wis alle sjablonen van de container",
+    "reset het weekplan van de container"
   ],
   "delete_contract": [
     "contract verwijderen",
@@ -1183,11 +1193,6 @@
     "hoe maak ik een nieuwe dienst aan?",
     "hoe knip ik een dienst in meerdere delen?"
   ],
-  "explain_shift_classification": [
-    "wanneer telt een dienst als nachtdienst",
-    "waarom wordt mijn vroege dienst als late dienst behandeld",
-    "waar ligt de grens tussen vroege en late dienst"
-  ],
   "explain_payroll_export_handoff": [
     "waarom ontbreekt het salarisbestand na het verzegelen",
     "salarisbestand toont nog oude cijfers na heropening",
@@ -1235,6 +1240,12 @@
     "wat is het verschil tussen de drie planningsfasen",
     "gebruikt automatisch plannen kunstmatige intelligentie"
   ],
+  "explain_plugin_architecture": [
+    "leg de plugin-architectuur van de backend uit",
+    "hoe werkt het plugin-systeem in de code?",
+    "hoe bouw ik een compleet nieuwe plugin?",
+    "wat zijn plugin contracts in klacks?"
+  ],
   "explain_qualifications": [
     "waarom kan ik deze persoon niet inplannen",
     "een certificaat van een medewerker vastleggen",
@@ -1260,6 +1271,11 @@
     "waarom wordt mijn dienst afgekeurd",
     "wat is de maximale wekelijkse arbeidsduur",
     "hoeveel dagen achter elkaar mag ik werken"
+  ],
+  "explain_shift_classification": [
+    "wanneer telt een dienst als nachtdienst",
+    "waarom wordt mijn vroege dienst als late dienst behandeld",
+    "waar ligt de grens tussen vroege en late dienst"
   ],
   "explain_shift_container": [
     "wat is een containerdienst?",
@@ -1354,6 +1370,11 @@
     "groep vullen op basis van regio en contract",
     "medewerkers selecteren en aan groep toevoegen",
     "populeer groep met werknemers"
+  ],
+  "find_absence_capacity_windows": [
+    "zoek een geschikte periode voor verlof",
+    "wanneer is er nog ruimte voor verlof",
+    "vind een vrij venster voor afwezigheid"
   ],
   "find_customer_candidates": [
     "zoek bestaande klanten",
@@ -3087,15 +3108,5 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
-  ],
-  "check_absence_capacity_reserve": [
-    "capaciteitsreserve voor verlof",
-    "is er ruimte voor dit verlof",
-    "resourcetekort door verlof"
-  ],
-  "find_absence_capacity_windows": [
-    "zoek een geschikte periode voor verlof",
-    "wanneer is er nog ruimte voor verlof",
-    "vind een vrij venster voor afwezigheid"
   ]
 }
