@@ -264,6 +264,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin (Kok, Erhvervsuddannelse)",
+            "en": "Chef (kok, Danish vocational education)",
+            "fr": "Cuisinier/ère (kok, formation professionnelle danoise)",
+            "it": "Cuoco/a (kok, formazione professionale danese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachmann/-frau (Tjener, Erhvervsuddannelse)",
+            "en": "Waiter (tjener, Danish vocational education)",
+            "fr": "Serveur/Serveuse (tjener, formation professionnelle danoise)",
+            "it": "Cameriere/a (tjener, formazione professionale danese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelrezeptionist/in (Receptionist, Erhvervsuddannelse)",
+            "en": "Hotel receptionist (receptionist, Danish vocational education)",
+            "fr": "Réceptionniste d'hôtel (receptionist, formation professionnelle danoise)",
+            "it": "Receptionist d'albergo (receptionist, formazione professionale danese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Ernährungsassistent/in (Ernæringsassistent, Erhvervsuddannelse)",
+            "en": "Nutrition assistant (ernæringsassistent, Danish vocational education)",
+            "fr": "Assistant/e en nutrition (ernæringsassistent, formation professionnelle danoise)",
+            "it": "Assistente di nutrizione (ernæringsassistent, formazione professionale danese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Catering- und Smørrebrød-Fachkraft (Cater, Erhvervsuddannelse Gastronom)",
+            "en": "Catering and smørrebrød specialist (cater, Danish vocational education gastronom)",
+            "fr": "Spécialiste catering et smørrebrød (cater, formation professionnelle danoise gastronom)",
+            "it": "Specialista di catering e smørrebrød (cater, formazione professionale danese gastronom)"
+          }
         }
       ]
     }

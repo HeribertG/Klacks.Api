@@ -288,6 +288,54 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin (Kokki, Grundexamen Restaurant- und Cateringbranche)",
+            "en": "Cook (kokki, vocational qualification in restaurant and catering services)",
+            "fr": "Cuisinier/ère (kokki, diplôme professionnel de base en restauration et catering)",
+            "it": "Cuoco/a (kokki, qualifica professionale di base in ristorazione e catering)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachkraft (Tarjoilija, Grundexamen Restaurant- und Cateringbranche)",
+            "en": "Waiter (tarjoilija, vocational qualification in restaurant and catering services)",
+            "fr": "Serveur/Serveuse (tarjoilija, diplôme professionnel de base en restauration et catering)",
+            "it": "Cameriere/a (tarjoilija, qualifica professionale di base in ristorazione e catering)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelrezeptionist/in (Vastaanottovirkailija, Grundexamen Tourismusbranche)",
+            "en": "Hotel receptionist (vastaanottovirkailija, vocational qualification in tourism industry)",
+            "fr": "Réceptionniste d'hôtel (vastaanottovirkailija, diplôme professionnel de base du tourisme)",
+            "it": "Receptionist d'albergo (vastaanottovirkailija, qualifica professionale di base del turismo)"
+          }
+        },
+        {
+          "name": {
+            "de": "Barmeister/in (Berufsexamen Restaurant-Gästeservice)",
+            "en": "Bar master (further vocational qualification in restaurant customer service)",
+            "fr": "Chef de bar (diplôme professionnel en service à la clientèle de restaurant)",
+            "it": "Capo barman (qualifica professionale nel servizio clienti della ristorazione)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hygienepass (Hygieniapassi)",
+            "en": "Hygiene passport (hygieniapassi)",
+            "fr": "Passeport d'hygiène (hygieniapassi)",
+            "it": "Passaporto d'igiene (hygieniapassi)"
+          }
+        },
+        {
+          "name": {
+            "de": "Alkoholausschank-Zertifikat (Anniskelupassi)",
+            "en": "Alcohol service certificate (anniskelupassi)",
+            "fr": "Certificat de service d'alcool (anniskelupassi)",
+            "it": "Certificato di somministrazione di alcolici (anniskelupassi)"
+          }
         }
       ]
     }

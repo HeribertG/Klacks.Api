@@ -271,6 +271,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin (Fagbrev Kokk)",
+            "en": "Chef (kokk, Norwegian trade certificate)",
+            "fr": "Cuisinier/ère (fagbrev kokk, certificat professionnel norvégien)",
+            "it": "Cuoco/a (fagbrev kokk, certificato professionale norvegese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachkraft (Fagbrev Servitør)",
+            "en": "Waiter (servitør, Norwegian trade certificate)",
+            "fr": "Serveur/Serveuse (fagbrev servitør, certificat professionnel norvégien)",
+            "it": "Cameriere/a (fagbrev servitør, certificato professionale norvegese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelrezeptionist/in (Fagbrev Resepsjonsfag)",
+            "en": "Hotel receptionist (resepsjonsfaget, Norwegian trade certificate)",
+            "fr": "Réceptionniste d'hôtel (fagbrev resepsjonsfaget, certificat professionnel norvégien)",
+            "it": "Receptionist d'albergo (fagbrev resepsjonsfaget, certificato professionale norvegese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Institutionskoch/-köchin (Fagbrev Ernæringskokk)",
+            "en": "Institutional cook (ernæringskokk, Norwegian trade certificate)",
+            "fr": "Cuisinier/ère de collectivité (fagbrev ernæringskokk, certificat professionnel norvégien)",
+            "it": "Cuoco/a di collettività (fagbrev ernæringskokk, certificato professionale norvegese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Reinigungsfachkraft Housekeeping (Fagbrev Renholdsoperatør)",
+            "en": "Cleaning operator (renholdsoperatør, Norwegian trade certificate)",
+            "fr": "Agent/e de propreté (fagbrev renholdsoperatør, certificat professionnel norvégien)",
+            "it": "Operatore/trice delle pulizie (fagbrev renholdsoperatør, certificato professionale norvegese)"
+          }
         }
       ]
     }

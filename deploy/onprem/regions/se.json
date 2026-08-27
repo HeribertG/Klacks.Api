@@ -263,6 +263,46 @@
             "it": "Formazione di primo soccorso"
           },
           "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin (Yrkesexamen Restaurang- och livsmedelsprogrammet)",
+            "en": "Chef (vocational diploma, restaurant and food programme, kitchen and service)",
+            "fr": "Cuisinier/ère (diplôme professionnel, programme restauration et alimentation, cuisine et service)",
+            "it": "Cuoco/a (diploma professionale, programma ristorazione e alimentari, cucina e servizio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Restaurantfachkraft Service (Yrkesexamen Restaurang- och livsmedelsprogrammet)",
+            "en": "Waiter (vocational diploma, restaurant and food programme, kitchen and service)",
+            "fr": "Serveur/Serveuse (diplôme professionnel, programme restauration et alimentation, cuisine et service)",
+            "it": "Cameriere/a (diploma professionale, programma ristorazione e alimentari, cucina e servizio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Hotelfachkraft Rezeption (Yrkesexamen Hotell- och turismprogrammet)",
+            "en": "Hotel receptionist (vocational diploma, hotel and tourism programme)",
+            "fr": "Réceptionniste d'hôtel (diplôme professionnel, programme hôtellerie et tourisme)",
+            "it": "Receptionist d'albergo (diploma professionale, programma alberghiero e turistico)"
+          }
+        },
+        {
+          "name": {
+            "de": "Bäcker/in und Konditor/in (Yrkesexamen Restaurang- och livsmedelsprogrammet, Bageri och konditori)",
+            "en": "Baker and pastry chef (vocational diploma, bakery and pastry specialisation)",
+            "fr": "Boulanger/ère-pâtissier/ère (diplôme professionnel, spécialisation boulangerie et pâtisserie)",
+            "it": "Panettiere/a e pasticciere/a (diploma professionale, specializzazione panetteria e pasticceria)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sommelier (Yrkeshögskoleexamen)",
+            "en": "Sommelier (higher vocational education diploma)",
+            "fr": "Sommelier/ère (diplôme d'enseignement supérieur professionnel)",
+            "it": "Sommelier (diploma di istruzione professionale superiore)"
+          }
         }
       ]
     }
