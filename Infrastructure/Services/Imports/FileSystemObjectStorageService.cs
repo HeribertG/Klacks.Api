@@ -8,6 +8,7 @@
 /// files dropped into the directory by external processes are never imported; metadata listing
 /// (used by the file explorer) skips only temporary files so fresh uploads are visible at once.
 /// </summary>
+using System.Globalization;
 using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Services.Imports;
@@ -19,6 +20,7 @@ public class FileSystemObjectStorageService : IObjectStorageService
 {
     private const string UploadTempSuffix = ".uploading";
     private const string DefaultRootDirectoryName = "ErpImport";
+    private const string HealthCheckMarkerFileName = ".klacksy-health-check";
     private const char KeySeparator = '/';
     private static readonly TimeSpan WriteStabilityWindow = TimeSpan.FromSeconds(10);
 
@@ -102,6 +104,70 @@ public class FileSystemObjectStorageService : IObjectStorageService
         }
 
         File.Move(tempPath, destinationPath, overwrite: true);
+    }
+
+    public Task<ObjectStorageHealthResult> CheckHealthAsync(
+        IReadOnlyList<string> requiredPrefixes,
+        CancellationToken cancellationToken = default)
+    {
+        var rootDirectoryExisted = Directory.Exists(_rootPath);
+        var rootDirectoryReady = EnsureRootDirectory();
+        var (isWritable, writeError) = rootDirectoryReady
+            ? TestWriteAccess()
+            : (false, "Storage root directory could not be created or reached.");
+
+        var prefixResults = requiredPrefixes
+            .Select(prefix => EnsurePrefixDirectory(prefix, isWritable))
+            .ToList();
+
+        return Task.FromResult(new ObjectStorageHealthResult(
+            _rootPath, rootDirectoryExisted, rootDirectoryReady, isWritable, writeError, prefixResults));
+    }
+
+    private bool EnsureRootDirectory()
+    {
+        try
+        {
+            Directory.CreateDirectory(_rootPath);
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private (bool IsWritable, string? Error) TestWriteAccess()
+    {
+        try
+        {
+            var markerPath = Path.Combine(_rootPath, HealthCheckMarkerFileName);
+            File.WriteAllText(markerPath, DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture));
+            File.Delete(markerPath);
+            return (true, null);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return (false, exception.Message);
+        }
+    }
+
+    private ObjectStoragePrefixHealth EnsurePrefixDirectory(string prefix, bool rootIsWritable)
+    {
+        if (!rootIsWritable)
+        {
+            return new ObjectStoragePrefixHealth(prefix, false, "Storage root is not writable.");
+        }
+
+        try
+        {
+            Directory.CreateDirectory(ToSafePath(prefix));
+            return new ObjectStoragePrefixHealth(prefix, true, null);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return new ObjectStoragePrefixHealth(prefix, false, exception.Message);
+        }
     }
 
     private IEnumerable<(string Path, string Key)> EnumerateFiles(string prefix, bool onlyStable)

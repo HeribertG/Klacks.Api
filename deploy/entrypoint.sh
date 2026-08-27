@@ -8,7 +8,7 @@
 
 set -e
 
-for dir in /app/Images /app/Documents /app/DataProtection-Keys /app/Cache/Models; do
+for dir in /app/Images /app/Documents /app/DataProtection-Keys /app/Cache/Models /app/ErpImport; do
     mkdir -p "$dir"
     chown -R appuser:appuser "$dir"
 done

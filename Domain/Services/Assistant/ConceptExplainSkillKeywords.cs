@@ -56,6 +56,12 @@ public static class ConceptExplainSkillKeywords
         ("container", "explain_shift_container"),
         ("makro", "explain_macro_editor"),
         ("macro", "explain_macro_editor"),
+
+        ("pluginregistrar", "explain_plugin_architecture"),
+        ("plugin-architektur", "explain_plugin_architecture"),
+        ("plugin architecture", "explain_plugin_architecture"),
+        ("plugin contracts", "explain_plugin_architecture"),
+        ("iplugin", "explain_plugin_architecture"),
         ("planungsassistent", "explain_planning_assistant"),
         ("planungs-assistent", "explain_planning_assistant"),
         ("planning assistant", "explain_planning_assistant"),
