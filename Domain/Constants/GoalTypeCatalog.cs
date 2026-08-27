@@ -138,7 +138,14 @@ public static class GoalTypeCatalog
                 "emptyContainer",
                 "a container shift has no slot definitions configured at all",
                 "Configure empty container slots earlier",
-                "An empty container came up {0} time(s) in the last {1} days.")
+                "An empty container came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.NextPeriodSchedulingDue] = Define(
+                AgentTriggerKinds.NextPeriodSchedulingDue,
+                "nextPeriodSchedulingDue",
+                "the next planning period begins soon and no schedule draft exists for it yet",
+                "Prepare the next period's schedule earlier",
+                "An unplanned upcoming period came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>
