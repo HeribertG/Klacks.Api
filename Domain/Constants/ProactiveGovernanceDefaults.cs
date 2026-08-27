@@ -36,6 +36,7 @@ public static class ProactiveGovernanceDefaults
         AgentTriggerKinds.ContractExpiringSoon,
         AgentTriggerKinds.EmptyContainer,
         AgentTriggerKinds.LockConflict,
+        AgentTriggerKinds.NextPeriodSchedulingDue,
         AgentTriggerKinds.OpenOrder,
         AgentTriggerKinds.OrderImportFailed,
         AgentTriggerKinds.PeriodCloseDue,

@@ -29,4 +29,8 @@ public static class ProactiveMessageI18nKeys
     public const string EmptyContainer = "assistant.proactive.emptyContainer";
     public const string DailyDigest = "assistant.proactive.dailyDigest";
     public const string ScenarioPrepared = "assistant.proactive.scenarioPrepared";
+    public const string NextPeriodSchedulingDue = "assistant.proactive.nextPeriodSchedulingDue";
+    public const string NextPeriodAutofillStarted = "assistant.proactive.nextPeriodAutofillStarted";
+    public const string NextPeriodPlanCommitted = "assistant.proactive.nextPeriodPlanCommitted";
+    public const string NextPeriodAutoCommitBlocked = "assistant.proactive.nextPeriodAutoCommitBlocked";
 }

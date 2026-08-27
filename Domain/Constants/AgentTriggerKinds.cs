@@ -30,6 +30,7 @@ public static class AgentTriggerKinds
     public const string EmptyContainer = "empty_container";
     public const string DailyDigest = "daily_digest";
     public const string ScenarioPrepared = "scenario_prepared";
+    public const string NextPeriodSchedulingDue = "next_period_scheduling_due";
 }
 
 public static class AgentTriggerSeverity
