@@ -78,23 +78,6 @@
     "înscrie o sarcină la o zi din șablonul containerului",
     "include sarcina în șablonul turei container"
   ],
-  "create_container_template": [
-    "creează un șablon de zi pentru container",
-    "creează un șablon nou pentru container",
-    "adaugă un șablon zilnic la tura container",
-    "configurează o zi a săptămânii pentru container"
-  ],
-  "create_donation_checkout": [
-    "donează pentru klacks",
-    "creează o donație",
-    "vreau să fac o donație",
-    "sprijină klacks cu o sumă"
-  ],
-  "delete_container_template": [
-    "șterge șabloanele de zi ale containerului",
-    "elimină toate șabloanele containerului",
-    "resetează planul săptămânal al containerului"
-  ],
   "add_expense": [
     "adaugă o cheltuială",
     "înregistrează o cheltuială",
@@ -250,6 +233,11 @@
     "întrerupe wizardul",
     "stopează generarea planului"
   ],
+  "check_absence_capacity_reserve": [
+    "rezervă de capacitate pentru concediu",
+    "este loc pentru acest concediu",
+    "gol de resurse la concediu"
+  ],
   "check_absence_conflicts": [
     "verifică conflictele de absență",
     "este posibil concediul",
@@ -261,6 +249,11 @@
     "verifică disponibilitatea unui angajat",
     "poate lucra la acea dată",
     "verificare disponibilitate într-un interval orar"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "verifică starea folderului punctului de livrare",
+    "folderul supraviețuiește unei reporniri",
+    "creează folderele processed și error"
   ],
   "clear_client_availability": [
     "resetează disponibilitatea angajatului",
@@ -338,6 +331,12 @@
     "creare selecție de calendar",
     "creare calendar de sărbători"
   ],
+  "create_container_template": [
+    "creează un șablon de zi pentru container",
+    "creează un șablon nou pentru container",
+    "adaugă un șablon zilnic la tura container",
+    "configurează o zi a săptămânii pentru container"
+  ],
   "create_contract": [
     "creează contract",
     "contract nou",
@@ -351,6 +350,12 @@
     "stabilește o regulă care limitează numărul de ture lungi",
     "creează o regulă de numărare pentru un angajat",
     "definește o limită pentru câte ori poate cineva lucra într-o săptămână"
+  ],
+  "create_donation_checkout": [
+    "donează pentru klacks",
+    "creează o donație",
+    "vreau să fac o donație",
+    "sprijină klacks cu o sumă"
   ],
   "create_email_folder": [
     "creează un folder nou de emailuri",
@@ -591,6 +596,11 @@
     "șterge numărul de telefon al clientului",
     "elimină nota de contact",
     "șterge intrarea de comunicare"
+  ],
+  "delete_container_template": [
+    "șterge șabloanele de zi ale containerului",
+    "elimină toate șabloanele containerului",
+    "resetează planul săptămânal al containerului"
   ],
   "delete_contract": [
     "șterge contractul",
@@ -1168,11 +1178,6 @@
     "cum taie o tură în bucăți",
     "ce este șablonul de container și cum se configurează"
   ],
-  "explain_shift_classification": [
-    "când se consideră o tură ca tură de noapte",
-    "de ce tura mea de dimineață este tratată ca tură de după-amiază",
-    "unde este limita dintre tura de dimineață și cea de după-amiază"
-  ],
   "explain_payroll_export_handoff": [
     "de ce lipsește fișierul salarial după sigilare?",
     "fișierul salarial arată încă numere vechi după redeschidere",
@@ -1220,6 +1225,12 @@
     "care e diferența dintre cele trei etape",
     "planificarea automată folosește inteligență artificială"
   ],
+  "explain_plugin_architecture": [
+    "explică-mi arhitectura plugin-urilor",
+    "cum funcționează sistemul de plugin-uri în backend",
+    "cum construiesc un plugin nou în cod",
+    "ce sunt contractele pentru plugin-uri"
+  ],
   "explain_qualifications": [
     "de ce nu pot repartiza această persoană",
     "înregistrarea unui certificat al angajatului",
@@ -1245,6 +1256,11 @@
     "câte ore de repaus trebuie să am între două ture?",
     "ce se întâmplă dacă depășesc limita de ore pe săptămână?",
     "de unde își ia valoarea o limită dacă nu e completată?"
+  ],
+  "explain_shift_classification": [
+    "când se consideră o tură ca tură de noapte",
+    "de ce tura mea de dimineață este tratată ca tură de după-amiază",
+    "unde este limita dintre tura de dimineață și cea de după-amiază"
   ],
   "explain_shift_container": [
     "ce este o tură container",
@@ -1339,6 +1355,11 @@
     "populează grupul cu cei care au contractul",
     "adaugă toți angajații din în grupul",
     "găsește angajați în și pune-i în grupul"
+  ],
+  "find_absence_capacity_windows": [
+    "găsește o perioadă potrivită pentru concediu",
+    "când mai este loc pentru concediu",
+    "caută o fereastră liberă pentru absență"
   ],
   "find_customer_candidates": [
     "caută clienți existenți",
@@ -3053,15 +3074,5 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
-  ],
-  "check_absence_capacity_reserve": [
-    "rezervă de capacitate pentru concediu",
-    "este loc pentru acest concediu",
-    "gol de resurse la concediu"
-  ],
-  "find_absence_capacity_windows": [
-    "găsește o perioadă potrivită pentru concediu",
-    "când mai este loc pentru concediu",
-    "caută o fereastră liberă pentru absență"
   ]
 }

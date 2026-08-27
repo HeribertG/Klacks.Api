@@ -82,23 +82,6 @@
     "tambah task ke hari di template container",
     "daftarkan tugas dalam template shift container"
   ],
-  "create_container_template": [
-    "buat template hari untuk container",
-    "buat template container baru",
-    "tambahkan template harian ke shift container",
-    "atur hari dalam seminggu untuk container"
-  ],
-  "create_donation_checkout": [
-    "donasi untuk proyek klacks",
-    "buat tautan donasi",
-    "saya ingin berdonasi",
-    "dukung klacks dengan sejumlah uang"
-  ],
-  "delete_container_template": [
-    "hapus templat hari kontainer",
-    "hapus semua templat kontainer",
-    "atur ulang rencana mingguan kontainer"
-  ],
   "add_expense": [
     "tambahkan biaya ke penugasan shift",
     "catat pengeluaran baru",
@@ -252,6 +235,11 @@
     "cancel job wizard [jobid]",
     "abort wizard id [jobid]"
   ],
+  "check_absence_capacity_reserve": [
+    "cadangan kapasitas untuk cuti",
+    "apakah masih ada ruang untuk cuti",
+    "kesenjangan sumber daya karena cuti"
+  ],
   "check_absence_conflicts": [
     "periksa konflik absensi",
     "apakah cuti memungkinkan",
@@ -263,6 +251,11 @@
     "periksa ketersediaan karyawan",
     "bisakah dia bekerja pada tanggal itu",
     "cek ketersediaan di rentang waktu"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "periksa kesehatan folder titik penyerahan",
+    "apakah folder bertahan setelah mulai ulang",
+    "buat folder processed dan error"
   ],
   "clear_client_availability": [
     "atur ulang ketersediaan karyawan",
@@ -343,6 +336,12 @@
     "buat pilihan kalender",
     "buat kalender hari libur"
   ],
+  "create_container_template": [
+    "buat template hari untuk container",
+    "buat template container baru",
+    "tambahkan template harian ke shift container",
+    "atur hari dalam seminggu untuk container"
+  ],
   "create_contract": [
     "membuat kontrak kerja baru",
     "menambahkan kontrak baru untuk karyawan",
@@ -357,6 +356,12 @@
     "atur aturan maksimal dinas malam per bulan",
     "buat aturan batas jumlah hari kerja",
     "tambahkan aturan penghitungan kejadian"
+  ],
+  "create_donation_checkout": [
+    "donasi untuk proyek klacks",
+    "buat tautan donasi",
+    "saya ingin berdonasi",
+    "dukung klacks dengan sejumlah uang"
   ],
   "create_email_folder": [
     "buat folder email baru",
@@ -597,6 +602,11 @@
     "hapus nomor telepon klien",
     "hapus catatan kontak",
     "hapus entri komunikasi"
+  ],
+  "delete_container_template": [
+    "hapus templat hari kontainer",
+    "hapus semua templat kontainer",
+    "atur ulang rencana mingguan kontainer"
   ],
   "delete_contract": [
     "menghapus kontrak kerja",
@@ -1150,11 +1160,6 @@
     "jelaskan ikon-ikon di tabel layanan",
     "apa fungsi tombol seal di edit shift?"
   ],
-  "explain_shift_classification": [
-    "kapan sebuah sif dihitung sebagai sif malam",
-    "mengapa sif pagi saya dianggap sif sore",
-    "di mana batas antara sif pagi dan sif sore"
-  ],
   "explain_payroll_export_handoff": [
     "kenapa file penggajian tidak ada setelah disegel?",
     "kenapa file penggajian masih lama setelah dibuka kembali?",
@@ -1200,6 +1205,12 @@
     "apa beda ketiga tahap perencanaan",
     "apakah penjadwalan otomatis memakai kecerdasan buatan"
   ],
+  "explain_plugin_architecture": [
+    "jelaskan arsitektur plugin backend",
+    "bagaimana cara kerja sistem plugin di backend",
+    "bagaimana cara membuat plugin baru di kode",
+    "apa itu plugin contracts"
+  ],
   "explain_qualifications": [
     "kenapa orang ini tidak bisa dijadwalkan",
     "mencatat sertifikat karyawan",
@@ -1223,6 +1234,11 @@
     "aturan istirahat antar shift apa saja",
     "apa yang terjadi jika batas jam kerja dilanggar",
     "berapa hari berturut-turut saya boleh bekerja"
+  ],
+  "explain_shift_classification": [
+    "kapan sebuah sif dihitung sebagai sif malam",
+    "mengapa sif pagi saya dianggap sif sore",
+    "di mana batas antara sif pagi dan sif sore"
   ],
   "explain_shift_container": [
     "apa itu container shift dan bagaimana cara kerjanya?",
@@ -1309,6 +1325,11 @@
     "cari dan masukkan ke grup",
     "isi grup dengan karyawan dari",
     "populasi grup dengan syarat"
+  ],
+  "find_absence_capacity_windows": [
+    "cari periode yang cocok untuk cuti",
+    "kapan masih ada ruang untuk cuti",
+    "temukan jendela kosong untuk absensi"
   ],
   "find_customer_candidates": [
     "daftar pelanggan yang ada",
@@ -2996,15 +3017,5 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
-  ],
-  "check_absence_capacity_reserve": [
-    "cadangan kapasitas untuk cuti",
-    "apakah masih ada ruang untuk cuti",
-    "kesenjangan sumber daya karena cuti"
-  ],
-  "find_absence_capacity_windows": [
-    "cari periode yang cocok untuk cuti",
-    "kapan masih ada ruang untuk cuti",
-    "temukan jendela kosong untuk absensi"
   ]
 }

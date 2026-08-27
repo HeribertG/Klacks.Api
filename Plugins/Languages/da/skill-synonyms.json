@@ -82,23 +82,6 @@
     "optag opgave i containervagtens skabelon",
     "tilføj task til containerskabelonen på en ugedag"
   ],
-  "create_container_template": [
-    "opret en ugedagsskabelon for containeren",
-    "lav en ny containerskabelon",
-    "tilføj en dagsskabelon til containervagten",
-    "konfigurer en ugedag på containervagten"
-  ],
-  "create_donation_checkout": [
-    "donere til klacks",
-    "opret en donation",
-    "jeg vil give en donation",
-    "støt klacks med et beløb"
-  ],
-  "delete_container_template": [
-    "slet containerens ugedagsskabeloner",
-    "fjern alle skabeloner fra containeren",
-    "nulstil containerens ugeplan"
-  ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",
@@ -252,6 +235,11 @@
     "stop job",
     "afbryd beregning"
   ],
+  "check_absence_capacity_reserve": [
+    "kapacitetsreserve til ferie",
+    "er der plads til ferien",
+    "ressourcehul ved ferie"
+  ],
   "check_absence_conflicts": [
     "tjek fraværskonflikt",
     "er ferie mulig",
@@ -263,6 +251,11 @@
     "tjek medarbejderens tilgængelighed",
     "kan han arbejde den dato",
     "kontroller tilgængelighed i tidsrummet"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "tjek mappe-sundhed for afleveringspunktet",
+    "overlever mappen en genstart",
+    "opret processed og error mapper"
   ],
   "clear_client_availability": [
     "nulstil medarbejderens tilgængelighed",
@@ -340,6 +333,12 @@
     "opret kalendervalg",
     "opret feriekalender"
   ],
+  "create_container_template": [
+    "opret en ugedagsskabelon for containeren",
+    "lav en ny containerskabelon",
+    "tilføj en dagsskabelon til containervagten",
+    "konfigurer en ugedag på containervagten"
+  ],
   "create_contract": [
     "opret kontrakt",
     "ny kontrakt",
@@ -353,6 +352,12 @@
     "sæt en grænse for antal arbejdsdage per uge",
     "opret regel for hvor ofte noget må ske",
     "tilføj en tælleregel for nattjenester"
+  ],
+  "create_donation_checkout": [
+    "donere til klacks",
+    "opret en donation",
+    "jeg vil give en donation",
+    "støt klacks med et beløb"
   ],
   "create_email_folder": [
     "opret ny e-mail-mappe",
@@ -596,6 +601,11 @@
     "slet telefonnummeret",
     "slet kontaktoplysningen",
     "fjern kommunikationsposten"
+  ],
+  "delete_container_template": [
+    "slet containerens ugedagsskabeloner",
+    "fjern alle skabeloner fra containeren",
+    "nulstil containerens ugeplan"
   ],
   "delete_contract": [
     "slet kontrakt",
@@ -1173,11 +1183,6 @@
     "forklar klipningssiden for en service",
     "serviceside: oversigt over alle vagttyper"
   ],
-  "explain_shift_classification": [
-    "hvornår tæller en vagt som nattevagt",
-    "hvorfor behandles min tidlige vagt som aftenvagt",
-    "hvor går grænsen mellem tidlig og sen vagt"
-  ],
   "explain_payroll_export_handoff": [
     "hvorfor er der ingen løndata efter versigling?",
     "hvorfor viser løndata stadig gamle tal efter genåbning?",
@@ -1227,6 +1232,12 @@
     "hvad er forskellen på de tre planlægningstrin",
     "bruger automatisk planlægning kunstig intelligens"
   ],
+  "explain_plugin_architecture": [
+    "forklar mig plugin-arkitekturen",
+    "hvordan fungerer plugin-systemet i backend",
+    "hvordan bygger jeg et nyt plugin fra bunden",
+    "hvad er plugin contracts"
+  ],
   "explain_qualifications": [
     "hvorfor kan denne person ikke planlægges",
     "registrer et certifikat for en medarbejder",
@@ -1252,6 +1263,11 @@
     "hvorfor siger planlæggeren nej til en vagt?",
     "hvad er den længste arbejdsdag, der er tilladt?",
     "hvordan håndteres overtrædelser af arbejdstidsregler?"
+  ],
+  "explain_shift_classification": [
+    "hvornår tæller en vagt som nattevagt",
+    "hvorfor behandles min tidlige vagt som aftenvagt",
+    "hvor går grænsen mellem tidlig og sen vagt"
   ],
   "explain_shift_container": [
     "hvad er en containervagt?",
@@ -1348,6 +1364,11 @@
     "populér gruppe",
     "find medarbejdere og læg i gruppe",
     "fyld gruppe op"
+  ],
+  "find_absence_capacity_windows": [
+    "find en passende periode til ferie",
+    "hvornår er der plads til ferie",
+    "søg et ledigt vindue til fravær"
   ],
   "find_customer_candidates": [
     "find kunde",
@@ -3029,15 +3050,5 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
-  ],
-  "check_absence_capacity_reserve": [
-    "kapacitetsreserve til ferie",
-    "er der plads til ferien",
-    "ressourcehul ved ferie"
-  ],
-  "find_absence_capacity_windows": [
-    "find en passende periode til ferie",
-    "hvornår er der plads til ferie",
-    "søg et ledigt vindue til fravær"
   ]
 }

@@ -82,23 +82,6 @@
     "ta upp en uppgift i containerpassets mall",
     "lägg till en task på en veckodag i containermallen"
   ],
-  "create_container_template": [
-    "skapa en veckodagsmall för containern",
-    "skapa en ny containermall",
-    "lägg till en dagsmall på containerpasset",
-    "konfigurera en veckodag för containern"
-  ],
-  "create_donation_checkout": [
-    "donera till klacks",
-    "skapa en donation",
-    "jag vill ge en donation",
-    "stöd klacks med ett belopp"
-  ],
-  "delete_container_template": [
-    "ta bort containerns veckodagsmallar",
-    "radera alla mallar för containern",
-    "återställ containerns veckoplan"
-  ],
   "add_expense": [
     "lägg till en utlägg",
     "registrera ett utlägg",
@@ -248,6 +231,11 @@
     "ta bort wizardjobbet",
     "avsluta planeringsjobbet"
   ],
+  "check_absence_capacity_reserve": [
+    "kapacitetsreserv för semester",
+    "finns det utrymme för semestern",
+    "resursglapp vid semester"
+  ],
   "check_absence_conflicts": [
     "kontrollera frånvarokonflikt",
     "är semester möjlig",
@@ -259,6 +247,11 @@
     "kolla en anställds tillgänglighet",
     "kan hen jobba det datumet",
     "kontrollera tillgänglighet i ett tidsfönster"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "kolla mapphälsan för avlämningspunkten",
+    "överlever mappen en omstart",
+    "skapa processed- och error-mappar"
   ],
   "clear_client_availability": [
     "återställ medarbetarens tillgänglighet",
@@ -335,6 +328,12 @@
     "skapa kalenderval",
     "skapa helgdagskalender"
   ],
+  "create_container_template": [
+    "skapa en veckodagsmall för containern",
+    "skapa en ny containermall",
+    "lägg till en dagsmall på containerpasset",
+    "konfigurera en veckodag för containern"
+  ],
   "create_contract": [
     "skapa avtal",
     "nytt avtal",
@@ -348,6 +347,12 @@
     "sätt max antal arbetspass per vecka",
     "skapa en regel för högst fyra nattpass i månaden",
     "inför en begränsning på hur ofta något får ske"
+  ],
+  "create_donation_checkout": [
+    "donera till klacks",
+    "skapa en donation",
+    "jag vill ge en donation",
+    "stöd klacks med ett belopp"
   ],
   "create_email_folder": [
     "skapa ny e-postmapp",
@@ -590,6 +595,11 @@
     "radera e-postadress",
     "ta bort telefonnummer",
     "radera kontaktuppgift"
+  ],
+  "delete_container_template": [
+    "ta bort containerns veckodagsmallar",
+    "radera alla mallar för containern",
+    "återställ containerns veckoplan"
   ],
   "delete_contract": [
     "ta bort avtal",
@@ -1170,11 +1180,6 @@
     "vad gör klippningssidan",
     "förklara containermallen"
   ],
-  "explain_shift_classification": [
-    "när räknas ett skift som nattskift",
-    "varför behandlas mitt morgonskift som kvällsskift",
-    "var går gränsen mellan morgon- och kvällsskift"
-  ],
   "explain_payroll_export_handoff": [
     "varför saknas lönefilen efter att perioden låsts",
     "lönefilen visar fortfarande gamla siffror efter att jag öppnade perioden",
@@ -1220,6 +1225,12 @@
     "vad skiljer de tre planeringsstegen åt",
     "använder automatisk planering artificiell intelligens"
   ],
+  "explain_plugin_architecture": [
+    "förklara plugin-arkitekturen",
+    "hur är plugin-systemet uppbyggt i backend",
+    "hur bygger jag ett nytt plugin i koden",
+    "vad är plugin contracts"
+  ],
   "explain_qualifications": [
     "varför kan jag inte schemalägga den här personen",
     "registrera ett certifikat för en medarbetare",
@@ -1245,6 +1256,11 @@
     "vad är minimivilan mellan två arbetsdagar?",
     "varför får jag inte lägga in detta pass?",
     "hur strikt är regeln om övertid?"
+  ],
+  "explain_shift_classification": [
+    "när räknas ett skift som nattskift",
+    "varför behandlas mitt morgonskift som kvällsskift",
+    "var går gränsen mellan morgon- och kvällsskift"
   ],
   "explain_shift_container": [
     "vad är ett containraskift",
@@ -1336,6 +1352,11 @@
     "sök och lägg i grupp",
     "befolka grupp från kanton",
     "hitta anställda och lägg i grupp"
+  ],
+  "find_absence_capacity_windows": [
+    "hitta en lämplig period för semester",
+    "när finns det plats för semester",
+    "sök ett ledigt fönster för frånvaro"
   ],
   "find_customer_candidates": [
     "sök efter kund",
@@ -3036,15 +3057,5 @@
     "internetsökning",
     "sök på nätet",
     "googla"
-  ],
-  "check_absence_capacity_reserve": [
-    "kapacitetsreserv för semester",
-    "finns det utrymme för semestern",
-    "resursglapp vid semester"
-  ],
-  "find_absence_capacity_windows": [
-    "hitta en lämplig period för semester",
-    "när finns det plats för semester",
-    "sök ett ledigt fönster för frånvaro"
   ]
 }

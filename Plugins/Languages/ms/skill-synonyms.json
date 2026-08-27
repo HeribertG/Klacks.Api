@@ -75,23 +75,6 @@
     "daftarkan task pada hari dalam template container",
     "letak tugasan dalam template syif container"
   ],
-  "create_container_template": [
-    "buat template hari untuk container",
-    "cipta template container baharu",
-    "tambah template harian pada syif container",
-    "tetapkan hari dalam seminggu untuk container"
-  ],
-  "create_donation_checkout": [
-    "derma kepada projek klacks",
-    "buat pautan dermaan",
-    "saya mahu menderma",
-    "sokong klacks dengan jumlah"
-  ],
-  "delete_container_template": [
-    "padam templat hari kontena",
-    "buang semua templat kontena",
-    "set semula pelan mingguan kontena"
-  ],
   "add_expense": [
     "catat perbelanjaan baru",
     "tambah perbelanjaan pada kerja",
@@ -241,6 +224,11 @@
     "stopkan wizard semasa",
     "batal kerja wizard sekarang"
   ],
+  "check_absence_capacity_reserve": [
+    "rizab kapasiti untuk cuti",
+    "adakah masih ada ruang untuk cuti",
+    "jurang sumber akibat cuti"
+  ],
   "check_absence_conflicts": [
     "semak konflik ketidakhadiran",
     "adakah cuti boleh diambil",
@@ -252,6 +240,11 @@
     "semak ketersediaan pekerja",
     "bolehkah dia bekerja pada tarikh itu",
     "periksa ketersediaan dalam tempoh masa"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "semak kesihatan folder titik serahan",
+    "adakah folder bertahan selepas but semula",
+    "cipta folder processed dan error"
   ],
   "clear_client_availability": [
     "tetapkan semula ketersediaan pekerja",
@@ -327,6 +320,12 @@
     "cipta pilihan kalendar",
     "cipta kalendar cuti"
   ],
+  "create_container_template": [
+    "buat template hari untuk container",
+    "cipta template container baharu",
+    "tambah template harian pada syif container",
+    "tetapkan hari dalam seminggu untuk container"
+  ],
   "create_contract": [
     "cipta kontrak kerja baharu",
     "tambah kontrak baharu untuk pekerja",
@@ -341,6 +340,12 @@
     "hadkan bilangan kerja malam dalam seminggu",
     "cipta peraturan had kekerapan",
     "letak peraturan: maksimum 5 hari bekerja seminggu"
+  ],
+  "create_donation_checkout": [
+    "derma kepada projek klacks",
+    "buat pautan dermaan",
+    "saya mahu menderma",
+    "sokong klacks dengan jumlah"
   ],
   "create_email_folder": [
     "buat folder emel baru",
@@ -583,6 +588,11 @@
     "buang email ini",
     "padam nombor telefon",
     "keluarkan catatan hubungan"
+  ],
+  "delete_container_template": [
+    "padam templat hari kontena",
+    "buang semua templat kontena",
+    "set semula pelan mingguan kontena"
   ],
   "delete_contract": [
     "padam kontrak kerja sedia ada",
@@ -1144,11 +1154,6 @@
     "apa fungsi butang gunting di halaman perkhidmatan?",
     "boleh tapis perkhidmatan mengikut jenis?"
   ],
-  "explain_shift_classification": [
-    "bilakah syif dikira sebagai syif malam",
-    "mengapa syif pagi saya dianggap syif petang",
-    "di manakah sempadan antara syif pagi dan syif petang"
-  ],
   "explain_payroll_export_handoff": [
     "kenapa fail gaji tiada selepas disegel?",
     "fail gaji masih lama selepas dibuka semula, kenapa?",
@@ -1194,6 +1199,12 @@
     "apa beza tiga peringkat perancangan",
     "adakah penjadualan automatik menggunakan kecerdasan buatan"
   ],
+  "explain_plugin_architecture": [
+    "terangkan seni bina plugin backend",
+    "macam mana sistem plugin berfungsi dalam kod?",
+    "macam mana nak bina plugin baharu dari awal?",
+    "apa itu plugin contracts dalam klacks?"
+  ],
   "explain_qualifications": [
     "kenapa orang ini tidak boleh dijadualkan",
     "merekod sijil pekerja",
@@ -1219,6 +1230,11 @@
     "beritahu saya tentang peraturan rehat",
     "apakah had mingguan untuk jam bekerja",
     "bagaimana hari berturut-turut bekerja ditetapkan"
+  ],
+  "explain_shift_classification": [
+    "bilakah syif dikira sebagai syif malam",
+    "mengapa syif pagi saya dianggap syif petang",
+    "di manakah sempadan antara syif pagi dan syif petang"
   ],
   "explain_shift_container": [
     "container shift tu guna template hari minggu?",
@@ -1308,6 +1324,11 @@
     "tambah pekerja dari kanton ini ke kumpulan",
     "cari pekerja dengan kontrak dan masukkan ke kumpulan",
     "populasi kumpulan berdasarkan kriteria"
+  ],
+  "find_absence_capacity_windows": [
+    "cari tempoh yang sesuai untuk cuti",
+    "bila masih ada ruang untuk cuti",
+    "cari tetingkap kosong untuk ketidakhadiran"
   ],
   "find_customer_candidates": [
     "cari pelanggan sedia ada",
@@ -3012,15 +3033,5 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
-  ],
-  "check_absence_capacity_reserve": [
-    "rizab kapasiti untuk cuti",
-    "adakah masih ada ruang untuk cuti",
-    "jurang sumber akibat cuti"
-  ],
-  "find_absence_capacity_windows": [
-    "cari tempoh yang sesuai untuk cuti",
-    "bila masih ada ruang untuk cuti",
-    "cari tetingkap kosong untuk ketidakhadiran"
   ]
 }

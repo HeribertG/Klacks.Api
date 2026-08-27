@@ -75,23 +75,6 @@
     "thêm task vào một ngày trong mẫu container",
     "đăng ký công việc trong mẫu ca container"
   ],
-  "create_container_template": [
-    "tạo mẫu ngày cho container",
-    "tạo mẫu container mới",
-    "thêm mẫu theo ngày vào ca container",
-    "thiết lập ngày trong tuần cho container"
-  ],
-  "create_donation_checkout": [
-    "quyên góp cho dự án klacks",
-    "tạo liên kết quyên góp",
-    "tôi muốn quyên góp",
-    "ủng hộ klacks một khoản tiền"
-  ],
-  "delete_container_template": [
-    "xóa các mẫu ngày trong tuần của container",
-    "gỡ bỏ tất cả mẫu của container",
-    "đặt lại kế hoạch tuần của container"
-  ],
   "add_expense": [
     "thêm chi phí cho ca làm việc",
     "ghi nhận khoản chi",
@@ -246,6 +229,11 @@
     "ngừng wizard",
     "bỏ lệnh wizard"
   ],
+  "check_absence_capacity_reserve": [
+    "dự trữ năng lực cho nghỉ phép",
+    "còn chỗ cho kỳ nghỉ này không",
+    "thiếu hụt nhân lực do nghỉ phép"
+  ],
   "check_absence_conflicts": [
     "kiểm tra xung đột nghỉ phép",
     "có thể nghỉ phép không",
@@ -257,6 +245,11 @@
     "kiểm tra tình trạng sẵn sàng của nhân viên",
     "anh ấy có thể làm việc vào ngày đó không",
     "xem nhân viên có thể làm trong khung giờ"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "kiểm tra tình trạng thư mục điểm giao nhận",
+    "thư mục có còn tồn tại sau khi khởi động lại không",
+    "tạo thư mục processed và error"
   ],
   "clear_client_availability": [
     "đặt lại tình trạng sẵn sàng của nhân viên",
@@ -330,6 +323,12 @@
     "tạo lựa chọn lịch",
     "tạo lịch ngày lễ"
   ],
+  "create_container_template": [
+    "tạo mẫu ngày cho container",
+    "tạo mẫu container mới",
+    "thêm mẫu theo ngày vào ca container",
+    "thiết lập ngày trong tuần cho container"
+  ],
   "create_contract": [
     "tạo hợp đồng mới",
     "hợp đồng lao động mới",
@@ -343,6 +342,12 @@
     "tạo quy định về số ngày làm việc tối đa trong tuần",
     "thêm một quy tắc đếm sự kiện",
     "cấu hình luật đếm số lần"
+  ],
+  "create_donation_checkout": [
+    "quyên góp cho dự án klacks",
+    "tạo liên kết quyên góp",
+    "tôi muốn quyên góp",
+    "ủng hộ klacks một khoản tiền"
   ],
   "create_email_folder": [
     "tạo thư mục email mới",
@@ -582,6 +587,11 @@
     "bỏ email đã lưu",
     "xóa số điện thoại khỏi danh bạ",
     "gỡ mục liên hệ đó đi"
+  ],
+  "delete_container_template": [
+    "xóa các mẫu ngày trong tuần của container",
+    "gỡ bỏ tất cả mẫu của container",
+    "đặt lại kế hoạch tuần của container"
   ],
   "delete_contract": [
     "xóa hợp đồng",
@@ -1142,11 +1152,6 @@
     "cắt ca theo ngày, giờ, tuần, nhân viên, nhiệm vụ",
     "mẫu container và kéo thả nhiệm vụ"
   ],
-  "explain_shift_classification": [
-    "khi nào một ca được tính là ca đêm",
-    "tại sao ca sáng của tôi được coi là ca chiều",
-    "ranh giới giữa ca sáng và ca chiều ở đâu"
-  ],
   "explain_payroll_export_handoff": [
     "vì sao không có tệp lương sau khi niêm phong",
     "tệp lương vẫn cũ sau khi mở lại",
@@ -1192,6 +1197,12 @@
     "ba giai đoạn lập kế hoạch khác nhau thế nào",
     "lập lịch tự động có dùng trí tuệ nhân tạo không"
   ],
+  "explain_plugin_architecture": [
+    "giải thích kiến trúc plugin",
+    "hệ thống plugin ở backend hoạt động thế nào",
+    "cách xây dựng một plugin mới trong code",
+    "plugin contracts là gì"
+  ],
   "explain_qualifications": [
     "tại sao không thể xếp lịch cho người này",
     "ghi nhận chứng chỉ của nhân viên",
@@ -1216,6 +1227,11 @@
     "quy tắc nghỉ giữa các ca",
     "tối đa bao nhiêu ngày làm liên tiếp",
     "vì sao không xếp ca được"
+  ],
+  "explain_shift_classification": [
+    "khi nào một ca được tính là ca đêm",
+    "tại sao ca sáng của tôi được coi là ca chiều",
+    "ranh giới giữa ca sáng và ca chiều ở đâu"
   ],
   "explain_shift_container": [
     "ca container dùng để gom nhóm các ca và vắng mặt",
@@ -1303,6 +1319,11 @@
     "lọc nhân viên theo hợp đồng vào nhóm",
     "thêm nhân viên phù hợp vào nhóm",
     "điền nhóm bằng điều kiện"
+  ],
+  "find_absence_capacity_windows": [
+    "tìm khoảng thời gian phù hợp để nghỉ phép",
+    "khi nào còn chỗ cho kỳ nghỉ",
+    "tìm khung trống cho nghỉ phép"
   ],
   "find_customer_candidates": [
     "tìm khách hàng",
@@ -3019,15 +3040,5 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
-  ],
-  "check_absence_capacity_reserve": [
-    "dự trữ năng lực cho nghỉ phép",
-    "còn chỗ cho kỳ nghỉ này không",
-    "thiếu hụt nhân lực do nghỉ phép"
-  ],
-  "find_absence_capacity_windows": [
-    "tìm khoảng thời gian phù hợp để nghỉ phép",
-    "khi nào còn chỗ cho kỳ nghỉ",
-    "tìm khung trống cho nghỉ phép"
   ]
 }

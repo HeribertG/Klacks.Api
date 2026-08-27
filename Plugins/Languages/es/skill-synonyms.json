@@ -81,23 +81,6 @@
     "agrega una tarea a un día de la plantilla del contenedor",
     "incorporar tarea a la plantilla del turno contenedor"
   ],
-  "create_container_template": [
-    "crea una plantilla de día para el contenedor",
-    "crea una nueva plantilla del contenedor",
-    "añade una plantilla diaria al turno contenedor",
-    "configura un día de la semana del contenedor"
-  ],
-  "create_donation_checkout": [
-    "donar al proyecto klacks",
-    "crear una donación",
-    "quiero hacer una donación",
-    "apoyar klacks con un importe"
-  ],
-  "delete_container_template": [
-    "elimina las plantillas de día del contenedor",
-    "borra todas las plantillas del contenedor",
-    "reinicia el plan semanal del contenedor"
-  ],
   "add_expense": [
     "registrar un gasto en una entrada de trabajo",
     "añadir un gasto a un turno",
@@ -252,6 +235,11 @@
     "abortar wizard",
     "parar el proceso"
   ],
+  "check_absence_capacity_reserve": [
+    "reserva de capacidad para vacaciones",
+    "hay margen para estas vacaciones",
+    "brecha de recursos con las vacaciones"
+  ],
   "check_absence_conflicts": [
     "comprobar conflictos de ausencia",
     "son posibles las vacaciones",
@@ -264,6 +252,11 @@
     "verificar disponibilidad en una fecha",
     "puede trabajar en ese horario",
     "revisar si está empleable ese día"
+  ],
+  "check_erp_drop_point_folder_health": [
+    "comprobar el estado de la carpeta de entrega",
+    "la carpeta sobrevive a un reinicio",
+    "crear carpetas processed y error"
   ],
   "clear_client_availability": [
     "restablecer la disponibilidad del empleado",
@@ -342,6 +335,12 @@
     "crear selección de calendario",
     "crear calendario de festivos"
   ],
+  "create_container_template": [
+    "crea una plantilla de día para el contenedor",
+    "crea una nueva plantilla del contenedor",
+    "añade una plantilla diaria al turno contenedor",
+    "configura un día de la semana del contenedor"
+  ],
   "create_contract": [
     "crear contrato",
     "nuevo contrato",
@@ -355,6 +354,12 @@
     "añade una regla de conteo para ausencias",
     "configura una regla que limite las jornadas largas",
     "crea una regla para que avise si se superan 6 turnos seguidos"
+  ],
+  "create_donation_checkout": [
+    "donar al proyecto klacks",
+    "crear una donación",
+    "quiero hacer una donación",
+    "apoyar klacks con un importe"
   ],
   "create_email_folder": [
     "crear una nueva carpeta de correo",
@@ -604,6 +609,11 @@
     "quitar número de teléfono",
     "eliminar entrada de contacto",
     "borrar nota de comunicación"
+  ],
+  "delete_container_template": [
+    "elimina las plantillas de día del contenedor",
+    "borra todas las plantillas del contenedor",
+    "reinicia el plan semanal del contenedor"
   ],
   "delete_contract": [
     "eliminar contrato",
@@ -1178,11 +1188,6 @@
     "explica las pestañas del formulario de edición de servicio",
     "¿cómo se corta un servicio en la página de servicios?"
   ],
-  "explain_shift_classification": [
-    "cuándo cuenta un turno como turno de noche",
-    "por qué mi turno de mañana se trata como turno de tarde",
-    "dónde está el límite entre el turno de mañana y el de tarde"
-  ],
   "explain_payroll_export_handoff": [
     "¿por qué falta el archivo de nómina después de sellar?",
     "¿el archivo de nómina sigue con números antiguos después de reabrir?",
@@ -1228,6 +1233,12 @@
     "qué diferencia hay entre las tres etapas",
     "usa inteligencia artificial la planificación automática"
   ],
+  "explain_plugin_architecture": [
+    "explícame la arquitectura de plugins",
+    "cómo funciona el sistema de plugins del backend",
+    "cómo construyo un nuevo plugin desde cero",
+    "qué son los contratos de plugin"
+  ],
   "explain_qualifications": [
     "por qué no puedo asignar a esta persona",
     "registrar un certificado de un empleado",
@@ -1253,6 +1264,11 @@
     "¿qué descanso mínimo hay entre jornadas?",
     "¿qué pasa si dejo el límite vacío?",
     "¿el tope de horas semanales es obligatorio?"
+  ],
+  "explain_shift_classification": [
+    "cuándo cuenta un turno como turno de noche",
+    "por qué mi turno de mañana se trata como turno de tarde",
+    "dónde está el límite entre el turno de mañana y el de tarde"
   ],
   "explain_shift_container": [
     "explica qué es un turno contenedor",
@@ -1343,6 +1359,11 @@
     "añadir empleados por región a grupo",
     "buscar empleados con contrato y agregar a grupo",
     "completar grupo según cantón"
+  ],
+  "find_absence_capacity_windows": [
+    "encontrar un periodo adecuado para vacaciones",
+    "cuándo queda sitio para vacaciones",
+    "buscar una ventana libre de ausencia"
   ],
   "find_customer_candidates": [
     "listar clientes existentes",
@@ -3071,15 +3092,5 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
-  ],
-  "check_absence_capacity_reserve": [
-    "reserva de capacidad para vacaciones",
-    "hay margen para estas vacaciones",
-    "brecha de recursos con las vacaciones"
-  ],
-  "find_absence_capacity_windows": [
-    "encontrar un periodo adecuado para vacaciones",
-    "cuándo queda sitio para vacaciones",
-    "buscar una ventana libre de ausencia"
   ]
 }

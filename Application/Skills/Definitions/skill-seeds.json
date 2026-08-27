@@ -40612,6 +40612,123 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "check_erp_drop_point_folder_health",
+      "area": "settings",
+      "description": "Checks whether the ERP drop point's configured folder actually exists, is writable, and has its processed/error sub-folders, creating any missing sub-folder. Reports write errors and reminds that persistence across a container restart depends on the folder being mounted as a docker volume. Use when order files silently fail to be picked up or before trusting a freshly configured handover point.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerType": null,
+      "effect": "Mutate",
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ordner prüfen",
+          "übergabeordner testen",
+          "ist der ordner beschreibbar"
+        ],
+        "en": [
+          "check drop point folder",
+          "folder health check",
+          "is the folder writable"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "übergabeordner health check",
+          "funktioniert der ablageordner",
+          "ordner setup prüfen",
+          "processed und error ordner anlegen",
+          "übersteht der ordner einen neustart"
+        ],
+        "en": [
+          "drop point folder health check",
+          "verify the pickup folder works",
+          "check folder setup",
+          "create processed and error folders",
+          "does the folder survive a restart"
+        ],
+        "fr": [
+          "verifier le dossier de remise",
+          "controle de sante du dossier",
+          "le dossier survit-il a un redemarrage"
+        ],
+        "it": [
+          "verifica cartella di consegna",
+          "controllo integrita della cartella",
+          "la cartella sopravvive a un riavvio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_plugin_architecture",
+      "area": "system",
+      "description": "Explains Klacks' backend plugin architecture for developers: the four-layer split into Klacks.Plugin.Contracts (shared interfaces), a plugin assembly like Klacks.Plugin.Messaging, the Klacks.Api host, and Angular plugin libraries. Covers the dependency direction -- a plugin references only the contracts, never the host -- how IPluginRegistrar is registered manually in Program.cs, and the rough steps to build a brand-new plugin assembly from scratch.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_plugin_architecture"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "plugin-architektur",
+          "pluginregistrar",
+          "eigenes plugin bauen",
+          "plugin contracts"
+        ],
+        "en": [
+          "plugin architecture",
+          "pluginregistrar",
+          "build a plugin",
+          "plugin contracts"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "plugin-architektur",
+          "pluginregistrar",
+          "plugin contracts",
+          "eigenes plugin bauen",
+          "neues plugin erstellen",
+          "plugin assembly",
+          "abhängigkeitsrichtung plugin"
+        ],
+        "en": [
+          "plugin architecture",
+          "pluginregistrar",
+          "plugin contracts",
+          "build a new plugin",
+          "plugin assembly",
+          "dependency direction"
+        ],
+        "fr": [
+          "architecture de plugin",
+          "contrats de plugin",
+          "créer un nouveau plugin",
+          "registrar de plugin"
+        ],
+        "it": [
+          "architettura del plugin",
+          "contratti del plugin",
+          "creare un nuovo plugin",
+          "registrar del plugin"
+        ]
+      },
+      "version": 1
     }
   ]
 }
