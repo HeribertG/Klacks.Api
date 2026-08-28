@@ -1,16 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Admin-only endpoints for the skill-description proposal workflow (Agent C).
-/// POST /generate triggers the optimizer, GET /pending lists open proposals,
-/// POST /{id}/approve applies the change, POST /{id}/reject discards it.
+/// What is left of the description-proposal workflow once the learning loop owns it: an administrator's
+/// override of the routing regression gate. The loop generates the proposals, applies the ones that leave
+/// every golden case routing, and blocks the rest; only the blocked ones are still a human decision, and
+/// rejecting one is the way to say the wording is wrong rather than merely risky.
+/// Listing them is not here any more either - the "Klacksy learned" card shows them next to the learned
+/// phrases, because an administrator judges both the same way.
+/// The JWT scheme is pinned explicitly: AddIdentity overrides the runtime default to cookie
+/// authentication, so a bare role gate would answer 401 to every JWT caller.
 /// </summary>
+/// <param name="mediator">Dispatches the approve and reject commands</param>
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
-using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,52 +27,11 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public class SkillProposalsController : ControllerBase
 {
-    private const int DefaultPendingLimit = 50;
-    private const int MaxPendingLimit = 200;
-    private const int DefaultTrajectoriesToAnalyze = 30;
-    private const int MaxTrajectoriesToAnalyze = 200;
-
-    private readonly ISkillDescriptionOptimizer _optimizer;
     private readonly IMediator _mediator;
-    private readonly ILogger<SkillProposalsController> _logger;
 
-    public SkillProposalsController(
-        ISkillDescriptionOptimizer optimizer,
-        IMediator mediator,
-        ILogger<SkillProposalsController> logger)
+    public SkillProposalsController(IMediator mediator)
     {
-        _optimizer = optimizer;
         _mediator = mediator;
-        _logger = logger;
-    }
-
-    [HttpPost("generate")]
-    public async Task<ActionResult<GenerateProposalsResponse>> Generate(
-        [FromQuery] int? trajectories,
-        CancellationToken cancellationToken)
-    {
-        var limit = Math.Clamp(trajectories ?? DefaultTrajectoriesToAnalyze, 1, MaxTrajectoriesToAnalyze);
-
-        try
-        {
-            var generated = await _optimizer.GenerateProposalsAsync(limit, cancellationToken);
-            return Ok(new GenerateProposalsResponse(generated));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Skill proposal generation failed");
-            return StatusCode(500, new { error = "Generation failed" });
-        }
-    }
-
-    [HttpGet("pending")]
-    public async Task<ActionResult<IReadOnlyList<ProposedSkillChange>>> GetPending(
-        [FromQuery] int? limit,
-        CancellationToken cancellationToken)
-    {
-        var effectiveLimit = Math.Clamp(limit ?? DefaultPendingLimit, 1, MaxPendingLimit);
-        var pending = await _mediator.Send(new GetPendingSkillChangesQuery(effectiveLimit), cancellationToken);
-        return Ok(pending);
     }
 
     [HttpPost("{id:guid}/approve")]
@@ -120,6 +83,4 @@ public class SkillProposalsController : ControllerBase
 
         return Ok(result);
     }
-
-    public sealed record GenerateProposalsResponse(int Generated);
 }

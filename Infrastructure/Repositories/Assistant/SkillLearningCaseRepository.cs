@@ -49,6 +49,16 @@ public class SkillLearningCaseRepository : ISkillLearningCaseRepository
         return counts.ToDictionary(entry => entry.Signal, entry => entry.Count, StringComparer.Ordinal);
     }
 
+    public async Task<bool> HasCaseSinceAsync(
+        Guid clusterId, string? userId, DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillLearningCases
+            .AsNoTracking()
+            .AnyAsync(
+                c => c.ClusterId == clusterId && c.UserId == userId && c.OccurredAtUtc >= sinceUtc,
+                cancellationToken);
+    }
+
     public async Task<IReadOnlyList<SkillLearningCase>> ListByClusterAsync(
         Guid clusterId, int limit, CancellationToken cancellationToken = default)
     {
@@ -58,5 +68,16 @@ public class SkillLearningCaseRepository : ISkillLearningCaseRepository
             .OrderByDescending(c => c.OccurredAtUtc)
             .Take(limit)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<string?> FindExpectedSkillByTrajectoryAsync(
+        Guid trajectoryId, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillLearningCases
+            .AsNoTracking()
+            .Where(c => c.TrajectoryId == trajectoryId && c.ExpectedSkill != null)
+            .OrderByDescending(c => c.OccurredAtUtc)
+            .Select(c => c.ExpectedSkill)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -68,8 +68,54 @@ public interface ISkillLearningClusterRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Soft-deletes terminal clusters last seen before the given moment; the physical delete is left to
-    /// the data retention background service.
+    /// Takes a ready cluster into a learning round and reports whether this caller won it. Written as one
+    /// conditional statement, so two overlapping runs - a tick and a manual trigger, or two instances -
+    /// can never work on the same cluster.
     /// </summary>
-    Task<int> SoftDeleteTerminalOlderThanAsync(DateTime thresholdUtc, CancellationToken cancellationToken = default);
+    /// <param name="instance">Machine name of the claiming instance, stored for diagnosis</param>
+    Task<bool> TryClaimForLearningAsync(
+        Guid id, string instance, DateTime nowUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns clusters whose claim is older than the given moment to ready, so a process that died
+    /// mid-round does not park them in learning forever.
+    /// </summary>
+    Task<int> ReleaseStaleClaimsAsync(DateTime thresholdUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ends a learning round: moves the claimed cluster to its outcome status, records what it produced
+    /// or why it failed, and drops the claim. Conditional on the cluster still being in learning, so a
+    /// stale reclaim that already handed it on cannot be overwritten.
+    /// </summary>
+    /// <param name="outcomeRefKind">phrase or capability, null when the round produced nothing</param>
+    /// <param name="outcomeRef">Id of the created phrase, or name of the created recipe</param>
+    /// <param name="lastError">Why the round failed, kept as the seed of the next round's prompt</param>
+    Task<bool> FinishLearningAsync(
+        Guid id,
+        string toStatus,
+        string? outcomeRefKind,
+        string? outcomeRef,
+        string? lastError,
+        int attemptCount,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Hands an unfulfillable cluster back to the learning loop and reports whether it was still
+    /// unfulfillable when the write landed. Clears the attempt budget and the recorded error in the same
+    /// statement, so a reopened wish starts its next round with a full budget rather than falling out
+    /// again on the first attempt.
+    /// </summary>
+    Task<bool> TryRetryUnfulfillableAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Soft-deletes clusters that are finished business and have gone quiet; the physical delete is left
+    /// to the data retention background service. Both clocks must have run out: the status has to have
+    /// settled before the given moment AND the cluster must not have been seen since. An unfulfillable
+    /// cluster keeps counting recurrences, and ageing it on the status clock alone would throw away the
+    /// evidence of a wish people are still asking for - which is precisely the negative fitness signal
+    /// stage G3 measures. A cluster that really is finished stops counting, so its last-seen clock runs
+    /// out too and it is collected as before.
+    /// </summary>
+    Task<int> SoftDeleteRetentionEligibleOlderThanAsync(
+        DateTime thresholdUtc, CancellationToken cancellationToken = default);
 }

@@ -59,12 +59,32 @@ public class ProposedSkillChangeRepository : IProposedSkillChangeRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<string, int>> CountByStatusInWindowAsync(
+        IReadOnlyList<string> statuses,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var counts = await _context.ProposedSkillChanges
+            .AsNoTracking()
+            .Where(p => statuses.Contains(p.Status)
+                && p.ReviewedAt != null
+                && p.ReviewedAt >= fromUtc
+                && p.ReviewedAt < toUtc)
+            .GroupBy(p => p.Status)
+            .Select(group => new { Status = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        return counts.ToDictionary(entry => entry.Status, entry => entry.Count, StringComparer.Ordinal);
+    }
+
     public async Task<bool> HasOpenProposalForSkillAsync(Guid skillId, string field, CancellationToken cancellationToken = default)
     {
         return await _context.ProposedSkillChanges
             .AnyAsync(p => p.SkillId == skillId
                         && p.Field == field
-                        && p.Status == ProposedChangeStatuses.Pending,
+                        && (p.Status == ProposedChangeStatuses.Pending
+                            || p.Status == ProposedChangeStatuses.AppliedAuto),
                 cancellationToken);
     }
 }

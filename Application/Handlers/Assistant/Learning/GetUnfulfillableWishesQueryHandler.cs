@@ -2,10 +2,10 @@
 
 /// <summary>
 /// Builds the "wishes" section: what people asked for often enough to matter and Klacksy still cannot do.
-/// Two statuses qualify. Ready means the threshold was reached and nothing has been learned from it yet -
-/// before stage G2 exists that is every such cluster, and hiding them would leave the section permanently
-/// empty. Unfulfillable means the loop tried and gave up. Status is part of the row so the card can tell
-/// "not tried yet" from "tried and failed".
+/// Two statuses qualify. Ready means the threshold was reached and the loop has not got to it yet, or its
+/// last round failed and it will try again; Unfulfillable means it tried and gave up. Status is part of
+/// the row so the card can tell "waiting" from "given up on". The weekly digest counts only the second of
+/// the two - a wish the next run may still close is not a wish nobody can serve.
 /// </summary>
 /// <param name="clusterRepository">Cluster store</param>
 

@@ -22,6 +22,20 @@ public static class SkillLearningStateMachine
     ];
 
     /// <summary>
+    /// Statuses retention may soft-delete once they aged past the retention window. Wider than
+    /// <see cref="TerminalStatuses"/> on purpose: an unfulfillable cluster is finished business for the
+    /// admin card, but it is not terminal in the state machine - a later round may still pick it up, and
+    /// it keeps counting recurrences, which is the negative fitness signal stage G3 measures. Making it
+    /// terminal instead would have to take both of those away.
+    /// </summary>
+    public static readonly IReadOnlyList<string> RetentionEligibleStatuses =
+    [
+        SkillLearningClusterStatuses.Retired,
+        SkillLearningClusterStatuses.Dismissed,
+        SkillLearningClusterStatuses.Unfulfillable
+    ];
+
+    /// <summary>
     /// Statuses whose occurrence counters still accumulate when the same utterance is seen again.
     /// A cluster that already produced an artefact keeps counting too, because a recurrence after
     /// activation is exactly the negative fitness signal stage G3 measures.
@@ -84,6 +98,9 @@ public static class SkillLearningStateMachine
         };
 
     public static bool IsTerminal(string status) => TerminalStatuses.Contains(status, StringComparer.Ordinal);
+
+    public static bool IsRetentionEligible(string status) =>
+        RetentionEligibleStatuses.Contains(status, StringComparer.Ordinal);
 
     public static bool IsCounting(string status) => CountingStatuses.Contains(status, StringComparer.Ordinal);
 

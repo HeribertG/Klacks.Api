@@ -154,14 +154,108 @@ public class SkillLearningClusterRepository : ISkillLearningClusterRepository
         return counts.ToDictionary(entry => entry.Status, entry => entry.Count, StringComparer.Ordinal);
     }
 
-    public async Task<int> SoftDeleteTerminalOlderThanAsync(
+    public async Task<bool> TryClaimForLearningAsync(
+        Guid id, string instance, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.SkillLearningClusters
+            .Where(c => c.Id == id && c.Status == SkillLearningClusterStatuses.Ready)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, SkillLearningClusterStatuses.Learning)
+                    .SetProperty(c => c.LearningClaimedAtUtc, nowUtc)
+                    .SetProperty(c => c.LearningInstance, instance)
+                    .SetProperty(c => c.StatusChangedAtUtc, nowUtc)
+                    .SetProperty(c => c.UpdateTime, nowUtc),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
+    public async Task<int> ReleaseStaleClaimsAsync(
         DateTime thresholdUtc, CancellationToken cancellationToken = default)
     {
-        var terminal = SkillLearningStateMachine.TerminalStatuses;
         var now = DateTime.UtcNow;
 
         return await _context.SkillLearningClusters
-            .Where(c => terminal.Contains(c.Status) && c.LastSeenAtUtc < thresholdUtc)
+            .Where(c => c.Status == SkillLearningClusterStatuses.Learning
+                && c.LearningClaimedAtUtc != null
+                && c.LearningClaimedAtUtc < thresholdUtc)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, SkillLearningClusterStatuses.Ready)
+                    .SetProperty(c => c.LearningClaimedAtUtc, (DateTime?)null)
+                    .SetProperty(c => c.LearningInstance, (string?)null)
+                    .SetProperty(c => c.StatusChangedAtUtc, now)
+                    .SetProperty(c => c.UpdateTime, now),
+                cancellationToken);
+    }
+
+    public async Task<bool> FinishLearningAsync(
+        Guid id,
+        string toStatus,
+        string? outcomeRefKind,
+        string? outcomeRef,
+        string? lastError,
+        int attemptCount,
+        CancellationToken cancellationToken = default)
+    {
+        if (!SkillLearningStateMachine.IsLegalTransition(SkillLearningClusterStatuses.Learning, toStatus))
+        {
+            throw new InvalidOperationException(
+                $"Illegal learning cluster transition '{SkillLearningClusterStatuses.Learning}' to '{toStatus}'.");
+        }
+
+        var now = DateTime.UtcNow;
+        var learnedAt = outcomeRef == null ? (DateTime?)null : now;
+
+        var affected = await _context.SkillLearningClusters
+            .Where(c => c.Id == id && c.Status == SkillLearningClusterStatuses.Learning)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, toStatus)
+                    .SetProperty(c => c.OutcomeRefKind, outcomeRefKind)
+                    .SetProperty(c => c.OutcomeRef, outcomeRef)
+                    .SetProperty(c => c.LastError, lastError)
+                    .SetProperty(c => c.AttemptCount, attemptCount)
+                    .SetProperty(c => c.LearnedAtUtc, learnedAt)
+                    .SetProperty(c => c.LearningClaimedAtUtc, (DateTime?)null)
+                    .SetProperty(c => c.LearningInstance, (string?)null)
+                    .SetProperty(c => c.StatusChangedAtUtc, now)
+                    .SetProperty(c => c.UpdateTime, now),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
+    public async Task<bool> TryRetryUnfulfillableAsync(
+        Guid id, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var affected = await _context.SkillLearningClusters
+            .Where(c => c.Id == id && c.Status == SkillLearningClusterStatuses.Unfulfillable)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, SkillLearningClusterStatuses.Ready)
+                    .SetProperty(c => c.AttemptCount, 0)
+                    .SetProperty(c => c.LastError, (string?)null)
+                    .SetProperty(c => c.StatusChangedAtUtc, now)
+                    .SetProperty(c => c.UpdateTime, now),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
+    public async Task<int> SoftDeleteRetentionEligibleOlderThanAsync(
+        DateTime thresholdUtc, CancellationToken cancellationToken = default)
+    {
+        var eligible = SkillLearningStateMachine.RetentionEligibleStatuses;
+        var now = DateTime.UtcNow;
+
+        return await _context.SkillLearningClusters
+            .Where(c => eligible.Contains(c.Status)
+                && c.StatusChangedAtUtc < thresholdUtc
+                && c.LastSeenAtUtc < thresholdUtc)
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(c => c.IsDeleted, true)

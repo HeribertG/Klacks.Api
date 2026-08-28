@@ -302,6 +302,8 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
         services.AddScoped<ISkillLearningClusterRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningClusterRepository>();
         services.AddScoped<ISkillLearningCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCaseRepository>();
+        services.AddScoped<ISkillLearningCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCandidateRepository>();
+        services.AddScoped<ISkillLearningGoldenCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningGoldenCaseRepository>();
         services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
@@ -1139,6 +1141,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillLearningCaseCollector, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningCaseCollector>();
         services.AddScoped<ISkillLearningOptionsProvider, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningOptionsProvider>();
         services.AddScoped<ISkillLearningMaintenanceService, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningMaintenanceService>();
+        services.AddScoped<ISkillRoutingOracle, Klacks.Api.Application.Services.Assistant.Learning.SkillRoutingOracle>();
+        services.AddScoped<ILearnedArtifactGenerator, Klacks.Api.Application.Services.Assistant.Learning.LearnedArtifactGenerator>();
+        services.AddScoped<IPhraseLearner, Klacks.Api.Application.Services.Assistant.Learning.PhraseLearner>();
+        services.AddScoped<ISkillDescriptionSharpener, Klacks.Api.Application.Services.Assistant.Learning.SkillDescriptionSharpener>();
+        services.AddScoped<ISkillLearningLoop, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningLoop>();
+
+        // Singleton because the gate that keeps the six-hourly tick and the manual trigger from
+        // overlapping only means anything if there is exactly one of it in the process.
+        services.AddSingleton<ISkillLearningRunLauncher, Klacks.Api.Infrastructure.Services.Assistant.SkillLearningRunLauncher>();
 
         services.AddSingleton(new Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingOptions(
             configuration.GetValue<string>("Assistant:AnswerGroundingMode")

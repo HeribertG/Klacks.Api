@@ -50,6 +50,7 @@ public class GetLearnedPhrasesQueryHandler
                     .Select(phrase => new LearnedPhraseDto(
                         phrase.Id,
                         LearnedPhraseSources.Learned,
+                        LearnedPhraseStatuses.Active,
                         phrase.OwnerName,
                         phrase.Language,
                         phrase.Phrase,
@@ -59,6 +60,7 @@ public class GetLearnedPhrasesQueryHandler
                     .Concat(proposals.Select(proposal => new LearnedPhraseDto(
                         proposal.Id,
                         LearnedPhraseSources.Description,
+                        proposal.Status,
                         proposal.SkillName,
                         string.Empty,
                         proposal.ValueAfter,

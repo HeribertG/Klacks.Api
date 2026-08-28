@@ -4512,6 +4512,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("plan_id");
 
+                    b.Property<DateTime?>("SharpenedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sharpened_at_utc");
+
                     b.Property<Guid?>("TurnId")
                         .HasColumnType("uuid")
                         .HasColumnName("turn_id");
@@ -4543,6 +4547,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PlanId")
                         .HasDatabaseName("ix_skill_selection_trajectories_plan_id");
+
+                    b.HasIndex("SharpenedAtUtc")
+                        .HasDatabaseName("ix_skill_selection_trajectories_sharpened_at_utc");
 
                     b.HasIndex("WasCorrected")
                         .HasDatabaseName("ix_skill_selection_trajectories_was_corrected");

@@ -96,6 +96,75 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         return affected > 0;
     }
 
+    // The learning loop writes exactly one row and must not touch its neighbours: the replace paths below
+    // delete a whole (owner, language, kind, source) slice, which would drop every phrase earlier rounds
+    // learned for the same skill. SortOrder is appended rather than recomputed for the same reason.
+    public async Task<Guid?> TryAddLearnedAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        string kind,
+        string phrase,
+        CancellationToken cancellationToken = default)
+    {
+        var sortOrder = await _context.SkillPhrases
+            .Where(p => p.OwnerKind == ownerKind
+                && p.OwnerName == ownerName
+                && p.Language == language
+                && p.Kind == kind)
+            .CountAsync(cancellationToken);
+
+        var row = new SkillPhrase
+        {
+            Id = Guid.NewGuid(),
+            OwnerKind = ownerKind,
+            OwnerName = ownerName,
+            Language = language,
+            Kind = kind,
+            Phrase = phrase,
+            SortOrder = sortOrder,
+            Source = SkillPhraseSources.Learned,
+            Status = SkillPhraseStatuses.Active
+        };
+
+        await _context.SkillPhrases.AddAsync(row, cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return row.Id;
+        }
+        catch (DbUpdateException exception) when (IsUniqueViolation(exception))
+        {
+            _context.Entry(row).State = EntityState.Detached;
+            return null;
+        }
+        catch
+        {
+            _context.Entry(row).State = EntityState.Detached;
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyList<string>> GetPhraseTextsAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .AsNoTracking()
+            .Where(p => p.OwnerKind == ownerKind
+                && p.OwnerName == ownerName
+                && p.Language == language
+                && p.Status == SkillPhraseStatuses.Active)
+            .OrderBy(p => p.SortOrder)
+            .Select(p => p.Phrase)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
 

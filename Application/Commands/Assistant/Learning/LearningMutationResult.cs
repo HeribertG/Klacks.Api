@@ -14,5 +14,16 @@ public sealed record LearningMutationResult(bool Found, bool Conflict, string? E
 
     public static LearningMutationResult Duplicate() => new(true, true, "A phrase with this text already exists for this skill and language.");
 
+    /// <summary>
+    /// The row was withdrawn, but the description it had applied could not be put back because something
+    /// else has changed it since. Reported as a conflict rather than as plain success: the card would
+    /// otherwise claim the change was undone while a foreign description stays live.
+    /// </summary>
+    public static LearningMutationResult StaleDescription() => new(
+        true,
+        true,
+        "The proposal was rejected, but the description was changed by someone else in the meantime and "
+            + "was therefore left as it is.");
+
     public static LearningMutationResult Invalid(string error) => new(true, false, error);
 }

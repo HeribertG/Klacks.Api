@@ -43,6 +43,35 @@ public interface ISkillPhraseRepository
     Task<bool> SetStatusAsync(Guid id, string status, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Adds one learned phrase and reports whether it stuck. The learning loop writes a single row at a
+    /// time and must never go through the replace-a-whole-language path, which would delete the phrases
+    /// earlier rounds learned. A wording that already exists for the same owner, language and kind is
+    /// rejected by the partial unique index; that is an answer ("this wording is already indexed, or was
+    /// tried and rejected before"), not an exception.
+    /// </summary>
+    /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
+    /// <param name="ownerName">Business name of the skill or recipe</param>
+    /// <param name="language">ISO tag of the phrase, or one of the reserved tags in SkillPhraseLanguages</param>
+    Task<Guid?> TryAddLearnedAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        string kind,
+        string phrase,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Active phrase texts of one owner in one language, shown to the generator so it does not propose a
+    /// wording that is already indexed.
+    /// </summary>
+    Task<IReadOnlyList<string>> GetPhraseTextsAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        int limit,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Replaces the phrases of one owner for exactly one language. By default only rows of the given
     /// source are removed.
     /// </summary>

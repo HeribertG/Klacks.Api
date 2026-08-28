@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Weekly report of what the learning loop picked up: how many phrasings and capabilities it learned and
-/// how many wishes it still cannot serve. An administrator concern, not a scheduling gap, so it reaches
-/// admins only. Severity is medium on purpose - the digest must appear as an inbox line and a badge, and
-/// must never interrupt a conversation with a chat bubble.
+/// Weekly report of what the learning loop picked up: how many phrasings and capabilities it learned, how
+/// many wishes it still cannot serve, and how many description changes the regression gate withheld. An
+/// administrator concern, not a scheduling gap, so it reaches admins only. Severity is medium on purpose -
+/// the digest must appear as an inbox line and a badge, and must never interrupt a conversation with a
+/// chat bubble.
 /// </summary>
 /// <param name="WeekStartUtc">Monday of the reported week, the window the counters were taken from</param>
+/// <param name="Blocked">Description sharpenings withheld because they would have broken a golden case</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -18,9 +20,10 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
     DateOnly WeekStartUtc,
     int Phrases,
     int Capabilities,
-    int Unfulfillable) : IAgentTriggerEvent
+    int Unfulfillable,
+    int Blocked) : IAgentTriggerEvent
 {
-    public int Total => Phrases + Capabilities + Unfulfillable;
+    public int Total => Phrases + Capabilities + Unfulfillable + Blocked;
 
     public string Kind => AgentTriggerKinds.KlacksyLearnedDigest;
 
@@ -35,6 +38,7 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
         ["phrases"] = Phrases.ToString(CultureInfo.InvariantCulture),
         ["capabilities"] = Capabilities.ToString(CultureInfo.InvariantCulture),
         ["unfulfillable"] = Unfulfillable.ToString(CultureInfo.InvariantCulture),
+        ["blocked"] = Blocked.ToString(CultureInfo.InvariantCulture),
         ["total"] = Total.ToString(CultureInfo.InvariantCulture)
     };
 
@@ -53,6 +57,7 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
         ["phrases"] = Phrases,
         ["capabilities"] = Capabilities,
         ["unfulfillable"] = Unfulfillable,
+        ["blocked"] = Blocked,
         ["total"] = Total
     };
 

@@ -23,6 +23,18 @@ public static class CorrectionTypeLearningSignals
             [CorrectionTypes.Implicit] = SkillLearningSignals.Implicit
         };
 
+    /// <summary>
+    /// The signals a correction can actually produce, derived from the map rather than listed a second
+    /// time. The collector's correction entry point validates against this instead of against
+    /// SkillLearningSignals.All, which also contains refusal - a signal no correction can carry.
+    /// </summary>
+    public static readonly IReadOnlyList<string> CorrectionSignals =
+        ByCorrectionType.Values
+            .Where(signal => signal != null)
+            .Select(signal => signal!)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
     public static string? Resolve(string? correctionType)
     {
         if (string.IsNullOrWhiteSpace(correctionType))

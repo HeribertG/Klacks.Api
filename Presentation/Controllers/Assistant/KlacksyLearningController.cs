@@ -105,6 +105,29 @@ public class KlacksyLearningController : ControllerBase
         return Respond(result);
     }
 
+    /// <summary>
+    /// Hands a wish the loop gave up on back to the learning loop, with a fresh attempt budget. The way
+    /// out of unfulfillable the state machine always described, now reachable.
+    /// </summary>
+    [HttpPost("unfulfillable/{id:guid}/retry")]
+    public async Task<IActionResult> RetryUnfulfillable([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RetryUnfulfillableWishCommand(id), cancellationToken);
+        return Respond(result);
+    }
+
+    /// <summary>
+    /// Starts a learning run now instead of waiting for the scheduled one. Answers as soon as the run is
+    /// under way, because a run rebuilds the knowledge index several times; a run that was already going
+    /// is reported as not started rather than queued behind the first.
+    /// </summary>
+    [HttpPost("run")]
+    public async Task<ActionResult<SkillLearningRunResponse>> Run(CancellationToken cancellationToken)
+    {
+        var response = await _mediator.Send(new RunSkillLearningCommand(), cancellationToken);
+        return Ok(response);
+    }
+
     private static int Clamp(int? limit) => Math.Clamp(limit ?? DefaultLimit, 1, MaxLimit);
 
     private IActionResult Respond(LearningMutationResult result)

@@ -1,7 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Marks a pending proposed skill change as rejected without touching the live skill.
+/// Marks a proposed skill change as rejected without touching the live skill. Open and regression-blocked
+/// proposals both qualify: since the learning loop applies the open ones by itself, blocked is the state
+/// most rejections now arrive in, and refusing it would leave the only rejectable rows unrejectable.
+/// An already applied change is not rejected here - undoing it means restoring the previous description,
+/// which the learning card's delete does.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Assistant;
@@ -37,7 +41,8 @@ public class RejectProposedSkillChangeCommandHandler : IRequestHandler<RejectPro
             return new RejectProposedSkillChangeResult(false, "Proposal not found.");
         }
 
-        if (proposal.Status != ProposedChangeStatuses.Pending)
+        if (proposal.Status != ProposedChangeStatuses.Pending
+            && proposal.Status != ProposedChangeStatuses.BlockedRegression)
         {
             return new RejectProposedSkillChangeResult(false, $"Proposal is in status '{proposal.Status}', cannot reject.");
         }

@@ -18,7 +18,20 @@ public interface ISkillSelectionTrajectoryRepository
 
     Task<List<SkillSelectionTrajectory>> GetRecentAsync(Guid agentId, int limit, CancellationToken cancellationToken = default);
 
-    Task<List<SkillSelectionTrajectory>> GetCorrectedAsync(Guid agentId, int limit, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Wrong-skill trajectories the description optimizer has not consumed yet, newest first. Evidence a
+    /// proposal was already built from is excluded, so a sharpening cannot keep re-proposing itself from
+    /// the same handful of corrections on every run. Filtered to CorrectionTypes.WrongSkill in the query
+    /// itself, so an implicit correction can never occupy a slot in this window without ever being stamped.
+    /// </summary>
+    Task<List<SkillSelectionTrajectory>> GetUncorrectedWrongSkillAsync(Guid agentId, int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stamps the consumption watermark on the given trajectories. Written as one conditional statement so
+    /// two overlapping runs cannot both claim the same evidence.
+    /// </summary>
+    Task MarkSharpenedAsync(
+        IReadOnlyList<Guid> ids, DateTime sharpenedAtUtc, CancellationToken cancellationToken = default);
 
     Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default);
 

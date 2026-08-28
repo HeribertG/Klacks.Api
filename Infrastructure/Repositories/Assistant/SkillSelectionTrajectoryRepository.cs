@@ -4,6 +4,7 @@
 /// EF Core repository for SkillSelectionTrajectory used to capture per-turn skill selection telemetry.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -47,13 +48,31 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<SkillSelectionTrajectory>> GetCorrectedAsync(Guid agentId, int limit, CancellationToken cancellationToken = default)
+    public async Task<List<SkillSelectionTrajectory>> GetUncorrectedWrongSkillAsync(Guid agentId, int limit, CancellationToken cancellationToken = default)
     {
         return await _context.SkillSelectionTrajectories
-            .Where(t => t.AgentId == agentId && t.WasCorrected)
+            .Where(t => t.AgentId == agentId && t.WasCorrected && t.SharpenedAtUtc == null
+                && t.CorrectionType == CorrectionTypes.WrongSkill)
             .OrderByDescending(t => t.CreateTime)
             .Take(limit)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task MarkSharpenedAsync(
+        IReadOnlyList<Guid> ids, DateTime sharpenedAtUtc, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return;
+        }
+
+        await _context.SkillSelectionTrajectories
+            .Where(t => ids.Contains(t.Id) && t.SharpenedAtUtc == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(t => t.SharpenedAtUtc, sharpenedAtUtc)
+                    .SetProperty(t => t.UpdateTime, sharpenedAtUtc),
+                cancellationToken);
     }
 
     public async Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default)

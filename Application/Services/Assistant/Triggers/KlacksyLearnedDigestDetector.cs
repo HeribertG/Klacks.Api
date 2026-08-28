@@ -11,6 +11,7 @@
 /// own once the week is over, instead of keeping it open forever.
 /// </summary>
 /// <param name="clusterRepository">Counts which clusters entered a reportable status in the window</param>
+/// <param name="proposalRepository">Counts the description sharpenings the regression gate withheld</param>
 /// <param name="companyClock">Supplies the operator's local date, so the week boundary is theirs, not the server's</param>
 
 using Klacks.Api.Domain.Constants;
@@ -24,22 +25,29 @@ public sealed class KlacksyLearnedDigestDetector : IAgentTriggerDetector, IAgent
 {
     private const int DaysPerWeek = 7;
 
+    // Ready is deliberately absent. Before the learning loop existed it was the only status a wish could
+    // reach, so counting it was the difference between a digest and silence; now the loop drains it within
+    // hours, and reporting it would count wishes that are mid-flight as wishes nobody can serve.
     private static readonly IReadOnlyList<string> ReportedStatuses =
     [
         SkillLearningClusterStatuses.LearnedPhrase,
         SkillLearningClusterStatuses.LearnedCapability,
-        SkillLearningClusterStatuses.Ready,
         SkillLearningClusterStatuses.Unfulfillable
     ];
 
+    private static readonly IReadOnlyList<string> BlockedStatuses = [ProposedChangeStatuses.BlockedRegression];
+
     private readonly ISkillLearningClusterRepository _clusterRepository;
+    private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly ICompanyClock _companyClock;
 
     public KlacksyLearnedDigestDetector(
         ISkillLearningClusterRepository clusterRepository,
+        IProposedSkillChangeRepository proposalRepository,
         ICompanyClock companyClock)
     {
         _clusterRepository = clusterRepository;
+        _proposalRepository = proposalRepository;
         _companyClock = companyClock;
     }
 
@@ -68,23 +76,27 @@ public sealed class KlacksyLearnedDigestDetector : IAgentTriggerDetector, IAgent
         var currentWeekStart = StartOfIsoWeek(today);
         var reportedWeekStart = currentWeekStart.AddDays(-DaysPerWeek);
 
+        var fromUtc = reportedWeekStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var toUtc = currentWeekStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
         var counts = await _clusterRepository.CountByStatusInWindowAsync(
-            ReportedStatuses,
-            reportedWeekStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            currentWeekStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            cancellationToken);
+            ReportedStatuses, fromUtc, toUtc, cancellationToken);
+
+        var proposalCounts = await _proposalRepository.CountByStatusInWindowAsync(
+            BlockedStatuses, fromUtc, toUtc, cancellationToken);
 
         var phrases = Count(counts, SkillLearningClusterStatuses.LearnedPhrase);
         var capabilities = Count(counts, SkillLearningClusterStatuses.LearnedCapability);
-        var unfulfillable = Count(counts, SkillLearningClusterStatuses.Ready)
-            + Count(counts, SkillLearningClusterStatuses.Unfulfillable);
+        var unfulfillable = Count(counts, SkillLearningClusterStatuses.Unfulfillable);
+        var blocked = Count(proposalCounts, ProposedChangeStatuses.BlockedRegression);
 
-        if (phrases + capabilities + unfulfillable == 0)
+        if (phrases + capabilities + unfulfillable + blocked == 0)
         {
             return null;
         }
 
-        return new KlacksyLearnedDigestTriggerEvent(reportedWeekStart, phrases, capabilities, unfulfillable);
+        return new KlacksyLearnedDigestTriggerEvent(
+            reportedWeekStart, phrases, capabilities, unfulfillable, blocked);
     }
 
     private static int Count(IReadOnlyDictionary<string, int> counts, string status) =>

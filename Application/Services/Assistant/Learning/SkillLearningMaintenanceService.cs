@@ -2,8 +2,10 @@
 
 /// <summary>
 /// The housekeeping half of the learning loop: promotes clusters that reached the threshold and retires
-/// terminal ones that outlived the retention window. Contains no learning and calls no language model -
-/// generating artefacts is stage G2, so a run here is cheap enough to execute on every instance.
+/// the finished ones that outlived the retention window - retired, dismissed and unfulfillable alike,
+/// because all three are finished business for the admin card even though only the first two are terminal
+/// in the state machine. Contains no learning and calls no language model; the learning itself runs
+/// beside it in the same background service.
 /// The promotion sweep is a backstop, not the primary path: the collector already promotes a cluster the
 /// moment it crosses the threshold, and this catches the cases where two concurrent turns each computed
 /// a stale counter.
@@ -40,7 +42,7 @@ public class SkillLearningMaintenanceService : ISkillLearningMaintenanceService
         var promoted = await _clusterRepository.PromoteReadyAsync(
             options.MinOccurrences, options.MinDistinctUsers, cancellationToken);
 
-        var retired = await _clusterRepository.SoftDeleteTerminalOlderThanAsync(
+        var retired = await _clusterRepository.SoftDeleteRetentionEligibleOlderThanAsync(
             DateTime.UtcNow.AddDays(-options.RetentionDays), cancellationToken);
 
         if (promoted > 0 || retired > 0)

@@ -78,7 +78,7 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
 
     public async Task CollectCorrectionAsync(SkillLearningCorrection correction, CancellationToken cancellationToken = default)
     {
-        if (!SkillLearningSignals.All.Contains(correction.Signal, StringComparer.Ordinal))
+        if (!CorrectionTypeLearningSignals.CorrectionSignals.Contains(correction.Signal, StringComparer.Ordinal))
         {
             return;
         }
@@ -161,6 +161,15 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
 
         var cluster = await ResolveClusterAsync(agentId, clusterKey, excerpt, locale, now, cancellationToken);
         if (cluster == null || !SkillLearningStateMachine.IsCounting(cluster.Status))
+        {
+            return;
+        }
+
+        // One failed exchange is one case. The refusal path and the implicit-correction path see the same
+        // turn from two sides, and an explicit correction lands on top of both, so without this window a
+        // single unhappy moment would push a cluster a third of the way to the repetition threshold.
+        if (await _caseRepository.HasCaseSinceAsync(
+                cluster.Id, userId, now.AddMinutes(-SkillLearningDefaults.DedupWindowMinutes), cancellationToken))
         {
             return;
         }

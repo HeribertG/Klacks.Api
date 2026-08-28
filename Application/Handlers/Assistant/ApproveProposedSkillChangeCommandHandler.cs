@@ -1,9 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Applies an approved skill description change: writes the new value to the AgentSkill row, increments
-/// the version, marks the proposal as approved, invalidates the skill cache, reloads the SkillRegistry
-/// and triggers a KnowledgeIndex re-sync so the new description reaches the semantic search.
+/// Applies a skill description change an administrator approved by hand: writes the new value to the
+/// AgentSkill row, increments the version, marks the proposal as approved, invalidates the skill cache,
+/// reloads the SkillRegistry and triggers a KnowledgeIndex re-sync so the new description reaches the
+/// semantic search.
+/// Only a proposal the routing regression gate blocked can be approved here. A pending one belongs to the
+/// learning loop, which applies it automatically once the gate is green; letting a person approve it in
+/// parallel would make two writers for one transition, and the earlier of them would silently lose. This
+/// path is therefore an override of the gate, and its answer to a pending proposal is "not yet".
 /// </summary>
 
 using Klacks.Api.Application.Commands.Assistant;
@@ -46,9 +51,12 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
             return new ApproveProposedSkillChangeResult(false, "Proposal not found.", null);
         }
 
-        if (proposal.Status != ProposedChangeStatuses.Pending)
+        if (proposal.Status != ProposedChangeStatuses.BlockedRegression)
         {
-            return new ApproveProposedSkillChangeResult(false, $"Proposal is in status '{proposal.Status}', cannot approve.", null);
+            return new ApproveProposedSkillChangeResult(
+                false,
+                $"Proposal is in status '{proposal.Status}', only a regression-blocked proposal can be approved by hand.",
+                null);
         }
 
         if (proposal.Field != ProposedChangeFields.Description)
