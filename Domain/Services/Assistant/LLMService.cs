@@ -274,6 +274,7 @@ public class LLMService : ILLMService
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, recipePlan != null);
         Guid.TryParse(context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
+        var gateHoldEndedRecipe = false;
         string? askedSlot = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -542,6 +543,8 @@ public class LLMService : ILLMService
             {
                 _logger.LogInformation(
                     "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
+                gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
+                enginePlan?.DeactivateOnAutonomyGateHold();
                 recipePlan = null;
             }
 
@@ -571,6 +574,11 @@ public class LLMService : ILLMService
                 : accumulator.AccumulatedContent;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
             currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars);
+            if (gateHoldEndedRecipe)
+            {
+                currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
+                gateHoldEndedRecipe = false;
+            }
         }
 
         if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
@@ -773,6 +781,7 @@ public class LLMService : ILLMService
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
         Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
+        var gateHoldEndedRecipe = false;
         var forcedRetryUsed = false;
         string? askedSlot = null;
 
@@ -968,6 +977,8 @@ public class LLMService : ILLMService
             {
                 _logger.LogInformation(
                     "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
+                gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
+                enginePlan?.DeactivateOnAutonomyGateHold();
                 recipePlan = null;
             }
 
@@ -983,6 +994,11 @@ public class LLMService : ILLMService
                 : lastResponse.Content;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
             currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars);
+            if (gateHoldEndedRecipe)
+            {
+                currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
+                gateHoldEndedRecipe = false;
+            }
         }
 
         if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)

@@ -117,6 +117,18 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
 
     public bool IsActive => !_deactivated && _index < _steps.Count;
 
+    /// <summary>
+    /// Ends the flow when the autonomy gate holds a forced step for confirmation. Control passes to the
+    /// gate's own pending-confirmation store, and a recipe that stayed active would be resumed from the
+    /// step index of its LAST ask pause on the following turn — filling the user's "yes" into that ask
+    /// slot and re-forcing already-executed steps, with the repeated-write guard disabled for forced
+    /// recipes. Deactivating makes IsActive false so the existing end-of-turn cleanup clears the store.
+    /// </summary>
+    public void DeactivateOnAutonomyGateHold()
+    {
+        _deactivated = true;
+    }
+
     public RecipeStep? CurrentStep => IsActive ? _steps[_index] : null;
 
     public bool CurrentIsAsk => IsActive && string.Equals(_steps[_index].Kind, RecipeStepKinds.Ask, StringComparison.OrdinalIgnoreCase);
