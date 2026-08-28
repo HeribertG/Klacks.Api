@@ -38,50 +38,6 @@ public static class IdentityProvidersSeed
                 '{now:yyyy-MM-dd HH:mm:ss}',
                 '{now:yyyy-MM-dd HH:mm:ss}',
                 false
-            ),
-            -- Synology SSO (OIDC) - Update host/client_id/client_secret for your environment
-            (
-                '77f92a22-9817-4d54-9371-9e3807a4414c',
-                'Synology SSO (OIDC)',
-                3, -- OpenIdConnect
-                true,
-                10,
-                true,
-                false,
-                '192.168.1.163',
-                NULL,
-                true,
-                NULL, NULL, NULL, NULL,
-                'REPLACE_VIA_ENV',
-                'REPLACE_VIA_ENV',
-                'https://192.168.1.163/sso/webman/sso/SSOOauth.cgi',
-                'https://192.168.1.163/sso/webman/sso/SSOAccessToken.cgi',
-                'https://192.168.1.163/sso/webman/sso/SSOUserInfo.cgi',
-                'openid email groups',
-                '{now:yyyy-MM-dd HH:mm:ss}',
-                '{now:yyyy-MM-dd HH:mm:ss}',
-                false
-            ),
-            -- Synology OpenLDAP (AD-Test) - Docker container on Synology NAS
-            (
-                'a8d4e6f2-3b1c-4a5d-9e8f-1c2d3e4f5a6b',
-                'Synology OpenLDAP (AD-Test)',
-                1, -- ActiveDirectory
-                true,
-                20,
-                true,
-                true,
-                '192.168.1.163',
-                3890,
-                false,
-                'dc=klacks,dc=local',
-                'cn=admin,dc=klacks,dc=local',
-                'REPLACE_VIA_ENV',
-                '(objectClass=inetOrgPerson)',
-                NULL, NULL, NULL, NULL, NULL, NULL,
-                '{now:yyyy-MM-dd HH:mm:ss}',
-                '{now:yyyy-MM-dd HH:mm:ss}',
-                false
             )
             ON CONFLICT (id) DO NOTHING;
         ");
