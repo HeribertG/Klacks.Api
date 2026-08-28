@@ -4,7 +4,7 @@
 /// Loads conversation-signals.json from each installed language plugin directory and passes the
 /// affirmation, negation, correction, cancellation, gap-indicator and decline entries to the
 /// respective static detectors (AffirmationDetector, ImplicitCorrectionDetector,
-/// RecipeCancellationDetector, SkillGapDetector, DeclineDetector). Called once at application
+/// RecipeCancellationDetector, RefusalSignalDetector, DeclineDetector). Called once at application
 /// startup; plugin languages extend the core de/en/fr/it detection so confirmations, aborts and
 /// refusals are understood in every supported language.
 /// </summary>
@@ -78,7 +78,7 @@ public static class ConversationSignalsPluginLoader
             RecipeCancellationDetector.Configure(cancellations);
 
         if (gapIndicators.Count > 0)
-            SkillGapDetector.Configure(gapIndicators);
+            RefusalSignalDetector.Configure(gapIndicators);
     }
 
     private sealed class ConversationSignalsData

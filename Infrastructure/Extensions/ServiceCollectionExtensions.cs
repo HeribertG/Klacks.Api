@@ -300,7 +300,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateAvailabilityEvaluator, Klacks.Api.Application.Services.Update.UpdateAvailabilityEvaluator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
-        services.AddScoped<ISkillGapRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillGapRepository>();
+        services.AddScoped<ISkillLearningClusterRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningClusterRepository>();
+        services.AddScoped<ISkillLearningCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCaseRepository>();
         services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
@@ -757,6 +758,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UncutFullDayShiftDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EmptyContainerDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodSchedulingDueDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.KlacksyLearnedDigestDetector>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.INextPeriodAutoCommitService, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutoCommitService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentSkillExecutionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillExecutionRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientContractReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientContractReadRepository>();
@@ -976,7 +978,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.Meta.CreateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.UpdateAgentSkillSkill>();
         services.AddScoped<Application.Skills.Meta.DeleteAgentSkillSkill>();
-        services.AddScoped<Application.Skills.Meta.ReviewSkillSuggestionsSkill>();
 
         // Auto-register every [SkillImplementation] class that is not already registered above. The
         // skill registry (SkillRegistryInitializer) reflects over the SAME attribute to map skill-name
@@ -1132,10 +1133,12 @@ public static class ServiceCollectionExtensions
         if (bgOptions.MemoryCleanup)
             services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.MemoryCleanupBackgroundService>();
 
-        if (bgOptions.SkillGapSuggestion)
-            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
+        if (bgOptions.KlacksyLearning)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillLearningBackgroundService>();
 
-        services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
+        services.AddScoped<ISkillLearningCaseCollector, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningCaseCollector>();
+        services.AddScoped<ISkillLearningOptionsProvider, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningOptionsProvider>();
+        services.AddScoped<ISkillLearningMaintenanceService, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningMaintenanceService>();
 
         services.AddSingleton(new Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingOptions(
             configuration.GetValue<string>("Assistant:AnswerGroundingMode")

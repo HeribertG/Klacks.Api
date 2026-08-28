@@ -13,4 +13,11 @@ public static class ProactiveActionRoutes
     public const string ClientEdit = "/workplace/edit-address";
     public const string ClientAvailability = "/workplace/client-availability";
     public const string PeriodClosing = "/workplace/period-closing";
+    public const string Settings = "/workplace/settings";
+
+    /// <summary>
+    /// Value for ProactiveActionParamKeys.Target that opens the "Klacksy learns" card on the settings
+    /// page. Matches the targetId in navigation-targets.json and the frontend's section mapping.
+    /// </summary>
+    public const string SettingsTargetKlacksyLearning = "assistant-learning";
 }

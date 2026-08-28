@@ -1,24 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Marks a captured trajectory as user-corrected. Looks the trajectory up by user id + 16-char SHA-256
-/// prefix of the user message (privacy-preserving: the original message is not stored).
+/// Marks a captured trajectory as user-corrected. Looks the trajectory up by user id + the 16-char
+/// MessageNormalizer hash of the user message (privacy-preserving: the original message is not stored).
+/// Because that hash is normalised, a correction whose text differs from the captured turn only in
+/// casing or surrounding whitespace now finds its trajectory instead of silently reporting "not found".
+/// A correction naming the expected skill is also the only evidence the learning loop gets that is not a
+/// refusal, so it is forwarded to the case collector.
 /// </summary>
 
-using System.Security.Cryptography;
-using System.Text;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
 public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCommand, SubmitCorrectionResult>
 {
-    private const int HashPrefixLength = 16;
-
     private static readonly HashSet<string> AllowedCorrectionTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         CorrectionTypes.WrongSkill,
@@ -30,17 +31,20 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ILLMBackgroundTaskService _backgroundTasks;
     private readonly IAgentMemoryRepository _agentMemoryRepository;
+    private readonly ISkillLearningCaseCollector _caseCollector;
     private readonly ILogger<SubmitCorrectionCommandHandler> _logger;
 
     public SubmitCorrectionCommandHandler(
         ISkillSelectionTrajectoryRepository repository,
         ILLMBackgroundTaskService backgroundTasks,
         IAgentMemoryRepository agentMemoryRepository,
+        ISkillLearningCaseCollector caseCollector,
         ILogger<SubmitCorrectionCommandHandler> logger)
     {
         _repository = repository;
         _backgroundTasks = backgroundTasks;
         _agentMemoryRepository = agentMemoryRepository;
+        _caseCollector = caseCollector;
         _logger = logger;
     }
 
@@ -61,7 +65,7 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
             throw new ArgumentException($"Unknown correction type '{request.CorrectionType}'.", nameof(request));
         }
 
-        var hash = HashPrefix(request.UserMessage);
+        var hash = MessageNormalizer.Hash(request.UserMessage);
         var trajectory = await _repository.FindMostRecentByUserAndHashAsync(request.UserId, hash, cancellationToken);
 
         if (trajectory == null)
@@ -103,7 +107,35 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
                 Guid.TryParse(request.UserId, out var correctingUserId) ? correctingUserId : null));
         }
 
+        await CollectLearningCaseAsync(request, trajectory, cancellationToken);
+
         return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
+    }
+
+    // Only the correction types that say something about ROUTING become learning cases: a wrong
+    // parameter and a repeated request are about the turn, not about which capability was missing. The
+    // decision comes from the explicit map, not from a name match against the signal list - that list
+    // also holds refusal, which no correction type ever carries.
+    private async Task CollectLearningCaseAsync(
+        SubmitCorrectionCommand request, SkillSelectionTrajectory trajectory, CancellationToken cancellationToken)
+    {
+        var signal = CorrectionTypeLearningSignals.Resolve(trajectory.CorrectionType);
+        if (signal == null)
+        {
+            return;
+        }
+
+        await _caseCollector.CollectCorrectionAsync(
+            new SkillLearningCorrection(
+                trajectory.AgentId,
+                request.UserMessage,
+                signal,
+                request.UserId,
+                trajectory.Locale,
+                trajectory.LlmChosenSkill,
+                request.ExpectedSkill,
+                trajectory.Id),
+            cancellationToken);
     }
 
     // NoneNeeded says the turn was fine after all: a coverage lesson previously drawn for this
@@ -123,11 +155,5 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
 
         await _agentMemoryRepository.DeleteAsync(latest.Id, cancellationToken);
         _logger.LogInformation("Revoked uncovered-claim lesson {MemoryId} for '{ScopeKey}' after a NoneNeeded correction", latest.Id, scopeKey);
-    }
-
-    private static string HashPrefix(string message)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(message));
-        return Convert.ToHexString(bytes)[..HashPrefixLength];
     }
 }

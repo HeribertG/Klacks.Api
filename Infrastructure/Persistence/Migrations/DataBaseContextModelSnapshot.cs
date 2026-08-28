@@ -3744,16 +3744,20 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("sentiment_keyword_sets", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillGapRecord", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningCandidate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AgentId")
+                    b.Property<DateTime?>("ActivatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("activated_at_utc");
+
+                    b.Property<Guid>("ClusterId")
                         .HasColumnType("uuid")
-                        .HasColumnName("agent_id");
+                        .HasColumnName("cluster_id");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
@@ -3775,68 +3779,460 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
-                    b.Property<string>("DetectedIntent")
-                        .IsRequired()
+                    b.Property<string>("ErrorText")
                         .HasColumnType("text")
-                        .HasColumnName("detected_intent");
+                        .HasColumnName("error_text");
 
-                    b.PrimitiveCollection<float[]>("Embedding")
-                        .HasColumnType("real[]")
-                        .HasColumnName("embedding");
-
-                    b.Property<DateTime>("FirstDetectedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("first_detected_at");
+                    b.Property<string>("ExecutionResultJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("execution_result_json");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<DateTime>("LastDetectedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_detected_at");
-
-                    b.Property<string>("NormalizedMessageHash")
+                    b.Property<string>("Kind")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("normalized_message_hash");
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
 
-                    b.Property<int>("OccurrenceCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("occurrence_count");
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("payload_json");
+
+                    b.Property<string>("RoutingResultJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("routing_result_json");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
                         .HasColumnName("status");
-
-                    b.Property<string>("SuggestedDescription")
-                        .HasColumnType("text")
-                        .HasColumnName("suggested_description");
-
-                    b.Property<string>("SuggestedSkillName")
-                        .HasColumnType("text")
-                        .HasColumnName("suggested_skill_name");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
-                    b.Property<string>("UserMessage")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_message");
+                    b.Property<int>("VariantNo")
+                        .HasColumnType("integer")
+                        .HasColumnName("variant_no");
 
                     b.HasKey("Id")
-                        .HasName("pk_skill_gap_records");
+                        .HasName("pk_skill_learning_candidates");
 
-                    b.HasIndex("AgentId", "OccurrenceCount")
-                        .HasDatabaseName("ix_skill_gap_records_agent_id_occurrence_count");
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_skill_learning_candidates_status");
+
+                    b.HasIndex("ClusterId", "VariantNo")
+                        .HasDatabaseName("ix_skill_learning_candidates_cluster_id_variant_no");
+
+                    b.ToTable("skill_learning_candidates", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChosenSkill")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("chosen_skill");
+
+                    b.Property<Guid>("ClusterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cluster_id");
+
+                    b.Property<string>("ConversationId")
+                        .HasColumnType("text")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("ExpectedSkill")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("expected_skill");
+
+                    b.Property<string>("IntentExcerpt")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("intent_excerpt");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsGolden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_golden");
+
+                    b.Property<string>("Locale")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("locale");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at_utc");
+
+                    b.Property<string>("Signal")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("signal");
+
+                    b.Property<string>("ToolsetJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("toolset_json");
+
+                    b.Property<Guid?>("TrajectoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("trajectory_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_learning_cases");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_skill_learning_cases_user_id");
+
+                    b.HasIndex("ClusterId", "OccurredAtUtc")
+                        .HasDatabaseName("ix_skill_learning_cases_cluster_id_occurred_at_utc");
+
+                    b.ToTable("skill_learning_cases", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningCluster", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("agent_id");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempt_count");
+
+                    b.Property<string>("ClusterKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("cluster_key");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("DistinctUserCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("distinct_user_count");
+
+                    b.Property<DateTime>("FirstSeenAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_seen_at_utc");
+
+                    b.Property<string>("IntentExcerpt")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("intent_excerpt");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTime>("LastSeenAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_seen_at_utc");
+
+                    b.Property<DateTime?>("LearnedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("learned_at_utc");
+
+                    b.Property<DateTime?>("LearningClaimedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("learning_claimed_at_utc");
+
+                    b.Property<string>("LearningInstance")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("learning_instance");
+
+                    b.Property<string>("Locale")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("locale");
+
+                    b.Property<int>("OccurrenceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("occurrence_count");
+
+                    b.Property<string>("OutcomeRef")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("outcome_ref");
+
+                    b.Property<string>("OutcomeRefKind")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("outcome_ref_kind");
+
+                    b.Property<DateTime?>("RetiredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retired_at_utc");
+
+                    b.Property<string>("SignalKindsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("signal_kinds_json");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("StatusChangedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_changed_at_utc");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_learning_clusters");
+
+                    b.HasIndex("AgentId", "ClusterKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_skill_learning_clusters_agent_id_cluster_key")
+                        .HasFilter("\"is_deleted\" = false");
 
                     b.HasIndex("AgentId", "Status")
-                        .HasDatabaseName("ix_skill_gap_records_agent_id_status");
+                        .HasDatabaseName("ix_skill_learning_clusters_agent_id_status");
 
-                    b.ToTable("skill_gap_records", (string)null);
+                    b.HasIndex("Status", "LastSeenAtUtc")
+                        .HasDatabaseName("ix_skill_learning_clusters_status_last_seen_at_utc");
+
+                    b.HasIndex("Status", "StatusChangedAtUtc")
+                        .HasDatabaseName("ix_skill_learning_clusters_status_status_changed_at_utc");
+
+                    b.ToTable("skill_learning_clusters", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningFitness", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("candidate_id");
+
+                    b.Property<int>("Corrections")
+                        .HasColumnType("integer")
+                        .HasColumnName("corrections");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<int>("Failures")
+                        .HasColumnType("integer")
+                        .HasColumnName("failures");
+
+                    b.Property<int>("Helpful")
+                        .HasColumnType("integer")
+                        .HasColumnName("helpful");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("LastUsedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at_utc");
+
+                    b.Property<decimal>("Quote")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("numeric(5,4)")
+                        .HasColumnName("quote");
+
+                    b.Property<int>("Recurrences")
+                        .HasColumnType("integer")
+                        .HasColumnName("recurrences");
+
+                    b.Property<int>("Successes")
+                        .HasColumnType("integer")
+                        .HasColumnName("successes");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("Uses")
+                        .HasColumnType("integer")
+                        .HasColumnName("uses");
+
+                    b.Property<DateTime>("WindowStartUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("window_start_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_learning_fitness");
+
+                    b.HasIndex("CandidateId", "WindowStartUtc")
+                        .IsUnique()
+                        .HasDatabaseName("ix_skill_learning_fitness_candidate_id_window_start_utc")
+                        .HasFilter("\"is_deleted\" = false");
+
+                    b.ToTable("skill_learning_fitness", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningGoldenCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ClusterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cluster_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("ExpectedSourceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("expected_source_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Locale")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("locale");
+
+                    b.Property<string>("Query")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("query");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_learning_golden_cases");
+
+                    b.HasIndex("ClusterId")
+                        .HasDatabaseName("ix_skill_learning_golden_cases_cluster_id");
+
+                    b.HasIndex("ExpectedSourceId")
+                        .HasDatabaseName("ix_skill_learning_golden_cases_expected_source_id");
+
+                    b.ToTable("skill_learning_golden_cases", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillPhrase", b =>
@@ -12921,6 +13317,45 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_pending_user_notes_agents_agent_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningCandidate", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.SkillLearningCluster", null)
+                        .WithMany()
+                        .HasForeignKey("ClusterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_skill_learning_candidates_skill_learning_clusters_cluster_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningCase", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.SkillLearningCluster", null)
+                        .WithMany()
+                        .HasForeignKey("ClusterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_skill_learning_cases_skill_learning_clusters_cluster_id");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningFitness", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.SkillLearningCandidate", null)
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_skill_learning_fitness_skill_learning_candidates_candidate_");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillLearningGoldenCase", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.SkillLearningCluster", null)
+                        .WithMany()
+                        .HasForeignKey("ClusterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_skill_learning_golden_cases_skill_learning_clusters_cluster");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillRelation", b =>

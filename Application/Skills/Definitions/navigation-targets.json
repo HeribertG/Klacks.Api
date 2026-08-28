@@ -1283,9 +1283,9 @@
     "obsolete": false
   },
   {
-    "targetId": "assistant-skill-proposals",
+    "targetId": "assistant-learning",
     "route": "/workplace/settings",
-    "labelKey": "settings.assistantSkillProposals",
+    "labelKey": "settings.assistantLearning",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
     "lastScannedAt": "2026-07-23T21:26:23.055Z",

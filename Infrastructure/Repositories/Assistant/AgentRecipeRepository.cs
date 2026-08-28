@@ -30,6 +30,12 @@ public class AgentRecipeRepository : IAgentRecipeRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<AgentRecipe?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentRecipes
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+    }
+
     public async Task<List<AgentRecipe>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.AgentRecipes

@@ -19,4 +19,7 @@ public interface IProposedSkillChangeRepository
     Task<List<ProposedSkillChange>> GetPendingAsync(int limit, CancellationToken cancellationToken = default);
 
     Task<bool> HasOpenProposalForSkillAsync(Guid skillId, string field, CancellationToken cancellationToken = default);
+
+    Task<List<ProposedSkillChange>> GetByStatusesAsync(
+        IReadOnlyList<string> statuses, int limit, CancellationToken cancellationToken = default);
 }

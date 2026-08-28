@@ -31,6 +31,7 @@ public static class AgentTriggerKinds
     public const string DailyDigest = "daily_digest";
     public const string ScenarioPrepared = "scenario_prepared";
     public const string NextPeriodSchedulingDue = "next_period_scheduling_due";
+    public const string KlacksyLearnedDigest = "klacksy_learned_digest";
 
     /// <summary>
     /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
@@ -68,7 +69,8 @@ public static class AgentTriggerKinds
         EmptyContainer,
         DailyDigest,
         ScenarioPrepared,
-        NextPeriodSchedulingDue
+        NextPeriodSchedulingDue,
+        KlacksyLearnedDigest
     ];
 }
 

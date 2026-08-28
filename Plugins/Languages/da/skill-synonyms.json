@@ -2290,13 +2290,6 @@
     "tilbagefør en anvendt virksomhedsregel",
     "gendan den tidligere virksomhedsregel"
   ],
-  "review_skill_suggestions": [
-    "vis nye funktionsforslag",
-    "godkend eller afvis skill-forslag",
-    "se foreslåede skills",
-    "håndter skill anbefalinger",
-    "accepter eller afvis gap forslag"
-  ],
   "revoke_day_approval": [
     "tilbagekald godkendelsen af mandag",
     "annuller frigivelsen af dagen",

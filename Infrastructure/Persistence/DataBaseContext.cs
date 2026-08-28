@@ -272,8 +272,12 @@ public class DataBaseContext : IdentityDbContext
     // Skill and Recipe Phrase DbSet
     public DbSet<SkillPhrase> SkillPhrases { get; set; }
 
-    // Skill Gap Detection DbSet
-    public DbSet<SkillGapRecord> SkillGapRecords { get; set; }
+    // Klacksy Learning Loop DbSets
+    public DbSet<SkillLearningCluster> SkillLearningClusters { get; set; }
+    public DbSet<SkillLearningCase> SkillLearningCases { get; set; }
+    public DbSet<SkillLearningCandidate> SkillLearningCandidates { get; set; }
+    public DbSet<SkillLearningFitness> SkillLearningFitness { get; set; }
+    public DbSet<SkillLearningGoldenCase> SkillLearningGoldenCases { get; set; }
 
     // Answer Grounding Shadow Run DbSet
     public DbSet<Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingFinding> AnswerGroundingFindings { get; set; }

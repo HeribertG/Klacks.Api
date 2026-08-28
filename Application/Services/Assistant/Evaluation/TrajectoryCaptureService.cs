@@ -3,13 +3,15 @@
 /// <summary>
 /// Persists a SkillSelectionTrajectory record per chat turn, capturing the candidate skills surfaced by
 /// the knowledge index and the skill the LLM eventually chose. Privacy-preserving: stores only a short
-/// SHA-256 hash plus a 120-char intent excerpt, never the full message.
+/// SHA-256 hash plus a 120-char intent excerpt, never the full message. The hash comes from
+/// MessageNormalizer, the same source the learning clusters and the correction endpoint use - this class
+/// used to hash the raw message while the gap detector hashed a normalised one, so the two could never
+/// recognise the same utterance.
 /// </summary>
 /// <param name="repository">Trajectory repository</param>
+/// <param name="caseCollector">Learning collector, fed with the preceding turn once a negation corrects it</param>
 /// <param name="logger">Logger for telemetry warnings</param>
 
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -21,7 +23,6 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation;
 
 public class TrajectoryCaptureService : ITrajectoryCaptureService
 {
-    private const int HashPrefixLength = 16;
     private const int ExcerptMaxLength = 120;
     private const int CandidatesMax = 30;
 
@@ -31,13 +32,16 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private static readonly TimeSpan ImplicitCorrectionWindow = TimeSpan.FromMinutes(2);
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
+    private readonly ISkillLearningCaseCollector _caseCollector;
     private readonly ILogger<TrajectoryCaptureService> _logger;
 
     public TrajectoryCaptureService(
         ISkillSelectionTrajectoryRepository repository,
+        ISkillLearningCaseCollector caseCollector,
         ILogger<TrajectoryCaptureService> logger)
     {
         _repository = repository;
+        _caseCollector = caseCollector;
         _logger = logger;
     }
 
@@ -56,8 +60,8 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 AgentId = agentId,
                 UserId = context.UserId,
                 Locale = NormalizeLocale(context.Language),
-                UserMessageHash = HashPrefix(context.Message),
-                IntentExcerpt = ExtractExcerpt(context.Message),
+                UserMessageHash = MessageNormalizer.Hash(context.Message),
+                IntentExcerpt = MessageNormalizer.Excerpt(context.Message, ExcerptMaxLength),
                 KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions),
                 LlmChosenSkill = allFunctionCalls.FirstOrDefault()?.FunctionName,
                 WasExecuted = allFunctionCalls.Count > 0,
@@ -100,6 +104,19 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         previous.CorrectionType = CorrectionTypes.Implicit;
         previous.UpdateTime = DateTime.UtcNow;
         await _repository.UpdateAsync(previous);
+
+        // The WasCorrected guard above is what keeps this to one case per corrected turn. The cluster key
+        // is the stored hash of the preceding message, never a hash of its excerpt: for anything longer
+        // than the excerpt limit the two differ and would split one wish across two clusters.
+        await _caseCollector.CollectImplicitCorrectionAsync(new SkillLearningImplicitCorrection(
+            agentId,
+            previous.UserMessageHash,
+            previous.IntentExcerpt,
+            previous.UserId,
+            previous.Locale,
+            previous.LlmChosenSkill,
+            previous.KnowledgeIndexCandidatesJson,
+            previous.Id));
     }
 
     private static string NormalizeLocale(string? language)
@@ -107,25 +124,6 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         if (string.IsNullOrWhiteSpace(language)) return "??";
         var trimmed = language.Trim();
         return trimmed.Length <= 8 ? trimmed : trimmed[..8];
-    }
-
-    private static string HashPrefix(string? message)
-    {
-        if (string.IsNullOrWhiteSpace(message)) return new string('0', HashPrefixLength);
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(message));
-        return Convert.ToHexString(bytes)[..HashPrefixLength];
-    }
-
-    private static string ExtractExcerpt(string? message)
-    {
-        if (string.IsNullOrWhiteSpace(message)) return string.Empty;
-        var trimmed = message.Trim();
-        if (trimmed.Length <= ExcerptMaxLength) return trimmed;
-
-        var sentenceEnd = trimmed.IndexOfAny(['.', '!', '?', '\n']);
-        if (sentenceEnd > 0 && sentenceEnd <= ExcerptMaxLength) return trimmed[..sentenceEnd].Trim();
-
-        return trimmed[..ExcerptMaxLength].Trim();
     }
 
     private static string SerializeCandidates(List<LLMFunction>? functions)

@@ -2314,14 +2314,6 @@
     "deshacer una regla de empresa aplicada",
     "restaurar la regla de empresa anterior"
   ],
-  "review_skill_suggestions": [
-    "revisar sugerencias de habilidades",
-    "ver propuestas de nuevas funciones",
-    "listar sugerencias pendientes",
-    "aceptar o rechazar sugerencias",
-    "gestionar propuestas de habilidades",
-    "revisar huecos de funcionalidad"
-  ],
   "revoke_day_approval": [
     "revocar la aprobación del día lunes",
     "desaprobar el 15 de mayo",

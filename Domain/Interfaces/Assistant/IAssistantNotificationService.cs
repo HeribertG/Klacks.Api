@@ -8,8 +8,6 @@ public interface IAssistantNotificationService
 
     Task SendProactiveInboxChangedAsync(string userId, int unreadCount);
 
-    Task SendOnboardingPromptAsync(string userId, string message);
-
     Task BroadcastPluginEventAsync(string eventType, object payload);
 
     Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null);

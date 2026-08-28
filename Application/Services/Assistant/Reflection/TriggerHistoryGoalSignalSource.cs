@@ -37,7 +37,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
         AgentTriggerKinds.CuriosityQuestion,
         AgentTriggerKinds.MuteSuggestion,
         AgentTriggerKinds.DailyDigest,
-        AgentTriggerKinds.ScenarioPrepared
+        AgentTriggerKinds.ScenarioPrepared,
+        AgentTriggerKinds.KlacksyLearnedDigest
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;

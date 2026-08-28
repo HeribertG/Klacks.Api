@@ -39,6 +39,17 @@ public class ProposedSkillChangeRepository : IProposedSkillChangeRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<List<ProposedSkillChange>> GetByStatusesAsync(
+        IReadOnlyList<string> statuses, int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.ProposedSkillChanges
+            .AsNoTracking()
+            .Where(p => statuses.Contains(p.Status))
+            .OrderByDescending(p => p.CreateTime)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<ProposedSkillChange>> GetPendingAsync(int limit, CancellationToken cancellationToken = default)
     {
         return await _context.ProposedSkillChanges

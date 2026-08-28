@@ -11,7 +11,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 /// <summary>
 /// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction,
-/// skill gap detection, trajectory capture and — only on a failed skill call — reflection), plus
+/// learning case collection, trajectory capture and — only on a failed skill call — reflection), plus
 /// standalone triggers for callers outside the post-turn hook: task-boundary compaction (e.g. AgentPlan
 /// completion) and reflection (e.g. a user correction arriving later).
 /// </summary>
@@ -70,13 +70,21 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                 try
                 {
                     using var scope = _scopeFactory.CreateScope();
-                    var skillGapDetector = scope.ServiceProvider.GetRequiredService<ISkillGapDetector>();
-                    await skillGapDetector.DetectAndSuggestAsync(
-                        agent.Id, context.Message, responseContent, allFunctionCalls.Count > 0);
+                    var caseCollector = scope.ServiceProvider.GetRequiredService<ISkillLearningCaseCollector>();
+                    await caseCollector.CollectFromTurnAsync(new SkillLearningTurn(
+                        agent.Id,
+                        context.Message,
+                        responseContent,
+                        allFunctionCalls.Count > 0,
+                        context.UserId,
+                        context.ConversationId,
+                        context.Language,
+                        allFunctionCalls.FirstOrDefault()?.FunctionName,
+                        context.AvailableFunctions.Select(function => function.Name).ToList()));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Fire-and-forget skill gap detection failed for agent {AgentId}", agent.Id);
+                    _logger.LogWarning(ex, "Fire-and-forget learning case collection failed for agent {AgentId}", agent.Id);
                 }
             });
 

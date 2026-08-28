@@ -15,6 +15,34 @@ public interface ISkillPhraseRepository
     Task<IReadOnlyList<SkillPhrase>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Active phrases of one origin, ordered newest first. The learning card reads Learned with it.
+    /// </summary>
+    /// <param name="source">Origin to filter on, see SkillPhraseSources</param>
+    Task<IReadOnlyList<SkillPhrase>> GetActiveBySourceAsync(string source, int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// A single learned phrase, or null. Scoped to source Learned because its only caller uses it to tell
+    /// the learning card's two id spaces apart; a seed or admin id must fall through to the other store.
+    /// </summary>
+    Task<SkillPhrase?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Rewrites the text of a single phrase and reports whether it stuck. Used by the admin card, which
+    /// edits one row at a time and must not go through the replace-a-whole-language path the seed loaders
+    /// use. Returns false when the new text already exists for the same owner, language and kind - the
+    /// partial unique index rejects it, and a duplicate is a conflict to show, not an exception to throw.
+    /// Only rows of source Learned are reachable; anything else reports not found.
+    /// </summary>
+    Task<bool> TryUpdatePhraseTextAsync(Guid id, string phrase, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sets the review status of a single phrase. Rejected is how a phrase is withdrawn: the index
+    /// synchroniser only reads Active rows, and the rejected row stays as a record that this phrase was
+    /// tried and discarded. Only rows of source Learned are reachable; anything else reports not found.
+    /// </summary>
+    Task<bool> SetStatusAsync(Guid id, string status, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Replaces the phrases of one owner for exactly one language. By default only rows of the given
     /// source are removed.
     /// </summary>
