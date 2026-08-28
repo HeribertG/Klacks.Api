@@ -296,9 +296,6 @@ builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();
 builder.Services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService, EmailNotificationService>();
-builder.Services.AddSingleton<HeartbeatBackgroundService>();
-if (bgOptions.Heartbeat)
-    builder.Services.AddHostedService(sp => sp.GetRequiredService<HeartbeatBackgroundService>());
 builder.Services.AddSingleton<LLMModelSyncBackgroundService>();
 if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());

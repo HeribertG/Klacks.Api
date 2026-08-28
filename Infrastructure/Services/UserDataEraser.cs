@@ -59,8 +59,6 @@ public sealed class UserDataEraser : IUserDataEraser
             .Where(p => p.UserId == uid).ExecuteDeleteAsync(cancellationToken);
         removed += await _context.AgentSkillExecutions.IgnoreQueryFilters()
             .Where(e => e.UserId == uid).ExecuteDeleteAsync(cancellationToken);
-        removed += await _context.HeartbeatConfigs.IgnoreQueryFilters()
-            .Where(h => h.UserId == uid).ExecuteDeleteAsync(cancellationToken);
         removed += await _context.SkillSelectionTrajectories.IgnoreQueryFilters()
             .Where(t => t.UserId == uid).ExecuteDeleteAsync(cancellationToken);
         removed += await _context.ClientSortPreference.IgnoreQueryFilters()

@@ -22,20 +22,6 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AgentTriggerPreferencesController : ControllerBase
 {
-    private static readonly string[] KnownKinds =
-    [
-        AgentTriggerKinds.UnstaffedShift,
-        AgentTriggerKinds.LockConflict,
-        AgentTriggerKinds.TargetHoursDrift,
-        AgentTriggerKinds.ScenarioPending,
-        AgentTriggerKinds.PeriodCloseDue,
-        AgentTriggerKinds.ContractExpiringSoon,
-        AgentTriggerKinds.AvailabilityGap,
-        AgentTriggerKinds.PeriodOverdue,
-        AgentTriggerKinds.ClientMissingCoreData,
-        AgentTriggerKinds.MuteSuggestion
-    ];
-
     private readonly IAgentTriggerPreferenceService _preferenceService;
 
     public AgentTriggerPreferencesController(IAgentTriggerPreferenceService preferenceService)
@@ -48,7 +34,7 @@ public class AgentTriggerPreferencesController : ControllerBase
     {
         var userId = GetCurrentUserId();
         var rows = new List<TriggerPreferenceDto>();
-        foreach (var kind in KnownKinds)
+        foreach (var kind in AgentTriggerKinds.All)
         {
             var pref = await _preferenceService.GetPreferenceAsync(userId, kind);
             rows.Add(new TriggerPreferenceDto
@@ -65,7 +51,7 @@ public class AgentTriggerPreferencesController : ControllerBase
     [HttpPut("{triggerKind}")]
     public async Task<IActionResult> UpdatePreference(string triggerKind, [FromBody] UpdateTriggerPreferenceRequest request)
     {
-        if (!KnownKinds.Contains(triggerKind, StringComparer.Ordinal))
+        if (!AgentTriggerKinds.All.Contains(triggerKind, StringComparer.Ordinal))
         {
             return BadRequest($"Unknown trigger kind: {triggerKind}");
         }

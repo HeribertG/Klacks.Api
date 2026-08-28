@@ -264,12 +264,6 @@
     "seal perioden",
     "lønnsavslutning for perioden"
   ],
-  "configure_heartbeat": [
-    "hjerteslag",
-    "tilkoblingssjekk",
-    "helsesjekk",
-    "overvåking"
-  ],
   "confirm_pending_action": [
     "bekreft handlingen",
     "ja, gjør det",

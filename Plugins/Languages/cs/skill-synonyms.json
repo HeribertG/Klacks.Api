@@ -277,12 +277,6 @@
     "zamkni období",
     "zavři výplatní období"
   ],
-  "configure_heartbeat": [
-    "heartbeat",
-    "kontrola připojení",
-    "monitorování",
-    "kontrola stavu"
-  ],
   "confirm_pending_action": [
     "potvrdit akci",
     "ano, proved to",

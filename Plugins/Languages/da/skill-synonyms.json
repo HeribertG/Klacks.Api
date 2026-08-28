@@ -269,13 +269,6 @@
     "lås alle vagter i maj",
     "finalisér perioden fra 1. maj til 31. maj"
   ],
-  "configure_heartbeat": [
-    "heartbeat",
-    "hjerteslag",
-    "forbindelsescheck",
-    "sundhedscheck",
-    "overvågning"
-  ],
   "confirm_pending_action": [
     "bekræft handling",
     "ja, gør det",

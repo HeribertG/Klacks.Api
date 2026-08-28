@@ -269,12 +269,6 @@
     "finaliseer van 1 tot 30 juni",
     "verzegel de periode"
   ],
-  "configure_heartbeat": [
-    "heartbeat",
-    "verbindingscontrole",
-    "health check",
-    "beschikbaarheidscheck"
-  ],
   "confirm_pending_action": [
     "bevestig de geplande actie",
     "voer de actie uit, ik bevestig",

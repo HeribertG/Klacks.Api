@@ -267,13 +267,6 @@
     "blochează perioada de plată",
     "închide mai 2026"
   ],
-  "configure_heartbeat": [
-    "semnal puls",
-    "heartbeat",
-    "verificare conexiune",
-    "monitorizare",
-    "verificare stare"
-  ],
   "confirm_pending_action": [
     "confirm acțiunea",
     "da, execută comanda",

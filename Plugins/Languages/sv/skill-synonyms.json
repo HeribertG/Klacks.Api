@@ -265,13 +265,6 @@
     "försegla perioden",
     "lås perioden"
   ],
-  "configure_heartbeat": [
-    "heartbeat",
-    "hjärtslag",
-    "anslutningskontroll",
-    "hälsokontroll",
-    "övervakning"
-  ],
   "confirm_pending_action": [
     "bekräfta åtgärden",
     "ja, gör det",
