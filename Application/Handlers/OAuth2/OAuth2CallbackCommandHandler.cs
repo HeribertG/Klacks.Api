@@ -98,10 +98,10 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
 
         _logger.LogInformation("[OAUTH2] User authenticated: {Email}", userInfo.Email.MaskEmail());
 
-        var user = await GetOrCreateOAuth2UserAsync(userInfo, provider);
+        var user = await FindLocalUserAsync(userInfo);
         if (user == null)
         {
-            throw new UnauthorizedException("Failed to create or find user");
+            throw new UnauthorizedException("No local account is mapped to this identity");
         }
 
         var result = await _authService.GenerateAuthenticationAsync(user);
@@ -135,7 +135,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             FamilyName = "TestUser"
         };
 
-        var user = await GetOrCreateOAuth2UserAsync(testUserInfo, provider);
+        var user = await GetOrCreateE2ETestUserAsync(testUserInfo, provider);
         if (user == null)
         {
             throw new UnauthorizedException("Failed to create E2E test user");
@@ -159,11 +159,36 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         };
     }
 
-    private async Task<AppUser?> GetOrCreateOAuth2UserAsync(OAuth2UserInfo userInfo, IdentityProvider provider)
+    // Fail-closed: a successful external OIDC sign-in maps only onto a local account that already
+    // exists. Just-in-time provisioning is deliberately disabled so an unknown external principal
+    // can never mint a local login. The only creation path is the dev-only E2E helper below.
+    private async Task<AppUser?> FindLocalUserAsync(OAuth2UserInfo userInfo)
     {
         if (string.IsNullOrEmpty(userInfo.Email))
         {
             _logger.LogError("[OAUTH2] User info does not contain email");
+            return null;
+        }
+
+        var user = await _userManager.FindByEmailAsync(userInfo.Email);
+        if (user == null)
+        {
+            _logger.LogWarning(
+                "[OAUTH2] External identity authenticated but no local account is mapped to {Email}; just-in-time provisioning is disabled, the account must be provisioned in advance",
+                userInfo.Email.MaskEmail());
+        }
+
+        return user;
+    }
+
+    // Reachable only from HandleE2ETestCallback, which itself runs only when the request carries the
+    // hardcoded E2E test code AND the environment is Development. This is the sole account-creation
+    // path and must never be called from the real OAuth2 callback.
+    private async Task<AppUser?> GetOrCreateE2ETestUserAsync(OAuth2UserInfo userInfo, IdentityProvider provider)
+    {
+        if (string.IsNullOrEmpty(userInfo.Email))
+        {
+            _logger.LogError("[OAUTH2] E2E test user info does not contain email");
             return null;
         }
 
@@ -189,11 +214,11 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         var createResult = await _userManager.CreateAsync(newUser);
         if (createResult.Succeeded)
         {
-            _logger.LogInformation("[OAUTH2] Created new user: {Email} via provider {Provider}", userInfo.Email.MaskEmail(), provider.Name);
+            _logger.LogInformation("[OAUTH2] Created E2E test user: {Email} via provider {Provider}", userInfo.Email.MaskEmail(), provider.Name);
             return newUser;
         }
 
-        _logger.LogError("[OAUTH2] Failed to create user: {Errors}", string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        _logger.LogError("[OAUTH2] Failed to create E2E test user: {Errors}", string.Join(", ", createResult.Errors.Select(e => e.Description)));
         return null;
     }
 }

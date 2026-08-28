@@ -14,11 +14,12 @@ namespace Klacks.Api.Application.Services.Authentication;
 
 public class AuthenticationService : IAuthenticationService
 {
+    private const string LdapEmailDomainSuffix = "@ldap.local";
+
     private readonly UserManager<AppUser> _userManager;
     private readonly JwtValidator _jwtValidator;
     private readonly IIdentityProviderRepository _identityProviderRepository;
     private readonly ILdapService _ldapService;
-    private readonly IUsernameGeneratorService _usernameGenerator;
     private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(
@@ -26,14 +27,12 @@ public class AuthenticationService : IAuthenticationService
         JwtValidator jwtValidator,
         IIdentityProviderRepository identityProviderRepository,
         ILdapService ldapService,
-        IUsernameGeneratorService usernameGenerator,
         ILogger<AuthenticationService> logger)
     {
         _userManager = userManager;
         _jwtValidator = jwtValidator;
         _identityProviderRepository = identityProviderRepository;
         _ldapService = ldapService;
-        _usernameGenerator = usernameGenerator;
         _logger = logger;
     }
 
@@ -113,7 +112,7 @@ public class AuthenticationService : IAuthenticationService
                 {
                     _logger.LogInformation("LDAP authentication successful via provider {Provider}", provider.Name);
 
-                    var user = await GetOrCreateLdapUserAsync(username, provider);
+                    var user = await FindLocalUserForLdapAsync(username, provider);
                     if (user != null)
                     {
                         // Repeated for the LDAP path: the account this maps onto can be a different
@@ -138,9 +137,13 @@ public class AuthenticationService : IAuthenticationService
         return (false, null);
     }
 
-    private async Task<AppUser?> GetOrCreateLdapUserAsync(string ldapUsername, IdentityProvider provider)
+    // Fail-closed: a successful external LDAP bind maps only onto a local account that already
+    // exists. Just-in-time provisioning is deliberately disabled so an unknown directory principal
+    // can never mint a local login. Do not re-add CreateAsync here without an explicit,
+    // provider-scoped allow decision.
+    private async Task<AppUser?> FindLocalUserForLdapAsync(string ldapUsername, IdentityProvider provider)
     {
-        var email = ldapUsername.Contains('@') ? ldapUsername : $"{ldapUsername}@ldap.local";
+        var email = ldapUsername.Contains('@') ? ldapUsername : $"{ldapUsername}{LdapEmailDomainSuffix}";
 
         var user = await _userManager.FindByEmailAsync(email);
         if (user != null)
@@ -148,27 +151,9 @@ public class AuthenticationService : IAuthenticationService
             return user;
         }
 
-        var firstName = provider.Name ?? string.Empty;
-        var lastName = ldapUsername;
-        var generatedUsername = await _usernameGenerator.GenerateUniqueUsernameAsync(firstName, lastName);
-
-        var newUser = new AppUser
-        {
-            UserName = generatedUsername,
-            Email = email,
-            EmailConfirmed = true,
-            FirstName = firstName,
-            LastName = lastName
-        };
-
-        var result = await _userManager.CreateAsync(newUser);
-        if (result.Succeeded)
-        {
-            _logger.LogInformation("Created new LDAP user {UserId} for provider {Provider}", newUser.Id, provider.Name);
-            return newUser;
-        }
-
-        _logger.LogError("Failed to create LDAP user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+        _logger.LogWarning(
+            "LDAP bind succeeded via provider {Provider} but no local account is mapped to this identity; just-in-time provisioning is disabled, the account must be provisioned in advance",
+            provider.Name);
         return null;
     }
 
