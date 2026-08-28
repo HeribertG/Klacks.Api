@@ -1239,50 +1239,6 @@
     "obsolete": false
   },
   {
-    "targetId": "assistant-personality",
-    "route": "/workplace/settings",
-    "labelKey": "settings.assistantPersonality",
-    "category": "settings.ai",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-07-23T21:26:23.055Z",
-    "synonyms": {
-      "de": [
-        "klacksy persönlichkeit",
-        "klacksy persoenlichkeit",
-        "klacksy charakter",
-        "assistant-charakter",
-        "ki-persönlichkeit",
-        "ki-persoenlichkeit",
-        "klacksy soul",
-        "klacksy verhalten",
-        "klacksy tonfall",
-        "öffne klacksy persönlichkeit",
-        "oeffne klacksy persoenlichkeit"
-      ],
-      "en": [
-        "klacksy personality",
-        "assistant personality",
-        "ai personality",
-        "klacksy character",
-        "klacksy soul",
-        "klacksy behavior",
-        "open klacksy personality"
-      ],
-      "fr": [
-        "personnalité de klacksy",
-        "personnalité de l'assistant",
-        "caractère klacksy"
-      ],
-      "it": [
-        "personalità di klacksy",
-        "personalità assistente",
-        "carattere klacksy"
-      ]
-    },
-    "synonymStatus": "reviewed",
-    "obsolete": false
-  },
-  {
     "targetId": "assistant-learning",
     "route": "/workplace/settings",
     "labelKey": "settings.assistantLearning",
@@ -1321,6 +1277,50 @@
         "proposte di skill",
         "suggerimenti skill",
         "revisione skill"
+      ]
+    },
+    "synonymStatus": "reviewed",
+    "obsolete": false
+  },
+  {
+    "targetId": "assistant-personality",
+    "route": "/workplace/settings",
+    "labelKey": "settings.assistantPersonality",
+    "category": "settings.ai",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-07-23T21:26:23.055Z",
+    "synonyms": {
+      "de": [
+        "klacksy persönlichkeit",
+        "klacksy persoenlichkeit",
+        "klacksy charakter",
+        "assistant-charakter",
+        "ki-persönlichkeit",
+        "ki-persoenlichkeit",
+        "klacksy soul",
+        "klacksy verhalten",
+        "klacksy tonfall",
+        "öffne klacksy persönlichkeit",
+        "oeffne klacksy persoenlichkeit"
+      ],
+      "en": [
+        "klacksy personality",
+        "assistant personality",
+        "ai personality",
+        "klacksy character",
+        "klacksy soul",
+        "klacksy behavior",
+        "open klacksy personality"
+      ],
+      "fr": [
+        "personnalité de klacksy",
+        "personnalité de l'assistant",
+        "caractère klacksy"
+      ],
+      "it": [
+        "personalità di klacksy",
+        "personalità assistente",
+        "carattere klacksy"
       ]
     },
     "synonymStatus": "reviewed",
