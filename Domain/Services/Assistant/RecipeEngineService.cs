@@ -149,7 +149,7 @@ public class RecipeEngineService
         // otherwise rank into the grey zone of a mutation recipe and hijack the turn into a
         // confirmation gate. A mutation verb after the negation ("Nein, erstelle stattdessen ...")
         // re-enables the fallback because the negation then corrects course instead of declining.
-        var triggerMatch = MatchByTrigger(recipes, message, language);
+        var triggerMatch = MatchByTrigger(recipes, message, language, _logger);
         var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
                                && !MutationIntentDetector.IsMutationIntent(message);
         var runSemanticFallback = triggerMatch == null
@@ -168,13 +168,13 @@ public class RecipeEngineService
     }
 
     private static (AgentRecipe Recipe, RecipeTrigger Trigger, IReadOnlyCollection<string>? Synonyms)? MatchByTrigger(
-        List<AgentRecipe> recipes, string message, string? language)
+        List<AgentRecipe> recipes, string message, string? language, ILogger logger)
     {
         foreach (var recipe in recipes)
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
             var synonyms = SynonymsFor(recipe, language);
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message))
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, logger))
             {
                 return (recipe, trigger, synonyms);
             }
@@ -317,7 +317,7 @@ public class RecipeEngineService
                 continue;
             }
 
-            if (IsVetoedByNoneOfGuard(resolved, message))
+            if (IsVetoedByNoneOfGuard(resolved, message, _logger))
             {
                 _logger.LogInformation(
                     "Recipe '{Recipe}' semantic candidate (score={Score:F3}) vetoed by its noneOf guard.",
@@ -352,7 +352,7 @@ public class RecipeEngineService
             }
 
             var alternativeRecipe = FindRecipeByName(recipes, candidate.Entry.SourceId);
-            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message))
+            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger))
             {
                 continue;
             }
@@ -444,8 +444,8 @@ public class RecipeEngineService
     private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)
         => recipes.FirstOrDefault(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
 
-    private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message)
-        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message);
+    private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger)
+        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger);
 
     private static IReadOnlyCollection<string>? SynonymsFor(AgentRecipe recipe, string? language)
     {
