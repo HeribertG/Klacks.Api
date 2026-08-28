@@ -9,6 +9,8 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 public class ScheduleReportController : BaseController
 {
+    private const int MaxRequestSizeBytes = 25 * 1024 * 1024;
+
     private readonly IMediator _mediator;
     private readonly ILogger<ScheduleReportController> _logger;
 
@@ -19,6 +21,7 @@ public class ScheduleReportController : BaseController
     }
 
     [HttpPost("send")]
+    [RequestSizeLimit(MaxRequestSizeBytes)]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<SendScheduleReportResponse>> Send(
         [FromForm] Guid clientId,
