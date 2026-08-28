@@ -19,4 +19,12 @@ public static class UnattendedSkillPolicyDefaults
     public const AutonomyLevel MinimumLevelForScenarioGated = AutonomyLevel.Assisted;
 
     public const AutonomyLevel MinimumLevelForIrreversibleOptIn = AutonomyLevel.Autonomous;
+
+    /// <summary>
+    /// Threshold for an irreversible skill on the email-automation path, which has no per-task opt-in.
+    /// Set to the highest level because every irreversible action the email intent mapping can trigger
+    /// already demands FullyAutonomous there — the policy re-states that requirement instead of
+    /// trusting the mapping to keep it.
+    /// </summary>
+    public const AutonomyLevel MinimumLevelForIrreversibleEmailAutomation = AutonomyLevel.FullyAutonomous;
 }

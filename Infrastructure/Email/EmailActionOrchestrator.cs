@@ -16,8 +16,12 @@
 /// NO scheduled shifts yet — they only execute automatically in periods that are not yet planned.
 /// Conversely, work cancellation (sickness/accident) is expected to hit an already-planned period
 /// and is only blocked when the period is already sealed. Executed skills run under the first
-/// admin's identity with the audit name "Klacksy email-analysis" and bypass the regular gate —
-/// this mapping IS the gate for this flow.
+/// admin's identity with the audit name "Klacksy email-analysis" and bypass the interactive autonomy
+/// gate, because no one is present to confirm. This mapping is therefore the FIRST gate for the flow,
+/// not the only one: every execution additionally passes IUnattendedSkillPolicy, the same fail-closed
+/// check the scheduled-task and proactive paths use. The mapping decides WHETHER an intent may act at
+/// all; the policy re-checks what the skill has since become — a skill reclassified as sensitive, or
+/// removed outright, is refused here even though this mapping would still allow it.
 /// </summary>
 
 using Klacks.Api.Application.Configuration;
@@ -64,6 +68,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IEmailCapacityAdvisor _capacityAdvisor;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
+    private readonly IUnattendedSkillPolicy _unattendedSkillPolicy;
     private readonly EmailAutomationOptions _automationOptions;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
@@ -79,6 +84,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         IClientContractDataProvider contractDataProvider,
         IEmailCapacityAdvisor capacityAdvisor,
         IInternalTokenIssuer internalTokenIssuer,
+        IUnattendedSkillPolicy unattendedSkillPolicy,
         IOptions<EmailAutomationOptions> automationOptions,
         ILogger<EmailActionOrchestrator> logger)
     {
@@ -93,6 +99,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _contractDataProvider = contractDataProvider;
         _capacityAdvisor = capacityAdvisor;
         _internalTokenIssuer = internalTokenIssuer;
+        _unattendedSkillPolicy = unattendedSkillPolicy;
         _automationOptions = automationOptions.Value;
         _logger = logger;
     }
@@ -186,7 +193,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                 "No unambiguous sickness absence type was found, so no cover scenario was created automatically. " + suggestion);
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "cover_absence",
+        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "cover_absence", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -248,7 +255,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                 $"No unambiguous {absenceKind} absence type was found, so the wish was not recorded automatically. " + suggestion);
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_break_placeholder",
+        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_break_placeholder", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -320,7 +327,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return contractOutcome;
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range",
+        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -414,7 +421,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             parameters["endHour"] = analysis.EndHour.Value;
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "set_client_availability",
+        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "set_client_availability", level,
             parameters, cancellationToken);
 
         return result.Success
@@ -500,7 +507,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         {
             foreach (var (rangeFrom, rangeUntil) in ranges)
             {
-                var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range",
+                var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range", level,
                     new Dictionary<string, object>
                     {
                         ["clientId"] = clientId,
@@ -626,7 +633,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<SkillResult> ExecuteSkillAsync(
-        Guid executingAdminId, ReceivedEmail email, string skillName,
+        Guid executingAdminId, ReceivedEmail email, string skillName, AutonomyLevel level,
         Dictionary<string, object> parameters, CancellationToken cancellationToken)
     {
         // The automation acts under a configured service account when one is set, otherwise under the
@@ -641,6 +648,24 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                 "E-mail automation skipped skill {SkillName} for email {EmailId}: {Reason}",
                 skillName, email.Id, token.Reason);
             return SkillResult.Error(token.Reason!);
+        }
+
+        // Deliberate: the permissions come from the acting account's live token, the autonomy level is
+        // the MINIMUM across all admins (ResolveEffectiveLevelAsync). Two different principals in one
+        // request — the strictest level any admin has chosen governs, while the permission check stays
+        // bound to the identity that actually performs the write.
+        var decision = _unattendedSkillPolicy.Decide(new UnattendedSkillRequest(
+            skillName,
+            Permissions.ExpandRoles(token.Roles),
+            level,
+            UnattendedExecutionKind.EmailAutomation,
+            AllowIrreversibleUnattended: false));
+        if (!decision.Allowed)
+        {
+            _logger.LogWarning(
+                "E-mail automation refused skill {SkillName} for email {EmailId} ({DenyReason}): {Reason}",
+                skillName, email.Id, decision.DenyReason, decision.Reason);
+            return SkillResult.Error(decision.Reason!);
         }
 
         var context = new SkillExecutionContext

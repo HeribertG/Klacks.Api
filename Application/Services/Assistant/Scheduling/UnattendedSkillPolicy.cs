@@ -89,6 +89,21 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
 
     private static UnattendedSkillDecision DecideIrreversible(UnattendedSkillRequest request)
     {
+        // Email automation is judged by autonomy level rather than by an opt-in it cannot carry. The
+        // threshold is the highest one, so this neither loosens the scheduled-task rule (which still
+        // needs its explicit per-task flag) nor the heartbeat rule (which still refuses outright).
+        if (request.ExecutionKind == UnattendedExecutionKind.EmailAutomation)
+        {
+            return request.AutonomyLevel >= UnattendedSkillPolicyDefaults.MinimumLevelForIrreversibleEmailAutomation
+                ? UnattendedSkillDecision.Allow()
+                : UnattendedSkillDecision.Deny(
+                    $"Skill '{request.SkillName}' is classified as irreversible and needs autonomy level " +
+                    $"{UnattendedSkillPolicyDefaults.MinimumLevelForIrreversibleEmailAutomation} to run " +
+                    $"from an incoming email, but the owner is at {request.AutonomyLevel}. Raise the " +
+                    $"autonomy level to {UnattendedSkillPolicyDefaults.MinimumLevelForIrreversibleEmailAutomation}.",
+                    UnattendedDenyReason.AutonomyLevelTooLow);
+        }
+
         if (request.ExecutionKind != UnattendedExecutionKind.ScheduledTask)
         {
             return UnattendedSkillDecision.Deny(
