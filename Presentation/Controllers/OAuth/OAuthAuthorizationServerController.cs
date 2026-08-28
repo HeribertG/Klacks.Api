@@ -44,6 +44,7 @@ public class OAuthAuthorizationServerController : ControllerBase
     }
 
     [HttpPost(OAuthConstants.RegisterEndpointName)]
+    [EnableRateLimiting(RateLimitingPolicies.Login)]
     public async Task<IActionResult> Register([FromBody] OAuthClientRegistrationRequest request)
     {
         var result = await _mediator.Send(new RegisterOAuthClientCommand(request));
