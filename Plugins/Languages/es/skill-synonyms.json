@@ -271,13 +271,6 @@
     "bloquear el mes para nómina",
     "cerrar la planificación del mes"
   ],
-  "configure_heartbeat": [
-    "latido",
-    "heartbeat",
-    "verificación de conexión",
-    "monitoreo",
-    "comprobación de estado"
-  ],
   "confirm_pending_action": [
     "confirma la acción pendiente",
     "sí, ejecuta la acción",

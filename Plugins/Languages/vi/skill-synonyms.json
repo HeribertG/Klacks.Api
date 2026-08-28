@@ -263,12 +263,6 @@
     "seal period tháng 6",
     "kết thúc kỳ lương và không cho sửa"
   ],
-  "configure_heartbeat": [
-    "nhịp tim hệ thống",
-    "kiểm tra kết nối định kỳ",
-    "giám sát hoạt động hệ thống",
-    "kiểm tra tình trạng kết nối"
-  ],
   "confirm_pending_action": [
     "xác nhận hành động",
     "đồng ý thực hiện",

@@ -31,6 +31,45 @@ public static class AgentTriggerKinds
     public const string DailyDigest = "daily_digest";
     public const string ScenarioPrepared = "scenario_prepared";
     public const string NextPeriodSchedulingDue = "next_period_scheduling_due";
+
+    /// <summary>
+    /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
+    /// incoming PUT against this set and lists it on GET, so a kind missing here is a kind nobody can
+    /// mute: DismissStreakEvaluator offers a mute for ANY kind dismissed three times in a row, and the
+    /// chat's mute button then answered 400. Unlike AgentTriggerGroupScopedKinds and
+    /// ProactiveGovernanceDefaults.GovernedKinds this is not a curated subset - it is simply all of them,
+    /// written out so the set stays greppable, with AgentTriggerKindsAllGuardTests reflecting over the
+    /// consts to turn any drift into a failing test rather than a silent 400.
+    ///
+    /// escalation_stage_alert is a member even though EscalationNotifier delivers it outside
+    /// AgentTriggerService.OnEventAsync and no preference is ever consulted for it: muting it does
+    /// nothing, but the endpoint must not reject a kind the user can legitimately name.
+    /// </summary>
+    public static readonly IReadOnlyList<string> All =
+    [
+        UnstaffedShift,
+        LockConflict,
+        TargetHoursDrift,
+        ScenarioPending,
+        PeriodCloseDue,
+        ContractExpiringSoon,
+        SkillSequenceSuggestion,
+        CuriosityQuestion,
+        WorkDroppedByErpImport,
+        OrderImportFailed,
+        AvailabilityGap,
+        PeriodOverdue,
+        ClientMissingCoreData,
+        MuteSuggestion,
+        PlanPausedForApproval,
+        EscalationStageAlert,
+        OpenOrder,
+        UncutFulldayShift,
+        EmptyContainer,
+        DailyDigest,
+        ScenarioPrepared,
+        NextPeriodSchedulingDue
+    ];
 }
 
 public static class AgentTriggerSeverity

@@ -274,12 +274,6 @@
     "bloquear o período para edições",
     "encerrar a apuração do período"
   ],
-  "configure_heartbeat": [
-    "heartbeat",
-    "verificação de ligação",
-    "monitorização",
-    "verificação de estado"
-  ],
   "confirm_pending_action": [
     "confirmar ação pendente",
     "sim, pode executar",

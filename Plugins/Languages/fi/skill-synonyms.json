@@ -265,13 +265,6 @@
     "sulje ajanjakso",
     "sinetöi jakso"
   ],
-  "configure_heartbeat": [
-    "syke",
-    "heartbeat",
-    "yhteystarkistus",
-    "valvonta",
-    "tilatarkistus"
-  ],
   "confirm_pending_action": [
     "vahvista odottava toimenpide",
     "kyllä, suorita",

@@ -258,12 +258,6 @@
     "selesaikan tempoh penjadualan ini",
     "tutup bulan april 2026"
   ],
-  "configure_heartbeat": [
-    "degupan semakan sistem",
-    "semakan sambungan berkala",
-    "pemantauan status sistem",
-    "pemeriksaan kesihatan pelayan"
-  ],
   "confirm_pending_action": [
     "sahkan tindakan",
     "ya lakukan",

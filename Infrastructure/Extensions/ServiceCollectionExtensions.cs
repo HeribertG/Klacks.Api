@@ -278,7 +278,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOAuthAuthorizationCodeStore,Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
-        services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
         services.AddScoped<ILLMRepository, LLMRepository>();
         services.AddScoped<ISkillUsageRepository, SkillUsageRepository>();
         services.AddScoped<IAgentRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRepository>();
@@ -772,8 +771,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IContextBudgetPolicy, Klacks.Api.Domain.Services.Assistant.ContextBudgetPolicy>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyToolsetFilter, Klacks.Api.Application.Services.Assistant.ReadOnlyToolsetFilter>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyResearchService, Klacks.Api.Application.Services.Assistant.ReadOnlyResearchService>();
-        services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
-        services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
         services.AddSingleton<Klacks.Api.Infrastructure.Security.IHostAddressResolver, Klacks.Api.Infrastructure.Security.DnsHostAddressResolver>();
         services.AddScoped<IProviderConnectivityTester, ProviderConnectivityTester>();
@@ -961,7 +958,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Skills.UpdateAiMemorySkill>();
         services.AddScoped<Application.Skills.DeleteAiMemorySkill>();
         services.AddScoped<Application.Skills.SetUserGroupScopeSkill>();
-        services.AddScoped<Application.Skills.ConfigureHeartbeatSkill>();
         services.AddScoped<Application.Skills.GetAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.UpdateAiGuidelinesSkill>();
         services.AddScoped<Application.Skills.GetPageControlsSkill>();

@@ -7,7 +7,6 @@
 /// <param name="ScheduleTimeline">Enables the ScheduleTimeline service</param>
 /// <param name="PeriodHours">Enables the PeriodHours service</param>
 /// <param name="MemoryCleanup">Enables the MemoryCleanup service</param>
-/// <param name="Heartbeat">Enables the Heartbeat service</param>
 /// <param name="Embedding">Enables the Embedding service</param>
 /// <param name="SkillGapSuggestion">Enables the SkillGapSuggestion service</param>
 /// <param name="EmailPolling">Enables the EmailPolling service</param>
@@ -24,7 +23,6 @@ public class BackgroundServiceOptions
     public bool PeriodHours { get; set; } = true;
     public bool ThoroughRecalculation { get; set; } = true;
     public bool MemoryCleanup { get; set; } = true;
-    public bool Heartbeat { get; set; } = true;
     public bool Embedding { get; set; } = true;
     public bool SkillGapSuggestion { get; set; } = true;
     public bool EmailPolling { get; set; } = true;

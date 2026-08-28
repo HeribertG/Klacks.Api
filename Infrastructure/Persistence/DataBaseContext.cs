@@ -222,8 +222,6 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
-    public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
-
     // ERP Drop Point DbSets
     public DbSet<ErpDropPoint> ErpDropPoints { get; set; }
 
