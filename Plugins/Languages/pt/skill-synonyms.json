@@ -2313,13 +2313,6 @@
     "desfazer uma regra da empresa aplicada",
     "restaurar a regra da empresa anterior"
   ],
-  "review_skill_suggestions": [
-    "ver sugestões de habilidades",
-    "aceitar sugestão de skill",
-    "analisar lacunas de competências",
-    "gerir propostas de novas habilidades",
-    "listar sugestões pendentes"
-  ],
   "revoke_day_approval": [
     "revogar a aprovação do dia 15",
     "desfazer a liberação do dia",

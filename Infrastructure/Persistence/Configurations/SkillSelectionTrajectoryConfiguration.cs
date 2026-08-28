@@ -17,6 +17,7 @@ public class SkillSelectionTrajectoryConfiguration : IEntityTypeConfiguration<Sk
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.AgentId, p.CreateTime });
         builder.HasIndex(p => p.WasCorrected);
+        builder.HasIndex(p => p.SharpenedAtUtc);
         builder.HasIndex(p => p.PlanId);
         builder.Property(p => p.Locale).HasMaxLength(8);
         builder.Property(p => p.UserMessageHash).HasMaxLength(16);

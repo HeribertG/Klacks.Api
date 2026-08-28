@@ -8,7 +8,7 @@
 /// <param name="PeriodHours">Enables the PeriodHours service</param>
 /// <param name="MemoryCleanup">Enables the MemoryCleanup service</param>
 /// <param name="Embedding">Enables the Embedding service</param>
-/// <param name="SkillGapSuggestion">Enables the SkillGapSuggestion service</param>
+/// <param name="KlacksyLearning">Enables the Klacksy learning maintenance service</param>
 /// <param name="EmailPolling">Enables the EmailPolling service</param>
 /// <param name="MessageRetention">Enables the MessageRetention service</param>
 /// <param name="LLMModelSync">Enables the LLM model sync service</param>
@@ -24,7 +24,7 @@ public class BackgroundServiceOptions
     public bool ThoroughRecalculation { get; set; } = true;
     public bool MemoryCleanup { get; set; } = true;
     public bool Embedding { get; set; } = true;
-    public bool SkillGapSuggestion { get; set; } = true;
+    public bool KlacksyLearning { get; set; } = true;
     public bool EmailPolling { get; set; } = true;
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;

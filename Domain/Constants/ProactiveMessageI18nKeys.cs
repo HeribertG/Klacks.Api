@@ -33,4 +33,5 @@ public static class ProactiveMessageI18nKeys
     public const string NextPeriodAutofillStarted = "assistant.proactive.nextPeriodAutofillStarted";
     public const string NextPeriodPlanCommitted = "assistant.proactive.nextPeriodPlanCommitted";
     public const string NextPeriodAutoCommitBlocked = "assistant.proactive.nextPeriodAutoCommitBlocked";
+    public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
 }

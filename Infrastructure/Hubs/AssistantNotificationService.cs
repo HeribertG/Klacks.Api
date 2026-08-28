@@ -75,27 +75,6 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger.LogDebug("Sent proactive inbox change (unread={UnreadCount}) to user {UserId} ({Count} connections)", unreadCount, userId, connectionIds.Count);
     }
 
-    public async Task SendOnboardingPromptAsync(string userId, string message)
-    {
-        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
-        if (connectionIds.Count == 0)
-        {
-            _logger.LogDebug("No connections found for user {UserId}, skipping onboarding prompt", userId);
-            return;
-        }
-
-        var dto = new ProactiveMessageDto
-        {
-            MessageId = Guid.NewGuid().ToString(),
-            Content = message,
-            Timestamp = DateTime.UtcNow,
-            MessageType = "onboarding"
-        };
-
-        await _hubContext.Clients.Clients(connectionIds).OnboardingPrompt(dto);
-        _logger.LogInformation("Sent onboarding prompt to user {UserId}", userId);
-    }
-
     public async Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null)
     {
         var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();

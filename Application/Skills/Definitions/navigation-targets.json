@@ -1239,6 +1239,50 @@
     "obsolete": false
   },
   {
+    "targetId": "assistant-learning",
+    "route": "/workplace/settings",
+    "labelKey": "settings.assistantLearning",
+    "category": "settings.ai",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-07-23T21:26:23.055Z",
+    "synonyms": {
+      "de": [
+        "skill-vorschläge",
+        "skill-vorschlaege",
+        "skill vorschläge",
+        "klacksy skill-vorschläge",
+        "skill-prüfung",
+        "skill-pruefung",
+        "skill-review",
+        "neue skills",
+        "skill-anfragen",
+        "öffne die skill-vorschläge",
+        "oeffne die skill-vorschlaege"
+      ],
+      "en": [
+        "skill proposals",
+        "skill suggestions",
+        "klacksy skill proposals",
+        "skill review",
+        "new skills",
+        "skill requests",
+        "open skill proposals"
+      ],
+      "fr": [
+        "propositions de compétences",
+        "suggestions klacksy",
+        "examen des compétences"
+      ],
+      "it": [
+        "proposte di skill",
+        "suggerimenti skill",
+        "revisione skill"
+      ]
+    },
+    "synonymStatus": "reviewed",
+    "obsolete": false
+  },
+  {
     "targetId": "assistant-personality",
     "route": "/workplace/settings",
     "labelKey": "settings.assistantPersonality",
@@ -1277,50 +1321,6 @@
         "personalità di klacksy",
         "personalità assistente",
         "carattere klacksy"
-      ]
-    },
-    "synonymStatus": "reviewed",
-    "obsolete": false
-  },
-  {
-    "targetId": "assistant-skill-proposals",
-    "route": "/workplace/settings",
-    "labelKey": "settings.assistantSkillProposals",
-    "category": "settings.ai",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-07-23T21:26:23.055Z",
-    "synonyms": {
-      "de": [
-        "skill-vorschläge",
-        "skill-vorschlaege",
-        "skill vorschläge",
-        "klacksy skill-vorschläge",
-        "skill-prüfung",
-        "skill-pruefung",
-        "skill-review",
-        "neue skills",
-        "skill-anfragen",
-        "öffne die skill-vorschläge",
-        "oeffne die skill-vorschlaege"
-      ],
-      "en": [
-        "skill proposals",
-        "skill suggestions",
-        "klacksy skill proposals",
-        "skill review",
-        "new skills",
-        "skill requests",
-        "open skill proposals"
-      ],
-      "fr": [
-        "propositions de compétences",
-        "suggestions klacksy",
-        "examen des compétences"
-      ],
-      "it": [
-        "proposte di skill",
-        "suggerimenti skill",
-        "revisione skill"
       ]
     },
     "synonymStatus": "reviewed",

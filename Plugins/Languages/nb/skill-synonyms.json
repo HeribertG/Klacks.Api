@@ -2263,14 +2263,6 @@
     "tilbakestill en anvendt bedriftsregel",
     "gjenopprett den forrige bedriftsregelen"
   ],
-  "review_skill_suggestions": [
-    "vis forslag til nye funksjoner",
-    "godkjenn eller avvis ferdighetsforslag",
-    "se ventende funksjonsforslag",
-    "behandle forslag om nye evner",
-    "list opp manglende ferdigheter",
-    "aksepter eller forkast skillsforslag"
-  ],
   "revoke_day_approval": [
     "trekk tilbake godkjenning for en dag",
     "opphev daggodkjenning",

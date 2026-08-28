@@ -2341,14 +2341,6 @@
     "wycofaj zastosowaną regułę firmową",
     "przywróć poprzednią regułę firmową"
   ],
-  "review_skill_suggestions": [
-    "pokaż sugestie nowych umiejętności",
-    "przejrzyj propozycje umiejętności",
-    "zaakceptuj proponowaną umiejętność",
-    "odrzuć sugestię umiejętności",
-    "sprawdź wykryte luki w umiejętnościach",
-    "wyświetl oczekujące sugestie umiejętności"
-  ],
   "revoke_day_approval": [
     "cofnij zatwierdzenie dnia",
     "usuń aprobatę dnia",

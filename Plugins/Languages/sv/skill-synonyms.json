@@ -2285,13 +2285,6 @@
     "återställ en tillämpad företagsregel",
     "återgå till den tidigare företagsregeln"
   ],
-  "review_skill_suggestions": [
-    "visa förslag på nya färdigheter",
-    "lista föreslagna funktioner",
-    "godkänn färdighetsförslag",
-    "hantera föreslagna skills",
-    "acceptera eller avvisa förslag"
-  ],
   "revoke_day_approval": [
     "återkalla dagens godkännande",
     "ta bort godkännande för dagen",

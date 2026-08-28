@@ -61,6 +61,12 @@ public sealed class UserDataEraser : IUserDataEraser
             .Where(e => e.UserId == uid).ExecuteDeleteAsync(cancellationToken);
         removed += await _context.SkillSelectionTrajectories.IgnoreQueryFilters()
             .Where(t => t.UserId == uid).ExecuteDeleteAsync(cancellationToken);
+
+        // Learning cases carry the user id so the "several different people asked for this" threshold can
+        // be evaluated. Erasing them lowers no cluster counter back down - the denormalised counts stay as
+        // they are, because they are statements about the product, not about the person.
+        removed += await _context.SkillLearningCases.IgnoreQueryFilters()
+            .Where(c => c.UserId == uid).ExecuteDeleteAsync(cancellationToken);
         removed += await _context.ClientSortPreference.IgnoreQueryFilters()
             .Where(c => c.UserId == uid).ExecuteDeleteAsync(cancellationToken);
 

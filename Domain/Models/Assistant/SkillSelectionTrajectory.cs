@@ -38,4 +38,11 @@ public class SkillSelectionTrajectory : BaseEntity
     public int LatencyMsLlm { get; set; }
 
     public Guid? PlanId { get; set; }
+
+    /// <summary>
+    /// When the description optimizer consumed this correction as evidence for a proposal. Set once and
+    /// never cleared: it is the watermark that stops the same correction from producing a second
+    /// sharpening proposal on every later run.
+    /// </summary>
+    public DateTime? SharpenedAtUtc { get; set; }
 }

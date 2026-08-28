@@ -2298,13 +2298,6 @@
     "anulează o regulă de companie aplicată",
     "restaurează regula de companie anterioară"
   ],
-  "review_skill_suggestions": [
-    "arată sugestiile de skill-uri",
-    "acceptă sugestia de abilitate",
-    "gestionează propunerile de funcții",
-    "listează sugestiile în așteptare",
-    "respinge sugestia de skill"
-  ],
   "revoke_day_approval": [
     "retrage aprobarea zilei",
     "anulează aprobarea pe zi",

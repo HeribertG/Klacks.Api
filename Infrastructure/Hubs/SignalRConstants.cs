@@ -69,6 +69,5 @@ public static class SignalRConstants
     public static class AssistantEvents
     {
         public const string ProactiveMessage = "ProactiveMessage";
-        public const string OnboardingPrompt = "OnboardingPrompt";
     }
 }

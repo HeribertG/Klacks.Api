@@ -13,4 +13,10 @@ public static class ProactiveActionParamKeys
     public const string ScenarioId = "scenarioId";
     public const string Date = "date";
     public const string Period = "period";
+
+    /// <summary>
+    /// Settings card the deep link should open, matching a targetId in navigation-targets.json. The
+    /// settings page is a single route, so the card is addressed by this parameter rather than by a path.
+    /// </summary>
+    public const string Target = "target";
 }

@@ -942,16 +942,6 @@
       "status": 1
     },
     {
-      "skillAName": "review_skill_suggestions",
-      "skillBName": "explain_klacksy_learning",
-      "type": 2,
-      "confidence": 1.0,
-      "supportCount": 0,
-      "contradictionCount": 0,
-      "provenance": "curated:explains",
-      "status": 1
-    },
-    {
       "skillAName": "list_navigation_feedback",
       "skillBName": "explain_klacksy_learning",
       "type": 2,

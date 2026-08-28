@@ -13,11 +13,14 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 
 public class SkillPhraseRepository : ISkillPhraseRepository
 {
+    private const string UniqueViolationSqlState = "23505";
+
     private readonly DataBaseContext _context;
 
     public SkillPhraseRepository(DataBaseContext context)
@@ -35,6 +38,135 @@ public class SkillPhraseRepository : ISkillPhraseRepository
             .Where(p => p.Status == SkillPhraseStatuses.Active)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<SkillPhrase>> GetActiveBySourceAsync(
+        string source, int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .AsNoTracking()
+            .Where(p => p.Source == source && p.Status == SkillPhraseStatuses.Active)
+            .OrderByDescending(p => p.CreateTime)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<SkillPhrase?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .FirstOrDefaultAsync(p => p.Id == id && p.Source == SkillPhraseSources.Learned, cancellationToken);
+    }
+
+    // The three single-row members are scoped to Learned on purpose. Their only caller is the learning card,
+    // and an id alone would let it rewrite or reject a seed, language-pack or admin phrase - rows the
+    // seed loaders own and would silently fight over on the next startup. A miss is reported as "not
+    // found", which the controller turns into 404: an id outside the card's scope does not exist for it.
+    // The scope has to sit on the lookup as well, not only on the writes: the update handler uses
+    // GetByIdAsync purely to decide which store an id belongs to, so an unfiltered read would send a seed
+    // id into the phrase branch and turn the rejected write into a "duplicate wording" answer.
+    public async Task<bool> TryUpdatePhraseTextAsync(
+        Guid id, string phrase, CancellationToken cancellationToken = default)
+    {
+        var existing = await _context.SkillPhrases
+            .FirstOrDefaultAsync(p => p.Id == id && p.Source == SkillPhraseSources.Learned, cancellationToken);
+        if (existing == null)
+        {
+            return false;
+        }
+
+        existing.Phrase = phrase;
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException exception) when (IsUniqueViolation(exception))
+        {
+            _context.Entry(existing).State = EntityState.Detached;
+            return false;
+        }
+    }
+
+    public async Task<bool> SetStatusAsync(Guid id, string status, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.SkillPhrases
+            .Where(p => p.Id == id && p.Source == SkillPhraseSources.Learned)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Status, status), cancellationToken);
+
+        return affected > 0;
+    }
+
+    // The learning loop writes exactly one row and must not touch its neighbours: the replace paths below
+    // delete a whole (owner, language, kind, source) slice, which would drop every phrase earlier rounds
+    // learned for the same skill. SortOrder is appended rather than recomputed for the same reason.
+    public async Task<Guid?> TryAddLearnedAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        string kind,
+        string phrase,
+        CancellationToken cancellationToken = default)
+    {
+        var sortOrder = await _context.SkillPhrases
+            .Where(p => p.OwnerKind == ownerKind
+                && p.OwnerName == ownerName
+                && p.Language == language
+                && p.Kind == kind)
+            .CountAsync(cancellationToken);
+
+        var row = new SkillPhrase
+        {
+            Id = Guid.NewGuid(),
+            OwnerKind = ownerKind,
+            OwnerName = ownerName,
+            Language = language,
+            Kind = kind,
+            Phrase = phrase,
+            SortOrder = sortOrder,
+            Source = SkillPhraseSources.Learned,
+            Status = SkillPhraseStatuses.Active
+        };
+
+        await _context.SkillPhrases.AddAsync(row, cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return row.Id;
+        }
+        catch (DbUpdateException exception) when (IsUniqueViolation(exception))
+        {
+            _context.Entry(row).State = EntityState.Detached;
+            return null;
+        }
+        catch
+        {
+            _context.Entry(row).State = EntityState.Detached;
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyList<string>> GetPhraseTextsAsync(
+        string ownerKind,
+        string ownerName,
+        string language,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .AsNoTracking()
+            .Where(p => p.OwnerKind == ownerKind
+                && p.OwnerName == ownerName
+                && p.Language == language
+                && p.Status == SkillPhraseStatuses.Active)
+            .OrderBy(p => p.SortOrder)
+            .Select(p => p.Phrase)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    private static bool IsUniqueViolation(DbUpdateException exception) =>
+        (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
 
     public async Task ReplaceForLanguageAsync(
         string ownerKind,

@@ -468,7 +468,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "create_agent_skill",
         "update_agent_skill",
         "delete_agent_skill",
-        "review_skill_suggestions",
         "accept_skill_relation",
         "dismiss_skill_relation",
         "update_navigation_synonyms",

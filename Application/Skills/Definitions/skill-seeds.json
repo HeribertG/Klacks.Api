@@ -1,5 +1,5 @@
 {
-  "version": 20,
+  "version": 21,
   "skills": [
     {
       "name": "get_current_time",
@@ -10968,69 +10968,6 @@
         ]
       },
       "version": 7
-    },
-    {
-      "name": "review_skill_suggestions",
-      "area": "klacksy",
-      "description": "Lists auto-detected skill gaps and pending suggestions. Allows the admin to accept a suggestion (which creates the skill) or dismiss it. Actions: 'list' shows all pending, 'accept' creates the skill, 'dismiss' removes the suggestion.",
-      "category": "Meta",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanEditSettings"
-      ],
-      "parameters": [
-        {
-          "name": "action",
-          "description": "Action to perform",
-          "type": "Enum",
-          "required": false,
-          "defaultValue": "list",
-          "enumValues": [
-            "list",
-            "accept",
-            "dismiss"
-          ]
-        },
-        {
-          "name": "gapId",
-          "description": "ID of the skill gap record to accept or dismiss (required for accept and dismiss actions)",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        }
-      ],
-      "handlerConfig": null,
-      "handlerType": null,
-      "effect": "Mutate",
-      "isEnabled": true,
-      "alwaysOn": false,
-      "triggerKeywords": {
-        "de": [
-          "vorschlag",
-          "neue fähigkeit"
-        ],
-        "en": [
-          "skill suggestion",
-          "skill gap",
-          "skill review"
-        ]
-      },
-      "synonyms": {
-        "de": [
-          "skill vorschlag",
-          "fähigkeitsvorschlag",
-          "skill lücke",
-          "neue funktion vorschlag"
-        ],
-        "en": [
-          "skill suggestion",
-          "skill gap",
-          "new skill proposal",
-          "ability suggestion"
-        ]
-      },
-      "version": 6
     },
     {
       "name": "list_absence_types",
@@ -31233,7 +31170,7 @@
     {
       "name": "explain_klacksy_learning",
       "area": "klacksy",
-      "description": "Explains how Klacksy gets better at picking the right capability: corrections made in the chat become proposed wording changes that an administrator accepts or discards, and separately detected gaps surface requests no capability covers yet. Wording changes never alter what a capability does. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, or how its capabilities are extended.",
+      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group ends as a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet; an administrator reviews all three in the settings card 'Klacksy learns' and gets a weekly digest. Only a 120-character excerpt of a wording is stored, and learning never changes what a capability is allowed to do. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its capabilities grow.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31295,7 +31232,7 @@
           "miglioramento"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_contracts",
