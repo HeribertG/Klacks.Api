@@ -8,12 +8,14 @@
 /// The automatic accept runs the SAME AcceptAnalyseScenarioCommand pipeline a human accept uses —
 /// including its conflict validation and its Block-mode compliance gate, never overridden — and is
 /// additionally preceded by a stricter zero-tolerance gate: one new compliance issue of any severity
-/// keeps the scenario a draft. Every outcome is written to the condition ledger and dispatched to the
-/// planners for auditability.
+/// keeps the scenario a draft. A watched chain can take up to WatchTimeoutMinutes to finish, so the
+/// global proactive kill switch is re-checked right before the commit itself, not only by the detector
+/// at tick time — flipping it mid-watch must still stop the auto-accept. Every outcome is written to
+/// the condition ledger and dispatched to the planners for auditability.
 /// </summary>
 /// <param name="jobRunner">Singleton runner, polled to detect chain completion.</param>
 /// <param name="terminalStateCache">DB-backed terminal outcome of the chain (final scenario id/token).</param>
-/// <param name="scopeFactory">Creates the fresh scope the scoped compliance/mediator/ledger services need.</param>
+/// <param name="scopeFactory">Creates the fresh scope the scoped compliance/mediator/ledger/governance services need.</param>
 /// <param name="logger">Structured log per watched job.</param>
 
 using System.Text.Json;
@@ -111,6 +113,17 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
         Guid scenarioId, Guid scenarioToken, Guid groupId, string groupName, DateOnly periodStart, DateOnly periodEnd)
     {
         using var scope = _scopeFactory.CreateScope();
+
+        var governanceResolver = scope.ServiceProvider.GetRequiredService<IProactiveGovernanceResolver>();
+        if (await governanceResolver.IsKillSwitchActiveAsync(CancellationToken.None))
+        {
+            _logger.LogWarning(
+                "NextPeriodAutoCommit: proactive kill switch is active; withholding auto-accept for scenario {ScenarioId}, group {GroupName} — the scenario stays a draft",
+                scenarioId, groupName);
+
+            return;
+        }
+
         var complianceService = scope.ServiceProvider.GetRequiredService<IScenarioComplianceService>();
         var report = await complianceService.EvaluateAsync(
             periodStart, periodEnd, groupId, scenarioToken, CancellationToken.None);

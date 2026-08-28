@@ -13,7 +13,9 @@
 /// NextPeriodAutofillStartedTriggerEvent; below that, or when the automatic start is not possible, it
 /// emits a NextPeriodSchedulingDueTriggerEvent hint. At FullyAutonomous the produced scenario is
 /// additionally handed to INextPeriodAutoCommitService, which accepts it into the real schedule only
-/// when it introduces zero new compliance issues.
+/// when it introduces zero new compliance issues. The global proactive kill switch pins the whole
+/// tick to the hint-only branch, exactly like every governed trigger kind — checked once per tick,
+/// not per group, since it is a single settings read shared by the whole scan.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period boundaries.</param>
@@ -24,6 +26,7 @@
 /// <param name="autoCommitService">Watches a started chain and auto-accepts at FullyAutonomous.</param>
 /// <param name="audienceResolver">Resolves the admin users whose autonomy levels are aggregated.</param>
 /// <param name="autonomyPreferences">Per-admin autonomy level rows (default when absent).</param>
+/// <param name="governanceResolver">Source of the global proactive kill switch.</param>
 /// <param name="settingsReader">Reads the EMAIL_ANALYSIS_ENABLED setting.</param>
 /// <param name="receivedEmailRepository">Probes for unprocessed inbox mail.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -61,6 +64,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private readonly INextPeriodAutoCommitService _autoCommitService;
     private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly IAgentAutonomyPreferenceRepository _autonomyPreferences;
+    private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly ISettingsReader _settingsReader;
     private readonly IReceivedEmailRepository _receivedEmailRepository;
     private readonly ILogger<NextPeriodSchedulingDueDetector> _logger;
@@ -76,6 +80,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         INextPeriodAutoCommitService autoCommitService,
         IPlanningAudienceResolver audienceResolver,
         IAgentAutonomyPreferenceRepository autonomyPreferences,
+        IProactiveGovernanceResolver governanceResolver,
         ISettingsReader settingsReader,
         IReceivedEmailRepository receivedEmailRepository,
         ILogger<NextPeriodSchedulingDueDetector> logger,
@@ -90,6 +95,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         _autoCommitService = autoCommitService;
         _audienceResolver = audienceResolver;
         _autonomyPreferences = autonomyPreferences;
+        _governanceResolver = governanceResolver;
         _settingsReader = settingsReader;
         _receivedEmailRepository = receivedEmailRepository;
         _logger = logger;
@@ -122,6 +128,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
+        var killSwitchActive = await _governanceResolver.IsKillSwitchActiveAsync(cancellationToken);
 
         AutonomyLevel? effectiveLevel = null;
         var events = new List<IAgentTriggerEvent>();
@@ -148,7 +155,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             if (await ScenarioCoversPeriodAsync(group.Id, periodStart, periodEnd, cancellationToken)) continue;
 
             effectiveLevel ??= await ResolveEffectiveAutonomyLevelAsync(cancellationToken);
-            if (effectiveLevel >= AutoRunMinimumLevel)
+            if (!killSwitchActive && effectiveLevel >= AutoRunMinimumLevel)
             {
                 var autoCommit = effectiveLevel == AutonomyLevel.FullyAutonomous;
                 var (startedEvent, fallBackToHint) =
