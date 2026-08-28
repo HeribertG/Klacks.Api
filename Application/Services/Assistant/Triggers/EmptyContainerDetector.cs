@@ -22,21 +22,32 @@
 /// notification, ListOpenFindingsSkill, the LLM context, the digest and the action dispatcher all read the
 /// LEDGER, which only ever learns what this scan emitted.
 ///
-/// RecentlyCreatedSlots further rows therefore carry the most recently CREATED candidates. They are added
-/// ON TOP of the cap rather than carved out of it, so the oldest-first selection keeps every one of its
-/// slots and no row that was being reported stops being reported - which matters because a row that stops
-/// being re-observed also stops having its payload refreshed. The slice stays empty unless the cap
-/// actually bit AND something is genuinely newer than everything already selected, so it is a no-op for
-/// any installation whose findings all fit. It orders by CreateTime rather than FromDate precisely so a
-/// container created today is caught even when its period is backdated.
+/// RecentlyCreatedSlots further rows therefore carry candidates the ledger has not opened a row for yet.
+/// They are added ON TOP of the cap rather than carved out of it, so the oldest-first selection keeps
+/// every one of its slots and no row that was being reported stops being reported - which matters because
+/// a row that stops being re-observed also stops having its payload refreshed. The slice stays empty
+/// unless the cap actually bit, so it is a no-op for any installation whose findings all fit.
 ///
-/// What this does NOT solve: if the newest RecentlyCreatedSlots candidates are themselves never
-/// remediated, the one after them starves again. Bounded and visible, where the old behaviour was
-/// unbounded and silent.
+/// EARLIER VERSION, KEPT AS A RECORD: this slice used to require "CreateTime strictly greater than every
+/// already-selected row" instead. That degenerates the same way the FromDate order does whenever
+/// candidates share a CreateTime - the normal shape of bulk-created containers: the floor becomes a value
+/// every candidate ties, "strictly greater" is never true, and the second slice returns nothing. Measured
+/// in the reference installation on 2026-08-28: 260 candidates, 240 sharing one CreateTime to the
+/// microsecond; 50 ever reached the ledger, 210 never did, across 14 real ticks. Excluding by ledger
+/// membership instead of by a CreateTime floor has no such degenerate case: a row that was never open
+/// stays eligible regardless of what any other row's CreateTime is, and once a tick reports it, it drops
+/// out of the pool on its own by becoming open - which is also what makes repeated ticks converge instead
+/// of reporting the same RecentlyCreatedSlots rows forever.
+///
+/// What this does NOT solve: a candidate whose ledger row keeps failing remediation and never reaches a
+/// terminal status stays open, and open means excluded here - it will not be picked as a "not yet open"
+/// row again, but it is also never dropped from the oldest-first stream once that stream reaches it on
+/// FromDate order. Bounded and visible, where the old behaviour was unbounded and silent.
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
+/// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, so the second slice can exclude them.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -79,17 +90,20 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly IShiftRepository _shiftRepository;
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
+    private readonly IAgentConditionRepository _agentConditionRepository;
     private readonly ILogger<EmptyContainerDetector> _logger;
 
     public EmptyContainerDetector(
         IShiftRepository shiftRepository,
         IContainerTemplateRepository containerTemplateRepository,
         IShiftGroupScopeReader groupScopeReader,
+        IAgentConditionRepository agentConditionRepository,
         ILogger<EmptyContainerDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _groupScopeReader = groupScopeReader;
+        _agentConditionRepository = agentConditionRepository;
         _logger = logger;
     }
 
@@ -112,7 +126,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         }
 
         emptyContainers.AddRange(
-            await NewerThanEverySelectedAsync(candidates, emptyContainers, cancellationToken));
+            await NotYetOpenInLedgerAsync(candidates, emptyContainers, cancellationToken));
 
         var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
             emptyContainers.Select(container => container.Id).ToList(), cancellationToken);
@@ -150,17 +164,16 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     }
 
     /// <summary>
-    /// The most recently created candidates that are newer than EVERY row the oldest-first selection
-    /// already holds, or nothing at all when the cap did not bite.
+    /// Up to RecentlyCreatedSlots candidates the ledger has no open row for yet, excluding the rows the
+    /// oldest-first selection already holds, or nothing at all when the cap did not bite.
     ///
-    /// "Strictly newer than every selected row" is what makes the two sets provably disjoint, so the
-    /// caller appends without de-duplicating. It also makes the slice self-limiting: when all candidates
-    /// fit under the cap there is nothing newer left to find, and when they do not, only containers created
-    /// after the reported ones qualify - which is exactly the population the FromDate order cannot reach.
-    /// A selection carrying no CreateTime at all yields nothing, because there is then no floor to compare
-    /// against; those rows are already covered by the oldest-first stream.
+    /// Excluding by ledger membership rather than by "newer than every selected row" is what makes this
+    /// immune to CreateTime ties: a row that was never opened stays eligible no matter what any other
+    /// row's CreateTime is. It also makes the two sets provably disjoint (both exclusions apply before the
+    /// query runs), so the caller appends without de-duplicating, and self-limiting the same way the old
+    /// CreateTime floor was: once every candidate has an open ledger row, this returns nothing.
     /// </summary>
-    private static async Task<List<Shift>> NewerThanEverySelectedAsync(
+    private async Task<List<Shift>> NotYetOpenInLedgerAsync(
         IQueryable<Shift> candidates,
         List<Shift> selected,
         CancellationToken cancellationToken)
@@ -170,15 +183,16 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             return [];
         }
 
-        var newestSelected = selected.Max(container => container.CreateTime);
-        if (newestSelected is null)
-        {
-            return [];
-        }
+        var openEntityIds = (await _agentConditionRepository.GetOpenByKindAsync(Kind, cancellationToken))
+            .Where(condition => condition.EntityId.HasValue)
+            .Select(condition => condition.EntityId!.Value)
+            .ToHashSet();
+        var selectedIds = selected.Select(container => container.Id).ToHashSet();
 
         return await candidates
-            .Where(container => container.CreateTime > newestSelected)
+            .Where(container => !selectedIds.Contains(container.Id) && !openEntityIds.Contains(container.Id))
             .OrderByDescending(container => container.CreateTime)
+            .ThenBy(container => container.FromDate)
             .ThenBy(container => container.Id)
             .Take(RecentlyCreatedSlots)
             .ToListAsync(cancellationToken);
