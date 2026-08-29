@@ -21,6 +21,19 @@ public interface ISkillRoutingOracle
         string utterance, string? locale, string targetSkill, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Skill names the retrieval stage can still reach for this utterance - a strictly wider set than the
+    /// one ProbeAsync assembles. The assembler takes only KnowledgeIndexConstants.DefaultTopK of the
+    /// reranked pool, so a skill below that rank never reaches a toolset however relevant it is, and those
+    /// are exactly the skills a routing gap is made of. The classifier has to be allowed to name them;
+    /// confined to what is already offered it can only ever pick something that needs no phrase.
+    /// Bounded by the reranker pool (MaxRerankerCandidates), so this can never widen into "the catalogue",
+    /// and every name in it is a real, permitted, indexed skill.
+    /// </summary>
+    /// <param name="utterance">The stored wish excerpt to retrieve for</param>
+    Task<IReadOnlyList<string>> ListReachableSkillsAsync(
+        string utterance, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Replays the stored golden cases and returns the ones that no longer route. A case that was
     /// already failing before the change is not a regression, which is why the caller passes the
     /// baseline it measured before activating anything.

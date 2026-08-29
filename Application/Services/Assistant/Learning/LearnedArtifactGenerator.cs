@@ -35,13 +35,16 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
 
     private static readonly string ClassificationSystemPrompt =
         "You triage wishes that an assistant could not serve. For each numbered case you receive the user's " +
-        "wish, its language, and the skills the assistant's search currently offers for that wish. " +
+        "wish, its language, the skills the assistant offered for that wish, and the wider list of skills " +
+        "that exist for it. A skill can exist and still not have been offered - that is the most common " +
+        "reason a wish was not served, so prefer a skill from the wider list when it fits better. " +
         "Classify every case into exactly one of: " +
-        "\"phrase_gap\" - one of the offered skills, or another skill you are told the user expected, does " +
-        "what the user asked for and was simply not recognised; name it in \"skill\". " +
+        "\"phrase_gap\" - one existing skill, offered or not, does what the user asked for and was simply " +
+        "not recognised; name it in \"skill\". " +
         "\"composable\" - no single skill does it, but chaining several of the offered skills would. " +
-        "\"needs_code\" - no combination of the offered skills can do it. " +
-        "Never invent a skill name: \"skill\" must be copied character for character from the offered list. " +
+        "\"needs_code\" - no existing skill and no combination of them can do it. " +
+        "Never invent a skill name: \"skill\" must be copied character for character from one of the two " +
+        "lists you are given. " +
         "Keep \"reason\" to one short English sentence. " +
         "Respond ONLY with a JSON object: {\"cases\":[{\"index\":0,\"kind\":\"phrase_gap\",\"skill\":\"...\",\"reason\":\"...\"}]}.";
 
@@ -308,7 +311,22 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
                 builder.Append("Skill the assistant used instead: ").Append(input.Cluster.ChosenSkill).Append('\n');
             }
 
-            builder.Append("Offered skills: ").Append(string.Join(", ", input.CandidateSkills)).Append("\n\n");
+            builder.Append("Offered skills: ").Append(string.Join(", ", input.CandidateSkills)).Append('\n');
+
+            // Only the difference, never the whole union: repeating the offered names under a second
+            // heading is tokens spent to tell a cheap model the same thing twice, and it blurs exactly the
+            // distinction this list exists to draw.
+            var alsoExisting = input.ReachableSkills
+                .Except(input.CandidateSkills, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (alsoExisting.Count > 0)
+            {
+                builder.Append("Skills that also exist for this wish but were not offered: ")
+                    .Append(string.Join(", ", alsoExisting)).Append('\n');
+            }
+
+            builder.Append('\n');
         }
 
         builder.Append("Classify every case.");
@@ -417,9 +435,13 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         }
     }
 
-    // An answer that names a skill outside the offered list is dropped rather than trusted: the loop would
-    // otherwise write a phrase for a skill that does not exist, and the routing oracle can only ever say
-    // "not found" about it.
+    // An answer that names a skill outside the REACHABLE list is dropped rather than trusted: the loop
+    // would otherwise write a phrase for a skill that does not exist, and the routing oracle can only ever
+    // say "not found" about it. Reachable, not offered - that distinction is the whole point. Validating
+    // against the offered list made this guard and the "already routed" dismissal in
+    // SkillLearningLoop.LearnPhraseAsync test the same set, so every skill the classifier was allowed to
+    // name was one the dismissal then threw out. Existence is what has to be checked here; whether the
+    // skill is already served is a different question and is answered in the loop.
     private static SkillLearningClassification? ReadClassification(
         JsonElement element, IReadOnlyList<SkillLearningTriageInput> inputs)
     {
@@ -440,7 +462,7 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         var input = inputs[index];
         var skill = ReadString(element, "skill");
 
-        if (skill != null && !input.CandidateSkills.Contains(skill, StringComparer.OrdinalIgnoreCase)
+        if (skill != null && !input.ReachableSkills.Contains(skill, StringComparer.OrdinalIgnoreCase)
             && !string.Equals(skill, input.Cluster.ExpectedSkill, StringComparison.OrdinalIgnoreCase))
         {
             skill = null;

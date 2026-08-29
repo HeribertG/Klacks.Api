@@ -24,6 +24,9 @@ using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 
 namespace Klacks.Api.Application.Services.Assistant.Learning;
 
@@ -33,15 +36,18 @@ public class SkillRoutingOracle : ISkillRoutingOracle
 
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
+    private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly ILogger<SkillRoutingOracle> _logger;
 
     public SkillRoutingOracle(
         IAgentRepository agentRepository,
         ISkillToolsetAssembler toolsetAssembler,
+        IKnowledgeRetrievalService knowledgeRetrieval,
         ILogger<SkillRoutingOracle> logger)
     {
         _agentRepository = agentRepository;
         _toolsetAssembler = toolsetAssembler;
+        _knowledgeRetrieval = knowledgeRetrieval;
         _logger = logger;
     }
 
@@ -77,6 +83,41 @@ public class SkillRoutingOracle : ISkillRoutingOracle
             && names.Contains(targetSkill, StringComparer.OrdinalIgnoreCase);
 
         return new SkillRoutingProbe(found, names);
+    }
+
+    // Deliberately the raw retrieval and not a second assembly: assembly is what CUTS the list down, and
+    // this method exists to see past that cut. Administrator rights for the same reason ProbeAsync uses
+    // them - a permission the wishing user lacks must not look like the absence of a skill.
+    // A failure degrades to an empty list rather than taking the round down: without it the classifier
+    // simply falls back to what is offered, which is the behaviour this method replaces.
+    public async Task<IReadOnlyList<string>> ListReachableSkillsAsync(
+        string utterance, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(utterance))
+        {
+            return [];
+        }
+
+        try
+        {
+            var retrieval = await _knowledgeRetrieval.RetrieveAsync(
+                utterance,
+                [.. ProbeRights],
+                isAdmin: true,
+                KnowledgeIndexConstants.MaxRerankerCandidates,
+                currentRoute: null,
+                cancellationToken,
+                KnowledgeEntryKind.Skill);
+
+            return retrieval.IsEmpty
+                ? []
+                : [.. retrieval.Candidates.Select(candidate => candidate.Entry.SourceId)];
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogWarning(exception, "Reachable-skill lookup failed; the classifier sees only the toolset");
+            return [];
+        }
     }
 
     public async Task<IReadOnlyList<string>> FindFailingGoldenCasesAsync(

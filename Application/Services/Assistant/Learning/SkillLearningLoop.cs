@@ -212,7 +212,16 @@ public class SkillLearningLoop : ISkillLearningLoop
                     continue;
                 }
 
-                pending.Add(new SkillLearningTriageInput(context, probe.TopSkills));
+                // Two lists, two questions. What the assembler offered decides whether the wish is
+                // already served; what retrieval can still reach decides what the classifier may name.
+                // The union is the menu: the assembler contributes its always-on and guaranteed skills,
+                // which retrieval never returns, and retrieval contributes the ranks the assembler cut
+                // off - the ones a routing gap actually consists of.
+                var reachable = await _routingOracle.ListReachableSkillsAsync(
+                    context.IntentExcerpt, cancellationToken);
+
+                pending.Add(new SkillLearningTriageInput(
+                    context, probe.TopSkills, Union(probe.TopSkills, reachable)));
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
@@ -223,6 +232,13 @@ public class SkillLearningLoop : ISkillLearningLoop
 
         return new TriageResult(pending, alreadyRouted);
     }
+
+    // Offered names first so the classifier reads the likeliest answers at the top, then what retrieval
+    // reaches beyond them. Case-insensitive, because the two sources spell a skill name the same way but
+    // nothing guarantees it.
+    private static IReadOnlyList<string> Union(
+        IReadOnlyList<string> offered, IReadOnlyList<string> reachable) =>
+        [.. offered.Concat(reachable).Distinct(StringComparer.OrdinalIgnoreCase)];
 
     private async Task<ClusterOutcome> HandleClusterAsync(
         SkillLearningTriageInput input,
@@ -276,6 +292,11 @@ public class SkillLearningLoop : ISkillLearningLoop
                 cluster, "The classifier named no existing skill for this wish.", cancellationToken);
         }
 
+        // CandidateSkills and NOT ReachableSkills, deliberately: the question here is "is this wish
+        // already served", and a skill the assembler offers is served whether or not retrieval could
+        // reach others. The classifier picks from the wider list (SkillLearningTriageInput), so a target
+        // can now be outside this one - which is what makes a classifier-chosen wish learnable at all.
+        // Widening this check too would let the loop write phrases for skills that are already offered.
         if (input.CandidateSkills.Contains(target, StringComparer.OrdinalIgnoreCase))
         {
             await DismissAsync(cluster.ClusterId, cluster.AttemptCount, target, cancellationToken);
@@ -310,6 +331,12 @@ public class SkillLearningLoop : ISkillLearningLoop
         SkillLearningTriageInput input, CancellationToken cancellationToken)
     {
         var cluster = input.Cluster;
+
+        // The narrow list on purpose. These names become the building blocks of a recipe that oracle O2
+        // will really execute, and the capability path is the one that works end to end today. Handing it
+        // the wider list would change the input of a proven path while fixing a broken one; a composition
+        // out of skills the assembler does not even offer is also a worse composition, because the model
+        // never sees those skills in a real turn.
         var outcome = await _capabilityLearner.LearnAsync(cluster, input.CandidateSkills, cancellationToken);
 
         if (outcome.Inconclusive)
