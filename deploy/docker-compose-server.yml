@@ -86,6 +86,11 @@ services:
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
       - RegionSetup__File=${REGION_SETUP_FILE:-}
       - Assistant__AnswerGroundingMode=${ANSWER_GROUNDING_MODE:-Off}
+      # This compose file runs the public demo/Playground instance, the only Klacks instance
+      # currently deployed - the seeded admin@test.com account staying active there is intentional.
+      # Never set this on a customer's on-prem stack (deploy/onprem/docker-compose.yml has no such
+      # variable, so it defaults to false there).
+      - Deployment__IsPlayground=${DEPLOYMENT_IS_PLAYGROUND:-true}
       # DataProtection key ring. Set both to move the ring into the database, so a single pg_dump
       # covers it - the ring rotates every 90 days, which makes a separate volume backup go stale
       # unnoticed. The certificate is what keeps the dump from becoming the master key; without it

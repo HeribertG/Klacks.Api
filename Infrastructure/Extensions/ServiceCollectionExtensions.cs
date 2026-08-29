@@ -646,6 +646,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();
         services.AddScoped<IAccountRegistrationService, AccountRegistrationService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IAdminSetupGateService,
+            Klacks.Api.Application.Services.Authentication.AdminSetupGateService>();
         services.AddScoped<IAccountManagementService, AccountManagementService>();
         services.AddScoped<IAccountNotificationService, AccountNotificationService>();
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
