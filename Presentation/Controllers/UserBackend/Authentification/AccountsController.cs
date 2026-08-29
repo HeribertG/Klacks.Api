@@ -12,6 +12,7 @@ using Klacks.Api.Application.DTOs.Registrations;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ public class AccountsController : BaseController
     }
 
     [Authorize]
+    [ExemptFromAdminSetupGate]
     [HttpPut("ChangePassword")]
     public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordResource model)
     {
@@ -47,6 +49,7 @@ public class AccountsController : BaseController
     }
 
     [Authorize]
+    [ExemptFromAdminSetupGate]
     [HttpPost("ChangePasswordUser")]
     public async Task<ActionResult> ChangePasswordUser([FromBody] ChangePasswordResource model)
     {
@@ -112,6 +115,7 @@ public class AccountsController : BaseController
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ExemptFromAdminSetupGate]
     [HttpGet("ValidateToken")]
     public IActionResult ValidateToken()
     {
@@ -146,6 +150,7 @@ public class AccountsController : BaseController
     }
 
     [AllowAnonymous]
+    [ExemptFromAdminSetupGate]
     [EnableRateLimiting(RateLimitingPolicies.RefreshToken)]
     [HttpPost("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestResource model)
@@ -170,6 +175,7 @@ public class AccountsController : BaseController
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ExemptFromAdminSetupGate]
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout()
     {

@@ -473,7 +473,7 @@ else
 }
 
 var mvcBuilder = builder.Services
-    .AddControllers()
+    .AddControllers(options => options.Filters.Add<Klacks.Api.Presentation.Filters.AdminSetupGateFilter>())
     .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
