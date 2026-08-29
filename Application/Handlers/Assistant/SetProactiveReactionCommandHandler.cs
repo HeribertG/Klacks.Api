@@ -29,6 +29,7 @@
 /// <param name="dismissStreakEvaluator">Fires a mute suggestion after repeated dismissals.</param>
 /// <param name="ledgerService">Writes the rejection back onto the condition-ledger row the message reported.</param>
 /// <param name="helpfulBoostEvaluator">Recomputes the helpful-learned daily budget boost.</param>
+/// <param name="timeProvider">Clock ReactionAtUtc is stamped from, injected so a test can drive it.</param>
 /// <param name="logger">Logs follow-up failures without failing the request.</param>
 
 using Klacks.Api.Application.Commands.Assistant;
@@ -45,6 +46,7 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
     private readonly IDismissStreakEvaluator _dismissStreakEvaluator;
     private readonly IAgentConditionLedgerService _ledgerService;
     private readonly IHelpfulBoostEvaluator _helpfulBoostEvaluator;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<SetProactiveReactionCommandHandler> _logger;
 
     public SetProactiveReactionCommandHandler(
@@ -52,12 +54,14 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
         IDismissStreakEvaluator dismissStreakEvaluator,
         IAgentConditionLedgerService ledgerService,
         IHelpfulBoostEvaluator helpfulBoostEvaluator,
+        TimeProvider timeProvider,
         ILogger<SetProactiveReactionCommandHandler> logger)
     {
         _dispatchRepository = dispatchRepository;
         _dismissStreakEvaluator = dismissStreakEvaluator;
         _ledgerService = ledgerService;
         _helpfulBoostEvaluator = helpfulBoostEvaluator;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -70,7 +74,7 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
         }
 
         row.Reaction = request.Reaction;
-        row.ReactionAtUtc = DateTime.UtcNow;
+        row.ReactionAtUtc = _timeProvider.GetUtcNow().UtcDateTime;
 
         row.RejectReason = request.Reaction == ProactiveReaction.Dismissed ? request.RejectReason : null;
 

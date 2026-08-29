@@ -7,6 +7,7 @@
 /// is added on top of the base budget; like the daily counters it lives in memory only and is
 /// re-established from the persisted reaction history on the user's next reaction.
 /// </summary>
+/// <param name="timeProvider">Clock the day-key is derived from, injected so a test can drive it.</param>
 
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Constants;
@@ -28,6 +29,12 @@ public class AgentTriggerRateLimiter : IAgentTriggerRateLimiter
 
     private readonly ConcurrentDictionary<string, BudgetEntry> _state = new();
     private readonly ConcurrentDictionary<string, int> _budgetBoosts = new();
+    private readonly TimeProvider _timeProvider;
+
+    public AgentTriggerRateLimiter(TimeProvider timeProvider)
+    {
+        _timeProvider = timeProvider;
+    }
 
     private static int BaseBudgetFor(string triggerKind) =>
         PerKindDailyBudget.TryGetValue(triggerKind, out var budget) ? budget : DailyBudgetDefault;
@@ -82,7 +89,7 @@ public class AgentTriggerRateLimiter : IAgentTriggerRateLimiter
 
     private static string BuildKey(string userId, string triggerKind) => $"{userId}::{triggerKind}";
 
-    private static string TodayKey() => DateTime.UtcNow.ToString("yyyyMMdd");
+    private string TodayKey() => _timeProvider.GetUtcNow().UtcDateTime.ToString("yyyyMMdd");
 
     private sealed record BudgetEntry(string DayKey, int Count);
 }

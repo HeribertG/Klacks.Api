@@ -328,11 +328,14 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     }
 
     /// <summary>
-    /// Governance folded with the Etappe-4e delegation and then capped by the remediation registry.
-    /// Precedence is not negotiable in two places: the global kill switch and a disabled kind pin the
-    /// result at Hint BEFORE the delegation is looked at, because a human's earlier "you handle this
-    /// one" grant must never survive the emergency stop; and the registry cap applies LAST, so no
-    /// delegation can steer a kind that has no remediation past Hint.
+    /// Governance folded with the Etappe-4e delegation, re-capped by the global autonomy level and then
+    /// capped by the remediation registry. Precedence is not negotiable in three places: the global kill
+    /// switch and a disabled kind pin the result at Hint BEFORE the delegation is looked at, because a
+    /// human's earlier "you handle this one" grant must never survive the emergency stop; the global
+    /// autonomy level caps the delegation too (Owner decision 2026-08-28) - a delegation can raise past
+    /// governance.EffectiveMaxAction, which is already level-capped, so the level is applied again here
+    /// against the raised value; and the registry cap applies LAST, so no delegation can steer a kind
+    /// that has no remediation past Hint.
     /// </summary>
     private ProactiveMaxAction EffectiveMaxActionFor(ProactiveGovernanceDecision governance, AgentCondition condition)
     {
@@ -345,7 +348,9 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             ? delegated
             : governance.EffectiveMaxAction;
 
-        return _registry.TryGetEffectiveMaxAction(condition.TriggerKind, requested);
+        var levelCapped = requested < governance.GlobalAutonomyCap ? requested : governance.GlobalAutonomyCap;
+
+        return _registry.TryGetEffectiveMaxAction(condition.TriggerKind, levelCapped);
     }
 
     private async Task<ProactiveGovernanceDecision> ResolveGovernanceAsync(

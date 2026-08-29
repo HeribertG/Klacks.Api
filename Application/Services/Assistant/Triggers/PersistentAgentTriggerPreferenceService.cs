@@ -8,6 +8,7 @@
 /// preference API is a follow-up refactor.
 /// </summary>
 /// <param name="repository">Persistent EF-backed store.</param>
+/// <param name="timeProvider">Clock snooze expiry and the created row's CreateTime are read from.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -25,17 +26,19 @@ public class PersistentAgentTriggerPreferenceService : IAgentTriggerPreferenceSe
     };
 
     private readonly IAgentTriggerPreferenceRepository _repository;
+    private readonly TimeProvider _timeProvider;
 
-    public PersistentAgentTriggerPreferenceService(IAgentTriggerPreferenceRepository repository)
+    public PersistentAgentTriggerPreferenceService(IAgentTriggerPreferenceRepository repository, TimeProvider timeProvider)
     {
         _repository = repository;
+        _timeProvider = timeProvider;
     }
 
     public async Task<bool> IsAllowedAsync(string userId, string triggerKind, string severity)
     {
         var pref = await GetPreferenceAsync(userId, triggerKind);
         if (pref.Muted) return false;
-        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > DateTime.UtcNow) return false;
+        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > _timeProvider.GetUtcNow().UtcDateTime) return false;
         return RankOf(severity) >= RankOf(pref.MinimumSeverity);
     }
 
@@ -78,7 +81,7 @@ public class PersistentAgentTriggerPreferenceService : IAgentTriggerPreferenceSe
             Muted = false,
             SnoozedUntilUtc = null,
             MinimumSeverity = AgentTriggerSeverity.Low,
-            CreateTime = DateTime.UtcNow
+            CreateTime = _timeProvider.GetUtcNow().UtcDateTime
         };
         change(row);
         await _repository.UpsertAsync(row);

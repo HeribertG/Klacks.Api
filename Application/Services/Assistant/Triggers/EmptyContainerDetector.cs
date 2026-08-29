@@ -48,6 +48,7 @@
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, so the second slice can exclude them.</param>
+/// <param name="timeProvider">Clock forwarded into each emitted event so its period-active severity check is testable.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -91,6 +92,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IAgentConditionRepository _agentConditionRepository;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<EmptyContainerDetector> _logger;
 
     public EmptyContainerDetector(
@@ -98,12 +100,14 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         IContainerTemplateRepository containerTemplateRepository,
         IShiftGroupScopeReader groupScopeReader,
         IAgentConditionRepository agentConditionRepository,
+        TimeProvider timeProvider,
         ILogger<EmptyContainerDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _groupScopeReader = groupScopeReader;
         _agentConditionRepository = agentConditionRepository;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -138,7 +142,8 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
                 container.FromDate,
                 container.UntilDate,
                 ShiftGroupScope.For(groupsByShift, container.Id),
-                ScheduleSnapshotOf(container)))
+                ScheduleSnapshotOf(container),
+                EmptyContainerTriggerEvent.ComputeIsPeriodActive(container.FromDate, container.UntilDate, _timeProvider)))
             .ToList();
 
         _logger.LogInformation(

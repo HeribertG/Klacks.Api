@@ -19,6 +19,24 @@ public static class ProactiveGovernanceDefaults
     public const int WindowActionLimit = 3;
     public const int WindowMinutes = 60;
 
+    /// <summary>Fail-safe global autonomy level: report and wait, exactly like MaxAction above.</summary>
+    public const AutonomyLevel GlobalAutonomyLevel = AutonomyLevel.Propose;
+
+    /// <summary>
+    /// The global-level to ProactiveMaxAction ladder: 0 reports only, 1 additionally stages a scenario,
+    /// 2 and 3 both execute - level 3 is reserved for a future class of auto-commit kinds that Execute
+    /// does not yet distinguish, so it maps to the same cap as 2 rather than to an action that does not
+    /// exist.
+    /// </summary>
+    public static ProactiveMaxAction MapAutonomyLevel(AutonomyLevel level) => level switch
+    {
+        AutonomyLevel.Propose => ProactiveMaxAction.Hint,
+        AutonomyLevel.Assisted => ProactiveMaxAction.Prepare,
+        AutonomyLevel.Autonomous => ProactiveMaxAction.Execute,
+        AutonomyLevel.FullyAutonomous => ProactiveMaxAction.Execute,
+        _ => ProactiveMaxAction.Hint
+    };
+
     /// <summary>
     /// The kind below which a governance row is meaningless: MaxAction steers what happens to a
     /// CONDITION, and only a ledger-tracked event ever becomes one. That is exactly the set matching

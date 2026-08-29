@@ -9,6 +9,11 @@
 /// planners who may see it; a container with no group membership at all reaches Admins only
 /// (RequiresGroupScope).
 /// </summary>
+/// <param name="IsPeriodActive">Whether FromDate/UntilDate bracket "today" as of detection time,
+/// frozen in by EmptyContainerDetector via ComputeIsPeriodActive - the same shape every sibling event
+/// uses for a time-relative Severity (e.g. ContractExpiringSoonTriggerEvent's DaysUntilExpiry): the
+/// clock is read once at detection and only plain data crosses into the record, so the event stays
+/// comparable/serializable data and never carries a service dependency in its own equality.</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -23,13 +28,12 @@ public sealed record EmptyContainerTriggerEvent(
     DateOnly FromDate,
     DateOnly? UntilDate,
     IReadOnlyCollection<Guid> GroupIds,
-    ContainerScheduleSnapshot Schedule) : IAgentTriggerEvent
+    ContainerScheduleSnapshot Schedule,
+    bool IsPeriodActive) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.EmptyContainer;
 
-    public string Severity => IsPeriodActive(FromDate, UntilDate)
-        ? AgentTriggerSeverity.High
-        : AgentTriggerSeverity.Medium;
+    public string Severity => IsPeriodActive ? AgentTriggerSeverity.High : AgentTriggerSeverity.Medium;
 
     public bool PlannersOnly => true;
 
@@ -79,9 +83,10 @@ public sealed record EmptyContainerTriggerEvent(
         [EmptyContainerPayloadKeys.IsWeekdayAndHoliday] = Schedule.IsWeekdayAndHoliday
     };
 
-    private static bool IsPeriodActive(DateOnly fromDate, DateOnly? untilDate)
+    /// <summary>Read once by EmptyContainerDetector at detection time and frozen into IsPeriodActive.</summary>
+    public static bool ComputeIsPeriodActive(DateOnly fromDate, DateOnly? untilDate, TimeProvider timeProvider)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
         return fromDate <= today && (!untilDate.HasValue || today <= untilDate.Value);
     }
 }

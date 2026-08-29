@@ -116,6 +116,16 @@ public static class SettingKeys
     /// </summary>
     public const string KlacksyProactiveKillSwitch = "KLACKSY_PROACTIVE_KILL_SWITCH";
 
+    /// <summary>
+    /// Global autonomy level for Klacksy's proactive ACTION branch, stored as "0".."3"
+    /// (Domain.Enums.AutonomyLevel). Caps every kind's configured MaxAction AND any Etappe-4e
+    /// delegation via ProactiveGovernanceDefaults.MapAutonomyLevel (0=Hint, 1=Prepare, 2=Execute,
+    /// 3=Execute) - independent of the kill switch, and independent of the PER-OWNER AutonomyLevel in
+    /// agent_autonomy_preferences, which only gates whether a skill may run unattended and never caps
+    /// ProactiveMaxAction.
+    /// </summary>
+    public const string KlacksyProactiveAutonomyLevel = "KLACKSY_PROACTIVE_AUTONOMY_LEVEL";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

@@ -9,6 +9,8 @@
 /// broadcasts that carry no persisted content) and are excluded from both the listing and the
 /// unread count so they never render as an empty message.
 /// </summary>
+/// <param name="context">The database context.</param>
+/// <param name="timeProvider">Clock ReadAtUtc is stamped from, injected so a test can drive it.</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -21,10 +23,12 @@ namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepository
 {
     private readonly DataBaseContext _context;
+    private readonly TimeProvider _timeProvider;
 
-    public ProactiveTriggerDispatchRepository(DataBaseContext context)
+    public ProactiveTriggerDispatchRepository(DataBaseContext context, TimeProvider timeProvider)
     {
         _context = context;
+        _timeProvider = timeProvider;
     }
 
     public async Task<bool> WasDispatchedAsync(string userId, string triggerKind, string dedupKey, CancellationToken cancellationToken = default)
@@ -123,7 +127,7 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
         if (row.ReadAtUtc == null)
         {
-            row.ReadAtUtc = DateTime.UtcNow;
+            row.ReadAtUtc = _timeProvider.GetUtcNow().UtcDateTime;
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -145,7 +149,7 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
             return;
         }
 
-        var readAt = DateTime.UtcNow;
+        var readAt = _timeProvider.GetUtcNow().UtcDateTime;
         foreach (var row in rows)
         {
             row.ReadAtUtc = readAt;
@@ -156,7 +160,7 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
     public async Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var readAt = DateTime.UtcNow;
+        var readAt = _timeProvider.GetUtcNow().UtcDateTime;
         await _context.AgentTriggerDispatches
             .Where(d => d.UserId == userId && d.ReadAtUtc == null)
             .ExecuteUpdateAsync(s => s.SetProperty(d => d.ReadAtUtc, readAt), cancellationToken);

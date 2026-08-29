@@ -5,6 +5,7 @@
 /// simplicity in S8; the REST endpoint can already use it and the persistent EF-backed
 /// store is a follow-up swap behind the same interface.
 /// </summary>
+/// <param name="timeProvider">Clock snooze expiry is read from, injected so a test can drive it.</param>
 
 using System.Collections.Concurrent;
 using Klacks.Api.Domain.Constants;
@@ -22,12 +23,18 @@ public class InMemoryAgentTriggerPreferenceService : IAgentTriggerPreferenceServ
     };
 
     private readonly ConcurrentDictionary<string, AgentTriggerPreference> _state = new();
+    private readonly TimeProvider _timeProvider;
+
+    public InMemoryAgentTriggerPreferenceService(TimeProvider timeProvider)
+    {
+        _timeProvider = timeProvider;
+    }
 
     public Task<bool> IsAllowedAsync(string userId, string triggerKind, string severity)
     {
         var pref = GetPreferenceCore(userId, triggerKind);
         if (pref.Muted) return Task.FromResult(false);
-        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > DateTime.UtcNow) return Task.FromResult(false);
+        if (pref.SnoozedUntilUtc.HasValue && pref.SnoozedUntilUtc.Value > _timeProvider.GetUtcNow().UtcDateTime) return Task.FromResult(false);
         return Task.FromResult(RankOf(severity) >= RankOf(pref.MinimumSeverity));
     }
 
