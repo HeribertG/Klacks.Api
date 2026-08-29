@@ -10,6 +10,8 @@ public static class RecipeEngineDefaults
 
     public const string CaptureSeparator = " as ";
 
+    public const string CaptureArrayMarker = "[].";
+
     public const string AskStepInstructionTemplate =
         "RECIPE STEP — {0} Respond with that question in the user's language and do NOT call any tool.";
 

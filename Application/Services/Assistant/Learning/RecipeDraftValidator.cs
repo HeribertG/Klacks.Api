@@ -33,9 +33,28 @@ public class RecipeDraftValidator : IRecipeDraftValidator
 {
     private const int MaxCanonicalSentences = 24;
     private const int MaxSkillPhrasesChecked = 4000;
+    private const string Identifier = "[A-Za-z_][A-Za-z0-9_]*";
 
     private static readonly Regex SlugPattern =
         new("^[a-z][a-z0-9]*(-[a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    // Exactly what RecipeExecutionPlan.TryGetSlotName accepts: the prefix followed by an identifier and
+    // nothing else. Anything after the identifier makes the whole remainder the slot name at runtime.
+    private static readonly Regex SlotReferencePattern = new(
+        "^" + Regex.Escape(RecipeEngineDefaults.SlotReferencePrefix) + Identifier + "$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    // Exactly what RecipeExecutionPlan.ExtractCapture can parse: an array property, the array marker, an
+    // id property, the separator and the slot name.
+    private static readonly Regex CaptureSpecPattern = new(
+        "^" + Identifier + Regex.Escape(RecipeEngineDefaults.CaptureArrayMarker) + Identifier
+        + Regex.Escape(RecipeEngineDefaults.CaptureSeparator) + Identifier + "$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    // Placeholder syntaxes the recipe engine does not know. They carry no prefix, so the runtime hands
+    // them to the skill verbatim and nothing ever reports it.
+    private static readonly Regex ForeignPlaceholderPattern =
+        new(@"\{\{?\s*[A-Za-z_][A-Za-z0-9_]*\s*\}?\}", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly JsonSerializerOptions TriggerJsonOptions =
         new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
@@ -58,6 +77,12 @@ public class RecipeDraftValidator : IRecipeDraftValidator
         if (shapeError != null)
         {
             return RecipeDraftVerdict.Rejected(shapeError);
+        }
+
+        var bindingError = CheckStepBindings(draft);
+        if (bindingError != null)
+        {
+            return RecipeDraftVerdict.Rejected(bindingError);
         }
 
         var name = SkillLearningDefaults.LearnedRecipeNamePrefix + draft.Name;
@@ -112,6 +137,58 @@ public class RecipeDraftValidator : IRecipeDraftValidator
             ? null
             : $"Trigger term '{shortTerm}' is shorter than {SkillLearningDefaults.MinTriggerStemLength} "
               + "characters and would match unrelated words.";
+    }
+
+    // Two ways a draft can name a value the engine cannot produce, neither of which any later gate
+    // catches on its own merits.
+    // The first is a slot reference carrying a suffix. "$currentMonth-01" makes the runtime look up a
+    // slot literally called "currentMonth-01"; nothing captures that, so GetParameterInjections drops the
+    // parameter without a word and the step runs with whatever the model happened to pass. Oracle O2 does
+    // reject it today, but only by accident and with the wrong reason - "no earlier step produces it" -
+    // which sends the generator looking for a missing capture instead of dropping the suffix.
+    // The second is worse because it passes everything. A value that merely LOOKS like a placeholder but
+    // carries no prefix - "{{month}}-01" - is not a slot reference at all: the runtime treats it as a
+    // literal constant and hands the braces to the skill verbatim, and O2's binding check counts it as a
+    // constant and waves it through. That draft activates, and the raw text reaches a real user's turn.
+    // The capture spec is checked for the same reason. ExtractCapture needs "array[].id as slot" and
+    // silently yields nothing without the array marker, and a capture that yields nothing does not merely
+    // fail: Observe() deactivates the whole recipe, leaving the user in a chat that stopped answering.
+    // O2 only reads the part after " as ", so "items[].id as month" on a skill returning a flat object
+    // registers a slot that can never be filled - the exact shape that would let a suffix-free rewrite of
+    // the failing draft pass every gate and ship broken.
+    private static string? CheckStepBindings(LearnedRecipeDraft draft)
+    {
+        foreach (var step in draft.Steps)
+        {
+            foreach (var (parameter, value) in step.Inject ?? [])
+            {
+                if (value != null
+                    && value.Contains(RecipeEngineDefaults.SlotReferencePrefix, StringComparison.Ordinal)
+                    && !SlotReferencePattern.IsMatch(value))
+                {
+                    return $"Step '{step.Skill}' binds '{parameter}' to '{value}'. A slot reference is the "
+                        + "whole value and nothing else; it cannot be joined to any other text. Capture the "
+                        + "finished value, or use a plain literal.";
+                }
+
+                if (value != null && ForeignPlaceholderPattern.IsMatch(value))
+                {
+                    return $"Step '{step.Skill}' binds '{parameter}' to '{value}', which looks like a "
+                        + "placeholder but is passed to the skill verbatim. There is no template syntax: "
+                        + "use a literal value, or a captured slot reference.";
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(step.Capture) && !CaptureSpecPattern.IsMatch(step.Capture))
+            {
+                return $"Step '{step.Skill}' captures with '{step.Capture}'. A capture reads one field out "
+                    + "of a list the step returns and must be spelled 'array"
+                    + RecipeEngineDefaults.CaptureArrayMarker + "field"
+                    + RecipeEngineDefaults.CaptureSeparator + "slot'.";
+            }
+        }
+
+        return null;
     }
 
     // The question guard is written in rather than demanded from the generator: a missing lead produces a

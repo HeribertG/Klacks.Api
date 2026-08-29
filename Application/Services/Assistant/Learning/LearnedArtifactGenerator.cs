@@ -67,6 +67,16 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         "a step takes its parameters from \"inject\", whose values are either plain string constants or " +
         "\"$slot\" references to a value an EARLIER step captured with \"capture\": \"field[].id as slot\"; " +
         "never reference a slot nothing captured; " +
+        "a \"$slot\" reference is the ENTIRE value and may never be joined to anything else - " +
+        "\"$month-01\" is not a reference to $month, it asks for a slot named \"month-01\" that cannot " +
+        "exist, and there is no template syntax either, so \"{{month}}-01\" is handed to the skill as " +
+        "those literal characters; " +
+        "there are NO built-in variables: nothing supplies $today, $now or $currentMonth, and a date, " +
+        "month or year is therefore written as a plain literal exactly as the request words it, or the " +
+        "parameter is left out when it is not required; " +
+        "\"capture\" reads one field out of a LIST a search step returns, so it fits a step that looks " +
+        "entities up and never one that returns a single value such as the current time - when in doubt " +
+        "omit \"capture\" entirely and give each step its own literals; " +
         "prefer compositions that only read, because those can be verified before activation; " +
         "the trigger has \"allOf\" conditions, and ALL of them must match at once, while the stems INSIDE " +
         "one condition are alternatives of which any one suffices; " +
@@ -86,8 +96,9 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         "Respond ONLY with a JSON object: {\"capabilities\":[{\"name\":\"...\",\"goal\":\"...\"," +
         "\"goalTranslations\":{\"de\":\"...\",\"en\":\"...\",\"fr\":\"...\",\"it\":\"...\"}," +
         "\"trigger\":{\"allOf\":[{\"anyWordStart\":[\"...\"]},{\"anySubstring\":[\"...\"]}]}," +
-        "\"steps\":[{\"kind\":\"search\",\"skill\":\"...\",\"inject\":{\"param\":\"value\"}," +
-        "\"capture\":\"items[].id as itemId\"}]}]}. " +
+        "\"steps\":[{\"kind\":\"search\",\"skill\":\"...\",\"inject\":{\"param\":\"literal value\"}}]}]}. " +
+        "Add \"capture\":\"items[].id as itemId\" to a step ONLY when a later step needs an id that step " +
+        "looked up; most compositions need no capture at all. " +
         "Omit a parameter entirely when the step does not need it; never bind one to an empty string.";
 
     private readonly ICheapestModelResolver _modelResolver;

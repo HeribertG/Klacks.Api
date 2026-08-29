@@ -30,7 +30,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public sealed class RecipeExecutionPlan : IRecipeForcingPlan
 {
     private const string ResultDataMarker = "Data: ";
-    private const string ArrayMarker = "[].";
+    private const string ArrayMarker = RecipeEngineDefaults.CaptureArrayMarker;
 
     private readonly IReadOnlyList<RecipeStep> _steps;
     private readonly Dictionary<string, string> _slots;
