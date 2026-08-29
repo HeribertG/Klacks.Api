@@ -169,7 +169,8 @@ public class CapabilityLearner : ICapabilityLearner
         if (!verdict.IsAccepted)
         {
             await FailAsync(
-                candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, null, verdict.Error!, cancellationToken);
+                candidate.Id, SkillLearningCandidateStatuses.ValidationFailed, null, verdict.Error!,
+                cancellationToken);
             return CapabilityLearningOutcome.Failure(verdict.Error!);
         }
 
