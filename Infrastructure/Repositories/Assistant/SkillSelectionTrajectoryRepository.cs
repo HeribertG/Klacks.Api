@@ -90,4 +90,52 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .OrderByDescending(t => t.CreateTime)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    // Success for a phrase means the turn actually reached the skill the phrase belongs to. The phrase
+    // occurring while a different skill ran is a use, not a success - which is exactly the distinction
+    // the quote exists to make.
+    public async Task<LearnedArtefactUsage> CountPhraseUsageAsync(
+        string ownerName, DateTime fromUtc, CancellationToken cancellationToken = default)
+    {
+        var rows = await _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc)
+            .Select(t => new UsageRow(
+                t.CreateTime, t.WasCorrected, t.Helpful, t.LlmChosenSkill == ownerName && !t.WasCorrected))
+            .ToListAsync(cancellationToken);
+
+        return Summarise(rows);
+    }
+
+    public async Task<LearnedArtefactUsage> CountRecipeUsageAsync(
+        string recipeName, DateTime fromUtc, CancellationToken cancellationToken = default)
+    {
+        var rows = await _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc)
+            .Select(t => new UsageRow(t.CreateTime, t.WasCorrected, t.Helpful, t.WasExecuted && !t.WasCorrected))
+            .ToListAsync(cancellationToken);
+
+        return Summarise(rows);
+    }
+
+    public async Task<bool> HasSuccessfulRecipeTurnAsync(
+        string recipeName, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .AnyAsync(t => t.RecipeName == recipeName && t.WasExecuted && !t.WasCorrected, cancellationToken);
+    }
+
+    private static LearnedArtefactUsage Summarise(IReadOnlyList<UsageRow> rows) =>
+        rows.Count == 0
+            ? LearnedArtefactUsage.None
+            : new LearnedArtefactUsage(
+                rows.Count,
+                rows.Count(row => row.IsSuccess),
+                rows.Count(row => row.WasCorrected),
+                rows.Count(row => row.Helpful == true),
+                rows.Max(row => row.CreateTime));
+
+    private sealed record UsageRow(DateTime? CreateTime, bool WasCorrected, bool? Helpful, bool IsSuccess);
 }

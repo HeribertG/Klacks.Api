@@ -194,11 +194,56 @@ public class EvalController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// The thumbs-up counterpart of the correction endpoint, open to every authenticated user for the
+    /// same reason: only the person who asked can say whether the answer helped. Carries no verdict in
+    /// the body - a request to this route always means helpful, so nothing a caller sends can turn it
+    /// into a negative judgement about somebody else's turn.
+    /// </summary>
+    [HttpPost("feedback")]
+    public async Task<ActionResult<SubmitHelpfulFeedbackResult>> SubmitHelpfulFeedback(
+        [FromBody] SubmitHelpfulFeedbackRequest body,
+        CancellationToken cancellationToken)
+    {
+        if (body == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _mediator.Send(
+                new SubmitHelpfulFeedbackCommand
+                {
+                    UserId = userId,
+                    UserMessage = body.UserMessage ?? string.Empty
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     public sealed class SubmitCorrectionRequest
     {
         public string? UserMessage { get; set; }
         public string? CorrectionType { get; set; }
         public string? ExpectedSkill { get; set; }
+    }
+
+    public sealed class SubmitHelpfulFeedbackRequest
+    {
+        public string? UserMessage { get; set; }
     }
 
     private List<string> GetCurrentUserRights() => User.GetUserRights();

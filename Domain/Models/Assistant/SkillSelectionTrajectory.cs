@@ -45,4 +45,26 @@ public class SkillSelectionTrajectory : BaseEntity
     /// sharpening proposal on every later run.
     /// </summary>
     public DateTime? SharpenedAtUtc { get; set; }
+
+    /// <summary>
+    /// Name of the recipe that was forcing this turn, null when no recipe was active. The only link
+    /// between a turn and a composed capability, and therefore the denominator of that capability's
+    /// usefulness quote.
+    /// </summary>
+    public string? RecipeName { get; set; }
+
+    /// <summary>
+    /// Owner of a learned phrase whose wording occurs in this turn's excerpt, null when none does.
+    /// Recorded at capture time rather than derived later, so a phrase learned tomorrow cannot claim
+    /// credit for a turn that happened yesterday. This is a substring heuristic, not causality: the
+    /// phrase may have occurred without having contributed anything to the routing.
+    /// </summary>
+    public string? LearnedPhraseHit { get; set; }
+
+    /// <summary>
+    /// True when the user gave the answer a thumbs-up, null while they said nothing. Deliberately
+    /// nullable: "nobody judged this turn" and "somebody judged it unhelpful" are different facts, and
+    /// the fitness quote may only count the first as neutral.
+    /// </summary>
+    public bool? Helpful { get; set; }
 }

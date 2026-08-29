@@ -18,6 +18,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Application.Services.Assistant.Learning;
@@ -27,6 +28,10 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
     private const double GeneratorTemperature = 0.2;
     private const int ClassificationMaxTokens = 700;
     private const int PhraseMaxTokens = 300;
+    private const int CapabilityMaxTokens = 2500;
+
+    private static readonly JsonSerializerOptions CapabilityJsonOptions =
+        new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
 
     private static readonly string ClassificationSystemPrompt =
         "You triage wishes that an assistant could not serve. For each numbered case you receive the user's " +
@@ -48,6 +53,31 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         "not a full sentence and not a question; no punctuation at the end; do not repeat a phrase that " +
         "already exists; do not describe what the skill does, write what a user would say. " +
         "Respond ONLY with a JSON object: {\"phrases\":[\"...\",\"...\",\"...\"]}.";
+
+    // The rules are the ones .claude/rules/recipe-authoring.md imposes on hand-written recipes, restated
+    // for a model that has never read that file. Two of them are stricter here than for a human author:
+    // no question step, because its answer would have to be invented before the execution oracle could
+    // run anything, and no step kind beyond search and mutate, because the engine executes no others.
+    private static readonly string CapabilitySystemPrompt =
+        "You compose new capabilities for an assistant by chaining skills it already has. A capability is " +
+        "a recipe: a trigger that recognises the request, and an ordered list of steps that serve it. " +
+        "Rules, all mandatory: " +
+        "use ONLY the skills you are given, copied character for character; " +
+        "every step is \"search\" (reads) or \"mutate\" (writes) - never \"ask\", \"guard\" or \"verify\"; " +
+        "a step takes its parameters from \"inject\", whose values are either plain string constants or " +
+        "\"$slot\" references to a value an EARLIER step captured with \"capture\": \"field[].id as slot\"; " +
+        "never reference a slot nothing captured; " +
+        "prefer compositions that only read, because those can be verified before activation; " +
+        "the trigger has \"allOf\" conditions that must all match, each listing \"anyWordStart\" stems; " +
+        "every stem is at least four characters and is a distinctive word of THIS request, never a " +
+        "generic verb; " +
+        "the name is an English lower-case kebab-case slug; " +
+        "\"goal\" is one English sentence, and \"goalTranslations\" gives it in de, en, fr and it. " +
+        "Respond ONLY with a JSON object: {\"capabilities\":[{\"name\":\"...\",\"goal\":\"...\"," +
+        "\"goalTranslations\":{\"de\":\"...\",\"en\":\"...\",\"fr\":\"...\",\"it\":\"...\"}," +
+        "\"trigger\":{\"allOf\":[{\"anyWordStart\":[\"...\"]}]}," +
+        "\"steps\":[{\"kind\":\"search\",\"skill\":\"...\",\"inject\":{\"param\":\"value\"}," +
+        "\"capture\":\"items[].id as itemId\"}]}]}.";
 
     private readonly ICheapestModelResolver _modelResolver;
     private readonly ILogger<LearnedArtifactGenerator> _logger;
@@ -90,6 +120,149 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
             cancellationToken);
 
         return content == null ? [] : ParsePhrases(content);
+    }
+
+    public async Task<IReadOnlyList<LearnedRecipeDraft>> GenerateCapabilitiesAsync(
+        SkillLearningClusterContext cluster,
+        IReadOnlyList<CapabilityBuildingBlock> blocks,
+        IReadOnlyList<string> examples,
+        string? failureHint,
+        CancellationToken cancellationToken = default)
+    {
+        if (blocks.Count == 0)
+        {
+            return [];
+        }
+
+        var content = await AskAsync(
+            CapabilitySystemPrompt,
+            BuildCapabilityPrompt(cluster, blocks, examples, failureHint),
+            CapabilityMaxTokens,
+            cancellationToken);
+
+        return content == null ? [] : ParseCapabilities(content);
+    }
+
+    private static string BuildCapabilityPrompt(
+        SkillLearningClusterContext cluster,
+        IReadOnlyList<CapabilityBuildingBlock> blocks,
+        IReadOnlyList<string> examples,
+        string? failureHint)
+    {
+        var builder = new StringBuilder();
+        builder.Append("A user asked for this and no single skill could serve it: ")
+            .Append(cluster.IntentExcerpt).Append('\n');
+        builder.Append("Language of the request: ").Append(cluster.Locale).Append("\n\n");
+
+        builder.Append("Skills you may use:\n");
+        foreach (var block in blocks)
+        {
+            builder.Append("- ").Append(block.Name).Append(block.ReadOnly ? " (reads)" : " (writes)")
+                .Append(": ").Append(block.Description);
+
+            if (block.Parameters.Count > 0)
+            {
+                builder.Append(" | parameters: ").Append(string.Join(", ", block.Parameters));
+            }
+
+            builder.Append('\n');
+        }
+
+        if (examples.Count > 0)
+        {
+            builder.Append("\nExisting capabilities, as the format to follow:\n");
+            foreach (var example in examples)
+            {
+                builder.Append(example).Append('\n');
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(failureHint))
+        {
+            builder.Append("\nPrevious attempt failed because: ").Append(failureHint).Append('\n');
+        }
+
+        builder.Append("\nWrite ").Append(SkillLearningDefaults.CapabilityVariantsPerRound)
+            .Append(" different capabilities, ordered best first, each with at most ")
+            .Append(SkillLearningDefaults.MaxCapabilityStepCount).Append(" steps.");
+
+        return builder.ToString();
+    }
+
+    private IReadOnlyList<LearnedRecipeDraft> ParseCapabilities(string content)
+    {
+        var json = ExtractJsonObject(content);
+        if (json == null)
+        {
+            _logger.LogWarning("Skill learning capability answer contained no JSON object");
+            return [];
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            if (!document.RootElement.TryGetProperty("capabilities", out var capabilities)
+                || capabilities.ValueKind != JsonValueKind.Array)
+            {
+                return [];
+            }
+
+            return capabilities
+                .EnumerateArray()
+                .Select(ReadCapability)
+                .Where(draft => draft != null)
+                .Select(draft => draft!)
+                .Take(SkillLearningDefaults.CapabilityVariantsPerRound)
+                .ToList();
+        }
+        catch (JsonException exception)
+        {
+            _logger.LogWarning(exception, "Skill learning capability answer was not valid JSON");
+            return [];
+        }
+    }
+
+    // Nothing is repaired here. A draft that does not carry a name, a goal, a trigger and steps is
+    // dropped rather than completed with guesses, because every field the generator omits is one the
+    // validator would then be judging against something no model actually proposed.
+    private static LearnedRecipeDraft? ReadCapability(JsonElement element)
+    {
+        var name = ReadString(element, "name");
+        var goal = ReadString(element, "goal");
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(goal))
+        {
+            return null;
+        }
+
+        var trigger = ReadSection<RecipeTrigger>(element, "trigger");
+        var steps = ReadSection<List<RecipeStep>>(element, "steps");
+        if (trigger == null || steps == null || steps.Count == 0)
+        {
+            return null;
+        }
+
+        var translations = ReadSection<Dictionary<string, string>>(element, "goalTranslations")
+            ?? new Dictionary<string, string>();
+
+        return new LearnedRecipeDraft(name!.Trim(), goal!.Trim(), translations, trigger, steps);
+    }
+
+    private static T? ReadSection<T>(JsonElement element, string property)
+        where T : class
+    {
+        if (!element.TryGetProperty(property, out var section))
+        {
+            return null;
+        }
+
+        try
+        {
+            return section.Deserialize<T>(CapabilityJsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static string BuildClassificationPrompt(IReadOnlyList<SkillLearningTriageInput> inputs)

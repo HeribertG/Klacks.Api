@@ -102,4 +102,59 @@ public static class SkillLearningDefaults
     /// refresh plus a full replay of the goldset, twice when it has to be rolled back.
     /// </summary>
     public const int MaxProposalsPerRun = 3;
+
+    /// <summary>
+    /// Capability variants the generator produces per round, mirroring the phrase budget.
+    /// </summary>
+    public const int CapabilityVariantsPerRound = 3;
+
+    /// <summary>
+    /// Longest step sequence a learned capability may have. A composition nobody can read at a glance is
+    /// one an administrator cannot judge in the card either, and every further step multiplies the ways
+    /// the chain can misfire on data the probe never saw.
+    /// </summary>
+    public const int MaxCapabilityStepCount = 4;
+
+    /// <summary>
+    /// Shortest trigger stem a learned recipe may use. Below four characters a stem matches unrelated
+    /// words at a word boundary far more often than the intent it was meant to catch, which is how a
+    /// recipe starts hijacking foreign turns.
+    /// </summary>
+    public const int MinTriggerStemLength = 4;
+
+    /// <summary>
+    /// Prefix every learned recipe name carries. Keeps the learned namespace disjoint from the seeded
+    /// slugs, so a later seed definition can never collide with, and therefore never overwrite, a recipe
+    /// the loop composed.
+    /// </summary>
+    public const string LearnedRecipeNamePrefix = "learned-";
+
+    /// <summary>
+    /// Sort order given to every learned recipe. Deliberately behind all seeded recipes: the trigger
+    /// matcher takes the first match in sort order, so a learned recipe never outranks a hand-written one
+    /// even if a disjointness check was ever fooled.
+    /// </summary>
+    public const int LearnedRecipeSortOrder = 10000;
+
+    /// <summary>
+    /// Rolling window in days over which an activated artefact's usefulness is measured, and the idle
+    /// period after which an unused one is retired.
+    /// </summary>
+    public const int FitnessWindowDays = 30;
+
+    /// <summary>
+    /// How many observations an artefact needs before a poor quote is allowed to retire it. Below this
+    /// a single unlucky turn would decide, and the loop would unlearn faster than it learns.
+    /// </summary>
+    public const int PruneMinUsesForQuote = 5;
+
+    /// <summary>
+    /// The quote at or above which an artefact with enough observations is kept.
+    /// </summary>
+    public const decimal PruneMinQuote = 0.5m;
+
+    /// <summary>
+    /// How many activated artefacts one fitness or pruning pass may look at.
+    /// </summary>
+    public const int MaxArtefactsPerFitnessRun = 200;
 }

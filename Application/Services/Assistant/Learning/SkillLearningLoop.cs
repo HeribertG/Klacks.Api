@@ -13,10 +13,10 @@
 /// </summary>
 /// <param name="clusterRepository">Claims, finishes and releases clusters</param>
 /// <param name="caseRepository">Supplies the evidence behind a cluster</param>
-/// <param name="candidateRepository">Records the classification of a composable wish for stage G3</param>
 /// <param name="generator">Classifies the claimed clusters</param>
 /// <param name="routingOracle">Assembles the current toolset per cluster</param>
 /// <param name="phraseLearner">Runs one phrase round for a phrase gap</param>
+/// <param name="capabilityLearner">Runs one composition round for a wish several skills could serve together</param>
 /// <param name="descriptionSharpener">Applies the pending description proposals behind the same gate</param>
 /// <param name="logger">One summary line per run</param>
 
@@ -35,29 +35,29 @@ public class SkillLearningLoop : ISkillLearningLoop
 
     private readonly ISkillLearningClusterRepository _clusterRepository;
     private readonly ISkillLearningCaseRepository _caseRepository;
-    private readonly ISkillLearningCandidateRepository _candidateRepository;
     private readonly ILearnedArtifactGenerator _generator;
     private readonly ISkillRoutingOracle _routingOracle;
     private readonly IPhraseLearner _phraseLearner;
+    private readonly ICapabilityLearner _capabilityLearner;
     private readonly ISkillDescriptionSharpener _descriptionSharpener;
     private readonly ILogger<SkillLearningLoop> _logger;
 
     public SkillLearningLoop(
         ISkillLearningClusterRepository clusterRepository,
         ISkillLearningCaseRepository caseRepository,
-        ISkillLearningCandidateRepository candidateRepository,
         ILearnedArtifactGenerator generator,
         ISkillRoutingOracle routingOracle,
         IPhraseLearner phraseLearner,
+        ICapabilityLearner capabilityLearner,
         ISkillDescriptionSharpener descriptionSharpener,
         ILogger<SkillLearningLoop> logger)
     {
         _clusterRepository = clusterRepository;
         _caseRepository = caseRepository;
-        _candidateRepository = candidateRepository;
         _generator = generator;
         _routingOracle = routingOracle;
         _phraseLearner = phraseLearner;
+        _capabilityLearner = capabilityLearner;
         _descriptionSharpener = descriptionSharpener;
         _logger = logger;
     }
@@ -247,8 +247,8 @@ public class SkillLearningLoop : ISkillLearningLoop
             {
                 SkillLearningClassifications.NeedsCode => await GiveUpAsync(
                     cluster, classification.Reason ?? "No existing skill can serve this wish.", cancellationToken),
-                SkillLearningClassifications.Composable => await DeferToCapabilityLearningAsync(
-                    cluster, classification, cancellationToken),
+                SkillLearningClassifications.Composable => await LearnCapabilityAsync(
+                    input, cancellationToken),
                 _ => await LearnPhraseAsync(input, classification, cancellationToken)
             };
         }
@@ -300,37 +300,45 @@ public class SkillLearningLoop : ISkillLearningLoop
         return ClusterOutcome.Learned;
     }
 
-    // Stage G2 learns phrases, not capabilities. The verdict is kept as a candidate row so stage G3 finds
-    // the wishes worth composing without asking a model again, and the cluster is closed as unservable
-    // for now - which is the truth today, and a state stage G3 can legally re-open.
-    private async Task<ClusterOutcome> DeferToCapabilityLearningAsync(
-        SkillLearningClusterContext cluster,
-        SkillLearningClassification classification,
-        CancellationToken cancellationToken)
+    // A wish several skills could serve together. The composition is judged and, if it survives both
+    // oracles, activated here and now - unlike a phrase there is no "activate and measure" for a recipe,
+    // because an enabled recipe forces its steps on every instance the moment it exists.
+    // A round that could not be judged at all - typically because no identity was available to run the
+    // read-only steps under - hands the cluster back to ready with its attempt budget untouched. An
+    // outage says nothing about whether the wish can be served.
+    private async Task<ClusterOutcome> LearnCapabilityAsync(
+        SkillLearningTriageInput input, CancellationToken cancellationToken)
     {
-        var variantNo = await _candidateRepository.CountByClusterAsync(cluster.ClusterId, cancellationToken);
+        var cluster = input.Cluster;
+        var outcome = await _capabilityLearner.LearnAsync(cluster, input.CandidateSkills, cancellationToken);
 
-        await _candidateRepository.AddAsync(
-            new SkillLearningCandidate
-            {
-                Id = Guid.NewGuid(),
-                ClusterId = cluster.ClusterId,
-                VariantNo = variantNo,
-                Kind = SkillLearningCandidateKinds.Capability,
-                PayloadJson = JsonSerializer.Serialize(new
-                {
-                    classification = SkillLearningClassifications.Composable,
-                    reason = classification.Reason
-                }),
-                Status = SkillLearningCandidateStatuses.Generated
-            },
+        if (outcome.Inconclusive)
+        {
+            await ReleaseAsync(
+                cluster.ClusterId,
+                cluster.AttemptCount,
+                outcome.Error ?? "The execution oracle could not judge this composition.",
+                cancellationToken);
+
+            return ClusterOutcome.Failed;
+        }
+
+        if (!outcome.Learned)
+        {
+            return await FailRoundAsync(
+                cluster, outcome.Error ?? "Capability learning failed.", cancellationToken);
+        }
+
+        await _clusterRepository.FinishLearningAsync(
+            cluster.ClusterId,
+            SkillLearningClusterStatuses.LearnedCapability,
+            SkillLearningOutcomeKinds.Capability,
+            outcome.RecipeName!,
+            lastError: null,
+            cluster.AttemptCount,
             cancellationToken);
 
-        return await GiveUpAsync(
-            cluster,
-            "Several skills together could serve this; composing them is not yet supported. "
-                + (classification.Reason ?? string.Empty),
-            cancellationToken);
+        return ClusterOutcome.Learned;
     }
 
     private async Task<ClusterOutcome> GiveUpAsync(

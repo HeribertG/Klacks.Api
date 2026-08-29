@@ -271,6 +271,10 @@ public class LLMService : ILLMService
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+
+        // Only the engine plan is recorded: a cut plan is resolved from the message itself and has no row
+        // in agent_recipes, so its name could never be attributed to a learned capability anyway.
+        context.ActiveRecipeName = enginePlan?.Name;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, recipePlan != null);
         Guid.TryParse(context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
@@ -778,6 +782,11 @@ public class LLMService : ILLMService
             ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, ctx.CancellationToken);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+
+        // Written onto the shared context object rather than returned: ProcessAsync holds the very same
+        // LLMContext instance and hands it to the post-turn hooks, so the name reaches trajectory capture
+        // without widening this method's already six-wide return tuple.
+        ctx.Context.ActiveRecipeName = enginePlan?.Name;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
         Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;

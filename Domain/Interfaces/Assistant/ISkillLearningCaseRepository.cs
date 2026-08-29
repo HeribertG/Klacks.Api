@@ -42,4 +42,11 @@ public interface ISkillLearningCaseRepository
     /// </summary>
     Task<bool> HasCaseSinceAsync(
         Guid clusterId, string? userId, DateTime sinceUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// How many further occurrences a cluster collected after the given moment. Read after an artefact
+    /// was activated, where every new case means the same wish went unserved again - the one negative
+    /// signal that does not depend on anybody complaining.
+    /// </summary>
+    Task<int> CountSinceAsync(Guid clusterId, DateTime sinceUtc, CancellationToken cancellationToken = default);
 }

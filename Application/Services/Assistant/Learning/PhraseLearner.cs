@@ -153,7 +153,7 @@ public class PhraseLearner : IPhraseLearner
         {
             var duplicate = $"The wording '{phrase}' is already indexed for '{skillName}'.";
             await _candidateRepository.UpdateVerdictAsync(
-                candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, null, duplicate, null, cancellationToken);
+                candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, null, null, duplicate, null, cancellationToken);
             return PhraseLearningOutcome.Failure(duplicate);
         }
 
@@ -179,7 +179,8 @@ public class PhraseLearner : IPhraseLearner
         if (failure == null)
         {
             await _candidateRepository.UpdateVerdictAsync(
-                candidate.Id, SkillLearningCandidateStatuses.Active, routingJson, null, DateTime.UtcNow, cancellationToken);
+                candidate.Id, SkillLearningCandidateStatuses.Active, routingJson, null, null, DateTime.UtcNow,
+                cancellationToken);
 
             _logger.LogInformation(
                 "Learned phrase '{Phrase}' ({Language}) for skill {Skill}", phrase, language, skillName);
@@ -191,7 +192,8 @@ public class PhraseLearner : IPhraseLearner
         await _catalogRefresher.RefreshAsync(RollbackReason, cancellationToken);
 
         await _candidateRepository.UpdateVerdictAsync(
-            candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, routingJson, failure, null, cancellationToken);
+            candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, routingJson, null, failure, null,
+            cancellationToken);
 
         _logger.LogInformation(
             "Rejected phrase '{Phrase}' for skill {Skill}: {Reason}", phrase, skillName, failure);

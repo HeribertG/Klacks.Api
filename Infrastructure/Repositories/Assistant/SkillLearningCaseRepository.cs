@@ -70,6 +70,14 @@ public class SkillLearningCaseRepository : ISkillLearningCaseRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<int> CountSinceAsync(
+        Guid clusterId, DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillLearningCases
+            .AsNoTracking()
+            .CountAsync(c => c.ClusterId == clusterId && c.OccurredAtUtc >= sinceUtc, cancellationToken);
+    }
+
     public async Task<string?> FindExpectedSkillByTrajectoryAsync(
         Guid trajectoryId, CancellationToken cancellationToken = default)
     {

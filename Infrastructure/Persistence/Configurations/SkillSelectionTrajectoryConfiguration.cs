@@ -19,11 +19,15 @@ public class SkillSelectionTrajectoryConfiguration : IEntityTypeConfiguration<Sk
         builder.HasIndex(p => p.WasCorrected);
         builder.HasIndex(p => p.SharpenedAtUtc);
         builder.HasIndex(p => p.PlanId);
+        builder.HasIndex(p => new { p.RecipeName, p.CreateTime });
+        builder.HasIndex(p => new { p.LearnedPhraseHit, p.CreateTime });
         builder.Property(p => p.Locale).HasMaxLength(8);
         builder.Property(p => p.UserMessageHash).HasMaxLength(16);
         builder.Property(p => p.IntentExcerpt).HasMaxLength(120);
         builder.Property(p => p.LlmChosenSkill).HasMaxLength(128);
         builder.Property(p => p.CorrectionType).HasMaxLength(32);
+        builder.Property(p => p.RecipeName).HasMaxLength(128);
+        builder.Property(p => p.LearnedPhraseHit).HasMaxLength(128);
         builder.Property(p => p.KnowledgeIndexCandidatesJson).HasColumnType("jsonb");
 
         builder.HasOne<AgentPlan>()

@@ -13,6 +13,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class AgentRecipeConfiguration : IEntityTypeConfiguration<AgentRecipe>
 {
+    private const int OriginMaxLength = 16;
+
     public void Configure(EntityTypeBuilder<AgentRecipe> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
@@ -20,6 +22,7 @@ public class AgentRecipeConfiguration : IEntityTypeConfiguration<AgentRecipe>
             .HasFilter("is_deleted = false")
             .IsUnique();
         builder.HasIndex(p => new { p.IsEnabled, p.SortOrder });
+        builder.Property(p => p.Origin).HasMaxLength(OriginMaxLength).IsRequired();
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
         builder.Property(e => e.GoalTranslations)

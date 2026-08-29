@@ -304,6 +304,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillLearningCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCaseRepository>();
         services.AddScoped<ISkillLearningCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningCandidateRepository>();
         services.AddScoped<ISkillLearningGoldenCaseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningGoldenCaseRepository>();
+        services.AddScoped<ISkillLearningFitnessRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillLearningFitnessRepository>();
         services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
@@ -1144,6 +1145,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISkillRoutingOracle, Klacks.Api.Application.Services.Assistant.Learning.SkillRoutingOracle>();
         services.AddScoped<ILearnedArtifactGenerator, Klacks.Api.Application.Services.Assistant.Learning.LearnedArtifactGenerator>();
         services.AddScoped<IPhraseLearner, Klacks.Api.Application.Services.Assistant.Learning.PhraseLearner>();
+        services.AddScoped<ISkillExecutionOracle, Klacks.Api.Application.Services.Assistant.Learning.SkillExecutionOracle>();
+        services.AddScoped<IRecipeDraftValidator, Klacks.Api.Application.Services.Assistant.Learning.RecipeDraftValidator>();
+        services.AddScoped<ICapabilityLearner, Klacks.Api.Application.Services.Assistant.Learning.CapabilityLearner>();
+        services.AddScoped<ILearnedArtefactResolver, Klacks.Api.Application.Services.Assistant.Learning.LearnedArtefactResolver>();
+        services.AddScoped<ISkillLearningFitnessService, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningFitnessService>();
+        services.AddScoped<ISkillLearningPruner, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningPruner>();
         services.AddScoped<ISkillDescriptionSharpener, Klacks.Api.Application.Services.Assistant.Learning.SkillDescriptionSharpener>();
         services.AddScoped<ISkillLearningLoop, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningLoop>();
 

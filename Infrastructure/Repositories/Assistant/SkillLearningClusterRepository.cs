@@ -20,6 +20,17 @@ public class SkillLearningClusterRepository : ISkillLearningClusterRepository
 {
     private const string UniqueViolationSqlState = "23505";
 
+    /// <summary>
+    /// The statuses a pruning pass may retire a cluster from. Both are checked against the state machine
+    /// before the write, so a transition the machine stops describing fails loudly here rather than
+    /// quietly bypassing it.
+    /// </summary>
+    private static readonly string[] RetirableStatuses =
+    [
+        SkillLearningClusterStatuses.LearnedPhrase,
+        SkillLearningClusterStatuses.LearnedCapability
+    ];
+
     private readonly DataBaseContext _context;
 
     public SkillLearningClusterRepository(DataBaseContext context)
@@ -188,6 +199,35 @@ public class SkillLearningClusterRepository : ISkillLearningClusterRepository
                     .SetProperty(c => c.StatusChangedAtUtc, now)
                     .SetProperty(c => c.UpdateTime, now),
                 cancellationToken);
+    }
+
+    public async Task<bool> FinishRetirementAsync(
+        Guid id, string reason, CancellationToken cancellationToken = default)
+    {
+        foreach (var fromStatus in RetirableStatuses)
+        {
+            if (!SkillLearningStateMachine.IsLegalTransition(fromStatus, SkillLearningClusterStatuses.Retired))
+            {
+                throw new InvalidOperationException(
+                    $"Illegal learning cluster transition '{fromStatus}' to "
+                    + $"'{SkillLearningClusterStatuses.Retired}'.");
+            }
+        }
+
+        var now = DateTime.UtcNow;
+
+        var affected = await _context.SkillLearningClusters
+            .Where(c => c.Id == id && RetirableStatuses.Contains(c.Status))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, SkillLearningClusterStatuses.Retired)
+                    .SetProperty(c => c.LastError, reason)
+                    .SetProperty(c => c.RetiredAtUtc, now)
+                    .SetProperty(c => c.StatusChangedAtUtc, now)
+                    .SetProperty(c => c.UpdateTime, now),
+                cancellationToken);
+
+        return affected > 0;
     }
 
     public async Task<bool> FinishLearningAsync(

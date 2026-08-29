@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="repository">Trajectory repository</param>
 /// <param name="caseCollector">Learning collector, fed with the preceding turn once a negation corrects it</param>
+/// <param name="phraseRepository">Active learned phrases, matched against the excerpt for fitness attribution</param>
 /// <param name="logger">Logger for telemetry warnings</param>
 
 using System.Text.Json;
@@ -25,6 +26,8 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
 {
     private const int ExcerptMaxLength = 120;
     private const int CandidatesMax = 30;
+    private const int OwnerNameMaxLength = 128;
+    private const int LearnedPhraseMatchLimit = 200;
 
     // How soon after the previous turn a negation/complaint ("nein", "falsch") is trusted as a
     // reactive correction of that turn rather than an unrelated later message that happens to
@@ -33,15 +36,18 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ISkillLearningCaseCollector _caseCollector;
+    private readonly ISkillPhraseRepository _phraseRepository;
     private readonly ILogger<TrajectoryCaptureService> _logger;
 
     public TrajectoryCaptureService(
         ISkillSelectionTrajectoryRepository repository,
         ISkillLearningCaseCollector caseCollector,
+        ISkillPhraseRepository phraseRepository,
         ILogger<TrajectoryCaptureService> logger)
     {
         _repository = repository;
         _caseCollector = caseCollector;
+        _phraseRepository = phraseRepository;
         _logger = logger;
     }
 
@@ -71,6 +77,8 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 LatencyMsTotal = 0,
                 LatencyMsKnowledge = 0,
                 LatencyMsLlm = 0,
+                RecipeName = Truncate(context.ActiveRecipeName),
+                LearnedPhraseHit = await FindLearnedPhraseHitAsync(context.Message),
                 CreateTime = DateTime.UtcNow
             };
 
@@ -117,6 +125,45 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             previous.LlmChosenSkill,
             previous.KnowledgeIndexCandidatesJson,
             previous.Id));
+    }
+
+    // Attribution for the usefulness quote of a learned phrase, and deliberately nothing more than a
+    // substring test: it says the wording occurred, not that it caused the routing. Evaluated now rather
+    // than when the fitness service runs, so a phrase learned next week cannot claim credit for a turn
+    // that happened today. Costs one read of the learned phrases per turn on a fire-and-forget path;
+    // while nothing has been learned yet that read returns an empty list.
+    private async Task<string?> FindLearnedPhraseHitAsync(string? message)
+    {
+        var normalized = MessageNormalizer.Normalize(message);
+        if (normalized.Length == 0)
+        {
+            return null;
+        }
+
+        var learned = await _phraseRepository.GetActiveBySourceAsync(
+            SkillPhraseSources.Learned, LearnedPhraseMatchLimit);
+
+        foreach (var phrase in learned)
+        {
+            if (!string.IsNullOrWhiteSpace(phrase.Phrase)
+                && normalized.Contains(MessageNormalizer.Normalize(phrase.Phrase), StringComparison.Ordinal))
+            {
+                return Truncate(phrase.OwnerName);
+            }
+        }
+
+        return null;
+    }
+
+    private static string? Truncate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var trimmed = value.Trim();
+        return trimmed.Length <= OwnerNameMaxLength ? trimmed : trimmed[..OwnerNameMaxLength];
     }
 
     private static string NormalizeLocale(string? language)

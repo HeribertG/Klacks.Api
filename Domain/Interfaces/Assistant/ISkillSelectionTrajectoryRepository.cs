@@ -36,4 +36,32 @@ public interface ISkillSelectionTrajectoryRepository
     Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default);
 
     Task<SkillSelectionTrajectory?> FindMostRecentByAgentAndUserAsync(Guid agentId, string userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Usage of a learned phrase inside a window, matched through the owner recorded at capture time.
+    /// The attribution is per owning skill, not per wording: the capture stores which skill's phrase
+    /// occurred, so two learned wordings for the same skill share one set of counters.
+    /// </summary>
+    /// <param name="ownerName">Skill the learned phrase belongs to</param>
+    /// <param name="fromUtc">Inclusive lower bound of the window</param>
+    Task<LearnedArtefactUsage> CountPhraseUsageAsync(
+        string ownerName, DateTime fromUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Usage of a learned capability inside a window, matched through the recipe that forced the turn.
+    /// A success is a turn that executed something and was not corrected - deliberately not "the last
+    /// step of the recipe reported success", because nothing links a usage row to a turn except a
+    /// session id and a time window, and that join would invent a precision this measurement lacks.
+    /// </summary>
+    /// <param name="recipeName">Name of the learned recipe</param>
+    /// <param name="fromUtc">Inclusive lower bound of the window</param>
+    Task<LearnedArtefactUsage> CountRecipeUsageAsync(
+        string recipeName, DateTime fromUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether a learned capability has ever run in a turn nobody corrected. That is what clears the
+    /// "first real use still owed" mark the execution oracle leaves on a capability it could not run end
+    /// to end.
+    /// </summary>
+    Task<bool> HasSuccessfulRecipeTurnAsync(string recipeName, CancellationToken cancellationToken = default);
 }

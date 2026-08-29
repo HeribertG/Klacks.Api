@@ -97,7 +97,18 @@ public class RecipeSeedLoader
 
             if (existingByName.TryGetValue(definition.Name, out var current))
             {
-                if (definition.Version > current.Version)
+                // A row the learning loop composed is never overwritten, even when a seed definition
+                // happens to carry the same name. Learned recipes live in their own name space precisely
+                // so this cannot happen, but the check is cheap and the failure it prevents - a
+                // deployment silently reverting something Klacksy learned - would be invisible.
+                if (!string.Equals(current.Origin, AgentRecipeOrigins.Seed, StringComparison.Ordinal))
+                {
+                    _logger.LogWarning(
+                        "Recipe '{Recipe}' exists with origin {Origin} and is left untouched by the seed",
+                        current.Name, current.Origin);
+                    skipped++;
+                }
+                else if (definition.Version > current.Version)
                 {
                     ApplyDefinition(current, definition);
                     await _recipeRepository.UpdateAsync(current, cancellationToken);
@@ -156,7 +167,8 @@ public class RecipeSeedLoader
             StepsJson = JsonSerializer.Serialize(definition.Steps, JsonWriteOptions),
             IsEnabled = definition.IsEnabled,
             SortOrder = definition.SortOrder,
-            Version = definition.Version
+            Version = definition.Version,
+            Origin = AgentRecipeOrigins.Seed
         };
     }
 

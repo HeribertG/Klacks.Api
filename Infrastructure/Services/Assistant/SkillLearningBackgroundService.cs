@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Timer host of the learning loop: every six hours it sweeps the thresholds and the retention window and
-/// then runs one learning pass. Replaces SkillGapSuggestionBackgroundService, which asked a language model
+/// Timer host of the learning loop: every six hours it does the housekeeping - thresholds, retention,
+/// the weekly usefulness snapshots and the pruning of what did not earn its place - and then runs one
+/// learning pass. Replaces SkillGapSuggestionBackgroundService, which asked a language model
 /// for a skill name on every run and pushed the raw user text to every connected client; nothing here
 /// reaches a user at all. The weekly digest is NOT driven from here - it rides the existing hourly
 /// detector tick, so the pipeline keeps exactly one clock for proactive events.

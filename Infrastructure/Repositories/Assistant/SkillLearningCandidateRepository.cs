@@ -6,6 +6,7 @@
 /// making the next run repeat the language model calls.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -32,6 +33,7 @@ public class SkillLearningCandidateRepository : ISkillLearningCandidateRepositor
         Guid id,
         string status,
         string? routingResultJson,
+        string? executionResultJson,
         string? errorText,
         DateTime? activatedAtUtc,
         CancellationToken cancellationToken = default)
@@ -44,8 +46,34 @@ public class SkillLearningCandidateRepository : ISkillLearningCandidateRepositor
                 setters => setters
                     .SetProperty(c => c.Status, status)
                     .SetProperty(c => c.RoutingResultJson, routingResultJson)
+                    .SetProperty(c => c.ExecutionResultJson, executionResultJson)
                     .SetProperty(c => c.ErrorText, errorText)
                     .SetProperty(c => c.ActivatedAtUtc, activatedAtUtc)
+                    .SetProperty(c => c.UpdateTime, now),
+                cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<SkillLearningCandidate>> ListByStatusAsync(
+        string status, int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillLearningCandidates
+            .AsNoTracking()
+            .Where(c => c.Status == status)
+            .OrderByDescending(c => c.ActivatedAtUtc)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task RetireAsync(Guid id, string reason, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+
+        await _context.SkillLearningCandidates
+            .Where(c => c.Id == id)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.Status, SkillLearningCandidateStatuses.Retired)
+                    .SetProperty(c => c.ErrorText, reason)
                     .SetProperty(c => c.UpdateTime, now),
                 cancellationToken);
     }

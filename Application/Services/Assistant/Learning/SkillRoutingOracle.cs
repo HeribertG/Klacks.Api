@@ -82,6 +82,17 @@ public class SkillRoutingOracle : ISkillRoutingOracle
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            // Cases that expect a learned capability are skipped rather than probed. This oracle measures
+            // the toolset assembler, which offers skills; a recipe name is never in that toolset, so such
+            // a case would report as failing on every single run and cost an embedding pass to say so.
+            // The recipe side of routing is guarded where it can actually be decided - by the draft
+            // validator, which checks these same queries against a new recipe's trigger before it exists.
+            if (goldenCase.ExpectedSourceId.StartsWith(
+                    SkillLearningDefaults.LearnedRecipeNamePrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             var probe = await ProbeAsync(
                 goldenCase.Query, goldenCase.Locale, goldenCase.ExpectedSourceId, cancellationToken);
 

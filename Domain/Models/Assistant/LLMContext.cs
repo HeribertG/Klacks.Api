@@ -83,4 +83,13 @@ public class LLMContext
     /// usage row; null only on paths that never assign it (e.g. background one-shot calls).
     /// </summary>
     public long? ToolsetAssemblyMs { get; set; }
+
+    /// <summary>
+    /// Name of the recipe forcing this turn's skill selection, null when none was resolved. Carried on
+    /// the context rather than handed through the background-task signature because the context is the
+    /// one object both chat entry points already share with the post-turn hooks: on the streaming path
+    /// the plan is a local of the same method, on the non-streaming path it lives inside the multi-turn
+    /// loop and would otherwise need a widened return tuple to escape.
+    /// </summary>
+    public string? ActiveRecipeName { get; set; }
 }

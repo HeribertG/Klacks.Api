@@ -118,4 +118,12 @@ public interface ISkillLearningClusterRepository
     /// </summary>
     Task<int> SoftDeleteRetentionEligibleOlderThanAsync(
         DateTime thresholdUtc, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retires a cluster whose artefact the pruner withdrew and records why. Conditional on the cluster
+    /// still holding one of the two learned statuses, so a run that overlaps an administrator dismissing
+    /// the same wish cannot resurrect it into a status it already left. The outcome reference is kept:
+    /// the card still has to be able to say what was withdrawn.
+    /// </summary>
+    Task<bool> FinishRetirementAsync(Guid id, string reason, CancellationToken cancellationToken = default);
 }

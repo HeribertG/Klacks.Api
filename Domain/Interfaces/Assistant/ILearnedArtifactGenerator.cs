@@ -31,4 +31,19 @@ public interface ILearnedArtifactGenerator
         IReadOnlyList<string> existingPhrases,
         string? failureHint,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Produces capability variants: recipes that chain existing skills to serve the cluster's wish.
+    /// The model may only use the building blocks it is given - the caller has already reduced them to
+    /// the skills that are both relevant to this wish and safe to compose.
+    /// </summary>
+    /// <param name="blocks">Skills the variants may be built from, with their parameters</param>
+    /// <param name="examples">Existing recipes, serialised, as the format the answer must follow</param>
+    /// <param name="failureHint">Why the previous round's variants were rejected, empty on the first round</param>
+    Task<IReadOnlyList<LearnedRecipeDraft>> GenerateCapabilitiesAsync(
+        SkillLearningClusterContext cluster,
+        IReadOnlyList<CapabilityBuildingBlock> blocks,
+        IReadOnlyList<string> examples,
+        string? failureHint,
+        CancellationToken cancellationToken = default);
 }
