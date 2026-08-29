@@ -84,7 +84,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         var toolset = await _toolsetAssembler.AssembleAsync(
             agent, request.UserRights, request.Message, request.ConversationId,
             request.PageContext?.CurrentRoute, request.UserId, request.Language,
-            maxToolsForProvider, cancellationToken);
+            maxToolsForProvider, cancellationToken: cancellationToken);
 
         var context = new LLMContext
         {

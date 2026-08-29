@@ -19,6 +19,12 @@
 /// skills drop first. Must exceed (enabled alwaysOn count + DefaultTopK) at the reference tier or
 /// retrieved skills are squeezed out entirely — guarded by SkillToolBudgetGuardTests.
 /// </param>
+/// <param name="applyLearnedPhraseGuarantee">
+/// Whether a wording the learning loop stored in skill_phrase may claim a guarantee slot. True on every
+/// chat path. The routing oracle O1 passes false: it probes with the learned wording itself, so leaving
+/// the guarantee on would make every learned phrase reach its own target by definition and turn the only
+/// quality gate the phrase path has into a tautology.
+/// </param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
@@ -60,6 +66,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private readonly RecipeEngineService _recipeEngine;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly ILogger<SkillToolsetAssembler> _logger;
 
     public SkillToolsetAssembler(
@@ -71,6 +78,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         RecipeEngineService recipeEngine,
         IPendingConfirmationStore pendingConfirmationStore,
         IPendingPlanningProfileDraftStore planningProfileDraftStore,
+        ISkillPhraseRepository skillPhraseRepository,
         ILogger<SkillToolsetAssembler> logger)
     {
         _skillCacheService = skillCacheService;
@@ -81,6 +89,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         _recipeEngine = recipeEngine;
         _pendingConfirmationStore = pendingConfirmationStore;
         _planningProfileDraftStore = planningProfileDraftStore;
+        _skillPhraseRepository = skillPhraseRepository;
         _logger = logger;
     }
 
@@ -93,6 +102,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         string userId,
         string? language,
         int maxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider,
+        bool applyLearnedPhraseGuarantee = true,
         CancellationToken cancellationToken = default)
     {
         if (agent == null)
@@ -227,6 +237,20 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         foreach (var keywordSkillName in keywordMatchedSkills)
         {
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, keywordSkillName);
+        }
+
+        // Learned-phrase guarantee: the same deterministic promise for a wording the learning loop
+        // stored, which the keyword guarantee above structurally cannot see. A learned row lands in
+        // skill_phrase and from there only in the embedding text; SkillMatchingEngine reads
+        // AgentSkill.TriggerKeywords/Synonyms, which no learning path ever writes. So a learned wording
+        // could only nudge the ranking, and the skills it is learned for are by definition the ones the
+        // ranking already places badly - they kept losing their place at the provider cap, which is what
+        // made phrase learning look ineffective in the end-to-end runs of 2026-08-29. Capped and
+        // longest-wording-first so the loop can complement retrieval without crowding it out.
+        if (applyLearnedPhraseGuarantee)
+        {
+            await ApplyLearnedPhraseGuaranteeAsync(
+                guaranteedSkills, permittedSkills, userMessage, cancellationToken);
         }
 
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
@@ -380,6 +404,45 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         catch (Exception ex)
         {
             _logger.LogError(ex, "Planning-profile draft guarantee failed; continuing without it.");
+        }
+    }
+
+    /// <summary>
+    /// Adds the skills whose learned wording literally occurs in this message. Best-effort like every
+    /// other guarantee: a failing phrase read degrades to no guarantee instead of taking the turn down.
+    /// One indexed-free read of skill_phrase per turn, the same query trajectory capture already runs;
+    /// while nothing has been learned it returns an empty list.
+    /// </summary>
+    /// <param name="guaranteedSkills">Set the resolved skills are added to</param>
+    /// <param name="permittedSkills">Skills the user may use, and the instances the truncation compares against</param>
+    /// <param name="userMessage">Raw user message the learned wordings are matched against</param>
+    private async Task ApplyLearnedPhraseGuaranteeAsync(
+        HashSet<AgentSkill> guaranteedSkills,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        string userMessage,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var learned = await _skillPhraseRepository.GetActiveBySourceAsync(
+                SkillPhraseSources.Learned, LearnedPhraseMatcher.MatchLimit, cancellationToken);
+
+            if (learned.Count == 0)
+            {
+                return;
+            }
+
+            var owners = LearnedPhraseMatcher.MatchingOwnerNames(
+                learned, userMessage, SkillPhraseOwnerKinds.Skill, LearnedPhraseMatcher.GuaranteeCap);
+
+            foreach (var ownerName in owners)
+            {
+                AddPermittedSkillByName(guaranteedSkills, permittedSkills, ownerName);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Learned-phrase guarantee failed; continuing without it.");
         }
     }
 

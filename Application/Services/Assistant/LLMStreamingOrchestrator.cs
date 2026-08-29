@@ -103,7 +103,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             toolset = await _toolsetAssembler.AssembleAsync(
                 agent, request.UserRights, request.Message, request.ConversationId,
                 request.PageContext?.CurrentRoute, request.UserId, request.Language,
-                maxToolsForProvider, cancellationToken);
+                maxToolsForProvider, cancellationToken: cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

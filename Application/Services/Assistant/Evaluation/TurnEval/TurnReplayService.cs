@@ -84,7 +84,8 @@ public class TurnReplayService : ITurnReplayService
 
         var toolset = await _toolsetAssembler.AssembleAsync(
             agent, userRights, item.Message, conversationId: null,
-            item.CurrentRoute, userId, item.Locale, budgetProfile.MaxToolsForProvider, cancellationToken);
+            item.CurrentRoute, userId, item.Locale, budgetProfile.MaxToolsForProvider,
+            cancellationToken: cancellationToken);
 
         var context = new LLMContext
         {

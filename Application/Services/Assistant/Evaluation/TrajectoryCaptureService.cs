@@ -27,7 +27,6 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private const int ExcerptMaxLength = 120;
     private const int CandidatesMax = 30;
     private const int OwnerNameMaxLength = 128;
-    private const int LearnedPhraseMatchLimit = 200;
 
     // How soon after the previous turn a negation/complaint ("nein", "falsch") is trusted as a
     // reactive correction of that turn rather than an unrelated later message that happens to
@@ -134,25 +133,10 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     // while nothing has been learned yet that read returns an empty list.
     private async Task<string?> FindLearnedPhraseHitAsync(string? message)
     {
-        var normalized = MessageNormalizer.Normalize(message);
-        if (normalized.Length == 0)
-        {
-            return null;
-        }
-
         var learned = await _phraseRepository.GetActiveBySourceAsync(
-            SkillPhraseSources.Learned, LearnedPhraseMatchLimit);
+            SkillPhraseSources.Learned, LearnedPhraseMatcher.MatchLimit);
 
-        foreach (var phrase in learned)
-        {
-            if (!string.IsNullOrWhiteSpace(phrase.Phrase)
-                && normalized.Contains(MessageNormalizer.Normalize(phrase.Phrase), StringComparison.Ordinal))
-            {
-                return Truncate(phrase.OwnerName);
-            }
-        }
-
-        return null;
+        return Truncate(LearnedPhraseMatcher.FirstMatchingOwner(learned, message));
     }
 
     private static string? Truncate(string? value)

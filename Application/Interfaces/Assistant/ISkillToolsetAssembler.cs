@@ -16,5 +16,6 @@ public interface ISkillToolsetAssembler
         string userId,
         string? language,
         int maxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider,
+        bool applyLearnedPhraseGuarantee = true,
         CancellationToken cancellationToken = default);
 }

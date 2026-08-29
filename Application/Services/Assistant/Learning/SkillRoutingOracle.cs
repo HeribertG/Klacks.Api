@@ -6,6 +6,11 @@
 /// real chat turn takes - and reads off whether the target is among the tools it produced. No language
 /// model is involved, so the verdict is reproducible and free apart from the local embedding and
 /// reranking passes.
+/// One production mechanism is switched off for the probe: the learned-phrase guarantee. PhraseLearner
+/// probes with the freshly written wording itself, and a guarantee keyed on that very wording would
+/// report success for every phrase ever generated - including one that echoes the utterance and
+/// generalises to nothing. O1 therefore measures what a wording does to retrieval; the guarantee is what
+/// it additionally does for the exact wording in production, and needs no oracle to be true.
 /// Probes run with administrator rights and an empty user identity on purpose: a permission the
 /// triggering user happened to lack would otherwise look exactly like a routing gap, and per-user
 /// guarantees (pending drafts, recipe state) would make the same utterance answer differently depending
@@ -64,6 +69,7 @@ public class SkillRoutingOracle : ISkillRoutingOracle
             Guid.Empty.ToString(),
             locale,
             SkillLearningDefaults.RoutingProbeTopK,
+            applyLearnedPhraseGuarantee: false,
             cancellationToken);
 
         var names = toolset.Functions.Select(function => function.Name).ToList();
