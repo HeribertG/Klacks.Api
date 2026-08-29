@@ -66,7 +66,7 @@ public class RecipeDraftValidator : IRecipeDraftValidator
             return RecipeDraftVerdict.Rejected($"A recipe named '{name}' already exists.");
         }
 
-        var trigger = WithQuestionGuard(draft.Trigger);
+        var trigger = WithQuestionGuard(draft.Trigger, Mutates(draft));
 
         var hijackError = CheckHijack(trigger, existingRecipes, goldenCases);
         if (hijackError != null)
@@ -116,16 +116,29 @@ public class RecipeDraftValidator : IRecipeDraftValidator
 
     // The question guard is written in rather than demanded from the generator: a missing lead produces a
     // recipe that hijacks plain questions, and that is not a failure mode worth leaving to a model.
-    private static RecipeTrigger WithQuestionGuard(RecipeTrigger trigger)
+    // But it belongs only on a capability that WRITES. The guard exists because every hand-written
+    // recipe is a guided mutation flow, where firing on "Welche Gruppen gibt es?" drags a plain question
+    // into a confirmation gate. A capability composed purely of reading steps is the opposite: answering
+    // a question is the whole point of it, and most such wishes are phrased as one.
+    // Applied unconditionally it is self-defeating - the wish "welche mitarbeitenden haben im september
+    // abwesenheiten" produces allOf ["welche…"] and noneOf startsWith ["welche"] in the same trigger, a
+    // contradiction no utterance can satisfy. Two capabilities passed every other gate and executed all
+    // their steps for real before the live engine refused to resolve them for exactly this reason.
+    private static RecipeTrigger WithQuestionGuard(RecipeTrigger trigger, bool mutates)
     {
-        var guarded = new RecipeTrigger
-        {
-            AllOf = [.. trigger.AllOf],
-            NoneOf = [.. trigger.NoneOf, new RecipeCondition { StartsWith = [.. RecipeQuestionLeads.All] }]
-        };
+        var noneOf = new List<RecipeCondition>(trigger.NoneOf);
 
-        return guarded;
+        if (mutates)
+        {
+            noneOf.Add(new RecipeCondition { StartsWith = [.. RecipeQuestionLeads.All] });
+        }
+
+        return new RecipeTrigger { AllOf = [.. trigger.AllOf], NoneOf = noneOf };
     }
+
+    private static bool Mutates(LearnedRecipeDraft draft) =>
+        draft.Steps.Any(step =>
+            string.Equals(step.Kind, RecipeStepKinds.Mutate, StringComparison.OrdinalIgnoreCase));
 
     private string? CheckHijack(
         RecipeTrigger trigger,

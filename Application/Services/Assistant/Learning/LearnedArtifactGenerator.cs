@@ -68,9 +68,14 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         "\"$slot\" references to a value an EARLIER step captured with \"capture\": \"field[].id as slot\"; " +
         "never reference a slot nothing captured; " +
         "prefer compositions that only read, because those can be verified before activation; " +
-        "the trigger has \"allOf\" conditions that must all match, each listing \"anyWordStart\" stems; " +
-        "every stem is at least four characters and is a distinctive word of THIS request, never a " +
-        "generic verb; " +
+        "the trigger has \"allOf\" conditions, and ALL of them must match at once, while the stems INSIDE " +
+        "one condition are alternatives of which any one suffices; " +
+        "so give two to four conditions, each capturing ONE distinctive concept of this request with at " +
+        "most three close wordings of that same word - never one long condition listing every word, " +
+        "which fires on any single one of them; " +
+        "every stem is at least five characters, is a noun specific to THIS request, and is never a " +
+        "generic verb or interface word such as show, list, report, display or their translations, " +
+        "because those are how users reach ordinary skills; " +
         "the name is an English lower-case kebab-case slug; " +
         "\"goal\" is one English sentence, and \"goalTranslations\" gives it in de, en, fr and it. " +
         "Respond ONLY with a JSON object: {\"capabilities\":[{\"name\":\"...\",\"goal\":\"...\"," +
