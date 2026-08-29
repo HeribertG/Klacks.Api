@@ -34,7 +34,7 @@ public class ContextBudgetPolicy : IContextBudgetPolicy
     // not translate into more tool schemas than the model was tuned against. Single source of truth:
     // KnowledgeIndexConstants.MaxToolsForProvider mirrors this value (Application may depend on
     // Domain, not the reverse, so the constant is owned here).
-    internal const int MaxToolsForProviderCeiling = 30;
+    public const int MaxToolsForProviderCeiling = 30;
 
     private static readonly ContextBudgetProfile TinyProfile = new(
         MaxHistoryMessages: 8,

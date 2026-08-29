@@ -1,11 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Services.Assistant;
+
+namespace Klacks.Api.Domain.Constants;
+
 /// <summary>
 /// Fallback values for the learning loop, used whenever the matching settings key is absent or unparsable.
 /// The thresholds start deliberately low because the loop only learns once people actually talk to the
 /// assistant; they are settings-backed so they can be raised with real traffic without a deploy.
 /// </summary>
-namespace Klacks.Api.Domain.Constants;
 
 public static class SkillLearningDefaults
 {
@@ -52,10 +55,19 @@ public static class SkillLearningDefaults
 
     /// <summary>
     /// K of the routing oracle: how many tools the assembled toolset may hold while the target still
-    /// counts as "found". Mirrors the retrieval stage's DefaultTopK rather than the provider tool cap,
-    /// so a phrase that only wins a guarantee slot is not mistaken for a retrieval success.
+    /// counts as "found". Mirrors the production ceiling, because the oracle has to judge the world the
+    /// user will actually meet.
+    /// The earlier value of 20 was meant to keep a phrase that only wins a guarantee slot from counting
+    /// as a retrieval success, but it never did that - guaranteed skills are inserted at index 0 and
+    /// preferred again when the toolset is truncated. What it did instead was make the probe far
+    /// stricter than production: the nine always-on skills survive every truncation, so 20 left eleven
+    /// slots for retrieved skills where production leaves twenty-one. A skill ranked twelfth to
+    /// twentieth was therefore rejected by the oracle while being offered in production, and the
+    /// learner would withdraw a phrase that in fact worked. The concern behind the old value is moot
+    /// for learned phrases anyway: they are written to skill_phrase, which reaches only the vector
+    /// index, never AgentSkill.Synonyms, so they cannot win a keyword guarantee to begin with.
     /// </summary>
-    public const int RoutingProbeTopK = 20;
+    public const int RoutingProbeTopK = ContextBudgetPolicy.MaxToolsForProviderCeiling;
 
     /// <summary>
     /// Shortest and longest a generated phrase may be. The lower bound keeps single particles out of the
