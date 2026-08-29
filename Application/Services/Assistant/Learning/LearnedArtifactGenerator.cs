@@ -76,13 +76,19 @@ public class LearnedArtifactGenerator : ILearnedArtifactGenerator
         "every stem is at least five characters, is a noun specific to THIS request, and is never a " +
         "generic verb or interface word such as show, list, report, display or their translations, " +
         "because those are how users reach ordinary skills; " +
+        "write each stem exactly as it is spelled in the request, not in its dictionary form; " +
+        "\"anyWordStart\" only matches where a word BEGINS, which in German compounds it often does not - " +
+        "\"reserve\" does not begin a word inside \"kapazitaetsreserve\" - so whenever a stem could sit " +
+        "inside a longer compound noun, put it in \"anySubstring\" instead, or the condition can never " +
+        "match the very request it came from; " +
         "the name is an English lower-case kebab-case slug; " +
         "\"goal\" is one English sentence, and \"goalTranslations\" gives it in de, en, fr and it. " +
         "Respond ONLY with a JSON object: {\"capabilities\":[{\"name\":\"...\",\"goal\":\"...\"," +
         "\"goalTranslations\":{\"de\":\"...\",\"en\":\"...\",\"fr\":\"...\",\"it\":\"...\"}," +
-        "\"trigger\":{\"allOf\":[{\"anyWordStart\":[\"...\"]}]}," +
+        "\"trigger\":{\"allOf\":[{\"anyWordStart\":[\"...\"]},{\"anySubstring\":[\"...\"]}]}," +
         "\"steps\":[{\"kind\":\"search\",\"skill\":\"...\",\"inject\":{\"param\":\"value\"}," +
-        "\"capture\":\"items[].id as itemId\"}]}]}.";
+        "\"capture\":\"items[].id as itemId\"}]}]}. " +
+        "Omit a parameter entirely when the step does not need it; never bind one to an empty string.";
 
     private readonly ICheapestModelResolver _modelResolver;
     private readonly ILogger<LearnedArtifactGenerator> _logger;
