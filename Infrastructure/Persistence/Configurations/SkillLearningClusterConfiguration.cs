@@ -7,6 +7,7 @@
 /// The embedding column is not mapped here: pgvector columns are created and queried through raw SQL in
 /// this project (see KnowledgeIndexRepository), never through EF.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,7 +17,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 public class SkillLearningClusterConfiguration : IEntityTypeConfiguration<SkillLearningCluster>
 {
     private const int ClusterKeyMaxLength = 64;
-    private const int IntentExcerptMaxLength = 120;
+    private const int IntentExcerptMaxLength = SkillLearningDefaults.ExcerptMaxLength;
     private const int LocaleMaxLength = 8;
     private const int StatusMaxLength = 24;
     private const int OutcomeRefKindMaxLength = 16;

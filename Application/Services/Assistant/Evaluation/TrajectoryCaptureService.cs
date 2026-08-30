@@ -24,7 +24,7 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation;
 
 public class TrajectoryCaptureService : ITrajectoryCaptureService
 {
-    private const int ExcerptMaxLength = 120;
+    private const int ExcerptMaxLength = SkillLearningDefaults.ExcerptMaxLength;
     private const int CandidatesMax = 30;
     private const int OwnerNameMaxLength = 128;
 

@@ -28,6 +28,10 @@ public class SkillPhraseConfiguration : IEntityTypeConfiguration<SkillPhrase>
 
         builder.HasIndex(p => new { p.OwnerKind, p.OwnerName });
 
+        // The learning card and the fitness pass read by origin and review state (source, status);
+        // without this index every such read scans the whole phrase table.
+        builder.HasIndex(p => new { p.Source, p.Status });
+
         builder.HasIndex(p => new { p.OwnerKind, p.OwnerName, p.Language, p.Kind, p.Phrase })
             .HasFilter("is_deleted = false")
             .IsUnique();

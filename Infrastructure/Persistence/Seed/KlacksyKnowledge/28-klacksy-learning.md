@@ -3,9 +3,12 @@ name: explain_klacksy_learning
 description: |
   Explains how Klacksy learns: wishes it could not serve are grouped by their wording, counted, and
   only taken up once the same wish recurs (at least three times, or from at least two different
-  people). Each recurring wish ends as a learned phrasing, a learned capability, or an open wish
-  nobody can serve yet. Use this when the user asks whether Klacksy learns, why it picked the wrong
-  thing, what happens to a correction, or how its capabilities grow.
+  people). Each ready group is triaged into a learned phrasing, a learned capability, or an open wish
+  nobody can serve yet. A learned wording must pass a routing replay (O1), a learned capability
+  additionally an execution probe (O2), and whatever proves useless is withdrawn again by the fitness
+  quote. All of it runs automatically; an administrator supervises afterwards. Use this when the user
+  asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its
+  capabilities grow.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -56,7 +59,9 @@ Once a group has been seen **at least three times**, or by **at least two differ
 marked as ready. Both thresholds are settings and can be raised or lowered without a new release.
 Below them nothing happens at all — repetition is the whole evidence.
 
-## The three outcomes
+## The three outcomes (the triage)
+
+A ready group is sorted into exactly one of three classes:
 
 - **A learned phrasing** — the capability already exists, it was only described in words nobody uses.
   The new wording is added to that capability.
@@ -65,18 +70,37 @@ Below them nothing happens at all — repetition is the whole evidence.
 - **An open wish** — nothing existing covers it. It stays on the list as evidence of what is genuinely
   missing, which is exactly what belongs in a development decision.
 
+## How a learning proves itself (O1 and O2)
+
+Nothing learned goes live untested:
+
+- **O1, the routing replay** — a learned wording is activated on a trial basis and all frozen routing
+  expectations are replayed. If a wording would push a request to the wrong capability that was routed
+  correctly before, it is withdrawn again automatically.
+- **O2, the execution probe** — a learned capability additionally passes static checks, and its
+  reading steps are executed once for real. A capability that fails this never activates.
+
+## What happens to what was learned (fitness and pruning)
+
+Every learned artefact gets a weekly usefulness snapshot. Its quote is *(successes + thumbs up) /
+uses*, capped at 1. An artefact is withdrawn again when it has not been used for about 30 days, or
+when its quote falls below one half after at least five uses. Nothing is deleted: a withdrawn wording
+stays on record as a negative list, so the same wording is not learned again, and a withdrawn
+capability is merely switched off.
+
+## The thumbs up
+
+Anyone can mark an answer as helpful with the thumbs up in the chat. That signal flows into the
+fitness quote — a wording or capability people are happy with survives the pruning longer.
+
 ## Where an administrator sees it
 
-In the settings, card **"Klacksy learns"**. It shows the three lists, lets a learned phrasing be
-edited or withdrawn, a learned capability be adjusted or switched off, and an open wish be discarded.
-A discarded wish never comes back, even if the same sentence is said again. This requires
-administrator rights, and Klacksy has no capability of its own for this card — an assistant that could
-edit its own learning results could reinforce itself.
-
-## The weekly digest
-
-Once a week Klacksy reports how much was learned in that period and how many wishes are still open,
-as a message in the inbox that links to the card. It is a badge, not a push.
+Learning runs **automatically** — an administrator does not release anything, they supervise
+**afterwards** in the settings, card **"Klacksy learns"**. The card shows what was learned and lets a
+learned phrasing be edited or withdrawn, a learned capability be adjusted or switched off, and an
+open wish be discarded. A discarded wish never comes back, even if the same sentence is said again.
+This requires administrator rights, and Klacksy has no capability of its own for this card — an
+assistant that could edit its own learning results could reinforce itself.
 
 ## An important limit
 

@@ -3,6 +3,7 @@
 /// <summary>
 /// EF Core configuration for SkillSelectionTrajectory with table name, query filter and indexes.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,7 +24,7 @@ public class SkillSelectionTrajectoryConfiguration : IEntityTypeConfiguration<Sk
         builder.HasIndex(p => new { p.LearnedPhraseHit, p.CreateTime });
         builder.Property(p => p.Locale).HasMaxLength(8);
         builder.Property(p => p.UserMessageHash).HasMaxLength(16);
-        builder.Property(p => p.IntentExcerpt).HasMaxLength(120);
+        builder.Property(p => p.IntentExcerpt).HasMaxLength(SkillLearningDefaults.ExcerptMaxLength);
         builder.Property(p => p.LlmChosenSkill).HasMaxLength(128);
         builder.Property(p => p.CorrectionType).HasMaxLength(32);
         builder.Property(p => p.RecipeName).HasMaxLength(128);

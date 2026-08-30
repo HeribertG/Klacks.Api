@@ -239,11 +239,11 @@ public class RecipeDraftValidator : IRecipeDraftValidator
 
         // The two directions are not symmetric, and treating them alike breaks one of them.
         // Going out - would the DRAFT fire on an existing recipe's wording - the draft's exclusions are
-        // dropped. The question guard was written in a few lines ago, several of its leads carry no
-        // trailing space ("welche", "zeig", "liste"), and RecipeTriggerMatcher checks noneOf FIRST: a
-        // probe sentence whose first word happens to begin with such a stem would veto itself and the
-        // comparison would never happen. A probe sentence is a bag of vocabulary, not an utterance, so
-        // an exclusion written for utterances has no business vetoing it.
+        // dropped. The question guard was written in a few lines ago, its leads end at a word boundary
+        // but are still sentence openings, and RecipeTriggerMatcher checks noneOf FIRST: a probe sentence
+        // whose first word happens to be such a lead would veto itself and the comparison would never
+        // happen. A probe sentence is a bag of vocabulary, not an utterance, so an exclusion written for
+        // utterances has no business vetoing it.
         // Coming in - would an EXISTING recipe fire on the draft's wording - its noneOf stays. That list
         // is hand-curated and really does prevent the collision in production; dropping it would close
         // no hole and only reject drafts that are in fact disjoint.
