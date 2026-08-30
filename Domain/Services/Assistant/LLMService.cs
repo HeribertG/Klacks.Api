@@ -565,7 +565,7 @@ public class LLMService : ILLMService
                 var executionType = executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls
                     ? "UiPassthrough"
                     : "Skill";
-                yield return SseChunk.FunctionResultChunk(call.FunctionName, call.Result, executionType, call.UiActionSteps);
+                yield return SseChunk.FunctionResultChunk(call.FunctionName, call.Result, executionType, call.UiActionSteps, call.UiActionTrackingId);
             }
 
             // Guarded on executableCalls: with an empty execution list HasOnlyUiPassthroughCalls is

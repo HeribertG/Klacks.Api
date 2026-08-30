@@ -80,4 +80,17 @@ public class SkillUsageRepository : ISkillUsageRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<SkillUsageRecord?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillUsageRecords
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+    }
+
+    public async Task UpdateAsync(SkillUsageRecord record, CancellationToken cancellationToken = default)
+    {
+        _context.SkillUsageRecords.Update(record);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

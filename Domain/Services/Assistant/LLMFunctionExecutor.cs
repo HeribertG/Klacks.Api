@@ -240,6 +240,7 @@ public class LLMFunctionExecutor
         if (!string.IsNullOrEmpty(result.UiActionSteps))
         {
             call.UiActionSteps = result.UiActionSteps;
+            call.UiActionTrackingId = result.UiActionTrackingId;
             if (result.UiActionParameters != null)
             {
                 call.Parameters = result.UiActionParameters;

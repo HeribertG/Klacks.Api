@@ -33,11 +33,16 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         Dictionary<string, object> parameters,
         SkillResult result,
         TimeSpan duration,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Guid? recordId = null)
     {
+        // W1.4: a dispatched UiAction is not yet a success - the browser reports the real outcome
+        // later under this id. Non-UiAction rows carry no lifecycle status.
+        var isUiAction = !string.IsNullOrEmpty(result.UiActionSteps);
+
         var record = new SkillUsageRecord
         {
-            Id = Guid.NewGuid(),
+            Id = recordId ?? Guid.NewGuid(),
             SkillName = descriptor.Name,
             Category = descriptor.Category,
             UserId = context.UserId,
@@ -50,7 +55,8 @@ public class SkillUsageTrackerService : ISkillUsageTracker
             Success = result.Success,
             ErrorMessage = result.Success ? null : result.Message,
             DurationMs = (int)duration.TotalMilliseconds,
-            Timestamp = DateTime.UtcNow
+            Timestamp = DateTime.UtcNow,
+            UiActionStatus = isUiAction ? UiActionStatus.Dispatched : null
         };
 
         try

@@ -31,4 +31,11 @@ public class SkillUsageRecord : BaseEntity
     /// dispatches — those carry Success/ErrorMessage instead.
     /// </summary>
     public SkillFailureKind? FailureKind { get; set; }
+
+    /// <summary>
+    /// Lifecycle state of a UiAction execution (W1.4). Dispatched is written at dispatch time; the
+    /// frontend reports Completed/Failed afterwards, so Success stops meaning "the browser surely did
+    /// it" and starts meaning "the browser said it did it". Null for non-UiAction rows.
+    /// </summary>
+    public UiActionStatus? UiActionStatus { get; set; }
 }

@@ -14,6 +14,12 @@ public record SkillResult
     public string? UiActionSteps { get; init; }
     public Dictionary<string, object>? UiActionParameters { get; init; }
 
+    /// <summary>
+    /// Correlation id of a dispatched UiAction (W1.4). Equals the skill_usage_records row id, so the
+    /// frontend can report the real outcome of the browser-side execution back via the report endpoint.
+    /// </summary>
+    public Guid? UiActionTrackingId { get; init; }
+
     public static SkillResult SuccessResult(object? data, string? message = null)
         => new()
         {
@@ -49,14 +55,15 @@ public record SkillResult
             Type = SkillResultType.Cancelled
         };
 
-    public static SkillResult UiAction(string steps, Dictionary<string, object> parameters, string message)
+    public static SkillResult UiAction(string steps, Dictionary<string, object> parameters, string message, Guid? uiActionTrackingId = null)
         => new()
         {
             Success = true,
             Message = message,
             Type = SkillResultType.Data,
             UiActionSteps = steps,
-            UiActionParameters = parameters
+            UiActionParameters = parameters,
+            UiActionTrackingId = uiActionTrackingId
         };
 
     public static SkillResult Confirmation(string message, string confirmationToken, object? pendingData = null)

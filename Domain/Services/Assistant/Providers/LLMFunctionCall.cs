@@ -20,6 +20,7 @@ public class LLMFunctionCall
     /// </summary>
     public bool IsRejectedRepeat { get; set; }
     public string? UiActionSteps { get; set; }
+    public Guid? UiActionTrackingId { get; set; }
     public LLMFunctionResultKind ResultKind { get; set; }
     public List<string> DataJson { get; set; } = new();
 }

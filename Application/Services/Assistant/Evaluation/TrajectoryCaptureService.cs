@@ -108,7 +108,20 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             return null;
         }
 
-        return usageRows.All(row => row.Success);
+        // W1.4: a dispatched UiAction is not a verdict yet - the browser reports Completed/Failed
+        // later, after this capture has already run. Rows still in Dispatched state are therefore
+        // excluded from the verdict; a turn that consists only of pending UiActions stays unknown
+        // instead of being booked as a false success.
+        var decisiveRows = usageRows
+            .Where(row => row.UiActionStatus != Domain.Enums.UiActionStatus.Dispatched)
+            .ToList();
+
+        if (decisiveRows.Count == 0)
+        {
+            return null;
+        }
+
+        return decisiveRows.All(row => row.Success);
     }
 
     private async Task MarkImplicitCorrectionIfApplicableAsync(Guid agentId, string userId, string message)

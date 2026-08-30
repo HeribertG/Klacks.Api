@@ -59,7 +59,7 @@ public class LLMResponseBuilder
             NavigateTo = navigationRoute,
             NavigateToTarget = navigationTarget,
             FunctionCalls = functionCalls
-                .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps, f.Result, f.Success })
+                .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps, f.UiActionTrackingId, f.Result, f.Success })
                 .ToList(),
             Usage = new LLMUsageInfo
             {

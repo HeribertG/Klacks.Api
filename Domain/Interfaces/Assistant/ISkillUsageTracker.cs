@@ -13,7 +13,8 @@ public interface ISkillUsageTracker
         Dictionary<string, object> parameters,
         SkillResult result,
         TimeSpan duration,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        Guid? recordId = null);
 
     /// <summary>
     /// Persists a failure that happened before the skill was dispatched (hallucinated name, missing

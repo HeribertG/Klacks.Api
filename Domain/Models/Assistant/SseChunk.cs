@@ -18,6 +18,7 @@ public class SseChunk
     public string? FunctionResult { get; set; }
     public string? ExecutionType { get; set; }
     public string? UiActionSteps { get; set; }
+    public Guid? UiActionTrackingId { get; set; }
     public LLMUsageInfo? Usage { get; set; }
     public List<string>? Suggestions { get; set; }
     public SuggestedRepliesConfig? SuggestedReplies { get; set; }
@@ -46,13 +47,14 @@ public class SseChunk
         Parameters = parameters
     };
 
-    public static SseChunk FunctionResultChunk(string functionName, string? result, string executionType, string? uiActionSteps = null) => new()
+    public static SseChunk FunctionResultChunk(string functionName, string? result, string executionType, string? uiActionSteps = null, Guid? uiActionTrackingId = null) => new()
     {
         Type = SseChunkType.FunctionResult,
         FunctionName = functionName,
         FunctionResult = result,
         ExecutionType = executionType,
-        UiActionSteps = uiActionSteps
+        UiActionSteps = uiActionSteps,
+        UiActionTrackingId = uiActionTrackingId
     };
 
     public static SseChunk Metadata(LLMResponse response) => new()

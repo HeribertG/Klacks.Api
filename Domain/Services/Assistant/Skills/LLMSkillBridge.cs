@@ -68,7 +68,8 @@ public class LLMSkillBridge : ILLMSkillBridge
             Data = result.Data,
             ResultType = result.Type.ToString(),
             UiActionSteps = result.UiActionSteps,
-            UiActionParameters = result.UiActionParameters
+            UiActionParameters = result.UiActionParameters,
+            UiActionTrackingId = result.UiActionTrackingId
         };
     }
 

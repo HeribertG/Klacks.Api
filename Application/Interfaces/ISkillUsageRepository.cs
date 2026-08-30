@@ -15,4 +15,10 @@ public interface ISkillUsageRepository
 
     /// <summary>All usage rows of one chat turn, used to derive the turn's was_successful signal (W1.3).</summary>
     Task<IReadOnlyList<SkillUsageRecord>> GetByTurnIdAsync(Guid turnId, CancellationToken cancellationToken = default);
+
+    /// <summary>Single usage row by id; the UiAction report endpoint resolves the tracking id through it.</summary>
+    Task<SkillUsageRecord?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>Persists a usage-row change (W1.4 frontend outcome report).</summary>
+    Task UpdateAsync(SkillUsageRecord record, CancellationToken cancellationToken = default);
 }

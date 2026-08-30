@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Admin-only endpoint to trigger goldset evaluations and read evaluation history.
+/// Assistant evaluation and telemetry-feedback endpoints: admin-triggered goldset runs plus the
+/// user-facing feedback routes (thumbs-up, correction, UiAction outcome report).
 /// </summary>
 
 using System.Security.Claims;
@@ -234,6 +235,47 @@ public class EvalController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// The UiAction counterpart of the feedback endpoint (W1.4): the browser reports whether the UI
+    /// action it was handed under the tracking id completed or failed. The body carries the tracking id
+    /// from the dispatch response; the caller identity comes from the token.
+    /// </summary>
+    [HttpPost("ui-action-result")]
+    public async Task<ActionResult<ReportUiActionResultResult>> ReportUiActionResult(
+        [FromBody] ReportUiActionResultRequest body,
+        CancellationToken cancellationToken)
+    {
+        if (body == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _mediator.Send(
+                new ReportUiActionResultCommand
+                {
+                    UserId = userId,
+                    TrackingId = body.TrackingId,
+                    Status = body.Status ?? string.Empty,
+                    ErrorMessage = body.ErrorMessage
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     public sealed class SubmitCorrectionRequest
     {
         public string? UserMessage { get; set; }
@@ -244,6 +286,13 @@ public class EvalController : ControllerBase
     public sealed class SubmitHelpfulFeedbackRequest
     {
         public string? UserMessage { get; set; }
+    }
+
+    public sealed class ReportUiActionResultRequest
+    {
+        public Guid TrackingId { get; set; }
+        public string? Status { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 
     private List<string> GetCurrentUserRights() => User.GetUserRights();

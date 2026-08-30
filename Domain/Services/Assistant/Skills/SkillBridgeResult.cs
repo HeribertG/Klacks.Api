@@ -10,4 +10,5 @@ public class SkillBridgeResult
     public string ResultType { get; set; } = "Data";
     public string? UiActionSteps { get; set; }
     public Dictionary<string, object>? UiActionParameters { get; set; }
+    public Guid? UiActionTrackingId { get; set; }
 }

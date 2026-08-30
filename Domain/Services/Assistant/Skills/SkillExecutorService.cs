@@ -119,13 +119,18 @@ public class SkillExecutorService : ISkillExecutor
                 descriptor.Name, context.UserId);
 
             SkillResult result;
+            Guid? uiActionTrackingId = null;
 
             if (isUiAction)
             {
+                // W1.4: the tracking id is the usage-row id the frontend reports back under, so the
+                // dispatch can later be resolved to a truthful Completed/Failed outcome.
+                uiActionTrackingId = Guid.NewGuid();
                 result = SkillResult.UiAction(
                     string.IsNullOrWhiteSpace(descriptor.HandlerConfig) ? EmptyUiActionSteps : descriptor.HandlerConfig,
                     invocation.Parameters,
-                    $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.");
+                    $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.",
+                    uiActionTrackingId);
             }
             else if (_genericDispatcher.CanHandle(descriptor.HandlerType))
             {
@@ -188,7 +193,8 @@ public class SkillExecutorService : ISkillExecutor
                 invocation.Parameters,
                 result,
                 stopwatch.Elapsed,
-                cancellationToken);
+                cancellationToken,
+                recordId: uiActionTrackingId);
 
             _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
                 descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
