@@ -91,6 +91,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             Message = request.Message,
             UserId = request.UserId,
             ConversationId = request.ConversationId,
+            TurnId = Guid.NewGuid(),
             ModelId = effectiveModelId,
             Language = request.Language,
             UserRights = request.UserRights,

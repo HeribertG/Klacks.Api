@@ -108,10 +108,14 @@ public class LLMConversationManager
         string? errorMessage = null,
         long? ttftMs = null,
         long? toolsetAssemblyMs = null,
-        int? toolIterations = null)
+        int? toolIterations = null,
+        Guid? turnId = null)
     {
         await _repository.TrackUsageAsync(new LLMUsage
         {
+            // W1.1: the usage row carries the turn id as its primary key, making
+            // llm_usages.id == skill_selection_trajectories.turn_id == skill_usage_records.turn_id.
+            Id = turnId ?? Guid.NewGuid(),
             UserId = userId,
             ModelId = model.Id,
             ConversationId = conversation.ConversationId,

@@ -14,6 +14,7 @@
 /// <param name="logger">Logger for telemetry warnings</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -36,17 +37,20 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ISkillLearningCaseCollector _caseCollector;
     private readonly ISkillPhraseRepository _phraseRepository;
+    private readonly ISkillUsageRepository _usageRepository;
     private readonly ILogger<TrajectoryCaptureService> _logger;
 
     public TrajectoryCaptureService(
         ISkillSelectionTrajectoryRepository repository,
         ISkillLearningCaseCollector caseCollector,
         ISkillPhraseRepository phraseRepository,
+        ISkillUsageRepository usageRepository,
         ILogger<TrajectoryCaptureService> logger)
     {
         _repository = repository;
         _caseCollector = caseCollector;
         _phraseRepository = phraseRepository;
+        _usageRepository = usageRepository;
         _logger = logger;
     }
 
@@ -63,6 +67,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             {
                 Id = Guid.NewGuid(),
                 AgentId = agentId,
+                TurnId = context.TurnId,
                 UserId = context.UserId,
                 Locale = NormalizeLocale(context.Language),
                 UserMessageHash = MessageNormalizer.Hash(context.Message),
@@ -70,6 +75,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions),
                 LlmChosenSkill = allFunctionCalls.FirstOrDefault()?.FunctionName,
                 WasExecuted = allFunctionCalls.Count > 0,
+                WasSuccessful = await ComputeWasSuccessfulAsync(context.TurnId),
                 HadMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message),
                 WasCorrected = false,
                 CorrectionType = CorrectionTypes.None,
@@ -87,6 +93,22 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         {
             _logger.LogWarning(ex, "Trajectory capture failed for agent {AgentId}", agentId);
         }
+    }
+
+    private async Task<bool?> ComputeWasSuccessfulAsync(Guid? turnId)
+    {
+        if (!turnId.HasValue)
+        {
+            return null;
+        }
+
+        var usageRows = await _usageRepository.GetByTurnIdAsync(turnId.Value);
+        if (usageRows.Count == 0)
+        {
+            return null;
+        }
+
+        return usageRows.All(row => row.Success);
     }
 
     private async Task MarkImplicitCorrectionIfApplicableAsync(Guid agentId, string userId, string message)

@@ -22,6 +22,13 @@ public class LLMContext
 
     public string? ConversationId { get; set; }
 
+    /// <summary>
+    /// Unique id of this chat turn, generated once at turn start and carried on the context so every
+    /// consumer (trajectory capture, skill usage tracking, LLM usage row) writes the same key.
+    /// This is the join key "Turn → gewählter Skill → Ausführungsergebnis" (W1.1).
+    /// </summary>
+    public Guid? TurnId { get; set; }
+
     public string? ModelId { get; set; }
 
     public string? Language { get; set; }

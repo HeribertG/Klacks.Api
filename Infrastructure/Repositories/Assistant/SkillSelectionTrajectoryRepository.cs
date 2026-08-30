@@ -91,9 +91,10 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    // Success for a phrase means the turn actually reached the skill the phrase belongs to. The phrase
-    // occurring while a different skill ran is a use, not a success - which is exactly the distinction
-    // the quote exists to make.
+    // Success for a phrase means the turn actually reached the skill the phrase belongs to AND every
+    // skill execution of that turn succeeded (W1.3). The phrase occurring while a different skill ran
+    // is a use, not a success - which is exactly the distinction the quote exists to make. Legacy rows
+    // without a turn_id join keep their old semantics via the null-coalescing fallback.
     public async Task<LearnedArtefactUsage> CountPhraseUsageAsync(
         string ownerName, DateTime fromUtc, CancellationToken cancellationToken = default)
     {
@@ -101,7 +102,8 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .AsNoTracking()
             .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc)
             .Select(t => new UsageRow(
-                t.CreateTime, t.WasCorrected, t.Helpful, t.LlmChosenSkill == ownerName && !t.WasCorrected))
+                t.CreateTime, t.WasCorrected, t.Helpful,
+                t.LlmChosenSkill == ownerName && !t.WasCorrected && (t.WasSuccessful ?? true)))
             .ToListAsync(cancellationToken);
 
         return Summarise(rows);
@@ -113,7 +115,9 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
         var rows = await _context.SkillSelectionTrajectories
             .AsNoTracking()
             .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc)
-            .Select(t => new UsageRow(t.CreateTime, t.WasCorrected, t.Helpful, t.WasExecuted && !t.WasCorrected))
+            .Select(t => new UsageRow(
+                t.CreateTime, t.WasCorrected, t.Helpful,
+                !t.WasCorrected && (t.WasSuccessful ?? t.WasExecuted)))
             .ToListAsync(cancellationToken);
 
         return Summarise(rows);
@@ -124,7 +128,9 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
     {
         return await _context.SkillSelectionTrajectories
             .AsNoTracking()
-            .AnyAsync(t => t.RecipeName == recipeName && t.WasExecuted && !t.WasCorrected, cancellationToken);
+            .AnyAsync(t => t.RecipeName == recipeName
+                && !t.WasCorrected
+                && (t.WasSuccessful ?? t.WasExecuted), cancellationToken);
     }
 
     private static LearnedArtefactUsage Summarise(IReadOnlyList<UsageRow> rows) =>

@@ -25,6 +25,13 @@ public class SkillSelectionTrajectory : BaseEntity
 
     public bool WasExecuted { get; set; }
 
+    /// <summary>
+    /// Whether every skill execution of this turn succeeded (W1.3). Computed at capture time from the
+    /// turn_id join to skill_usage_records: true when the turn ran at least one skill and none failed,
+    /// false when at least one failed, null when the turn executed nothing or predates the turn_id join.
+    /// </summary>
+    public bool? WasSuccessful { get; set; }
+
     public bool HadMutationIntent { get; set; }
 
     public bool WasCorrected { get; set; }

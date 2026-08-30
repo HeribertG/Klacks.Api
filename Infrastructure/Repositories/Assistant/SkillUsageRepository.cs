@@ -71,4 +71,13 @@ public class SkillUsageRepository : ISkillUsageRepository
 
         return (decimal)successful / total * 100;
     }
+
+    public async Task<IReadOnlyList<SkillUsageRecord>> GetByTurnIdAsync(Guid turnId, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillUsageRecords
+            .Where(r => r.TurnId == turnId)
+            .OrderBy(r => r.Timestamp)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -2,6 +2,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -44,6 +45,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
             ProviderId = context.ProviderId,
             ModelId = context.ModelId,
             SessionId = context.SessionId,
+            TurnId = context.TurnId,
             ParametersJson = JsonSerializer.Serialize(SkillParameterRedactor.Redact(parameters)),
             Success = result.Success,
             ErrorMessage = result.Success ? null : result.Message,
@@ -74,6 +76,49 @@ public class SkillUsageTrackerService : ISkillUsageTracker
             {
                 _logger.LogWarning(ex, "Proactive skill-sequence suggestion failed for {SkillName}", descriptor.Name);
             }
+        }
+    }
+
+    public async Task TrackFailureAsync(
+        string skillName,
+        SkillFailureKind failureKind,
+        SkillExecutionContext context,
+        Dictionary<string, object>? parameters,
+        string? errorMessage,
+        TimeSpan duration,
+        SkillCategory category = SkillCategory.Action,
+        CancellationToken cancellationToken = default)
+    {
+        var record = new SkillUsageRecord
+        {
+            Id = Guid.NewGuid(),
+            SkillName = skillName,
+            Category = category,
+            UserId = context.UserId,
+            TenantId = context.TenantId,
+            ProviderId = context.ProviderId,
+            ModelId = context.ModelId,
+            SessionId = context.SessionId,
+            TurnId = context.TurnId,
+            ParametersJson = parameters == null ? null : JsonSerializer.Serialize(SkillParameterRedactor.Redact(parameters)),
+            Success = false,
+            ErrorMessage = errorMessage,
+            FailureKind = failureKind,
+            DurationMs = (int)duration.TotalMilliseconds,
+            Timestamp = DateTime.UtcNow
+        };
+
+        try
+        {
+            await _repository.AddAsync(record, cancellationToken);
+
+            _logger.LogDebug(
+                "Skill failure tracked: {SkillName}, Kind: {FailureKind}, User: {UserId}",
+                record.SkillName, record.FailureKind, record.UserId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to track skill failure for {SkillName} ({FailureKind})", skillName, failureKind);
         }
     }
 

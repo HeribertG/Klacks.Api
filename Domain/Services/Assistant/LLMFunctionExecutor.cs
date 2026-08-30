@@ -221,6 +221,7 @@ public class LLMFunctionExecutor
             CurrentPage = context.PageContext?.CurrentRoute,
             SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
             SessionId = context.ConversationId,
+            TurnId = context.TurnId,
             SupportsUiActions = true,
             InjectedMemoryIds = context.InjectedMemoryIds
         };

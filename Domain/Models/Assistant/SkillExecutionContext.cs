@@ -20,6 +20,12 @@ public record SkillExecutionContext
     public bool SupportsUiActions { get; init; }
 
     /// <summary>
+    /// Join key to the chat turn (W1.1), copied from <see cref="LLMContext.TurnId"/> by the executor.
+    /// Null on paths that are not a user-facing chat turn (background one-shots, evals).
+    /// </summary>
+    public Guid? TurnId { get; init; }
+
+    /// <summary>
     /// The caller's bearer token, re-presented when a skill mutates state through the own REST API so
     /// that [Authorize], validation and the request log apply to it like to any other client. Null on
     /// paths that have no caller token; mutating skills must then fail closed rather than write

@@ -72,38 +72,46 @@ public class SkillExecutorService : ISkillExecutor
         CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
+        SkillDescriptor? descriptor = null;
 
         try
         {
-            var descriptor = _registry.GetSkillByName(invocation.SkillName);
+            descriptor = _registry.GetSkillByName(invocation.SkillName);
             if (descriptor == null)
             {
                 _logger.LogWarning("Skill not found: {SkillName}", invocation.SkillName);
-                return SkillResult.Error($"Skill '{invocation.SkillName}' not found");
+                var notFound = SkillResult.Error($"Skill '{invocation.SkillName}' not found");
+                await TrackFailureAsync(invocation.SkillName, SkillFailureKind.NotFound, context, invocation.Parameters, notFound.Message, stopwatch.Elapsed, category: null, cancellationToken: cancellationToken);
+                return notFound;
             }
 
             var permissionResult = ValidatePermissions(descriptor, context);
             if (!permissionResult.Success)
             {
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.PermissionDenied, context, invocation.Parameters, permissionResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
                 return permissionResult;
             }
 
             var parameterResult = ValidateParameters(descriptor, invocation.Parameters);
             if (!parameterResult.Success)
             {
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.ParameterInvalid, context, invocation.Parameters, parameterResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
                 return parameterResult;
             }
 
             var isUiAction = string.Equals(descriptor.ExecutionType, LlmExecutionTypes.UiAction, StringComparison.OrdinalIgnoreCase);
             if (isUiAction && !context.SupportsUiActions)
             {
-                return SkillResult.Error(
+                var uiContextError = SkillResult.Error(
                     $"Skill '{invocation.SkillName}' requires an interactive UI session and cannot be executed in this context.");
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.UiActionContext, context, invocation.Parameters, uiContextError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+                return uiContextError;
             }
 
             var gateResult = await _autonomyGate.CheckAsync(descriptor, context, invocation.Parameters, cancellationToken);
             if (gateResult != null)
             {
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.GateHold, context, invocation.Parameters, gateResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
                 return gateResult;
             }
 
@@ -123,7 +131,9 @@ public class SkillExecutorService : ISkillExecutor
             {
                 if (string.IsNullOrWhiteSpace(descriptor.HandlerConfig))
                 {
-                    return SkillResult.Error($"Skill '{invocation.SkillName}' has HandlerType '{descriptor.HandlerType}' but no HandlerConfig.");
+                    var noConfigError = SkillResult.Error($"Skill '{invocation.SkillName}' has HandlerType '{descriptor.HandlerType}' but no HandlerConfig.");
+                    await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noConfigError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+                    return noConfigError;
                 }
 
                 result = await _genericDispatcher.ExecuteAsync(
@@ -158,12 +168,16 @@ public class SkillExecutorService : ISkillExecutor
                 }
                 else
                 {
-                    return SkillResult.Error($"Skill '{invocation.SkillName}' does not implement ISkillImplementation or ISkill.");
+                    var noImplError = SkillResult.Error($"Skill '{invocation.SkillName}' does not implement ISkillImplementation or ISkill.");
+                    await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noImplError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+                    return noImplError;
                 }
             }
             else
             {
-                return SkillResult.Error($"No implementation or handler found for skill '{invocation.SkillName}'.");
+                var noHandlerError = SkillResult.Error($"No implementation or handler found for skill '{invocation.SkillName}'.");
+                await TrackFailureAsync(descriptor.Name, SkillFailureKind.Exception, context, invocation.Parameters, noHandlerError.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
+                return noHandlerError;
             }
 
             stopwatch.Stop();
@@ -193,28 +207,62 @@ public class SkillExecutorService : ISkillExecutor
             stopwatch.Stop();
             _logger.LogWarning(ex, "Skill error in {SkillName}: {ErrorCode} - {Message}",
                 invocation.SkillName, ex.ErrorCode, ex.Message);
-            return SkillResult.Error(ex.Message, new Dictionary<string, object>
+            var result = SkillResult.Error(ex.Message, new Dictionary<string, object>
             {
                 { SkillErrorKeys.ErrorCode, ex.ErrorCode ?? SkillErrorKeys.Unknown },
                 { SkillErrorKeys.SkillName, ex.SkillName }
             });
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            return result;
         }
         catch (OperationCanceledException)
         {
             stopwatch.Stop();
             _logger.LogInformation("Skill execution cancelled: {SkillName}", invocation.SkillName);
-            return SkillResult.Cancelled($"Skill '{invocation.SkillName}' execution was cancelled");
+            var result = SkillResult.Cancelled($"Skill '{invocation.SkillName}' execution was cancelled");
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            return result;
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "Unexpected error executing skill: {SkillName}", invocation.SkillName);
-            return SkillResult.Error($"Execution error: {ex.Message}", new Dictionary<string, object>
+            var result = SkillResult.Error($"Execution error: {ex.Message}", new Dictionary<string, object>
             {
                 { SkillErrorKeys.ErrorCode, SkillErrorKeys.ExecutionError },
                 { SkillErrorKeys.SkillName, invocation.SkillName },
                 { SkillErrorKeys.ExceptionType, ex.GetType().Name }
             });
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            return result;
+        }
+    }
+
+    private async Task TrackFailureAsync(
+        string skillName,
+        SkillFailureKind failureKind,
+        SkillExecutionContext context,
+        Dictionary<string, object>? parameters,
+        string? errorMessage,
+        TimeSpan duration,
+        SkillCategory? category = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await _usageTracker.TrackFailureAsync(
+                skillName,
+                failureKind,
+                context,
+                parameters,
+                errorMessage,
+                duration,
+                category ?? SkillCategory.Action,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failure tracking failed for {SkillName} ({FailureKind})", skillName, failureKind);
         }
     }
 

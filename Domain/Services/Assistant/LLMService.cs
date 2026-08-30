@@ -196,7 +196,8 @@ public class LLMService : ILLMService
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
-                toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: iterationsUsed);
+                toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
+                turnId: context.TurnId);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -641,7 +642,8 @@ public class LLMService : ILLMService
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
-                ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun);
+                ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun,
+                turnId: context.TurnId);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -929,7 +931,8 @@ public class LLMService : ILLMService
                     ctx.Context.UserId, ctx.Model, ctx.Conversation,
                     ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
                     hasError: true, errorMessage: lastResponse.Error,
-                    toolsetAssemblyMs: ctx.Context.ToolsetAssemblyMs, toolIterations: iterationsUsed);
+                    toolsetAssemblyMs: ctx.Context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
+                    turnId: ctx.Context.TurnId);
                 return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls, null);
             }
 
