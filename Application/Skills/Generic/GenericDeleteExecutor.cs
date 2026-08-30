@@ -57,7 +57,7 @@ public class GenericDeleteExecutor
         if (!Guid.TryParse(idRaw.ToString(), out var entityId))
             return SkillResult.Error($"Parameter '{config.IdParameter}' is not a valid GUID.");
 
-        var getMethod = interfaceType.GetMethod(config.GetMethod);
+        var getMethod = ReflectionMethodResolver.FindOnInterface(interfaceType, config.GetMethod, [typeof(Guid)]);
         if (getMethod == null)
             return SkillResult.Error($"Method '{config.GetMethod}' not found on '{config.RepositoryInterface}'.");
 
@@ -74,7 +74,7 @@ public class GenericDeleteExecutor
             var entityName = entity.GetType().GetProperty(config.NameField)?.GetValue(entity)?.ToString()
                              ?? entityId.ToString();
 
-            var deleteMethod = interfaceType.GetMethod(config.DeleteMethod);
+            var deleteMethod = ReflectionMethodResolver.FindOnInterface(interfaceType, config.DeleteMethod, [typeof(Guid)]);
             if (deleteMethod == null)
                 return SkillResult.Error($"Method '{config.DeleteMethod}' not found on '{config.RepositoryInterface}'.");
 

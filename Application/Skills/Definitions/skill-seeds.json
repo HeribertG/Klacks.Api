@@ -2377,7 +2377,7 @@
         {
           "name": "role",
           "description": "The permission level to assign.",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -2820,7 +2820,7 @@
         {
           "name": "status",
           "description": "Filter by synonym status",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -3991,7 +3991,7 @@
           "description": "Which workplace list to open. Use 'client' for addresses/people (Kunden, Mitarbeiter, Externe), 'group' for groups, 'shift' for shifts, 'absence' for the absence calendar (filters its employee rows).",
           "type": "Enum",
           "required": true,
-          "defaultValue": "client",
+          "defaultValue": null,
           "enumValues": [
             "client",
             "group",
@@ -5523,7 +5523,7 @@
       "parameters": [
         {
           "name": "retentionDays",
-          "type": "integer",
+          "type": "Integer",
           "description": "The new retention period in days. Must be between 30 and 36500. After this many days, soft-deleted records are permanently deleted and cannot be recovered.",
           "required": true,
           "enumValues": null
@@ -11095,7 +11095,7 @@
         {
           "name": "defaultValue",
           "description": "Default day value 0..1 (default 1 = full day)",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": 1,
           "enumValues": null
@@ -11239,7 +11239,7 @@
         {
           "name": "defaultValue",
           "description": "New default day value 0..1",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -12372,7 +12372,7 @@
         {
           "name": "workTime",
           "description": "New work time in hours; when only times change it is recomputed from them",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -14852,7 +14852,7 @@
         {
           "name": "paymentInterval",
           "description": "Payment interval of the group: Weekly, Biweekly, Monthly or Individual. Defaults to Monthly.",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -14970,7 +14970,7 @@
         {
           "name": "paymentInterval",
           "description": "New payment interval: Weekly, Biweekly, Monthly or Individual — determines the period grid of the schedule",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -17348,7 +17348,7 @@
         {
           "name": "preference",
           "description": "preferred or blacklist",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -18247,7 +18247,7 @@
         {
           "name": "entityType",
           "description": "Which client population to evaluate: Employee, ExternEmp, or Customer.",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -18517,7 +18517,7 @@
         {
           "name": "gender",
           "description": "Gender value: female, male, legalEntity, or intersexuality",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -18698,7 +18698,7 @@
         {
           "name": "entityType",
           "description": "Which client population to evaluate: Employee, ExternEmp, or Customer.",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -20703,7 +20703,7 @@
         {
           "name": "level",
           "description": "The new autonomy level: 0-3 or one of Propose, Assisted, Autonomous, FullyAutonomous",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -20831,7 +20831,7 @@
         {
           "name": "trigger_kind",
           "description": "Which finding type the rule applies to, e.g. unstaffed_shift, empty_container, open_order. Omit when only the master off switch is being flipped. Never state this identifier to the user; use its translated label.",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -20854,7 +20854,7 @@
         {
           "name": "max_action",
           "description": "How far Klacksy may go: Hint reports only, Prepare additionally lays a ready scenario next to it, Execute additionally carries it out",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -20930,7 +20930,7 @@
         {
           "name": "autonomy_level",
           "description": "The installation-wide autonomy level that caps every finding type's max_action: Propose reports only, Assisted additionally stages scenarios, Autonomous and FullyAutonomous may carry out. Omit to leave the stored level untouched",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -20997,7 +20997,7 @@
         {
           "name": "level",
           "description": "The autonomy level to evaluate: 0-3 or one of Propose, Assisted, Autonomous, FullyAutonomous",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -21186,7 +21186,7 @@
         {
           "name": "clientType",
           "description": "Optional filter by client type",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -26969,7 +26969,7 @@
           "description": "What the task does: 'reminder' delivers messageText, 'skill' runs skillName.",
           "type": "Enum",
           "required": true,
-          "defaultValue": "reminder",
+          "defaultValue": null,
           "enumValues": [
             "reminder",
             "skill"
@@ -28144,7 +28144,7 @@
         {
           "name": "year",
           "description": "Calendar year to summarise (default: current year).",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -29216,7 +29216,7 @@
         {
           "name": "startHour",
           "description": "First hour of the window (0-23); defaults to 0.",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -29224,7 +29224,7 @@
         {
           "name": "endHour",
           "description": "Last hour of the window (0-23, inclusive); defaults to 23.",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -29292,7 +29292,7 @@
         {
           "name": "startHour",
           "description": "First hour of the window (0-23); defaults to 0.",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -29300,7 +29300,7 @@
         {
           "name": "endHour",
           "description": "Last hour of the window (0-23, inclusive); defaults to 23.",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -29316,7 +29316,7 @@
         {
           "name": "limit",
           "description": "Maximum number of employees to evaluate (default 25, max 100).",
-          "type": "Int",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -32545,7 +32545,7 @@
         {
           "name": "eventType",
           "description": "What is counted",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -32557,7 +32557,7 @@
         {
           "name": "period",
           "description": "Window the count resets in",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -32585,7 +32585,7 @@
         {
           "name": "enforcement",
           "description": "Reaction once the count is exceeded",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -32668,7 +32668,7 @@
         {
           "name": "eventType",
           "description": "New counted event",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -32680,7 +32680,7 @@
         {
           "name": "period",
           "description": "New window the count resets in",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -32708,7 +32708,7 @@
         {
           "name": "enforcement",
           "description": "New reaction once the count is exceeded",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -32895,7 +32895,7 @@
         {
           "name": "period",
           "description": "Window the ceiling applies to",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -32908,7 +32908,7 @@
         {
           "name": "scope",
           "description": "Which hours are counted towards the ceiling",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -33031,7 +33031,7 @@
         {
           "name": "period",
           "description": "New window the ceiling applies to",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -33044,7 +33044,7 @@
         {
           "name": "scope",
           "description": "New set of hours counted towards the ceiling",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -33884,7 +33884,7 @@
         {
           "name": "ruleType",
           "description": "Where the pattern is looked for",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -33970,7 +33970,7 @@
         {
           "name": "ruleType",
           "description": "New place the pattern is looked for",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -34652,7 +34652,7 @@
         {
           "name": "type",
           "description": "What the layout prints about",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -34763,7 +34763,7 @@
         {
           "name": "type",
           "description": "New subject the layout prints about",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
           "enumValues": [
@@ -37100,7 +37100,7 @@
         {
           "name": "modelAlias",
           "description": "Model size: small or large-v3-turbo",
-          "type": "String",
+          "type": "Enum",
           "required": false,
           "defaultValue": "small",
           "enumValues": [
@@ -38570,7 +38570,7 @@
         {
           "name": "theme",
           "description": "Colour scheme to switch to",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [
@@ -39286,7 +39286,7 @@
         {
           "name": "targetType",
           "description": "New classification for the client: Employee, ExternEmp or Customer.",
-          "type": "String",
+          "type": "Enum",
           "required": true,
           "defaultValue": null,
           "enumValues": [

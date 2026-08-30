@@ -24,28 +24,19 @@
         fragile).
 
     Non-blocking contract:
-        The script always exits 0 unless its own prerequisites are impossible to meet (DB
-        unreachable in a real run). A model regression, a skipped/unavailable model, or a
-        "0 tests executed" invocation produces a loud WARNING in the console and in the scorecard
-        file, but never a non-zero exit - a nightly must not gate anything.
+        The script exits 0 when no model regressed and 2 when a regression beyond the threshold
+        was detected, so the Windows Task Scheduler records a failed last-run result. A skipped or
+        unavailable model, or a "0 tests executed" invocation produces a loud WARNING in the console
+        and in the scorecard file but is not itself a failure (exit stays 0).
 
 .PARAMETER Models
-    Comma-separated llm_models.model_id values to evaluate. The default trio was picked against the
-    LIVE dev DB (not just the migration seed - the two diverge because the model catalog is also
-    populated by provider model-sync), each confirmed enabled + provider-enabled + keyed:
-        - gpt-54       : prod-default class (OpenAI, is_default=true). NOTE: TWO rows carry
-                         is_default=true (gpt-54 and gemini-31-pro), so "the" prod default is
-                         ambiguous and the app's WHERE is_default LIMIT 1 lookup is itself
-                         nondeterministic - the nightly therefore PINS one model explicitly.
-        - gpt-54-nano  : cheapest ENABLED priced model in the live DB (0.0002/token). Many other
-                         rows show cost 0.0 because model-sync discovered them without pricing, not
-                         because they are intentionally the cheap tier; gpt-54-nano is the cheapest
-                         model that is both priced and a reliable tool-caller.
-        - claude-sonnet-5 : strong tool-caller (Anthropic, enabled).
+    Comma-separated llm_models.model_id values to evaluate. Default is the production model only,
+    per owner decision 2026-08-30 (D1: "Prod-Modell + Haiku 4.5, nicht mehr"; claude-haiku-45 is
+    disabled in the current dev DB, so only deepseek-v4-pro runs until it is re-enabled).
     Verify availability yourself before trusting a default: the live catalog differs per machine.
     Query:  SELECT model_id, is_default, cost_per_input_token FROM llm_models WHERE is_enabled AND NOT is_deleted;
-    Swap in other presets (Cerebras / OpenRouter-free, or the genuinely cheapest priced row you find)
-    via -Models once their provider is enabled and keyed - the pre-flight below skips anything not runnable.
+    Swap in other presets via -Models once their provider is enabled and keyed - the pre-flight
+    below skips anything not runnable.
 
 .PARAMETER Goldset
     Goldset name (without .json). Default: turn-selection-v1.
@@ -97,7 +88,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Models = "gpt-54,gpt-54-nano,claude-sonnet-5",
+    [string]$Models = "deepseek-v4-pro",
     [string]$Goldset = "turn-selection-v1",
     [double]$RegressionThreshold = 0.02,
     [string]$OutputDir,
@@ -319,5 +310,7 @@ finally {
 Write-Host ""
 Write-Host "Scorecard written to: $ScorecardOut" -ForegroundColor Cyan
 
-# Non-blocking by contract: always exit 0. Regressions are signalled loudly above, not via exit code.
+# Regression is signalled loudly above AND via a non-zero exit code, so the scheduled task
+# records a failed run when the composite drops beyond the threshold.
+if ($anyRegression) { exit 2 }
 exit 0

@@ -76,13 +76,17 @@ assertions must not be shipped as a recommended/default model without a delibera
 
 ## 2. Review the latest nightly turn-eval scorecard
 
-The nightly (`Klacks.Api/scripts/nightly-turn-eval.ps1`, local-only, non-blocking) replays the
-`turn-selection-v1` goldset against a fixed model set and writes a scorecard to
-`Klacks.Api/artifacts/turn-eval/turn-eval-<timestamp>.md`, reading composite + regression back from
-the authoritative `eval_runs` table.
+The nightly (`Klacks.Api/scripts/nightly-turn-eval.ps1`, local-only) replays the
+`turn-selection-v1` goldset against the pinned model set (default: `deepseek-v4-pro`) and writes a
+scorecard to `Klacks.Api/artifacts/turn-eval/turn-eval-<timestamp>.md`, reading composite + regression
+back from the authoritative `eval_runs` table. Since 2026-08-30 a regression beyond the threshold
+also makes the script exit with code 2 so the Windows Task Scheduler records a failed run.
 
 - Open the most recent scorecard and confirm **no `>>> REGRESSION` line** and **no `WARNING`** for
-  the prod-default model.
+  the prod-default model (`deepseek-v4-pro`).
+- The scorecard now includes the item pass-rate gate from
+  `Klacks.IntegrationTest/Assistant/TurnSelectionGoldenSetTests.cs` (min pass rate = latest baseline
+  − 5 pp, overridable via `TURNEVAL_MIN_PASS_RATE`). A red gate in that test is a release blocker.
 - If the newest scorecard is stale or missing, run it on demand before tagging:
 
 ```powershell

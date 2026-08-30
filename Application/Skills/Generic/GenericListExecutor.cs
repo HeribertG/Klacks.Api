@@ -51,11 +51,15 @@ public class GenericListExecutor
 
         var repository = _serviceProvider.GetRequiredService(interfaceType);
 
-        var method = interfaceType.GetMethod(config.Method);
+        var method = ReflectionMethodResolver.FindOnInterface(interfaceType, config.Method, Type.EmptyTypes);
         if (method == null)
             return SkillResult.Error($"Method '{config.Method}' not found on '{config.RepositoryInterface}'.");
 
-        var invocationResult = method.Invoke(repository, null);
+        var invocationArgs = method.GetParameters().Length == 0
+            ? null
+            : method.GetParameters().Select(p => p.DefaultValue).ToArray();
+
+        var invocationResult = method.Invoke(repository, invocationArgs);
         if (invocationResult is not Task task)
             return SkillResult.Error($"Method '{config.Method}' did not return a Task.");
 

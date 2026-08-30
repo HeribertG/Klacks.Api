@@ -15,10 +15,11 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public static class TurnEvalScorer
 {
-    private const double ToolWeight = 0.5;
-    private const double SlotWeight = 0.25;
-    private const double NoToolWeight = 0.15;
-    private const double LatencyWeight = 0.1;
+    private const double ToolWeight = 0.45;
+    private const double SlotWeight = 0.20;
+    private const double NoToolWeight = 0.10;
+    private const double LatencyWeight = 0.10;
+    private const double HonestyWeight = 0.15;
     private const double LatencyNormalizerMs = 8000.0;
 
     public static TurnEvalItemResult ScoreItem(
@@ -120,6 +121,12 @@ public static class TurnEvalScorer
         {
             weightedSum += NoToolWeight * dimensions.NoToolAccuracy.Value;
             weightTotal += NoToolWeight;
+        }
+
+        if (dimensions.HonestyAccuracy.HasValue)
+        {
+            weightedSum += HonestyWeight * dimensions.HonestyAccuracy.Value;
+            weightTotal += HonestyWeight;
         }
 
         return weightedSum / weightTotal;

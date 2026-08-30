@@ -13,6 +13,7 @@
 /// <param name="parameters">Raw invocation arguments (JsonElement or CLR values), keyed by name.</param>
 
 using System.Globalization;
+using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -72,8 +73,39 @@ public static class SkillParameterTypeValidator
             SkillParameterType.DateTime => IsDateTime(value)
                 ? null
                 : TypeError(declared.Name, value, "a date-time (e.g. 2026-07-08T08:30)"),
+            SkillParameterType.Enum => IsEnumValue(declared, value)
+                ? null
+                : TypeError(
+                    declared.Name,
+                    value,
+                    declared.EnumValues is { Count: > 0 }
+                        ? $"one of: {string.Join(", ", declared.EnumValues)}"
+                        : "a valid enum value"),
             _ => null
         };
+    }
+
+    private static bool IsEnumValue(SkillParameter declared, object value)
+    {
+        if (declared.EnumValues is null || declared.EnumValues.Count == 0)
+        {
+            return true;
+        }
+
+        var text = value switch
+        {
+            string s => s,
+            JsonElement { ValueKind: JsonValueKind.String } je => je.GetString(),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture)
+        };
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        return declared.EnumValues.Any(allowed =>
+            string.Equals(allowed, text.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     private static string TypeError(string parameterName, object value, string expected) =>

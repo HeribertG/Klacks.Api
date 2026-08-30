@@ -11,7 +11,8 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 public class FileTurnGoldsetLoader : ITurnGoldsetLoader
 {
     private const string GoldsetSubPath = "Application/Skills/Goldsets";
-    private const string ExpectedKind = "turn-selection";
+    private const string ExpectedKindSelection = "turn-selection";
+    private const string ExpectedKindHonesty = "turn-honesty";
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -36,9 +37,12 @@ public class FileTurnGoldsetLoader : ITurnGoldsetLoader
         await using var stream = File.OpenRead(path);
         var document = await JsonSerializer.DeserializeAsync<TurnGoldsetDocument>(stream, SerializerOptions, cancellationToken);
 
-        if (document == null || !string.Equals(document.Kind, ExpectedKind, StringComparison.OrdinalIgnoreCase))
+        if (document == null
+            || (!string.Equals(document.Kind, ExpectedKindSelection, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(document.Kind, ExpectedKindHonesty, StringComparison.OrdinalIgnoreCase)))
         {
-            throw new InvalidDataException($"Goldset '{sanitized}' is not a valid {ExpectedKind} goldset.");
+            throw new InvalidDataException(
+                $"Goldset '{sanitized}' is not a valid {ExpectedKindSelection}/{ExpectedKindHonesty} goldset.");
         }
 
         return document.Items;

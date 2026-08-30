@@ -134,6 +134,26 @@ public class SkillRegistryInitializer
         implementations.Add(skillName, type);
     }
 
+    private static SkillParameterType ParseParameterType(string? type)
+    {
+        if (string.IsNullOrWhiteSpace(type))
+        {
+            return SkillParameterType.String;
+        }
+
+        // Seeds historically contained non-enum spellings ("Int", "Number"). Map them explicitly
+        // instead of silently degrading to String, which would weaken the tool schema and skip
+        // runtime type validation.
+        return type.Trim().ToLowerInvariant() switch
+        {
+            "int" => SkillParameterType.Integer,
+            "number" => SkillParameterType.Decimal,
+            _ => Enum.TryParse<SkillParameterType>(type, ignoreCase: true, out var paramType)
+                ? paramType
+                : SkillParameterType.String
+        };
+    }
+
     private static SkillCategory ParseCategory(string category)
     {
         return Enum.TryParse<SkillCategory>(category, ignoreCase: true, out var result)
@@ -161,9 +181,7 @@ public class SkillRegistryInitializer
                 .Select(p => new SkillParameter(
                     Name: p.Name ?? string.Empty,
                     Description: p.Description ?? string.Empty,
-                    Type: Enum.TryParse<SkillParameterType>(p.Type, ignoreCase: true, out var paramType)
-                        ? paramType
-                        : SkillParameterType.String,
+                    Type: ParseParameterType(p.Type),
                     Required: p.Required,
                     DefaultValue: p.DefaultValue,
                     EnumValues: p.EnumValues,
