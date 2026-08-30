@@ -287,6 +287,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<SkillSelectionTrajectory> SkillSelectionTrajectories { get; set; }
     public DbSet<EvalRun> EvalRuns { get; set; }
     public DbSet<ProposedSkillChange> ProposedSkillChanges { get; set; }
+    public DbSet<RecipeRun> RecipeRuns { get; set; }
 
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }

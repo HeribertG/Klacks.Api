@@ -24,6 +24,7 @@ public class LLMService : ILLMService
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly RecipeEngineService _recipeEngine;
+    private readonly IRecipeRunRecorder _recipeRunRecorder;
     private readonly RecipeSlotExtractor _slotExtractor;
     private readonly ISuggestionEntityNameReader _suggestionEntityNameReader;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
@@ -77,6 +78,7 @@ public class LLMService : ILLMService
         ILLMBackgroundTaskService backgroundTaskService,
         IPendingConfirmationStore pendingConfirmationStore,
         RecipeEngineService recipeEngine,
+        IRecipeRunRecorder recipeRunRecorder,
         RecipeSlotExtractor slotExtractor,
         ISuggestionEntityNameReader suggestionEntityNameReader,
         IContextBudgetPolicy contextBudgetPolicy)
@@ -92,6 +94,7 @@ public class LLMService : ILLMService
         _backgroundTaskService = backgroundTaskService;
         _pendingConfirmationStore = pendingConfirmationStore;
         _recipeEngine = recipeEngine;
+        _recipeRunRecorder = recipeRunRecorder;
         _slotExtractor = slotExtractor;
         _suggestionEntityNameReader = suggestionEntityNameReader;
         _contextBudgetPolicy = contextBudgetPolicy;
@@ -273,13 +276,19 @@ public class LLMService : ILLMService
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
 
-        // Only the engine plan is recorded: a cut plan is resolved from the message itself and has no row
-        // in agent_recipes, so its name could never be attributed to a learned capability anyway.
-        context.ActiveRecipeName = enginePlan?.Name;
+        // W1.5: attribute both engine and cut plans — the recipe funnel needs the cut recipe's name on
+        // the trajectory just as much as a data-driven recipe's — and open the run row that carries the
+        // started → completed/aborted/expired lifecycle across turns.
+        context.ActiveRecipeName = recipePlan?.Name;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, recipePlan != null);
         Guid.TryParse(context.UserId, out var recipeUserGuid);
+        var recipeRun = recipePlan != null && recipeUserGuid != Guid.Empty
+            ? await _recipeRunRecorder.BeginOrResumeAsync(
+                recipePlan.Name, recipeUserGuid, conversation!.ConversationId, context.TurnId, recipePlan.StepIndex, cancellationToken)
+            : null;
         var recipePausedOnAsk = false;
         var gateHoldEndedRecipe = false;
+        var recipeAbortedByGateHold = false;
         string? askedSlot = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -316,6 +325,10 @@ public class LLMService : ILLMService
                 yield return SseChunk.Content(confirmText);
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                if (recipeRun != null)
+                {
+                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
+                }
                 _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
                 break;
             }
@@ -350,6 +363,10 @@ public class LLMService : ILLMService
                 askedSlot = enginePlan.CurrentStep?.Slot;
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                if (recipeRun != null)
+                {
+                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
+                }
                 _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
                     enginePlan.Name, askedSlot);
                 break;
@@ -551,6 +568,7 @@ public class LLMService : ILLMService
                 gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
                 enginePlan?.DeactivateOnAutonomyGateHold();
                 recipePlan = null;
+                recipeAbortedByGateHold = gateHoldEndedRecipe;
             }
 
             if (_functionExecutor.NavigationRoute != null)
@@ -583,6 +601,34 @@ public class LLMService : ILLMService
             {
                 currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
                 gateHoldEndedRecipe = false;
+            }
+        }
+
+        if (recipeRun != null && !recipePausedOnAsk)
+        {
+            if (recipeAbortedByGateHold)
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "autonomy gate hold ended the recipe", cancellationToken);
+            }
+            else if (enginePlan != null)
+            {
+                if (!enginePlan.IsActive)
+                {
+                    await _recipeRunRecorder.CompleteAsync(recipeRun, cancellationToken);
+                }
+                // else: still mid-flow — the run stays Running and the pending store carries it to the next turn.
+            }
+            else if (cutPlan is { IsDeactivated: true })
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "ambiguous customer match deactivated the cut recipe", cancellationToken);
+            }
+            else if (cutPlan is { IsActive: false })
+            {
+                await _recipeRunRecorder.CompleteAsync(recipeRun, cancellationToken);
+            }
+            else
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "turn ended before the cut recipe completed", cancellationToken);
             }
         }
 
@@ -787,12 +833,18 @@ public class LLMService : ILLMService
 
         // Written onto the shared context object rather than returned: ProcessAsync holds the very same
         // LLMContext instance and hands it to the post-turn hooks, so the name reaches trajectory capture
-        // without widening this method's already six-wide return tuple.
-        ctx.Context.ActiveRecipeName = enginePlan?.Name;
+        // without widening this method's already six-wide return tuple. W1.5: cut plans are attributed too,
+        // and the run row is opened/resumed here.
+        ctx.Context.ActiveRecipeName = recipePlan?.Name;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
         Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
+        var recipeRun = recipePlan != null && recipeUserGuid != Guid.Empty
+            ? await _recipeRunRecorder.BeginOrResumeAsync(
+                recipePlan.Name, recipeUserGuid, ctx.Conversation.ConversationId, ctx.Context.TurnId, recipePlan.StepIndex, ctx.CancellationToken)
+            : null;
         var recipePausedOnAsk = false;
         var gateHoldEndedRecipe = false;
+        var recipeAbortedByGateHold = false;
         var forcedRetryUsed = false;
         string? askedSlot = null;
 
@@ -834,6 +886,10 @@ public class LLMService : ILLMService
 
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                if (recipeRun != null)
+                {
+                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
+                }
                 _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
                 break;
             }
@@ -872,6 +928,10 @@ public class LLMService : ILLMService
                 askedSlot = enginePlan.CurrentStep?.Slot;
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                if (recipeRun != null)
+                {
+                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
+                }
                 _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
                     enginePlan.Name, askedSlot);
                 break;
@@ -992,6 +1052,7 @@ public class LLMService : ILLMService
                 gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
                 enginePlan?.DeactivateOnAutonomyGateHold();
                 recipePlan = null;
+                recipeAbortedByGateHold = gateHoldEndedRecipe;
             }
 
             if (executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls)
@@ -1010,6 +1071,34 @@ public class LLMService : ILLMService
             {
                 currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
                 gateHoldEndedRecipe = false;
+            }
+        }
+
+        if (recipeRun != null && !recipePausedOnAsk)
+        {
+            if (recipeAbortedByGateHold)
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "autonomy gate hold ended the recipe", ctx.CancellationToken);
+            }
+            else if (enginePlan != null)
+            {
+                if (!enginePlan.IsActive)
+                {
+                    await _recipeRunRecorder.CompleteAsync(recipeRun, ctx.CancellationToken);
+                }
+                // else: still mid-flow — the run stays Running and the pending store carries it to the next turn.
+            }
+            else if (cutPlan is { IsDeactivated: true })
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "ambiguous customer match deactivated the cut recipe", ctx.CancellationToken);
+            }
+            else if (cutPlan is { IsActive: false })
+            {
+                await _recipeRunRecorder.CompleteAsync(recipeRun, ctx.CancellationToken);
+            }
+            else
+            {
+                await _recipeRunRecorder.AbortAsync(recipeRun, "turn ended before the cut recipe completed", ctx.CancellationToken);
             }
         }
 
@@ -1189,6 +1278,8 @@ public class LLMService : ILLMService
             {
                 if (!AffirmationDetector.IsAffirmation(context.Message))
                 {
+                    await _recipeRunRecorder.AbortRunningAsync(
+                        resumed.Name, userGuid, conversationId, "confirmation declined", cancellationToken);
                     _recipeEngine.Clear(userGuid, conversationId);
                     resumed = null;
                 }
@@ -1208,6 +1299,8 @@ public class LLMService : ILLMService
                     // raw-filled into the slot as if it were the answer to the ask question.
                     if (RecipeCancellationDetector.IsCancellation(context.Message))
                     {
+                        await _recipeRunRecorder.AbortRunningAsync(
+                            resumed.Name, userGuid, conversationId, "cancelled during ask step", cancellationToken);
                         _recipeEngine.Clear(userGuid, conversationId);
                         _logger.LogInformation(
                             "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);

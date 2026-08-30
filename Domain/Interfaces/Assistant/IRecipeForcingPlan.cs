@@ -17,6 +17,9 @@ public interface IRecipeForcingPlan
 
     bool IsActive { get; }
 
+    /// <summary>0-based index of the step currently being forced (or the first unforced step).</summary>
+    int StepIndex { get; }
+
     string? CurrentSkill { get; }
 
     string? CurrentStepNote { get; }

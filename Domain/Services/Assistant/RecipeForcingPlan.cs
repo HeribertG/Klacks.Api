@@ -50,6 +50,11 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
 
     public bool IsActive => !_deactivated && _index < _steps.Count;
 
+    /// <summary>True when the plan stopped because the customer match was ambiguous, not because all steps ran.</summary>
+    public bool IsDeactivated => _deactivated;
+
+    public int StepIndex => _index;
+
     public string? CurrentSkill => IsActive ? _steps[_index].Skill : null;
 
     public string? CurrentStepNote => IsActive ? _steps[_index].StepNote : null;
