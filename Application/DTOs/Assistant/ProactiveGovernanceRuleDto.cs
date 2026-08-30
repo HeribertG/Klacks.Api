@@ -14,6 +14,9 @@ public class ProactiveGovernanceRuleDto
 
     public int EffectiveMaxAction { get; set; }
 
+    /// <summary>The installation-wide ceiling the global autonomy level imposes on this rule.</summary>
+    public int GlobalAutonomyCap { get; set; }
+
     public bool Enabled { get; set; }
 
     public Guid? ResponsibleOwnerUserId { get; set; }

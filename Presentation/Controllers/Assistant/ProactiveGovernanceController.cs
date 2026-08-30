@@ -54,6 +54,17 @@ public class ProactiveGovernanceController : ControllerBase
             maxAction = (ProactiveMaxAction)rawMaxAction;
         }
 
+        AutonomyLevel? autonomyLevel = null;
+        if (request.AutonomyLevel is int rawAutonomyLevel)
+        {
+            if (!Enum.IsDefined(typeof(AutonomyLevel), rawAutonomyLevel))
+            {
+                return BadRequest($"Unknown autonomyLevel value '{rawAutonomyLevel}'.");
+            }
+
+            autonomyLevel = (AutonomyLevel)rawAutonomyLevel;
+        }
+
         var command = new SetProactiveGovernanceCommand(
             TriggerKind: request.TriggerKind,
             GroupId: request.GroupId,
@@ -64,7 +75,8 @@ public class ProactiveGovernanceController : ControllerBase
             DailyActionBudget: request.DailyActionBudget,
             WindowActionLimit: request.WindowActionLimit,
             WindowMinutes: request.WindowMinutes,
-            KillSwitch: request.KillSwitch);
+            KillSwitch: request.KillSwitch,
+            AutonomyLevel: autonomyLevel);
 
         var governance = await _mediator.Send(command, cancellationToken);
         return Ok(governance);

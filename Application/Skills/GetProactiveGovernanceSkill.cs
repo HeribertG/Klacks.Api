@@ -32,9 +32,16 @@ public class GetProactiveGovernanceSkill : BaseSkillImplementation
     {
         var governance = await _mediator.Send(new GetProactiveGovernanceQuery(), cancellationToken);
 
+        var levelNames = new[] { "Propose (report only)", "Assisted", "Autonomous", "FullyAutonomous" };
+        var levelName = governance.GlobalAutonomyLevel is >= 0 and <= 3
+            ? levelNames[governance.GlobalAutonomyLevel]
+            : governance.GlobalAutonomyLevel.ToString();
+
         var summary = governance.KillSwitchActive
-            ? $"The global kill switch is ON, so all {governance.Rules.Count} trigger kinds are pinned to Hint."
-            : $"Governance for {governance.Rules.Count} trigger kinds; the global kill switch is off.";
+            ? $"The global kill switch is ON, so all {governance.Rules.Count} trigger kinds are pinned to Hint. " +
+              $"The global autonomy level is {governance.GlobalAutonomyLevel} ({levelName})."
+            : $"Governance for {governance.Rules.Count} trigger kinds; the global kill switch is off. " +
+              $"The global autonomy level is {governance.GlobalAutonomyLevel} ({levelName}), capping every kind's maxAction.";
 
         return SkillResult.SuccessResult(governance, summary);
     }

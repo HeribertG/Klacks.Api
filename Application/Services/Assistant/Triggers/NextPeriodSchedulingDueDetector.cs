@@ -7,8 +7,8 @@
 /// derivable cycle), as are groups without any clients or shifts in themselves or a descendant group.
 /// While the EMAIL_ANALYSIS_ENABLED setting is active, an unprocessed inbox backlog defers the whole
 /// scan one tick, because availability/day-off mail may not be incorporated yet. At an effective
-/// autonomy level of Autonomous or higher — the minimum over all admin users, the same aggregation
-/// EmailActionOrchestrator applies — the detector starts the AutoWizard chain itself (fire-and-forget
+/// autonomy level of Autonomous or higher — the minimum over all admin users, capped by the global
+/// proactive autonomy level, the same aggregation EmailActionOrchestrator applies — the detector starts the AutoWizard chain itself (fire-and-forget
 /// inside the runner; it produces a draft scenario a human must accept) and emits an informative
 /// NextPeriodAutofillStartedTriggerEvent; below that, or when the automatic start is not possible, it
 /// emits a NextPeriodSchedulingDueTriggerEvent hint. At FullyAutonomous the produced scenario is
@@ -201,9 +201,10 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     }
 
     /// <summary>
-    /// The minimum autonomy level over all admin users — one cautious admin throttles the automatic
-    /// start for everybody, the same aggregation EmailActionOrchestrator applies. No admins means no
-    /// one has consented to automation, so the level degrades to Propose.
+    /// The minimum autonomy level over all admin users, additionally capped by the global proactive
+    /// autonomy level — one cautious admin throttles the automatic start for everybody, the same
+    /// aggregation EmailActionOrchestrator applies. No admins means no one has consented to automation,
+    /// so the level degrades to Propose.
     /// </summary>
     private async Task<AutonomyLevel> ResolveEffectiveAutonomyLevelAsync(CancellationToken cancellationToken)
     {
@@ -224,7 +225,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             }
         }
 
-        return minimum;
+        var globalLevel = await _governanceResolver.GetGlobalAutonomyLevelAsync(cancellationToken);
+        return globalLevel < minimum ? globalLevel : minimum;
     }
 
     private async Task<bool> ScenarioCoversPeriodAsync(

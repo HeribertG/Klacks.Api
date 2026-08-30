@@ -30,6 +30,7 @@ public class SetProactiveGovernanceSkill : BaseSkillImplementation
     private const string WindowActionLimitParameter = "window_action_limit";
     private const string WindowMinutesParameter = "window_minutes";
     private const string KillSwitchParameter = "kill_switch";
+    private const string AutonomyLevelParameter = "autonomy_level";
 
     private readonly IMediator _mediator;
 
@@ -57,6 +58,20 @@ public class SetProactiveGovernanceSkill : BaseSkillImplementation
             maxAction = parsed;
         }
 
+        var autonomyLevelText = GetParameter<string?>(parameters, AutonomyLevelParameter);
+        AutonomyLevel? autonomyLevel = null;
+        if (!string.IsNullOrWhiteSpace(autonomyLevelText))
+        {
+            if (!Enum.TryParse<AutonomyLevel>(autonomyLevelText, ignoreCase: true, out var parsedLevel)
+                || !Enum.IsDefined(parsedLevel))
+            {
+                return SkillResult.Error(
+                    $"Unknown autonomyLevel '{autonomyLevelText}'. Use Propose, Assisted, Autonomous or FullyAutonomous.");
+            }
+
+            autonomyLevel = parsedLevel;
+        }
+
         var command = new SetProactiveGovernanceCommand(
             TriggerKind: GetParameter<string?>(parameters, TriggerKindParameter),
             GroupId: GetParameter<Guid?>(parameters, GroupIdParameter),
@@ -67,13 +82,15 @@ public class SetProactiveGovernanceSkill : BaseSkillImplementation
             DailyActionBudget: GetParameter<int?>(parameters, DailyActionBudgetParameter),
             WindowActionLimit: GetParameter<int?>(parameters, WindowActionLimitParameter),
             WindowMinutes: GetParameter<int?>(parameters, WindowMinutesParameter),
-            KillSwitch: GetParameter<bool?>(parameters, KillSwitchParameter));
+            KillSwitch: GetParameter<bool?>(parameters, KillSwitchParameter),
+            AutonomyLevel: autonomyLevel);
 
         var governance = await _mediator.Send(command, cancellationToken);
 
         var summary = governance.KillSwitchActive
-            ? "Proactive governance saved. The global kill switch is ON, so every kind is pinned to Hint."
-            : "Proactive governance saved.";
+            ? "Proactive governance saved. The global kill switch is ON, so every kind is pinned to Hint. " +
+              $"The global autonomy level is {governance.GlobalAutonomyLevel}."
+            : $"Proactive governance saved. The global autonomy level is {governance.GlobalAutonomyLevel}.";
 
         return SkillResult.SuccessResult(governance, summary);
     }

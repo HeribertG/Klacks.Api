@@ -20769,7 +20769,7 @@
     {
       "name": "get_proactive_governance",
       "area": "klacksy",
-      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states whether the master off switch is set.",
+      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states the installation-wide autonomy level that caps every finding type and whether the master off switch is set.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -20821,7 +20821,7 @@
     {
       "name": "set_proactive_governance",
       "area": "klacksy",
-      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, and flips the master off switch that pins everything back to reporting. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it.",
+      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, flips the master off switch that pins everything back to reporting, and sets the installation-wide autonomy level that caps every finding type's ceiling. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20926,6 +20926,19 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "autonomy_level",
+          "description": "The installation-wide autonomy level that caps every finding type's max_action: Propose reports only, Assisted additionally stages scenarios, Autonomous and FullyAutonomous may carry out. Omit to leave the stored level untouched",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Propose",
+            "Assisted",
+            "Autonomous",
+            "FullyAutonomous"
+          ]
         }
       ],
       "handlerConfig": null,

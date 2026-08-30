@@ -24,4 +24,5 @@ public record SetProactiveGovernanceCommand(
     int? DailyActionBudget,
     int? WindowActionLimit,
     int? WindowMinutes,
-    bool? KillSwitch) : IRequest<ProactiveGovernanceDto>;
+    bool? KillSwitch,
+    AutonomyLevel? AutonomyLevel) : IRequest<ProactiveGovernanceDto>;

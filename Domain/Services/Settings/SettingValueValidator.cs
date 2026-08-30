@@ -1,14 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Key-specific setting value validation for the generic settings key/value store. Currently only
-/// SettingKeys.ActiveIndustries has a rule: empty, the IndustrySlugs.Custom marker, a single known
-/// industry slug, or a legacy comma-separated list of known slugs (case-insensitive, trimmed) are
-/// accepted, everything else is rejected. New key-specific rules are added by extending the
-/// dispatch in Validate, not by touching the settings handlers.
+/// Key-specific setting value validation for the generic settings key/value store. SettingKeys.
+/// ActiveIndustries accepts empty, the IndustrySlugs.Custom marker, a single known
+/// industry slug, or a legacy comma-separated list of known slugs (case-insensitive, trimmed);
+/// SettingKeys.KlacksyProactiveAutonomyLevel accepts an AutonomyLevel integer (0-3). New key-specific
+/// rules are added by extending the dispatch in Validate, not by touching the settings handlers.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
 
@@ -23,6 +24,22 @@ public class SettingValueValidator : ISettingValueValidator
         if (string.Equals(key, SettingKeys.ActiveIndustries, StringComparison.Ordinal))
         {
             ValidateActiveIndustries(value ?? string.Empty);
+        }
+
+        if (string.Equals(key, SettingKeys.KlacksyProactiveAutonomyLevel, StringComparison.Ordinal))
+        {
+            ValidateAutonomyLevel(value ?? string.Empty);
+        }
+    }
+
+    private static void ValidateAutonomyLevel(string value)
+    {
+        if (!int.TryParse(value, out var level)
+            || !Enum.IsDefined(typeof(AutonomyLevel), level))
+        {
+            throw new InvalidRequestException(
+                $"Setting '{SettingKeys.KlacksyProactiveAutonomyLevel}' must be an autonomy level " +
+                $"between {(int)AutonomyLevel.Propose} and {(int)AutonomyLevel.FullyAutonomous}, got '{value}'.");
         }
     }
 

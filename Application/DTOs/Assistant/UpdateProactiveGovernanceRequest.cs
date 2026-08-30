@@ -27,4 +27,10 @@ public class UpdateProactiveGovernanceRequest
     public int? WindowMinutes { get; set; }
 
     public bool? KillSwitch { get; set; }
+
+    /// <summary>
+    /// The installation-wide autonomy level (0-3, AutonomyLevel) that caps every rule's MaxAction.
+    /// Null leaves the stored level untouched.
+    /// </summary>
+    public int? AutonomyLevel { get; set; }
 }

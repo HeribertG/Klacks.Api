@@ -6,6 +6,8 @@
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
@@ -13,11 +15,14 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public static class ProactiveGovernanceDtoMapper
 {
     public static ProactiveGovernanceDto ToDto(
-        bool killSwitchActive, IReadOnlyList<ProactiveGovernanceDecision> decisions)
+        bool killSwitchActive, AutonomyLevel globalAutonomyLevel,
+        IReadOnlyList<ProactiveGovernanceDecision> decisions)
     {
         return new ProactiveGovernanceDto
         {
             KillSwitchActive = killSwitchActive,
+            GlobalAutonomyLevel = (int)globalAutonomyLevel,
+            GlobalAutonomyCap = (int)ProactiveGovernanceDefaults.MapAutonomyLevel(globalAutonomyLevel),
             Rules = decisions.Select(ToRuleDto).ToList()
         };
     }
@@ -31,6 +36,7 @@ public static class ProactiveGovernanceDtoMapper
             MaxAction = (int)decision.ConfiguredMaxAction,
             MaxActionName = decision.ConfiguredMaxAction.ToString(),
             EffectiveMaxAction = (int)decision.EffectiveMaxAction,
+            GlobalAutonomyCap = (int)decision.GlobalAutonomyCap,
             Enabled = decision.Enabled,
             ResponsibleOwnerUserId = decision.ResponsibleOwnerUserId,
             DailyActionBudget = decision.DailyActionBudget,

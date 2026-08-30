@@ -9,7 +9,9 @@
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
 /// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
 /// contracts they are always suggested, never executed. The effective level is the MINIMUM over
-/// all admin users (no admins = suggest only). Regardless of autonomy level, an action is only
+/// all admin users (no admins = suggest only), additionally capped by the global proactive autonomy
+/// level (KLACKSY_PROACTIVE_AUTONOMY_LEVEL), so from a global level below Autonomous nothing here
+/// executes automatically no matter what the admins chose. Regardless of autonomy level, an action is only
 /// executed when the LLM rated its own analysis as high-confidence; low or unknown confidence
 /// always degrades to a suggestion. The vacation/availability/keyword-command actions (vacation,
 /// day-off wish, availability, shift preference) additionally require the affected period to have
@@ -69,6 +71,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly IEmailCapacityAdvisor _capacityAdvisor;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly IUnattendedSkillPolicy _unattendedSkillPolicy;
+    private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly EmailAutomationOptions _automationOptions;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
@@ -85,6 +88,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         IEmailCapacityAdvisor capacityAdvisor,
         IInternalTokenIssuer internalTokenIssuer,
         IUnattendedSkillPolicy unattendedSkillPolicy,
+        IProactiveGovernanceResolver governanceResolver,
         IOptions<EmailAutomationOptions> automationOptions,
         ILogger<EmailActionOrchestrator> logger)
     {
@@ -100,6 +104,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _capacityAdvisor = capacityAdvisor;
         _internalTokenIssuer = internalTokenIssuer;
         _unattendedSkillPolicy = unattendedSkillPolicy;
+        _governanceResolver = governanceResolver;
         _automationOptions = automationOptions.Value;
         _logger = logger;
     }
@@ -651,7 +656,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         }
 
         // Deliberate: the permissions come from the acting account's live token, the autonomy level is
-        // the MINIMUM across all admins (ResolveEffectiveLevelAsync). Two different principals in one
+        // the MINIMUM across all admins additionally capped by the global autonomy level
+        // (ResolveEffectiveLevelAsync). Two different principals in one
         // request — the strictest level any admin has chosen governs, while the permission check stays
         // bound to the identity that actually performs the write.
         var decision = _unattendedSkillPolicy.Decide(new UnattendedSkillRequest(
@@ -730,7 +736,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             }
         }
 
-        return (minimum, Guid.Parse(adminIds[0]));
+        var globalLevel = await _governanceResolver.GetGlobalAutonomyLevelAsync(cancellationToken);
+        return (globalLevel < minimum ? globalLevel : minimum, Guid.Parse(adminIds[0]));
     }
 
     private static Absence? ResolveAbsenceByKeywords(IEnumerable<Absence> absences, string[] keywords)

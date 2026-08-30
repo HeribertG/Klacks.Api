@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Writes one governance rule and/or the global kill switch, then answers with the complete new
-/// picture. Validation runs on the MERGED row, never on the incoming patch: raising MaxAction to
+/// Writes one governance rule, the global kill switch and/or the global autonomy level, then answers
+/// with the complete new picture. Validation runs on the MERGED row, never on the incoming patch: raising MaxAction to
 /// Prepare on a row that has no responsible owner, and clearing the owner of a row that already sits
 /// at Prepare, are the same violation and both have to fail. The rule is that from Prepare upwards a
 /// human must be named, because Etappe 4d issues an internal token for exactly that account and acts
@@ -71,11 +71,11 @@ public class SetProactiveGovernanceCommandHandler
     public async Task<ProactiveGovernanceDto> Handle(
         SetProactiveGovernanceCommand request, CancellationToken cancellationToken)
     {
-        if (request.TriggerKind is null && request.KillSwitch is null)
+        if (request.TriggerKind is null && request.KillSwitch is null && request.AutonomyLevel is null)
         {
             throw new InvalidRequestException(
                 "Nothing to change: supply a triggerKind to change a rule, killSwitch to change the " +
-                "global switch, or both.");
+                "global switch, autonomyLevel to change the global cap, or any combination.");
         }
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -84,6 +84,18 @@ public class SetProactiveGovernanceCommandHandler
             {
                 await _settingsRepository.UpsertSettingAsync(
                     SettingKeys.KlacksyProactiveKillSwitch, killSwitch ? TrueValue : FalseValue);
+                await _unitOfWork.CompleteAsync();
+            }
+
+            if (request.AutonomyLevel is AutonomyLevel level)
+            {
+                if (!Enum.IsDefined(level))
+                {
+                    throw new InvalidRequestException($"Unknown autonomyLevel value '{(int)level}'.");
+                }
+
+                await _settingsRepository.UpsertSettingAsync(
+                    SettingKeys.KlacksyProactiveAutonomyLevel, ((int)level).ToString());
                 await _unitOfWork.CompleteAsync();
             }
 
@@ -96,8 +108,9 @@ public class SetProactiveGovernanceCommandHandler
         });
 
         var killSwitchActive = await _resolver.IsKillSwitchActiveAsync(cancellationToken);
+        var globalAutonomyLevel = await _resolver.GetGlobalAutonomyLevelAsync(cancellationToken);
         var decisions = await _resolver.ResolveAllAsync(cancellationToken);
-        return ProactiveGovernanceDtoMapper.ToDto(killSwitchActive, decisions);
+        return ProactiveGovernanceDtoMapper.ToDto(killSwitchActive, globalAutonomyLevel, decisions);
     }
 
     private async Task WriteRuleAsync(

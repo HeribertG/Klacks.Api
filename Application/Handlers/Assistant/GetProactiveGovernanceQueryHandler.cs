@@ -27,7 +27,8 @@ public class GetProactiveGovernanceQueryHandler : IRequestHandler<GetProactiveGo
         GetProactiveGovernanceQuery request, CancellationToken cancellationToken)
     {
         var killSwitchActive = await _resolver.IsKillSwitchActiveAsync(cancellationToken);
+        var globalAutonomyLevel = await _resolver.GetGlobalAutonomyLevelAsync(cancellationToken);
         var decisions = await _resolver.ResolveAllAsync(cancellationToken);
-        return ProactiveGovernanceDtoMapper.ToDto(killSwitchActive, decisions);
+        return ProactiveGovernanceDtoMapper.ToDto(killSwitchActive, globalAutonomyLevel, decisions);
     }
 }
