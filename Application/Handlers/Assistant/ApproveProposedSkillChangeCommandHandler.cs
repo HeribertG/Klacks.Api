@@ -9,9 +9,13 @@
 /// learning loop, which applies it automatically once the gate is green; letting a person approve it in
 /// parallel would make two writers for one transition, and the earlier of them would silently lose. This
 /// path is therefore an override of the gate, and its answer to a pending proposal is "not yet".
+/// The outcome is a LearningMutationResult like every other mutation on the learning card: a proposal or
+/// skill that is not there is a 404, a stale description auto-reject is a 409, everything else refusing
+/// is a 400.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Commands.Assistant.Learning;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -19,7 +23,7 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
-public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveProposedSkillChangeCommand, ApproveProposedSkillChangeResult>
+public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveProposedSkillChangeCommand, LearningMutationResult>
 {
     private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly IAgentSkillRepository _agentSkillRepository;
@@ -38,36 +42,34 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
         _logger = logger;
     }
 
-    public async Task<ApproveProposedSkillChangeResult> Handle(ApproveProposedSkillChangeCommand request, CancellationToken cancellationToken)
+    public async Task<LearningMutationResult> Handle(ApproveProposedSkillChangeCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.ReviewedBy))
         {
-            return new ApproveProposedSkillChangeResult(false, "ReviewedBy is required.", null);
+            return LearningMutationResult.Invalid("ReviewedBy is required.");
         }
 
         var proposal = await _proposalRepository.GetByIdAsync(request.ProposalId, cancellationToken);
         if (proposal == null)
         {
-            return new ApproveProposedSkillChangeResult(false, "Proposal not found.", null);
+            return LearningMutationResult.NotFound();
         }
 
         if (proposal.Status != ProposedChangeStatuses.BlockedRegression)
         {
-            return new ApproveProposedSkillChangeResult(
-                false,
-                $"Proposal is in status '{proposal.Status}', only a regression-blocked proposal can be approved by hand.",
-                null);
+            return LearningMutationResult.Invalid(
+                $"Proposal is in status '{proposal.Status}', only a regression-blocked proposal can be approved by hand.");
         }
 
         if (proposal.Field != ProposedChangeFields.Description)
         {
-            return new ApproveProposedSkillChangeResult(false, $"Field '{proposal.Field}' is not supported.", null);
+            return LearningMutationResult.Invalid($"Field '{proposal.Field}' is not supported.");
         }
 
         var skill = await _agentSkillRepository.GetByIdAsync(proposal.SkillId, cancellationToken);
         if (skill == null)
         {
-            return new ApproveProposedSkillChangeResult(false, "Skill not found — cannot apply.", null);
+            return LearningMutationResult.NotFound();
         }
 
         if (!string.Equals(skill.Description, proposal.ValueBefore, StringComparison.Ordinal))
@@ -80,7 +82,7 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
             proposal.ReviewedAt = DateTime.UtcNow;
             proposal.UpdateTime = DateTime.UtcNow;
             await _proposalRepository.UpdateAsync(proposal, cancellationToken);
-            return new ApproveProposedSkillChangeResult(false, "Skill description changed since proposal — proposal auto-rejected.", null);
+            return LearningMutationResult.StaleDescription();
         }
 
         skill.Description = proposal.ValueAfter;
@@ -99,6 +101,6 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
             "Proposal {ProposalId} approved by {ReviewedBy}: skill {Name} description updated to v{Version}",
             proposal.Id, request.ReviewedBy, skill.Name, skill.Version);
 
-        return new ApproveProposedSkillChangeResult(true, null, skill.Version);
+        return LearningMutationResult.Success();
     }
 }

@@ -10,8 +10,10 @@
 /// before the first proposal is touched, and carried forward as each accepted proposal shifts it.
 /// The gate can only be measured on a description that is actually live, because the assembler reads the
 /// skill catalogue and the knowledge index rather than a candidate value. The description is therefore
-/// set, measured and put back again - and it is put back on a failing gate exactly as on a red one, so a
-/// probe that throws half way through cannot leave a never-judged description in the catalogue.
+/// set, measured and put back again - the put-back sits in a finally, so a probe that throws half way
+/// through cannot leave a never-judged description in the catalogue. And if the put-back itself fails,
+/// that is an error with skill id and both descriptions in the log, then rethrown: a description nothing
+/// ever measured must not stay live silently.
 /// The optimizer is asked for new proposals at the start of the same pass: with the manual generate
 /// endpoint gone, this is the only writer left, and a gate with nothing to gate would be dead code. It
 /// returns without calling a model when nobody corrected a skill choice since the last run.
@@ -136,33 +138,59 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
         await _catalogRefresher.RefreshAsync($"applying description proposal {proposal.Id}", cancellationToken);
 
+        // The gate can only be measured on the live description, so until the verdict stands the
+        // description is put back in the finally - on a red gate exactly as on a probe that throws.
+        // A restore that itself fails is logged as an error and rethrown: an unmeasured description
+        // must never stay live silently.
+        var keepChange = false;
         IReadOnlyList<string> failing;
+        IReadOnlyList<string> regressions;
         try
         {
-            failing = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
+            try
+            {
+                failing = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "The regression gate could not be measured for proposal {ProposalId}; the description of "
+                        + "skill {Name} was put back and the proposal stays pending",
+                    proposal.Id, skill.Name);
+                return null;
+            }
+
+            regressions = failing.Except(baseline, StringComparer.Ordinal).ToList();
+            keepChange = regressions.Count == 0;
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        finally
         {
-            await RestoreAsync(skill, original, proposal.Id, cancellationToken);
-            _logger.LogWarning(
-                exception,
-                "The regression gate could not be measured for proposal {ProposalId}; the description of "
-                    + "skill {Name} was put back and the proposal stays pending",
-                proposal.Id, skill.Name);
-            return null;
+            if (!keepChange)
+            {
+                try
+                {
+                    await RestoreAsync(skill, original, proposal.Id, cancellationToken);
+                }
+                catch (Exception restoreException) when (restoreException is not OperationCanceledException)
+                {
+                    _logger.LogError(
+                        restoreException,
+                        "Putting back the description of skill {SkillId} ({SkillName}) failed: the never-judged "
+                            + "description '{NewDescription}' may still be live instead of '{OldDescription}'",
+                        skill.Id, skill.Name, proposal.ValueAfter, original);
+                    throw;
+                }
+            }
         }
 
-        var regressions = failing.Except(baseline, StringComparer.Ordinal).ToList();
-
-        if (regressions.Count == 0)
+        if (keepChange)
         {
             await MarkAsync(proposal, ProposedChangeStatuses.AppliedAuto, cancellationToken);
             _logger.LogInformation(
                 "Description of skill {Name} sharpened automatically (proposal {ProposalId})", skill.Name, proposal.Id);
             return new Decision(true, failing);
         }
-
-        await RestoreAsync(skill, original, proposal.Id, cancellationToken);
 
         proposal.Justification = Describe(regressions);
         await MarkAsync(proposal, ProposedChangeStatuses.BlockedRegression, cancellationToken);

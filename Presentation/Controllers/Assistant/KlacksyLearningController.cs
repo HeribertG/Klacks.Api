@@ -10,6 +10,8 @@
 /// </summary>
 /// <param name="mediator">Dispatches the learning queries and commands</param>
 
+using System.Security.Claims;
+using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Commands.Assistant.Learning;
 using Klacks.Api.Application.DTOs.Assistant.Learning;
 using Klacks.Api.Application.Queries.Assistant.Learning;
@@ -60,6 +62,25 @@ public class KlacksyLearningController : ControllerBase
     public async Task<IActionResult> DeletePhrase([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new DeleteLearnedPhraseCommand(id), cancellationToken);
+        return Respond(result);
+    }
+
+    /// <summary>
+    /// Overrides the routing regression gate on a blocked description proposal, shown on the card next to
+    /// the learned phrases. The reviewer comes from the JWT: an approvable proposal changes a live skill
+    /// description, so who did it must be recorded, not merely known to be an admin.
+    /// </summary>
+    [HttpPost("phrases/{id:guid}/approve")]
+    public async Task<IActionResult> ApprovePhraseProposal([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var reviewedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(reviewedBy))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _mediator.Send(
+            new ApproveProposedSkillChangeCommand { ProposalId = id, ReviewedBy = reviewedBy }, cancellationToken);
         return Respond(result);
     }
 
