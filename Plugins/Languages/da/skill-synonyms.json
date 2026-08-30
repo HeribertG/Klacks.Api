@@ -257,6 +257,9 @@
     "overlever mappen en genstart",
     "opret processed og error mapper"
   ],
+  "check_group_geocoding_status": [
+    "geokodningsstatus"
+  ],
   "clear_client_availability": [
     "nulstil medarbejderens tilgængelighed",
     "slet tilgængelighedsposter",
@@ -1458,6 +1461,9 @@
     "kortlægning af klienter",
     "hvor mange har adresse?"
   ],
+  "get_company_registration": [
+    "virksomhedsregistrering"
+  ],
   "get_compensatory_rest_settings": [
     "hvordan håndteres erstatterstatning for helligdage",
     "hvad er reglerne for godtgørelse for at arbejde på beskyttede dage",
@@ -1481,6 +1487,9 @@
     "vis tillæg",
     "detaljer om kontrakt"
   ],
+  "get_current_time": [
+    "aktuel tid"
+  ],
   "get_dashboard_overview": [
     "dashboard-oversigt",
     "kunder og vagter pr. gruppe"
@@ -1490,6 +1499,9 @@
     "hvor mange åbne vagter i denne måned?",
     "hvordan ser dashboardet ud?",
     "vis fremskridt med låsning"
+  ],
+  "get_data_retention_settings": [
+    "indstillinger for dataopbevaring"
   ],
   "get_deepl_settings": [
     "DeepL-indstillinger",
@@ -1588,6 +1600,9 @@
     "hent virksomhedens adresse",
     "hvad er ejerens adresse"
   ],
+  "get_page_controls": [
+    "sidekontroller"
+  ],
   "get_period_hours": [
     "medarbejderens timesaldo for perioden",
     "sammenligne mål- og faktiske timer"
@@ -1648,6 +1663,9 @@
     "hvad er minimumstillægget per time",
     "hvornår starter natteperioden",
     "hvad sker der når to tillæg falder samme time"
+  ],
+  "get_system_info": [
+    "systemoplysninger"
   ],
   "get_translation_status": [
     "oversættelsesstatus",
@@ -2125,6 +2143,9 @@
     "hvad er postnumrene for genève",
     "find by og kanton for plz 3000"
   ],
+  "manage_pending_notes": [
+    "administrer ventende noter"
+  ],
   "mark_email_read": [
     "markér e-mailen som læst",
     "markér e-mailen som ulæst"
@@ -2214,6 +2235,9 @@
     "læs den aktuelle plan",
     "vis bemandingsplan",
     "se vagter for afdeling"
+  ],
+  "recall_delivered_notes": [
+    "hent leverede noter"
   ],
   "reject_scenario": [
     "forkast scenario",
@@ -2426,6 +2450,9 @@
     "ændr kolonnenavnet i eksporten",
     "opdater eksportformatet"
   ],
+  "set_group_location": [
+    "angiv gruppens placering"
+  ],
   "set_my_display_language": [
     "skift mit displaysprog",
     "skift grænsefladen til engelsk",
@@ -2525,6 +2552,9 @@
     "vision polering",
     "holistisk finjustering",
     "llm efterbehandling"
+  ],
+  "stash_pending_note": [
+    "parkér note"
   ],
   "test_imap_connection": [
     "IMAP-forbindelsestest",
@@ -2674,6 +2704,12 @@
     "tilføj email til medarbejder",
     "opdater adresse",
     "ret telefonnummer"
+  ],
+  "update_client_birthdate": [
+    "ændre fødselsdato"
+  ],
+  "update_client_gender": [
+    "ændre køn"
   ],
   "update_client_type": [
     "omklassificer som kunde",

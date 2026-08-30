@@ -10,5 +10,7 @@ public enum SkillCategory
     UI,
     System,
     Validation,
-    Read
+    Read,
+    Communication,
+    Meta
 }

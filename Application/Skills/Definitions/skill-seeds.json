@@ -29,6 +29,12 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["wie spät ist es", "aktuelle uhrzeit", "welches datum haben wir", "uhrzeit"],
+        "en": ["what time is it", "current time", "today's date"],
+        "fr": ["quelle heure est-il", "heure actuelle"],
+        "it": ["che ore sono", "ora attuale"]
+      },
       "version": 6
     },
     {
@@ -45,6 +51,12 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["systeminformationen", "version von klacks"],
+        "en": ["system information", "klacks version"],
+        "fr": ["informations système"],
+        "it": ["informazioni di sistema"]
+      },
       "version": 5
     },
     {
@@ -316,6 +328,12 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["seitensteuerung", "steuerelemente der seite"],
+        "en": ["page controls"],
+        "fr": ["contrôles de la page"],
+        "it": ["controlli della pagina"]
+      },
       "version": 5
     },
     {
@@ -2296,6 +2314,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["allgemeine einstellungen"],
+        "en": ["general settings"],
+        "fr": ["paramètres généraux"],
+        "it": ["impostazioni generali"]
+      },
       "version": 6
     },
     {
@@ -2328,6 +2352,12 @@
           "company registration"
         ]
       },
+      "synonyms": {
+        "de": ["firmenregistrierung", "handelsregistereintrag"],
+        "en": ["company registration"],
+        "fr": ["registre de l'entreprise"],
+        "it": ["registrazione aziendale"]
+      },
       "version": 3
     },
     {
@@ -2346,6 +2376,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["aufbewahrungsfristen", "datenaufbewahrung"],
+        "en": ["data retention settings"],
+        "fr": ["durée de conservation"],
+        "it": ["impostazioni di conservazione dati"]
+      },
       "version": 3
     },
     {
@@ -2362,6 +2398,12 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["benutzerrechte", "meine berechtigungen"],
+        "en": ["user permissions", "my permissions"],
+        "fr": ["mes autorisations"],
+        "it": ["i miei permessi"]
+      },
       "version": 5
     },
     {
@@ -4309,6 +4351,12 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["suche und öffne", "suche und navigiere"],
+        "en": ["search and open", "search and navigate"],
+        "fr": ["rechercher et ouvrir"],
+        "it": ["cerca e apri"]
+      },
       "version": 6
     },
     {
@@ -5416,6 +5464,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["internetsuche", "suche im web"],
+        "en": ["web search", "search the web"],
+        "fr": ["recherche web"],
+        "it": ["ricerca web"]
+      },
       "version": 6
     },
     {
@@ -14895,7 +14949,7 @@
         ],
         "en": [
           "create group",
-          "add team",
+          "create a team",
           "new branch",
           "open location",
           "add department",
@@ -18486,6 +18540,12 @@
           "birthday"
         ]
       },
+      "synonyms": {
+        "de": ["geburtsdatum ändern", "geburtstag korrigieren"],
+        "en": ["change birthdate", "update date of birth"],
+        "fr": ["modifier la date de naissance"],
+        "it": ["modificare la data di nascita"]
+      },
       "version": 4
     },
     {
@@ -18545,6 +18605,12 @@
           "male",
           "female"
         ]
+      },
+      "synonyms": {
+        "de": ["geschlecht ändern", "anrede anpassen"],
+        "en": ["change gender"],
+        "fr": ["modifier le genre"],
+        "it": ["modificare il genere"]
       },
       "version": 4
     },
@@ -18682,6 +18748,12 @@
       ],
       "handlerConfig": null,
       "effect": "Mutate",
+      "synonyms": {
+        "de": ["gruppenstandort festlegen", "standort der gruppe setzen"],
+        "en": ["set group location"],
+        "fr": ["définir l'emplacement du groupe"],
+        "it": ["impostare la posizione del gruppo"]
+      },
       "version": 2
     },
     {
@@ -18855,6 +18927,12 @@
       "parameters": [],
       "handlerConfig": null,
       "effect": "Read",
+      "synonyms": {
+        "de": ["geokodierungsstatus prüfen"],
+        "en": ["check geocoding status"],
+        "fr": ["vérifier le statut de géocodage"],
+        "it": ["verificare lo stato di geocodifica"]
+      },
       "version": 2
     },
     {
@@ -18890,7 +18968,12 @@
       ],
       "handlerConfig": null,
       "effect": "Mutate",
-      "synonyms": {},
+            "synonyms": {
+        "de": ["gruppierung anwenden", "zuordnung übernehmen"],
+        "en": ["apply grouping"],
+        "fr": ["appliquer le regroupement"],
+        "it": ["applicare il raggruppamento"]
+      },
       "version": 5
     },
     {
@@ -26884,6 +26967,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["notiz zurückstellen", "notiz parken"],
+        "en": ["stash note", "park note"],
+        "fr": ["mettre la note de côté"],
+        "it": ["accantonare la nota"]
+      },
       "version": 2
     },
     {
@@ -26920,6 +27009,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["zurückgestellte notizen verwalten"],
+        "en": ["manage pending notes"],
+        "fr": ["gérer les notes en attente"],
+        "it": ["gestire le note in sospeso"]
+      },
       "version": 2
     },
     {
@@ -26936,6 +27031,12 @@
       "isEnabled": true,
       "alwaysOn": false,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": ["zugestellte notizen abrufen"],
+        "en": ["recall delivered notes"],
+        "fr": ["rappeler les notes remises"],
+        "it": ["richiamare le note consegnate"]
+      },
       "version": 2
     },
     {
@@ -31569,7 +31670,6 @@
           "online",
           "websuche",
           "geht ins internet",
-          "verlässt das haus",
           "wetter",
           "testdaten",
           "testmitarbeiter",
@@ -32091,7 +32191,7 @@
           "where do i start",
           "first steps",
           "overview of the application",
-          "onboarding"
+          "app tour"
         ],
         "fr": [
           "visite guidée",
@@ -40069,14 +40169,14 @@
           "neuer benutzer bekommt keine mail",
           "konto ohne willkommensmail von klacksy",
           "wie bekommt jemand sein erstes passwort",
-          "assistent legt konto an ohne mailversand",
+          "konto ohne willkommensmail",
           "eigenes passwort selbst zurücksetzen"
         ],
         "en": [
           "new user never got a password email",
-          "account created without a welcome mail",
+          "welcome mail missing",
           "how does someone get their first password",
-          "assistant creates account without sending mail",
+          "how account creation works",
           "reset your own forgotten password"
         ],
         "fr": [

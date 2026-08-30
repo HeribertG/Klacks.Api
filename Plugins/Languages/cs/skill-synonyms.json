@@ -264,6 +264,9 @@
     "přežije složka restart",
     "vytvořit složky processed a error"
   ],
+  "check_group_geocoding_status": [
+    "stav geokódování"
+  ],
   "clear_client_availability": [
     "resetovat dostupnost zaměstnance",
     "smazat záznamy dostupnosti",
@@ -1459,6 +1462,9 @@
     "mapa lokalit klientů",
     "kolik klientů má adresu"
   ],
+  "get_company_registration": [
+    "registrace společnosti"
+  ],
   "get_compensatory_rest_settings": [
     "jak se řeší náhradní volno za práci ve svátek",
     "ukázat nastavení náhradního volna",
@@ -1482,6 +1488,9 @@
     "prohlédnout kontrakt",
     "jakou má smlouva výhody"
   ],
+  "get_current_time": [
+    "aktuální čas"
+  ],
   "get_dashboard_overview": [
     "přehled nástěnky",
     "zákazníci a služby podle skupin"
@@ -1493,6 +1502,9 @@
     "jak jsme na tom s uzavíráním",
     "přehled klíčových ukazatelů",
     "měsíční souhrn plánování"
+  ],
+  "get_data_retention_settings": [
+    "nastavení uchovávání dat"
   ],
   "get_deepl_settings": [
     "nastavení DeepL",
@@ -1594,6 +1606,9 @@
     "zobraz sídlo společnosti",
     "dej mi adresu majitele"
   ],
+  "get_page_controls": [
+    "ovládací prvky stránky"
+  ],
   "get_period_hours": [
     "bilance hodin zaměstnance za období",
     "porovnat cílové a skutečné hodiny"
@@ -1658,6 +1673,9 @@
     "jaký je minimální příplatek za hodinu",
     "kdy začíná noční příplatek",
     "co se stane, když se sejde více příplatků"
+  ],
+  "get_system_info": [
+    "informace o systému"
   ],
   "get_translation_status": [
     "je funkční překlad",
@@ -2158,6 +2176,9 @@
     "vyhledej lokalitu",
     "kde leží tato adresa?"
   ],
+  "manage_pending_notes": [
+    "spravovat čekající poznámky"
+  ],
   "mark_email_read": [
     "označit e-mail jako přečtený",
     "označit e-mail jako nepřečtený"
@@ -2250,6 +2271,9 @@
     "aktuální plán skupiny",
     "ukázat přiřazení zaměstnanců",
     "jak vypadá plán na týden"
+  ],
+  "recall_delivered_notes": [
+    "vyvolat doručené poznámky"
   ],
   "reject_scenario": [
     "odmítnout návrh plánu",
@@ -2462,6 +2486,9 @@
     "přizpůsobit export",
     "nastavit vlastní formát exportu"
   ],
+  "set_group_location": [
+    "nastavit polohu skupiny"
+  ],
   "set_my_display_language": [
     "změnit jazyk rozhraní",
     "přepnout na češtinu",
@@ -2563,6 +2590,9 @@
     "spustit wizard 3",
     "vylepšit plán llm",
     "projít finálním vylepšením"
+  ],
+  "stash_pending_note": [
+    "odložit poznámku"
   ],
   "test_imap_connection": [
     "test připojení IMAP",
@@ -2712,6 +2742,12 @@
     "přidat email klientovi",
     "opravit jméno zaměstnance",
     "editovat osobní údaje"
+  ],
+  "update_client_birthdate": [
+    "změnit datum narození"
+  ],
+  "update_client_gender": [
+    "změnit pohlaví"
   ],
   "update_client_type": [
     "přeřadit jako zákazníka",

@@ -257,6 +257,9 @@
     "overleeft de map een herstart",
     "maak processed en error mappen aan"
   ],
+  "check_group_geocoding_status": [
+    "geocoderingsstatus"
+  ],
   "clear_client_availability": [
     "beschikbaarheid van de medewerker resetten",
     "beschikbaarheidsitems verwijderen",
@@ -1468,6 +1471,9 @@
     "locatieoverzicht van cliënten",
     "hoeveel klanten hebben een adres"
   ],
+  "get_company_registration": [
+    "bedrijfsregistratie"
+  ],
   "get_compensatory_rest_settings": [
     "hoe wordt ersatzruhe afgehandeld",
     "toon instellingen voor compensatie van werken op een beschermde dag",
@@ -1491,6 +1497,9 @@
     "geef de details van het contract",
     "informatie over het contract"
   ],
+  "get_current_time": [
+    "huidige tijd"
+  ],
   "get_dashboard_overview": [
     "dashboard-overzicht",
     "klanten en diensten per groep"
@@ -1501,6 +1510,9 @@
     "hoeveel open slots zijn er",
     "geef de voortgang van verzegeling",
     "dashboard samenvatting huidige maand"
+  ],
+  "get_data_retention_settings": [
+    "instellingen voor databewaring"
   ],
   "get_deepl_settings": [
     "DeepL-instellingen",
@@ -1599,6 +1611,9 @@
     "haal het adres van de organisatie op",
     "laat de firmaadresgegevens zien"
   ],
+  "get_page_controls": [
+    "paginabediening"
+  ],
   "get_period_hours": [
     "urensaldo van een medewerker voor de periode",
     "doeluren en werkelijke uren vergelijken"
@@ -1659,6 +1674,9 @@
     "toon de toeslaginstellingen",
     "hoe worden feestdagentoeslagen berekend",
     "wat is het minimum toeslag per uur"
+  ],
+  "get_system_info": [
+    "systeeminformatie"
   ],
   "get_translation_status": [
     "is deepl geconfigureerd",
@@ -2155,6 +2173,9 @@
     "zoek stad op plz",
     "waar ligt... in zwitserland"
   ],
+  "manage_pending_notes": [
+    "wachtende notities beheren"
+  ],
   "mark_email_read": [
     "e-mail als gelezen markeren",
     "e-mail als ongelezen markeren"
@@ -2246,6 +2267,9 @@
     "geef de dienstplanning weer",
     "lees de actuele planning",
     "laat de shift toewijzingen zien"
+  ],
+  "recall_delivered_notes": [
+    "afgeleverde notities ophalen"
   ],
   "reject_scenario": [
     "wijs het voorstel af",
@@ -2459,6 +2483,9 @@
     "pas het datumformaat aan",
     "stel een exportafwijking in"
   ],
+  "set_group_location": [
+    "locatie van groep instellen"
+  ],
   "set_my_display_language": [
     "verander mijn weergavetaal",
     "zet de interface naar het engels",
@@ -2561,6 +2588,9 @@
     "laatste polijsting met ai",
     "voer de visiepas uit",
     "start de holistische wizard"
+  ],
+  "stash_pending_note": [
+    "notitie parkeren"
   ],
   "test_imap_connection": [
     "IMAP-verbinding testen",
@@ -2715,6 +2745,12 @@
     "werk de contactgegevens bij",
     "pas de naam van de klant aan",
     "voeg telefoonnummer toe aan de persoon"
+  ],
+  "update_client_birthdate": [
+    "geboortedatum wijzigen"
+  ],
+  "update_client_gender": [
+    "geslacht wijzigen"
   ],
   "update_client_type": [
     "herclassificeer als klant",

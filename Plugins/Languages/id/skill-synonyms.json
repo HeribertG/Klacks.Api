@@ -257,6 +257,9 @@
     "apakah folder bertahan setelah mulai ulang",
     "buat folder processed dan error"
   ],
+  "check_group_geocoding_status": [
+    "status geokode"
+  ],
   "clear_client_availability": [
     "atur ulang ketersediaan karyawan",
     "hapus entri ketersediaan",
@@ -1422,6 +1425,9 @@
     "ringkasan peta lokasi",
     "sebaran alamat klien"
   ],
+  "get_company_registration": [
+    "registrasi perusahaan"
+  ],
   "get_compensatory_rest_settings": [
     "bagaimana aturan pengganti istirahat untuk hari kerja yang dilindungi?",
     "tampilkan pengaturan waktu istirahat pengganti",
@@ -1444,6 +1450,9 @@
     "tampilkan tarif kontrak",
     "rincian kontrak"
   ],
+  "get_current_time": [
+    "waktu saat ini"
+  ],
   "get_dashboard_overview": [
     "ringkasan dasbor",
     "pelanggan dan layanan per grup"
@@ -1454,6 +1463,9 @@
     "cakupan shift saat ini",
     "progres penguncian jadwal",
     "gambaran angka-angka utama"
+  ],
+  "get_data_retention_settings": [
+    "pengaturan retensi data"
   ],
   "get_deepl_settings": [
     "menampilkan pengaturan DeepL",
@@ -1553,6 +1565,9 @@
     "cek data pemilik",
     "tampilkan alamat kantor"
   ],
+  "get_page_controls": [
+    "kontrol halaman"
+  ],
   "get_period_hours": [
     "saldo jam karyawan untuk periode",
     "bandingkan jam target dan aktual"
@@ -1616,6 +1631,9 @@
     "jam berapa tunjangan malam mulai?",
     "bagaimana jika dua jenis tunjangan terjadi bersamaan?",
     "lihat pengaturan mode tunjangan"
+  ],
+  "get_system_info": [
+    "informasi sistem"
   ],
   "get_translation_status": [
     "status terjemahan",
@@ -2096,6 +2114,9 @@
     "informasi kota dan kanton",
     "cari tempat di swiss"
   ],
+  "manage_pending_notes": [
+    "kelola catatan tertunda"
+  ],
   "mark_email_read": [
     "tandai email sebagai sudah dibaca",
     "tandai email sebagai belum dibaca"
@@ -2185,6 +2206,9 @@
     "lihat penempatan karyawan",
     "jadwal saat ini grup",
     "baca rencana shift grup"
+  ],
+  "recall_delivered_notes": [
+    "panggil catatan terkirim"
   ],
   "reject_scenario": [
     "tolak skenario [scenarioid]",
@@ -2391,6 +2415,9 @@
     "sesuaikan nama kolom export",
     "ubah format tanggal pada export"
   ],
+  "set_group_location": [
+    "atur lokasi grup"
+  ],
   "set_my_display_language": [
     "ganti bahasa tampilan",
     "ubah ke bahasa inggris",
@@ -2488,6 +2515,9 @@
     "terapkan llm polish pada rencana grup [groupid]",
     "finishing rencana dengan wizard 3",
     "jalankan holistic harmonizer untuk grup [groupid]"
+  ],
+  "stash_pending_note": [
+    "parkir catatan"
   ],
   "test_imap_connection": [
     "menguji koneksi IMAP",
@@ -2642,6 +2672,12 @@
     "ubah nama [firstname] [lastname] menjadi [firstname] [lastname]",
     "update data [firstname] [lastname] dengan informasi baru",
     "tambah alamat untuk [firstname] [lastname]"
+  ],
+  "update_client_birthdate": [
+    "ubah tanggal lahir"
+  ],
+  "update_client_gender": [
+    "ubah jenis kelamin"
   ],
   "update_client_type": [
     "ubah menjadi pelanggan",

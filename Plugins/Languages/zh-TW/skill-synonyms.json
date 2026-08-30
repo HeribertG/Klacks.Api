@@ -246,6 +246,9 @@
     "資料夾重新啟動後是否還在",
     "建立processed和error資料夾"
   ],
+  "check_group_geocoding_status": [
+    "地理編碼狀態"
+  ],
   "clear_client_availability": [
     "重設員工的可用性",
     "刪除可用性項目",
@@ -1424,6 +1427,9 @@
     "儀表板地圖的統計資訊",
     "客戶地址分布狀況"
   ],
+  "get_company_registration": [
+    "公司註冊"
+  ],
   "get_compensatory_rest_settings": [
     "顯示補償休息設定",
     "查看保護日工作補償假期規則",
@@ -1445,6 +1451,9 @@
     "取得合約資料",
     "合約詳細資訊"
   ],
+  "get_current_time": [
+    "目前時間"
+  ],
   "get_dashboard_overview": [
     "儀表板概覽",
     "按群組統計客戶和班次"
@@ -1455,6 +1464,9 @@
     "目前還有多少空位",
     "本月進度到哪裡了",
     "各組的排班狀況如何"
+  ],
+  "get_data_retention_settings": [
+    "資料保留設定"
   ],
   "get_deepl_settings": [
     "DeepL設定",
@@ -1556,6 +1568,9 @@
     "查看業主地址",
     "讀取企業聯絡資訊"
   ],
+  "get_page_controls": [
+    "頁面控制項"
+  ],
   "get_period_hours": [
     "員工本期的小時結餘",
     "對比目標工時和實際工時"
@@ -1620,6 +1635,9 @@
     "查詢加班費的倍率或定額",
     "顯示夜間附加費的時段",
     "檢查不同附加費的合併規則"
+  ],
+  "get_system_info": [
+    "系統資訊"
   ],
   "get_translation_status": [
     "查詢翻譯服務狀態",
@@ -2107,6 +2125,9 @@
     "尋找某地點的州別",
     "根據城市名取得郵遞區號"
   ],
+  "manage_pending_notes": [
+    "管理待處理便箋"
+  ],
   "mark_email_read": [
     "把郵件標記為已讀",
     "把郵件標記為未讀"
@@ -2199,6 +2220,9 @@
     "查閱計劃明細",
     "了解排班配置",
     "檢視排班網格"
+  ],
+  "recall_delivered_notes": [
+    "調取已送達便箋"
   ],
   "reject_scenario": [
     "拒絕當前的排程方案",
@@ -2405,6 +2429,9 @@
     "調整匯出欄位或分隔符",
     "自訂匯出格式規則"
   ],
+  "set_group_location": [
+    "設定群組位置"
+  ],
   "set_my_display_language": [
     "更改我的介面語言",
     "把系統介面切成英文",
@@ -2500,6 +2527,9 @@
     "開始精靈三llm打磨",
     "使用精靈三完成最後修飾",
     "執行全面精修排程"
+  ],
+  "stash_pending_note": [
+    "暫存便箋"
   ],
   "test_imap_connection": [
     "測試IMAP連線",
@@ -2651,6 +2681,12 @@
     "更改姓名與基本資料",
     "新增電子郵件或電話",
     "編輯客戶主檔記錄"
+  ],
+  "update_client_birthdate": [
+    "修改出生日期"
+  ],
+  "update_client_gender": [
+    "修改性別"
   ],
   "update_client_type": [
     "將此人變更為客戶",

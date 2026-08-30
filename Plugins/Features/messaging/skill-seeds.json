@@ -47,7 +47,13 @@
     "isEnabled": true,
     "alwaysOn": false,
     "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "threema", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
-    "version": 13
+    "synonyms": {
+      "de": ["nachricht senden", "schick eine nachricht", "sende eine nachricht", "sms senden", "whatsapp senden"],
+      "en": ["send a message", "send message", "text someone", "write a message"],
+      "fr": ["envoyer un message"],
+      "it": ["inviare un messaggio"]
+    },
+    "version": 14
   },
   {
     "name": "read_messages",
@@ -90,7 +96,13 @@
     "isEnabled": true,
     "alwaysOn": false,
     "triggerKeywords": ["nachrichten", "messages", "lesen", "read", "inbox", "eingehend", "posteingang"],
-    "version": 7
+    "synonyms": {
+      "de": ["nachrichten lesen", "posteingang anzeigen", "eingegangene nachrichten"],
+      "en": ["read messages", "show inbox"],
+      "fr": ["lire les messages"],
+      "it": ["leggere i messaggi"]
+    },
+    "version": 8
   },
   {
     "name": "list_messaging_providers",
@@ -105,6 +117,12 @@
     "isEnabled": true,
     "alwaysOn": false,
     "triggerKeywords": ["messaging", "provider", "dienste", "services", "kanäle", "channels", "telegram", "whatsapp", "signal", "sms", "nachricht", "message", "schick", "senden", "send"],
-    "version": 7
+    "synonyms": {
+      "de": ["messaging-dienste auflisten", "verfügbare kanäle"],
+      "en": ["list messaging providers", "which channels are configured"],
+      "fr": ["lister les fournisseurs de messagerie"],
+      "it": ["elencare i provider di messaggistica"]
+    },
+    "version": 8
   }
 ]

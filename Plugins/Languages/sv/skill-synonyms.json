@@ -253,6 +253,9 @@
     "överlever mappen en omstart",
     "skapa processed- och error-mappar"
   ],
+  "check_group_geocoding_status": [
+    "geokodningsstatus"
+  ],
   "clear_client_availability": [
     "återställ medarbetarens tillgänglighet",
     "ta bort tillgänglighetsposter",
@@ -1447,6 +1450,9 @@
     "karta dashboard översikt",
     "bostadsorter anställda"
   ],
+  "get_company_registration": [
+    "företagsregistrering"
+  ],
   "get_compensatory_rest_settings": [
     "hur hanteras ersättningsledighet för arbete på skyddad dag",
     "visa inställningar för kompensation vid arbete på söndag",
@@ -1469,6 +1475,9 @@
     "kontraktstimmar",
     "kontraktsvillkor"
   ],
+  "get_current_time": [
+    "aktuell tid"
+  ],
   "get_dashboard_overview": [
     "instrumentpanelsöversikt",
     "kunder och pass per grupp"
@@ -1479,6 +1488,9 @@
     "hur många öppna pass har vi",
     "hur går förseglingen",
     "månadsöversikt planering"
+  ],
+  "get_data_retention_settings": [
+    "inställningar för datalagring"
   ],
   "get_deepl_settings": [
     "DeepL-inställningar",
@@ -1580,6 +1592,9 @@
     "visa ägaradressen",
     "läs ut firmans adressuppgifter"
   ],
+  "get_page_controls": [
+    "sidkontroller"
+  ],
   "get_period_hours": [
     "medarbetarens timsaldo för perioden",
     "jämför mål- och faktiska timmar"
@@ -1641,6 +1656,9 @@
     "vilken minsta garanti per timme gäller för tillägg",
     "när börjar nattbandet",
     "vad händer när två tillägg sammanfaller"
+  ],
+  "get_system_info": [
+    "systeminformation"
   ],
   "get_translation_status": [
     "är deepl konfigurerad",
@@ -2122,6 +2140,9 @@
     "slå upp postort",
     "hitta vilken kanton tillhör orten"
   ],
+  "manage_pending_notes": [
+    "hantera väntande anteckningar"
+  ],
   "mark_email_read": [
     "markera e-postmeddelandet som läst",
     "markera e-postmeddelandet som oläst"
@@ -2210,6 +2231,9 @@
     "aktuell plan",
     "läs schema för grupp",
     "visa bemanning"
+  ],
+  "recall_delivered_notes": [
+    "hämta levererade anteckningar"
   ],
   "reject_scenario": [
     "förkasta scenario",
@@ -2419,6 +2443,9 @@
     "byt kolumnnamn i exporten",
     "ändra datumformatet i exportfilen"
   ],
+  "set_group_location": [
+    "ange gruppens plats"
+  ],
   "set_my_display_language": [
     "ändra mitt gränssnittsspråk",
     "växla gränssnittet till engelska",
@@ -2517,6 +2544,9 @@
     "gör llm-finslipning av planen",
     "kör sista wizarden",
     "starta tredje wizarden"
+  ],
+  "stash_pending_note": [
+    "parkera anteckning"
   ],
   "test_imap_connection": [
     "testa IMAP",
@@ -2673,6 +2703,12 @@
     "lägg till email för kund",
     "redigera personuppgifter",
     "uppdatera telefonnummer för medarbetare"
+  ],
+  "update_client_birthdate": [
+    "ändra födelsedatum"
+  ],
+  "update_client_gender": [
+    "ändra kön"
   ],
   "update_client_type": [
     "ändra personens kategori",

@@ -249,6 +249,9 @@
     "文件夹在重启后是否还在",
     "创建processed和error文件夹"
   ],
+  "check_group_geocoding_status": [
+    "地理编码状态"
+  ],
   "clear_client_availability": [
     "重置员工的可用性",
     "删除可用性条目",
@@ -1418,6 +1421,9 @@
     "仪表板地图数据摘要",
     "人员分布在哪些城市"
   ],
+  "get_company_registration": [
+    "公司注册"
+  ],
   "get_compensatory_rest_settings": [
     "查看补休设置",
     "显示补休规则",
@@ -1439,6 +1445,9 @@
     "获取合同工时约定",
     "了解合同费率详情"
   ],
+  "get_current_time": [
+    "当前时间"
+  ],
   "get_dashboard_overview": [
     "仪表盘概览",
     "按群组统计客户和班次"
@@ -1449,6 +1458,9 @@
     "还有多少空缺班次",
     "显示仪表板关键指标",
     "本月封单进度如何"
+  ],
+  "get_data_retention_settings": [
+    "数据保留设置"
   ],
   "get_deepl_settings": [
     "查看DeepL设置",
@@ -1552,6 +1564,9 @@
     "获取企业注册地址",
     "读取店主联系方式"
   ],
+  "get_page_controls": [
+    "页面控件"
+  ],
   "get_period_hours": [
     "员工本期的小时结余",
     "对比目标工时和实际工时"
@@ -1616,6 +1631,9 @@
     "查询附加费规则",
     "了解附加费如何计算",
     "附加费模式是什么"
+  ],
+  "get_system_info": [
+    "系统信息"
   ],
   "get_translation_status": [
     "翻译服务状态",
@@ -2103,6 +2121,9 @@
     "查找城市所属州",
     "获取地点所属州和邮编"
   ],
+  "manage_pending_notes": [
+    "管理待处理便签"
+  ],
   "mark_email_read": [
     "把邮件标记为已读",
     "把邮件标记为未读"
@@ -2194,6 +2215,9 @@
     "查询谁在哪个班次",
     "读取排班网格",
     "看看目前的排班情况"
+  ],
+  "recall_delivered_notes": [
+    "调取已送达便签"
   ],
   "reject_scenario": [
     "拒绝当前的排班方案",
@@ -2401,6 +2425,9 @@
     "调整导出列名",
     "修改导出日期格式"
   ],
+  "set_group_location": [
+    "设置小组位置"
+  ],
   "set_my_display_language": [
     "把界面语言换成英文",
     "我想用中文显示菜单",
@@ -2501,6 +2528,9 @@
     "启动wizard3执行ai精修",
     "使用大型语言模型润色排班",
     "运行整体优化进行最终调整"
+  ],
+  "stash_pending_note": [
+    "暂存便签"
   ],
   "test_imap_connection": [
     "测试IMAP连接",
@@ -2651,6 +2681,12 @@
     "更新联系人的电话或邮箱",
     "添加或修改员工的地址",
     "变更客户的个人资料"
+  ],
+  "update_client_birthdate": [
+    "修改出生日期"
+  ],
+  "update_client_gender": [
+    "修改性别"
   ],
   "update_client_type": [
     "把这个人设为客户",

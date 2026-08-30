@@ -253,6 +253,9 @@
     "selviääkö kansio uudelleenkäynnistyksestä",
     "luo processed ja error kansiot"
   ],
+  "check_group_geocoding_status": [
+    "geokoodauksen tila"
+  ],
   "clear_client_availability": [
     "nollaa työntekijän saatavuus",
     "poista saatavuusmerkinnät",
@@ -1446,6 +1449,9 @@
     "asiakkaiden sijainnit kartalla",
     "mistähän kaupungeista työntekijät tulevat"
   ],
+  "get_company_registration": [
+    "yrityksen rekisteröinti"
+  ],
   "get_compensatory_rest_settings": [
     "näytä korvausvapaan asetukset",
     "miten korvausvapaa toimii",
@@ -1467,6 +1473,9 @@
     "näytä sopimuskausi",
     "näytä sopimuksen lisät"
   ],
+  "get_current_time": [
+    "nykyinen aika"
+  ],
   "get_dashboard_overview": [
     "kojelaudan yleiskatsaus",
     "asiakkaat ja vuorot ryhmittäin"
@@ -1477,6 +1486,9 @@
     "kuinka monta avointa työvuoroa",
     "näytä kuukauden avainluvut",
     "mikä on vahvistusprosentti"
+  ],
+  "get_data_retention_settings": [
+    "tietojen säilytysasetukset"
   ],
   "get_deepl_settings": [
     "DeepL-asetukset",
@@ -1578,6 +1590,9 @@
     "mikä on yrityksen osoite",
     "näytä omistajan osoite"
   ],
+  "get_page_controls": [
+    "sivun säätimet"
+  ],
   "get_period_hours": [
     "työntekijän tuntisaldo jaksolla",
     "vertaa tavoite- ja toteutuneita tunteja"
@@ -1641,6 +1656,9 @@
     "onko lisä prosentti vai kiinteä summa",
     "mikä on yölisän vähimmäismäärä",
     "miten lisät yhdistetään"
+  ],
+  "get_system_info": [
+    "järjestelmätiedot"
   ],
   "get_translation_status": [
     "onko deepl käytössä",
@@ -2133,6 +2151,9 @@
     "mikä kaupunki on postinumerolla 8001?",
     "kerro tiedot paikkakunnasta tampere"
   ],
+  "manage_pending_notes": [
+    "hallitse odottavia muistiinpanoja"
+  ],
   "mark_email_read": [
     "merkitse sähköposti luetuksi",
     "merkitse sähköposti lukemattomaksi"
@@ -2226,6 +2247,9 @@
     "näytä ryhmän vuorolista",
     "hae työvuorot ajanjaksolla",
     "näytä nykyinen suunnitelma"
+  ],
+  "recall_delivered_notes": [
+    "hae toimitetut muistiinpanot"
   ],
   "reject_scenario": [
     "hylkää ehdotus",
@@ -2436,6 +2460,9 @@
     "muuta sarakkeen nimeä",
     "muuta päivämäärän muotoa"
   ],
+  "set_group_location": [
+    "aseta ryhmän sijainti"
+  ],
   "set_my_display_language": [
     "vaihda näyttökielen",
     "vaihda käyttöliittymä englanniksi",
@@ -2534,6 +2561,9 @@
     "viimeistele suunnitelma llm:llä",
     "aja holistinen harmonisointi",
     "tee vision pass"
+  ],
+  "stash_pending_note": [
+    "siirrä muistiinpano sivuun"
   ],
   "test_imap_connection": [
     "IMAP-yhteystesti",
@@ -2682,6 +2712,12 @@
     "vaihda työntekijän puhelinnumero",
     "päivitä yhteystiedot",
     "muokkaa henkilötietoja"
+  ],
+  "update_client_birthdate": [
+    "muuta syntymäaika"
+  ],
+  "update_client_gender": [
+    "muuta sukupuoli"
   ],
   "update_client_type": [
     "muuta henkilön tyyppi",

@@ -252,6 +252,9 @@
     "overlever mappen en omstart",
     "opprett processed og error mapper"
   ],
+  "check_group_geocoding_status": [
+    "geokodingsstatus"
+  ],
   "clear_client_availability": [
     "nullstill medarbeiderens tilgjengelighet",
     "slett tilgjengelighetsoppføringer",
@@ -1428,6 +1431,9 @@
     "kartoversikt over lokasjoner",
     "fordeling av klienttyper per land"
   ],
+  "get_company_registration": [
+    "selskapsregistrering"
+  ],
   "get_compensatory_rest_settings": [
     "hvordan fungerer erstatningsfritid?",
     "vis innstillinger for avspasering for søndagsarbeid",
@@ -1450,6 +1456,9 @@
     "vis kontraktsbetingelser",
     "kontraktstimene"
   ],
+  "get_current_time": [
+    "nåværende tid"
+  ],
   "get_dashboard_overview": [
     "dashbord-oversikt",
     "kunder og vakter per gruppe"
@@ -1460,6 +1469,9 @@
     "hvor mange ledige vakter har vi",
     "dekningsgrad denne måneden",
     "status for låsing av vakter"
+  ],
+  "get_data_retention_settings": [
+    "innstillinger for dataoppbevaring"
   ],
   "get_deepl_settings": [
     "DeepL-innstillinger",
@@ -1564,6 +1576,9 @@
     "vis eierens adresse",
     "les selskapsadressen fra innstillinger"
   ],
+  "get_page_controls": [
+    "sidekontroller"
+  ],
   "get_period_hours": [
     "den ansattes timesaldo for perioden",
     "sammenligne mål- og faktiske timer"
@@ -1625,6 +1640,9 @@
     "når starter nattsjiktet?",
     "hvordan kombineres tillegg når de faller på samme time?",
     "er tilleggene faktor eller faste beløp?"
+  ],
+  "get_system_info": [
+    "systeminformasjon"
   ],
   "get_translation_status": [
     "er deepl oversettelse konfigurert",
@@ -2100,6 +2118,9 @@
     "søk etter stedet bern",
     "vis by og kanton for 3000"
   ],
+  "manage_pending_notes": [
+    "administrer ventende notater"
+  ],
   "mark_email_read": [
     "merk e-posten som lest",
     "merk e-posten som ulest"
@@ -2188,6 +2209,9 @@
     "les planen for neste uke",
     "vis bemanning gjeldende uke",
     "hvilke vakter er satt opp"
+  ],
+  "recall_delivered_notes": [
+    "hent leverte notater"
   ],
   "reject_scenario": [
     "avvis forslaget",
@@ -2399,6 +2423,9 @@
     "endre kolonnenavn i eksporten",
     "endre datoformatet i eksporten"
   ],
+  "set_group_location": [
+    "angi gruppens plassering"
+  ],
   "set_my_display_language": [
     "endre visningsspråket mitt",
     "bytt grensesnittet til engelsk",
@@ -2497,6 +2524,9 @@
     "poler planen med llm",
     "gjør siste finpuss",
     "kjør llm-polering"
+  ],
+  "stash_pending_note": [
+    "parker notat"
   ],
   "test_imap_connection": [
     "IMAP-tilkoblingstest",
@@ -2646,6 +2676,12 @@
     "legg til ny e-post for ansatt",
     "oppdater telefonnummer",
     "rediger ansattens adresse"
+  ],
+  "update_client_birthdate": [
+    "endre fødselsdato"
+  ],
+  "update_client_gender": [
+    "endre kjønn"
   ],
   "update_client_type": [
     "endre til kunde",

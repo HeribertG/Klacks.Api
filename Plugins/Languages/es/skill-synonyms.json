@@ -258,6 +258,9 @@
     "la carpeta sobrevive a un reinicio",
     "crear carpetas processed y error"
   ],
+  "check_group_geocoding_status": [
+    "estado de geocodificación"
+  ],
   "clear_client_availability": [
     "restablecer la disponibilidad del empleado",
     "borrar entradas de disponibilidad",
@@ -1455,6 +1458,9 @@
     "resumen de ubicaciones en el mapa",
     "ciudades más frecuentes de clientes"
   ],
+  "get_company_registration": [
+    "registro de la empresa"
+  ],
   "get_compensatory_rest_settings": [
     "¿cómo se gestiona el descanso compensatorio?",
     "enséñame los ajustes de descanso compensatorio",
@@ -1476,6 +1482,9 @@
     "horas del contrato",
     "términos del contrato"
   ],
+  "get_current_time": [
+    "hora actual"
+  ],
   "get_dashboard_overview": [
     "resumen del panel de control",
     "clientes y servicios por grupo"
@@ -1486,6 +1495,9 @@
     "cuántos turnos libres hay",
     "progreso de sellado del mes",
     "indicadores clave del mes"
+  ],
+  "get_data_retention_settings": [
+    "ajustes de retención de datos"
   ],
   "get_deepl_settings": [
     "configuración DeepL",
@@ -1586,6 +1598,9 @@
     "consultar datos del propietario",
     "mostrar dirección del negocio"
   ],
+  "get_page_controls": [
+    "controles de la página"
+  ],
   "get_period_hours": [
     "saldo de horas del empleado en el periodo",
     "comparar horas objetivo y reales"
@@ -1649,6 +1664,9 @@
     "¿cuál es el recargo mínimo por hora?",
     "¿a qué hora empieza el recargo nocturno?",
     "¿qué ocurre si coinciden dos recargos?"
+  ],
+  "get_system_info": [
+    "información del sistema"
   ],
   "get_translation_status": [
     "está configurado deepl",
@@ -2145,6 +2163,9 @@
     "qué cantón es para el código postal 3000",
     "averigua el cantón de la localidad de ginebra"
   ],
+  "manage_pending_notes": [
+    "gestionar notas pendientes"
+  ],
   "mark_email_read": [
     "marcar el correo como leído",
     "marcar el correo como no leído"
@@ -2238,6 +2259,9 @@
     "consultar la planificación",
     "ver la cuadrícula de turnos",
     "cómo está el plan"
+  ],
+  "recall_delivered_notes": [
+    "recuperar notas entregadas"
   ],
   "reject_scenario": [
     "rechazar propuesta",
@@ -2453,6 +2477,9 @@
     "configurar un formato personalizado para exportar",
     "establecer un ajuste de exportación"
   ],
+  "set_group_location": [
+    "establecer ubicación del grupo"
+  ],
   "set_my_display_language": [
     "cambiar el idioma de la interfaz",
     "poner los menús en francés",
@@ -2550,6 +2577,9 @@
     "ejecutar wizard 3",
     "aplicar ajuste holístico",
     "refinar con ia"
+  ],
+  "stash_pending_note": [
+    "aparcar nota"
   ],
   "test_imap_connection": [
     "prueba de conexión IMAP",
@@ -2703,6 +2733,12 @@
     "modificar datos del cliente",
     "cambiar teléfono",
     "actualizar información"
+  ],
+  "update_client_birthdate": [
+    "cambiar fecha de nacimiento"
+  ],
+  "update_client_gender": [
+    "cambiar género"
   ],
   "update_client_type": [
     "cambiar el tipo de persona",

@@ -251,6 +251,9 @@
     "thư mục có còn tồn tại sau khi khởi động lại không",
     "tạo thư mục processed và error"
   ],
+  "check_group_geocoding_status": [
+    "trạng thái mã hóa địa lý"
+  ],
   "clear_client_availability": [
     "đặt lại tình trạng sẵn sàng của nhân viên",
     "xóa các mục sẵn sàng",
@@ -1416,6 +1419,9 @@
     "xem bản đồ vị trí",
     "tổng quan địa điểm khách hàng"
   ],
+  "get_company_registration": [
+    "đăng ký công ty"
+  ],
   "get_compensatory_rest_settings": [
     "xem cài đặt nghỉ bù",
     "cách tính nghỉ bù khi làm chủ nhật",
@@ -1438,6 +1444,9 @@
     "chi tiết điều khoản hợp đồng",
     "xem hợp đồng theo id"
   ],
+  "get_current_time": [
+    "thời gian hiện tại"
+  ],
   "get_dashboard_overview": [
     "tổng quan bảng điều khiển",
     "khách hàng và ca làm theo nhóm"
@@ -1448,6 +1457,9 @@
     "còn bao nhiêu ca trống",
     "tiến độ xác nhận ca",
     "dashboard tháng hiện tại"
+  ],
+  "get_data_retention_settings": [
+    "cài đặt lưu giữ dữ liệu"
   ],
   "get_deepl_settings": [
     "cấu hình DeepL",
@@ -1551,6 +1563,9 @@
     "lấy thông tin chủ sở hữu",
     "kiểm tra địa chỉ doanh nghiệp"
   ],
+  "get_page_controls": [
+    "điều khiển trang"
+  ],
   "get_period_hours": [
     "số dư giờ của nhân viên trong kỳ",
     "so sánh giờ mục tiêu và giờ thực tế"
@@ -1615,6 +1630,9 @@
     "mức phụ cấp tối thiểu mỗi giờ là bao nhiêu",
     "khung giờ phụ cấp ban đêm bắt đầu từ lúc nào",
     "cách cộng dồn các loại phụ cấp"
+  ],
+  "get_system_info": [
+    "thông tin hệ thống"
   ],
   "get_translation_status": [
     "trạng thái dịch thuật",
@@ -2107,6 +2125,9 @@
     "tra mã plz cho zurich",
     "xem thông tin vùng của thụy sĩ"
   ],
+  "manage_pending_notes": [
+    "quản lý ghi chú đang chờ"
+  ],
   "mark_email_read": [
     "đánh dấu email là đã đọc",
     "đánh dấu email là chưa đọc"
@@ -2195,6 +2216,9 @@
     "lịch phân công hiện tại",
     "xem bảng phân công",
     "xem schedule của nhóm"
+  ],
+  "recall_delivered_notes": [
+    "gọi lại ghi chú đã gửi"
   ],
   "reject_scenario": [
     "từ chối kế hoạch",
@@ -2407,6 +2431,9 @@
     "cài đặt định dạng xuất khác",
     "sửa cấu hình xuất file"
   ],
+  "set_group_location": [
+    "đặt vị trí nhóm"
+  ],
   "set_my_display_language": [
     "đổi ngôn ngữ hiển thị",
     "chuyển giao diện sang tiếng anh",
@@ -2503,6 +2530,9 @@
     "hoàn thiện lịch",
     "chạy bước polish",
     "tối ưu hóa bằng ai"
+  ],
+  "stash_pending_note": [
+    "gác ghi chú"
   ],
   "test_imap_connection": [
     "kiểm tra kết nối IMAP",
@@ -2651,6 +2681,12 @@
     "thay đổi địa chỉ email",
     "cập nhật số điện thoại",
     "chỉnh sửa thông tin cá nhân"
+  ],
+  "update_client_birthdate": [
+    "đổi ngày sinh"
+  ],
+  "update_client_gender": [
+    "đổi giới tính"
   ],
   "update_client_type": [
     "đổi loại thành khách hàng",

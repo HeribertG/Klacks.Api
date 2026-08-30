@@ -258,6 +258,9 @@
     "czy folder przetrwa restart",
     "utwórz foldery processed i error"
   ],
+  "check_group_geocoding_status": [
+    "status geokodowania"
+  ],
   "clear_client_availability": [
     "zresetować dostępność pracownika",
     "usunąć wpisy dostępności",
@@ -1468,6 +1471,9 @@
     "lokalizacje na mapie",
     "podział według krajów"
   ],
+  "get_company_registration": [
+    "rejestracja firmy"
+  ],
   "get_compensatory_rest_settings": [
     "pokaż ustawienia zastępczego odpoczynku",
     "jak działa zastępczy czas wolny za niedzielę",
@@ -1490,6 +1496,9 @@
     "sprawdź stawki w umowie",
     "jakie godziny w umowie"
   ],
+  "get_current_time": [
+    "aktualny czas"
+  ],
   "get_dashboard_overview": [
     "przegląd pulpitu",
     "klienci i usługi według grup"
@@ -1501,6 +1510,9 @@
     "postęp w potwierdzaniu zmian",
     "kluczowe wskaźniki na ten miesiąc",
     "podsumowanie dashboardu"
+  ],
+  "get_data_retention_settings": [
+    "ustawienia przechowywania danych"
   ],
   "get_deepl_settings": [
     "ustawienia DeepL",
@@ -1602,6 +1614,9 @@
     "jakie są dane właściciela",
     "wyświetl adres siedziby"
   ],
+  "get_page_controls": [
+    "sterowanie stroną"
+  ],
   "get_period_hours": [
     "bilans godzin pracownika za okres",
     "porównaj godziny docelowe i rzeczywiste"
@@ -1664,6 +1679,9 @@
     "jaka jest minimalna stawka dodatku za godzinę",
     "od której godziny jest nocny dodatek",
     "jak sumują się różne dodatki w tej samej godzinie"
+  ],
+  "get_system_info": [
+    "informacje o systemie"
   ],
   "get_translation_status": [
     "czy deepl jest skonfigurowane",
@@ -2166,6 +2184,9 @@
     "znajdź kod pocztowy",
     "podaj dane miejscowości"
   ],
+  "manage_pending_notes": [
+    "zarządzaj oczekującymi notatkami"
+  ],
   "mark_email_read": [
     "oznacz e-mail jako przeczytany",
     "oznacz e-mail jako nieprzeczytany"
@@ -2263,6 +2284,9 @@
     "wyświetl bieżący grafik",
     "jak wygląda plan na przyszły tydzień",
     "pokaż przydziały pracowników"
+  ],
+  "recall_delivered_notes": [
+    "przywołaj dostarczone notatki"
   ],
   "reject_scenario": [
     "odrzuć scenariusz",
@@ -2479,6 +2503,9 @@
     "nadpisz ustawienia formatu eksportu",
     "zmień ustawienia eksportu"
   ],
+  "set_group_location": [
+    "ustaw lokalizację grupy"
+  ],
   "set_my_display_language": [
     "zmień język interfejsu",
     "przełącz na polski",
@@ -2580,6 +2607,9 @@
     "odpal holistyczny kreator",
     "wykonaj ostateczne poprawki",
     "zrobić wizję llm"
+  ],
+  "stash_pending_note": [
+    "odłóż notatkę"
   ],
   "test_imap_connection": [
     "test połączenia IMAP",
@@ -2733,6 +2763,12 @@
     "aktualizuj kontakt",
     "popraw dane osobowe",
     "dodaj numer telefonu"
+  ],
+  "update_client_birthdate": [
+    "zmień datę urodzenia"
+  ],
+  "update_client_gender": [
+    "zmień płeć"
   ],
   "update_client_type": [
     "zmień typ osoby na klienta",

@@ -255,6 +255,9 @@
     "folderul supraviețuiește unei reporniri",
     "creează folderele processed și error"
   ],
+  "check_group_geocoding_status": [
+    "starea geocodării"
+  ],
   "clear_client_availability": [
     "resetează disponibilitatea angajatului",
     "șterge intrările de disponibilitate",
@@ -1448,6 +1451,9 @@
     "arată-mi harta cu locații",
     "câți clienți au adresă"
   ],
+  "get_company_registration": [
+    "înregistrarea companiei"
+  ],
   "get_compensatory_rest_settings": [
     "cum este gestionată compensarea pentru zilele lucrate în zilele protejate?",
     "ce setări există pentru compensarea muncii de duminică?",
@@ -1471,6 +1477,9 @@
     "orele contractuale",
     "tarifele din contract"
   ],
+  "get_current_time": [
+    "ora curentă"
+  ],
   "get_dashboard_overview": [
     "prezentare generală a tabloului de bord",
     "clienți și servicii pe grupuri"
@@ -1481,6 +1490,9 @@
     "câte locuri libere sunt",
     "cât de avansată este sigilarea",
     "dă-mi datele principale ale lunii"
+  ],
+  "get_data_retention_settings": [
+    "setări de păstrare a datelor"
   ],
   "get_deepl_settings": [
     "setări DeepL",
@@ -1582,6 +1594,9 @@
     "vrei adresa companiei",
     "obține adresa proprietarului"
   ],
+  "get_page_controls": [
+    "controalele paginii"
+  ],
   "get_period_hours": [
     "soldul de ore al angajatului pe perioadă",
     "compară orele țintă cu cele reale"
@@ -1646,6 +1661,9 @@
     "care este minimul garantat pe oră pentru sporuri?",
     "ce se întâmplă când se întâlnesc două tipuri de sporuri?",
     "vrei să vezi setările pentru sporuri?"
+  ],
+  "get_system_info": [
+    "informații despre sistem"
   ],
   "get_translation_status": [
     "funcționează traducerea automată?",
@@ -2131,6 +2149,9 @@
     "caută date pentru orașul zürich",
     "identifică locația după codul poștal 4000"
   ],
+  "manage_pending_notes": [
+    "gestionează notele în așteptare"
+  ],
   "mark_email_read": [
     "marchează e-mailul ca citit",
     "marchează e-mailul ca necitit"
@@ -2222,6 +2243,9 @@
     "vezi programul echipei",
     "înregistrări plan",
     "ce schimburi are fiecare"
+  ],
+  "recall_delivered_notes": [
+    "recheamă notele livrate"
   ],
   "reject_scenario": [
     "respinge scenariul",
@@ -2434,6 +2458,9 @@
     "modifică setările de export",
     "setează o ajustare pentru formatul de export"
   ],
+  "set_group_location": [
+    "setează locația grupului"
+  ],
   "set_my_display_language": [
     "schimbă limba interfeței",
     "vreau să văd meniurile în engleză",
@@ -2531,6 +2558,9 @@
     "adaugă finisajul llm",
     "polizează planul holistic",
     "perfecționează planul cu ai"
+  ],
+  "stash_pending_note": [
+    "amână nota"
   ],
   "test_imap_connection": [
     "testează conexiunea IMAP",
@@ -2684,6 +2714,12 @@
     "editează adresa",
     "adaugă telefon/email",
     "schimbă informațiile de contact"
+  ],
+  "update_client_birthdate": [
+    "modifică data nașterii"
+  ],
+  "update_client_gender": [
+    "modifică sexul"
   ],
   "update_client_type": [
     "schimbă tipul de client în angajat",

@@ -246,6 +246,9 @@
     "adakah folder bertahan selepas but semula",
     "cipta folder processed dan error"
   ],
+  "check_group_geocoding_status": [
+    "status geokod"
+  ],
   "clear_client_availability": [
     "tetapkan semula ketersediaan pekerja",
     "padam entri ketersediaan",
@@ -1424,6 +1427,9 @@
     "lokasi pelanggan mengikut jenis",
     "peta ringkasan lokasi"
   ],
+  "get_company_registration": [
+    "pendaftaran syarikat"
+  ],
   "get_compensatory_rest_settings": [
     "macam mana bayaran ganti cuti untuk hari bekerja pada cuti umum?",
     "berapa hari lagi saya perlu ambil cuti ganti untuk kerja hujung minggu?",
@@ -1446,6 +1452,9 @@
     "waktu kontrak",
     "syarat kontrak"
   ],
+  "get_current_time": [
+    "waktu semasa"
+  ],
   "get_dashboard_overview": [
     "gambaran papan pemuka",
     "pelanggan dan syif mengikut kumpulan"
@@ -1456,6 +1465,9 @@
     "berapa banyak slot terbuka",
     "status pengesahan bulan ini",
     "gambaran keseluruhan prestasi"
+  ],
+  "get_data_retention_settings": [
+    "tetapan penyimpanan data"
   ],
   "get_deepl_settings": [
     "semak tetapan DeepL",
@@ -1560,6 +1572,9 @@
     "tunjukkan alamat pemilik",
     "baca alamat perniagaan"
   ],
+  "get_page_controls": [
+    "kawalan halaman"
+  ],
   "get_period_hours": [
     "baki jam pekerja untuk tempoh",
     "banding jam sasaran dan sebenar"
@@ -1623,6 +1638,9 @@
     "berapa minimum bayaran lebih masa sejam?",
     "bila waktu malam bermula untuk bayaran lebih masa?",
     "macam mana jika dua jenis bayaran lebih masa dikenakan pada jam yang sama?"
+  ],
+  "get_system_info": [
+    "maklumat sistem"
   ],
   "get_translation_status": [
     "status terjemahan",
@@ -2105,6 +2123,9 @@
     "lihat canton untuk kod zip 8050",
     "cari tempat dengan nama 'luzern'"
   ],
+  "manage_pending_notes": [
+    "urus nota tertunda"
+  ],
   "mark_email_read": [
     "tandakan e-mel sebagai telah dibaca",
     "tandakan e-mel sebagai belum dibaca"
@@ -2194,6 +2215,9 @@
     "jadual kerja kumpulan ini",
     "lihat pelan semasa",
     "siapa dijadualkan untuk minggu ini"
+  ],
+  "recall_delivered_notes": [
+    "panggil nota yang dihantar"
   ],
   "reject_scenario": [
     "tolak cadangan jadual ini",
@@ -2404,6 +2428,9 @@
     "ubah nama lajur dalam eksport",
     "sesuaikan format tarikh dalam eksport"
   ],
+  "set_group_location": [
+    "tetapkan lokasi kumpulan"
+  ],
   "set_my_display_language": [
     "tukar bahasa paparan",
     "saya nak guna bahasa melayu",
@@ -2500,6 +2527,9 @@
     "optimumkan jadual dengan wizard terakhir",
     "lancarkan wizard llm untuk penambahbaikan",
     "perhalusi jadual dengan wizard 3"
+  ],
+  "stash_pending_note": [
+    "ketepikan nota"
   ],
   "test_imap_connection": [
     "uji sambungan pelayan IMAP",
@@ -2650,6 +2680,12 @@
     "tambah emel baru untuk pekerja",
     "betulkan nama keluarga pelanggan",
     "masukkan alamat baru"
+  ],
+  "update_client_birthdate": [
+    "ubah tarikh lahir"
+  ],
+  "update_client_gender": [
+    "ubah jantina"
   ],
   "update_client_type": [
     "tukar kategori orang ini kepada pelanggan",

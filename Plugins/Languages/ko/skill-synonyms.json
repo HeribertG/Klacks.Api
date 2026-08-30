@@ -251,6 +251,9 @@
     "폴더가 재시작 후에도 유지되는지",
     "processed와 error 폴더 생성"
   ],
+  "check_group_geocoding_status": [
+    "지오코딩 상태"
+  ],
   "clear_client_availability": [
     "직원 가용성 초기화하기",
     "가용성 항목 삭제하기",
@@ -1413,6 +1416,9 @@
     "도시별 분포를 알려 줘",
     "지리적 분포를 보여 줘"
   ],
+  "get_company_registration": [
+    "회사 등록"
+  ],
   "get_compensatory_rest_settings": [
     "보호일 근무에 대한 보상휴가 설정을 보여줘",
     "일요일 근무에 대한 대체휴일 규정 알려줘",
@@ -1434,6 +1440,9 @@
     "특정 계약 정보 보여줘",
     "계약서 세부 내용 조회"
   ],
+  "get_current_time": [
+    "현재 시간"
+  ],
   "get_dashboard_overview": [
     "대시보드 개요",
     "그룹별 고객 및 근무"
@@ -1445,6 +1454,9 @@
     "봉인 진행 상황은?",
     "이번 달 주요 지표 보여 줘",
     "대시보드 핵심 수치 알려 줘"
+  ],
+  "get_data_retention_settings": [
+    "데이터 보존 설정"
   ],
   "get_deepl_settings": [
     "DeepL 설정 조회",
@@ -1550,6 +1562,9 @@
     "소유자 주소 보여줘",
     "사업장 주소 확인"
   ],
+  "get_page_controls": [
+    "페이지 컨트롤"
+  ],
   "get_period_hours": [
     "기간 동안 직원의 시간 잔액",
     "목표 시간과 실제 시간 비교"
@@ -1613,6 +1628,9 @@
     "수당이 배수인지 고정액인지 확인해줘",
     "최저 수당 시간당 금액이 얼마야?",
     "야간 밴드 시작 시간이 언제야?"
+  ],
+  "get_system_info": [
+    "시스템 정보"
   ],
   "get_translation_status": [
     "번역 서비스 상태를 알려 줘",
@@ -2104,6 +2122,9 @@
     "해당 도시의 주와 우편번호를 알려 줘",
     "위치 정보를 확인해"
   ],
+  "manage_pending_notes": [
+    "보류 중인 메모 관리"
+  ],
   "mark_email_read": [
     "이메일을 읽음으로 표시",
     "이메일을 읽지 않음으로 표시"
@@ -2195,6 +2216,9 @@
     "그룹 일정 확인",
     "누가 어떤 교대 근무?",
     "스케줄 그리드 읽기"
+  ],
+  "recall_delivered_notes": [
+    "전달된 메모 불러오기"
   ],
   "reject_scenario": [
     "시나리오 거절",
@@ -2405,6 +2429,9 @@
     "내보내기 날짜 형식 조정",
     "내보내기 형식 설정 변경"
   ],
+  "set_group_location": [
+    "그룹 위치 설정"
+  ],
   "set_my_display_language": [
     "표시 언어를 한국어로 바꿔 줘",
     "메뉴를 영어로 보여 줘",
@@ -2498,6 +2525,9 @@
     "최종 다듬기 실행",
     "llm 정리 시작",
     "전체 다듬기"
+  ],
+  "stash_pending_note": [
+    "메모 보류"
   ],
   "test_imap_connection": [
     "IMAP 연결 테스트",
@@ -2647,6 +2677,12 @@
     "직원 데이터 변경",
     "주소 업데이트",
     "연락처 추가"
+  ],
+  "update_client_birthdate": [
+    "생년월일 변경"
+  ],
+  "update_client_gender": [
+    "성별 변경"
   ],
   "update_client_type": [
     "이 고객을 직원으로 변경해 줘",

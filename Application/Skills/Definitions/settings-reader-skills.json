@@ -5,6 +5,7 @@
       "className": "GetEmailSettingsSkill",
       "description": "Reads the current outgoing email (SMTP) settings. Returns server, port, timeout, SSL, authentication type, disposition notification, read receipt, reply-to, mark and SMTP username. Does NOT return the password.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Email settings retrieved successfully.",
       "fields": [
@@ -26,6 +27,7 @@
       "className": "GetImapSettingsSkill",
       "description": "Reads the current incoming email (IMAP) settings. Returns server, port, SSL, folder, poll interval and username. Does NOT return the password.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "IMAP settings retrieved successfully.",
       "fields": [
@@ -41,8 +43,9 @@
     {
       "name": "get_owner_address",
       "className": "GetOwnerAddressSkill",
-      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email, time zone and the ID of the global holiday calendar used for scheduling.",
+      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Owner address retrieved successfully.",
       "fields": [
@@ -63,8 +66,9 @@
     {
       "name": "get_work_settings",
       "className": "GetWorkSettingsSkill",
-      "description": "Retrieves employment and payroll settings: vacation, probation, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility. For scheduling rule parameters use get_scheduling_defaults.",
+      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Work settings retrieved successfully.",
       "fields": [
@@ -85,8 +89,9 @@
     {
       "name": "get_scheduling_defaults",
       "className": "GetSchedulingDefaultsSkill",
-      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits. For surcharge rates or employment terms use get_work_settings.",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Scheduling defaults retrieved successfully.",
       "fields": [
@@ -111,6 +116,7 @@
       "className": "GetDeeplSettingsSkill",
       "description": "Retrieves the DeepL translation API settings. Returns whether an API key is configured (not the key itself for security).",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "DeepL settings retrieved successfully.",
       "fields": [],
@@ -123,6 +129,7 @@
       "className": "GetSpamFilterSettingsSkill",
       "description": "Retrieves spam filter configuration including spam threshold, uncertain threshold, and whether LLM-based filtering is enabled.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Spam filter settings retrieved successfully.",
       "fields": [
@@ -137,6 +144,7 @@
       "className": "GetWebSearchSettingsSkill",
       "description": "Retrieves web search configuration including provider, max results, and whether an API key is configured.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Web search settings retrieved successfully.",
       "fields": [
@@ -152,6 +160,7 @@
       "className": "GetCompanyRegistrationSkill",
       "description": "Retrieves company registration details used for invoice exports: tax ID, VAT ID and commercial register number.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Company registration settings retrieved successfully.",
       "fields": [
@@ -164,8 +173,9 @@
     {
       "name": "get_active_industries_settings",
       "className": "GetActiveIndustriesSettingsSkill",
-      "description": "Reads which industry profiles the installation currently runs on. The value is a comma-separated list of industry slugs, or the custom marker when the installation runs exclusively on its own rules.",
+      "description": "Shows which lines of business the installation is set up for — home care, health care, security, facility or logistics — or that it runs purely on rules written in-house. This choice decides which qualifications and rule sets appear in the pick lists.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Active industries retrieved.",
       "fields": [
@@ -176,8 +186,9 @@
     {
       "name": "get_compliance_enforcement_settings",
       "className": "GetComplianceEnforcementSettingsSkill",
-      "description": "Reads how strictly each working-time protection is applied: the default mode, whether a supervisor may override, the hour and rest limits, and the mode set per individual check.",
+      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection. Also shows how far ahead a roster has to be published.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Compliance enforcement settings retrieved.",
       "fields": [
@@ -202,8 +213,9 @@
     {
       "name": "get_compensatory_rest_settings",
       "className": "GetCompensatoryRestSettingsSkill",
-      "description": "Reads how time off owed for work on a protected day is handled: whether the claim is tracked at all and within how many days it has to be granted.",
+      "description": "Shows how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically or left to somebody to arrange.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Compensatory rest settings retrieved.",
       "fields": [
@@ -215,8 +227,9 @@
     {
       "name": "get_surcharge_mode_settings",
       "className": "GetSurchargeModeSettingsSkill",
-      "description": "Reads how each extra-pay kind is calculated: as a multiplier or a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they meet on the same hour.",
+      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Surcharge mode settings retrieved.",
       "fields": [
@@ -239,8 +252,9 @@
     {
       "name": "get_overtime_settings",
       "className": "GetOvertimeSettingsSkill",
-      "description": "Reads how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each one starts at and the rate it pays.",
+      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Overtime settings retrieved.",
       "fields": [
@@ -260,6 +274,7 @@
       "className": "GetWizardSettingsSkill",
       "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Harmonizer model setting retrieved.",
       "fields": [
@@ -270,8 +285,9 @@
     {
       "name": "get_export_formats_settings",
       "className": "GetExportFormatsSettingsSkill",
-      "description": "Reads which of the optional export formats are switched on, plus the payroll system chosen as the default target for handing figures over.",
+      "description": "Shows which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Export format settings retrieved.",
       "fields": [
@@ -283,8 +299,9 @@
     {
       "name": "get_grid_color_settings",
       "className": "GetGridColorSettingsSkill",
-      "description": "Reads the colours the schedule grid is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
+      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Grid colour settings retrieved.",
       "fields": [
@@ -312,8 +329,9 @@
     {
       "name": "get_openroute_settings",
       "className": "GetOpenRouteSettingsSkill",
-      "description": "Reads the travel-time settings: whether a key for the routing service is stored, and the shortest journey worth counting by car, by bicycle and on foot.",
+      "description": "Shows the travel-time settings: whether a key for the routing service is stored at all, and the shortest journey still worth counting by car, by bicycle and on foot.",
       "category": "Query",
+      "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Travel time settings retrieved.",
       "fields": [
