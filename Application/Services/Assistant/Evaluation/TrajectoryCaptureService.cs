@@ -192,11 +192,20 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         return trimmed.Length <= 8 ? trimmed : trimmed[..8];
     }
 
+    // W1.6: each candidate carries its provenance (why it was in the toolset) plus the 1-based rank
+    // in the offered list and the retrieval score where one exists. This turns "which source won" into
+    // a SQL query over the jsonb column instead of a guess.
     private static string SerializeCandidates(List<LLMFunction>? functions)
     {
         if (functions == null || functions.Count == 0) return "[]";
         var trimmed = functions.Count > CandidatesMax ? functions.GetRange(0, CandidatesMax) : functions;
-        var payload = trimmed.Select(f => new { name = f.Name });
+        var payload = trimmed.Select((f, index) => new
+        {
+            name = f.Name,
+            source = f.ToolsetSource?.ToString(),
+            rank = index + 1,
+            score = f.RetrievalScore
+        });
         return JsonSerializer.Serialize(payload);
     }
 }

@@ -30,6 +30,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Skills.PlanningProfile;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -122,6 +123,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var isAdmin = userRights.Contains(Roles.Admin);
 
         List<AgentSkill> retrievedSkills;
+        var retrievalScores = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
         // Domain-context signal for the world-model ontology gate: true when retrieval surfaced ANY relevant
         // skill above the score cutoff — including always-on domain skills (create_employee, list_contracts, …)
@@ -149,6 +151,11 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             if (!retrieval.IsEmpty)
             {
+                foreach (var candidate in retrieval.Candidates)
+                {
+                    retrievalScores.TryAdd(candidate.Entry.SourceId, candidate.Score);
+                }
+
                 var retrievedNames = retrieval.Candidates
                     .Select(c => c.Entry.SourceId)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -173,10 +180,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // follow-up questions about page sections otherwise dilute the retrieval query and the LLM
         // hallucinates UI descriptions because the explain_page_* function is missing from its tools.
         var guaranteedSkills = new HashSet<AgentSkill>();
+        var guaranteedSources = new Dictionary<string, ToolsetSkillSource>(StringComparer.OrdinalIgnoreCase);
         var pageExplainSkill = ResolvePageExplainSkill(permittedSkills, currentRoute);
         if (pageExplainSkill != null)
         {
-            guaranteedSkills.Add(pageExplainSkill);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, pageExplainSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Same guarantee for concept explain skills triggered by keywords in the current message
@@ -184,7 +193,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // instead of calling the curated concept skill.
         foreach (var conceptSkillName in ConceptExplainSkillKeywords.ResolveSkillNames(userMessage))
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, conceptSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, conceptSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
@@ -195,7 +205,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // guaranteed skills are kept first).
         if (retrievedSkills.Any(s => string.Equals(s.Name, CreateShiftSkillName, StringComparison.OrdinalIgnoreCase)))
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, CutShiftSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, CutShiftSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
@@ -205,7 +216,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var forcingRecipeNames = RecipeForcingResolver.GuaranteedSkillNames(userMessage).ToList();
         foreach (var recipeSkillName in forcingRecipeNames)
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, recipeSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
         }
 
         // Grouping-intent guarantee: when the user asks to group or assign clients/employees
@@ -213,7 +225,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // the model calls one instead of inventing a non-existent tool name (which never executes).
         foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(userMessage))
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, groupingSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, groupingSkillName, ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the
@@ -225,7 +238,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // the tool set exactly on the turn that needed it. The live pending hint alone is therefore the
         // signal; only an explicit negation discards it. Visibility only: the apply call still runs
         // through the autonomy gate like any other invocation.
-        ApplyProposalConfirmationGuarantee(guaranteedSkills, permittedSkills, userMessage, userId);
+        ApplyProposalConfirmationGuarantee(guaranteedSkills, guaranteedSources, permittedSkills, userMessage, userId);
 
         // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
         // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
@@ -236,7 +249,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         foreach (var keywordSkillName in keywordMatchedSkills)
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, keywordSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, keywordSkillName, ToolsetSkillSource.Keyword, guaranteedSources);
         }
 
         // Learned-phrase guarantee: the same deterministic promise for a wording the learning loop
@@ -250,7 +264,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         if (applyLearnedPhraseGuarantee)
         {
             await ApplyLearnedPhraseGuaranteeAsync(
-                guaranteedSkills, permittedSkills, userMessage, cancellationToken);
+                guaranteedSkills, guaranteedSources, permittedSkills, userMessage, cancellationToken);
         }
 
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
@@ -261,7 +275,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             userId, conversationId, userMessage, language, userRights, cancellationToken)).ToList();
         foreach (var recipeSkillName in engineRecipeNames)
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, recipeSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, recipeSkillName, ToolsetSkillSource.RecipeStep, guaranteedSources);
         }
 
         // Plan-candidate guarantee: a message that requests several state-changing actions at once and
@@ -271,7 +286,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
         if (Klacks.Api.Domain.Services.Assistant.PlanTriggerHeuristic.IsPlanCandidate(userMessage, recipeMatched))
         {
-            AddPermittedSkillByName(guaranteedSkills, permittedSkills, Klacks.Api.Domain.Constants.PlanSkillDefaults.CreatePlanSkillName);
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, Klacks.Api.Domain.Constants.PlanSkillDefaults.CreatePlanSkillName,
+                ToolsetSkillSource.Hint, guaranteedSources);
         }
 
         // Planning-profile guarantee: while a profile draft is open, keep its loop skills in the tool set.
@@ -279,7 +296,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // follow ("security", "8.5") carry no keyword at all — so without this the loop skills drop out
         // exactly on the turns that continue the dialogue, and the model reaches for create_scheduling_rule
         // instead (observed live 2026-08-10). Keyed by the same scope the skills write the draft under.
-        AddPlanningProfileDraftGuarantee(guaranteedSkills, permittedSkills, userId, conversationId);
+        AddPlanningProfileDraftGuarantee(guaranteedSkills, guaranteedSources, permittedSkills, userId, conversationId);
 
         // Pending-notes guarantee: surface manage_pending_notes only on turns where the current user
         // actually has undelivered notes, so the proactive hint can be acted on (read + mark) without
@@ -291,7 +308,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             if (pendingNotesSkill != null &&
                 await _pendingUserNoteRepository.CountPendingAsync(agent.Id, pendingNotesUserId, cancellationToken) > 0)
             {
-                guaranteedSkills.Add(pendingNotesSkill);
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, pendingNotesSkill.Name, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
 
@@ -307,15 +325,18 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         if (retrievedSkills.Count == 0)
         {
             LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider, guaranteedSkills);
+            var alwaysOnProvenance = ResolveProvenance(
+                alwaysOnSkills, guaranteedSources, retrievalScores, new HashSet<string>());
             return new SkillToolsetResult
             {
-                Functions = ToStableOrderedFunctions(alwaysOnSkills),
+                Functions = ToStableOrderedFunctionsWithProvenance(alwaysOnSkills, alwaysOnProvenance),
                 HasDomainSkillContext = hasDomainSkillContext,
                 AssemblyMs = assemblyWatch.ElapsedMilliseconds
             };
         }
 
         var selectedSkills = alwaysOnSkills.Concat(retrievedSkills).DistinctBy(s => s.Name).ToList();
+        var expansionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         // Silent expansion: pull in high-confidence co-required neighbours of the selected skills into
         // FREE budget only (never evict). Best-effort — a failure must never break skill selection.
@@ -328,6 +349,10 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 if (expansion.Count > 0)
                 {
                     selectedSkills = selectedSkills.Concat(expansion).DistinctBy(s => s.Name).ToList();
+                    foreach (var expandedSkill in expansion)
+                    {
+                        expansionNames.Add(expandedSkill.Name);
+                    }
                 }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -353,9 +378,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated,
             maxToolsForProvider, guaranteedSkills);
 
+        var selectedProvenance = ResolveProvenance(
+            selectedSkills, guaranteedSources, retrievalScores, expansionNames);
+
         return new SkillToolsetResult
         {
-            Functions = ToStableOrderedFunctions(selectedSkills),
+            Functions = ToStableOrderedFunctionsWithProvenance(selectedSkills, selectedProvenance),
             HasDomainSkillContext = true,
             AssemblyMs = assemblyWatch.ElapsedMilliseconds
         };
@@ -373,12 +401,59 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             .Select(ConvertToLLMFunction)
             .ToList();
 
+    private static List<LLMFunction> ToStableOrderedFunctionsWithProvenance(
+        IEnumerable<AgentSkill> skills,
+        IReadOnlyDictionary<string, SkillToolsetProvenance> provenance) =>
+        skills
+            .OrderByDescending(s => s.AlwaysOn)
+            .ThenBy(s => s.Name, StringComparer.Ordinal)
+            .Select(s => ConvertToLLMFunction(s, provenance))
+            .ToList();
+
+    /// <summary>
+    /// Resolves the single provenance label for every selected skill. A skill can be in the toolset for
+    /// several reasons at once; the label reflects the strongest deterministic one (see SourcePriority),
+    /// with retrieval score attached only for skills whose membership comes from retrieval.
+    /// </summary>
+    private static Dictionary<string, SkillToolsetProvenance> ResolveProvenance(
+        IEnumerable<AgentSkill> skills,
+        IReadOnlyDictionary<string, ToolsetSkillSource> guaranteedSources,
+        IReadOnlyDictionary<string, double> retrievalScores,
+        IReadOnlySet<string> expansionNames)
+    {
+        var provenance = new Dictionary<string, SkillToolsetProvenance>(StringComparer.OrdinalIgnoreCase);
+        foreach (var skill in skills)
+        {
+            if (skill.AlwaysOn)
+            {
+                provenance[skill.Name] = new SkillToolsetProvenance(ToolsetSkillSource.AlwaysOn, null);
+            }
+            else if (guaranteedSources.TryGetValue(skill.Name, out var source))
+            {
+                provenance[skill.Name] = new SkillToolsetProvenance(source, null);
+            }
+            else if (retrievalScores.TryGetValue(skill.Name, out var score))
+            {
+                provenance[skill.Name] = new SkillToolsetProvenance(ToolsetSkillSource.Retrieved, score);
+            }
+            else if (expansionNames.Contains(skill.Name))
+            {
+                provenance[skill.Name] = new SkillToolsetProvenance(ToolsetSkillSource.Expansion, null);
+            }
+        }
+
+        return provenance;
+    }
+
+    private sealed record SkillToolsetProvenance(ToolsetSkillSource Source, double? RetrievalScore);
+
     /// <summary>
     /// Adds the planning-profile loop skills when the user has an open draft in this conversation.
     /// A store failure degrades to no guarantee rather than taking toolset assembly down with it.
     /// </summary>
     private void AddPlanningProfileDraftGuarantee(
         HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
         IReadOnlyList<AgentSkill> permittedSkills,
         string userId,
         string? conversationId)
@@ -398,7 +473,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             foreach (var skillName in PlanningProfileLoopSkillNames)
             {
-                AddPermittedSkillByName(guaranteedSkills, permittedSkills, skillName);
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, skillName, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
         catch (Exception ex)
@@ -418,6 +494,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     /// <param name="userMessage">Raw user message the learned wordings are matched against</param>
     private async Task ApplyLearnedPhraseGuaranteeAsync(
         HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
         IReadOnlyList<AgentSkill> permittedSkills,
         string userMessage,
         CancellationToken cancellationToken)
@@ -437,7 +514,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             foreach (var ownerName in owners)
             {
-                AddPermittedSkillByName(guaranteedSkills, permittedSkills, ownerName);
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, ownerName, ToolsetSkillSource.LearnedPhrase, guaranteedSources);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -448,6 +526,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
     private void ApplyProposalConfirmationGuarantee(
         HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
         IReadOnlyList<AgentSkill> permittedSkills,
         string userMessage,
         string userId)
@@ -472,7 +551,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             if (hint != null)
             {
-                AddPermittedSkillByName(guaranteedSkills, permittedSkills, hint.SkillName);
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, hint.SkillName, ToolsetSkillSource.Hint, guaranteedSources);
             }
         }
         catch (Exception ex)
@@ -482,15 +562,41 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     }
 
     private static void AddPermittedSkillByName(
-        HashSet<AgentSkill> guaranteedSkills, IReadOnlyList<AgentSkill> permittedSkills, string skillName)
+        HashSet<AgentSkill> guaranteedSkills,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        string skillName,
+        ToolsetSkillSource source,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources)
     {
         var skill = permittedSkills.FirstOrDefault(s =>
             string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
-        if (skill != null)
+        if (skill == null)
+        {
+            return;
+        }
+
+        // A skill can be guaranteed by several layers at once (keyword + learned phrase + recipe).
+        // One source per candidate keeps the W5 provenance distribution additive, so the strongest
+        // deterministic reason wins: RecipeStep > LearnedPhrase > Keyword > Hint.
+        if (guaranteedSources.TryGetValue(skill.Name, out var existing) &&
+            SourcePriority(existing) >= SourcePriority(source))
         {
             guaranteedSkills.Add(skill);
+            return;
         }
+
+        guaranteedSources[skill.Name] = source;
+        guaranteedSkills.Add(skill);
     }
+
+    private static int SourcePriority(ToolsetSkillSource source) => source switch
+    {
+        ToolsetSkillSource.RecipeStep => 5,
+        ToolsetSkillSource.LearnedPhrase => 4,
+        ToolsetSkillSource.Keyword => 3,
+        ToolsetSkillSource.Hint => 2,
+        _ => 1
+    };
 
     private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
     {
@@ -538,7 +644,11 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
     }
 
-    private static LLMFunction ConvertToLLMFunction(AgentSkill skill)
+    private static LLMFunction ConvertToLLMFunction(AgentSkill skill) =>
+        ConvertToLLMFunction(skill, null);
+
+    private static LLMFunction ConvertToLLMFunction(
+        AgentSkill skill, IReadOnlyDictionary<string, SkillToolsetProvenance>? provenance)
     {
         var parameters = new Dictionary<string, object>();
         var requiredParameters = new List<string>();
@@ -558,13 +668,21 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             if (param.Required) requiredParameters.Add(param.Name);
         }
 
-        return new LLMFunction
+        var function = new LLMFunction
         {
             Name = skill.Name,
             Description = skill.Description,
             Parameters = parameters,
             RequiredParameters = requiredParameters
         };
+
+        if (provenance != null && provenance.TryGetValue(skill.Name, out var skillProvenance))
+        {
+            function.ToolsetSource = skillProvenance.Source;
+            function.RetrievalScore = skillProvenance.RetrievalScore;
+        }
+
+        return function;
     }
 
     private static string NormalizeToJsonSchemaType(string type) => type.ToLowerInvariant() switch
