@@ -3,8 +3,8 @@
 /// <summary>
 /// REST API for the proactive assistant message inbox: lists a user's own messages, exposes the
 /// unread count for the assistant badge, marks a single message, a listed page of messages or all
-/// messages as read and stores the user's reaction (helpful / dismissed), keyed by the message id
-/// the notification hub sent. A dismissal may carry a reject reason, which is written back onto the
+/// messages as read, acknowledges a message (which stops its reminder loop) and stores the user's
+/// reaction (helpful / dismissed), keyed by the message id the notification hub sent. A dismissal may carry a reject reason, which is written back onto the
 /// condition-ledger finding the message reported; sending one without a dismissal is a client error.
 /// </summary>
 /// <param name="mediator">Dispatches the inbox queries and commands.</param>
@@ -112,6 +112,18 @@ public class ProactiveMessagesController : ControllerBase
         }, cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpPut("{id:guid}/acknowledge")]
+    public async Task<IActionResult> Acknowledge(Guid id, CancellationToken cancellationToken)
+    {
+        var found = await _mediator.Send(new AcknowledgeProactiveMessageCommand
+        {
+            Id = id,
+            UserId = GetCurrentUserId()
+        }, cancellationToken);
+
+        return found ? NoContent() : NotFound();
     }
 
     [HttpPut("{id:guid}/reaction")]
