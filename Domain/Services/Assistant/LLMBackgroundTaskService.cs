@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -85,6 +87,58 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Fire-and-forget learning case collection failed for agent {AgentId}", agent.Id);
+                }
+            });
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var skillRepository = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+                    var sessionId = Guid.TryParse(conversation.ConversationId, out var parsedSession)
+                        ? parsedSession
+                        : Guid.Empty;
+
+                    // W1.7: agent_skill_executions is the audit trail consumed by the trigger stack
+                    // (lock-conflict detector, verify/rollback my last action). It was never written;
+                    // fill it once per executed tool call. Hallucinated names have no FK target and
+                    // are skipped — skill_usage_records already logs them as NotFound failures.
+                    foreach (var call in allFunctionCalls)
+                    {
+                        if (string.IsNullOrWhiteSpace(call.FunctionName))
+                        {
+                            continue;
+                        }
+
+                        var skill = await skillRepository.GetByNameAsync(agent.Id, call.FunctionName);
+                        if (skill == null)
+                        {
+                            continue;
+                        }
+
+                        var errorMessage = call.Success
+                            ? null
+                            : InternalIdentifierRedactor.Redact(call.Result);
+
+                        await skillRepository.LogExecutionAsync(new AgentSkillExecution
+                        {
+                            AgentId = agent.Id,
+                            SkillId = skill.Id,
+                            SessionId = sessionId,
+                            UserId = context.UserId,
+                            ToolName = call.FunctionName,
+                            ParametersJson = JsonSerializer.Serialize(SkillParameterRedactor.Redact(call.Parameters)),
+                            Success = call.Success,
+                            ErrorMessage = errorMessage,
+                            DurationMs = 0,
+                            TriggeredBy = "agent"
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget skill execution logging failed for agent {AgentId}", agent.Id);
                 }
             });
 

@@ -223,7 +223,9 @@ public class LLMFunctionExecutor
             SessionId = context.ConversationId,
             TurnId = context.TurnId,
             SupportsUiActions = true,
-            InjectedMemoryIds = context.InjectedMemoryIds
+            InjectedMemoryIds = context.InjectedMemoryIds,
+            ProviderId = context.ProviderId,
+            ModelId = context.ModelId
         };
 
         var skillCall = new Providers.LLMFunctionCall

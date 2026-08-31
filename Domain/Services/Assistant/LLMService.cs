@@ -200,7 +200,7 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
                 toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
-                turnId: context.TurnId);
+                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -689,7 +689,7 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
                 ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun,
-                turnId: context.TurnId);
+                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -992,7 +992,7 @@ public class LLMService : ILLMService
                     ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
                     hasError: true, errorMessage: lastResponse.Error,
                     toolsetAssemblyMs: ctx.Context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
-                    turnId: ctx.Context.TurnId);
+                    turnId: ctx.Context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
                 return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls, null);
             }
 
@@ -1510,6 +1510,38 @@ public class LLMService : ILLMService
         total.CacheCreationInputTokens += current.CacheCreationInputTokens;
         total.CacheReadInputTokens += current.CacheReadInputTokens;
         total.Cost += current.Cost;
+    }
+
+    // W1.7: fills llm_usage.functions_called with the distinct function names this turn actually
+    // invoked, as a JSON array capped to the varchar(200) column. Truncation keeps the row writable;
+    // the column is a plain string, so a truncated tail is acceptable for SQL analysis.
+    internal static string SerializeFunctionsCalled(IReadOnlyList<LLMFunctionCall> allFunctionCalls)
+    {
+        var names = allFunctionCalls
+            .Select(c => c.FunctionName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (names.Count == 0)
+        {
+            return "[]";
+        }
+
+        const int maxLength = 200;
+        var json = JsonSerializer.Serialize(names);
+        if (json.Length <= maxLength)
+        {
+            return json;
+        }
+
+        while (names.Count > 1 && JsonSerializer.Serialize(names).Length > maxLength)
+        {
+            names.RemoveAt(names.Count - 1);
+        }
+
+        json = JsonSerializer.Serialize(names);
+        return json.Length <= maxLength ? json : json[..maxLength];
     }
 
     // Appends a per-turn instruction note (confirmation gate, ask-step, forced recipe, plan nudge) to the

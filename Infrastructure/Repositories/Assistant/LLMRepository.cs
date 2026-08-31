@@ -176,6 +176,14 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
         return usage;
     }
 
+    public async Task<LLMUsage?> GetUsageByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Set<LLMUsage>()
+            .Where(u => !u.IsDeleted && u.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<List<LLMUsage>> GetUserUsageAsync(string userId, DateTime fromDate, DateTime toDate)
     {
         return await context.Set<LLMUsage>()

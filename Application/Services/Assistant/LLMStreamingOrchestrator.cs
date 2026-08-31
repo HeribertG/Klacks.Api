@@ -121,6 +121,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             ConversationId = request.ConversationId,
             TurnId = Guid.NewGuid(),
             ModelId = effectiveModelId,
+            ProviderId = LLMCapabilityService.MapProvider(earlyModel?.ProviderId),
             Language = request.Language,
             UserRights = request.UserRights,
             AccessToken = request.AccessToken,

@@ -38,6 +38,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private readonly ISkillLearningCaseCollector _caseCollector;
     private readonly ISkillPhraseRepository _phraseRepository;
     private readonly ISkillUsageRepository _usageRepository;
+    private readonly ILLMRepository _llmRepository;
     private readonly ILogger<TrajectoryCaptureService> _logger;
 
     public TrajectoryCaptureService(
@@ -45,12 +46,14 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         ISkillLearningCaseCollector caseCollector,
         ISkillPhraseRepository phraseRepository,
         ISkillUsageRepository usageRepository,
+        ILLMRepository llmRepository,
         ILogger<TrajectoryCaptureService> logger)
     {
         _repository = repository;
         _caseCollector = caseCollector;
         _phraseRepository = phraseRepository;
         _usageRepository = usageRepository;
+        _llmRepository = llmRepository;
         _logger = logger;
     }
 
@@ -62,6 +65,15 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             {
                 await MarkImplicitCorrectionIfApplicableAsync(agentId, context.UserId, context.Message);
             }
+
+            var llmUsage = await TryGetLlmUsageAsync(context.TurnId);
+            var latencyKnowledge = llmUsage?.ToolsetAssemblyMs
+                ?? ToIntMs(context.ToolsetAssemblyMs);
+            var latencyLlm = llmUsage?.TtftMs
+                ?? (llmUsage != null
+                    ? Math.Max(0, llmUsage.ResponseTimeMs - (llmUsage.ToolsetAssemblyMs ?? 0))
+                    : 0);
+            var latencyTotal = llmUsage?.ResponseTimeMs ?? 0;
 
             var record = new SkillSelectionTrajectory
             {
@@ -79,9 +91,9 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 HadMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message),
                 WasCorrected = false,
                 CorrectionType = CorrectionTypes.None,
-                LatencyMsTotal = 0,
-                LatencyMsKnowledge = 0,
-                LatencyMsLlm = 0,
+                LatencyMsTotal = latencyTotal,
+                LatencyMsKnowledge = latencyKnowledge,
+                LatencyMsLlm = latencyLlm,
                 RecipeName = Truncate(context.ActiveRecipeName),
                 LearnedPhraseHit = await FindLearnedPhraseHitAsync(context.Message),
                 CreateTime = DateTime.UtcNow
@@ -94,6 +106,29 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             _logger.LogWarning(ex, "Trajectory capture failed for agent {AgentId}", agentId);
         }
     }
+
+    private async Task<Klacks.Api.Domain.Models.Assistant.LLMUsage?> TryGetLlmUsageAsync(Guid? turnId)
+    {
+        if (!turnId.HasValue)
+        {
+            return null;
+        }
+
+        try
+        {
+            // The usage row is written (and awaited) before the background capture starts, so it is
+            // normally visible here. A failure must not cost the trajectory row itself.
+            return await _llmRepository.GetUsageByIdAsync(turnId.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Reading llm_usage for trajectory latencies failed for turn {TurnId}", turnId);
+            return null;
+        }
+    }
+
+    private static int ToIntMs(long? value) =>
+        value.HasValue ? (int)Math.Min(value.Value, int.MaxValue) : 0;
 
     private async Task<bool?> ComputeWasSuccessfulAsync(Guid? turnId)
     {

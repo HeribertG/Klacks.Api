@@ -109,7 +109,8 @@ public class LLMConversationManager
         long? ttftMs = null,
         long? toolsetAssemblyMs = null,
         int? toolIterations = null,
-        Guid? turnId = null)
+        Guid? turnId = null,
+        string? functionsCalledJson = null)
     {
         await _repository.TrackUsageAsync(new LLMUsage
         {
@@ -127,6 +128,7 @@ public class LLMConversationManager
             ResponseTimeMs = (int)responseTimeMs,
             HasError = hasError,
             ErrorMessage = errorMessage,
+            FunctionsCalled = functionsCalledJson,
             TtftMs = ttftMs.HasValue ? (int)Math.Min(ttftMs.Value, int.MaxValue) : null,
             ToolsetAssemblyMs = toolsetAssemblyMs.HasValue ? (int)Math.Min(toolsetAssemblyMs.Value, int.MaxValue) : null,
             ToolIterations = toolIterations,

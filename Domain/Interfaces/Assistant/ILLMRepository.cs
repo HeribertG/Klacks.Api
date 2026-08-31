@@ -22,6 +22,7 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task SetDefaultModelAsync(string modelId);
     
     Task<LLMUsage> TrackUsageAsync(LLMUsage usage);
+    Task<LLMUsage?> GetUsageByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<List<LLMUsage>> GetUserUsageAsync(string userId, DateTime fromDate, DateTime toDate);
     Task<Dictionary<string, decimal>> GetUsageSummaryByModelAsync(string userId, int days);
     Task<decimal> GetTotalCostAsync(string userId, int days);

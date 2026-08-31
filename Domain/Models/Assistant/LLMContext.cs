@@ -31,6 +31,13 @@ public class LLMContext
 
     public string? ModelId { get; set; }
 
+    /// <summary>
+    /// Provider type of the model resolved for this turn (W1.7). Set by both chat entry points so the
+    /// skill executor can copy provider/model into skill_usage_records and every execution row carries
+    /// the routing provenance of its turn.
+    /// </summary>
+    public Klacks.Api.Domain.Enums.LLMProviderType? ProviderId { get; set; }
+
     public string? Language { get; set; }
 
     public AssistantPageContext? PageContext { get; set; }
