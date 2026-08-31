@@ -121,9 +121,11 @@ public class TurnReplayService : ITurnReplayService
 
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
 
-        var recipeWouldForce = RecipeForcingResolver.Resolve(item.Message) != null;
-        var engineRecipeWouldTrigger = await EngineRecipeWouldTriggerDeterministicallyAsync(
+        var forcingPlan = RecipeForcingResolver.Resolve(item.Message);
+        var recipeWouldForce = forcingPlan != null;
+        var triggeredRecipeName = await FindMatchingEngineRecipeNameAsync(
             item.Message, item.Locale, cancellationToken);
+        var engineRecipeWouldTrigger = triggeredRecipeName != null;
         var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
@@ -163,6 +165,8 @@ public class TurnReplayService : ITurnReplayService
             OutputTokens = response.Usage.OutputTokens,
             RecipeWouldForce = recipeWouldForce,
             EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
+            ForcedRecipeName = forcingPlan?.Name,
+            TriggeredRecipeName = triggeredRecipeName,
             AvailableToolNames = context.AvailableFunctions.Select(f => f.Name).ToList(),
             ToolChoiceRequired = toolChoiceRequired,
             ProviderId = model.ProviderId,
@@ -176,7 +180,7 @@ public class TurnReplayService : ITurnReplayService
         return result;
     }
 
-    private async Task<bool> EngineRecipeWouldTriggerDeterministicallyAsync(
+    private async Task<string?> FindMatchingEngineRecipeNameAsync(
         string message, string? language, CancellationToken cancellationToken)
     {
         if (_cachedEnabledRecipes == null)
@@ -206,11 +210,11 @@ public class TurnReplayService : ITurnReplayService
 
             if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message))
             {
-                return true;
+                return recipe.Name;
             }
         }
 
-        return false;
+        return null;
     }
 
     private async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(

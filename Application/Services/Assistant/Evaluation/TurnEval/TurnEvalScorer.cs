@@ -31,6 +31,7 @@ public static class TurnEvalScorer
         {
             ItemId = item.Id,
             ExpectedTool = item.ExpectedTool,
+            ExpectedRecipe = item.ExpectedRecipe,
             ChosenTool = replay.ChosenTool,
             RecipeWouldForce = replay.RecipeWouldForce,
             EngineRecipeWouldTrigger = replay.EngineRecipeWouldTrigger,
@@ -41,6 +42,18 @@ public static class TurnEvalScorer
             LatencyMs = replay.LatencyMs,
             Cost = replay.Cost
         };
+
+        // W0.5: recipe items measure "did the expected recipe engage" instead of being excluded the
+        // moment any recipe hijacks the turn. A different recipe engaging is a miss, not an exclusion.
+        if (item.ExpectedRecipe != null)
+        {
+            result.Excluded = false;
+            result.RecipeHit = replay.Success
+                && (string.Equals(replay.ForcedRecipeName, item.ExpectedRecipe, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(replay.TriggeredRecipeName, item.ExpectedRecipe, StringComparison.OrdinalIgnoreCase));
+            result.Passed = result.RecipeHit == true;
+            return result;
+        }
 
         if (item.ExpectedTool == null)
         {
@@ -76,7 +89,7 @@ public static class TurnEvalScorer
     {
         var active = items.Where(i => !i.Excluded).ToList();
         var toolItems = active.Where(i => i.ExpectedTool != null).ToList();
-        var noToolItems = active.Where(i => i.ExpectedTool == null).ToList();
+        var noToolItems = active.Where(i => i.ExpectedTool == null && i.ExpectedRecipe == null).ToList();
         var slotItems = toolItems.Where(i => i.ToolHit == true && i.SlotScore != null).ToList();
         var measuredLatency = active.Where(i => !i.Errored).ToList();
 

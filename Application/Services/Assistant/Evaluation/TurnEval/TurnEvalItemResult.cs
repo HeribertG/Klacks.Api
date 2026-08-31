@@ -13,9 +13,15 @@ public class TurnEvalItemResult
 
     public string? ExpectedTool { get; set; }
 
+    /// <summary>W0.5: expected deterministic recipe for this item, mirrored from the goldset item.</summary>
+    public string? ExpectedRecipe { get; set; }
+
     public string? ChosenTool { get; set; }
 
     public bool? ToolHit { get; set; }
+
+    /// <summary>W0.5: true when the expected recipe would force/trigger this turn.</summary>
+    public bool? RecipeHit { get; set; }
 
     public bool? NoToolCorrect { get; set; }
 

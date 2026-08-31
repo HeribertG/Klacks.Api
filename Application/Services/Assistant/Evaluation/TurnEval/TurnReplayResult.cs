@@ -32,6 +32,12 @@ public class TurnReplayResult
 
     public bool EngineRecipeWouldTrigger { get; set; }
 
+    /// <summary>W0.5: name of the operator-authored recipe that would force this turn, null when none.</summary>
+    public string? ForcedRecipeName { get; set; }
+
+    /// <summary>W0.5: name of the engine recipe that would trigger on this turn, null when none.</summary>
+    public string? TriggeredRecipeName { get; set; }
+
     public List<string> AvailableToolNames { get; set; } = new();
 
     public bool ToolChoiceRequired { get; set; }

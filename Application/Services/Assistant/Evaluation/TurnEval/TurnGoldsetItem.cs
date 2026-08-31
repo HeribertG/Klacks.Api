@@ -20,6 +20,13 @@ public class TurnGoldsetItem
 
     public string? ExpectedTool { get; set; }
 
+    /// <summary>
+    /// W0.5: when set, the item does not expect a specific tool call but the deterministic engagement of
+    /// this recipe (operator-authored or engine recipe). The scorer then measures "did the expected
+    /// recipe trigger" instead of excluding the turn from the tool dimension.
+    /// </summary>
+    public string? ExpectedRecipe { get; set; }
+
     public List<string> AlternativeTools { get; set; } = new();
 
     public List<TurnGoldsetSlot> ExpectedSlots { get; set; } = new();
