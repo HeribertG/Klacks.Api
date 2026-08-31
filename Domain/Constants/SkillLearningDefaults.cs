@@ -32,6 +32,12 @@ public static class SkillLearningDefaults
 
     public const int ToolsetCandidatesMax = 30;
 
+    /// <summary>
+    /// Maximum length of the optional free-text comment a user may attach to a not-helpful judgement
+    /// (W1.8). Stored on the trajectory; longer input is truncated, never rejected.
+    /// </summary>
+    public const int FeedbackCommentMaxLength = 1000;
+
     public const int MaxLearningAttempts = 2;
 
     /// <summary>

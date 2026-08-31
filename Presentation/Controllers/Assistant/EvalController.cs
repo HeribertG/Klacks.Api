@@ -223,7 +223,9 @@ public class EvalController : ControllerBase
                 new SubmitHelpfulFeedbackCommand
                 {
                     UserId = userId,
-                    UserMessage = body.UserMessage ?? string.Empty
+                    UserMessage = body.UserMessage ?? string.Empty,
+                    Helpful = body.Helpful,
+                    Comment = body.Comment
                 },
                 cancellationToken);
 
@@ -286,6 +288,15 @@ public class EvalController : ControllerBase
     public sealed class SubmitHelpfulFeedbackRequest
     {
         public string? UserMessage { get; set; }
+
+        /// <summary>
+        /// Null/absent means thumbs-up (historical behaviour). False marks the turn as not helpful
+        /// (W1.8) and feeds an explicit negative case into the learning loop.
+        /// </summary>
+        public bool? Helpful { get; set; }
+
+        /// <summary>Optional free-text for a thumbs-down.</summary>
+        public string? Comment { get; set; }
     }
 
     public sealed class ReportUiActionResultRequest

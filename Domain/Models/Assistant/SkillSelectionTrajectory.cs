@@ -74,4 +74,11 @@ public class SkillSelectionTrajectory : BaseEntity
     /// the fitness quote may only count the first as neutral.
     /// </summary>
     public bool? Helpful { get; set; }
+
+    /// <summary>
+    /// Optional free-text the user attached to a not-helpful judgement (W1.8). Null for thumbs-up and
+    /// for unjudged turns. Truncated to <see cref="SkillLearningDefaults.FeedbackCommentMaxLength"/> by
+    /// the feedback handler, never rejected.
+    /// </summary>
+    public string? HelpfulComment { get; set; }
 }

@@ -14,7 +14,9 @@
 /// <param name="logger">Reports the miss, which is the only interesting outcome</param>
 
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -24,13 +26,16 @@ public class SubmitHelpfulFeedbackCommandHandler
     : IRequestHandler<SubmitHelpfulFeedbackCommand, SubmitHelpfulFeedbackResult>
 {
     private readonly ISkillSelectionTrajectoryRepository _repository;
+    private readonly ISkillLearningCaseCollector _caseCollector;
     private readonly ILogger<SubmitHelpfulFeedbackCommandHandler> _logger;
 
     public SubmitHelpfulFeedbackCommandHandler(
         ISkillSelectionTrajectoryRepository repository,
+        ISkillLearningCaseCollector caseCollector,
         ILogger<SubmitHelpfulFeedbackCommandHandler> logger)
     {
         _repository = repository;
+        _caseCollector = caseCollector;
         _logger = logger;
     }
 
@@ -47,6 +52,7 @@ public class SubmitHelpfulFeedbackCommandHandler
             throw new ArgumentException("UserMessage is required.", nameof(request));
         }
 
+        var helpful = request.Helpful ?? true;
         var hash = MessageNormalizer.Hash(request.UserMessage);
         var trajectory = await _repository.FindMostRecentByUserAndHashAsync(
             request.UserId, hash, cancellationToken);
@@ -58,15 +64,75 @@ public class SubmitHelpfulFeedbackCommandHandler
             return new SubmitHelpfulFeedbackResult(Found: false, TrajectoryId: null);
         }
 
+        if (helpful)
+        {
+            await MarkHelpfulAsync(trajectory, cancellationToken);
+        }
+        else
+        {
+            await MarkNotHelpfulAsync(request, trajectory, cancellationToken);
+        }
+
+        return new SubmitHelpfulFeedbackResult(Found: true, TrajectoryId: trajectory.Id);
+    }
+
+    // The last judgement wins: a user who toggles from thumbs-down to thumbs-up (or vice versa) leaves
+    // the newest statement on the trajectory. WasCorrected is deliberately never touched here - a
+    // correction and a rating are two different facts about the same turn.
+    private async Task MarkHelpfulAsync(
+        SkillSelectionTrajectory trajectory, CancellationToken cancellationToken)
+    {
         if (trajectory.Helpful == true)
         {
-            return new SubmitHelpfulFeedbackResult(Found: true, TrajectoryId: trajectory.Id);
+            return;
         }
 
         trajectory.Helpful = true;
+        trajectory.HelpfulComment = null;
         trajectory.UpdateTime = DateTime.UtcNow;
         await _repository.UpdateAsync(trajectory, cancellationToken);
+    }
 
-        return new SubmitHelpfulFeedbackResult(Found: true, TrajectoryId: trajectory.Id);
+    private async Task MarkNotHelpfulAsync(
+        SubmitHelpfulFeedbackCommand request,
+        SkillSelectionTrajectory trajectory,
+        CancellationToken cancellationToken)
+    {
+        var comment = TruncateComment(request.Comment);
+
+        if (trajectory.Helpful != false || trajectory.HelpfulComment != comment)
+        {
+            trajectory.Helpful = false;
+            trajectory.HelpfulComment = comment;
+            trajectory.UpdateTime = DateTime.UtcNow;
+            await _repository.UpdateAsync(trajectory, cancellationToken);
+        }
+
+        // W1.8: a thumbs-down is an explicit negative judgement about a captured turn, so the learning
+        // loop gets a case for the utterance's cluster. The collector swallows its own failures, so the
+        // feedback response never depends on the learning store.
+        await _caseCollector.CollectNotHelpfulFeedbackAsync(
+            new SkillLearningFeedback(
+                trajectory.AgentId,
+                request.UserMessage,
+                request.UserId,
+                trajectory.Locale,
+                trajectory.LlmChosenSkill,
+                trajectory.KnowledgeIndexCandidatesJson,
+                trajectory.Id),
+            cancellationToken);
+    }
+
+    private static string? TruncateComment(string? comment)
+    {
+        if (string.IsNullOrWhiteSpace(comment))
+        {
+            return null;
+        }
+
+        var trimmed = comment.Trim();
+        return trimmed.Length <= SkillLearningDefaults.FeedbackCommentMaxLength
+            ? trimmed
+            : trimmed[..SkillLearningDefaults.FeedbackCommentMaxLength];
     }
 }

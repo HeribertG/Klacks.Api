@@ -106,6 +106,41 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
         }
     }
 
+    public async Task CollectNotHelpfulFeedbackAsync(
+        SkillLearningFeedback feedback, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(feedback.UserMessage))
+        {
+            return;
+        }
+
+        try
+        {
+            // A thumbs-down is an explicit judgement on a captured turn, so it skips the refusal and
+            // word-count filters the automatic paths need: the user told us the answer did not help.
+            await RecordAsync(
+                feedback.AgentId,
+                MessageNormalizer.Hash(feedback.UserMessage),
+                MessageNormalizer.Excerpt(feedback.UserMessage, SkillLearningDefaults.ExcerptMaxLength),
+                SkillLearningSignals.Explicit,
+                feedback.UserId,
+                conversationId: null,
+                NormalizeLocale(feedback.Locale),
+                feedback.ChosenSkill,
+                expectedSkill: null,
+                feedback.ToolsetJson ?? "[]",
+                feedback.TrajectoryId,
+                cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Skill learning not-helpful feedback collection failed for agent {AgentId}",
+                feedback.AgentId);
+        }
+    }
+
     // The excerpt is a prefix of the utterance, so its word count is a lower bound of the real one. The
     // same floor the refusal path uses applies here for a stronger reason: the negation detector matches
     // on single words and would otherwise let "hallo" -> "nein" open a cluster keyed on the greeting.
