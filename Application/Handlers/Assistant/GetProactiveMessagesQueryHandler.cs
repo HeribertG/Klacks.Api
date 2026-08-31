@@ -61,7 +61,10 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
             Reaction = row.Reaction.ToString(),
             CreatedUtc = row.CreateTime,
             ReadAtUtc = row.ReadAtUtc,
-            CanDelegate = row.ConditionId.HasValue
+            CanDelegate = row.ConditionId.HasValue,
+            ReminderCount = row.ReminderCount,
+            LastRemindedAtUtc = row.LastRemindedAtUtc,
+            AcknowledgedAtUtc = row.AcknowledgedAtUtc
         };
     }
 

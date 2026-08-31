@@ -31,4 +31,16 @@ public record ProactiveInboxMessageDto
     /// action that would answer not-found.
     /// </summary>
     public bool CanDelegate { get; init; }
+
+    /// <summary>How many reminders went out for this message after the initial delivery.</summary>
+    public int ReminderCount { get; init; }
+
+    /// <summary>When the most recent reminder was sent. Null while only the initial delivery went out.</summary>
+    public DateTime? LastRemindedAtUtc { get; init; }
+
+    /// <summary>
+    /// When the user acknowledged the message, which is what stops its reminder loop. Null while the
+    /// message is unacknowledged and still being reminded on the backoff schedule.
+    /// </summary>
+    public DateTime? AcknowledgedAtUtc { get; init; }
 }
