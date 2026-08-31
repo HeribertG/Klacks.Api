@@ -79,8 +79,10 @@ public class ProactiveTriggerDispatchRow : BaseEntity
     /// <summary>
     /// When the user acknowledged the notification. This is the ONLY stop truth for the reminder
     /// loop: a row with no acknowledgement keeps being reminded on the backoff schedule, repeating the
-    /// last step forever (ProactiveReminderDefaults.RepeatLastStepUntilAcknowledged). Reactions like
-    /// dismiss do not stop reminders by themselves.
+    /// last step forever (ProactiveReminderDefaults.RepeatLastStepUntilAcknowledged). Set explicitly
+    /// via the acknowledge endpoint and implicitly by any reaction (SetProactiveReactionCommandHandler)
+    /// or successful delegation (DelegateConditionCommandHandler), both of which also clear
+    /// NextReminderAtUtc.
     /// </summary>
     public DateTime? AcknowledgedAtUtc { get; set; }
 }
