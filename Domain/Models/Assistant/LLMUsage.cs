@@ -65,6 +65,23 @@ public class LLMUsage : BaseEntity
     /// Number of LLM round-trips the tool loop ran for this turn (1 = plain answer, no tools).
     /// </summary>
     public int? ToolIterations { get; set; }
+
+    /// <summary>
+    /// W1.9: at least one iteration of this turn requested tool_choice=required (mutation guard).
+    /// </summary>
+    public bool ToolChoiceRequested { get; set; }
+
+    /// <summary>
+    /// W1.9: the turn's provider actually sends the requested tool_choice value. False for
+    /// OpenAI-compatible/Gemini/Mistral, which always send "auto".
+    /// </summary>
+    public bool ToolChoiceSupported { get; set; }
+
+    /// <summary>
+    /// W1.9: the model returned at least one tool call this turn. Together with the two flags above
+    /// this answers "was tool_choice=required ignored" per provider.
+    /// </summary>
+    public bool ToolCallReturned { get; set; }
     
     [ForeignKey("UserId")]
     public virtual AppUser User { get; set; } = null!;

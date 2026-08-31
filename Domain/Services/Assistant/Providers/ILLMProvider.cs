@@ -9,6 +9,13 @@ public interface ILLMProvider
     bool IsEnabled { get; }
     bool SupportsStreaming => false;
 
+    /// <summary>
+    /// True when the provider really sends the requested tool_choice value (e.g. "required") instead of
+    /// silently using its default. OpenAI-compatible, Gemini and Mistral currently ignore the request
+    /// and always send "auto", so they report false. Measured into llm_usage (W1.9).
+    /// </summary>
+    bool SupportsToolChoice => false;
+
     void Configure(Models.Assistant.LLMProvider providerConfig);
     Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default);
     Task<bool> ValidateApiKeyAsync(string apiKey);

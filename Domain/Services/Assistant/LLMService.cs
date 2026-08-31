@@ -200,7 +200,10 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
                 toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
-                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
+                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls),
+                toolChoiceRequested: ctx.ToolChoiceRequested,
+                toolChoiceSupported: ctx.Provider.SupportsToolChoice,
+                toolCallReturned: allFunctionCalls.Count > 0);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -265,6 +268,7 @@ public class LLMService : ILLMService
         var firstTokenLogged = false;
         long? ttftMs = null;
         var toolIterationsRun = 0;
+        var toolChoiceRequested = false;
         string? navigationRoute = null;
         string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
@@ -421,6 +425,11 @@ public class LLMService : ILLMService
                     forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count),
                 OnStreamUsage = usage => AccumulateUsage(totalUsage, usage)
             };
+
+            if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
+            {
+                toolChoiceRequested = true;
+            }
 
             var accumulator = new StreamAccumulator();
             var hasToolEnd = false;
@@ -689,7 +698,10 @@ public class LLMService : ILLMService
                 context.UserId, model, conversation!,
                 totalUsage, stopwatch.ElapsedMilliseconds,
                 ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun,
-                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
+                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls),
+                toolChoiceRequested: toolChoiceRequested,
+                toolChoiceSupported: provider!.SupportsToolChoice,
+                toolCallReturned: allFunctionCalls.Count > 0);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -980,6 +992,11 @@ public class LLMService : ILLMService
                     forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
             };
 
+            if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
+            {
+                ctx.ToolChoiceRequested = true;
+            }
+
             lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest, ctx.CancellationToken);
             AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
 
@@ -992,7 +1009,10 @@ public class LLMService : ILLMService
                     ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
                     hasError: true, errorMessage: lastResponse.Error,
                     toolsetAssemblyMs: ctx.Context.ToolsetAssemblyMs, toolIterations: iterationsUsed,
-                    turnId: ctx.Context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls));
+                    turnId: ctx.Context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls),
+                    toolChoiceRequested: ctx.ToolChoiceRequested,
+                    toolChoiceSupported: ctx.Provider.SupportsToolChoice,
+                    toolCallReturned: allFunctionCalls.Count > 0);
                 return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls, null);
             }
 

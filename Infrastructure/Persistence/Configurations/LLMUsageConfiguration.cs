@@ -14,5 +14,8 @@ public class LLMUsageConfiguration : IEntityTypeConfiguration<LLMUsage>
     public void Configure(EntityTypeBuilder<LLMUsage> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.Property(p => p.ToolChoiceRequested).HasDefaultValue(false);
+        builder.Property(p => p.ToolChoiceSupported).HasDefaultValue(false);
+        builder.Property(p => p.ToolCallReturned).HasDefaultValue(false);
     }
 }

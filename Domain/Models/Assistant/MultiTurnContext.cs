@@ -27,4 +27,11 @@ public record MultiTurnContext(
     ProviderLLMUsage TotalUsage, LLMConversation Conversation, Stopwatch Stopwatch,
     string VolatilePrompt = "",
     ContextBudgetProfile? BudgetProfile = null,
-    CancellationToken CancellationToken = default);
+    CancellationToken CancellationToken = default)
+{
+    /// <summary>
+    /// W1.9: set to true by the turn loop as soon as one iteration requests tool_choice=required, and
+    /// read by the usage tracker so llm_usage can measure whether the provider honoured the request.
+    /// </summary>
+    public bool ToolChoiceRequested { get; set; }
+}

@@ -79,6 +79,9 @@ public class AnthropicProvider : ILLMProvider
 
     public bool SupportsStreaming => true;
 
+    // Anthropic maps tool_choice=required to {"type":"any"}, which forces a tool call when tools exist.
+    public bool SupportsToolChoice => true;
+
     private bool IsRequiredApiKeyMissing => (_providerConfig?.RequiresApiKey ?? true) && string.IsNullOrWhiteSpace(_apiKey);
 
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
