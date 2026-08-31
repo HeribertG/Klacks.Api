@@ -33,6 +33,22 @@ public static class ProactiveLivePushPolicy
     }
 
     /// <summary>
+    /// The reminder-sweep variant of <see cref="ShouldLivePush"/>. A reminder row carries no audience
+    /// flags, so the companion half of <see cref="IsLoudEvent"/> cannot apply - and does not need to,
+    /// because only condition-linked operational findings ever join the reminder loop. The gate
+    /// therefore reduces to its high-severity half plus the active-conversation suppression.
+    /// </summary>
+    public static bool ShouldLivePushReminder(string? severity, IUserActivityTracker activityTracker, string userId)
+    {
+        if (activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
+        {
+            return false;
+        }
+
+        return string.Equals(severity, AgentTriggerSeverity.High, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Definition of "worth interrupting a CONNECTED user for", used by the SignalR live push only.
     /// Admits every companion event regardless of severity - right for a chat bubble next to a user
     /// who is already working, wrong for a phone at night (that gate is MessengerWakeUpPolicy).

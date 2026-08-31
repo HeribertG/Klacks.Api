@@ -1,4 +1,4 @@
-﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Dependency injection registrations for application, infrastructure and domain event services.
@@ -698,6 +698,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPlanExecutionRegistry, Klacks.Api.Infrastructure.Services.Assistant.PlanExecutionRegistry>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveReminderService, Klacks.Api.Application.Services.Assistant.Triggers.ProactiveReminderService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IOfflineMessengerNotifier, Klacks.Api.Infrastructure.Plugins.MessagingPluginOfflineMessengerNotifier>();
         services.AddScoped<Klacks.Plugin.Contracts.IInboundMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessagingPluginInboundMessageObserver>();
         services.AddScoped<Klacks.Plugin.Contracts.IInboundMessengerObserver, Klacks.Api.Application.Services.Assistant.Escalation.EscalationReplyObserver>();
