@@ -1648,2203 +1648,2203 @@
     },
     {
       "id": "w05-coverage-add-ai-memory",
-      "message": "information merken",
+      "message": "Bitte Erinnerung hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-client-to-group",
-      "message": "in die gruppe",
+      "message": "Bitte Personalverwaltung hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_client_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-shift-to-group",
-      "message": "Fuege hinzu: bestellung",
+      "message": "Bitte Bestellung hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_shift_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-bulk-add-shifts-to-group",
-      "message": "alle dienste",
+      "message": "Bitte Bestellung hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "bulk_add_shifts_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-client-to-nearest-group",
-      "message": "Fuege hinzu: standort",
+      "message": "Bitte Standort hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_client_to_nearest_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-assign-contract-to-client",
-      "message": "vertrag zuweisen",
+      "message": "Bitte Beschäftigungsgrad zuweisen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "assign_contract_to_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-branch",
-      "message": "neue filiale",
+      "message": "Bitte Geschäftsstelle neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-contract",
-      "message": "neuen vertrag anlegen",
+      "message": "Bitte Contract neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-user",
-      "message": "neuer benutzer",
+      "message": "Bitte Benutzerkonto neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_user",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-ai-memory",
-      "message": "information merken",
+      "message": "Bitte Erinnerung löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-branch",
-      "message": "filiale löschen",
+      "message": "Bitte Geschäftsstelle löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-system-user",
-      "message": "benutzer löschen",
+      "message": "Bitte Benutzerkonto löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_system_user",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-assign-user-permissions",
-      "message": "Weise zu: zugriffsrechte",
+      "message": "Bitte Zugriffsrechte zuweisen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "assign_user_permissions",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-macro",
-      "message": "neues makro",
+      "message": "Bitte Rechenregel neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-personal-access-token",
-      "message": "token für externe app",
+      "message": "Bitte Api-schlüssel neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_personal_access_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-revoke-personal-access-token",
-      "message": "persönlichen token entwerten",
+      "message": "Bitte Personal access token widerrufen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_personal_access_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-my-account",
-      "message": "mein konto aktualisieren",
+      "message": "Bitte Anzeigename ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_my_account",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-navigation-synonyms",
-      "message": "bring klacksy diese formulierung bei",
+      "message": "Bitte Navigations-synonym ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_navigation_synonyms",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-macro",
-      "message": "Loesche: berechnung",
+      "message": "Bitte Berechnung löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-user-group-scope",
-      "message": "sichtbarkeit ändern",
+      "message": "Bitte Gruppen-sichtbarkeit setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_user_group_scope",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-ai-guidelines",
-      "message": "richtlinien ändern",
+      "message": "Bitte Verhaltensregel ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_guidelines",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-ai-memory",
-      "message": "information merken",
+      "message": "Bitte Erinnerung ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-ai-soul",
-      "message": "soul ändern",
+      "message": "Bitte Persönlichkeit ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_soul",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-spam-filter-settings",
-      "message": "spamfilter ändern",
+      "message": "Bitte Unerwünschte ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_spam_filter_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-web-search-settings",
-      "message": "websuche ändern",
+      "message": "Bitte Sucheinstellung ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_web_search_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-general-settings",
-      "message": "Aktualisiere: grundeinstellung",
+      "message": "Bitte Grundeinstellung ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_general_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-data-retention-settings",
-      "message": "Aktualisiere: aufbewahrungsfrist",
+      "message": "Bitte Aufbewahrungsfrist ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_data_retention_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-owner-address",
-      "message": "adresse der firma",
+      "message": "Bitte Geschäftsadresse ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_owner_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-owner-locale-settings",
-      "message": "Aktualisiere: feiertagskalender",
+      "message": "Bitte Feiertagskalender ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_owner_locale_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-email-settings",
-      "message": "email einstellungen ändern",
+      "message": "Bitte Emailkonfiguration ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_email_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-imap-settings",
-      "message": "posteingang einstellungen ändern",
+      "message": "Bitte Emailkonfiguration ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_imap_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-work-settings",
-      "message": "zuschlag ändern",
+      "message": "Bitte Arbeitseinstellungen ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_work_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-scheduling-defaults",
-      "message": "Aktualisiere: schichtplanung",
+      "message": "Bitte Planungseinstellungen ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_scheduling_defaults",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-deepl-settings",
-      "message": "api schlüssel",
+      "message": "Bitte Sprachübersetzung ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_deepl_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-llm-provider",
-      "message": "llm anbieter",
+      "message": "Bitte Schnittstelle neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-llm-provider",
-      "message": "llm anbieter",
+      "message": "Bitte Schnittstelle ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-llm-provider",
-      "message": "llm anbieter",
+      "message": "Bitte Schnittstelle löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-llm-model",
-      "message": "ki modell",
+      "message": "Bitte Sprachmodell neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-llm-model",
-      "message": "ki modell",
+      "message": "Bitte Sprachmodell löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-scheduling-rule",
-      "message": "regel ändern",
+      "message": "Bitte Schichtplanung ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_scheduling_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-scheduling-rule",
-      "message": "regel löschen",
+      "message": "Bitte Schichtplanung löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_scheduling_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-branch",
-      "message": "filiale ändern",
+      "message": "Bitte Geschäftsstelle ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-agent-skill",
-      "message": "neuer skill",
+      "message": "Bitte Agentenskill neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-agent-skill",
-      "message": "skill ändern",
+      "message": "Bitte Agentenskill ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-agent-skill",
-      "message": "skill löschen",
+      "message": "Bitte Agentenskill löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-absence-type",
-      "message": "farbe der absenzart ändern",
+      "message": "Bitte Absence type ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_absence_type",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-shift",
-      "message": "Erstelle: auftragsvertretung",
+      "message": "Bitte Auftragsvertretung neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cut-shift",
-      "message": "in teile teilen",
+      "message": "Bitte Gesplittet schneiden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cut_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-test-environment",
-      "message": "Erstelle: testmitarbeiter",
+      "message": "Bitte Testmitarbeiter neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_test_environment",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-autowizard",
-      "message": "plan erzeugen",
+      "message": "Bitte Planassistent starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_autowizard",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-work",
-      "message": "schicht löschen",
+      "message": "Bitte Streichen löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-work",
-      "message": "arbeitszeit eines einsatzes anpassen",
+      "message": "Bitte Work ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-accept-scenario",
-      "message": "scenario übernehmen",
+      "message": "Bitte Akzeptieren akzeptieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "accept_scenario",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-confirm-work",
-      "message": "schicht fixieren",
+      "message": "Bitte Bestätigen ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "confirm_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-unconfirm-work",
-      "message": "bestätigung zurücknehmen",
+      "message": "Bitte Entfixieren ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "unconfirm_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-schedule-command",
-      "message": "key command",
+      "message": "Bitte Constraint hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_command",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-approve-day",
-      "message": "tag freigeben",
+      "message": "Bitte Freigeben ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "approve_day",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-revoke-day-approval",
-      "message": "freigabe zurücknehmen",
-      "locale": "de",
+      "message": "Bitte Unapprove widerrufen.",
+      "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_day_approval",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-close-period",
-      "message": "periode schliessen",
+      "message": "Bitte Abschliessen ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "close_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-reopen-period",
-      "message": "periode öffnen",
+      "message": "Bitte Entsiegeln ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reopen_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-break",
-      "message": "ferien streichen",
+      "message": "Bitte Break löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_break",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-rollback-my-last-change",
-      "message": "letzte aktion rückgängig",
+      "message": "Bitte Zurücknehmen ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "rollback_my_last_change",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-workchange",
-      "message": "Fuege hinzu: substituieren",
+      "message": "Bitte Substituieren hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-wizard1",
-      "message": "wizard 1",
+      "message": "Bitte Grundbelegung starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard1",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-wizard2",
-      "message": "wizard 2",
+      "message": "Bitte Harmonisierer starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard2",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-wizard3",
-      "message": "wizard 3",
+      "message": "Bitte Llm-feinschliff starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard3",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cancel-wizard-job",
-      "message": "wizard stoppen",
+      "message": "Bitte Abbrechen abbrechen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_wizard_job",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-reject-scenario",
-      "message": "scenario ablehnen",
+      "message": "Bitte Verwerfen ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reject_scenario",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-client",
-      "message": "mitarbeiter ändern",
+      "message": "Bitte Aktualisieren ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-client",
-      "message": "mitarbeiter löschen",
+      "message": "Bitte Offboarding löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-group",
-      "message": "gruppe ändern",
+      "message": "Bitte Umbenenn ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-move-group",
-      "message": "gruppe unter andere gruppe hängen",
+      "message": "Bitte Umhängen verschieben.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "move_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-calendar-selection",
-      "message": "neuen feiertagskalender erstellen",
+      "message": "Bitte Feiertagskalender neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-calendar-selection",
-      "message": "kalender als erinnerung markieren",
+      "message": "Bitte Calendar selection ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-calendar-selection",
-      "message": "kalenderauswahl löschen",
+      "message": "Bitte Calendar selection löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-absence",
-      "message": "absenz anlegen",
+      "message": "Bitte Abwesenheit neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-absence",
-      "message": "absenz farbe ändern",
+      "message": "Bitte Abwesenheitstyp ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-absence",
-      "message": "absenztyp löschen",
+      "message": "Bitte Abwesenheitstyp löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-propose-plan",
-      "message": "vorschlag als szenario",
+      "message": "Bitte Planvorschlag vorschlagen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "propose_plan",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-client-qualification",
-      "message": "qualifikation setzen",
+      "message": "Bitte Client qualification setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_client_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-shift-required-qualification",
-      "message": "schicht erfordert qualifikation",
+      "message": "Bitte Pflicht-qualifikation setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_shift_required_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-qualification",
-      "message": "qualifikation anlegen",
+      "message": "Bitte Qualification neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-shift-preferences",
-      "message": "schicht präferenz setzen",
+      "message": "Bitte Bevorzugt setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_shift_preferences",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-shift",
-      "message": "schicht ändern",
+      "message": "Bitte Shift ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-shift",
-      "message": "schicht löschen",
+      "message": "Bitte Shift löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-import-calendar-rules",
-      "message": "kanton feiertage importieren",
+      "message": "Bitte Feiertag ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "import_calendar_rules",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-selected-clients-to-group",
-      "message": "markierte mitarbeiter zur gruppe",
+      "message": "Bitte Selektiert hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_selected_clients_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-fill-group-by-criteria",
-      "message": "mitarbeiter zur gruppe hinzufügen",
+      "message": "Bitte Befüllen ausfüllen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "fill_group_by_criteria",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-group-ungrouped-by-city-name",
-      "message": "mitarbeiter ohne gruppe nach stadt zuordnen",
+      "message": "Bitte Stadtname gruppieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "group_ungrouped_by_city_name",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-group-location",
-      "message": "standort der gruppe setzen",
+      "message": "Bitte Group location setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_group_location",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-geocode-location-groups",
-      "message": "ermittle fuer alle standortgruppen automatisch die koordinaten",
+      "message": "Bitte Location groups geokodieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "geocode_location_groups",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-apply-grouping",
-      "message": "gruppierung anwenden",
+      "message": "Bitte Grouping anwenden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_grouping",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-macro",
-      "message": "makro ändern",
+      "message": "Bitte Skript ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-qualification",
-      "message": "qualifikation ändern",
+      "message": "Bitte Qualification ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-qualification",
-      "message": "qualifikation löschen",
+      "message": "Bitte Qualification löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-schedule-note",
-      "message": "anmerkung zum plan",
+      "message": "Bitte Plannotiz hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-schedule-note",
-      "message": "notiz löschen",
+      "message": "Bitte Schedule note löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-membership",
-      "message": "planbarkeit ab ändern",
+      "message": "Bitte Mitgliedschaft ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-end-client-membership",
-      "message": "letzten arbeitstag erfassen",
+      "message": "Bitte Anstellungsende ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "end_client_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-contract",
-      "message": "vertrag ändern",
+      "message": "Bitte Arbeitsvertrag ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-contract",
-      "message": "vertrag löschen",
+      "message": "Bitte Arbeitsvertrag löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-client-availability",
-      "message": "als nicht verfügbar markieren",
-      "locale": "de",
+      "message": "Bitte Availability setzen.",
+      "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_client_availability",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-expense",
-      "message": "spesen erfassen",
+      "message": "Bitte Auslage hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-expense",
-      "message": "spesen ändern",
-      "locale": "de",
+      "message": "Bitte Expense ändern.",
+      "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-expense",
-      "message": "spesen löschen",
-      "locale": "de",
+      "message": "Bitte Expense löschen.",
+      "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-autonomy-level",
-      "message": "frag nicht mehr nach",
+      "message": "Bitte Selbständig setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_autonomy_level",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-proactive-governance",
-      "message": "wer ist dafür verantwortlich wenn du handelst",
+      "message": "Bitte Not-aus setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_proactive_governance",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-mark-email-read",
-      "message": "e-mail als gelesen markieren",
+      "message": "Bitte Email read markieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "mark_email_read",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-fetch-new-emails",
-      "message": "mails vom server holen",
+      "message": "Bitte Fetch new emails ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "fetch_new_emails",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-move-email-to-folder",
-      "message": "mail in den posteingang zurücklegen",
-      "locale": "de",
+      "message": "Bitte Junk verschieben.",
+      "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "move_email_to_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-email",
-      "message": "mail in den papierkorb verschieben",
+      "message": "Bitte Email löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_email",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-restore-email",
-      "message": "mail aus dem papierkorb zurückholen",
+      "message": "Bitte Restore email ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "restore_email",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-transcription-dictionary-entry",
-      "message": "begriff ins wörterbuch aufnehmen",
+      "message": "Bitte Aussprachekorrektur hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-transcription-dictionary-entry",
-      "message": "begriff im wörterbuch anpassen",
+      "message": "Bitte Transcription dictionary entry ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-transcription-dictionary-entry",
-      "message": "begriff aus dem wörterbuch entfernen",
+      "message": "Bitte Transcription dictionary entry löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-install-language-pack",
-      "message": "neue sprache einschalten",
+      "message": "Bitte Language pack installieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_language_pack",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-uninstall-language-pack",
-      "message": "sprachpaket entfernen",
+      "message": "Bitte Language pack deinstallieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_language_pack",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-identity-provider",
-      "message": "identity provider anlegen",
+      "message": "Bitte Anmeldeanbieter neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-identity-provider",
-      "message": "identity provider ändern",
+      "message": "Bitte Anmeldeanbieter ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-identity-provider",
-      "message": "identity provider löschen",
+      "message": "Bitte Anmeldeanbieter löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-confirm-pending-action",
-      "message": "ja mach das",
+      "message": "Bitte Bestätigung ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "confirm_pending_action",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-guided-tour",
-      "message": "führe mich durch alle seiten",
+      "message": "Bitte Einführung starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_guided_tour",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-communication",
-      "message": "kommunikation löschen",
+      "message": "Bitte Communication löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_communication",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-communication",
-      "message": "e-mail adresse aktualisieren",
+      "message": "Bitte Communication ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_communication",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-address",
-      "message": "neue adresse erfassen",
+      "message": "Bitte Address neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-address",
-      "message": "adresse ändern",
+      "message": "Bitte Address ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-address",
-      "message": "adresse löschen",
+      "message": "Bitte Address löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-annotation",
-      "message": "notiz ändern",
+      "message": "Bitte Annotation ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_annotation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-annotation",
-      "message": "notiz löschen",
+      "message": "Bitte Annotation löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_annotation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-membership",
-      "message": "mitgliedschaft löschen",
+      "message": "Bitte Austritt löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-schedule-note",
-      "message": "planungsnotiz bearbeiten",
+      "message": "Bitte Schedule note ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-break",
-      "message": "abwesenheit ändern",
+      "message": "Bitte Break ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_break",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-workchange",
-      "message": "arbeitsänderung ändern",
+      "message": "Bitte Workchange ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-workchange",
-      "message": "arbeitsänderung löschen",
+      "message": "Bitte Workchange löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-stash-pending-note",
-      "message": "notiz zurückstellen",
+      "message": "Bitte Stash pending note ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "stash_pending_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-manage-pending-notes",
-      "message": "zurückgestellte notizen verwalten",
+      "message": "Bitte Manage pending notes ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "manage_pending_notes",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-schedule-recurring-task",
-      "message": "cron job einrichten",
+      "message": "Bitte Wiederkehrend ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "schedule_recurring_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cancel-recurring-task",
-      "message": "stoppe die geplante aufgabe",
+      "message": "Bitte Recurring task abbrechen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_recurring_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-trigger-erp-import-run",
-      "message": "erp import jetzt starten",
+      "message": "Bitte Trigger erp import run ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "trigger_erp_import_run",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-erp-import-schedule",
-      "message": "zeitplan für erp import setzen",
+      "message": "Bitte Erp import schedule setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_erp_import_schedule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-break-placeholder",
-      "message": "ferien vormerken",
+      "message": "Bitte Abwesenheitswunsch hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-schedule-commands-range",
-      "message": "mehrere tage frei",
+      "message": "Bitte Wochenwunsch hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_commands_range",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-break-placeholder",
-      "message": "absenz verschieben",
+      "message": "Bitte Break placeholder ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-break-placeholder",
-      "message": "geplante abwesenheit löschen",
+      "message": "Bitte Break placeholder löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-seal-shift",
-      "message": "auftrag bestätigen",
+      "message": "Bitte Versiegeln versiegeln.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "seal_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-sealed-order-until-date",
-      "message": "bis-datum setzen",
+      "message": "Bitte Auftragsende setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_sealed_order_until_date",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-reset-shift-cuts",
-      "message": "aufteilung rückgängig machen",
+      "message": "Bitte Wiederherstellen zurücksetzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reset_shift_cuts",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cut-shift-by-date",
-      "message": "schicht ab datum teilen",
+      "message": "Bitte Datumsschnitt schneiden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cut_shift_by_date",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-remove-shift-from-group",
-      "message": "dienst aus gruppe entfernen",
+      "message": "Bitte Entfernen entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_shift_from_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-remove-shift-required-qualification",
-      "message": "qualifikation von schicht entfernen",
+      "message": "Bitte Qualifikation entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_shift_required_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-add-container-template-task",
-      "message": "task zum container hinzufügen",
+      "message": "Bitte Hinzufügen hinzufügen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_container_template_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-container-template",
-      "message": "tagesvorlage für container anlegen",
+      "message": "Bitte Wochentagvorlage neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_container_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-container-template",
-      "message": "tagesvorlage des containers löschen",
+      "message": "Bitte Container template löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_container_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-remove-container-template-task",
-      "message": "task aus container entfernen",
+      "message": "Bitte Entfernen entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_container_template_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-reset-container-day",
-      "message": "dienst editieren rückgängig",
+      "message": "Bitte Zurücksetzen zurücksetzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reset_container_day",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-company-rule-parameters",
-      "message": "parameter setzen",
+      "message": "Bitte Zuschlagsregel setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_company_rule_parameters",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-apply-company-rule",
-      "message": "firmenregel anwenden",
+      "message": "Bitte Zuschlagsregel anwenden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cancel-company-rule",
-      "message": "firmenregel abbrechen",
+      "message": "Bitte Zuschlagsregel abbrechen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-revert-company-rule",
-      "message": "firmenregel rückgängig",
+      "message": "Bitte Zuschlagsregel rückgängig machen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revert_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-start-planning-profile-setup",
-      "message": "eigene planungsregel",
+      "message": "Bitte Planungseinstellungen starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_planning_profile_setup",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-planning-profile-parameters",
-      "message": "eigene planungsregel",
+      "message": "Bitte Planungseinstellungen setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_planning_profile_parameters",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-apply-planning-profile",
-      "message": "eigene planungsregel",
+      "message": "Bitte Planungseinstellungen anwenden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_planning_profile",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-cancel-planning-profile-setup",
-      "message": "eigene planungsregel",
+      "message": "Bitte Planungseinstellungen abbrechen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_planning_profile_setup",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-bundle-nearby-timerange-shifts-into-container",
-      "message": "mobile dienste um eine stadt bündeln",
+      "message": "Bitte Nearby timerange shifts into container bündeln.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "bundle_nearby_timerange_shifts_into_container",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-monthly-target-hours",
-      "message": "sollstunden für einen monat setzen",
+      "message": "Bitte Monthly target hours neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-monthly-target-hours",
-      "message": "sollstunden ändern",
+      "message": "Bitte Monthly target hours ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-monthly-target-hours",
-      "message": "monatswert wieder aufheben",
+      "message": "Bitte Monthly target hours löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-counter-rule",
-      "message": "höchstens so oft erlauben",
+      "message": "Bitte Counter rule neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-counter-rule",
-      "message": "aus warnung eine sperre machen",
+      "message": "Bitte Counter rule ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-counter-rule",
-      "message": "nicht mehr mitzählen",
+      "message": "Bitte Counter rule löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-period-cap-rule",
-      "message": "höchstens so viele stunden im monat",
+      "message": "Bitte Period cap rule neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-period-cap-rule",
-      "message": "stundendeckel ändern",
+      "message": "Bitte Period cap rule ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-period-cap-rule",
-      "message": "keine obergrenze mehr",
+      "message": "Bitte Period cap rule löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-restricted-time-window-rule",
-      "message": "uhrzeiten in einer saison sperren",
+      "message": "Bitte Restricted time window rule neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-restricted-time-window-rule",
-      "message": "saison der sperrzeit ändern",
+      "message": "Bitte Restricted time window rule ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-restricted-time-window-rule",
-      "message": "gesperrte uhrzeiten freigeben",
+      "message": "Bitte Restricted time window rule löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-individual-period",
-      "message": "abweichenden zyklus anlegen",
+      "message": "Bitte Individual period neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-individual-period",
-      "message": "abweichenden zyklus ändern",
+      "message": "Bitte Individual period ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-individual-period",
-      "message": "abweichenden zyklus löschen",
+      "message": "Bitte Individual period löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-spam-rule",
-      "message": "diese adresse nicht mehr empfangen",
+      "message": "Bitte Spam rule neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-spam-rule",
-      "message": "reihenfolge der muster ändern",
+      "message": "Bitte Spam rule ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-spam-rule",
-      "message": "spam muster löschen",
+      "message": "Bitte Spam rule löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-export-format-override",
-      "message": "anderes trennzeichen im export",
+      "message": "Bitte Export format override setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_export_format_override",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-export-format-override",
-      "message": "anpassung am export entfernen",
+      "message": "Bitte Export format override löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_export_format_override",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-erp-drop-point-settings",
-      "message": "anderen ordner überwachen",
+      "message": "Bitte Erp drop point settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_erp_drop_point_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-erp-import-token",
-      "message": "neuen schlüssel für das fremdsystem",
+      "message": "Bitte Erp import token neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_erp_import_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-revoke-erp-import-token",
-      "message": "schlüssel des fremdsystems ungültig machen",
+      "message": "Bitte Erp import token widerrufen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_erp_import_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-report-template",
-      "message": "vorlage zum ausdrucken erstellen",
+      "message": "Bitte Report template neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-report-template",
-      "message": "druckvorlage ändern",
+      "message": "Bitte Report template ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-report-template",
-      "message": "druckvorlage löschen",
+      "message": "Bitte Report template löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-install-feature-plugin",
-      "message": "funktionserweiterung installieren",
+      "message": "Bitte Feature plugin installieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-uninstall-feature-plugin",
-      "message": "erweiterung wieder loswerden",
+      "message": "Bitte Feature plugin deinstallieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-enable-feature-plugin",
-      "message": "erweiterung scharf schalten",
+      "message": "Bitte Feature plugin aktivieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "enable_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-disable-feature-plugin",
-      "message": "erweiterung vorübergehend stilllegen",
+      "message": "Bitte Feature plugin deaktivieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "disable_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-active-industries-settings",
-      "message": "branche der installation umstellen",
+      "message": "Bitte Active industries settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_active_industries_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-compliance-enforcement-settings",
-      "message": "aus warnung eine ablehnung machen",
+      "message": "Bitte Compliance enforcement settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_compliance_enforcement_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-compensatory-rest-settings",
-      "message": "frist für den ausgleich ändern",
+      "message": "Bitte Compensatory rest settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_compensatory_rest_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-surcharge-mode-settings",
-      "message": "zuschlag auf fixbetrag umstellen",
+      "message": "Bitte Surcharge mode settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_surcharge_mode_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-overtime-settings",
-      "message": "satz für zusätzliche stunden anheben",
+      "message": "Bitte Overtime settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_overtime_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-wizard-settings",
-      "message": "harmonisierer auf ein anderes modell stellen",
+      "message": "Bitte Wizard settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_wizard_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-export-formats-settings",
-      "message": "standard lohnsystem festlegen",
+      "message": "Bitte Export formats settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_export_formats_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-grid-color-settings",
-      "message": "farbe für sonntage ändern",
+      "message": "Bitte Grid color settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_grid_color_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-openroute-settings",
-      "message": "ab wann eine fahrt zählt festlegen",
+      "message": "Bitte Openroute settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_openroute_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-speech-settings",
-      "message": "stimme des assistenten ändern",
+      "message": "Bitte Speech settings ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_speech_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-accept-skill-relation",
-      "message": "die erlernte abhängigkeit gilt",
+      "message": "Bitte Skill relation akzeptieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "accept_skill_relation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-dismiss-skill-relation",
-      "message": "die erlernte abhängigkeit stimmt nicht",
+      "message": "Bitte Skill relation verwerfen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "dismiss_skill_relation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-install-whisper-plugin",
-      "message": "sprache nicht mehr nach aussen schicken",
+      "message": "Bitte Whisper plugin installieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_whisper_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-uninstall-whisper-plugin",
-      "message": "transkription vom eigenen server entfernen",
+      "message": "Bitte Whisper plugin deinstallieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_whisper_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-optimize-llm-models-for-klacksy",
-      "message": "welche modelle kann der assistent nutzen",
+      "message": "Bitte Llm models for klacksy optimieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "optimize_llm_models_for_klacksy",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-default-llm-model",
-      "message": "der assistent soll dieses modell nutzen",
+      "message": "Bitte Default llm model setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_default_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-my-theme",
-      "message": "starker kontrast fuer die augen",
+      "message": "Bitte Dunkelmodus setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_my_theme",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-set-my-display-language",
-      "message": "ich moechte alles in meiner sprache lesen",
+      "message": "Bitte Anzeigesprache setzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_my_display_language",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-open-absence-calendar-pdf-export",
-      "message": "jahresuebersicht der abwesenheiten als pdf",
+      "message": "Bitte Open absence calendar pdf export ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "open_absence_calendar_pdf_export",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-email-folder",
-      "message": "e-mail-ordner für projekt anlegen",
+      "message": "Bitte Email folder neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_email_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-delete-email-folder",
-      "message": "nicht mehr benötigten ordner löschen",
+      "message": "Bitte Email folder löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_email_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-update-client-type",
-      "message": "kategorie der person ändern",
+      "message": "Bitte Personentyp ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_client_type",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-remove-client-contract",
-      "message": "vertrag beim mitarbeiter aufheben",
+      "message": "Bitte Client contract entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_client_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-remove-client-qualification",
-      "message": "qualifikation beim mitarbeiter entfernen",
+      "message": "Bitte Client qualification entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_client_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-create-donation-checkout",
-      "message": "projekt unterstützen mit betrag",
+      "message": "Bitte Donation neu anlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_donation_checkout",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     },
     {
       "id": "w05-coverage-check-erp-drop-point-folder-health",
-      "message": "processed und error ordner anlegen",
+      "message": "Bitte Check erp drop point folder health ausführen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "check_erp_drop_point_folder_health",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage from de seed phrase"
+      "comment": "mutating-skill coverage: keyword-carrying natural request"
     }
   ]
 }
