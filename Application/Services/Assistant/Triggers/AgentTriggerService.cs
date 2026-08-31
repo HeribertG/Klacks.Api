@@ -113,7 +113,7 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken))
+            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, null, cancellationToken))
             {
                 deduped++;
                 continue;
