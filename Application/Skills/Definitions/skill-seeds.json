@@ -30,10 +30,25 @@
       "alwaysOn": true,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["wie spät ist es", "aktuelle uhrzeit", "welches datum haben wir", "uhrzeit"],
-        "en": ["what time is it", "current time", "today's date"],
-        "fr": ["quelle heure est-il", "heure actuelle"],
-        "it": ["che ore sono", "ora attuale"]
+        "de": [
+          "wie spät ist es",
+          "aktuelle uhrzeit",
+          "welches datum haben wir",
+          "uhrzeit"
+        ],
+        "en": [
+          "what time is it",
+          "current time",
+          "today's date"
+        ],
+        "fr": [
+          "quelle heure est-il",
+          "heure actuelle"
+        ],
+        "it": [
+          "che ore sono",
+          "ora attuale"
+        ]
       },
       "version": 6
     },
@@ -52,10 +67,20 @@
       "alwaysOn": true,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["systeminformationen", "version von klacks"],
-        "en": ["system information", "klacks version"],
-        "fr": ["informations système"],
-        "it": ["informazioni di sistema"]
+        "de": [
+          "systeminformationen",
+          "version von klacks"
+        ],
+        "en": [
+          "system information",
+          "klacks version"
+        ],
+        "fr": [
+          "informations système"
+        ],
+        "it": [
+          "informazioni di sistema"
+        ]
       },
       "version": 5
     },
@@ -329,10 +354,19 @@
       "alwaysOn": true,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["seitensteuerung", "steuerelemente der seite"],
-        "en": ["page controls"],
-        "fr": ["contrôles de la page"],
-        "it": ["controlli della pagina"]
+        "de": [
+          "seitensteuerung",
+          "steuerelemente der seite"
+        ],
+        "en": [
+          "page controls"
+        ],
+        "fr": [
+          "contrôles de la page"
+        ],
+        "it": [
+          "controlli della pagina"
+        ]
       },
       "version": 5
     },
@@ -1226,7 +1260,7 @@
     {
       "name": "create_contract",
       "area": "contract",
-      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real values. A contract's workload comes from exactly one of two mutually exclusive paths — ask the admin which one applies BEFORE calling: (1) fixed guaranteed hours — supply guaranteedHours (and optionally fullTime); minimumHours/maximumHours default to guaranteedHours when omitted. (2) inherited workload — omit guaranteedHours entirely so the contract inherits the company-wide monthly target hours; percent scales that value and defaults to 100 when not supplied (a missing percent is normal, not an error — do not insist on it). minimumHours/maximumHours/fullTime are not meaningful in path 2 and stay unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates.",
+      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real values. A contract's workload comes from exactly one of two mutually exclusive paths — ask the admin which one applies BEFORE calling: (1) fixed guaranteed hours — supply guaranteedHours (and optionally fullTime); minimumHours/maximumHours default to guaranteedHours when omitted. (2) inherited workload — omit guaranteedHours entirely so the contract inherits the company-wide monthly target hours; percent scales that value and defaults to 100 when not supplied (a missing percent is normal, not an error — do not insist on it). minimumHours/maximumHours/fullTime are not meaningful in path 2 and stay unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1855,7 +1889,7 @@
     {
       "name": "delete_system_user",
       "area": "security",
-      "description": "Deletes a system user account permanently by user ID. Use list_system_users first to find the user ID. Requires admin permissions.",
+      "description": "Deletes a system user account permanently by user ID. Use list_system_users first to find the user ID. Requires admin permissions. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1935,7 +1969,7 @@
     {
       "name": "get_ai_guidelines",
       "area": "klacksy",
-      "description": "Retrieves the AI assistant's active guidelines. Use this when the user asks about current rules, or to check guidelines before updating them with update_ai_guidelines. Guidelines define rules for behavior and function usage.",
+      "description": "Retrieves the AI assistant's active guidelines. Use this when the user asks about current rules, or to check guidelines before updating them with update_ai_guidelines. Guidelines define rules for behavior and function usage. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2107,7 +2141,7 @@
     {
       "name": "get_ai_soul",
       "area": "klacksy",
-      "description": "Retrieves the AI assistant's personality definition (soul sections). Use this when the user asks about the assistant's personality, identity, or behavior rules, or when you need to check current settings before updating them. Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling.",
+      "description": "Retrieves the AI assistant's personality definition (soul sections). Use this when the user asks about the assistant's personality, identity, or behavior rules, or when you need to check current settings before updating them. Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2301,7 +2335,7 @@
     {
       "name": "get_general_settings",
       "area": "settings",
-      "description": "Retrieves the general application settings including the application name. Use this to check what the application is called or to verify settings before updating them.",
+      "description": "Retrieves the general application settings including the application name. Use this to check what the application is called or to verify settings before updating them. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2315,10 +2349,18 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["allgemeine einstellungen"],
-        "en": ["general settings"],
-        "fr": ["paramètres généraux"],
-        "it": ["impostazioni generali"]
+        "de": [
+          "allgemeine einstellungen"
+        ],
+        "en": [
+          "general settings"
+        ],
+        "fr": [
+          "paramètres généraux"
+        ],
+        "it": [
+          "impostazioni generali"
+        ]
       },
       "version": 6
     },
@@ -2353,17 +2395,26 @@
         ]
       },
       "synonyms": {
-        "de": ["firmenregistrierung", "handelsregistereintrag"],
-        "en": ["company registration"],
-        "fr": ["registre de l'entreprise"],
-        "it": ["registrazione aziendale"]
+        "de": [
+          "firmenregistrierung",
+          "handelsregistereintrag"
+        ],
+        "en": [
+          "company registration"
+        ],
+        "fr": [
+          "registre de l'entreprise"
+        ],
+        "it": [
+          "registrazione aziendale"
+        ]
       },
       "version": 3
     },
     {
       "name": "get_data_retention_settings",
       "area": "settings",
-      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it or before updating it with update_data_retention_settings.",
+      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it or before updating it with update_data_retention_settings. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2377,17 +2428,26 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["aufbewahrungsfristen", "datenaufbewahrung"],
-        "en": ["data retention settings"],
-        "fr": ["durée de conservation"],
-        "it": ["impostazioni di conservazione dati"]
+        "de": [
+          "aufbewahrungsfristen",
+          "datenaufbewahrung"
+        ],
+        "en": [
+          "data retention settings"
+        ],
+        "fr": [
+          "durée de conservation"
+        ],
+        "it": [
+          "impostazioni di conservazione dati"
+        ]
       },
       "version": 3
     },
     {
       "name": "get_user_permissions",
       "area": "security",
-      "description": "Returns the current user's role and detailed permission list. Use this BEFORE attempting operations that require specific permissions to verify the user has access. For basic user info (name, ID, tenant) use get_user_context instead.",
+      "description": "Returns the current user's role and detailed permission list. Use this BEFORE attempting operations that require specific permissions to verify the user has access. For basic user info (name, ID, tenant) use get_user_context instead. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -2399,17 +2459,27 @@
       "alwaysOn": true,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["benutzerrechte", "meine berechtigungen"],
-        "en": ["user permissions", "my permissions"],
-        "fr": ["mes autorisations"],
-        "it": ["i miei permessi"]
+        "de": [
+          "benutzerrechte",
+          "meine berechtigungen"
+        ],
+        "en": [
+          "user permissions",
+          "my permissions"
+        ],
+        "fr": [
+          "mes autorisations"
+        ],
+        "it": [
+          "i miei permessi"
+        ]
       },
       "version": 5
     },
     {
       "name": "assign_user_permissions",
       "area": "security",
-      "description": "Assigns a permission level (role) to a system user and persists it. Sets the role exclusively: 'Admin' grants full access, 'Authorised' grants create/edit access without settings, 'User' is view-only. Requires admin permissions. Identify the user with userId (preferred) or userName; the resulting permission set is derived from the role. To check a user's current rights use get_user_permissions, to list users use list_system_users.",
+      "description": "Assigns a permission level (role) to a system user and persists it. Sets the role exclusively: 'Admin' grants full access, 'Authorised' grants create/edit access without settings, 'User' is view-only. Requires admin permissions. Identify the user with userId (preferred) or userName; the resulting permission set is derived from the role. To check a user's current rights use get_user_permissions, to list users use list_system_users. Use when the user wants to assign something to a person or group. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2509,7 +2579,7 @@
     {
       "name": "create_macro",
       "area": "settings",
-      "description": "Creates a calculation macro (script) in the settings. Provide a name and the macro script body. Requires admin permissions. Use list_macros to verify the macro afterwards or to find existing macros.",
+      "description": "Creates a calculation macro (script) in the settings. Provide a name and the macro script body. Requires admin permissions. Use list_macros to verify the macro afterwards or to find existing macros. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2598,7 +2668,7 @@
     {
       "name": "create_personal_access_token",
       "area": "security",
-      "description": "Explains how the current user obtains a personal access token (PAT), the credential external LLM clients such as Claude Desktop use to authenticate against Klacks via MCP. This skill issues no token: a token is created in the settings, where its value appears once with a copy button and can never be read again. Use it whenever someone asks to create, get or set up such a token.",
+      "description": "Explains how the current user obtains a personal access token (PAT), the credential external LLM clients such as Claude Desktop use to authenticate against Klacks via MCP. This skill issues no token: a token is created in the settings, where its value appears once with a copy button and can never be read again. Use it whenever someone asks to create, get or set up such a token. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2669,7 +2739,7 @@
     {
       "name": "list_personal_access_tokens",
       "area": "security",
-      "description": "Lists the requesting user's OWN personal access tokens: name, token prefix, creation, expiry and last-use timestamps — never the token value itself. Use it to find the token id before calling revoke_personal_access_token.",
+      "description": "Lists the requesting user's OWN personal access tokens: name, token prefix, creation, expiry and last-use timestamps — never the token value itself. Use it to find the token id before calling revoke_personal_access_token. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -2714,7 +2784,7 @@
     {
       "name": "revoke_personal_access_token",
       "area": "security",
-      "description": "Revokes one of the requesting user's OWN personal access tokens so it can no longer authenticate against the Klacks API. Strictly self-scoped — other users' tokens cannot be revoked here. The revoke is verified by re-reading the token list. Use list_personal_access_tokens first to find the token id.",
+      "description": "Revokes one of the requesting user's OWN personal access tokens so it can no longer authenticate against the Klacks API. Strictly self-scoped — other users' tokens cannot be revoked here. The revoke is verified by re-reading the token list. Use list_personal_access_tokens first to find the token id. Use when the user wants to revoke a token or permission. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3063,7 +3133,7 @@
     {
       "name": "list_macros",
       "area": "settings",
-      "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it.",
+      "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3133,7 +3203,7 @@
     {
       "name": "delete_macro",
       "area": "settings",
-      "description": "Deletes a calculation macro (script) from the settings. Identify the macro by macroId (preferred) or by its exact name. Requires admin permissions. Use list_macros first to find the macro id.",
+      "description": "Deletes a calculation macro (script) from the settings. Identify the macro by macroId (preferred) or by its exact name. Requires admin permissions. Use list_macros first to find the macro id. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3305,7 +3375,7 @@
     {
       "name": "list_contracts",
       "area": "contract",
-      "description": "Lists all available contracts in the system. Optionally filter by canton via CalendarSelection. Returns contract details including name, hours, and rates. Use this to find contract IDs before assigning contracts to clients.",
+      "description": "Lists all available contracts in the system. Optionally filter by canton via CalendarSelection. Returns contract details including name, hours, and rates. Use this to find contract IDs before assigning contracts to clients. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3385,7 +3455,7 @@
     {
       "name": "list_groups",
       "area": "group",
-      "description": "Lists all available groups (teams, departments, organizational units) in the system. Optionally filter by canton via CalendarSelection. Returns group names and IDs. Use this to find group IDs before adding clients to groups. Can also list groups that have already expired or that only become valid later, not just the currently valid ones.",
+      "description": "Lists all available groups (teams, departments, organizational units) in the system. Optionally filter by canton via CalendarSelection. Returns group names and IDs. Use this to find group IDs before adding clients to groups. Can also list groups that have already expired or that only become valid later, not just the currently valid ones. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3584,7 +3654,7 @@
     {
       "name": "list_llm_models",
       "area": "klacksy",
-      "description": "Lists all configured LLM models with their provider, status, costs, and capabilities.",
+      "description": "Lists all configured LLM models with their provider, status, costs, and capabilities. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3708,7 +3778,7 @@
     {
       "name": "list_llm_providers",
       "area": "klacksy",
-      "description": "Lists all configured LLM providers with their status, priority, and whether an API key is configured.",
+      "description": "Lists all configured LLM providers with their status, priority, and whether an API key is configured. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3804,7 +3874,7 @@
     {
       "name": "list_scheduling_rules",
       "area": "settings",
-      "description": "Lists all scheduling rules (e.g. maximum shift duration, minimum rest time, overtime limits) with their configured values and thresholds.",
+      "description": "Lists all scheduling rules (e.g. maximum shift duration, minimum rest time, overtime limits) with their configured values and thresholds. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3936,7 +4006,7 @@
     {
       "name": "list_system_users",
       "area": "security",
-      "description": "Lists all system user accounts (login accounts) in the user administration. Returns user IDs, usernames, names, emails, and roles. Use this to find user IDs for further operations like deletion or role changes.",
+      "description": "Lists all system user accounts (login accounts) in the user administration. Returns user IDs, usernames, names, emails, and roles. Use this to find user IDs for further operations like deletion or role changes. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -4352,10 +4422,20 @@
       "alwaysOn": true,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["suche und öffne", "suche und navigiere"],
-        "en": ["search and open", "search and navigate"],
-        "fr": ["rechercher et ouvrir"],
-        "it": ["cerca e apri"]
+        "de": [
+          "suche und öffne",
+          "suche und navigiere"
+        ],
+        "en": [
+          "search and open",
+          "search and navigate"
+        ],
+        "fr": [
+          "rechercher et ouvrir"
+        ],
+        "it": [
+          "cerca e apri"
+        ]
       },
       "version": 6
     },
@@ -4517,7 +4597,7 @@
     {
       "name": "set_user_group_scope",
       "area": "group",
-      "description": "Sets the group visibility scope for a user. This controls which groups a user can see in the system. Provide the user ID and one or more group names to assign. Existing group scope entries for the user are replaced.",
+      "description": "Sets the group visibility scope for a user. This controls which groups a user can see in the system. Provide the user ID and one or more group names to assign. Existing group scope entries for the user are replaced. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -4606,7 +4686,7 @@
     {
       "name": "get_user_group_scope",
       "area": "group",
-      "description": "Returns which groups a user currently sees (group visibility scope). For Admin users this returns all root groups, since admins always see everything and cannot be restricted. For non-admin users this returns the assigned root groups, or an empty list if none are configured yet - meaning the account cannot see any group's data until set_user_group_scope is used. Use this before set_user_group_scope when the request is additive (e.g. 'add group X') rather than a full replacement, since set_user_group_scope replaces the entire list.",
+      "description": "Returns which groups a user currently sees (group visibility scope). For Admin users this returns all root groups, since admins always see everything and cannot be restricted. For non-admin users this returns the assigned root groups, or an empty list if none are configured yet - meaning the account cannot see any group's data until set_user_group_scope is used. Use this before set_user_group_scope when the request is additive (e.g. 'add group X') rather than a full replacement, since set_user_group_scope replaces the entire list. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -4835,7 +4915,7 @@
     {
       "name": "update_ai_guidelines",
       "area": "klacksy",
-      "description": "Replaces the AI assistant's guidelines with new content. WARNING: This deactivates ALL existing guidelines and creates a new one. Guidelines define rules for behavior, function usage, and permission handling.",
+      "description": "Replaces the AI assistant's guidelines with new content. WARNING: This deactivates ALL existing guidelines and creates a new one. Guidelines define rules for behavior, function usage, and permission handling. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -5048,7 +5128,7 @@
     {
       "name": "update_ai_soul",
       "area": "klacksy",
-      "description": "Updates a specific section of the AI assistant's personality definition (soul). Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Each section can be independently updated. Changes are versioned with full audit trail.",
+      "description": "Updates a specific section of the AI assistant's personality definition (soul). Sections: identity, personality, tone, boundaries, communication_style, values, domain_expertise, error_handling. Each section can be independently updated. Changes are versioned with full audit trail. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -5156,7 +5236,7 @@
     {
       "name": "update_spam_filter_settings",
       "area": "inbox",
-      "description": "Updates the spam filter configuration. Set spam/uncertain thresholds (0.0 to 1.0, higher = stricter) and enable/disable LLM-based email classification. All parameters are optional â€” only provided values will be updated.",
+      "description": "Updates the spam filter configuration. Set spam/uncertain thresholds (0.0 to 1.0, higher = stricter) and enable/disable LLM-based email classification. All parameters are optional â€” only provided values will be updated. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -5246,7 +5326,7 @@
     {
       "name": "update_web_search_settings",
       "area": "settings",
-      "description": "Updates the web search provider configuration. Set the search provider, API key, and maximum results per query. All parameters are optional â€” only provided values will be updated.",
+      "description": "Updates the web search provider configuration. Set the search provider, API key, and maximum results per query. All parameters are optional â€” only provided values will be updated. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -5465,17 +5545,27 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["internetsuche", "suche im web"],
-        "en": ["web search", "search the web"],
-        "fr": ["recherche web"],
-        "it": ["ricerca web"]
+        "de": [
+          "internetsuche",
+          "suche im web"
+        ],
+        "en": [
+          "web search",
+          "search the web"
+        ],
+        "fr": [
+          "recherche web"
+        ],
+        "it": [
+          "ricerca web"
+        ]
       },
       "version": 6
     },
     {
       "name": "update_general_settings",
       "area": "settings",
-      "description": "Updates general application settings. Currently supports changing the application name. The application name is displayed in the browser title bar and the application header.",
+      "description": "Updates general application settings. Currently supports changing the application name. The application name is displayed in the browser title bar and the application header. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -5568,7 +5658,7 @@
     {
       "name": "update_data_retention_settings",
       "area": "settings",
-      "description": "Updates the GDPR data retention period in days. Controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Minimum 30 days, maximum 36500 days (100 years), default 3650 days (10 years). Use get_data_retention_settings first to check the current value.",
+      "description": "Updates the GDPR data retention period in days. Controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Minimum 30 days, maximum 36500 days (100 years), default 3650 days (10 years). Use get_data_retention_settings first to check the current value. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -5663,7 +5753,7 @@
     {
       "name": "update_owner_address",
       "area": "settings",
-      "description": "Updates the owner/company address in settings. IMPORTANT: state and country are REQUIRED and must always be provided. For the time zone or the global holiday calendar used for scheduling, use update_owner_locale_settings instead.",
+      "description": "Updates the owner/company address in settings. IMPORTANT: state and country are REQUIRED and must always be provided. For the time zone or the global holiday calendar used for scheduling, use update_owner_locale_settings instead. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -6052,7 +6142,7 @@
     {
       "name": "update_email_settings",
       "area": "inbox",
-      "description": "Updates the outgoing email (SMTP) settings. All parameters are optional - only provided values will be updated.",
+      "description": "Updates the outgoing email (SMTP) settings. All parameters are optional - only provided values will be updated. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -6397,7 +6487,7 @@
     {
       "name": "update_imap_settings",
       "area": "inbox",
-      "description": "Updates the incoming email (IMAP) settings. All parameters are optional - only provided values will be updated.",
+      "description": "Updates the incoming email (IMAP) settings. All parameters are optional - only provided values will be updated. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -6651,7 +6741,7 @@
     {
       "name": "update_work_settings",
       "area": "period",
-      "description": "Updates work-related settings. All parameters are optional - only provided values will be updated. Includes vacation days, probation/notice periods, payment interval, surcharge rates, and visibility ranges.",
+      "description": "Updates work-related settings. All parameters are optional - only provided values will be updated. Includes vacation days, probation/notice periods, payment interval, surcharge rates, and visibility ranges. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -6969,7 +7059,7 @@
     {
       "name": "update_scheduling_defaults",
       "area": "settings",
-      "description": "Updates scheduling default settings. All parameters are optional - only provided values will be updated.",
+      "description": "Updates scheduling default settings. All parameters are optional - only provided values will be updated. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -7438,7 +7528,7 @@
     {
       "name": "update_deepl_settings",
       "area": "settings",
-      "description": "Updates the DeepL translation API key. The API key is stored encrypted in settings.",
+      "description": "Updates the DeepL translation API key. The API key is stored encrypted in settings. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -7551,7 +7641,7 @@
     {
       "name": "create_llm_provider",
       "area": "klacksy",
-      "description": "Creates a new LLM provider configuration. The provider will be visible in Settings > LLM Providers.",
+      "description": "Creates a new LLM provider configuration. The provider will be visible in Settings > LLM Providers. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -7816,7 +7906,7 @@
     {
       "name": "update_llm_provider",
       "area": "klacksy",
-      "description": "Updates an existing LLM provider configuration. Only provided values will be changed.",
+      "description": "Updates an existing LLM provider configuration. Only provided values will be changed. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -8048,7 +8138,7 @@
     {
       "name": "delete_llm_provider",
       "area": "klacksy",
-      "description": "Deletes an LLM provider configuration.",
+      "description": "Deletes an LLM provider configuration. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -8147,7 +8237,7 @@
     {
       "name": "create_llm_model",
       "area": "klacksy",
-      "description": "Creates a new LLM model configuration. The model will be available in the chat model selector.",
+      "description": "Creates a new LLM model configuration. The model will be available in the chat model selector. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -8524,7 +8614,7 @@
     {
       "name": "update_llm_model",
       "area": "klacksy",
-      "description": "Updates an existing LLM model configuration. Only provided values will be changed.",
+      "description": "Updates an existing LLM model configuration. Only provided values will be changed. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -8853,7 +8943,7 @@
     {
       "name": "delete_llm_model",
       "area": "klacksy",
-      "description": "Deletes an LLM model configuration.",
+      "description": "Deletes an LLM model configuration. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -8956,7 +9046,7 @@
     {
       "name": "create_scheduling_rule",
       "area": "settings",
-      "description": "Creates a new scheduling rule with work time limits and surcharge rates.",
+      "description": "Creates a new scheduling rule with work time limits and surcharge rates. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -9487,7 +9577,7 @@
     {
       "name": "update_scheduling_rule",
       "area": "settings",
-      "description": "Updates an existing scheduling rule. Only provided values will be changed.",
+      "description": "Updates an existing scheduling rule. Only provided values will be changed. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -9779,7 +9869,7 @@
     {
       "name": "delete_scheduling_rule",
       "area": "settings",
-      "description": "Deletes a scheduling rule.",
+      "description": "Deletes a scheduling rule. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -10078,7 +10168,7 @@
     {
       "name": "get_email_settings",
       "area": "inbox",
-      "description": "Reads the current outgoing email (SMTP) settings. Returns server, port, timeout, SSL, authentication type, disposition notification, read receipt, reply-to, mark and SMTP username. Does NOT return the password.",
+      "description": "Reads the current outgoing email (SMTP) settings. Returns server, port, timeout, SSL, authentication type, disposition notification, read receipt, reply-to, mark and SMTP username. Does NOT return the password. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10153,7 +10243,7 @@
     {
       "name": "get_imap_settings",
       "area": "inbox",
-      "description": "Reads the current incoming email (IMAP) settings. Returns server, port, SSL, folder, poll interval and username. Does NOT return the password.",
+      "description": "Reads the current incoming email (IMAP) settings. Returns server, port, SSL, folder, poll interval and username. Does NOT return the password. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10225,7 +10315,7 @@
     {
       "name": "get_owner_address",
       "area": "settings",
-      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email.",
+      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10292,7 +10382,7 @@
     {
       "name": "get_work_settings",
       "area": "period",
-      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead.",
+      "description": "Retrieves employment and payroll settings: vacation days per year, probation period, notice period, payment interval, surcharge rates (night, holiday, saturday, sunday), and day visibility ranges. For working hour limits, overtime thresholds, and scheduling rule parameters use get_scheduling_defaults instead. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10370,7 +10460,7 @@
     {
       "name": "get_scheduling_defaults",
       "area": "settings",
-      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead.",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10449,7 +10539,7 @@
     {
       "name": "get_deepl_settings",
       "area": "settings",
-      "description": "Retrieves the DeepL translation API settings. Returns whether an API key is configured (not the key itself for security).",
+      "description": "Retrieves the DeepL translation API settings. Returns whether an API key is configured (not the key itself for security). Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10515,7 +10605,7 @@
     {
       "name": "get_spam_filter_settings",
       "area": "inbox",
-      "description": "Retrieves spam filter configuration including spam threshold, uncertain threshold, and whether LLM-based filtering is enabled.",
+      "description": "Retrieves spam filter configuration including spam threshold, uncertain threshold, and whether LLM-based filtering is enabled. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10579,7 +10669,7 @@
     {
       "name": "get_web_search_settings",
       "area": "settings",
-      "description": "Retrieves web search configuration including provider, max results, and whether an API key is configured.",
+      "description": "Retrieves web search configuration including provider, max results, and whether an API key is configured. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10639,7 +10729,7 @@
     {
       "name": "list_agent_skills",
       "area": "klacksy",
-      "description": "Lists all registered skills with their name, description, execution type, and status. Use this for self-reflection — to understand what capabilities are available.",
+      "description": "Lists all registered skills with their name, description, execution type, and status. Use this for self-reflection — to understand what capabilities are available. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10721,7 +10811,7 @@
     {
       "name": "create_agent_skill",
       "area": "klacksy",
-      "description": "Creates a new UiAction skill at runtime. The new skill will be immediately available. Use this to learn new UI shortcuts or automation patterns that the user teaches you.",
+      "description": "Creates a new UiAction skill at runtime. The new skill will be immediately available. Use this to learn new UI shortcuts or automation patterns that the user teaches you. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10842,7 +10932,7 @@
     {
       "name": "update_agent_skill",
       "area": "klacksy",
-      "description": "Updates an existing skill's description, parameters, or configuration. Use this to improve skill descriptions for better selection accuracy, or to adjust handler steps, trigger keywords, or synonyms.",
+      "description": "Updates an existing skill's description, parameters, or configuration. Use this to improve skill descriptions for better selection accuracy, or to adjust handler steps, trigger keywords, or synonyms. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10954,7 +11044,7 @@
     {
       "name": "delete_agent_skill",
       "area": "klacksy",
-      "description": "Disables a skill by name. The skill will no longer be available for use. Only user-created skills can be deleted, not system skills.",
+      "description": "Disables a skill by name. The skill will no longer be available for use. Only user-created skills can be deleted, not system skills. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11026,7 +11116,7 @@
     {
       "name": "list_absence_types",
       "area": "absence",
-      "description": "Lists all configured absence types (e.g. Vacation, Sick Leave, Unpaid Leave) with their settings like color, default duration, and weekend/holiday rules. Use this to understand which absence categories exist before searching for specific client absences.",
+      "description": "Lists all configured absence types (e.g. Vacation, Sick Leave, Unpaid Leave) with their settings like color, default duration, and weekend/holiday rules. Use this to understand which absence categories exist before searching for specific client absences. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11107,7 +11197,7 @@
     {
       "name": "create_absence_type",
       "area": "absence",
-      "description": "Creates a new absence TYPE (master data of the settings page, e.g. Vacation, Sick Leave): multilingual name/abbreviation, color, default duration/value and the Saturday/Sunday/holiday counting flags. Refuses duplicate names. Verified against the database. This creates the type — booking an absence for an employee goes through create_absence.",
+      "description": "Creates a new absence TYPE (master data of the settings page, e.g. Vacation, Sick Leave): multilingual name/abbreviation, color, default duration/value and the Saturday/Sunday/holiday counting flags. Refuses duplicate names. Verified against the database. This creates the type — booking an absence for an employee goes through create_absence. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11235,7 +11325,7 @@
     {
       "name": "update_absence_type",
       "area": "absence",
-      "description": "Updates an existing absence TYPE (master data): name, abbreviation, color, default duration/value, Saturday/Sunday/holiday flags, unpaid flag and Gantt visibility. Only supplied fields change; addressed by UUID or by current name (lone match, ambiguous names list the candidates). Verified against the database. Existing bookings keep their values.",
+      "description": "Updates an existing absence TYPE (master data): name, abbreviation, color, default duration/value, Saturday/Sunday/holiday flags, unpaid flag and Gantt visibility. Only supplied fields change; addressed by UUID or by current name (lone match, ambiguous names list the candidates). Verified against the database. Existing bookings keep their values. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11378,7 +11468,7 @@
     {
       "name": "delete_absence_type",
       "area": "absence",
-      "description": "Soft-deletes an absence TYPE (master data). Refuses protected seeded types and types still used by active bookings or placeholders — the blocking counts are reported. Addressed by UUID or by name. Verified against the database.",
+      "description": "Soft-deletes an absence TYPE (master data). Refuses protected seeded types and types still used by active bookings or placeholders — the blocking counts are reported. Addressed by UUID or by name. Verified against the database. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12564,7 +12654,7 @@
     {
       "name": "accept_scenario",
       "area": "schedule",
-      "description": "Accepts an AnalyseScenario — promotes its works/breaks to the main schedule. Use after start_autowizard finishes and the user wants to commit the wizard output, or after any other scenario producer (Wizard 1/2/3 individually, manual scenarios). The scenario's analyse_token becomes null on its works (they merge into the main schedule).",
+      "description": "Accepts an AnalyseScenario — promotes its works/breaks to the main schedule. Use after start_autowizard finishes and the user wants to commit the wizard output, or after any other scenario producer (Wizard 1/2/3 individually, manual scenarios). The scenario's analyse_token becomes null on its works (they merge into the main schedule). Use when the user wants to accept a pending proposal. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12857,7 +12947,7 @@
     {
       "name": "list_scenarios",
       "area": "schedule",
-      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. By default only open (Active) scenarios are returned so already accepted/rejected ones are hidden; pass onlyOpen=false to include the full history. Returns each scenario's id, name, token, status, group, and create time.",
+      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. By default only open (Active) scenarios are returned so already accepted/rejected ones are hidden; pass onlyOpen=false to include the full history. Returns each scenario's id, name, token, status, group, and create time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14848,7 +14938,7 @@
     {
       "name": "create_group",
       "area": "group",
-      "description": "Creates a new group (location, branch, organisational unit) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for opening a new branch or splitting a team.",
+      "description": "Creates a new group (location, branch, organisational unit) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for opening a new branch or splitting a team. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14974,7 +15064,7 @@
     {
       "name": "update_group",
       "area": "group",
-      "description": "Updates an existing group's name, description, validity dates, payment interval (the period grid of the schedule) and holiday-calendar assignment. The write is verified against the database and rolled back on mismatch. Reparenting (moving the group under a different parent) is NOT handled here — use move_group so the nested-set invariants stay intact.",
+      "description": "Updates an existing group's name, description, validity dates, payment interval (the period grid of the schedule) and holiday-calendar assignment. The write is verified against the database and rolled back on mismatch. Reparenting (moving the group under a different parent) is NOT handled here — use move_group so the nested-set invariants stay intact. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15231,7 +15321,7 @@
     {
       "name": "move_group",
       "area": "group",
-      "description": "Moves a group under a new parent in the tree (the chat equivalent of drag-and-drop in the tree view). Refuses to move a group under itself or one of its own descendants, requires both groups to be inside the caller's group scope, and verifies the move against the database inside a transaction — a failed verification rolls it back. Address group and parent by UUID or by name.",
+      "description": "Moves a group under a new parent in the tree (the chat equivalent of drag-and-drop in the tree view). Refuses to move a group under itself or one of its own descendants, requires both groups to be inside the caller's group scope, and verifies the move against the database inside a transaction — a failed verification rolls it back. Address group and parent by UUID or by name. Use when the user wants to move an item. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15313,7 +15403,7 @@
     {
       "name": "delete_group",
       "area": "group",
-      "description": "Soft-deletes a group by id. Refuses if the group still has children, unless forceCascade=true is passed; then the whole subtree is soft-deleted.",
+      "description": "Soft-deletes a group by id. Refuses if the group still has children, unless forceCascade=true is passed; then the whole subtree is soft-deleted. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16257,7 +16347,7 @@
     {
       "name": "list_report_templates",
       "area": "settings",
-      "description": "Lists configured report templates. Optional filter by type: Schedule, Client, Invoice, Absence. Use before generate_period_summary or email_schedule_to_client to pick the right template.",
+      "description": "Lists configured report templates. Optional filter by type: Schedule, Client, Invoice, Absence. Use before generate_period_summary or email_schedule_to_client to pick the right template. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17210,7 +17300,7 @@
     {
       "name": "create_qualification",
       "area": "contract",
-      "description": "Creates a multilingual qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Provide the name in all available languages (name_de, name_en, name_fr, name_it). At least one language name is required. Calling it with an existing German name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id.",
+      "description": "Creates a multilingual qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Provide the name in all available languages (name_de, name_en, name_fr, name_it). At least one language name is required. Calling it with an existing German name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17326,7 +17416,7 @@
     {
       "name": "list_qualifications",
       "area": "contract",
-      "description": "Lists the available qualification master entries (id, name, description) so you can pick a qualificationId for set_client_qualification / set_shift_required_qualification.",
+      "description": "Lists the available qualification master entries (id, name, description) so you can pick a qualificationId for set_client_qualification / set_shift_required_qualification. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18541,10 +18631,20 @@
         ]
       },
       "synonyms": {
-        "de": ["geburtsdatum ändern", "geburtstag korrigieren"],
-        "en": ["change birthdate", "update date of birth"],
-        "fr": ["modifier la date de naissance"],
-        "it": ["modificare la data di nascita"]
+        "de": [
+          "geburtsdatum ändern",
+          "geburtstag korrigieren"
+        ],
+        "en": [
+          "change birthdate",
+          "update date of birth"
+        ],
+        "fr": [
+          "modifier la date de naissance"
+        ],
+        "it": [
+          "modificare la data di nascita"
+        ]
       },
       "version": 4
     },
@@ -18607,10 +18707,19 @@
         ]
       },
       "synonyms": {
-        "de": ["geschlecht ändern", "anrede anpassen"],
-        "en": ["change gender"],
-        "fr": ["modifier le genre"],
-        "it": ["modificare il genere"]
+        "de": [
+          "geschlecht ändern",
+          "anrede anpassen"
+        ],
+        "en": [
+          "change gender"
+        ],
+        "fr": [
+          "modifier le genre"
+        ],
+        "it": [
+          "modificare il genere"
+        ]
       },
       "version": 4
     },
@@ -18749,10 +18858,19 @@
       "handlerConfig": null,
       "effect": "Mutate",
       "synonyms": {
-        "de": ["gruppenstandort festlegen", "standort der gruppe setzen"],
-        "en": ["set group location"],
-        "fr": ["définir l'emplacement du groupe"],
-        "it": ["impostare la posizione del gruppo"]
+        "de": [
+          "gruppenstandort festlegen",
+          "standort der gruppe setzen"
+        ],
+        "en": [
+          "set group location"
+        ],
+        "fr": [
+          "définir l'emplacement du groupe"
+        ],
+        "it": [
+          "impostare la posizione del gruppo"
+        ]
       },
       "version": 2
     },
@@ -18928,10 +19046,18 @@
       "handlerConfig": null,
       "effect": "Read",
       "synonyms": {
-        "de": ["geokodierungsstatus prüfen"],
-        "en": ["check geocoding status"],
-        "fr": ["vérifier le statut de géocodage"],
-        "it": ["verificare lo stato di geocodifica"]
+        "de": [
+          "geokodierungsstatus prüfen"
+        ],
+        "en": [
+          "check geocoding status"
+        ],
+        "fr": [
+          "vérifier le statut de géocodage"
+        ],
+        "it": [
+          "verificare lo stato di geocodifica"
+        ]
       },
       "version": 2
     },
@@ -18968,18 +19094,27 @@
       ],
       "handlerConfig": null,
       "effect": "Mutate",
-            "synonyms": {
-        "de": ["gruppierung anwenden", "zuordnung übernehmen"],
-        "en": ["apply grouping"],
-        "fr": ["appliquer le regroupement"],
-        "it": ["applicare il raggruppamento"]
+      "synonyms": {
+        "de": [
+          "gruppierung anwenden",
+          "zuordnung übernehmen"
+        ],
+        "en": [
+          "apply grouping"
+        ],
+        "fr": [
+          "appliquer le regroupement"
+        ],
+        "it": [
+          "applicare il raggruppamento"
+        ]
       },
       "version": 5
     },
     {
       "name": "update_macro",
       "area": "settings",
-      "description": "Updates an existing calculation macro (script) in the settings. Identify the macro by macroId (preferred) or by its exact name via macroName, then change only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. The script is validated (compile and probe execution) before saving; an invalid script is rejected with the validation error. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them.",
+      "description": "Updates an existing calculation macro (script) in the settings. Identify the macro by macroId (preferred) or by its exact name via macroName, then change only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. The script is validated (compile and probe execution) before saving; an invalid script is rejected with the validation error. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19077,7 +19212,7 @@
     {
       "name": "update_qualification",
       "area": "contract",
-      "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Multilingual names and descriptions are merged per language (name_de, name_en, name_fr, name_it). Type accepts Language or Work; category accepts the industry categories; countries is a comma-separated ISO code list that replaces the current list when provided.",
+      "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Multilingual names and descriptions are merged per language (name_de, name_en, name_fr, name_it). Type accepts Language or Work; category accepts the industry categories; countries is a comma-separated ISO code list that replaces the current list when provided. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19262,7 +19397,7 @@
     {
       "name": "delete_qualification",
       "area": "contract",
-      "description": "Soft-deletes a qualification master entry. Verifies first that the qualification exists: resolve it by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name; if it does not exist or the name is ambiguous, an error is returned and nothing is deleted. Use with care: shifts and clients may reference the qualification via set_shift_required_qualification / set_client_qualification.",
+      "description": "Soft-deletes a qualification master entry. Verifies first that the qualification exists: resolve it by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name; if it does not exist or the name is ambiguous, an error is returned and nothing is deleted. Use with care: shifts and clients may reference the qualification via set_shift_required_qualification / set_client_qualification. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19467,7 +19602,7 @@
     {
       "name": "list_schedule_notes",
       "area": "schedule",
-      "description": "Lists schedule notes — free-text per-client/per-day annotations shown in the schedule (e.g. handover remarks or planning hints). Returns id, clientId, date, content and analyseToken (scenario notes carry a token, main-schedule notes have null), ordered by date. Optionally filter by clientId. Use this to find the noteId before delete_schedule_note.",
+      "description": "Lists schedule notes — free-text per-client/per-day annotations shown in the schedule (e.g. handover remarks or planning hints). Returns id, clientId, date, content and analyseToken (scenario notes carry a token, main-schedule notes have null), ordered by date. Optionally filter by clientId. Use this to find the noteId before delete_schedule_note. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19529,7 +19664,7 @@
     {
       "name": "add_schedule_note",
       "area": "schedule",
-      "description": "Adds a schedule note — a free-text annotation for a client on a specific day, e.g. 'prefers early shifts this week' or a handover remark. The note is informational only and shown in the schedule; wizards do NOT enforce it (use add_schedule_command for hard constraints like FREE/EARLY). Requires clientId, date and content; optional analyseToken targets a scenario instead of the main schedule.",
+      "description": "Adds a schedule note — a free-text annotation for a client on a specific day, e.g. 'prefers early shifts this week' or a handover remark. The note is informational only and shown in the schedule; wizards do NOT enforce it (use add_schedule_command for hard constraints like FREE/EARLY). Requires clientId, date and content; optional analyseToken targets a scenario instead of the main schedule. Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19615,7 +19750,7 @@
     {
       "name": "delete_schedule_note",
       "area": "schedule",
-      "description": "Soft-deletes a schedule note by its UUID. Use list_schedule_notes first to resolve the noteId; the response echoes the deleted note's client and date. Fails with a clear message if the note does not exist.",
+      "description": "Soft-deletes a schedule note by its UUID. Use list_schedule_notes first to resolve the noteId; the response echoes the deleted note's client and date. Fails with a clear message if the note does not exist. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19985,7 +20120,7 @@
     {
       "name": "update_contract",
       "area": "contract",
-      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. This does NOT assign a contract to an employee — use assign_contract_by_name or assign_contract_to_client for assignments (create_contract is deprecated). Note that the plannability boundary in the schedule comes from Membership.ValidFrom, not from contract dates. Use get_contract_details first to inspect current values.",
+      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. This does NOT assign a contract to an employee — use assign_contract_by_name or assign_contract_to_client for assignments (create_contract is deprecated). Note that the plannability boundary in the schedule comes from Membership.ValidFrom, not from contract dates. Use get_contract_details first to inspect current values. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20172,7 +20307,7 @@
     {
       "name": "delete_contract",
       "area": "contract",
-      "description": "Soft-deletes a contract template after verifying it exists. Existing client-contract assignments are not touched by this skill — check with list_contracts / get_contract_details before removal and prefer setting validUntil via update_contract if the contract is still referenced. Use list_contracts to find the contract ID.",
+      "description": "Soft-deletes a contract template after verifying it exists. Existing client-contract assignments are not touched by this skill — check with list_contracts / get_contract_details before removal and prefer setting validUntil via update_contract if the contract is still referenced. Use list_contracts to find the contract ID. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20428,7 +20563,7 @@
     {
       "name": "list_expenses",
       "area": "period",
-      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Each entry has an amount, a short note and whether it is taxable. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry.",
+      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Each entry has an amount, a short note and whether it is taxable. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20489,7 +20624,7 @@
     {
       "name": "add_expense",
       "area": "period",
-      "description": "Adds an expense entry (amount, description, taxable flag) to an existing Work entry (shift assignment). The handler enforces day-lock rules and triggers period-hour recalculation plus schedule notifications. Use read_schedule_state to find the workId of the assignment the expense belongs to.",
+      "description": "Adds an expense entry (amount, description, taxable flag) to an existing Work entry (shift assignment). The handler enforces day-lock rules and triggers period-hour recalculation plus schedule notifications. Use read_schedule_state to find the workId of the assignment the expense belongs to. Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20580,7 +20715,7 @@
     {
       "name": "update_expense",
       "area": "period",
-      "description": "Updates an existing expense entry. Only supplied fields change (amount, description, taxable); fields not supplied keep their current value. Day-lock rules are enforced and period-hour recalculation runs. Use list_expenses first to find the expenseId.",
+      "description": "Updates an existing expense entry. Only supplied fields change (amount, description, taxable); fields not supplied keep their current value. Day-lock rules are enforced and period-hour recalculation runs. Use list_expenses first to find the expenseId. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20664,7 +20799,7 @@
     {
       "name": "delete_expense",
       "area": "period",
-      "description": "Soft-deletes an expense entry. Day-lock rules are enforced and period-hour recalculation plus schedule notifications run automatically. Inverse of add_expense for rollback purposes. Use list_expenses first to find the expenseId.",
+      "description": "Soft-deletes an expense entry. Day-lock rules are enforced and period-hour recalculation plus schedule notifications run automatically. Inverse of add_expense for rollback purposes. Use list_expenses first to find the expenseId. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20724,7 +20859,7 @@
     {
       "name": "get_autonomy_level",
       "area": "klacksy",
-      "description": "Returns the user's current autonomy level for Klacksy: 0 Propose (every write needs confirmation), 1 Assisted (reversible and scenario-gated actions run directly), 2 Autonomous (everything except sensitive actions runs directly, default), 3 FullyAutonomous (plans also run through without per-step approval; sensitive actions still need confirmation). Use this when the user asks what Klacksy may do on its own or why a confirmation was requested.",
+      "description": "Returns the user's current autonomy level for Klacksy: 0 Propose (every write needs confirmation), 1 Assisted (reversible and scenario-gated actions run directly), 2 Autonomous (everything except sensitive actions runs directly, default), 3 FullyAutonomous (plans also run through without per-step approval; sensitive actions still need confirmation). Use this when the user asks what Klacksy may do on its own or why a confirmation was requested. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -20776,7 +20911,7 @@
     {
       "name": "set_autonomy_level",
       "area": "klacksy",
-      "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Level 3 FullyAutonomous: agent plans also execute non-reversible steps without per-step approval; sensitive actions always keep requiring confirmation. Changing the level is itself a sensitive action and always asks the user to confirm. Use this when the user says Klacksy should work more autonomously or should always ask first.",
+      "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Level 3 FullyAutonomous: agent plans also execute non-reversible steps without per-step approval; sensitive actions always keep requiring confirmation. Changing the level is itself a sensitive action and always asks the user to confirm. Use this when the user says Klacksy should work more autonomously or should always ask first. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20852,7 +20987,7 @@
     {
       "name": "get_proactive_governance",
       "area": "klacksy",
-      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states the installation-wide autonomy level that caps every finding type and whether the master off switch is set.",
+      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states the installation-wide autonomy level that caps every finding type and whether the master off switch is set. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -20904,7 +21039,7 @@
     {
       "name": "set_proactive_governance",
       "area": "klacksy",
-      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, flips the master off switch that pins everything back to reporting, and sets the installation-wide autonomy level that caps every finding type's ceiling. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it.",
+      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, flips the master off switch that pins everything back to reporting, and sets the installation-wide autonomy level that caps every finding type's ceiling. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21572,7 +21707,7 @@
     {
       "name": "list_email_folders",
       "area": "inbox",
-      "description": "Lists all email inbox folders (system folders like INBOX, Sent, Trash plus user-created folders) with their unread and total email counts. Use this first when the user asks about the mailbox structure or how many unread emails exist per folder, and to obtain the imapFolderName values that the folder parameter of list_emails expects. Read-only: it never creates, renames or deletes folders. Related skills: list_emails (list emails of one folder), read_email (read a single email).",
+      "description": "Lists all email inbox folders (system folders like INBOX, Sent, Trash plus user-created folders) with their unread and total email counts. Use this first when the user asks about the mailbox structure or how many unread emails exist per folder, and to obtain the imapFolderName values that the folder parameter of list_emails expects. Read-only: it never creates, renames or deletes folders. Related skills: list_emails (list emails of one folder), read_email (read a single email). Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21632,7 +21767,7 @@
     {
       "name": "list_emails",
       "area": "inbox",
-      "description": "Lists received emails from the mail inbox, newest first, as a compact overview per email: ID, sender, subject, received date, read flag and attachment flag — body content is never included. Filter by folder (IMAP folder name from list_email_folders), limit the result with maxResults (1-50, default 20) and restrict to unread emails with unreadOnly. Also returns the total and unread counts of the selected scope. Use this when the user asks what is in the inbox, whether new or unread emails arrived, or to find an email ID before read_email. Read-only: it does not mark emails as read and cannot move, send or delete emails.",
+      "description": "Lists received emails from the mail inbox, newest first, as a compact overview per email: ID, sender, subject, received date, read flag and attachment flag — body content is never included. Filter by folder (IMAP folder name from list_email_folders), limit the result with maxResults (1-50, default 20) and restrict to unread emails with unreadOnly. Also returns the total and unread counts of the selected scope. Use this when the user asks what is in the inbox, whether new or unread emails arrived, or to find an email ID before read_email. Read-only: it does not mark emails as read and cannot move, send or delete emails. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21972,7 +22107,7 @@
     {
       "name": "delete_email",
       "area": "inbox",
-      "description": "Moves a received email into the trash folder. Reversible — restore_email brings it back; there is deliberately no skill for permanent deletion. The delete is verified by re-reading the email from the database.",
+      "description": "Moves a received email into the trash folder. Reversible — restore_email brings it back; there is deliberately no skill for permanent deletion. The delete is verified by re-reading the email from the database. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22525,7 +22660,7 @@
     {
       "name": "get_speech_settings",
       "area": "settings",
-      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. For each STT API key it returns only whether a key is configured (HasSttApiKey, HasDeepgramApiKey, HasGroqApiKey, HasAssemblyAiApiKey), never the key itself. Custom STT providers (own table, not settings) and the transcription prompt text are not included. Use this before discussing or diagnosing voice input/output behaviour; for the phonetic correction terms use list_transcription_dictionary_entries.",
+      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. For each STT API key it returns only whether a key is configured (HasSttApiKey, HasDeepgramApiKey, HasGroqApiKey, HasAssemblyAiApiKey), never the key itself. Custom STT providers (own table, not settings) and the transcription prompt text are not included. Use this before discussing or diagnosing voice input/output behaviour; for the phonetic correction terms use list_transcription_dictionary_entries. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22957,7 +23092,7 @@
     {
       "name": "list_identity_providers",
       "area": "settings",
-      "description": "Lists all configured identity providers (LDAP, Active Directory, OAuth2, OpenID Connect) used for single sign-on and client import. Returns only non-sensitive fields per provider: id, name, type, enabled flag, sort order, whether it is used for authentication and/or client import, plus the last sync time/count/error. Bind passwords, client secrets and other credentials are NEVER included. Use this skill first to find the provider id before calling update_identity_provider or delete_identity_provider, or to answer questions like 'which SSO providers are configured' or 'is LDAP login enabled'. Read-only and safe; requires admin rights because the controller is admin-only.",
+      "description": "Lists all configured identity providers (LDAP, Active Directory, OAuth2, OpenID Connect) used for single sign-on and client import. Returns only non-sensitive fields per provider: id, name, type, enabled flag, sort order, whether it is used for authentication and/or client import, plus the last sync time/count/error. Bind passwords, client secrets and other credentials are NEVER included. Use this skill first to find the provider id before calling update_identity_provider or delete_identity_provider, or to answer questions like 'which SSO providers are configured' or 'is LDAP login enabled'. Read-only and safe; requires admin rights because the controller is admin-only. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23024,7 +23159,7 @@
     {
       "name": "create_identity_provider",
       "area": "settings",
-      "description": "Creates a new identity provider for single sign-on or client import (types: Ldap, ActiveDirectory, OAuth2, OpenIdConnect). Secret parameters (bindPassword, clientSecret) are accepted and stored, but they are NEVER echoed back — responses only carry boolean presence flags (HasBindPassword/HasClientSecret). The provider is created disabled unless isEnabled is explicitly true, so the configuration can be reviewed first. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers to verify the result, update_identity_provider to adjust or enable it later, delete_identity_provider to remove it.",
+      "description": "Creates a new identity provider for single sign-on or client import (types: Ldap, ActiveDirectory, OAuth2, OpenIdConnect). Secret parameters (bindPassword, clientSecret) are accepted and stored, but they are NEVER echoed back — responses only carry boolean presence flags (HasBindPassword/HasClientSecret). The provider is created disabled unless isEnabled is explicitly true, so the configuration can be reviewed first. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers to verify the result, update_identity_provider to adjust or enable it later, delete_identity_provider to remove it. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23258,7 +23393,7 @@
     {
       "name": "update_identity_provider",
       "area": "settings",
-      "description": "Updates an existing identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Only supplied fields change; everything else keeps its current value. Secret parameters (bindPassword, clientSecret) replace the stored secret only when supplied and are NEVER echoed back — responses carry boolean presence flags instead. Also used to enable/disable a provider (isEnabled) or to toggle useForAuthentication/useForClientImport. Use list_identity_providers first to find the provider id. Changing identity providers can lock users out — double-check with the user, especially when disabling a provider, changing its type, host or credentials. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers, create_identity_provider, delete_identity_provider.",
+      "description": "Updates an existing identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Only supplied fields change; everything else keeps its current value. Secret parameters (bindPassword, clientSecret) replace the stored secret only when supplied and are NEVER echoed back — responses carry boolean presence flags instead. Also used to enable/disable a provider (isEnabled) or to toggle useForAuthentication/useForClientImport. Use list_identity_providers first to find the provider id. Changing identity providers can lock users out — double-check with the user, especially when disabling a provider, changing its type, host or credentials. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers, create_identity_provider, delete_identity_provider. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23500,7 +23635,7 @@
     {
       "name": "delete_identity_provider",
       "area": "settings",
-      "description": "Soft-deletes an identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Users who authenticate through the deleted provider lose their login path immediately, and client import/sync from that provider stops. Use list_identity_providers first to find the provider id and to check whether the provider is enabled and used for authentication. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. The response contains only non-sensitive fields and warns explicitly when the deleted provider was used for authentication. Related skills: list_identity_providers, create_identity_provider, update_identity_provider (consider disabling via isEnabled=false instead of deleting).",
+      "description": "Soft-deletes an identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Users who authenticate through the deleted provider lose their login path immediately, and client import/sync from that provider stops. Use list_identity_providers first to find the provider id and to check whether the provider is enabled and used for authentication. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. The response contains only non-sensitive fields and warns explicitly when the deleted provider was used for authentication. Related skills: list_identity_providers, create_identity_provider, update_identity_provider (consider disabling via isEnabled=false instead of deleting). Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -26403,7 +26538,7 @@
     {
       "name": "update_schedule_note",
       "area": "schedule",
-      "description": "Updates an existing schedule note (a per-client/per-day annotation shown in the schedule) by its UUID. Only supplied fields change: the note content and the day. Use list_schedule_notes first to resolve the note id; fails with a clear message if it does not exist.",
+      "description": "Updates an existing schedule note (a per-client/per-day annotation shown in the schedule) by its UUID. Only supplied fields change: the note content and the day. Use list_schedule_notes first to resolve the note id; fails with a clear message if it does not exist. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -26968,10 +27103,20 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["notiz zurückstellen", "notiz parken"],
-        "en": ["stash note", "park note"],
-        "fr": ["mettre la note de côté"],
-        "it": ["accantonare la nota"]
+        "de": [
+          "notiz zurückstellen",
+          "notiz parken"
+        ],
+        "en": [
+          "stash note",
+          "park note"
+        ],
+        "fr": [
+          "mettre la note de côté"
+        ],
+        "it": [
+          "accantonare la nota"
+        ]
       },
       "version": 2
     },
@@ -27010,10 +27155,18 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["zurückgestellte notizen verwalten"],
-        "en": ["manage pending notes"],
-        "fr": ["gérer les notes en attente"],
-        "it": ["gestire le note in sospeso"]
+        "de": [
+          "zurückgestellte notizen verwalten"
+        ],
+        "en": [
+          "manage pending notes"
+        ],
+        "fr": [
+          "gérer les notes en attente"
+        ],
+        "it": [
+          "gestire le note in sospeso"
+        ]
       },
       "version": 2
     },
@@ -27032,10 +27185,18 @@
       "alwaysOn": false,
       "triggerKeywords": null,
       "synonyms": {
-        "de": ["zugestellte notizen abrufen"],
-        "en": ["recall delivered notes"],
-        "fr": ["rappeler les notes remises"],
-        "it": ["richiamare le note consegnate"]
+        "de": [
+          "zugestellte notizen abrufen"
+        ],
+        "en": [
+          "recall delivered notes"
+        ],
+        "fr": [
+          "rappeler les notes remises"
+        ],
+        "it": [
+          "richiamare le note consegnate"
+        ]
       },
       "version": 2
     },
@@ -27208,7 +27369,7 @@
     {
       "name": "list_recurring_tasks",
       "area": "settings",
-      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Each entry also reports whether the task is PAUSED and why: a paused task keeps enabled=true but does not run until the reported cause is fixed and the task is scheduled again under the same name. Use when the user asks which reminders or scheduled/recurring tasks exist, or why a scheduled task did not run.",
+      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Each entry also reports whether the task is PAUSED and why: a paused task keeps enabled=true but does not run until the reported cause is fixed and the task is scheduled again under the same name. Use when the user asks which reminders or scheduled/recurring tasks exist, or why a scheduled task did not run. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27263,7 +27424,7 @@
     {
       "name": "cancel_recurring_task",
       "area": "settings",
-      "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by its name. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria.",
+      "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by its name. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria. Use when the user wants to cancel a running process. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -28429,7 +28590,7 @@
     {
       "name": "list_shift_cuts",
       "area": "shift",
-      "description": "Lists the cut tree (split parts) of a shift order in a compact, read-only view: piece id, name, abbreviation, readable status (order/sealed/plannable/split), fromDate/untilDate, start/end time, active weekdays and parentId. Accepts the order id (Bestellung), its plannable shift id, or any split part id — all three resolve to the same order, same as cut_shift. Use this before cut_shift_by_date or reset_shift_cuts to see the current pieces and their date boundaries.",
+      "description": "Lists the cut tree (split parts) of a shift order in a compact, read-only view: piece id, name, abbreviation, readable status (order/sealed/plannable/split), fromDate/untilDate, start/end time, active weekdays and parentId. Accepts the order id (Bestellung), its plannable shift id, or any split part id — all three resolve to the same order, same as cut_shift. Use this before cut_shift_by_date or reset_shift_cuts to see the current pieces and their date boundaries. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28491,7 +28652,7 @@
     {
       "name": "reset_shift_cuts",
       "area": "shift",
-      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Validates newStartDate against the order's own validity range first and rejects an order that is not currently split. The order itself (the Bestellung) is never changed.",
+      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Validates newStartDate against the order's own validity range first and rejects an order that is not currently split. The order itself (the Bestellung) is never changed. Use when the user wants to reset a value or state. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28788,7 +28949,7 @@
     {
       "name": "list_container_template",
       "area": "shift",
-      "description": "Lists the weekday template of a container shift (ShiftType=IsContainer): the configured task-shifts and absences per weekday, with their start/end times and optional briefing/debriefing/travel times. Read-only, no container edit lock is taken. Item order has no backing position column in the database and is returned as-is. Use explain_shift_container first if the user needs conceptual background on containers, templates and overrides. Related: explain_shift_container, search_shifts, get_shift_details.",
+      "description": "Lists the weekday template of a container shift (ShiftType=IsContainer): the configured task-shifts and absences per weekday, with their start/end times and optional briefing/debriefing/travel times. Read-only, no container edit lock is taken. Item order has no backing position column in the database and is returned as-is. Use explain_shift_container first if the user needs conceptual background on containers, templates and overrides. Related: explain_shift_container, search_shifts, get_shift_details. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28946,7 +29107,7 @@
     {
       "name": "create_container_template",
       "area": "shift",
-      "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Refuses when that weekday variant already exists or while another user is editing the container. Related: add_container_template_task, list_container_template, explain_shift_container.",
+      "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Refuses when that weekday variant already exists or while another user is editing the container. Related: add_container_template_task, list_container_template, explain_shift_container. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29078,7 +29239,7 @@
     {
       "name": "delete_container_template",
       "area": "shift",
-      "description": "Deletes the weekday templates of a container shift (ShiftType IsContainer) and is the registered inverse of create_container_template. CAUTION: the underlying endpoint is container-scoped, so this removes ALL weekday templates of that container in one call, together with every task configured in them - there is no way to delete a single weekday. Use it to undo a freshly created template on a container that had none before, or when the whole day plan of a container is to be rebuilt from scratch. Acquires the container edit lock before writing and releases it afterwards; a container without any template is reported as a no-op and never takes the lock. Run list_container_template first to see what would be lost. Related: create_container_template, list_container_template, explain_shift_container.",
+      "description": "Deletes the weekday templates of a container shift (ShiftType IsContainer) and is the registered inverse of create_container_template. CAUTION: the underlying endpoint is container-scoped, so this removes ALL weekday templates of that container in one call, together with every task configured in them - there is no way to delete a single weekday. Use it to undo a freshly created template on a container that had none before, or when the whole day plan of a container is to be rebuilt from scratch. Acquires the container edit lock before writing and releases it afterwards; a container without any template is reported as a no-op and never takes the lock. Run list_container_template first to see what would be lost. Related: create_container_template, list_container_template, explain_shift_container. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29857,7 +30018,7 @@
     {
       "name": "start_company_rule",
       "area": "wizard",
-      "description": "Starts a company-rule intake with Klacksy: creates a draft for the given rule kind (surchargeSettings, counterRule or customMacro) and the admin's original wording, and returns the checklist of required and optional parameters to collect. For a custom-macro rule the macro DSL reference is included. Replaces any draft already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_company_rule_parameters, preview_company_rule and apply_company_rule.",
+      "description": "Starts a company-rule intake with Klacksy: creates a draft for the given rule kind (surchargeSettings, counterRule or customMacro) and the admin's original wording, and returns the checklist of required and optional parameters to collect. For a custom-macro rule the macro DSL reference is included. Replaces any draft already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_company_rule_parameters, preview_company_rule and apply_company_rule. Use when the user wants to start a new guided setup. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30091,7 +30252,7 @@
     {
       "name": "apply_company_rule",
       "area": "wizard",
-      "description": "Applies the in-progress company-rule draft: writes the target (surcharge settings, a counter rule or a custom macro), records a registry entry and clears the draft. Preview first with preview_company_rule. Requires admin permissions and human confirmation. Validation problems are reported back so they can be corrected.",
+      "description": "Applies the in-progress company-rule draft: writes the target (surcharge settings, a counter rule or a custom macro), records a registry entry and clears the draft. Preview first with preview_company_rule. Requires admin permissions and human confirmation. Validation problems are reported back so they can be corrected. Use when the user wants to apply a proposal or change. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30157,7 +30318,7 @@
     {
       "name": "cancel_company_rule",
       "area": "wizard",
-      "description": "Cancels the in-progress company-rule intake and discards the draft. Reports when there was no draft to cancel. Draft-only; nothing is persisted. Requires admin permissions.",
+      "description": "Cancels the in-progress company-rule intake and discards the draft. Reports when there was no draft to cancel. Draft-only; nothing is persisted. Requires admin permissions. Use when the user wants to cancel a running process. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30223,7 +30384,7 @@
     {
       "name": "list_company_rules",
       "area": "wizard",
-      "description": "Lists the applied company rules from the registry: name, kind, when they were applied and their target. Read-only; takes no parameters. Requires admin permissions. Use this to find a rule name before reverting it.",
+      "description": "Lists the applied company rules from the registry: name, kind, when they were applied and their target. Read-only; takes no parameters. Requires admin permissions. Use this to find a rule name before reverting it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32278,7 +32439,7 @@
     {
       "name": "list_monthly_target_hours",
       "area": "settings",
-      "description": "Shows the target hours defined per calendar month for the whole company — how many hours a month is worth at full workload, for example 184 in January. Months without an entry keep the standard value. Use when someone asks which months already carry a figure, what a particular month is set to, or wants to look over the table for a year before changing anything.",
+      "description": "Shows the target hours defined per calendar month for the whole company — how many hours a month is worth at full workload, for example 184 in January. Months without an entry keep the standard value. Use when someone asks which months already carry a figure, what a particular month is set to, or wants to look over the table for a year before changing anything. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32346,7 +32507,7 @@
     {
       "name": "create_monthly_target_hours",
       "area": "settings",
-      "description": "Defines how many hours one calendar month is worth for the whole company at full workload — for example February 2026 counts 160 hours. Only months that should deviate from the standard need an entry. Use when someone wants to enter, set or fix the figure for a specific month, typically while preparing the coming year.",
+      "description": "Defines how many hours one calendar month is worth for the whole company at full workload — for example February 2026 counts 160 hours. Only months that should deviate from the standard need an entry. Use when someone wants to enter, set or fix the figure for a specific month, typically while preparing the coming year. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32426,7 +32587,7 @@
     {
       "name": "update_monthly_target_hours",
       "area": "settings",
-      "description": "Changes the figure already defined for a calendar month, for example correcting January 2026 from 184 to 176 hours. Only what is supplied changes. Use when a value was typed wrongly, when the official figure for a month is revised afterwards, or when someone wants to raise or lower what a month is worth.",
+      "description": "Changes the figure already defined for a calendar month, for example correcting January 2026 from 184 to 176 hours. Only what is supplied changes. Use when a value was typed wrongly, when the official figure for a month is revised afterwards, or when someone wants to raise or lower what a month is worth. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32514,7 +32675,7 @@
     {
       "name": "delete_monthly_target_hours",
       "area": "settings",
-      "description": "Removes the figure defined for one calendar month, so that month stops deviating and falls back to the standard value. Use when a month was entered by mistake, when the entry is no longer wanted, or when the company returns to its normal value for that month.",
+      "description": "Removes the figure defined for one calendar month, so that month stops deviating and falls back to the standard value. Use when a month was entered by mistake, when the entry is no longer wanted, or when the company returns to its normal value for that month. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32576,7 +32737,7 @@
     {
       "name": "list_counter_rules",
       "area": "schedule",
-      "description": "Shows the rules that count how often something may happen to one person: how many night duties within a month, how many days worked inside one week, or how many long assignments beyond a set number of hours. Each entry says what is counted, over which window the count resets, the number that is still acceptable, and whether going beyond it only warns or is refused outright.",
+      "description": "Shows the rules that count how often something may happen to one person: how many night duties within a month, how many days worked inside one week, or how many long assignments beyond a set number of hours. Each entry says what is counted, over which window the count resets, the number that is still acceptable, and whether going beyond it only warns or is refused outright. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32635,7 +32796,7 @@
     {
       "name": "create_counter_rule",
       "area": "schedule",
-      "description": "Sets up a rule that counts occurrences for one person and reacts when the number climbs too high — for example at most four night duties within a month, or no more than five days worked inside one week. You say what is counted, over which window the count resets, the number that is still acceptable, and whether exceeding it warns or is refused.",
+      "description": "Sets up a rule that counts occurrences for one person and reacts when the number climbs too high — for example at most four night duties within a month, or no more than five days worked inside one week. You say what is counted, over which window the count resets, the number that is still acceptable, and whether exceeding it warns or is refused. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32750,7 +32911,7 @@
     {
       "name": "update_counter_rule",
       "area": "schedule",
-      "description": "Changes an existing counting rule: a different number of acceptable occurrences, another window the count resets over, a different counted event, or switching between a warning and an outright refusal. Only what is supplied changes. Use when a figure turns out too strict or too loose, or when a warning should become a refusal.",
+      "description": "Changes an existing counting rule: a different number of acceptable occurrences, another window the count resets over, a different counted event, or switching between a warning and an outright refusal. Only what is supplied changes. Use when a figure turns out too strict or too loose, or when a warning should become a refusal. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32864,7 +33025,7 @@
     {
       "name": "delete_counter_rule",
       "area": "schedule",
-      "description": "Removes a counting rule, so the occurrences it watched are no longer counted and nothing warns or refuses on that account. Use when the rule no longer applies, when it was set up by mistake, or when a company stops tracking that particular figure.",
+      "description": "Removes a counting rule, so the occurrences it watched are no longer counted and nothing warns or refuses on that account. Use when the rule no longer applies, when it was set up by mistake, or when a company stops tracking that particular figure. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32927,7 +33088,7 @@
     {
       "name": "list_period_cap_rules",
       "area": "schedule",
-      "description": "Shows the ceilings on working hours per month, quarter, year or a stretch of weeks — either across all hours together or on overtime alone, and in some cases as an average per week over a rolling stretch. Each entry also carries the percentage at which an early warning is raised before the ceiling is reached.",
+      "description": "Shows the ceilings on working hours per month, quarter, year or a stretch of weeks — either across all hours together or on overtime alone, and in some cases as an average per week over a rolling stretch. Each entry also carries the percentage at which an early warning is raised before the ceiling is reached. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -32985,7 +33146,7 @@
     {
       "name": "create_period_cap_rule",
       "area": "schedule",
-      "description": "Sets a ceiling on working hours for a whole period — for example 170 hours in a month, or an average of 48 hours a week across twelve rolling weeks. The ceiling can cover all hours together or overtime alone, and an early warning can be raised at a chosen percentage before it is reached.",
+      "description": "Sets a ceiling on working hours for a whole period — for example 170 hours in a month, or an average of 48 hours a week across twelve rolling weeks. The ceiling can cover all hours together or overtime alone, and an early warning can be raised at a chosen percentage before it is reached. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33113,7 +33274,7 @@
     {
       "name": "update_period_cap_rule",
       "area": "schedule",
-      "description": "Changes an existing hour ceiling: another number of hours, a different period, switching between all hours and overtime alone, or moving the percentage at which the early warning appears. Only what is supplied changes. Use when a ceiling turns out too tight or too generous.",
+      "description": "Changes an existing hour ceiling: another number of hours, a different period, switching between all hours and overtime alone, or moving the percentage at which the early warning appears. Only what is supplied changes. Use when a ceiling turns out too tight or too generous. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33240,7 +33401,7 @@
     {
       "name": "delete_period_cap_rule",
       "area": "schedule",
-      "description": "Removes an hour ceiling, so the period it covered is no longer capped and no early warning is raised for it. Use when a ceiling no longer applies, when it was entered by mistake, or when a company drops that restriction.",
+      "description": "Removes an hour ceiling, so the period it covered is no longer capped and no early warning is raised for it. Use when a ceiling no longer applies, when it was entered by mistake, or when a company drops that restriction. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33303,7 +33464,7 @@
     {
       "name": "list_restricted_time_window_rules",
       "area": "schedule",
-      "description": "Shows the recurring bans on working at certain clock times during part of the year. Each entry names the calendar season by its start and end date, the clock times it forbids, and the group tag it reaches. Use when someone asks which clock times are barred, or why an assignment at a given time of day is refused in one season but allowed in another.",
+      "description": "Shows the recurring bans on working at certain clock times during part of the year. Each entry names the calendar season by its start and end date, the clock times it forbids, and the group tag it reaches. Use when someone asks which clock times are barred, or why an assignment at a given time of day is refused in one season but allowed in another. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33358,7 +33519,7 @@
     {
       "name": "create_restricted_time_window_rule",
       "area": "schedule",
-      "description": "Bars working at certain clock times during part of the year, for everyone carrying a given group tag. You give the calendar season by its start and end date, the clock times to bar, and the tag the ban reaches. Use to set up a seasonal ban that repeats every year.",
+      "description": "Bars working at certain clock times during part of the year, for everyone carrying a given group tag. You give the calendar season by its start and end date, the clock times to bar, and the tag the ban reaches. Use to set up a seasonal ban that repeats every year. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33469,7 +33630,7 @@
     {
       "name": "update_restricted_time_window_rule",
       "area": "schedule",
-      "description": "Changes an existing ban on certain clock times: other clock times, another calendar season, or a different group tag. Only what is supplied changes. Use when the barred times move, when the season shifts earlier or later, or when the ban should reach a different set of people.",
+      "description": "Changes an existing ban on certain clock times: other clock times, another calendar season, or a different group tag. Only what is supplied changes. Use when the barred times move, when the season shifts earlier or later, or when the ban should reach a different set of people. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33587,7 +33748,7 @@
     {
       "name": "delete_restricted_time_window_rule",
       "area": "schedule",
-      "description": "Removes a ban on certain clock times, so that part of the day becomes usable again all year round. Use when the ban no longer applies, when it was entered by mistake, or when a company drops the seasonal restriction.",
+      "description": "Removes a ban on certain clock times, so that part of the day becomes usable again all year round. Use when the ban no longer applies, when it was entered by mistake, or when a company drops the seasonal restriction. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33649,7 +33810,7 @@
     {
       "name": "list_individual_periods",
       "area": "period",
-      "description": "Shows the named schemes of date stretches that a contract can point at when someone's counting window does not follow the calendar month — for example one running from the 26th of one month to the 25th of the next. Each scheme lists its stretches with their start date, optional end date, and the full-time hours that apply from then on.",
+      "description": "Shows the named schemes of date stretches that a contract can point at when someone's counting window does not follow the calendar month — for example one running from the 26th of one month to the 25th of the next. Each scheme lists its stretches with their start date, optional end date, and the full-time hours that apply from then on. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33706,7 +33867,7 @@
     {
       "name": "create_individual_period",
       "area": "period",
-      "description": "Creates a named scheme of date stretches for people whose counting window does not follow the calendar month — for example one running from the 26th to the 25th. You give the scheme a name and its stretches, each with a start date and the full-time hours that apply from then on.",
+      "description": "Creates a named scheme of date stretches for people whose counting window does not follow the calendar month — for example one running from the 26th to the 25th. You give the scheme a name and its stretches, each with a start date and the full-time hours that apply from then on. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33776,7 +33937,7 @@
     {
       "name": "update_individual_period",
       "area": "period",
-      "description": "Renames a scheme of date stretches or replaces its stretches with a new set. Supplying stretches replaces all of them at once, because such a scheme only makes sense as a complete sequence. Use when a start date shifts, when the full-time hours of a stretch change, or when the name no longer fits.",
+      "description": "Renames a scheme of date stretches or replaces its stretches with a new set. Supplying stretches replaces all of them at once, because such a scheme only makes sense as a complete sequence. Use when a start date shifts, when the full-time hours of a stretch change, or when the name no longer fits. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33854,7 +34015,7 @@
     {
       "name": "delete_individual_period",
       "area": "period",
-      "description": "Removes a named scheme of date stretches. Contracts that pointed at it fall back to the calendar month. Use when a scheme is no longer used, when it was created by mistake, or when everyone moves back to the ordinary month.",
+      "description": "Removes a named scheme of date stretches. Contracts that pointed at it fall back to the calendar month. Use when a scheme is no longer used, when it was created by mistake, or when everyone moves back to the ordinary month. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33916,7 +34077,7 @@
     {
       "name": "list_spam_rules",
       "area": "inbox",
-      "description": "Shows the individual patterns that mark an arriving message as unwanted: a fragment of the sender address, a whole sender domain, a fragment of the subject line, or a fragment of the message text. Each entry says where it looks, what it looks for, whether it is switched on, and its position in the order they are checked.",
+      "description": "Shows the individual patterns that mark an arriving message as unwanted: a fragment of the sender address, a whole sender domain, a fragment of the subject line, or a fragment of the message text. Each entry says where it looks, what it looks for, whether it is switched on, and its position in the order they are checked. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -33974,7 +34135,7 @@
     {
       "name": "create_spam_rule",
       "area": "inbox",
-      "description": "Adds one pattern that marks an arriving message as unwanted — for example a sender domain to turn away, a phrase in the subject line, or a fragment of the message text. You say where the pattern is looked for and what it is.",
+      "description": "Adds one pattern that marks an arriving message as unwanted — for example a sender domain to turn away, a phrase in the subject line, or a fragment of the message text. You say where the pattern is looked for and what it is. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34052,7 +34213,7 @@
     {
       "name": "update_spam_rule",
       "area": "inbox",
-      "description": "Changes one existing pattern for unwanted messages: a different fragment to look for, another place to look, switching it on or off, or moving its position in the order they are checked. Only what is supplied changes.",
+      "description": "Changes one existing pattern for unwanted messages: a different fragment to look for, another place to look, switching it on or off, or moving its position in the order they are checked. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34152,7 +34313,7 @@
     {
       "name": "delete_spam_rule",
       "area": "inbox",
-      "description": "Removes one pattern for unwanted messages, so arriving mail matching it is no longer marked. Use when a pattern catches too much, when a sender should be let through again, or when the entry was added by mistake.",
+      "description": "Removes one pattern for unwanted messages, so arriving mail matching it is no longer marked. Use when a pattern catches too much, when a sender should be let through again, or when the entry was added by mistake. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34215,7 +34376,7 @@
     {
       "name": "list_export_format_overrides",
       "area": "settings",
-      "description": "Shows every export format the system can write, together with the adjustment stored for it: which fields deviate from the delivered definition, whether that adjustment is switched on, the remark someone left, and which fields may be adjusted at all. Use before changing a format, to see what already deviates.",
+      "description": "Shows every export format the system can write, together with the adjustment stored for it: which fields deviate from the delivered definition, whether that adjustment is switched on, the remark someone left, and which fields may be adjusted at all. Use before changing a format, to see what already deviates. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34276,7 +34437,7 @@
     {
       "name": "set_export_format_override",
       "area": "settings",
-      "description": "Stores an adjustment for one export format so it writes fields differently from the delivered definition — another separator, a different column name, a changed date shape. Storing again replaces whatever was stored before. Use when a receiving system expects the file slightly differently.",
+      "description": "Stores an adjustment for one export format so it writes fields differently from the delivered definition — another separator, a different column name, a changed date shape. Storing again replaces whatever was stored before. Use when a receiving system expects the file slightly differently. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34361,7 +34522,7 @@
     {
       "name": "delete_export_format_override",
       "area": "settings",
-      "description": "Removes the adjustment stored for one export format, so the delivered definition applies again. The format itself stays available. Use when an adjustment is no longer needed or produced a file the receiving system turned down.",
+      "description": "Removes the adjustment stored for one export format, so the delivered definition applies again. The format itself stays available. Use when an adjustment is no longer needed or produced a file the receiving system turned down. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34418,7 +34579,7 @@
     {
       "name": "get_erp_drop_point_settings",
       "area": "settings",
-      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the folder path files are picked up from, whether pickup happens at all, when it last looked and what went wrong the last time.",
+      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the folder path files are picked up from, whether pickup happens at all, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34473,7 +34634,7 @@
     {
       "name": "update_erp_drop_point_settings",
       "area": "settings",
-      "description": "Changes where an outside system hands its files in: a different name for the handover point, another delivering system, a different folder path, or switching the pickup on and off. Only what is supplied changes.",
+      "description": "Changes where an outside system hands its files in: a different name for the handover point, another delivering system, a different folder path, or switching the pickup on and off. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34560,7 +34721,7 @@
     {
       "name": "list_erp_import_tokens",
       "area": "settings",
-      "description": "Shows the keys an outside system uses to hand files in at the handover point: the label each key carries, its visible prefix, when it stops working and when it was last used. The secret behind a key is never kept, so it cannot be shown a second time.",
+      "description": "Shows the keys an outside system uses to hand files in at the handover point: the label each key carries, its visible prefix, when it stops working and when it was last used. The secret behind a key is never kept, so it cannot be shown a second time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34621,7 +34782,7 @@
     {
       "name": "create_erp_import_token",
       "area": "settings",
-      "description": "Explains how a new key is issued that lets an outside system hand files in at a handover point. This skill issues no key: a key is created in the settings of the handover point, where the secret appears once with a copy button and can never be read again. Use it whenever someone asks to issue, get or set up such a delivery key.",
+      "description": "Explains how a new key is issued that lets an outside system hand files in at a handover point. This skill issues no key: a key is created in the settings of the handover point, where the secret appears once with a copy button and can never be read again. Use it whenever someone asks to issue, get or set up such a delivery key. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34669,7 +34830,7 @@
     {
       "name": "revoke_erp_import_token",
       "area": "settings",
-      "description": "Withdraws a key an outside system used to hand files in with, so deliveries carrying it are turned away from that moment on. Use when a key has leaked, when the system using it is retired, or when it was issued by mistake.",
+      "description": "Withdraws a key an outside system used to hand files in with, so deliveries carrying it are turned away from that moment on. Use when a key has leaked, when the system using it is retired, or when it was issued by mistake. Use when the user wants to revoke a token or permission. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34734,7 +34895,7 @@
     {
       "name": "create_report_template",
       "area": "settings",
-      "description": "Creates a new printable layout for schedules, people, invoices or absences. You give it a name, say what it prints about, and choose whether repeated rows are merged and whether days without content are shown. The blocks that make up the page are arranged afterwards on the reports page.",
+      "description": "Creates a new printable layout for schedules, people, invoices or absences. You give it a name, say what it prints about, and choose whether repeated rows are merged and whether days without content are shown. The blocks that make up the page are arranged afterwards on the reports page. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34829,7 +34990,7 @@
     {
       "name": "update_report_template",
       "area": "settings",
-      "description": "Changes a printable layout: another name or description, a different subject, or the settings for merging repeated rows and showing days without content. The blocks arranged on the page and the paper setup stay untouched. Only what is supplied changes.",
+      "description": "Changes a printable layout: another name or description, a different subject, or the settings for merging repeated rows and showing days without content. The blocks arranged on the page and the paper setup stay untouched. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34931,7 +35092,7 @@
     {
       "name": "delete_report_template",
       "area": "settings",
-      "description": "Removes a printable layout together with the blocks arranged on it. Use when a layout is no longer printed, when it was created by mistake, or when another one has taken its place.",
+      "description": "Removes a printable layout together with the blocks arranged on it. Use when a layout is no longer printed, when it was created by mistake, or when another one has taken its place. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35086,7 +35247,7 @@
     {
       "name": "list_feature_plugins",
       "area": "settings",
-      "description": "Shows the optional feature modules the system knows: what each one is called, what it adds, which version it is at, whether it is installed and whether it is currently switched on. Use before installing or switching one, to learn the exact name the following step expects.",
+      "description": "Shows the optional feature modules the system knows: what each one is called, what it adds, which version it is at, whether it is installed and whether it is currently switched on. Use before installing or switching one, to learn the exact name the following step expects. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35147,7 +35308,7 @@
     {
       "name": "install_feature_plugin",
       "area": "settings",
-      "description": "Installs an optional feature module, so what it adds becomes available in the system. An unknown name is answered with the modules that actually exist; one that is already installed is reported as such rather than treated as a failure.",
+      "description": "Installs an optional feature module, so what it adds becomes available in the system. An unknown name is answered with the modules that actually exist; one that is already installed is reported as such rather than treated as a failure. Use when the user wants to install a component. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35204,7 +35365,7 @@
     {
       "name": "uninstall_feature_plugin",
       "area": "settings",
-      "description": "Removes an optional feature module from the system, so what it added is gone again. Use when a module is no longer wanted, when it was installed by mistake, or when it is being replaced.",
+      "description": "Removes an optional feature module from the system, so what it added is gone again. Use when a module is no longer wanted, when it was installed by mistake, or when it is being replaced. Use when the user wants to uninstall a component. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35261,7 +35422,7 @@
     {
       "name": "enable_feature_plugin",
       "area": "settings",
-      "description": "Switches an installed feature module on, so what it brings starts working. A module has to be installed before it can be switched on, and that missing step is named explicitly rather than reported as a plain failure.",
+      "description": "Switches an installed feature module on, so what it brings starts working. A module has to be installed before it can be switched on, and that missing step is named explicitly rather than reported as a plain failure. Use when the user wants to switch something on. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35318,7 +35479,7 @@
     {
       "name": "disable_feature_plugin",
       "area": "settings",
-      "description": "Switches a feature module off without removing it, so what it brings stops working while its settings survive and it can be switched on again later. Use to try something without a module, or to park one temporarily.",
+      "description": "Switches a feature module off without removing it, so what it brings stops working while its settings survive and it can be switched on again later. Use to try something without a module, or to park one temporarily. Use when the user wants to switch something off. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35375,7 +35536,7 @@
     {
       "name": "get_active_industries_settings",
       "area": "settings",
-      "description": "Shows which lines of business the installation is set up for — home care, health care, security, facility or logistics — or that it runs purely on rules written in-house. This choice decides which qualifications and rule sets appear in the pick lists.",
+      "description": "Shows which lines of business the installation is set up for — home care, health care, security, facility or logistics — or that it runs purely on rules written in-house. This choice decides which qualifications and rule sets appear in the pick lists. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35426,7 +35587,7 @@
     {
       "name": "update_active_industries_settings",
       "area": "settings",
-      "description": "Sets which lines of business the installation is set up for — home care, health care, security, facility, logistics, hospitality, or purely in-house rules. Unknown entries are turned down with the list of the ones that exist, because a wrong entry would silently empty the pick lists that build on this choice.",
+      "description": "Sets which lines of business the installation is set up for — home care, health care, security, facility, logistics, hospitality, or purely in-house rules. Unknown entries are turned down with the list of the ones that exist, because a wrong entry would silently empty the pick lists that build on this choice. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35484,7 +35645,7 @@
     {
       "name": "get_compliance_enforcement_settings",
       "area": "settings",
-      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection. Also shows how far ahead a roster has to be published.",
+      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection. Also shows how far ahead a roster has to be published. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35537,7 +35698,7 @@
     {
       "name": "update_compliance_enforcement_settings",
       "area": "settings",
-      "description": "Changes how strictly the working-time protections are applied: whether breaking one warns or turns the assignment down, whether a supervisor may push it through anyway, and the reaction set for each individual protection. Only what is supplied changes.",
+      "description": "Changes how strictly the working-time protections are applied: whether breaking one warns or turns the assignment down, whether a supervisor may push it through anyway, and the reaction set for each individual protection. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35710,7 +35871,7 @@
     {
       "name": "get_compensatory_rest_settings",
       "area": "settings",
-      "description": "Shows how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically or left to somebody to arrange.",
+      "description": "Shows how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically or left to somebody to arrange. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35762,7 +35923,7 @@
     {
       "name": "update_compensatory_rest_settings",
       "area": "settings",
-      "description": "Changes how time off owed for working on a protected day is handled: whether the claim is tracked at all and within how many days it has to be granted. Only what is supplied changes.",
+      "description": "Changes how time off owed for working on a protected day is handled: whether the claim is tracked at all and within how many days it has to be granted. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35825,7 +35986,7 @@
     {
       "name": "get_surcharge_mode_settings",
       "area": "settings",
-      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour.",
+      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35879,7 +36040,7 @@
     {
       "name": "update_surcharge_mode_settings",
       "area": "settings",
-      "description": "Changes how each kind of extra pay is worked out: multiplier or fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine on the same hour. Only what is supplied changes.",
+      "description": "Changes how each kind of extra pay is worked out: multiplier or fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine on the same hour. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36036,7 +36197,7 @@
     {
       "name": "get_overtime_settings",
       "area": "settings",
-      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays.",
+      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36085,7 +36246,7 @@
     {
       "name": "update_overtime_settings",
       "area": "settings",
-      "description": "Changes how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each begins at and the rate it pays. Only what is supplied changes.",
+      "description": "Changes how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each begins at and the rate it pays. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36198,7 +36359,7 @@
     {
       "name": "get_wizard_settings",
       "area": "settings",
-      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it.",
+      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36245,7 +36406,7 @@
     {
       "name": "update_wizard_settings",
       "area": "settings",
-      "description": "Sets which language model the schedule harmonizer runs on when it reworks a whole roster at once. The id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing.",
+      "description": "Sets which language model the schedule harmonizer runs on when it reworks a whole roster at once. The id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36299,7 +36460,7 @@
     {
       "name": "get_export_formats_settings",
       "area": "settings",
-      "description": "Shows which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver.",
+      "description": "Shows which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36347,7 +36508,7 @@
     {
       "name": "update_export_formats_settings",
       "area": "settings",
-      "description": "Sets which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver. Only what is supplied changes.",
+      "description": "Sets which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36412,7 +36573,7 @@
     {
       "name": "get_grid_color_settings",
       "area": "settings",
-      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
+      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36463,7 +36624,7 @@
     {
       "name": "update_grid_color_settings",
       "area": "settings",
-      "description": "Changes the colours the schedule board is drawn in — the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Every value has to be a hex colour, and one bad value stops the whole change.",
+      "description": "Changes the colours the schedule board is drawn in — the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Every value has to be a hex colour, and one bad value stops the whole change. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36657,7 +36818,7 @@
     {
       "name": "get_openroute_settings",
       "area": "settings",
-      "description": "Shows the travel-time settings: whether a key for the routing service is stored at all, and the shortest journey still worth counting by car, by bicycle and on foot.",
+      "description": "Shows the travel-time settings: whether a key for the routing service is stored at all, and the shortest journey still worth counting by car, by bicycle and on foot. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36707,7 +36868,7 @@
     {
       "name": "update_openroute_settings",
       "area": "settings",
-      "description": "Changes the travel-time settings: the key for the routing service and the shortest journey still worth counting by car, by bicycle and on foot. Only what is supplied changes.",
+      "description": "Changes the travel-time settings: the key for the routing service and the shortest journey still worth counting by car, by bicycle and on foot. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36788,7 +36949,7 @@
     {
       "name": "update_speech_settings",
       "area": "settings",
-      "description": "Changes how the assistant listens and speaks: which engine turns speech into text, which model and hint text it transcribes with, whether the raw transcript is tidied up afterwards, how answers come back, which voice speaks them, how much silence ends an utterance, and whether talking over the assistant interrupts it. Service keys can be stored here too.",
+      "description": "Changes how the assistant listens and speaks: which engine turns speech into text, which model and hint text it transcribes with, whether the raw transcript is tidied up afterwards, how answers come back, which voice speaks them, how much silence ends an utterance, and whether talking over the assistant interrupts it. Service keys can be stored here too. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -36970,7 +37131,7 @@
     {
       "name": "list_skill_relations",
       "area": "klacksy",
-      "description": "Shows the connections the assistant has worked out between two of its own abilities — that one usually follows another, that they rule each other out, or that one explains another. Each entry carries how sure it is, how often it held up, how often it did not, where it came from and whether it has been reviewed yet.",
+      "description": "Shows the connections the assistant has worked out between two of its own abilities — that one usually follows another, that they rule each other out, or that one explains another. Each entry carries how sure it is, how often it held up, how often it did not, where it came from and whether it has been reviewed yet. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -37028,7 +37189,7 @@
     {
       "name": "accept_skill_relation",
       "area": "klacksy",
-      "description": "Confirms a connection the assistant worked out between two of its abilities, so it counts from then on instead of waiting for somebody to look at it.",
+      "description": "Confirms a connection the assistant worked out between two of its abilities, so it counts from then on instead of waiting for somebody to look at it. Use when the user wants to accept a pending proposal. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -37085,7 +37246,7 @@
     {
       "name": "dismiss_skill_relation",
       "area": "klacksy",
-      "description": "Turns down a connection the assistant worked out between two of its abilities, so it stops counting and is not put forward again.",
+      "description": "Turns down a connection the assistant worked out between two of its abilities, so it stops counting and is not put forward again. Use when the user wants to dismiss a pending proposal. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -38910,7 +39071,7 @@
     {
       "name": "create_email_folder",
       "area": "inbox",
-      "description": "Creates a new custom folder for sorting incoming mail into topic areas such as a specific project, client, campaign, or department. Use it when someone wants a fresh place to file messages before they start moving emails there, for example separating inquiries about a new project from the general inbox. Refuses to create a duplicate when a folder with that name already exists.",
+      "description": "Creates a new custom folder for sorting incoming mail into topic areas such as a specific project, client, campaign, or department. Use it when someone wants a fresh place to file messages before they start moving emails there, for example separating inquiries about a new project from the general inbox. Refuses to create a duplicate when a folder with that name already exists. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -38987,7 +39148,7 @@
     {
       "name": "delete_email_folder",
       "area": "inbox",
-      "description": "Removes a custom mail folder that has served its purpose, such as a closed project's mailbox, a finished campaign area, or an outdated sorting bucket. The folder and any messages still inside it are permanently removed from the mail account itself; already-downloaded copies of those messages remain visible in Klacks under the trash view. Built-in mailboxes like the main inbox, sent items, junk, and trash are protected and always refused.",
+      "description": "Removes a custom mail folder that has served its purpose, such as a closed project's mailbox, a finished campaign area, or an outdated sorting bucket. The folder and any messages still inside it are permanently removed from the mail account itself; already-downloaded copies of those messages remain visible in Klacks under the trash view. Built-in mailboxes like the main inbox, sent items, junk, and trash are protected and always refused. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
