@@ -78,17 +78,10 @@ public static class SkillMatchingEngine
             }
         }
 
-        // W4.3: the read-before-mutate tiebreak is correct for lookups ("zeig mir den Dienstplan"),
-        // but on a mutation intent ("Bitte Spamregel neu anlegen.") it hands the same guarantee rank
-        // to the read counterpart and the model then lists instead of creating. For mutation intents
-        // the mutating skills rank first, so the create/update/delete skill is never displaced by its
-        // list/get sibling under the guarantee cap.
-        var preferMutating = Klacks.Api.Domain.Services.Assistant.MutationIntentDetector.IsMutationIntent(userMessage);
-
         return scored
             .OrderByDescending(x => x.DistinctMatches)
             .ThenByDescending(x => x.BestLength)
-            .ThenBy(x => preferMutating ? x.IsReadOnly : !x.IsReadOnly)
+            .ThenByDescending(x => x.IsReadOnly)
             .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .Select(x => x.Name)
             .Take(cap)
