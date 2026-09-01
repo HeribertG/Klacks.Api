@@ -73,6 +73,10 @@ public static class MutationIntentDetector
         "add", "edit", "cut", "split", "change", "changed",
         "buche", "buchen", "plane", "planen", "ändere", "aendere", "schneide",
         "ajoute", "modifie", "supprime", "aggiungi",
+        // W4: German imperative forms of common mutation verbs ("Mach eine neue Spamregel",
+        // "Setz den Haken", "Leg einen Kunden an"). Only unambiguous forms — "macht" is skipped
+        // because it collides with the noun "Macht", "stelle" with the noun "Stelle".
+        "leg", "lege", "mach", "mache", "setz", "setze", "füg", "füge",
     };
 
     /// <summary>
@@ -162,6 +166,17 @@ public static class MutationIntentDetector
         }
 
         if (tokens.Any(t => t.StartsWith("hinzu", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // W4: separable imperatives "stell … ein" (einstellen) and "trag … ein" (eintragen).
+        if (tokens.Contains("ein") && tokens.Any(t => t.StartsWith("stell", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        if (tokens.Contains("ein") && tokens.Any(t => t.StartsWith("trag", StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }
