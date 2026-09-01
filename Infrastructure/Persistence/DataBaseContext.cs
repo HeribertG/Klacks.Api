@@ -8,7 +8,6 @@ using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Imports;
-using Klacks.Api.Domain.Models.Marketing;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Exports;
@@ -201,9 +200,6 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<ClientAvailability> ClientAvailability { get; set; }
 
     public DbSet<ClientImage> ClientImage { get; set; }
-
-    // Marketing DbSets
-    public DbSet<DemoRequest> DemoRequests { get; set; }
 
     // LLM DbSets
     public DbSet<LLMProvider> LLMProviders { get; set; }
