@@ -234,7 +234,7 @@
     {
       "name": "navigate_to",
       "area": "navigation",
-      "description": "Navigate to any page in Klacks the current user is allowed to see. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit existing employee, needs entityId), schedule, absences, client-availability, settings, group-list, new-group (create group form), edit-group (edit existing group, needs entityId), shift-list, new-shift (create shift template), edit-shift (edit shift template, needs entityId), cut-shift (split or trim a shift, needs entityId), container-template (edit shift container template, needs entityId), inbox, messaging, profile, period-closing, klacksy-training (admin training review). Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
+      "description": "Navigate to any page in Klacks the current user is allowed to see.",
       "category": "UI",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -1260,7 +1260,7 @@
     {
       "name": "create_contract",
       "area": "contract",
-      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real values. A contract's workload comes from exactly one of two mutually exclusive paths — ask the admin which one applies BEFORE calling: (1) fixed guaranteed hours — supply guaranteedHours (and optionally fullTime); minimumHours/maximumHours default to guaranteedHours when omitted. (2) inherited workload — omit guaranteedHours entirely so the contract inherits the company-wide monthly target hours; percent scales that value and defaults to 100 when not supplied (a missing percent is normal, not an error — do not insist on it). minimumHours/maximumHours/fullTime are not meaningful in path 2 and stay unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real values. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1422,7 +1422,7 @@
     {
       "name": "create_employee",
       "area": "client",
-      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership starting on memberSince — ALWAYS ask the user when the employee starts working (Eintrittsdatum / start date / ab wann), and resolve answers like \"heute\"/\"sofort\"/\"today\" to today's date in YYYY-MM-DD before calling. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups). For a Customer in an order/Bestellung workflow: do NOT create a customer you already created earlier in this conversation — function results do not persist across turns, so reuse that customer's id for the order with create_shift. If you must re-call create_employee for the same business, pass the SAME company name plus the full address (street + zip); the system deduplicates customers by company + zip + street and reuses the existing record instead of creating a duplicate.",
+      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership starting on memberSince — ALWAYS ask the user when the employee starts working (Eintrittsdatum / start date / ab wann), and resolve answers like \"heute\"/\"sofort\"/\"today\" to today's date in YYYY-MM-DD before calling. Set entityType to choose Employee/ExternEmp/Customer.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2033,7 +2033,7 @@
     {
       "name": "get_ai_memories",
       "area": "klacksy",
-      "description": "Retrieves the AI assistant's persistent memories. Use this when the user asks 'What do you know about X?' or 'What memories do you have?'. With NO parameter it returns a compact overview only (total count, category breakdown, and a small importance-ranked sample with shortened previews) — never the full content of all memories. To read specific memories in full, call again with one of three search modes: semantic search (searchQuery uses vector similarity), text search (searchTerm uses keyword matching), or category filter.",
+      "description": "Retrieves the AI assistant's persistent memories. Use this when the user asks 'What do you know about X?' or 'What memories do you have?'. With NO parameter it returns a compact overview only (total count, category breakdown, and a small importance-ranked sample with shortened previews) — never the full content of all memories.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2479,7 +2479,7 @@
     {
       "name": "assign_user_permissions",
       "area": "security",
-      "description": "Assigns a permission level (role) to a system user and persists it. Sets the role exclusively: 'Admin' grants full access, 'Authorised' grants create/edit access without settings, 'User' is view-only. Requires admin permissions. Identify the user with userId (preferred) or userName; the resulting permission set is derived from the role. To check a user's current rights use get_user_permissions, to list users use list_system_users. Use when the user wants to assign something to a person or group. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Assigns a permission level (role) to a system user and persists it. Sets the role exclusively: 'Admin' grants full access, 'Authorised' grants create/edit access without settings, 'User' is view-only. Requires admin permissions. Identify the user with userId (preferred) or userName; the resulting permission set is derived from the role. Use when the user wants to assign something to a person or group. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2847,7 +2847,7 @@
       "parameters": [
         {
           "name": "firstName",
-          "description": "New first name",
+          "description": "New first name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -2855,7 +2855,7 @@
         },
         {
           "name": "lastName",
-          "description": "New last name",
+          "description": "New last name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -4091,7 +4091,7 @@
     {
       "name": "search_in_list",
       "area": "navigation",
-      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityType=absence opens the absence calendar and filters its employee rows by searchQuery (e.g. 'zeige die Absenzen von Anna'). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. To narrow a page to a GROUP, call select_group afterwards. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_grouping or apply_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
+      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Do NOT use propose_grouping or apply_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -4220,7 +4220,7 @@
     {
       "name": "select_group",
       "area": "group",
-      "description": "Sets the global group filter (the group dropdown in the app header) to the named group, so the page the user is on — absence calendar, schedule, employee list, shifts, availability — only shows members of that group. Pass groupName='all' to reset to all groups. Use for requests like 'zeige nur Gruppe X', 'filtere die Absenzen nach Team Y', 'nur Bern anzeigen', 'alle Gruppen'. To filter a SPECIFIC page, navigate there first (e.g. search_in_list with entityType=absence), then call select_group in the same turn. The selection is global and stays active across all workplace pages until changed.",
+      "description": "Sets the global group filter (the group dropdown in the app header) to the named group, so the page the user is on — absence calendar, schedule, employee list, shifts, availability — only shows members of that group. Pass groupName='all' to reset to all groups. Use for requests like 'zeige nur Gruppe X', 'filtere die Absenzen nach Team Y', 'nur Bern anzeigen', 'alle Gruppen'. To filter a SPECIFIC page, navigate there first (e.g.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [],
@@ -4686,7 +4686,7 @@
     {
       "name": "get_user_group_scope",
       "area": "group",
-      "description": "Returns which groups a user currently sees (group visibility scope). For Admin users this returns all root groups, since admins always see everything and cannot be restricted. For non-admin users this returns the assigned root groups, or an empty list if none are configured yet - meaning the account cannot see any group's data until set_user_group_scope is used. Use this before set_user_group_scope when the request is additive (e.g. 'add group X') rather than a full replacement, since set_user_group_scope replaces the entire list. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Returns which groups a user currently sees (group visibility scope). For Admin users this returns all root groups, since admins always see everything and cannot be restricted. For non-admin users this returns the assigned root groups, or an empty list if none are configured yet - meaning the account cannot see any group's data until set_user_group_scope is used. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -5439,7 +5439,7 @@
         },
         {
           "name": "city",
-          "description": "City name",
+          "description": "City name (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -5791,7 +5791,7 @@
         {
           "name": "city",
           "type": "string",
-          "description": "City name",
+          "description": "City name (bitte angeben)",
           "required": false,
           "enumValues": null
         },
@@ -5812,14 +5812,14 @@
         {
           "name": "phone",
           "type": "string",
-          "description": "Phone number",
+          "description": "Phone number (bitte angeben)",
           "required": false,
           "enumValues": null
         },
         {
           "name": "email",
           "type": "string",
-          "description": "Email address",
+          "description": "Email address (bitte angeben)",
           "required": false,
           "enumValues": null
         }
@@ -8254,7 +8254,7 @@
         {
           "name": "modelName",
           "type": "string",
-          "description": "Display name",
+          "description": "Display name (bitte angeben)",
           "required": true,
           "enumValues": null
         },
@@ -8631,7 +8631,7 @@
         {
           "name": "modelName",
           "type": "string",
-          "description": "Display name",
+          "description": "Display name (bitte angeben)",
           "required": false,
           "enumValues": null
         },
@@ -10460,7 +10460,7 @@
     {
       "name": "get_scheduling_defaults",
       "area": "settings",
-      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). For surcharge rates (night, holiday, weekend) or employment terms (vacation, probation, notice period) use get_work_settings instead. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Retrieves scheduling parameters: working hour limits, overtime thresholds, guaranteed/maximum/minimum hours, full-time hours, and scheduling rule limits (max work days, min rest days, pause hours, max consecutive days, max daily/weekly hours). Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10836,7 +10836,7 @@
         },
         {
           "name": "category",
-          "description": "Skill category",
+          "description": "Skill category (bitte angeben)",
           "type": "Enum",
           "required": false,
           "defaultValue": "Action",
@@ -11358,7 +11358,7 @@
         },
         {
           "name": "abbreviation",
-          "description": "New short code",
+          "description": "New short code (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -11366,7 +11366,7 @@
         },
         {
           "name": "color",
-          "description": "New hex color",
+          "description": "New hex color (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -11645,7 +11645,7 @@
     {
       "name": "create_shift",
       "area": "shift",
-      "description": "Skill for creating ONE single shift/order (Bestellung) in the system. Every order MUST be billed to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut into parts via cut_shift — never by calling this skill several times. By default the order is created already sealed (status SealedOrder) with its plannable shift, matching prior behavior; pass asDraft=true to create it as an editable, unsealed order (status OriginalOrder) instead — no plannable shift is created until seal_shift is called on it later.",
+      "description": "Skill for creating ONE single shift/order (Bestellung) in the system. Every order MUST be billed to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut into parts via cut_shift — never by calling this skill several times.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11956,7 +11956,7 @@
     {
       "name": "cut_shift",
       "area": "shift",
-      "description": "Cuts ONE existing plannable shift (an OriginalShift, e.g. a 24h order 07:00-07:00) into several time parts (split shifts) that all stay linked to the same order — the correct way to model an early/late/night rotation. NEVER create several independent shifts for the parts of one service: create ONE order with create_shift, then cut it here. RULE: the plannable shift is REDUCED to the first part (status OriginalShift->SplitShift) and the remaining parts are created — no leftover 24h shift, no duplicate. The order itself (the Bestellung) is immutable and never changes. Pass the order's shiftId (the ShiftId returned by create_shift) and the parts as time ranges. The parts inherit the order's group(s), weekdays and validity dates.",
+      "description": "Cuts ONE existing plannable shift (an OriginalShift, e.g. a 24h order 07:00-07:00) into several time parts (split shifts) that all stay linked to the same order — the correct way to model an early/late/night rotation. NEVER create several independent shifts for the parts of one service: create ONE order with create_shift, then cut it here.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12068,7 +12068,7 @@
         },
         {
           "name": "contractType",
-          "description": "Contract type",
+          "description": "Contract type (bitte angeben)",
           "type": "Enum",
           "required": false,
           "defaultValue": "Vollzeit 180",
@@ -12168,7 +12168,7 @@
     {
       "name": "start_autowizard",
       "area": "wizard",
-      "description": "Runs the AutoWizard chain (Wizard 1 Planner + Wizard 2 Harmonizer + Wizard 3 Holistic Harmonizer) sequentially to auto-fill a schedule for a group and period. Mirrors what the 'Autofill-Assistent' button in the schedule header triggers: takes group and period, resolves visible agents and shifts automatically, kicks off the orchestrator job, returns the jobId. Final completion arrives via the AutoWizard SignalR hub (event OnCompleted). Use this when the user says: 'plane mir den Plan', 'autofill', 'autowizard', 'erzeuge Vorschlag für Mai', 'plan the schedule', 'run wizards'. The chain produces three analyse_scenarios (Plan, Harmonizer, final 'Auto-Erstellung'); the user can later accept_scenario or reject_scenario.",
+      "description": "Runs the AutoWizard chain (Wizard 1 Planner + Wizard 2 Harmonizer + Wizard 3 Holistic Harmonizer) sequentially to auto-fill a schedule for a group and period. Mirrors what the 'Autofill-Assistent' button in the schedule header triggers: takes group and period, resolves visible agents and shifts automatically, kicks off the orchestrator job, returns the jobId. Final completion arrives via the AutoWizard SignalR hub (event OnCompleted).",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12482,7 +12482,7 @@
     {
       "name": "update_work",
       "area": "schedule",
-      "description": "Updates a placed work entry in place (the schedule's edit-work dialog): start/end time, work time in hours and the free-text note — WITHOUT deleting and re-creating the work, so its confirmation history stays intact. Locked works are refused with the exact lock level (Confirmed → unconfirm_work first, Approved → revoke_day_approval, Closed → reopen_period). Runs through the Works PUT pipeline (period-hour recalculation included) and is verified by re-reading the work. Use read_schedule_state to find the work id.",
+      "description": "Updates a placed work entry in place (the schedule's edit-work dialog): start/end time, work time in hours and the free-text note — WITHOUT deleting and re-creating the work, so its confirmation history stays intact. Locked works are refused with the exact lock level (Confirmed → unconfirm_work first, Approved → revoke_day_approval, Closed → reopen_period). Runs through the Works PUT pipeline (period-hour recalculation included) and is verified by re-reading the work.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12840,7 +12840,7 @@
     {
       "name": "add_schedule_command",
       "area": "schedule",
-      "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day, FREE = the agent must stay free. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
+      "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13103,7 +13103,7 @@
         },
         {
           "name": "groupId",
-          "description": "Group UUID.",
+          "description": "Group UUID. (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -13896,7 +13896,7 @@
     {
       "name": "bulk_add_absence_for_group",
       "area": "absence",
-      "description": "Places the same absence (e.g. a training day / Schulung) on every member of a named group for a single date in one step. With apply=false (default) it returns a read-only preview of how many members would get the absence; with apply=true it creates one absence (Break) per member that does not already have it on that date, then re-reads the database to confirm how many were actually persisted (added/verified). Members who already have that absence on that date are skipped. Use this to record a group-wide training, holiday closure or sick-day for a whole team at once.",
+      "description": "Places the same absence (e.g. a training day / Schulung) on every member of a named group for a single date in one step. With apply=false (default) it returns a read-only preview of how many members would get the absence; with apply=true it creates one absence (Break) per member that does not already have it on that date, then re-reads the database to confirm how many were actually persisted (added/verified). Members who already have that absence on that date are skipped.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14156,7 +14156,7 @@
         },
         {
           "name": "startTime",
-          "description": "HH:mm.",
+          "description": "HH:mm. (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -14164,7 +14164,7 @@
         },
         {
           "name": "endTime",
-          "description": "HH:mm.",
+          "description": "HH:mm. (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -14668,7 +14668,7 @@
     {
       "name": "update_client",
       "area": "client",
-      "description": "ALWAYS use this skill to ADD or CHANGE a client's phone, email or address, or to edit master data (name, birthdate, gender, company, title) of an existing employee/customer. Identify the client by firstName+lastName (no search and no id needed — pass the name directly). Supplying street/zip/city ADDS a new address; supplying email or phone ADDS a new communication. Do NOT navigate and do NOT ask the user to edit the form manually — perform the change yourself by calling this skill. Only the supplied fields change.",
+      "description": "ALWAYS use this skill to ADD or CHANGE a client's phone, email or address, or to edit master data (name, birthdate, gender, company, title) of an existing employee/customer. Identify the client by firstName+lastName (no search and no id needed — pass the name directly). Supplying street/zip/city ADDS a new address; supplying email or phone ADDS a new communication. Do NOT navigate and do NOT ask the user to edit the form manually — perform the change yourself by calling this skill.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14685,7 +14685,7 @@
         },
         {
           "name": "firstName",
-          "description": "New first name",
+          "description": "New first name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -14693,7 +14693,7 @@
         },
         {
           "name": "lastName",
-          "description": "New last name",
+          "description": "New last name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -14725,7 +14725,7 @@
         },
         {
           "name": "gender",
-          "description": "Gender",
+          "description": "Gender (bitte angeben)",
           "type": "Enum",
           "required": false,
           "defaultValue": null,
@@ -15097,7 +15097,7 @@
         },
         {
           "name": "validFrom",
-          "description": "ISO date",
+          "description": "ISO date (bitte angeben)",
           "type": "Date",
           "required": false,
           "defaultValue": null,
@@ -15105,7 +15105,7 @@
         },
         {
           "name": "validUntil",
-          "description": "ISO date",
+          "description": "ISO date (bitte angeben)",
           "type": "Date",
           "required": false,
           "defaultValue": null,
@@ -15885,7 +15885,7 @@
         },
         {
           "name": "withSunday",
-          "description": "Counts sundays",
+          "description": "Counts sundays (bitte angeben)",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -15901,7 +15901,7 @@
         },
         {
           "name": "isUnpaid",
-          "description": "Unpaid leave",
+          "description": "Unpaid leave (bitte angeben)",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -16007,7 +16007,7 @@
         },
         {
           "name": "color",
-          "description": "New hex colour",
+          "description": "New hex colour (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -16031,7 +16031,7 @@
         },
         {
           "name": "withSunday",
-          "description": "Counts sundays",
+          "description": "Counts sundays (bitte angeben)",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -16047,7 +16047,7 @@
         },
         {
           "name": "isUnpaid",
-          "description": "Unpaid leave",
+          "description": "Unpaid leave (bitte angeben)",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -16753,7 +16753,7 @@
     {
       "name": "find_replacement",
       "area": "schedule",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first. Use this to find who can cover an open or to-be-replaced slot. Optional analyseToken checks against a scenario. Optional overrideBlock (supervisor emergency use) keeps a candidate excluded only by a Block-mode compliance escalation eligible instead of excluded.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16852,7 +16852,7 @@
     {
       "name": "propose_plan",
       "area": "schedule",
-      "description": "Materializes a set of chosen placements into an isolated AnalyseScenario for supervised approval, then leave it for accept_scenario / reject_scenario. Does NOT find gaps — choose placements first (e.g. with read_schedule_state + find_replacement); for bulk auto-fill use start_autowizard. Real data is never touched: the schedule is cloned under the scenario token, the pre-commit guardrail keeps the proposal collision-free, and any placement that would collide is skipped and returned in the rejected list. The 'placements' parameter is a JSON array of {clientId, shiftId, date}.",
+      "description": "Materializes a set of chosen placements into an isolated AnalyseScenario for supervised approval, then leave it for accept_scenario / reject_scenario. Does NOT find gaps — choose placements first (e.g. with read_schedule_state + find_replacement); for bulk auto-fill use start_autowizard.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16940,7 +16940,7 @@
     {
       "name": "cover_absence",
       "area": "absence",
-      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate or blocked by a compliance rule are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
+      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17046,7 +17046,7 @@
     {
       "name": "evaluate_scenario",
       "area": "schedule",
-      "description": "Evaluates a proposed AnalyseScenario so you can recommend whether it is safe to accept: it reports the scenario's rule violations (rest time, daily/weekly overtime, consecutive days, min rest days, collisions — same engine as detect_conflicts) and the change-set it introduces over the real plan (added works, replacements and absences). The recommendation is advisory only; accepting stays a manual step (accept_scenario). Pass either scenarioId or analyseToken from list_scenarios. Use after start_autowizard, propose_plan or cover_absence to judge a proposal.",
+      "description": "Evaluates a proposed AnalyseScenario so you can recommend whether it is safe to accept: it reports the scenario's rule violations (rest time, daily/weekly overtime, consecutive days, min rest days, collisions — same engine as detect_conflicts) and the change-set it introduces over the real plan (added works, replacements and absences). The recommendation is advisory only; accepting stays a manual step (accept_scenario). Pass either scenarioId or analyseToken from list_scenarios.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17300,7 +17300,7 @@
     {
       "name": "create_qualification",
       "area": "contract",
-      "description": "Creates a multilingual qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Provide the name in all available languages (name_de, name_en, name_fr, name_it). At least one language name is required. Calling it with an existing German name returns that qualification instead of creating a duplicate. Use this first, then set_shift_required_qualification / set_client_qualification reference its id. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a multilingual qualification master entry (e.g. 'Forklift licence', 'First aid') that shifts can require and employees can hold. Provide the name in all available languages (name_de, name_en, name_fr, name_it). At least one language name is required. Calling it with an existing German name returns that qualification instead of creating a duplicate. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17564,7 +17564,7 @@
         },
         {
           "name": "name",
-          "description": "New name",
+          "description": "New name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -18183,7 +18183,7 @@
     {
       "name": "add_selected_clients_to_group",
       "area": "client",
-      "description": "Adds the clients the user TICKED in the current list (the UI checkbox selection) to a group resolved by name, in ONE server-side call. Use when the user says things like 'add the selected/marked/ticked employees to group <Y>'. The selected client ids come from the UI selection, NOT from a parameter — never ask for them. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Reports how many were added and database-verified, plus any already-members or stale selections that were ignored.",
+      "description": "Adds the clients the user TICKED in the current list (the UI checkbox selection) to a group resolved by name, in ONE server-side call.  Use when the user says things like 'add the selected/marked/ticked employees to group <Y>'. The selected client ids come from the UI selection, NOT from a parameter — never ask for them. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to per",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18252,7 +18252,7 @@
     {
       "name": "fill_group_by_criteria",
       "area": "group",
-      "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'add all employees from <canton> to group <Y>', 'add all employees in city <X> with qualification <Y> to group <Z>' or 'add employees with zip starting <prefix> to group <Y>'. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Without any filter it simply takes the first matching clients (entity type defaults to Employee). Returns the matched clients, the total match count and how many were added.",
+      "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'add all employees from <canton> to group <Y>', 'add all employees in city <X> with qualification <Y> to group <Z>' or 'add employees with zip starting <prefix> to group <Y>'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18445,7 +18445,7 @@
     {
       "name": "group_ungrouped_by_city_name",
       "area": "group",
-      "description": "Assigns employees who currently belong to NO group to the group whose NAME exactly matches their address city (e.g. an employee living in Bern joins the group 'Bern'). Use for requests like 'assign the ungrouped employees to groups by their address' when the groups are named after towns / municipalities. ALWAYS call first with apply=false (default) to preview the planned assignments plus which cities have no matching group and how many employees have no address; present that to the user, and only after explicit confirmation call again with apply=true to persist. Does NOT invent groups and does NOT use nearest/geographic distance — it is an exact city-name match. Returns the assignments, the match count, the unmatched cities and the no-address count.",
+      "description": "Assigns employees who currently belong to NO group to the group whose NAME exactly matches their address city (e.g. an employee living in Bern joins the group 'Bern'). Use for requests like 'assign the ungrouped employees to groups by their address' when the groups are named after towns / municipalities.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18943,7 +18943,7 @@
       "name": "propose_grouping",
       "area": "group",
       "pairedApplySkill": "apply_grouping",
-      "description": "LOCATION RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each client of the given entityType into its location group. Placement follows a fixed precedence: FIRST an exact city-name match — the city of the client's address equals the name of exactly one group (trimmed, case-insensitive) — and ONLY when no group name matches, the nearest group that carries coordinates. Coordinates are therefore NOT a precondition: a client whose address has a city but no coordinates is still placed, as long as exactly one group carries that city name. Never claim that grouping is impossible without coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren / nach Ortschaften gruppieren employees, external employees, or customers — pass entityType='Employee', 'ExternEmp', or 'Customer' matching who they mean. Do NOT use for 'zeig mir die Kunden/Mitarbeiter', 'liste alle Kunden/Mitarbeiter', 'show customers/employees', or any browse/view/list intent — use search_in_list for those. Returns how many clients would move, a per-target-group breakdown, a per-match-kind breakdown (city name vs. nearest coordinates), how many existing memberships would end and which ones, a sample, and clients that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_grouping with the SAME entityType to persist the moves. Only when nothing at all can be placed (no group name matches an address city AND no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups.",
+      "description": "LOCATION RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each client of the given entityType into its location group. Placement follows a fixed precedence: FIRST an exact city-name match — the city of the client's address equals the name of exactly one group (trimmed, case-insensitive) — and ONLY when no group name matches, the nearest group that carries coordinates. Coordinates are therefore NOT a precondition: a client whose address has a city but no coordinates is still placed,",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18992,7 +18992,7 @@
     {
       "name": "geocode_location_groups",
       "area": "group",
-      "description": "Automatically assigns geographic coordinates to groups that represent a real place (city/town/village). It classifies each group from its name and parent hierarchy via the LLM (and a web search when uncertain); only confident places are geocoded, everything else (regions, qualifications, teams) is left untouched. With a groupName it resolves that one group immediately and returns the outcome; without one it queues every group that has no coordinates yet for background processing — this bulk path runs asynchronously, so results are not immediate; call check_group_geocoding_status afterwards (or after some time has passed) to see how many are done. Use this to bulk-fill city/village groups before grouping customers geographically.",
+      "description": "Automatically assigns geographic coordinates to groups that represent a real place (city/town/village). It classifies each group from its name and parent hierarchy via the LLM (and a web search when uncertain); only confident places are geocoded, everything else (regions, qualifications, teams) is left untouched.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19036,7 +19036,7 @@
     {
       "name": "check_group_geocoding_status",
       "area": "group",
-      "description": "READ-ONLY. Reports progress of the background group-geocoding queue started by geocode_location_groups: how many groups already have coordinates, how many were checked but are not a real place or could not be geocoded (left without coordinates on purpose), and how many have not been processed yet. Use this when the user asks whether the geocoding is done, or before proposing a customer/employee grouping whose nearest-group fallback depends on groups having coordinates. If groups are still pending, call geocode_location_groups again (without groupName) to process the rest — do not claim you lack a way to check or continue this.",
+      "description": "READ-ONLY. Reports progress of the background group-geocoding queue started by geocode_location_groups: how many groups already have coordinates, how many were checked but are not a real place or could not be geocoded (left without coordinates on purpose), and how many have not been processed yet. Use this when the user asks whether the geocoding is done, or before proposing a customer/employee grouping whose nearest-group fallback depends on groups having coordinates.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19064,7 +19064,7 @@
     {
       "name": "apply_grouping",
       "area": "group",
-      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the grouping for the given entityType — physically MOVES every client of that type into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_grouping — pass the SAME entityType ('Employee', 'ExternEmp', or 'Customer') used for that preview; never guess or switch entityType on this call. Do NOT ask the user from which date the new memberships should start: leaving validFrom out already uses the company's current date. Only pass validFrom when the user named a specific date on their own. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many clients moved, how many new memberships were re-read and confirmed in the database, how many existing memberships were actually ended, and the start date really written — relay all four. This is the step that actually changes the data and cannot be undone easily.",
+      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the grouping for the given entityType — physically MOVES every client of that type into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19114,7 +19114,7 @@
     {
       "name": "update_macro",
       "area": "settings",
-      "description": "Updates an existing calculation macro (script) in the settings. Identify the macro by macroId (preferred) or by its exact name via macroName, then change only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. The script is validated (compile and probe execution) before saving; an invalid script is rejected with the validation error. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing calculation macro (script) in the settings. Identify the macro by macroId (preferred) or by its exact name via macroName, then change only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19212,7 +19212,7 @@
     {
       "name": "update_qualification",
       "area": "contract",
-      "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Multilingual names and descriptions are merged per language (name_de, name_en, name_fr, name_it). Type accepts Language or Work; category accepts the industry categories; countries is a comma-separated ISO code list that replaces the current list when provided. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19397,7 +19397,7 @@
     {
       "name": "delete_qualification",
       "area": "contract",
-      "description": "Soft-deletes a qualification master entry. Verifies first that the qualification exists: resolve it by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name; if it does not exist or the name is ambiguous, an error is returned and nothing is deleted. Use with care: shifts and clients may reference the qualification via set_shift_required_qualification / set_client_qualification. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Soft-deletes a qualification master entry. Verifies first that the qualification exists: resolve it by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name; if it does not exist or the name is ambiguous, an error is returned and nothing is deleted. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19664,7 +19664,7 @@
     {
       "name": "add_schedule_note",
       "area": "schedule",
-      "description": "Adds a schedule note — a free-text annotation for a client on a specific day, e.g. 'prefers early shifts this week' or a handover remark. The note is informational only and shown in the schedule; wizards do NOT enforce it (use add_schedule_command for hard constraints like FREE/EARLY). Requires clientId, date and content; optional analyseToken targets a scenario instead of the main schedule. Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Adds a schedule note — a free-text annotation for a client on a specific day, e.g. 'prefers early shifts this week' or a handover remark. The note is informational only and shown in the schedule; wizards do NOT enforce it (use add_schedule_command for hard constraints like FREE/EARLY). Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19689,7 +19689,7 @@
         },
         {
           "name": "content",
-          "description": "The note text.",
+          "description": "The note text. (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -19974,7 +19974,7 @@
     {
       "name": "end_client_membership",
       "area": "client",
-      "description": "Records an employee exit: sets validUntil on the client's single active membership to the exit date (last day of employment) without requiring a membership UUID. With zero active memberships it fails; with more than one it fails and lists the real options — then call it again with the membershipId parameter. The write runs in a transaction with database verification. Membership.ValidUntil is the plannability boundary: from the day after the exit date the client can no longer be planned in the schedule.",
+      "description": "Records an employee exit: sets validUntil on the client's single active membership to the exit date (last day of employment) without requiring a membership UUID. With zero active memberships it fails; with more than one it fails and lists the real options — then call it again with the membershipId parameter. The write runs in a transaction with database verification.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20120,7 +20120,7 @@
     {
       "name": "update_contract",
       "area": "contract",
-      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. This does NOT assign a contract to an employee — use assign_contract_by_name or assign_contract_to_client for assignments (create_contract is deprecated). Note that the plannability boundary in the schedule comes from Membership.ValidFrom, not from contract dates. Use get_contract_details first to inspect current values. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20446,7 +20446,7 @@
     {
       "name": "set_client_availability",
       "area": "availability",
-      "description": "Sets a client's availability (available/unavailable) per day and hour; the backend upserts on (clientId, date, hour) and the skill verifies the written slots by re-reading them. IMPORTANT semantics: availability is opt-in PER DATE — a day without records is fully open; as soon as a day has at least one available-hour record, ONLY those hours are usable for planning. So 'Anna is only available 8-12 on Monday' = one call with isAvailable=true, startHour 8, endHour 12 — do NOT also write false for the other hours. To fully reopen a day use clear_client_availability. Accepts a comma list of days ('dates') or a range (startDate/endDate, max 92 days). E-mail flow: set only announced slots to available, leave the rest untouched.",
+      "description": "Sets a client's availability (available/unavailable) per day and hour; the backend upserts on (clientId, date, hour) and the skill verifies the written slots by re-reading them. IMPORTANT semantics: availability is opt-in PER DATE — a day without records is fully open; as soon as a day has at least one available-hour record, ONLY those hours are usable for planning.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20563,7 +20563,7 @@
     {
       "name": "list_expenses",
       "area": "period",
-      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Each entry has an amount, a short note and whether it is taxable. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20859,7 +20859,7 @@
     {
       "name": "get_autonomy_level",
       "area": "klacksy",
-      "description": "Returns the user's current autonomy level for Klacksy: 0 Propose (every write needs confirmation), 1 Assisted (reversible and scenario-gated actions run directly), 2 Autonomous (everything except sensitive actions runs directly, default), 3 FullyAutonomous (plans also run through without per-step approval; sensitive actions still need confirmation). Use this when the user asks what Klacksy may do on its own or why a confirmation was requested. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Returns the user's current autonomy level for Klacksy: 0 Propose (every write needs confirmation), 1 Assisted (reversible and scenario-gated actions run directly), 2 Autonomous (everything except sensitive actions runs directly, default), 3 FullyAutonomous (plans also run through without per-step approval; sensitive actions still need confirmation). Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -20911,7 +20911,7 @@
     {
       "name": "set_autonomy_level",
       "area": "klacksy",
-      "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Level 3 FullyAutonomous: agent plans also execute non-reversible steps without per-step approval; sensitive actions always keep requiring confirmation. Changing the level is itself a sensitive action and always asks the user to confirm. Use this when the user says Klacksy should work more autonomously or should always ask first. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20987,7 +20987,7 @@
     {
       "name": "get_proactive_governance",
       "area": "klacksy",
-      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it, or may carry it out; who is accountable; and the daily and hourly ceilings. Also states the installation-wide autonomy level that caps every finding type and whether the master off switch is set. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Reports the standing rules for findings Klacksy raises by itself: for each finding type (unstaffed shift, empty container, uncut full-day shift, open order, expiring contract, hours drift, period close, availability gap, missing client core data, lock conflict, pending scenario, dropped ERP work) whether Klacksy may only report it, may also lay a ready scenario next to it,. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -21039,7 +21039,7 @@
     {
       "name": "set_proactive_governance",
       "area": "klacksy",
-      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Also names the person accountable for such an action, sets the daily and per-hour ceilings, flips the master off switch that pins everything back to reporting, and sets the installation-wide autonomy level that caps every finding type's ceiling. From the scenario step upwards an accountable person is mandatory. Only a human may apply this; Klacksy can suggest it but never save it. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Changes, for one finding type, how far Klacksy may go without being asked: only report it, additionally lay a ready scenario next to it for someone to accept, or additionally carry it out. Use when the user wants to set or change a value. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21274,7 +21274,7 @@
     {
       "name": "get_dashboard_summary",
       "area": "navigation",
-      "description": "Returns the dashboard key figures for the current month as a compact summary: per-group shift coverage (total slots, covered slots, open slots, coverage ratio) and sealing progress (work entries with LockLevel >= Confirmed vs. total), plus overall totals across all visible groups. Groups are ordered worst-covered first so attention goes to problem areas. Use this when the user asks 'how does the dashboard look', 'how is coverage this month', 'how many open slots do we have' or 'how far is sealing/confirmation'. No parameters needed; the period is always the current month. For the year-long capacity-vs-demand analysis (understaffed/tight days per month, critical months) use interpret_resource_monitor instead; for the employee location map use get_client_locations_overview.",
+      "description": "Returns the dashboard key figures for the current month as a compact summary: per-group shift coverage (total slots, covered slots, open slots, coverage ratio) and sealing progress (work entries with LockLevel >= Confirmed vs. total), plus overall totals across all visible groups. Groups are ordered worst-covered first so attention goes to problem areas.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21336,7 +21336,7 @@
     {
       "name": "get_dashboard_overview",
       "area": "navigation",
-      "description": "Shows the dashboard's overview donuts as text: customers, shifts, employees and external employees per group (only groups with data, limited to the caller's visible groups) plus the totals and the visibility status. Counts are per group assignment — a person in two groups counts twice, exactly like the dashboard charts. For the current month's coverage/confirmation figures use get_dashboard_summary; for the yearly capacity chart use interpret_resource_monitor; for the location map use get_client_locations_overview.",
+      "description": "Shows the dashboard's overview donuts as text: customers, shifts, employees and external employees per group (only groups with data, limited to the caller's visible groups) plus the totals and the visibility status. Counts are per group assignment — a person in two groups counts twice, exactly like the dashboard charts.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -21394,7 +21394,7 @@
     {
       "name": "get_client_locations_overview",
       "area": "client",
-      "description": "Summarizes the dashboard location map as compact counts instead of a raw client list: how many active clients have a current address, breakdown by client type (employee / external / customer), counts per country, the most frequent cities (top N) and how many entries are geocoded (have coordinates). Respects the calling user's group visibility (non-admins only see clients of their visible groups). Use this when the user asks 'where do our employees live', 'how are clients distributed geographically', 'which cities do most people come from' or about the dashboard map. Optionally filter by clientType. For per-client geographic group assignment use the customer-grouping skills; for coverage figures use get_dashboard_summary.",
+      "description": "Summarizes the dashboard location map as compact counts instead of a raw client list: how many active clients have a current address, breakdown by client type (employee / external / customer), counts per country, the most frequent cities (top N) and how many entries are geocoded (have coordinates). Respects the calling user's group visibility (non-admins only see clients of their visible groups).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21475,7 +21475,7 @@
     {
       "name": "list_sealed_orders",
       "area": "shift",
-      "description": "Lists sealed orders (shifts with Status=SealedOrder) that are eligible for the order export, including customer name/number and Work-closing statistics (totalWorks vs closedWorks, readyForExport flag). Use this when the user asks which orders can be exported, whether an order is complete enough to export, or before open_order_export to identify the right order. The export itself is order-based (SealedOrder selection with recursive descendant resolver), so this list is the authoritative source of exportable units. Related skills: open_order_export (start the download in the UI), list_recent_exports (history of completed exports), close_period (close works so an order becomes fully exportable).",
+      "description": "Lists sealed orders (shifts with Status=SealedOrder) that are eligible for the order export, including customer name/number and Work-closing statistics (totalWorks vs closedWorks, readyForExport flag). Use this when the user asks which orders can be exported, whether an order is complete enough to export, or before open_order_export to identify the right order.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21564,7 +21564,7 @@
     {
       "name": "list_recent_exports",
       "area": "settings",
-      "description": "Lists completed order export runs from the export log (newest first): format, exported data period, file name and size, record count, who exported and when. The date range filters on the exported DATA period (StartDate/EndDate overlap), not on the execution timestamp; defaults to the last 365 days when omitted. Use this when the user asks whether/when an export was already done, who exported a period, or which file was produced. Note: the log stores metadata only — the file itself was downloaded by the browser at export time and cannot be re-downloaded from the log; to re-run an export use open_order_export. Related skills: list_sealed_orders (what can be exported), open_order_export (trigger a new export in the UI).",
+      "description": "Lists completed order export runs from the export log (newest first): format, exported data period, file name and size, record count, who exported and when. The date range filters on the exported DATA period (StartDate/EndDate overlap), not on the execution timestamp; defaults to the last 365 days when omitted. Use this when the user asks whether/when an export was already done, who exported a period, or which file was produced.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21636,7 +21636,7 @@
     {
       "name": "open_order_export",
       "area": "shift",
-      "description": "Opens the period-closing page with the order export card so the user can download the export file. The export file (CSV/JSON/XML/DATEV/BMD) is generated server-side but streamed as a direct browser download, so the chat cannot deliver the file itself — this skill returns a navigate UiAction and the user picks the sealed order and format in the UI, which also writes the export-log entry. Pass format when the user named one; unsupported formats (e.g. Excel) fail early in the chat with the list of supported keys. Use after list_sealed_orders confirmed which order to export. Related skills: list_sealed_orders (find/verify the order), list_recent_exports (check it was logged afterwards), close_period (close remaining works first if the order is not fully closed).",
+      "description": "Opens the period-closing page with the order export card so the user can download the export file. The export file (CSV/JSON/XML/DATEV/BMD) is generated server-side but streamed as a direct browser download, so the chat cannot deliver the file itself — this skill returns a navigate UiAction and the user picks the sealed order and format in the UI, which also writes the export-log entry. Pass format when the user named one; unsupported formats (e.g.",
       "category": "UI",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21707,7 +21707,7 @@
     {
       "name": "list_email_folders",
       "area": "inbox",
-      "description": "Lists all email inbox folders (system folders like INBOX, Sent, Trash plus user-created folders) with their unread and total email counts. Use this first when the user asks about the mailbox structure or how many unread emails exist per folder, and to obtain the imapFolderName values that the folder parameter of list_emails expects. Read-only: it never creates, renames or deletes folders. Related skills: list_emails (list emails of one folder), read_email (read a single email). Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists all email inbox folders (system folders like INBOX, Sent, Trash plus user-created folders) with their unread and total email counts. Use this first when the user asks about the mailbox structure or how many unread emails exist per folder, and to obtain the imapFolderName values that the folder parameter of list_emails expects. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21767,7 +21767,7 @@
     {
       "name": "list_emails",
       "area": "inbox",
-      "description": "Lists received emails from the mail inbox, newest first, as a compact overview per email: ID, sender, subject, received date, read flag and attachment flag — body content is never included. Filter by folder (IMAP folder name from list_email_folders), limit the result with maxResults (1-50, default 20) and restrict to unread emails with unreadOnly. Also returns the total and unread counts of the selected scope. Use this when the user asks what is in the inbox, whether new or unread emails arrived, or to find an email ID before read_email. Read-only: it does not mark emails as read and cannot move, send or delete emails. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists received emails from the mail inbox, newest first, as a compact overview per email: ID, sender, subject, received date, read flag and attachment flag — body content is never included. Filter by folder (IMAP folder name from list_email_folders), limit the result with maxResults (1-50, default 20) and restrict to unread emails with unreadOnly. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21856,7 +21856,7 @@
     {
       "name": "read_email",
       "area": "inbox",
-      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag) and the email is NOT marked as read. There is deliberately no skill for sending emails or for permanent deletion; mailbox housekeeping goes through mark_email_read, move_email_to_folder (also spam/not-spam), delete_email (trash, reversible) and restore_email. Related skills: list_email_folders, list_emails, get_email_analysis, translate_email. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email wishes specific days off or unavailability without a formal vacation request, use add_schedule_commands_range afterwards with FREE (the opposite — wanting to work as much as possible — is -FREE). When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT. These are the default tokens; admins can rename them in Settings, and add_schedule_commands_range's error message lists the exact tokens currently in effect.",
+      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag) and the email is NOT marked as read.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22329,7 +22329,7 @@
     {
       "name": "list_transcription_dictionary_entries",
       "area": "klacksy",
-      "description": "Lists the entries of the multilingual transcription dictionary that powers the fuzzy phonetic speech-to-text correction. Each entry returns its id, the correct term, an optional category, the known phonetic variants (common STT mishearings), an optional description and an optional language code that selects the phonetic encoder. Use this to review which terms get corrected during voice transcription and to find entry IDs before calling update_transcription_dictionary_entry or delete_transcription_dictionary_entry. Supports optional filtering by language code and by substring of the correct term. For the configured STT/TTS engines themselves use get_speech_settings.",
+      "description": "Lists the entries of the multilingual transcription dictionary that powers the fuzzy phonetic speech-to-text correction. Each entry returns its id, the correct term, an optional category, the known phonetic variants (common STT mishearings), an optional description and an optional language code that selects the phonetic encoder.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22409,7 +22409,7 @@
     {
       "name": "add_transcription_dictionary_entry",
       "area": "klacksy",
-      "description": "Adds a new entry to the multilingual transcription dictionary so the speech-to-text pipeline corrects misheard words to the correct term (e.g. STT hears 'Klaxi' and writes 'Klacksy'). Phonetic variants are optional: the fuzzy phonetic matcher also catches unlisted sound-alike words via the per-language phonetic encoder, but listing known mishearings makes the correction deterministic. phoneticVariants accepts a comma/semicolon separated string or a JSON array. The optional language code (e.g. 'de') selects the phonetic encoder for fuzzy matching; without it the utterance locale is used. The dictionary cache is invalidated automatically, so the change applies to the next transcription. See list_transcription_dictionary_entries for an overview and update/delete_transcription_dictionary_entry for maintenance.",
+      "description": "Adds a new entry to the multilingual transcription dictionary so the speech-to-text pipeline corrects misheard words to the correct term (e.g. STT hears 'Klaxi' and writes 'Klacksy'). Phonetic variants are optional: the fuzzy phonetic matcher also catches unlisted sound-alike words via the per-language phonetic encoder, but listing known mishearings makes the correction deterministic. phoneticVariants accepts a comma/semicolon separated string or a JSON array. The optional language code (e.g.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22505,7 +22505,7 @@
     {
       "name": "update_transcription_dictionary_entry",
       "area": "klacksy",
-      "description": "Updates an existing transcription dictionary entry. Only supplied fields change: correctTerm must stay non-empty, a supplied phoneticVariants value (comma/semicolon separated or JSON array) replaces the existing variant list, and an empty string clears category, description or language. The dictionary cache is invalidated automatically so the change applies to the next transcription. Use list_transcription_dictionary_entries first to find the entryId. Related: add_transcription_dictionary_entry, delete_transcription_dictionary_entry.",
+      "description": "Updates an existing transcription dictionary entry. Only supplied fields change: correctTerm must stay non-empty, a supplied phoneticVariants value (comma/semicolon separated or JSON array) replaces the existing variant list, and an empty string clears category, description or language. The dictionary cache is invalidated automatically so the change applies to the next transcription. Use list_transcription_dictionary_entries first to find the entryId.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22660,7 +22660,7 @@
     {
       "name": "get_speech_settings",
       "area": "settings",
-      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. For each STT API key it returns only whether a key is configured (HasSttApiKey, HasDeepgramApiKey, HasGroqApiKey, HasAssemblyAiApiKey), never the key itself. Custom STT providers (own table, not settings) and the transcription prompt text are not included. Use this before discussing or diagnosing voice input/output behaviour; for the phonetic correction terms use list_transcription_dictionary_entries. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Reads the current voice/speech configuration from the settings store: the active speech-to-text engine (browser, deepgram, groq-whisper, assemblyai), the LLM model and enabled-flag used for transcription enhancement, the assistant output mode, the text-to-speech provider and voice, and the silence threshold in milliseconds. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22722,7 +22722,7 @@
     {
       "name": "list_languages",
       "area": "settings",
-      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code before install_language_pack / uninstall_language_pack. Read-only. Not related to machine translation of texts — for the DeepL translation service state use get_translation_status.",
+      "description": "Lists the active UI languages (with fallback order) and all known language packs: the core languages de/en/fr/it plus optional plugin packs (e.g. Swiss German 'gsw', Romansh 'rm') with installation state, version, translation coverage, translation count and text direction. Use this when the user asks which languages Klacks supports, which language packs are installed, or to find the pack code before install_language_pack / uninstall_language_pack. Read-only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22783,7 +22783,7 @@
     {
       "name": "get_translation_status",
       "area": "settings",
-      "description": "Reports whether the DeepL machine-translation service is configured with an API key, together with the core target languages (de, en, fr, it). Use this when the user asks why automatic translation of multilingual text fields does not work, or before recommending translation features. If the service is not configured, point the user to update_deepl_settings to store the API key (do not duplicate that skill). Read-only; it does not validate the key against the DeepL API. Not related to UI language packs — see list_languages for those.",
+      "description": "Reports whether the DeepL machine-translation service is configured with an API key, together with the core target languages (de, en, fr, it). Use this when the user asks why automatic translation of multilingual text fields does not work, or before recommending translation features. If the service is not configured, point the user to update_deepl_settings to store the API key (do not duplicate that skill). Read-only; it does not validate the key against the DeepL API.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22836,7 +22836,7 @@
     {
       "name": "install_language_pack",
       "area": "settings",
-      "description": "Installs (activates) a locally available optional language pack by its code (e.g. 'gsw' for Swiss German). Activation stores the installed-language setting and imports the pack's translations, skill and navigation synonyms, sentiment keywords, wake words, geo data and documentation. Fails for unknown codes, for core languages (de/en/fr/it are always active) and for packs requiring a newer Klacks version. It does NOT download new packs from the marketplace — only packs already present on the server can be activated. Use list_languages first to find available pack codes; reversible at any time via uninstall_language_pack. Admin only.",
+      "description": "Installs (activates) a locally available optional language pack by its code (e.g. 'gsw' for Swiss German). Activation stores the installed-language setting and imports the pack's translations, skill and navigation synonyms, sentiment keywords, wake words, geo data and documentation. Fails for unknown codes, for core languages (de/en/fr/it are always active) and for packs requiring a newer Klacks version.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23017,7 +23017,7 @@
     {
       "name": "list_states",
       "area": "settings",
-      "description": "Lists all states/cantons (e.g. Swiss cantons, German Bundesländer) from the system master data. Returns id, abbreviation (e.g. 'BE', 'ZH', 'AG'), the owning country prefix (e.g. 'CH') and the multilingual name (de/en/fr/it). Optionally filter by country abbreviation. Use this when the user asks which cantons/states exist, to validate canton abbreviations in address workflows, or before canton-based filtering (e.g. the canton parameter of list_contracts). Use list_countries first to discover valid country abbreviations; to resolve a city or postal code to its canton use lookup_location instead. Read-only reference data.",
+      "description": "Lists all states/cantons (e.g. Swiss cantons, German Bundesländer) from the system master data. Returns id, abbreviation (e.g. 'BE', 'ZH', 'AG'), the owning country prefix (e.g. 'CH') and the multilingual name (de/en/fr/it). Optionally filter by country abbreviation. Use this when the user asks which cantons/states exist, to validate canton abbreviations in address workflows, or before canton-based filtering (e.g. the canton parameter of list_contracts).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -23092,7 +23092,7 @@
     {
       "name": "list_identity_providers",
       "area": "settings",
-      "description": "Lists all configured identity providers (LDAP, Active Directory, OAuth2, OpenID Connect) used for single sign-on and client import. Returns only non-sensitive fields per provider: id, name, type, enabled flag, sort order, whether it is used for authentication and/or client import, plus the last sync time/count/error. Bind passwords, client secrets and other credentials are NEVER included. Use this skill first to find the provider id before calling update_identity_provider or delete_identity_provider, or to answer questions like 'which SSO providers are configured' or 'is LDAP login enabled'. Read-only and safe; requires admin rights because the controller is admin-only. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists all configured identity providers (LDAP, Active Directory, OAuth2, OpenID Connect) used for single sign-on and client import. Returns only non-sensitive fields per provider: id, name, type, enabled flag, sort order, whether it is used for authentication and/or client import, plus the last sync time/count/error. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23159,7 +23159,7 @@
     {
       "name": "create_identity_provider",
       "area": "settings",
-      "description": "Creates a new identity provider for single sign-on or client import (types: Ldap, ActiveDirectory, OAuth2, OpenIdConnect). Secret parameters (bindPassword, clientSecret) are accepted and stored, but they are NEVER echoed back — responses only carry boolean presence flags (HasBindPassword/HasClientSecret). The provider is created disabled unless isEnabled is explicitly true, so the configuration can be reviewed first. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers to verify the result, update_identity_provider to adjust or enable it later, delete_identity_provider to remove it. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a new identity provider for single sign-on or client import (types: Ldap, ActiveDirectory, OAuth2, OpenIdConnect). Secret parameters (bindPassword, clientSecret) are accepted and stored, but they are NEVER echoed back — responses only carry boolean presence flags (HasBindPassword/HasClientSecret). Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23176,7 +23176,7 @@
         },
         {
           "name": "type",
-          "description": "Provider type.",
+          "description": "Provider type. (bitte angeben)",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -23393,7 +23393,7 @@
     {
       "name": "update_identity_provider",
       "area": "settings",
-      "description": "Updates an existing identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Only supplied fields change; everything else keeps its current value. Secret parameters (bindPassword, clientSecret) replace the stored secret only when supplied and are NEVER echoed back — responses carry boolean presence flags instead. Also used to enable/disable a provider (isEnabled) or to toggle useForAuthentication/useForClientImport. Use list_identity_providers first to find the provider id. Changing identity providers can lock users out — double-check with the user, especially when disabling a provider, changing its type, host or credentials. This skill is classified as sensitive and always requires user confirmation before execution. Related skills: list_identity_providers, create_identity_provider, delete_identity_provider. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Only supplied fields change; everything else keeps its current value. Secret parameters (bindPassword, clientSecret) replace the stored secret only when supplied and are NEVER echoed back — responses carry boolean presence flags instead. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23635,7 +23635,7 @@
     {
       "name": "delete_identity_provider",
       "area": "settings",
-      "description": "Soft-deletes an identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Users who authenticate through the deleted provider lose their login path immediately, and client import/sync from that provider stops. Use list_identity_providers first to find the provider id and to check whether the provider is enabled and used for authentication. Changing identity providers can lock users out — double-check with the user. This skill is classified as sensitive and always requires user confirmation before execution. The response contains only non-sensitive fields and warns explicitly when the deleted provider was used for authentication. Related skills: list_identity_providers, create_identity_provider, update_identity_provider (consider disabling via isEnabled=false instead of deleting). Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Soft-deletes an identity provider (LDAP, Active Directory, OAuth2, OpenID Connect). Users who authenticate through the deleted provider lose their login path immediately, and client import/sync from that provider stops. Use list_identity_providers first to find the provider id and to check whether the provider is enabled and used for authentication. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23708,7 +23708,7 @@
     {
       "name": "confirm_pending_action",
       "area": "klacksy",
-      "description": "Executes a pending action the user just confirmed. When a skill call is held by the autonomy gate, the action is stored under a one-time confirmation token and NOT executed. After the user explicitly confirmed in their own words, call this skill with that token — the stored action is then executed exactly as originally requested (same skill, same parameters). Never call this without the user's explicit confirmation; never invent or reuse tokens. If the token is expired, trigger the original action again to get a fresh confirmation request.",
+      "description": "Executes a pending action the user just confirmed. When a skill call is held by the autonomy gate, the action is stored under a one-time confirmation token and NOT executed. After the user explicitly confirmed in their own words, call this skill with that token — the stored action is then executed exactly as originally requested (same skill, same parameters). Never call this without the user's explicit confirmation; never invent or reuse tokens.",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24294,7 +24294,7 @@
     {
       "name": "explain_shift_lifecycle_order_to_shift",
       "area": "shift",
-      "description": "Explains how an order (Bestellung) becomes a plannable shift AND walks through every card of the order entry mask (General with expert mode and the green sealing lock, Group, Required Qualifications, Hours and Weekdays, Macro, Address, Special Features, Default Expenses). An order starts as a freely editable draft that is not plannable yet; sealing it with the green lock makes it final and automatically creates the plannable shift for scheduling; cutting a plannable shift produces split pieces. Call this whenever the user asks what an order is, how to create one, what sealing means, or what the fields of the order mask do.",
+      "description": "Explains how an order (Bestellung) becomes a plannable shift AND walks through every card of the order entry mask (General with expert mode and the green sealing lock, Group, Required Qualifications, Hours and Weekdays, Macro, Address, Special Features, Default Expenses). An order starts as a freely editable draft that is not plannable yet; sealing it with the green lock makes it final and automatically creates the plannable shift for scheduling; cutting a plannable shift produces split pieces.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24840,7 +24840,7 @@
     {
       "name": "explain_page_shifts",
       "area": "shift",
-      "description": "Explains the Services page (Dienste / All Services) at /workplace/shift and its sub-pages edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id). Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the type icons, the row action icons (pencil, trash, scissors, box), the edit mask cards (General with expert mode and the lock/seal button, Group, Required Qualifications, Hours and Weekdays incl. isMonday–isSunday, Macro, Address, Special Features with sporadic scope, employees per shift and tasks per shift, Default Expenses), the cut page with its cut-by-date/time/weekdays/staff/task buttons, and the container template with weekday selection, time ruler, drag & drop task assignment and route optimization. Use this when the user asks what they see on the Shifts page, what the cards/columns/icons mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, the order→sealed→plannable lifecycle, group scope, scenario isolation and the resource monitor impact).",
+      "description": "Explains the Services page (Dienste / All Services) at /workplace/shift and its sub-pages edit-shift (/workplace/edit-shift/:id, /workplace/new-shift), shift cutting (/workplace/cut-shift/:id) and the container template (/workplace/container-template/:id). Covers the service list card with its filter views Orders (incl. the sealed-orders checkbox), Plannable Services (with Time Range and Sporadic sub-filters), Container and Absence, the table columns (abbreviation, name, description, validity dates, times, weekday/holiday checkboxes), the type icons, the row action icons (pencil, trash, scissors, box), the edit mask cards (General with expert mode and the lock/seal button, Group, Required Qualifications, Hours and Weekdays incl.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24980,7 +24980,7 @@
     {
       "name": "explain_page_employees",
       "area": "client",
-      "description": "Explains the All Addresses page (Alle Adressen) at /workplace/client — the central, searchable and filterable list of all persons in Klacks (employees, external employees, customers) — and the edit mask at /workplace/edit-address/:id. Covers the address table (columns NR/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete/view actions), the filter panel (salutation, type, validity/membership status, countries, cantons, visibility date range, deleted addresses, reset), the global header search (name or ID number, multiple IDs separated by ';', include-address option) and the edit mask cards: persona/master data (company, salutation, first/last name, birthdate), historized addresses (a move adds a NEW address with valid-from instead of overwriting; types main/company/invoicing address), communication (phone/email), membership (entry date = plannability limit in the schedule), contracts, assigned groups, qualifications, notes and image. Use this when the user asks what they see on the Employees/Addresses page or in the address edit mask, what the columns/cards mean, or how to work with them. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources and how the page interacts with schedule, absence calendar, groups, availability and the planning assistant).",
+      "description": "Explains the All Addresses page (Alle Adressen) at /workplace/client — the central, searchable and filterable list of all persons in Klacks (employees, external employees, customers) — and the edit mask at /workplace/edit-address/:id. Covers the address table (columns NR/COMPANY/FIRST NAME/LAST NAME, type abbreviation, sorting, pagination, Excel export, edit/delete/view actions), the filter panel (salutation, type, validity/membership status, countries, cantons, visibility date range, deleted addresses, reset), the global header search (name or ID number, multiple IDs separated by ';', include-address option) and the edit mask cards: persona/master data (company, salutation, first/last name, birthdate), historized addresses (a move adds a NEW address with valid-from instead of overwriting; types main/company/invoicing address), communication (phone/email), membership (entry date = plannability limit in the schedule), contracts, assigned groups, qualifications, notes and image.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25130,7 +25130,7 @@
     {
       "name": "explain_page_groups",
       "area": "group",
-      "description": "Explains the Groups pages — /workplace/group, the admin page for managing groups (teams, locations, organisational units) with two switchable views: a sortable, filterable table (with validity filter column) and a hierarchical tree with X|Y member badges, expand/collapse/refresh, subgroup creation and drag & drop re-parenting. Also covers the group editor at /workplace/edit-group/:id (master data with name, validity, payment interval, calendar selection and notes; parent structure with current path; participant list with person search and filter column), the group visibility configuration (which root groups each user account may see, reached via Settings), optional group coordinates (latitude/longitude) for geographic evaluations, and how the global group selection affects all other workspace pages. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, hierarchy model, group scope and visibility effects on other pages).",
+      "description": "Explains the Groups pages — /workplace/group, the admin page for managing groups (teams, locations, organisational units) with two switchable views: a sortable, filterable table (with validity filter column) and a hierarchical tree with X|Y member badges, expand/collapse/refresh, subgroup creation and drag & drop re-parenting. Also covers the group editor at /workplace/edit-group/:id (master data with name, validity, payment interval, calendar selection and notes; parent structure with current path; participant list with person search and filter column), the group visibility configuration (which root groups each user account may see, reached via Settings), optional group coordinates (latitude/longitude) for geographic evaluations, and how the global group selection affects all other workspace pages. Use this when the user asks what they see on the Groups page, what the cards/columns/tree badges mean, or how to work with it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25274,7 +25274,7 @@
     {
       "name": "explain_page_period_closing",
       "area": "period",
-      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing — the admin-only page for sealing billing periods day by day. Covers the Periods card (period dropdown grouped by payment interval, sealed/partial/empty day badges, the day table with seal checkboxes, the mandatory-reason unseal dialog, the collapsible issues card with error/warning/info badges and the unstaffed-shift counter, bulk seal/unseal), the Exports card (date filter, sealed-order search, CSV/JSON/XML/DATEV/BMD formats, proof-of-service download with partial-close warning), and the Audit Log card (seal/unseal actions and export history with detail modals). Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, why a sealed day rejects changes, or who sealed/exported what. Supports a level parameter: short (purpose only), elements (every element explained), effects (day-lock impact on schedule/absences, audit and export logs, permissions and interplay with other pages).",
+      "description": "Explains the Period Closing page (Periodenabschluss) at /workplace/period-closing — the admin-only page for sealing billing periods day by day. Covers the Periods card (period dropdown grouped by payment interval, sealed/partial/empty day badges, the day table with seal checkboxes, the mandatory-reason unseal dialog, the collapsible issues card with error/warning/info badges and the unstaffed-shift counter, bulk seal/unseal), the Exports card (date filter, sealed-order search, CSV/JSON/XML/DATEV/BMD formats, proof-of-service download with partial-close warning), and the Audit Log card (seal/unseal actions and export history with detail modals). Use this when the user asks what they see on the Period Closing page, what the cards/columns/badges mean, how to seal or reopen a period, why a sealed day rejects changes, or who sealed/exported what.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25597,7 +25597,7 @@
     {
       "name": "explain_page_settings_overview",
       "area": "settings",
-      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its thirteen collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for detail), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed order shifts). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
+      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25723,7 +25723,7 @@
     {
       "name": "explain_page_profile",
       "area": "security",
-      "description": "Explains the My Profile page (Mein Profil) at /workplace/profile — the personal page of the logged-in user with four cards: profile picture (drag & drop upload or click, instant delete; the picture also becomes the sidebar profile icon), change my login data (read-only username, current password with show/hide toggle, new password with live strength indicator, repeat field locked until the password is strong, saved via the footer save bar), custom settings (theme with 7 color schemes and the display language, both applied instantly without saving) and the microphone & voice recognition test (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second record/playback with level meter and automatic transcription). Use this when the user asks what they see on the profile page, how to change their password, picture, theme or language, or how to test the microphone. Supports a level parameter: short (purpose only), elements (every element explained), effects (data sources, what saving the password does, and how the page interacts with the sidebar, language packs and the Klacksy voice input).",
+      "description": "Explains the My Profile page (Mein Profil) at /workplace/profile — the personal page of the logged-in user with four cards: profile picture (drag & drop upload or click, instant delete; the picture also becomes the sidebar profile icon), change my login data (read-only username, current password with show/hide toggle, new password with live strength indicator, repeat field locked until the password is strong, saved via the footer save bar), custom settings (theme with 7 color schemes and the display language, both applied instantly without saving) and the microphone & voice recognition test (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second record/playback with level meter and automatic transcription). Use this when the user asks what they see on the profile page, how to change their password, picture, theme or language, or how to test the microphone.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25856,7 +25856,7 @@
     {
       "name": "start_guided_tour",
       "area": "navigation",
-      "description": "Starts the guided Klacks setup tour: Klacksy actively walks the user through all 16 stations (basic settings, employees, shifts, availability, absences, period closing, email, plugins), navigating to each page, pulsing the matching main-nav icon and explaining everything step by step. Use this whenever the user asks for a tour, a guided walkthrough, an introduction to Klacks, or wants Klacksy to lead them through the app. The tour can be restarted at any time, even when already completed. Do NOT improvise your own tour - call this skill so the structured tour takes over.",
+      "description": "Starts the guided Klacks setup tour: Klacksy actively walks the user through all 16 stations (basic settings, employees, shifts, availability, absences, period closing, email, plugins), navigating to each page, pulsing the matching main-nav icon and explaining everything step by step. Use this whenever the user asks for a tour, a guided walkthrough, an introduction to Klacks, or wants Klacksy to lead them through the app. The tour can be restarted at any time, even when already completed.",
       "category": "Action",
       "executionType": "UiAction",
       "requiredPermissions": [],
@@ -26107,7 +26107,7 @@
         },
         {
           "name": "city",
-          "description": "City/town.",
+          "description": "City/town. (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -26115,7 +26115,7 @@
         },
         {
           "name": "country",
-          "description": "Country.",
+          "description": "Country. (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -26215,7 +26215,7 @@
         },
         {
           "name": "city",
-          "description": "New city/town.",
+          "description": "New city/town. (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -26223,7 +26223,7 @@
         },
         {
           "name": "country",
-          "description": "New country.",
+          "description": "New country. (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -26367,7 +26367,7 @@
         },
         {
           "name": "note",
-          "description": "New note text.",
+          "description": "New note text. (bitte angeben)",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -26555,7 +26555,7 @@
         },
         {
           "name": "content",
-          "description": "New note text.",
+          "description": "New note text. (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -27203,7 +27203,7 @@
     {
       "name": "schedule_recurring_task",
       "area": "settings",
-      "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression. Two action types: 'reminder' delivers messageText to the user; 'skill' runs another skill (skillName + optional skillParameters JSON) and delivers its result. Always call first with apply=false to show the preview and the computed next run, ask the user to confirm, then call again with apply=true. This is also how a PAUSED task is resumed: a background run refused for a cause the owner can fix (missing allowIrreversibleUnattended opt-in, autonomy level too low) pauses the task instead of deleting it, and re-applying it here under the SAME name lifts the pause. Examples: erinnere mich jeden Montag um 8 Uhr, jeden Tag um 18:00 einen Report, remind me every Friday, rappelle-moi chaque lundi, ricordami ogni lunedi.",
+      "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -27369,7 +27369,7 @@
     {
       "name": "list_recurring_tasks",
       "area": "settings",
-      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Each entry also reports whether the task is PAUSED and why: a paused task keeps enabled=true but does not run until the reported cause is fixed and the task is scheduled again under the same name. Use when the user asks which reminders or scheduled/recurring tasks exist, or why a scheduled task did not run. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Use when the user asks which reminders or scheduled/recurring tasks exist, or why a scheduled task did not run. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27424,7 +27424,7 @@
     {
       "name": "cancel_recurring_task",
       "area": "settings",
-      "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by its name. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria. Use when the user wants to cancel a running process. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by it. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria. Use when the user wants to cancel a running process. Do NOT use when they only want to see, list, or check existing data",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27940,7 +27940,7 @@
     {
       "name": "update_break_placeholder",
       "area": "absence",
-      "description": "Moves, resizes, converts or annotates a PLANNED absence (BreakPlaceholder) in the absence calendar — the chat equivalent of dragging, resizing or converting a bar on the absence gantt. Identify the placeholder by placeholderId (from search_client_absences, Source='planned') or by clientId + date. Booked absences (Source='booked') are read-only here — use update_break for those. Use for: 'verschiebe die Ferien von Max', 'verlängere die Abwesenheit bis Freitag', 'wandle die Absenz in Krankheit um'.",
+      "description": "Moves, resizes, converts or annotates a PLANNED absence (BreakPlaceholder) in the absence calendar — the chat equivalent of dragging, resizing or converting a bar on the absence gantt. Identify the placeholder by placeholderId (from search_client_absences, Source='planned') or by clientId + date. Booked absences (Source='booked') are read-only here — use update_break for those.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28123,7 +28123,7 @@
     {
       "name": "check_absence_conflicts",
       "area": "absence",
-      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before add_break_placeholder/add_break on longer periods. Use for: 'kann Anna vom 3.-10.8. Ferien nehmen?', 'geht das mit den Ferien?', 'hat Max da schon etwas geplant?'.",
+      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before add_break_placeholder/add_break on longer periods. Use for: 'kann Anna vom 3.-10.8.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28197,7 +28197,7 @@
     {
       "name": "check_absence_capacity_reserve",
       "area": "absence",
-      "description": "Judges whether granting a planned absence (holiday, training, other placeholder wish) still leaves enough staffing reserve, or whether it runs the team into a resource gap. Demand is the scheduled shifts, capacity is the desired daily readiness minus the absences already planned plus the requested one; a window fails when utilization exceeds the configured ceiling, which keeps a buffer for unplanned sickness. Checked per day, per rolling three days, per work week and per calendar week, so a shortage that repeats is caught even when no single day looks bad. Answers a decision about ONE concrete requested period; for one person's own overlaps and assignments use check_absence_conflicts, for the year-wide over-/understaffing picture without a pending request use interpret_resource_monitor. Use for: 'haben wir im Juli noch Kapazitaet fuer Ferien?', 'laufen wir da in eine Ressourcenluecke?', 'reicht die Reserve noch?'.",
+      "description": "Judges whether granting a planned absence (holiday, training, other placeholder wish) still leaves enough staffing reserve, or whether it runs the team into a resource gap. Demand is the scheduled shifts, capacity is the desired daily readiness minus the absences already planned plus the requested one; a window fails when utilization exceeds the configured ceiling, which keeps a buffer for unplanned sickness.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28285,7 +28285,7 @@
     {
       "name": "find_absence_capacity_windows",
       "area": "absence",
-      "description": "Searches a date range for periods where an absence of the wanted length still fits the staffing reserve, and reports them best-first (lowest peak utilization). Slides the wanted period across the range and judges every placement with the same rule check_absence_capacity_reserve applies to a single given period, so a suggestion made here cannot be rejected by a direct check of the same dates. Use this when the user knows HOW LONG they want off but not WHEN; use check_absence_capacity_reserve when the dates are already fixed, and check_absence_conflicts for one person's own overlaps. Use for: 'wann koennen wir zwei Wochen Ferien einplanen?', 'wo ist im Herbst noch Platz fuer eine Schulung?', 'finde einen passenden Zeitraum'.",
+      "description": "Searches a date range for periods where an absence of the wanted length still fits the staffing reserve, and reports them best-first (lowest peak utilization). Slides the wanted period across the range and judges every placement with the same rule check_absence_capacity_reserve applies to a single given period, so a suggestion made here cannot be rejected by a direct check of the same dates.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28453,7 +28453,7 @@
     {
       "name": "seal_shift",
       "area": "shift",
-      "description": "Seals ONE order (Bestellung, status OriginalOrder) into a permanently immutable SealedOrder — the one-time lifecycle transition from explain_shift_lifecycle_order_to_shift. Sealing simultaneously creates the plannable shift (OriginalShift) that get_shift_details, search_shifts and cut_shift then operate on. Validates the same fields the UI lock button requires (abbreviation, name, fromDate, at least one weekday/holiday, at least one group, quantity>0, sumEmployees>0) and re-reads both the sealed order and its new plannable shift from the database to confirm the write before reporting success. Use create_shift with asDraft=true to build an order first, then seal_shift once it's complete; use set_sealed_order_until_date afterwards for the one permitted post-seal change.",
+      "description": "Seals ONE order (Bestellung, status OriginalOrder) into a permanently immutable SealedOrder — the one-time lifecycle transition from explain_shift_lifecycle_order_to_shift. Sealing simultaneously creates the plannable shift (OriginalShift) that get_shift_details, search_shifts and cut_shift then operate on.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28520,7 +28520,7 @@
     {
       "name": "set_sealed_order_until_date",
       "area": "shift",
-      "description": "Sets the until-date on an already-sealed order (status SealedOrder) — the single permitted change to an otherwise immutable order, per explain_shift_lifecycle_order_to_shift. Only works once: the sealed order must not already have an until-date, and no work may exist after the requested date anywhere in the order's shift tree (its plannable shift and any split parts). Re-reads the order from the database to confirm the write before reporting success. The order's plannable shift and any split parts keep their own until-date unchanged — this only touches the sealed order row, mirroring the normal edit-shift save. Use after seal_shift once an order's end date becomes known.",
+      "description": "Sets the until-date on an already-sealed order (status SealedOrder) — the single permitted change to an otherwise immutable order, per explain_shift_lifecycle_order_to_shift. Only works once: the sealed order must not already have an until-date, and no work may exist after the requested date anywhere in the order's shift tree (its plannable shift and any split parts). Re-reads the order from the database to confirm the write before reporting success.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28590,7 +28590,7 @@
     {
       "name": "list_shift_cuts",
       "area": "shift",
-      "description": "Lists the cut tree (split parts) of a shift order in a compact, read-only view: piece id, name, abbreviation, readable status (order/sealed/plannable/split), fromDate/untilDate, start/end time, active weekdays and parentId. Accepts the order id (Bestellung), its plannable shift id, or any split part id — all three resolve to the same order, same as cut_shift. Use this before cut_shift_by_date or reset_shift_cuts to see the current pieces and their date boundaries. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists the cut tree (split parts) of a shift order in a compact, read-only view: piece id, name, abbreviation, readable status (order/sealed/plannable/split), fromDate/untilDate, start/end time, active weekdays and parentId. Accepts the order id (Bestellung), its plannable shift id, or any split part id — all three resolve to the same order, same as cut_shift. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28652,7 +28652,7 @@
     {
       "name": "reset_shift_cuts",
       "area": "shift",
-      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Validates newStartDate against the order's own validity range first and rejects an order that is not currently split. The order itself (the Bestellung) is never changed. Use when the user wants to reset a value or state. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Use when the user wants to reset a value or state. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28720,7 +28720,7 @@
     {
       "name": "cut_shift_by_date",
       "area": "shift",
-      "description": "Cuts ONE plannable shift piece (an OriginalShift, or an already-split SplitShift part) at a calendar date boundary: the existing piece is shrunk so it ends the day before cutDate (status forced to SplitShift), and a new piece is created starting on cutDate that inherits the old untilDate, groups and weekly pattern. Complements cut_shift (which splits by time-of-day into several parts at once): use cut_shift_by_date when the split is a date boundary instead (e.g. a rate or staffing change from a given date). An order id is resolved to its plannable shift like cut_shift; passing an already-split part's id nests the new piece under that part (sub-cut) instead of creating a new sibling. Validates cutDate strictly against the piece's own fromDate (exclusive) and untilDate (inclusive) first.",
+      "description": "Cuts ONE plannable shift piece (an OriginalShift, or an already-split SplitShift part) at a calendar date boundary: the existing piece is shrunk so it ends the day before cutDate (status forced to SplitShift), and a new piece is created starting on cutDate that inherits the old untilDate, groups and weekly pattern. Complements cut_shift (which splits by time-of-day into several parts at once): use cut_shift_by_date when the split is a date boundary instead (e.g.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28949,7 +28949,7 @@
     {
       "name": "list_container_template",
       "area": "shift",
-      "description": "Lists the weekday template of a container shift (ShiftType=IsContainer): the configured task-shifts and absences per weekday, with their start/end times and optional briefing/debriefing/travel times. Read-only, no container edit lock is taken. Item order has no backing position column in the database and is returned as-is. Use explain_shift_container first if the user needs conceptual background on containers, templates and overrides. Related: explain_shift_container, search_shifts, get_shift_details. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists the weekday template of a container shift (ShiftType=IsContainer): the configured task-shifts and absences per weekday, with their start/end times and optional briefing/debriefing/travel times. Read-only, no container edit lock is taken. Item order has no backing position column in the database and is returned as-is. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29107,7 +29107,7 @@
     {
       "name": "create_container_template",
       "area": "shift",
-      "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Refuses when that weekday variant already exists or while another user is editing the container. Related: add_container_template_task, list_container_template, explain_shift_container. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29239,7 +29239,7 @@
     {
       "name": "delete_container_template",
       "area": "shift",
-      "description": "Deletes the weekday templates of a container shift (ShiftType IsContainer) and is the registered inverse of create_container_template. CAUTION: the underlying endpoint is container-scoped, so this removes ALL weekday templates of that container in one call, together with every task configured in them - there is no way to delete a single weekday. Use it to undo a freshly created template on a container that had none before, or when the whole day plan of a container is to be rebuilt from scratch. Acquires the container edit lock before writing and releases it afterwards; a container without any template is reported as a no-op and never takes the lock. Run list_container_template first to see what would be lost. Related: create_container_template, list_container_template, explain_shift_container. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Deletes the weekday templates of a container shift (ShiftType IsContainer) and is the registered inverse of create_container_template. CAUTION: the underlying endpoint is container-scoped, so this removes ALL weekday templates of that container in one call, together with every task configured in them - there is no way to delete a single weekday. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29452,7 +29452,7 @@
     {
       "name": "check_client_availability",
       "area": "availability",
-      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8. von 8-12 arbeiten?', 'ist er da einsetzbar?'.",
+      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29952,7 +29952,7 @@
     {
       "name": "analyze_group_semantics",
       "area": "group",
-      "description": "READ-ONLY DIAGNOSTIC. ALWAYS call this FIRST when the user vaguely asks to sort/distribute/organize clients into groups WITHOUT naming a concrete criterion (e.g. 'ordne die Mitarbeiter in Gruppen ein', 'verteil die Kunden auf die Gruppen', 'sort employees into groups'). It inspects the groups visible to you and forms hypotheses about what their names mean — canton, city, qualification, contract, or geo-coordinates — plus how many active members each group has and how many clients of the given entity type have no group at all. Use the result to ask the user a CONCRETE follow-up question naming the dominant hypothesis and the real group names as options — never guess a criterion. Only after the user confirms, act per hypothesis: fill_group_by_criteria (canton, city, zipPrefix, qualificationName, contractName, entityType — one call per target group, always apply=false preview first), group_ungrouped_by_city_name (bulk city-based grouping of ungrouped clients), or add_client_to_nearest_group / propose_grouping (geo).",
+      "description": "READ-ONLY DIAGNOSTIC. ALWAYS call this FIRST when the user vaguely asks to sort/distribute/organize clients into groups WITHOUT naming a concrete criterion (e.g. 'ordne die Mitarbeiter in Gruppen ein', 'verteil die Kunden auf die Gruppen', 'sort employees into groups').",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30018,7 +30018,7 @@
     {
       "name": "start_company_rule",
       "area": "wizard",
-      "description": "Starts a company-rule intake with Klacksy: creates a draft for the given rule kind (surchargeSettings, counterRule or customMacro) and the admin's original wording, and returns the checklist of required and optional parameters to collect. For a custom-macro rule the macro DSL reference is included. Replaces any draft already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_company_rule_parameters, preview_company_rule and apply_company_rule. Use when the user wants to start a new guided setup. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Starts a company-rule intake with Klacksy: creates a draft for the given rule kind (surchargeSettings, counterRule or customMacro) and the admin's original wording, and returns the checklist of required and optional parameters to collect. For a custom-macro rule the macro DSL reference is included. Replaces any draft already in progress. Draft-only; nothing is persisted. Use when the user wants to start a new guided setup. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30525,7 +30525,7 @@
     {
       "name": "start_planning_profile_setup",
       "area": "schedule",
-      "description": "Starts a guided custom-planning-profile setup with Klacksy: creates a draft and returns the checklist of parameters to collect. The first question is which of the six shipped industries the business is most comparable to (its scheduling-rule templates are copied as editable customer-owned rules) or whether to start from scratch (a single blank rule). Each parameter carries its meaning and its planning impact so Klacksy can explain what every answer changes. Replaces any setup already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_planning_profile_parameters, preview_planning_profile and apply_planning_profile.",
+      "description": "Starts a guided custom-planning-profile setup with Klacksy: creates a draft and returns the checklist of parameters to collect. The first question is which of the six shipped industries the business is most comparable to (its scheduling-rule templates are copied as editable customer-owned rules) or whether to start from scratch (a single blank rule). Each parameter carries its meaning and its planning impact so Klacksy can explain what every answer changes.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30591,7 +30591,7 @@
     {
       "name": "set_planning_profile_parameters",
       "area": "schedule",
-      "description": "Sets one or more parameters on the in-progress planning-profile draft. Pass a JSON object of parameterName to value (baseIndustry is the first required choice; the remaining fields are optional working-time, rest, overtime and surcharge overrides). Each value is validated individually against its definition; invalid values are reported with a plain-language reason and not stored, valid ones are merged. Returns the per-parameter outcome and the updated checklist so Klacksy can ask for the next value one at a time. Draft-only; nothing is persisted. Requires admin permissions.",
+      "description": "Sets one or more parameters on the in-progress planning-profile draft. Pass a JSON object of parameterName to value (baseIndustry is the first required choice; the remaining fields are optional working-time, rest, overtime and surcharge overrides). Each value is validated individually against its definition; invalid values are reported with a plain-language reason and not stored, valid ones are merged.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30656,7 +30656,7 @@
     {
       "name": "preview_planning_profile",
       "area": "schedule",
-      "description": "Shows a full preview of the in-progress planning-profile draft before applying: for an industry base it lists every template scheduling rule that would be copied as a customer-owned rule (and states plainly when the industry has no templates, so nothing would be created), for a scratch base the single blank rule that would be created; in both cases it shows the field overrides that would be applied and that ACTIVE_INDUSTRIES would be set to custom. Returns the checklist instead when required parameters are still missing. Read-only; takes no parameters. Requires admin permissions.",
+      "description": "Shows a full preview of the in-progress planning-profile draft before applying: for an industry base it lists every template scheduling rule that would be copied as a customer-owned rule (and states plainly when the industry has no templates, so nothing would be created), for a scratch base the single blank rule that would be created; in both cases it shows the field overrides that would be applied and that ACTIVE_INDUSTRIES would be set to custom.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30825,7 +30825,7 @@
     {
       "name": "create_plan",
       "area": "schedule",
-      "description": "Proposes a multi-step plan for a complex goal that bundles SEVERAL state-changing actions in one request (e.g. create a customer AND an order AND assign staff). Pass the whole request summarised as a single free-text 'goal'. This skill only DRAFTS the numbered steps and asks the user to confirm — it never executes anything on its own. Execution starts only after the user explicitly confirms and confirm_pending_action replays the confirmation token. Prefer this over running the individual actions one by one when the user asked for many things at once; do NOT use it for a single action or for a request already handled by a guided recipe.",
+      "description": "Proposes a multi-step plan for a complex goal that bundles SEVERAL state-changing actions in one request (e.g. create a customer AND an order AND assign staff). Pass the whole request summarised as a single free-text 'goal'. Prefer this over running the individual actions one by one when the user asked for many things at once; do NOT use it for a single action or for a request already handled by a guided recipe.",
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -30957,7 +30957,7 @@
     {
       "name": "run_analysis",
       "area": "schedule",
-      "description": "Delegates a broad, open-ended READ-ONLY analysis question to a cheap background research sub-loop that gathers the data with many read-only lookups and returns ONE compact synthesis. Use this instead of calling many read tools yourself whenever the user asks to analyze, review or assess a period or data set and surface patterns, gaps, under-staffing or problems (e.g. 'analysiere den Dienstplan von Juli und sag mir wo Lücken sind', 'analyze this month's shifts', 'wo sind die Unterbesetzungen?', 'review the roster and tell me what stands out'). It only READS and never changes anything. Pass the user's question verbatim as 'question'. Prefer it for 'analyze / review / where are the gaps / what stands out' requests; for a single concrete lookup, call that specific read tool directly instead.",
+      "description": "Delegates a broad, open-ended READ-ONLY analysis question to a cheap background research sub-loop that gathers the data with many read-only lookups and returns ONE compact synthesis. Use this instead of calling many read tools yourself whenever the user asks to analyze, review or assess a period or data set and surface patterns, gaps, under-staffing or problems (e.g.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31020,7 +31020,7 @@
     {
       "name": "bundle_nearby_timerange_shifts_into_container",
       "area": "shift",
-      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a given day's time budget around a city/town/location, creates a brand-new container shift for exactly one weekday, and fills its weekday template with the found tasks in route-optimized order — container creation, autofill and template persistence happen atomically in one transaction with a self-verifying re-read. Without a configured OpenRouteService API key, only transportMode=car is supported; bicycle/foot/mix are rejected with a clear error instead of silently falling back to a worse route. Related: create_shift, add_container_template_task, list_container_template, explain_shift_container.",
+      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a given day's time budget around a city/town/location, creates a brand-new container shift for exactly one weekday, and fills its weekday template with the found tasks in route-optimized order — container creation, autofill and template persistence happen atomically in one transaction with a self-verifying re-read.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -31445,7 +31445,7 @@
     {
       "name": "explain_klacksy_learning",
       "area": "klacksy",
-      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group is triaged into a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet. A learned wording must pass a routing replay (O1), a learned capability additionally an execution probe (O2), and whatever proves useless is withdrawn again by the fitness quote, which a thumbs up improves. All of it runs automatically; an administrator supervises afterwards in the settings card 'Klacksy learns'. Only a 120-character excerpt of a wording is stored, and learning never changes what a capability is allowed to do. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its capabilities grow.",
+      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group is triaged into a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31512,7 +31512,7 @@
     {
       "name": "explain_contracts",
       "area": "contract",
-      "description": "Explains the working conditions a person is employed under: a contract template carries guaranteed, minimum, maximum and full-time hours, night, holiday, Saturday and Sunday surcharges, the working weekdays, a payment interval and optionally its own public-holiday calendar. Covers template versus assignment, that only one contract is active per person, and that people without one fall back to the company-wide defaults. Use this when the user asks about hours owed, surcharge rates, part-time percentages or expiring contracts.",
+      "description": "Explains the working conditions a person is employed under: a contract template carries guaranteed, minimum, maximum and full-time hours, night, holiday, Saturday and Sunday surcharges, the working weekdays, a payment interval and optionally its own public-holiday calendar. Covers template versus assignment, that only one contract is active per person, and that people without one fall back to the company-wide defaults.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31667,7 +31667,7 @@
     {
       "name": "explain_planning_wizards",
       "area": "wizard",
-      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a picture-reading language model and is the only stage that costs usage. Covers running a single stage, polling a run and cancelling it. Use this when the user asks how auto-planning works internally, which stage to use, or why a run is costly.",
+      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a picture-reading language model and is the only stage that costs usage. Covers running a single stage, polling a run and cancelling it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31798,7 +31798,7 @@
     {
       "name": "explain_system_context",
       "area": "system",
-      "description": "Explains what Klacksy knows about its surroundings and which of it reaches outside the company: date and time in the signed-in user's own timezone, the installed version, weather from a free keyless service that only sends a location, and internet search which works only when configured and is the one ability that genuinely leaves the company. Also warns that the test-data generator creates real records, not a sandbox. Use this when the user asks whether Klacksy goes online or what leaves the company.",
+      "description": "Explains what Klacksy knows about its surroundings and which of it reaches outside the company: date and time in the signed-in user's own timezone, the installed version, weather from a free keyless service that only sends a location, and internet search which works only when configured and is the one ability that genuinely leaves the company. Also warns that the test-data generator creates real records, not a sandbox.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -32737,7 +32737,7 @@
     {
       "name": "list_counter_rules",
       "area": "schedule",
-      "description": "Shows the rules that count how often something may happen to one person: how many night duties within a month, how many days worked inside one week, or how many long assignments beyond a set number of hours. Each entry says what is counted, over which window the count resets, the number that is still acceptable, and whether going beyond it only warns or is refused outright. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows the rules that count how often something may happen to one person: how many night duties within a month, how many days worked inside one week, or how many long assignments beyond a set number of hours. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35007,7 +35007,7 @@
         },
         {
           "name": "name",
-          "description": "New name",
+          "description": "New name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -35174,7 +35174,7 @@
         },
         {
           "name": "firstName",
-          "description": "New first name",
+          "description": "New first name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -35182,7 +35182,7 @@
         },
         {
           "name": "lastName",
-          "description": "New last name",
+          "description": "New last name (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -37046,7 +37046,7 @@
         },
         {
           "name": "groqApiKey",
-          "description": "Key for Groq",
+          "description": "Key for Groq (bitte angeben)",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -37625,7 +37625,7 @@
     {
       "name": "explain_scheduling_rules_model",
       "area": "schedule",
-      "description": "Explains the limits a roster has to respect: the longest working day, the ceiling on hours per week, how many days in a row somebody may work, the minimum hours off between two working days and the minimum rest days between two blocks of work. Covers where a limit that is left empty takes its value from, what an entered zero actually does, and whether exceeding a limit only warns the planner or refuses the assignment. Use this when the user asks why the planner objects to a shift, which limit applies to whom, or how strictly a limit is enforced.",
+      "description": "Explains the limits a roster has to respect: the longest working day, the ceiling on hours per week, how many days in a row somebody may work, the minimum hours off between two working days and the minimum rest days between two blocks of work. Covers where a limit that is left empty takes its value from, what an entered zero actually does, and whether exceeding a limit only warns the planner or refuses the assignment.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -37720,7 +37720,7 @@
     {
       "name": "explain_compliance_rules_model",
       "area": "schedule",
-      "description": "Explains four families of working-time safeguards that go beyond a plain daily or weekly ceiling: counting recurring events per person (night shifts a year, worked days a week, shifts above a given length), capping hours across a month, quarter or a rolling window of weeks by average, banning a slice of the day during a season for a tagged group, and owing somebody replacement rest after a short break. Covers where each family's severity is decided and who may push past a refusal. Use this when the user asks about a yearly night-shift ceiling, an averaging window, a seasonal ban such as a midday heat stop, or rest that has to be made up later.",
+      "description": "Explains four families of working-time safeguards that go beyond a plain daily or weekly ceiling: counting recurring events per person (night shifts a year, worked days a week, shifts above a given length), capping hours across a month, quarter or a rolling window of weeks by average, banning a slice of the day during a season for a tagged group, and owing somebody replacement rest after a short break. Covers where each family's severity is decided and who may push past a refusal.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -37816,7 +37816,7 @@
     {
       "name": "explain_calendar_model",
       "area": "absence",
-      "description": "Explains how public holidays are defined and which ones apply. Covers the notation behind a holiday date — a fixed day such as 01/01, a date pulled onto a given weekday, and dates counted from Easter — plus the shift applied when a holiday lands on a weekend. Covers named bundles that gather the regions whose holidays should count, why a regional bundle must list its national entries as well, and how a holiday can be shown as a reminder without counting towards pay. Use this when the user asks why a day is not marked red, how a movable feast is entered, or where a bundle takes effect.",
+      "description": "Explains how public holidays are defined and which ones apply. Covers the notation behind a holiday date — a fixed day such as 01/01, a date pulled onto a given weekday, and dates counted from Easter — plus the shift applied when a holiday lands on a weekend. Covers named bundles that gather the regions whose holidays should count, why a regional bundle must list its national entries as well, and how a holiday can be shown as a reminder without counting towards pay.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -37908,7 +37908,7 @@
     {
       "name": "explain_active_industries",
       "area": "settings",
-      "description": "Explains the setting that narrows the pick lists offered when staffing: choosing a sector such as home care, healthcare, security, facility services or logistics shortens the choices of working qualifications on a shift and on a person, and of the rule preset attached to working conditions. Covers what the free choice does, that entries without a sector always stay available, and that nothing is ever deleted or hidden from the administration lists. Use this when the user asks why a qualification is missing from a dropdown, or what happens when the sector is switched.",
+      "description": "Explains the setting that narrows the pick lists offered when staffing: choosing a sector such as home care, healthcare, security, facility services or logistics shortens the choices of working qualifications on a shift and on a person, and of the rule preset attached to working conditions. Covers what the free choice does, that entries without a sector always stay available, and that nothing is ever deleted or hidden from the administration lists.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -37982,7 +37982,7 @@
     {
       "name": "explain_overtime_model",
       "area": "contract",
-      "description": "Explains how extra hours are paid once somebody works beyond a threshold: up to three bands, each starting at a number of hours accumulated in the day or in the week and carrying its own uplift. Covers that each band pays only the hours falling inside it rather than everything from zero, that the reference span is a day or a week and nothing longer, and the two conditions without which no uplift is produced at all. Use this when the user asks from which hour extra pay starts, why an amount looks too small, or why nothing was added despite a long day.",
+      "description": "Explains how extra hours are paid once somebody works beyond a threshold: up to three bands, each starting at a number of hours accumulated in the day or in the week and carrying its own uplift. Covers that each band pays only the hours falling inside it rather than everything from zero, that the reference span is a day or a week and nothing longer, and the two conditions without which no uplift is produced at all.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38059,7 +38059,7 @@
     {
       "name": "explain_identity_providers",
       "area": "security",
-      "description": "Explains signing in with an existing company directory or an external sign-in service: connecting a directory server by host, port, base entry and search filter, or a redirect-based service by client identifier, secret and the three endpoint addresses. Covers that this is added alongside the ordinary password login and never replaces it, that an account is created on first successful sign-in, and that such an account arrives without any permissions. Use this when the user asks about single sign-on, connecting a company directory, or why a newly arrived person sees nothing.",
+      "description": "Explains signing in with an existing company directory or an external sign-in service: connecting a directory server by host, port, base entry and search filter, or a redirect-based service by client identifier, secret and the three endpoint addresses. Covers that this is added alongside the ordinary password login and never replaces it, that an account is created on first successful sign-in, and that such an account arrives without any permissions.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38139,7 +38139,7 @@
     {
       "name": "explain_individual_periods",
       "area": "period",
-      "description": "Explains freely defined accounting spans: a named set of rows, each with a start date, an optional end date and the hours owed for that span, selectable on working conditions that are settled on an individual rhythm rather than weekly, fortnightly or monthly. Covers that rows may overlap on purpose, which row wins when several match a date, and what the hours figures do and do not affect today. Use this when the user asks about a settlement rhythm that follows neither the calendar month nor a fixed number of weeks.",
+      "description": "Explains freely defined accounting spans: a named set of rows, each with a start date, an optional end date and the hours owed for that span, selectable on working conditions that are settled on an individual rhythm rather than weekly, fortnightly or monthly. Covers that rows may overlap on purpose, which row wins when several match a date, and what the hours figures do and do not affect today.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38197,7 +38197,7 @@
     {
       "name": "explain_export_formats_model",
       "area": "period",
-      "description": "Explains handing sealed data over to an outside system: which target formats can be switched on for bookkeeping, for payroll and for hours per person, that three plain formats always stay available, and what a disabled format does on a manual download versus an automatic handover. Also covers the correction a support team can paste in to adjust separator, encoding, date shape or wage keys without waiting for a release, and where such a correction does and does not take effect. Use this when the user asks which target systems are supported or why a handover produced nothing.",
+      "description": "Explains handing sealed data over to an outside system: which target formats can be switched on for bookkeeping, for payroll and for hours per person, that three plain formats always stay available, and what a disabled format does on a manual download versus an automatic handover. Also covers the correction a support team can paste in to adjust separator, encoding, date shape or wage keys without waiting for a release, and where such a correction does and does not take effect.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38282,7 +38282,7 @@
     {
       "name": "explain_report_designer",
       "area": "settings",
-      "description": "Explains building a printable document layout: picking the data it draws from, dragging fields into three heading zones, assembling one or more tables of columns with widths, sorting and cell frames, adding free text lines, an image and computed cells. Covers the notation a computed cell must use to produce a value at all, which names it can reference, and how a layout is made the one used for quick printing. Use this when the user asks how to design a printout, why a computed cell stays empty, or why the print entry does not appear.",
+      "description": "Explains building a printable document layout: picking the data it draws from, dragging fields into three heading zones, assembling one or more tables of columns with widths, sorting and cell frames, adding free text lines, an image and computed cells. Covers the notation a computed cell must use to produce a value at all, which names it can reference, and how a layout is made the one used for quick printing.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38365,7 +38365,7 @@
     {
       "name": "explain_spam_rules",
       "area": "inbox",
-      "description": "Explains filtering unwanted incoming mail: four kinds of rule, where each one looks — inside the sender address or display name, at the sender's domain, in the subject line, or in the message text — and that the entered text is always compared literally rather than as a search expression. Covers that a match moves the message to the junk folder on the server rather than deleting it, that filtering happens while fetching, and that a changed rule re-sorts mail that already arrived. Use this when the user asks how to stop a sender or why unwanted mail still arrives.",
+      "description": "Explains filtering unwanted incoming mail: four kinds of rule, where each one looks — inside the sender address or display name, at the sender's domain, in the subject line, or in the message text — and that the entered text is always compared literally rather than as a search expression. Covers that a match moves the message to the junk folder on the server rather than deleting it, that filtering happens while fetching, and that a changed rule re-sorts mail that already arrived.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38433,7 +38433,7 @@
     {
       "name": "explain_surcharge_mode",
       "area": "contract",
-      "description": "Explains the company-wide settings behind night, holiday and weekend uplifts: whether a rate is read as a multiple, as a fixed amount per hour or as a lump sum per shift, the floor that can be put under each one and the three conditions it needs to bite, the hours counted as night, and what happens when several uplifts apply to the same stretch of work. Use this when the user asks whether uplifts add up or only the largest counts, what a rate figure actually means, or why a minimum amount has no effect.",
+      "description": "Explains the company-wide settings behind night, holiday and weekend uplifts: whether a rate is read as a multiple, as a fixed amount per hour or as a lump sum per shift, the floor that can be put under each one and the three conditions it needs to bite, the hours counted as night, and what happens when several uplifts apply to the same stretch of work.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38513,7 +38513,7 @@
     {
       "name": "explain_software_updates",
       "area": "system",
-      "description": "Explains keeping the installation current: the two release streams, checking automatically versus only being told, the nightly window an automatic install is allowed to use, how many database copies are kept before an install that changes the schema, and returning to the previous version. Covers that only one such operation runs at a time, that everyone signed in is disconnected while it happens, and that the window applies to the automatic path only. Use this when the user asks how to install a new version, whether it can be undone, or what happens to people working at that moment.",
+      "description": "Explains keeping the installation current: the two release streams, checking automatically versus only being told, the nightly window an automatic install is allowed to use, how many database copies are kept before an install that changes the schema, and returning to the previous version. Covers that only one such operation runs at a time, that everyone signed in is disconnected while it happens, and that the window applies to the automatic path only.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -38745,7 +38745,7 @@
     {
       "name": "explain_klacksy_skill_relations",
       "area": "klacksy",
-      "description": "Explains what the assistant notices about which of its abilities belong together: pairs used in the same conversation, and pairs where one regularly follows the other. Covers the number expressing how sure it is, how confirming or rejecting a suggestion moves that number, why a rejected suggestion can reappear, and what these pairs change at runtime — quietly offering a companion ability, and proposing the usual next step. Use this when the user asks what the assistant learns from watching, or what confirming an observation does.",
+      "description": "Explains what the assistant notices about which of its abilities belong together: pairs used in the same conversation, and pairs where one regularly follows the other. Covers the number expressing how sure it is, how confirming or rejecting a suggestion moves that number, why a rejected suggestion can reappear, and what these pairs change at runtime — quietly offering a companion ability, and proposing the usual next step.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -39148,7 +39148,7 @@
     {
       "name": "delete_email_folder",
       "area": "inbox",
-      "description": "Removes a custom mail folder that has served its purpose, such as a closed project's mailbox, a finished campaign area, or an outdated sorting bucket. The folder and any messages still inside it are permanently removed from the mail account itself; already-downloaded copies of those messages remain visible in Klacks under the trash view. Built-in mailboxes like the main inbox, sent items, junk, and trash are protected and always refused. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Removes a custom mail folder that has served its purpose, such as a closed project's mailbox, a finished campaign area, or an outdated sorting bucket. The folder and any messages still inside it are permanently removed from the mail account itself; already-downloaded copies of those messages remain visible in Klacks under the trash view. Use when the user wants to delete or remove an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
