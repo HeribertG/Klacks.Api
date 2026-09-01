@@ -70,33 +70,19 @@ public static class TurnEvalScorer
             return result;
         }
 
-        // W4 multi-step: a check-then-act sequence (list_* first, then create_*/update_*/delete_*)
-        // counts as a hit on the action call. Legacy single-shot replays have no ToolCalls and fall
-        // back to ChosenTool/ToolParameters.
-        var matchedCall = replay.ToolCalls.FirstOrDefault(c => MatchesExpectedTool(c.Name, item));
-        var toolHit = replay.Success && matchedCall != null;
-        if (!toolHit && replay.ToolCalls.Count == 0 && replay.ChosenTool != null && MatchesExpectedTool(replay.ChosenTool, item))
-        {
-            toolHit = true;
-            matchedCall = new TurnReplayToolCall { Name = replay.ChosenTool, Parameters = replay.ToolParameters };
-        }
-
+        var toolHit = replay.Success
+            && replay.ChosenTool != null
+            && (string.Equals(replay.ChosenTool, item.ExpectedTool, StringComparison.OrdinalIgnoreCase)
+                || item.AlternativeTools.Any(t => string.Equals(replay.ChosenTool, t, StringComparison.OrdinalIgnoreCase)));
         result.ToolHit = toolHit;
 
         if (toolHit)
         {
-            result.SlotScore = ScoreSlots(item, matchedCall!.Parameters, resolvedNameSlots, result);
+            result.SlotScore = ScoreSlots(item, replay, resolvedNameSlots, result);
         }
 
         result.Passed = !result.Excluded && toolHit && (result.SlotScore ?? 1.0) >= 1.0;
         return result;
-    }
-
-    private static bool MatchesExpectedTool(string? chosenTool, TurnGoldsetItem item)
-    {
-        return chosenTool != null
-            && (string.Equals(chosenTool, item.ExpectedTool, StringComparison.OrdinalIgnoreCase)
-                || item.AlternativeTools.Any(t => string.Equals(chosenTool, t, StringComparison.OrdinalIgnoreCase)));
     }
 
     public static TurnEvalDimensions Aggregate(IReadOnlyList<TurnEvalItemResult> items)
@@ -197,7 +183,7 @@ public static class TurnEvalScorer
 
     private static double ScoreSlots(
         TurnGoldsetItem item,
-        IReadOnlyDictionary<string, object> toolParameters,
+        TurnReplayResult replay,
         IReadOnlyDictionary<string, bool>? resolvedNameSlots,
         TurnEvalItemResult result)
     {
@@ -228,7 +214,7 @@ public static class TurnEvalScorer
                 continue;
             }
 
-            var actual = GetParameterAsString(toolParameters, slot.Name);
+            var actual = GetParameterAsString(replay.ToolParameters, slot.Name);
             if (actual == null || slot.Value == null)
             {
                 continue;

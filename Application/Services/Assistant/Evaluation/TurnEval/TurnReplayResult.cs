@@ -18,12 +18,6 @@ public class TurnReplayResult
 
     public Dictionary<string, object> ToolParameters { get; set; } = new();
 
-    /// <summary>
-    /// W4 multi-step replay: every tool call the model made across the replay iterations, in order.
-    /// Empty for legacy single-shot results — the scorer then falls back to ChosenTool/ToolParameters.
-    /// </summary>
-    public List<TurnReplayToolCall> ToolCalls { get; set; } = new();
-
     public string Content { get; set; } = string.Empty;
 
     public long LatencyMs { get; set; }
@@ -51,15 +45,4 @@ public class TurnReplayResult
     public string? ProviderId { get; set; }
 
     public string? ApiModelId { get; set; }
-}
-
-/// <summary>
-/// One tool call attempt inside a multi-step replay (W4). Name plus the parameters the model sent,
-/// so the scorer can credit check-then-act sequences and evaluate slots against the matching call.
-/// </summary>
-public class TurnReplayToolCall
-{
-    public string Name { get; set; } = string.Empty;
-
-    public Dictionary<string, object> Parameters { get; set; } = new();
 }
