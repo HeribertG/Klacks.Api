@@ -24,6 +24,13 @@ public class TurnReplayService : ITurnReplayService
 {
     private const double ReplayTemperature = 0.7;
 
+    /// <summary>
+    /// W4: how many provider calls one replay may perform. Two covers the dominant check-then-act
+    /// pattern (list/get first, then create/update/delete); more iterations would multiply provider
+    /// cost without additional signal.
+    /// </summary>
+    private const int ReplayMaxIterations = 2;
+
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
@@ -129,40 +136,98 @@ public class TurnReplayService : ITurnReplayService
         var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
-        var request = new LLMProviderRequest
-        {
-            Message = item.Message,
-            SystemPrompt = systemPrompt,
-            VolatileSystemPrompt = LLMService.CombineVolatile(
-                LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
-            ModelId = model.ApiModelId,
-            ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
-            AvailableFunctions = context.AvailableFunctions,
-            Temperature = ReplayTemperature,
-            MaxTokens = model.MaxTokens,
-            SupportedParameters = model.SupportedParameters,
-            CostPerInputToken = model.CostPerInputToken,
-            CostPerOutputToken = model.CostPerOutputToken,
-            ToolChoice = toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null
-        };
+        // W4 multi-step replay: run up to ReplayMaxIterations provider calls and feed each tool call
+        // back as a synthetic empty result, mirroring the production loop's check-then-act pattern
+        // (list first, then create/update/delete). Tools are never executed; read-only checks get
+        // "[]", everything else "OK". The scorer credits any call in the sequence.
+        var runningHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>();
+        var toolCalls = new List<TurnReplayToolCall>();
+        var totalUsage = new Domain.Services.Assistant.Providers.LLMUsage();
+        var totalCost = 0m;
+        LLMProviderResponse? lastResponse = null;
 
         var stopwatch = Stopwatch.StartNew();
-        var response = await ProcessWithTransientRetryAsync(provider, request, cancellationToken);
+        for (var iteration = 0; iteration < ReplayMaxIterations; iteration++)
+        {
+            var request = new LLMProviderRequest
+            {
+                Message = item.Message,
+                SystemPrompt = systemPrompt,
+                VolatileSystemPrompt = LLMService.CombineVolatile(
+                    LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
+                ModelId = model.ApiModelId,
+                ConversationHistory = runningHistory,
+                AvailableFunctions = context.AvailableFunctions,
+                Temperature = ReplayTemperature,
+                MaxTokens = model.MaxTokens,
+                SupportedParameters = model.SupportedParameters,
+                CostPerInputToken = model.CostPerInputToken,
+                CostPerOutputToken = model.CostPerOutputToken,
+                ToolChoice = toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null
+            };
+
+            var response = await ProcessWithTransientRetryAsync(provider, request, cancellationToken);
+            lastResponse = response;
+
+            totalUsage.InputTokens += response.Usage.InputTokens;
+            totalUsage.OutputTokens += response.Usage.OutputTokens;
+            totalUsage.CacheCreationInputTokens += response.Usage.CacheCreationInputTokens;
+            totalUsage.CacheReadInputTokens += response.Usage.CacheReadInputTokens;
+            totalCost += response.Usage.Cost;
+
+            if (!response.Success)
+            {
+                break;
+            }
+
+            var firstCall = response.FunctionCalls.FirstOrDefault();
+            if (firstCall == null)
+            {
+                break;
+            }
+
+            toolCalls.Add(new TurnReplayToolCall
+            {
+                Name = firstCall.FunctionName,
+                Parameters = firstCall.Parameters ?? new Dictionary<string, object>()
+            });
+
+            // Synthetic tool result so the model can move from the read-only pre-check to the action.
+            // Format mirrors LLMService.FormatFunctionResults so the model sees its usual result block.
+            var syntheticCall = new LLMFunctionCall
+            {
+                FunctionName = firstCall.FunctionName,
+                Parameters = firstCall.Parameters,
+                Result = SyntheticToolResult(firstCall.FunctionName),
+                Success = true
+            };
+            runningHistory.Add(new Domain.Services.Assistant.Providers.LLMMessage
+            {
+                Role = "assistant",
+                Content = response.Content ?? string.Empty
+            });
+            runningHistory.Add(new Domain.Services.Assistant.Providers.LLMMessage
+            {
+                Role = "user",
+                Content = LLMService.FormatFunctionResults([syntheticCall])
+            });
+        }
+
         stopwatch.Stop();
 
-        var firstCall = response.FunctionCalls.FirstOrDefault();
-
+        var firstToolCall = toolCalls.FirstOrDefault();
         var result = new TurnReplayResult
         {
-            Success = response.Success,
-            Error = response.Error,
-            ChosenTool = firstCall?.FunctionName,
-            ToolParameters = firstCall?.Parameters ?? new Dictionary<string, object>(),
-            Content = response.Content,
+            Success = lastResponse?.Success ?? false,
+            Error = lastResponse?.Error,
+            ChosenTool = firstToolCall?.Name,
+            ToolParameters = firstToolCall?.Parameters ?? new Dictionary<string, object>(),
+            ToolCalls = toolCalls,
+            Content = lastResponse?.Content ?? string.Empty,
             LatencyMs = stopwatch.ElapsedMilliseconds,
-            Cost = response.Usage.Cost,
-            InputTokens = response.Usage.InputTokens,
-            OutputTokens = response.Usage.OutputTokens,
+            Cost = totalCost,
+            InputTokens = totalUsage.InputTokens,
+            OutputTokens = totalUsage.OutputTokens,
             RecipeWouldForce = recipeWouldForce,
             EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
             ForcedRecipeName = forcingPlan?.Name,
@@ -215,6 +280,22 @@ public class TurnReplayService : ITurnReplayService
         }
 
         return null;
+    }
+
+    private static string SyntheticToolResult(string functionName)
+    {
+        // Read-only pre-checks plausibly return an empty collection; everything else an ack. The
+        // replay never executes tools, so these placeholders are deliberately neutral.
+        var lower = functionName.ToLowerInvariant();
+        if (lower.StartsWith("list_", StringComparison.Ordinal)
+            || lower.StartsWith("get_", StringComparison.Ordinal)
+            || lower.StartsWith("search_", StringComparison.Ordinal)
+            || lower.StartsWith("find_", StringComparison.Ordinal))
+        {
+            return "[]";
+        }
+
+        return "OK";
     }
 
     private async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(
