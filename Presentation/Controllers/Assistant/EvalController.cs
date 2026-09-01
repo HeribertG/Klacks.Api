@@ -7,6 +7,7 @@
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Application.Services.Assistant.Evaluation;
 using Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
@@ -160,6 +161,14 @@ public class EvalController : ControllerBase
         var effectiveLimit = Math.Clamp(limit ?? DefaultHistoryLimit, 1, MaxHistoryLimit);
         var history = await _evalRunRepository.GetHistoryAsync(goldset, effectiveLimit, cancellationToken);
         return Ok(history);
+    }
+
+    [HttpGet("skill-effectiveness")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<SkillEffectivenessResource>> SkillEffectiveness(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _mediator.Send(new GetSkillEffectivenessQuery(), cancellationToken));
     }
 
     [HttpPost("correction")]
