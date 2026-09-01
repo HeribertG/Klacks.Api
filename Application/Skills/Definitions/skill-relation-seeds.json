@@ -1510,6 +1510,1486 @@
       "contradictionCount": 0,
       "provenance": "curated:advises",
       "status": 1
+    },
+    {
+      "skillAName": "get_user_context",
+      "skillBName": "get_user_permissions",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_personal_memory",
+      "skillBName": "add_ai_memory",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_ai_memory",
+      "skillBName": "get_ai_memories",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_branch",
+      "skillBName": "list_branches",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_system_user",
+      "skillBName": "list_system_users",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_ai_guidelines",
+      "skillBName": "update_ai_guidelines",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_data_retention_settings",
+      "skillBName": "update_data_retention_settings",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_macro",
+      "skillBName": "list_macros",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_personal_access_tokens",
+      "skillBName": "revoke_personal_access_token",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_navigation_targets",
+      "skillBName": "update_navigation_synonyms",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_navigation_feedback",
+      "skillBName": "update_navigation_synonyms",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_macro",
+      "skillBName": "list_macros",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_in_list",
+      "skillBName": "propose_grouping",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_in_list",
+      "skillBName": "apply_grouping",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_employees",
+      "skillBName": "search_and_navigate",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_user_group_scope",
+      "skillBName": "set_user_group_scope",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_owner_address",
+      "skillBName": "update_owner_locale_settings",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_owner_locale_settings",
+      "skillBName": "list_calendars",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_work_settings",
+      "skillBName": "get_scheduling_defaults",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_absence_type",
+      "skillBName": "create_absence",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_client_absences",
+      "skillBName": "update_break_placeholder",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_client_absences",
+      "skillBName": "list_absence_types",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "search_client_absences",
+      "skillBName": "delete_break_placeholder",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "find_customer_candidates",
+      "skillBName": "create_employee",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_work",
+      "skillBName": "reopen_period",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_work",
+      "skillBName": "revoke_day_approval",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_work",
+      "skillBName": "unconfirm_work",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_period_hours",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_period_hours",
+      "skillBName": "interpret_resource_monitor",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "accept_scenario",
+      "skillBName": "start_autowizard",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_scenarios",
+      "skillBName": "start_autowizard",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "revoke_day_approval",
+      "skillBName": "approve_day",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_break",
+      "skillBName": "add_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "verify_my_last_action",
+      "skillBName": "rollback_my_last_change",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "rollback_my_last_change",
+      "skillBName": "accept_scenario",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "rollback_my_last_change",
+      "skillBName": "create_employee",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_open_wizard_jobs",
+      "skillBName": "start_autowizard",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_break",
+      "skillBName": "list_absence_types",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_group",
+      "skillBName": "move_group",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_calendar_selection",
+      "skillBName": "list_calendars",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_absence",
+      "skillBName": "add_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_absence",
+      "skillBName": "list_absence_types",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_report_templates",
+      "skillBName": "email_schedule_to_client",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_report_templates",
+      "skillBName": "generate_period_summary",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "generate_period_summary",
+      "skillBName": "email_schedule_to_client",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "interpret_resource_monitor",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "find_replacement",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "start_autowizard",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "accept_scenario",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "reject_scenario",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_scenario",
+      "skillBName": "detect_conflicts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_scenario",
+      "skillBName": "list_scenarios",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_client_qualification",
+      "skillBName": "find_replacement",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_required_qualification",
+      "skillBName": "propose_plan",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_required_qualification",
+      "skillBName": "find_replacement",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_required_qualification",
+      "skillBName": "cover_absence",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_required_qualification",
+      "skillBName": "place_work",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_qualifications",
+      "skillBName": "set_client_qualification",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_qualifications",
+      "skillBName": "set_shift_required_qualification",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_preferences",
+      "skillBName": "find_replacement",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_shift",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_shift",
+      "skillBName": "search_shifts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_shift",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_grouping_by_qualification",
+      "skillBName": "fill_group_by_criteria",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_location_group_candidates",
+      "skillBName": "propose_grouping",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "check_group_geocoding_status",
+      "skillBName": "geocode_location_groups",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_qualification",
+      "skillBName": "list_qualifications",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_qualification",
+      "skillBName": "list_qualifications",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_shift_details",
+      "skillBName": "search_shifts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_schedule_notes",
+      "skillBName": "delete_schedule_note",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_schedule_note",
+      "skillBName": "add_schedule_command",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_client_memberships",
+      "skillBName": "update_membership",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_contract_details",
+      "skillBName": "delete_contract",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_contract_details",
+      "skillBName": "list_contracts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_contract_details",
+      "skillBName": "update_contract",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_contract",
+      "skillBName": "list_contracts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_contract",
+      "skillBName": "update_contract",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_client_availabilities",
+      "skillBName": "set_client_availability",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_expense",
+      "skillBName": "read_schedule_state",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_expense",
+      "skillBName": "list_expenses",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_expense",
+      "skillBName": "list_expenses",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_expense",
+      "skillBName": "add_expense",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_sealed_orders",
+      "skillBName": "open_order_export",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_email_folders",
+      "skillBName": "list_emails",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "read_email",
+      "skillBName": "list_emails",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "mark_email_read",
+      "skillBName": "list_emails",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "fetch_new_emails",
+      "skillBName": "test_imap_connection",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "fetch_new_emails",
+      "skillBName": "get_imap_settings",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "move_email_to_folder",
+      "skillBName": "list_email_folders",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_email",
+      "skillBName": "restore_email",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_email_analysis",
+      "skillBName": "list_emails",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_transcription_dictionary_entry",
+      "skillBName": "list_transcription_dictionary_entries",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_transcription_dictionary_entry",
+      "skillBName": "update_transcription_dictionary_entry",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_transcription_dictionary_entry",
+      "skillBName": "list_transcription_dictionary_entries",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_transcription_dictionary_entry",
+      "skillBName": "add_transcription_dictionary_entry",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_languages",
+      "skillBName": "uninstall_language_pack",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_languages",
+      "skillBName": "install_language_pack",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_translation_status",
+      "skillBName": "update_deepl_settings",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "uninstall_language_pack",
+      "skillBName": "install_language_pack",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_countries",
+      "skillBName": "lookup_location",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_countries",
+      "skillBName": "list_states",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_states",
+      "skillBName": "list_contracts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_identity_provider",
+      "skillBName": "list_identity_providers",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_communication",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_communication",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_address",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "create_address",
+      "skillBName": "search_employees",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_address",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_annotation",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_annotation",
+      "skillBName": "get_client_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_membership",
+      "skillBName": "list_client_memberships",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_schedule_note",
+      "skillBName": "list_schedule_notes",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_break",
+      "skillBName": "search_client_absences",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_weather",
+      "skillBName": "web_search",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_break_placeholder",
+      "skillBName": "add_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_schedule_commands_range",
+      "skillBName": "add_schedule_command",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "update_break_placeholder",
+      "skillBName": "update_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_break_placeholder",
+      "skillBName": "add_break_placeholder",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_break_placeholder",
+      "skillBName": "delete_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "check_absence_conflicts",
+      "skillBName": "add_break",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "check_absence_conflicts",
+      "skillBName": "add_break_placeholder",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "find_absence_capacity_windows",
+      "skillBName": "check_absence_capacity_reserve",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_shift",
+      "skillBName": "search_shifts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_shift",
+      "skillBName": "get_shift_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_shift",
+      "skillBName": "cut_shift",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "list_shift_cuts",
+      "skillBName": "cut_shift",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "cut_shift_by_date",
+      "skillBName": "cut_shift",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_from_group",
+      "skillBName": "search_shifts",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_from_group",
+      "skillBName": "add_shift_to_group",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_from_group",
+      "skillBName": "get_shift_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_required_qualification",
+      "skillBName": "get_shift_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_required_qualification",
+      "skillBName": "explain_shift_container",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_shift_required_qualification",
+      "skillBName": "set_shift_required_qualification",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_container_template_task",
+      "skillBName": "remove_container_template_task",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_container_template_task",
+      "skillBName": "list_container_template",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "add_container_template_task",
+      "skillBName": "explain_shift_container",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_container_template",
+      "skillBName": "create_container_template",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_container_template_task",
+      "skillBName": "list_container_template",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "remove_container_template_task",
+      "skillBName": "explain_shift_container",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "reset_container_day",
+      "skillBName": "get_shift_details",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "reset_container_day",
+      "skillBName": "list_container_template",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_availability_overview",
+      "skillBName": "check_client_availability",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_group_hours_balance",
+      "skillBName": "list_group_members",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "get_group_hours_balance",
+      "skillBName": "get_period_hours",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "apply_company_rule",
+      "skillBName": "preview_company_rule",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "revert_company_rule",
+      "skillBName": "list_company_rules",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "apply_planning_profile",
+      "skillBName": "preview_planning_profile",
+      "type": 0,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
     }
   ]
 }
