@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Dependency injection registrations for application, infrastructure and domain event services.
@@ -124,6 +124,7 @@ public static class ServiceCollectionExtensions
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
+    private static readonly Lock PluginRegistrarsLock = new();
 
     private static void AddFeaturePluginServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -141,10 +142,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Microsoft.EntityFrameworkCore.DbContext>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Persistence.DataBaseContext>());
 
         var assemblies = PluginRegistrars.SelectMany(r => r.GetControllerAssemblies()).ToList();
-        foreach (var registrar in PluginRegistrars)
+        foreach (var registrar in GetPluginRegistrars())
         {
             registrar.RegisterServices(services, configuration);
-            Klacks.Api.Infrastructure.Plugins.PluginModelRegistry.Register(registrar.ConfigureDbModel);
         }
 
         var oldRegistrars = typeof(ServiceCollectionExtensions).Assembly
@@ -198,12 +198,38 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Registers a plugin exactly once for the lifetime of the process. The backing list is static, so a
+    /// second host built in the same process (every integration-test fixture does this) would otherwise
+    /// append a duplicate registrar and run its RegisterServices twice against one IServiceCollection --
+    /// which makes single-shot registrations such as AddPolicy throw "already exists". Deduplication is by
+    /// registrar type; the EF model configurer is registered here so it, too, is added only once.
+    /// </summary>
+    /// <param name="registrar">Plugin registrar to add; ignored when one of the same type is already present</param>
     public static void RegisterPlugin(Klacks.Plugin.Contracts.IPluginRegistrar registrar)
     {
-        PluginRegistrars.Add(registrar);
+        lock (PluginRegistrarsLock)
+        {
+            foreach (var existing in PluginRegistrars)
+            {
+                if (existing.GetType() == registrar.GetType())
+                {
+                    return;
+                }
+            }
+
+            PluginRegistrars.Add(registrar);
+            Klacks.Api.Infrastructure.Plugins.PluginModelRegistry.Register(registrar.ConfigureDbModel);
+        }
     }
 
-    public static IReadOnlyList<Klacks.Plugin.Contracts.IPluginRegistrar> GetPluginRegistrars() => PluginRegistrars;
+    public static IReadOnlyList<Klacks.Plugin.Contracts.IPluginRegistrar> GetPluginRegistrars()
+    {
+        lock (PluginRegistrarsLock)
+        {
+            return PluginRegistrars.ToArray();
+        }
+    }
 
     private static void AddRepositories(this IServiceCollection services)
     {
