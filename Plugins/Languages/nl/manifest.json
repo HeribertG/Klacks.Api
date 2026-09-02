@@ -3,9 +3,9 @@
   "name": "Dutch",
   "displayName": "Nederlands",
   "speechLocale": "nl-NL",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "author": "Klacks Community",
-  "coverage": 97.8,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr",
   "description": "Dutch language pack for Klacks — UI translations, calendar rules, and country/state data."

@@ -3,9 +3,9 @@
   "name": "Swedish",
   "displayName": "Svenska",
   "speechLocale": "sv-SE",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "author": "Klacks Community",
-  "coverage": 97.8,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr",
   "description": "Swedish language pack for Klacks — UI translations, calendar rules, and country/state data."
