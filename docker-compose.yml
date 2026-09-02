@@ -88,6 +88,8 @@ services:
       - PathBase=store
     volumes:
       - marketplace_data:/app/data
+    env_file:
+      - /root/apps/marketplace.env
     networks:
       - klacks_network
 
