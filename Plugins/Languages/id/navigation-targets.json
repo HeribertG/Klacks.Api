@@ -1645,30 +1645,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "buka struktur grup",
-      "tampilkan hirarki grup",
-      "lihat pohon grup",
-      "ke struktur organisasi",
-      "buka hierarki grup",
-      "tampilkan struktur grup",
-      "ke grup struktur",
-      "lihat struktur grup",
-      "buka hirarki grup",
-      "tampilkan pohon grup",
-      "ke hierarki grup",
-      "buka struktur organisasi",
-      "tampilkan hierarki grup",
-      "ke pohon grup",
-      "buka grup struktur",
-      "lihat hirarki grup",
-      "tampilkan struktur organisasi",
-      "ke hirarki grup",
-      "buka pohon grup"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "cek model klaksy di pengaturan ai",
@@ -2111,6 +2087,21 @@
       "form setelan tempat kerja",
       "pengaturan kerja karyawan",
       "setelan tempat kerja"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy belajar",
+      "pembelajaran klacksy",
+      "pengaturan pembelajaran",
+      "apa yang dipelajari klacksy",
+      "frasa yang dipelajari",
+      "keinginan terbuka",
+      "usulan keterampilan",
+      "saran keterampilan",
+      "keterampilan baru",
+      "buka pembelajaran klacksy"
     ],
     "status": "generated"
   }

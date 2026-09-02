@@ -31445,7 +31445,7 @@
     {
       "name": "explain_klacksy_learning",
       "area": "klacksy",
-      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group is triaged into a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet. A learned wording must pass a routing replay (O1), a learned capability additionally an execution probe (O2), and whatever proves useless is withdrawn again by the fitness quote, which a thumbs up improves. All of it runs automatically; an administrator supervises afterwards in the settings card 'Klacksy learns' and gets a weekly digest of the finished week in the inbox, which stays silent in a week nothing was learned. Only a 120-character excerpt of a wording is stored, and learning never changes what a capability is allowed to do. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its capabilities grow.",
+      "description": "Explains how Klacksy learns: unserved wishes are grouped by wording and taken up once the same one recurs — three times, or from two people. A ready group becomes a learned phrasing, capability, or open wish; useless ones are withdrawn. This runs automatically; an administrator supervises via the 'Klacksy learns' card and gets a weekly digest. Only a 120-character excerpt of a wording is stored. Learning never changes what a capability may do. Use when asked whether Klacksy learns or improves.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31507,7 +31507,7 @@
           "miglioramento"
         ]
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "explain_contracts",

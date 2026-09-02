@@ -1641,31 +1641,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "struktur kumpulan",
-      "hierarki kumpulan",
-      "pokok kumpulan",
-      "struktur organisasi",
-      "struktur org",
-      "hierarki",
-      "skop kumpulan",
-      "pergi ke struktur kumpulan",
-      "lihat struktur kumpulan",
-      "buka hierarki kumpulan",
-      "tunjukkan struktur organisasi",
-      "cari struktur kumpulan",
-      "ke struktur kumpulan",
-      "paparkan struktur kumpulan",
-      "akses struktur kumpulan",
-      "pergi ke hierarki",
-      "buka struktur organisasi",
-      "ke struktur org",
-      "lihat hierarki kumpulan",
-      "pergi ke pokok kumpulan"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "pergi ke model ai",
@@ -2112,6 +2087,21 @@
       "edit tetapan tempat kerja saya",
       "buka tetapan kerja saya",
       "pergi ke tetapan kerja saya"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy belajar",
+      "pembelajaran klacksy",
+      "tetapan pembelajaran",
+      "apa yang klacksy pelajari",
+      "ungkapan yang dipelajari",
+      "hasrat terbuka",
+      "cadangan kemahiran",
+      "kemahiran baharu",
+      "buka pembelajaran klacksy",
+      "semakan kemahiran"
     ],
     "status": "generated"
   }

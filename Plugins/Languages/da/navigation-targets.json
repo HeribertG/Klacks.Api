@@ -1637,30 +1637,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "vis gruppestruktur",
-      "se organisationshierarki",
-      "gå til gruppehierarki",
-      "åbn gruppetræ",
-      "vis organisationsstruktur",
-      "se hierarki",
-      "gå til gruppestruktur",
-      "vis hierarki",
-      "se gruppetræ",
-      "åbn organisationsstruktur",
-      "gå til organisationshierarki",
-      "vis gruppehierarki",
-      "se gruppestruktur",
-      "åbn hierarki",
-      "gå til gruppetræ",
-      "vis gruppeskop",
-      "åbn gruppeskop",
-      "gå til organisationsstruktur",
-      "vis gruppestruktur side"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "se indstillinger for ai-model",
@@ -2105,6 +2081,21 @@
       "rediger indstillinger for arbejdssted",
       "vis indstillinger for arbejdssted",
       "formular for arbejdsindstillinger"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy lærer",
+      "klacksy læring",
+      "læringsindstillinger",
+      "hvad klacksy har lært",
+      "lærte formuleringer",
+      "åbne ønsker",
+      "færdighedsforslag",
+      "nye færdigheder",
+      "åbn klacksy læring",
+      "gennemgang af færdigheder"
     ],
     "status": "generated"
   }

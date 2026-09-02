@@ -1644,31 +1644,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "struktura grup",
-      "hierarchia grup",
-      "drzewo grup",
-      "struktura organizacyjna",
-      "hierarchia organizacji",
-      "zakres grup",
-      "struktura grupy",
-      "grupy i podgrupy",
-      "widok hierarchii grup",
-      "organizacja grup",
-      "mapa grup",
-      "struktura zespołów",
-      "układ grup",
-      "przejdź do struktury grup",
-      "otwórz hierarchię grup",
-      "zobacz drzewo grup",
-      "struktura oddziałów",
-      "poziomy grup",
-      "schemat grup",
-      "konfiguracja grup"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "sprawdź model ai",
@@ -2116,6 +2091,21 @@
       "otwórz ustawienia miejsca zatrudnienia",
       "ustawienia pracy",
       "edytuj formularz ustawień pracy"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy się uczy",
+      "uczenie klacksy",
+      "ustawienia uczenia",
+      "czego nauczył się klacksy",
+      "wyuczone sformułowania",
+      "otwarte życzenia",
+      "propozycje umiejętności",
+      "nowe umiejętności",
+      "otwórz uczenie klacksy",
+      "przegląd umiejętności"
     ],
     "status": "generated"
   }

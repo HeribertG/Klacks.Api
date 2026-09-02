@@ -1647,31 +1647,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "ir a estructura de grupo",
-      "ver jerarquía del grupo",
-      "mostrar árbol del grupo",
-      "navegar a estructura organizativa",
-      "abrir organigrama",
-      "ver estructura del grupo",
-      "ir a jerarquía de equipos",
-      "mostrar organización del grupo",
-      "acceder a estructura de grupos",
-      "ver árbol jerárquico",
-      "navegar a grupo y estructura",
-      "ir a organigrama del equipo",
-      "abrir estructura de grupo",
-      "consultar jerarquía del grupo",
-      "ver grupo y su estructura",
-      "ir a árbol de grupos",
-      "mostrar estructura organizacional",
-      "acceder a jerarquía de grupo",
-      "navegar a organigrama",
-      "ver estructura jerárquica"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "revisar modelo de ai",
@@ -2119,6 +2094,21 @@
       "ver formulario de trabajo",
       "acceder a ajustes laborales",
       "modificar ajustes de puesto"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy aprende",
+      "aprendizaje de klacksy",
+      "ajustes de aprendizaje",
+      "qué ha aprendido klacksy",
+      "formulaciones aprendidas",
+      "deseos abiertos",
+      "propuestas de habilidades",
+      "sugerencias de habilidades",
+      "nuevas habilidades",
+      "abrir aprendizaje de klacksy"
     ],
     "status": "generated"
   }

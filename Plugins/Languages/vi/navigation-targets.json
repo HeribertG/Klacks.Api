@@ -1645,31 +1645,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "cấu trúc nhóm",
-      "cây nhóm",
-      "sơ đồ tổ chức",
-      "cơ cấu tổ chức",
-      "hệ thống phân cấp nhóm",
-      "phạm vi nhóm",
-      "mở cấu trúc nhóm",
-      "xem cấu trúc nhóm",
-      "đi tới cấu trúc nhóm",
-      "vào trang cấu trúc nhóm",
-      "hiển thị cây nhóm",
-      "cấu trúc tổ chức nhóm",
-      "nhóm cấp trên cấp dưới",
-      "sơ đồ nhóm",
-      "mở sơ đồ tổ chức",
-      "kiểm tra cấu trúc nhóm",
-      "truy cập cấu trúc nhóm",
-      "đến cấu trúc nhóm",
-      "xem hệ thống phân cấp",
-      "vào mục nhóm"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "kiểm tra lịch sử mô hình ai",
@@ -2115,6 +2090,21 @@
       "vào mục cài đặt nơi làm việc",
       "tới trang cài đặt nơi làm việc",
       "mở trang cài đặt nơi làm việc"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy học",
+      "học tập của klacksy",
+      "cài đặt học tập",
+      "klacksy đã học gì",
+      "cách diễn đạt đã học",
+      "mong muốn chưa đáp ứng",
+      "đề xuất kỹ năng",
+      "kỹ năng mới",
+      "mở phần học của klacksy",
+      "xem xét kỹ năng"
     ],
     "status": "generated"
   }
