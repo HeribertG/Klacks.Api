@@ -1,10 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF configuration for ProactiveTriggerDispatchRow: table name, soft-delete query filter and a
-/// unique index on (UserId, TriggerKind, DedupKey) so the same alert is recorded at most once.
-/// RejectReason needs no explicit mapping - EF stores the nullable enum in the integer column it would
-/// pick for a nullable int, exactly as AgentCondition.DelegatedMaxAction is stored.
+/// EF configuration for ProactiveTriggerDispatchRow: table name, soft-delete query filter and the
+/// dedup indexes. The single unique index on (UserId, TriggerKind, DedupKey) was split into two
+/// partial unique indexes because Postgres treats NULLs as distinct: rows without a ConditionId and
+/// rows with one are deduplicated separately, so a linked row never collides with an unlinked one
+/// that shares the same content key. A third partial index on NextReminderAtUtc feeds the reminder
+/// sweep. RejectReason needs no explicit mapping - EF stores the nullable enum in the integer column
+/// it would pick for a nullable int, exactly as AgentCondition.DelegatedMaxAction is stored.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -36,6 +39,14 @@ public class ProactiveTriggerDispatchRowConfiguration : IEntityTypeConfiguration
         builder.Property(p => p.ActionParamsJson).HasMaxLength(ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         builder.HasIndex(p => new { p.UserId, p.TriggerKind, p.DedupKey })
             .IsUnique()
-            .HasFilter("\"is_deleted\" = false");
+            .HasDatabaseName("ix_agent_trigger_dispatches_dedup_unlinked")
+            .HasFilter("\"is_deleted\" = false AND \"condition_id\" IS NULL");
+        builder.HasIndex(p => new { p.UserId, p.TriggerKind, p.DedupKey, p.ConditionId })
+            .IsUnique()
+            .HasDatabaseName("ix_agent_trigger_dispatches_dedup_linked")
+            .HasFilter("\"is_deleted\" = false AND \"condition_id\" IS NOT NULL");
+        builder.HasIndex(p => p.NextReminderAtUtc)
+            .HasDatabaseName("ix_agent_trigger_dispatches_reminder_due")
+            .HasFilter("\"next_reminder_at_utc\" IS NOT NULL AND \"is_deleted\" = false");
     }
 }

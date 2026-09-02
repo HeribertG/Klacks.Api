@@ -59,4 +59,30 @@ public class ProactiveTriggerDispatchRow : BaseEntity
     public DateTime? ReactionAtUtc { get; set; }
 
     public DateTime? ReadAtUtc { get; set; }
+
+    /// <summary>
+    /// How many reminders went out for this dispatch row after the initial delivery. Drives the
+    /// backoff step in ProactiveReminderSchedule - the schedule indexes its ladder by this count.
+    /// </summary>
+    public int ReminderCount { get; set; }
+
+    /// <summary>
+    /// When the next reminder falls due, computed from ProactiveReminderSchedule at delivery and after
+    /// every reminder. Null means the row is not scheduled for reminders (acknowledged or opted out).
+    /// The reminder sweep picks rows through the partial index on this column.
+    /// </summary>
+    public DateTime? NextReminderAtUtc { get; set; }
+
+    /// <summary>When the most recent reminder was sent. Null while only the initial dispatch went out.</summary>
+    public DateTime? LastRemindedAtUtc { get; set; }
+
+    /// <summary>
+    /// When the user acknowledged the notification. This is the ONLY stop truth for the reminder
+    /// loop: a row with no acknowledgement keeps being reminded on the backoff schedule, repeating the
+    /// last step forever (ProactiveReminderDefaults.RepeatLastStepUntilAcknowledged). Set explicitly
+    /// via the acknowledge endpoint and implicitly by any reaction (SetProactiveReactionCommandHandler)
+    /// or successful delegation (DelegateConditionCommandHandler), both of which also clear
+    /// NextReminderAtUtc.
+    /// </summary>
+    public DateTime? AcknowledgedAtUtc { get; set; }
 }

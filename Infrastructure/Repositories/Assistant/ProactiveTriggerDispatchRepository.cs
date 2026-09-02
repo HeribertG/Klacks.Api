@@ -8,6 +8,11 @@
 /// ContentKey are dedup-ledger entries only (recorded before the inbox existed, or for
 /// broadcasts that carry no persisted content) and are excluded from both the listing and the
 /// unread count so they never render as an empty message.
+/// For ledger-tracked rows the dedup check is narrowed by ConditionId, so a recurrence of the same
+/// finding (new AgentCondition with a new id under the same fingerprint) deliberately gets its own
+/// row instead of being swallowed by the old entry. Linked, unacknowledged rows additionally carry a
+/// reminder schedule (NextReminderAtUtc): GetDueForReminderAsync feeds the sweep, the two Try*Reminder
+/// methods advance or stop it under a compare-and-swap guard, and AcknowledgeAsync is the only stop.
 /// </summary>
 /// <param name="context">The database context.</param>
 /// <param name="timeProvider">Clock ReadAtUtc is stamped from, injected so a test can drive it.</param>
@@ -31,15 +36,21 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
         _timeProvider = timeProvider;
     }
 
-    public async Task<bool> WasDispatchedAsync(string userId, string triggerKind, string dedupKey, CancellationToken cancellationToken = default)
+    public async Task<bool> WasDispatchedAsync(string userId, string triggerKind, string dedupKey, Guid? conditionId, CancellationToken cancellationToken = default)
     {
-        return await _context.AgentTriggerDispatches
-            .AnyAsync(d => d.UserId == userId && d.TriggerKind == triggerKind && d.DedupKey == dedupKey, cancellationToken);
+        var query = _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind && d.DedupKey == dedupKey);
+        if (conditionId is not null)
+        {
+            query = query.Where(d => d.ConditionId == conditionId);
+        }
+
+        return await query.AnyAsync(cancellationToken);
     }
 
     public async Task RecordAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default)
     {
-        var alreadyRecorded = await WasDispatchedAsync(row.UserId, row.TriggerKind, row.DedupKey, cancellationToken);
+        var alreadyRecorded = await WasDispatchedAsync(row.UserId, row.TriggerKind, row.DedupKey, row.ConditionId, cancellationToken);
         if (alreadyRecorded)
         {
             return;
@@ -164,5 +175,66 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
         await _context.AgentTriggerDispatches
             .Where(d => d.UserId == userId && d.ReadAtUtc == null)
             .ExecuteUpdateAsync(s => s.SetProperty(d => d.ReadAtUtc, readAt), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetDueForReminderAsync(DateTime nowUtc, int take, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.ContentKey != null
+                && d.ConditionId != null
+                && d.AcknowledgedAtUtc == null
+                && d.NextReminderAtUtc != null
+                && d.NextReminderAtUtc <= nowUtc)
+            .OrderBy(d => d.NextReminderAtUtc)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> TryAdvanceReminderAsync(Guid id, DateTime expectedDueUtc, DateTime remindedAtUtc, DateTime nextDueUtc, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.AgentTriggerDispatches
+            .Where(d => d.Id == id && d.NextReminderAtUtc == expectedDueUtc && d.AcknowledgedAtUtc == null)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(d => d.ReminderCount, d => d.ReminderCount + 1)
+                .SetProperty(d => d.LastRemindedAtUtc, remindedAtUtc)
+                .SetProperty(d => d.NextReminderAtUtc, nextDueUtc)
+                .SetProperty(d => d.ReadAtUtc, (DateTime?)null), cancellationToken);
+        return affected == 1;
+    }
+
+    public async Task<bool> TryRescheduleReminderAsync(Guid id, DateTime expectedDueUtc, DateTime? nextDueUtc, CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.AgentTriggerDispatches
+            .Where(d => d.Id == id && d.NextReminderAtUtc == expectedDueUtc && d.AcknowledgedAtUtc == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.NextReminderAtUtc, nextDueUtc), cancellationToken);
+        return affected == 1;
+    }
+
+    public async Task<bool> AcknowledgeAsync(Guid id, string userId, CancellationToken cancellationToken = default)
+    {
+        var row = await _context.AgentTriggerDispatches
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        if (row == null || !string.Equals(row.UserId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        row.AcknowledgedAtUtc ??= _timeProvider.GetUtcNow().UtcDateTime;
+        row.NextReminderAtUtc = null;
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    public async Task<int> AcknowledgeAllForKindAsync(string userId, string triggerKind, CancellationToken cancellationToken = default)
+    {
+        var acknowledgedAt = _timeProvider.GetUtcNow().UtcDateTime;
+
+        return await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind && d.AcknowledgedAtUtc == null)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(d => d.AcknowledgedAtUtc, acknowledgedAt)
+                .SetProperty(d => d.NextReminderAtUtc, (DateTime?)null), cancellationToken);
     }
 }

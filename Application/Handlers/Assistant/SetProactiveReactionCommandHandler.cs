@@ -73,8 +73,14 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
             return false;
         }
 
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
         row.Reaction = request.Reaction;
-        row.ReactionAtUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        row.ReactionAtUtc = now;
+
+        // A reaction settles the message, so it also acknowledges it: stamp the first
+        // acknowledgement and end the reminder loop. An earlier explicit acknowledge keeps its timestamp.
+        row.AcknowledgedAtUtc ??= now;
+        row.NextReminderAtUtc = null;
 
         row.RejectReason = request.Reaction == ProactiveReaction.Dismissed ? request.RejectReason : null;
 

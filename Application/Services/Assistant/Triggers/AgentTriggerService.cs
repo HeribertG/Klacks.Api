@@ -24,6 +24,7 @@
 /// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
 /// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
+/// <param name="timeProvider">Clock the first reminder due date is stamped from, injected so a test can drive it.</param>
 /// <param name="logger">Structured log per dispatch.</param>
 
 using System.Text.Json;
@@ -37,8 +38,6 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class AgentTriggerService : IAgentTriggerService
 {
-    private static readonly TimeSpan ActiveConversationWindow = TimeSpan.FromMinutes(3);
-
     private readonly IAgentTriggerRateLimiter _rateLimiter;
     private readonly IAgentTriggerPreferenceService _preferenceService;
     private readonly IAssistantNotificationService _notificationService;
@@ -48,6 +47,7 @@ public class AgentTriggerService : IAgentTriggerService
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
     private readonly IProactiveMessengerTextComposer _messengerTextComposer;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<AgentTriggerService> _logger;
 
     public AgentTriggerService(
@@ -60,6 +60,7 @@ public class AgentTriggerService : IAgentTriggerService
         IPlanningAudienceResolver planningAudienceResolver,
         IOfflineMessengerNotifier offlineMessengerNotifier,
         IProactiveMessengerTextComposer messengerTextComposer,
+        TimeProvider timeProvider,
         ILogger<AgentTriggerService> logger)
     {
         _rateLimiter = rateLimiter;
@@ -71,6 +72,7 @@ public class AgentTriggerService : IAgentTriggerService
         _planningAudienceResolver = planningAudienceResolver;
         _offlineMessengerNotifier = offlineMessengerNotifier;
         _messengerTextComposer = messengerTextComposer;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
@@ -97,6 +99,9 @@ public class AgentTriggerService : IAgentTriggerService
         var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         var conditionId = await ResolveConditionIdAsync(triggerEvent, cancellationToken);
+        // Stamped once per event from the injected clock - never from the row's CreateTime, which
+        // DataBaseContext.OnBeforeSaving fills from the system clock at save time instead.
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
         var persisted = 0;
         var livePushed = 0;
         var inboxSignaled = 0;
@@ -113,7 +118,7 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken))
+            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, conditionId, cancellationToken))
             {
                 deduped++;
                 continue;
@@ -141,7 +146,10 @@ public class AgentTriggerService : IAgentTriggerService
                     Severity = triggerEvent.Severity,
                     ActionRoute = triggerEvent.ActionRoute,
                     ActionParamsJson = actionParamsJson,
-                    ConditionId = conditionId
+                    ConditionId = conditionId,
+                    // Only condition-linked rows join the reminder loop; everything else stays a
+                    // plain inbox message that never re-fires.
+                    NextReminderAtUtc = conditionId is null ? null : ProactiveReminderSchedule.FirstDueAfter(now)
                 }, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 persisted++;
@@ -222,7 +230,7 @@ public class AgentTriggerService : IAgentTriggerService
 
     /// <summary>
     /// Second delivery path for a recipient without a live connection. The gate here is
-    /// MessengerWakeUpPolicy and NOT IsLoudEvent: "loud" governs a chat push to somebody who is
+    /// MessengerWakeUpPolicy and NOT ProactiveLivePushPolicy.IsLoudEvent: "loud" governs a chat push to somebody who is
     /// already sitting in front of Klacks, which is a far cheaper interruption than a message on
     /// the phone of somebody who is asleep. Everything the policy does not admit stops here and
     /// stays readable in the inbox. Per-recipient mute, snooze and minimum-severity have already
@@ -297,7 +305,7 @@ public class AgentTriggerService : IAgentTriggerService
         Guid messageId,
         CancellationToken cancellationToken)
     {
-        if (ShouldLivePush(triggerEvent, deliveryUserId))
+        if (ProactiveLivePushPolicy.ShouldLivePush(triggerEvent, _activityTracker, deliveryUserId))
         {
             try
             {
@@ -404,37 +412,6 @@ public class AgentTriggerService : IAgentTriggerService
         }
 
         return lookup;
-    }
-
-    private bool ShouldLivePush(IAgentTriggerEvent triggerEvent, string userId)
-    {
-        if (_activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
-        {
-            return false;
-        }
-
-        return IsLoudEvent(triggerEvent);
-    }
-
-    /// <summary>
-    /// Definition of "worth interrupting a CONNECTED user for", used by the SignalR live push only.
-    /// The offline messenger deliberately does not share it: this test admits every companion event
-    /// regardless of severity, which is right for a chat bubble next to a user who is already
-    /// working and wrong for a phone at night. The messenger gate is MessengerWakeUpPolicy.
-    /// </summary>
-    private static bool IsLoudEvent(IAgentTriggerEvent triggerEvent)
-    {
-        if (string.Equals(triggerEvent.Severity, AgentTriggerSeverity.High, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return IsCompanionEvent(triggerEvent);
-    }
-
-    private static bool IsCompanionEvent(IAgentTriggerEvent triggerEvent)
-    {
-        return !triggerEvent.PlannersOnly && !triggerEvent.AdminOnly;
     }
 
     private static string? BuildCappedParamsJson(IReadOnlyDictionary<string, string>? paramValues, int maxJsonLength)

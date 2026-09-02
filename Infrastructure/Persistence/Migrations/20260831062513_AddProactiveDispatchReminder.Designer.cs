@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260831062513_AddProactiveDispatchReminder")]
+    partial class AddProactiveDispatchReminder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2845,24 +2848,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("response_time_ms");
 
-                    b.Property<bool>("ToolCallReturned")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("tool_call_returned");
-
-                    b.Property<bool>("ToolChoiceRequested")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("tool_choice_requested");
-
-                    b.Property<bool>("ToolChoiceSupported")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("tool_choice_supported");
-
                     b.Property<int?>("ToolIterations")
                         .HasColumnType("integer")
                         .HasColumnName("tool_iterations");
@@ -3594,78 +3579,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_conversation_recent_entities_user_id_conversation_id_create");
 
                     b.ToTable("conversation_recent_entities", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.RecipeRun", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AbortReason")
-                        .HasColumnType("text")
-                        .HasColumnName("abort_reason");
-
-                    b.Property<string>("ConversationId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("conversation_id");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<int>("LastStep")
-                        .HasColumnType("integer")
-                        .HasColumnName("last_step");
-
-                    b.Property<string>("RecipeName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("recipe_name");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TurnIdsJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("turn_ids_json");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_recipe_runs");
-
-                    b.ToTable("recipe_runs", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.ScheduledTask", b =>
@@ -4598,11 +4511,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("helpful");
 
-                    b.Property<string>("HelpfulComment")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("helpful_comment");
-
                     b.Property<string>("IntentExcerpt")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -4685,10 +4593,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("was_executed");
 
-                    b.Property<bool?>("WasSuccessful")
-                        .HasColumnType("boolean")
-                        .HasColumnName("was_successful");
-
                     b.HasKey("Id")
                         .HasName("pk_skill_selection_trajectories");
 
@@ -4752,10 +4656,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("error_message");
 
-                    b.Property<int?>("FailureKind")
-                        .HasColumnType("integer")
-                        .HasColumnName("failure_kind");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -4792,14 +4692,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");
-
-                    b.Property<Guid?>("TurnId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("turn_id");
-
-                    b.Property<int?>("UiActionStatus")
-                        .HasColumnType("integer")
-                        .HasColumnName("ui_action_status");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")

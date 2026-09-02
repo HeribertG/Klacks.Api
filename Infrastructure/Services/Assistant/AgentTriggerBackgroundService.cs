@@ -1,10 +1,11 @@
-﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Periodic background service that runs all registered IAgentTriggerDetectors once per hour and turns
 /// what they find into a row in the condition ledger (the user-independent memory) plus a notification
-/// through IAgentTriggerService, and then hands the ledger to the action dispatcher, which is where
-/// Klacksy actually remediates something on its own. First run is delayed
+/// through IAgentTriggerService, then hands the ledger to the action dispatcher, which is where
+/// Klacksy actually remediates something on its own, and finally runs the reminder sweep, which
+/// re-delivers dispatch rows the user never acknowledged. First run is delayed
 /// ProactiveHeartbeat.FirstRunDelayMinutes so the application is fully warmed up before scanning.
 /// </summary>
 /// <param name="scopeFactory">Creates a scoped DI provider per tick.</param>
@@ -108,6 +109,8 @@ public class AgentTriggerBackgroundService : BackgroundService
 
         await RunActionDispatcherAsync(scope, cancellationToken);
 
+        await RunReminderSweepAsync(scope, cancellationToken);
+
         _logger.LogDebug(
             "Agent trigger scan tick complete — {Count} detector(s), {Events} event(s), {Dispatched} dispatched, {Resolved} resolved",
             detectors.Count, totalEvents, totalDispatched, totalResolved);
@@ -134,6 +137,32 @@ public class AgentTriggerBackgroundService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Proactive action dispatcher failed");
+        }
+    }
+
+    /// <summary>
+    /// The reminder branch of package F ("repeat until acknowledged"), run as the LAST sibling step of
+    /// the tick - after the detectors and the action dispatcher, so a finding dispatched or executed in
+    /// this very tick does not also earn a reminder in it. Isolated like the dispatcher: a failing sweep
+    /// must not cost the tick its already persisted detection and action work.
+    /// </summary>
+    private async Task RunReminderSweepAsync(IServiceScope scope, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var reminderService = scope.ServiceProvider.GetRequiredService<IProactiveReminderService>();
+            var result = await reminderService.RunAsync(cancellationToken);
+            _logger.LogDebug(
+                "Reminder sweep complete — {Due} due, {Reminded} reminded, {Stopped} stopped, {Skipped} skipped, {Lost} lost",
+                result.Due, result.Reminded, result.Stopped, result.Skipped, result.Lost);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Proactive reminder sweep failed");
         }
     }
 

@@ -19,6 +19,7 @@
 /// <param name="scopeResolver">Answers whether the delegating user may even see this condition.</param>
 /// <param name="conditionRepository">Scoped existence check for the condition (Etappe 4e never trusts an unscoped id lookup).</param>
 /// <param name="ledgerService">Writes the grant onto the condition-ledger row.</param>
+/// <param name="logger">Logs a failed best-effort acknowledgement without failing the delegation.</param>
 
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Domain.Enums;
@@ -33,17 +34,20 @@ public class DelegateConditionCommandHandler : IRequestHandler<DelegateCondition
     private readonly IAgentConditionScopeResolver _scopeResolver;
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IAgentConditionLedgerService _ledgerService;
+    private readonly ILogger<DelegateConditionCommandHandler> _logger;
 
     public DelegateConditionCommandHandler(
         IProactiveTriggerDispatchRepository dispatchRepository,
         IAgentConditionScopeResolver scopeResolver,
         IAgentConditionRepository conditionRepository,
-        IAgentConditionLedgerService ledgerService)
+        IAgentConditionLedgerService ledgerService,
+        ILogger<DelegateConditionCommandHandler> logger)
     {
         _dispatchRepository = dispatchRepository;
         _scopeResolver = scopeResolver;
         _conditionRepository = conditionRepository;
         _ledgerService = ledgerService;
+        _logger = logger;
     }
 
     public async Task<DelegateConditionOutcome> Handle(DelegateConditionCommand request, CancellationToken cancellationToken)
@@ -77,7 +81,24 @@ public class DelegateConditionCommandHandler : IRequestHandler<DelegateCondition
         var delegated = await _ledgerService.TryDelegateAsync(
             conditionId, request.MaxAction, request.DelegatingUserId, cancellationToken);
 
-        return delegated ? DelegateConditionOutcome.Delegated : DelegateConditionOutcome.NotFound;
+        if (!delegated)
+        {
+            return DelegateConditionOutcome.NotFound;
+        }
+
+        // Delegating is the user's "mach du" answer to the message, so it acknowledges the dispatch
+        // row and ends its reminder loop. Best-effort: the grant is already written and must not fail
+        // because the acknowledgement did.
+        try
+        {
+            await _dispatchRepository.AcknowledgeAsync(row.Id, row.UserId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Acknowledging dispatch row {RowId} after delegation failed; the delegation itself is stored", row.Id);
+        }
+
+        return DelegateConditionOutcome.Delegated;
     }
 
     /// <summary>
