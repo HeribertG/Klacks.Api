@@ -70,6 +70,9 @@ public class ProactiveTriggerDispatchRow : BaseEntity
     /// When the next reminder falls due, computed from ProactiveReminderSchedule at delivery and after
     /// every reminder. Null means the row is not scheduled for reminders (acknowledged or opted out).
     /// The reminder sweep picks rows through the partial index on this column.
+    /// Rows dispatched BEFORE package F carry null here and are therefore never reminded. That is
+    /// deliberate and must stay that way: a backfill would arm every open row at once and fire a burst
+    /// of reminders about long-stale findings at the first sweep after deployment.
     /// </summary>
     public DateTime? NextReminderAtUtc { get; set; }
 
@@ -78,8 +81,8 @@ public class ProactiveTriggerDispatchRow : BaseEntity
 
     /// <summary>
     /// When the user acknowledged the notification. This is the ONLY stop truth for the reminder
-    /// loop: a row with no acknowledgement keeps being reminded on the backoff schedule, repeating the
-    /// last step forever (ProactiveReminderDefaults.RepeatLastStepUntilAcknowledged). Set explicitly
+    /// loop: a row with no acknowledgement keeps being reminded on the backoff schedule, repeating its
+    /// last step forever (ProactiveReminderSchedule.NextDueAfter). Set explicitly
     /// via the acknowledge endpoint and implicitly by any reaction (SetProactiveReactionCommandHandler)
     /// or successful delegation (DelegateConditionCommandHandler), both of which also clear
     /// NextReminderAtUtc.

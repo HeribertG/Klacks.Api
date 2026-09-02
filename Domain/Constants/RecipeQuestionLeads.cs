@@ -8,10 +8,13 @@
 /// misbehaves in exactly the way nobody notices until a user complains.
 /// The list covers the four core languages and includes the leads that were missing from the seeded
 /// recipes until 2026-08-28 (wann, wo, woher, wohin, wem, wen, wer).
-/// Every lead ends at a word boundary - whole words with a trailing space, not open stems. The guard
-/// matches as a plain startsWith, so a stem like "liste" would also veto "Listenbericht der offenen
-/// Dienste": a false negative that blocks a learned capability without anyone noticing. Inflected forms
-/// a stem used to cover (zeige, welcher, erkläre) are listed as words of their own instead.
+/// Every lead is a whole word, and the TRAILING SPACE is what says so - it is load-bearing data, not
+/// formatting. RecipeTriggerMatcher.MatchesStartsWith compiles a space-terminated term to a real word
+/// boundary (^term\b), so "wie " vetoes the one-word question "Wie?" as well as "Wie geht das", but
+/// still never "Wiederholung". Dropping a trailing space would silently demote that lead to an open
+/// stem: "liste" without the space would also veto "Listenbericht der offenen Dienste", a false negative
+/// that blocks a learned capability without anyone noticing. Inflected forms a stem used to cover
+/// (zeige, welcher, erkläre) are therefore listed as words of their own instead.
 /// </summary>
 namespace Klacks.Api.Domain.Constants;
 

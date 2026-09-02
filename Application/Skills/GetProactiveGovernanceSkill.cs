@@ -9,6 +9,7 @@
 
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -32,9 +33,9 @@ public class GetProactiveGovernanceSkill : BaseSkillImplementation
     {
         var governance = await _mediator.Send(new GetProactiveGovernanceQuery(), cancellationToken);
 
-        var levelNames = new[] { "Propose (report only)", "Assisted", "Autonomous", "FullyAutonomous" };
-        var levelName = governance.GlobalAutonomyLevel is >= 0 and <= 3
-            ? levelNames[governance.GlobalAutonomyLevel]
+        var level = (AutonomyLevel)governance.GlobalAutonomyLevel;
+        var levelName = Enum.IsDefined(level)
+            ? level.ToString()
             : governance.GlobalAutonomyLevel.ToString();
 
         var summary = governance.KillSwitchActive
