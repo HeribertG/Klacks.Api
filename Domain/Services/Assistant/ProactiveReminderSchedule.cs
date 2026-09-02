@@ -4,7 +4,7 @@
 /// Pure schedule arithmetic for proactive reminders (package F "repeat until acknowledged"). Takes no
 /// dependency on the clock, the database or delivery: given "now" and how many reminders a dispatch row
 /// has already received, it decides when the next reminder falls due. Steps beyond the schedule repeat
-/// the last backoff interval (ProactiveReminderDefaults.RepeatLastStepUntilAcknowledged), so a row only
+/// the last entry of ProactiveReminderDefaults.BackoffHours, so a row only
 /// ever stops once the user acknowledges it.
 /// </summary>
 
