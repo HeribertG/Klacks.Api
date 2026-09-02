@@ -31,6 +31,12 @@ public class TurnGoldsetItem
 
     public List<TurnGoldsetSlot> ExpectedSlots { get; set; } = new();
 
+    /// <summary>
+    /// Free-form subset markers (e.g. "crud") so an eval run can select a named slice of a
+    /// goldset file by tag instead of needing a separate goldset file per subset.
+    /// </summary>
+    public List<string> Tags { get; set; } = new();
+
     public string? Source { get; set; }
 
     public string? Comment { get; set; }

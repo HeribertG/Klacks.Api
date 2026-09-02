@@ -1648,2203 +1648,2897 @@
     },
     {
       "id": "w05-coverage-add-ai-memory",
-      "message": "Bitte Erinnerung hinzufügen.",
+      "message": "Merk dir bitte, dass unser Geschäftsjahr immer am 1. April beginnt.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-client-to-group",
-      "message": "Bitte Personalverwaltung hinzufügen.",
+      "message": "Kannst du Frau Meier der Gruppe Nachtdienst zuteilen?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_client_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-shift-to-group",
-      "message": "Bitte Bestellung hinzufügen.",
+      "message": "Häng den Frühdienst vom Montag bitte an die Gruppe Pflege Ost an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_shift_to_group",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "bulk_add_shifts_to_group"
+      ],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-bulk-add-shifts-to-group",
-      "message": "Bitte Bestellung hinzufügen.",
+      "message": "Häng alle Dienste, die 'Nacht' im Namen tragen, an die Gruppe Team B an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "bulk_add_shifts_to_group",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "add_shift_to_group"
+      ],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-client-to-nearest-group",
-      "message": "Bitte Standort hinzufügen.",
+      "message": "Ordne Herrn Keller automatisch der Gruppe zu, die am nächsten bei seiner Adresse liegt.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_client_to_nearest_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-assign-contract-to-client",
-      "message": "Bitte Beschäftigungsgrad zuweisen.",
+      "message": "Weise Frau Bauer den Vertrag '80%-Pensum' zu, gültig ab dem 1. des Monats.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "assign_contract_to_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-branch",
-      "message": "Bitte Geschäftsstelle neu anlegen.",
+      "message": "Leg eine neue Geschäftsstelle in Winterthur an, Adresse Bahnhofstrasse 12.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-contract",
-      "message": "Bitte Contract neu anlegen.",
+      "message": "Erstelle eine neue Vertragsvorlage 'Vollzeit 42h' mit 42 Wochenstunden ab nächstem Monat.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-user",
-      "message": "Bitte Benutzerkonto neu anlegen.",
+      "message": "Leg für unseren neuen Disponenten Herrn Frei ein Login mit seiner E-Mail-Adresse an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_user",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-ai-memory",
-      "message": "Bitte Erinnerung löschen.",
+      "message": "Die Notiz, die du dir letzte Woche über die Feiertage gemerkt hast, kannst du wieder vergessen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-branch",
-      "message": "Bitte Geschäftsstelle löschen.",
+      "message": "Die Geschäftsstelle in Chur wird geschlossen, bitte lösch sie aus dem System.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-system-user",
-      "message": "Bitte Benutzerkonto löschen.",
+      "message": "Herr Steiner hat gekündigt, sein Login-Konto kann komplett gelöscht werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_system_user",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-assign-user-permissions",
-      "message": "Bitte Zugriffsrechte zuweisen.",
+      "message": "Gib Frau Vogel Administratorrechte im System.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "assign_user_permissions",
       "alternativeTools": [],
-      "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "expectedSlots": [
+        {
+          "name": "role",
+          "match": "exact",
+          "value": "Admin"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-macro",
-      "message": "Bitte Rechenregel neu anlegen.",
+      "message": "Leg eine neue Rechenregel namens 'Nachtzuschlag20' an, die 20% auf die Nachtstunden aufschlägt.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-personal-access-token",
-      "message": "Bitte Api-schlüssel neu anlegen.",
+      "message": "Wie bekomme ich einen persönlichen Zugriffsschlüssel, um Claude Desktop mit Klacks zu verbinden?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_personal_access_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-revoke-personal-access-token",
-      "message": "Bitte Personal access token widerrufen.",
+      "message": "Der Token, den ich letzten Monat für die externe App erstellt hatte, soll nicht mehr gültig sein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_personal_access_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-my-account",
-      "message": "Bitte Anzeigename ändern.",
+      "message": "Ändere meinen Anzeigenamen im Konto auf 'H. Gasparoli'.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_my_account",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-navigation-synonyms",
-      "message": "Bitte Navigations-synonym ändern.",
+      "message": "Klacksy soll ab jetzt auch 'Lohnlauf' als Formulierung für die Seite Zahltag verstehen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_navigation_synonyms",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-macro",
-      "message": "Bitte Berechnung löschen.",
+      "message": "Die Rechenregel 'Alt-Nachtzuschlag' brauchen wir nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-user-group-scope",
-      "message": "Bitte Gruppen-sichtbarkeit setzen.",
+      "message": "Frau Weber soll nur noch die Gruppen 'Team Ost' und 'Team West' sehen können.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_user_group_scope",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-ai-guidelines",
-      "message": "Bitte Verhaltensregel ändern.",
+      "message": "Ich will Klacksys Verhaltensregeln komplett neu formulieren, sie soll nie mehr Löhne offenlegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_guidelines",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-ai-memory",
-      "message": "Bitte Erinnerung ändern.",
+      "message": "Die gespeicherte Notiz zum Ferienplan ist veraltet, bitte den Inhalt aktualisieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_memory",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-ai-soul",
-      "message": "Bitte Persönlichkeit ändern.",
+      "message": "Klacksy soll im Umgangston etwas lockerer und weniger formell werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_ai_soul",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-spam-filter-settings",
-      "message": "Bitte Unerwünschte ändern.",
+      "message": "Stell den Spam-Filter strenger ein, momentan kommt zu viel unerwünschte Post durch.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_spam_filter_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-web-search-settings",
-      "message": "Bitte Sucheinstellung ändern.",
+      "message": "Wechsle den Anbieter für die Websuche und begrenze die Trefferzahl auf 5 pro Anfrage.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_web_search_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-general-settings",
-      "message": "Bitte Grundeinstellung ändern.",
+      "message": "Der Anwendungsname im Browser-Tab soll neu 'Klacks Pflegedienst' heissen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_general_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-data-retention-settings",
-      "message": "Bitte Aufbewahrungsfrist ändern.",
+      "message": "Gelöschte Datensätze sollen erst nach 180 Tagen endgültig entfernt werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_data_retention_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-owner-address",
-      "message": "Bitte Geschäftsadresse ändern.",
+      "message": "Unsere Firmenadresse hat sich geändert, neu sind wir an der Seestrasse 4 in Zug.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_owner_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-owner-locale-settings",
-      "message": "Bitte Feiertagskalender ändern.",
+      "message": "Stell unsere Zeitzone und den Feiertagskalender auf Kanton Zürich um.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_owner_locale_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-email-settings",
-      "message": "Bitte Emailkonfiguration ändern.",
+      "message": "Der ausgehende Mailserver (SMTP) läuft über einen neuen Port, bitte anpassen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_email_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-imap-settings",
-      "message": "Bitte Emailkonfiguration ändern.",
+      "message": "Das Postfach für eingehende Mails (IMAP) soll neu alle 2 Minuten abgefragt werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_imap_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-work-settings",
-      "message": "Bitte Arbeitseinstellungen ändern.",
+      "message": "Erhöhe die jährlichen Ferientage in den Arbeitseinstellungen auf 26.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_work_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-scheduling-defaults",
-      "message": "Bitte Planungseinstellungen ändern.",
+      "message": "Setz die maximale Anzahl aufeinanderfolgender Arbeitstage in der Planung auf 6.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_scheduling_defaults",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-deepl-settings",
-      "message": "Bitte Sprachübersetzung ändern.",
+      "message": "Ich habe einen neuen DeepL-API-Schlüssel, kannst du den hinterlegen?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_deepl_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-llm-provider",
-      "message": "Bitte Schnittstelle neu anlegen.",
+      "message": "Richte eine neue Schnittstelle zu einem weiteren KI-Anbieter ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-llm-provider",
-      "message": "Bitte Schnittstelle ändern.",
+      "message": "Der API-Schlüssel für unseren bestehenden KI-Anbieter hat sich geändert.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-llm-provider",
-      "message": "Bitte Schnittstelle löschen.",
+      "message": "Den alten KI-Anbieter nutzen wir nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_llm_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-llm-model",
-      "message": "Bitte Sprachmodell neu anlegen.",
+      "message": "Füg das neue Sprachmodell zur Auswahlliste im Chat hinzu.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-llm-model",
-      "message": "Bitte Sprachmodell löschen.",
+      "message": "Das veraltete Sprachmodell kann aus der Modellliste gelöscht werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-scheduling-rule",
-      "message": "Bitte Schichtplanung ändern.",
+      "message": "Bei der Planungsregel 'Standard' soll die minimale Ruhezeit neu 12 Stunden betragen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_scheduling_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-scheduling-rule",
-      "message": "Bitte Schichtplanung löschen.",
+      "message": "Die Planungsregel 'Pilotprojekt 2024' wird nicht mehr gebraucht, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_scheduling_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-branch",
-      "message": "Bitte Geschäftsstelle ändern.",
+      "message": "Die Telefonnummer der Geschäftsstelle Basel hat sich geändert.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_branch",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-agent-skill",
-      "message": "Bitte Agentenskill neu anlegen.",
+      "message": "Bring Klacksy eine neue Fähigkeit bei, mit der sie automatisch die Wochenübersicht öffnet.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-agent-skill",
-      "message": "Bitte Agentenskill ändern.",
+      "message": "Die Beschreibung deiner Fähigkeit für die Wochenübersicht ist unklar, bitte verbessern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-agent-skill",
-      "message": "Bitte Agentenskill löschen.",
+      "message": "Die Fähigkeit, die wir letzte Woche selbst erstellt haben, brauchen wir nicht mehr.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_agent_skill",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-absence-type",
-      "message": "Bitte Absence type ändern.",
+      "message": "Die Absenzart 'Militär' soll neu grün dargestellt werden statt grau.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_absence_type",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-shift",
-      "message": "Bitte Auftragsvertretung neu anlegen.",
+      "message": "Leg für nächsten Montag einen Frühdienst von 07:00 bis 15:00 für den Kunden Bächli AG an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cut-shift",
-      "message": "Bitte Gesplittet schneiden.",
+      "message": "Teil den 24-Stunden-Auftrag von Frau Marti in zwei gleich lange Teile auf.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cut_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-test-environment",
-      "message": "Bitte Testmitarbeiter neu anlegen.",
+      "message": "Erstell mir zum Testen 10 fiktive Mitarbeitende in Bern samt ein paar Diensten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_test_environment",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-autowizard",
-      "message": "Bitte Planassistent starten.",
+      "message": "Füll mir bitte den Dienstplan für die Gruppe Pflege Ost im nächsten Monat automatisch aus.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_autowizard",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-work",
-      "message": "Bitte Streichen löschen.",
+      "message": "Streich den Einsatz von Herrn Lang am Donnerstag wieder aus dem Plan.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-work",
-      "message": "Bitte Work ändern.",
+      "message": "Der platzierte Einsatz von Frau Huber soll neu erst um 09:00 statt 08:00 starten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-accept-scenario",
-      "message": "Bitte Akzeptieren akzeptieren.",
+      "message": "Der Planvorschlag sieht gut aus, übernimm ihn bitte in den Hauptplan.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "accept_scenario",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-confirm-work",
-      "message": "Bitte Bestätigen ausführen.",
+      "message": "Fixier den Dienst von Herrn Meier am Freitag, damit die Automatik ihn nicht mehr anfasst.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "confirm_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-unconfirm-work",
-      "message": "Bitte Entfixieren ausführen.",
+      "message": "Gib den fixierten Dienst von Frau Suter wieder frei für die automatische Planung.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "unconfirm_work",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-schedule-command",
-      "message": "Bitte Constraint hinzufügen.",
+      "message": "Trag für Herrn Zbinden am 14. einen Wunschfrei-Tag ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_command",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-approve-day",
-      "message": "Bitte Freigeben ausführen.",
+      "message": "Gib den Mittwoch für die Gruppe Empfang komplett zur Auszahlung frei.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "approve_day",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-revoke-day-approval",
-      "message": "Bitte Unapprove widerrufen.",
+      "message": "Take back the release for the group's Tuesday, one entry still needs a correction.",
       "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_day_approval",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-close-period",
-      "message": "Bitte Abschliessen ausführen.",
+      "message": "Schliess die Lohnperiode Januar für die Gruppe Reinigung ab.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "close_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-reopen-period",
-      "message": "Bitte Entsiegeln ausführen.",
+      "message": "Die abgeschlossene Periode März muss nochmals geöffnet werden, es fehlt eine Korrektur.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reopen_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-break",
-      "message": "Bitte Break löschen.",
+      "message": "Die Ferienabsenz von Herrn Roth in der letzten Woche war ein Irrtum, bitte streichen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_break",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-rollback-my-last-change",
-      "message": "Bitte Zurücknehmen ausführen.",
+      "message": "Oh nein, das war falsch — mach meine letzte Änderung bitte rückgängig.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "rollback_my_last_change",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-workchange",
-      "message": "Bitte Substituieren hinzufügen.",
+      "message": "Trag für den Einsatz von Frau Keller eine Ablösung um 12:00 ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-wizard1",
-      "message": "Bitte Grundbelegung starten.",
+      "message": "Lauf nur den Planer für die Grundbelegung der Gruppe Empfang im Mai durch, ohne Glättung.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard1",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-wizard2",
-      "message": "Bitte Harmonisierer starten.",
+      "message": "Glätt bitte den bestehenden Plan der Gruppe Ost, ohne die Belegung selbst zu ändern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard2",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-wizard3",
-      "message": "Bitte Llm-feinschliff starten.",
+      "message": "Lass den fertigen Plan der Gruppe Nord noch mit dem KI-Feinschliff verfeinern.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_wizard3",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cancel-wizard-job",
-      "message": "Bitte Abbrechen abbrechen.",
+      "message": "Stopp den laufenden Planungslauf, das dauert mir zu lange.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_wizard_job",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-reject-scenario",
-      "message": "Bitte Verwerfen ausführen.",
+      "message": "Der Planvorschlag taugt nichts, verwirf ihn.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reject_scenario",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-client",
-      "message": "Bitte Aktualisieren ändern.",
+      "message": "Die Telefonnummer von Herrn Wyss hat sich geändert, neu ist es 079 123 45 67.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-client",
-      "message": "Bitte Offboarding löschen.",
+      "message": "Frau Amstutz hat gekündigt, bitte aus dem Personalbestand ausbuchen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_client",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-group",
-      "message": "Bitte Umbenenn ändern.",
+      "message": "Benenn die Gruppe 'Team A' in 'Frühschicht Zentrum' um.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-move-group",
-      "message": "Bitte Umhängen verschieben.",
+      "message": "Häng die Gruppe 'Aussendienst' neu unter die Gruppe 'Region Ost'.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "move_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-calendar-selection",
-      "message": "Bitte Feiertagskalender neu anlegen.",
+      "message": "Erstell einen kombinierten Feiertagskalender aus Zürich und Zug für unsere gemischten Teams.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-calendar-selection",
-      "message": "Bitte Calendar selection ändern.",
+      "message": "Füg dem bestehenden Feiertagskalender noch den Kanton Bern hinzu.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-calendar-selection",
-      "message": "Bitte Calendar selection löschen.",
+      "message": "Den zusammengestellten Kalender 'Pilotregion' brauchen wir nicht mehr.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_calendar_selection",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-absence",
-      "message": "Bitte Abwesenheit neu anlegen.",
+      "message": "Leg eine neue Absenzart 'Weiterbildung' an, unbezahlt und ohne Wochenendtage.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-absence",
-      "message": "Bitte Abwesenheitstyp ändern.",
+      "message": "Die Absenzart 'Krankheit' soll künftig auch an Feiertagen zählen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-absence",
-      "message": "Bitte Abwesenheitstyp löschen.",
+      "message": "Die Absenzart 'Sonderurlaub alt' wird nicht mehr verwendet, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_absence",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-propose-plan",
-      "message": "Bitte Planvorschlag vorschlagen.",
+      "message": "Stell mir einen Planvorschlag für die freien Schichten nächste Woche zusammen, den ich noch prüfen kann.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "propose_plan",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-client-qualification",
-      "message": "Bitte Client qualification setzen.",
+      "message": "Herr Frey hat den Staplerschein bestanden, trag die Qualifikation mit Stufe 4 ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_client_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-shift-required-qualification",
-      "message": "Bitte Pflicht-qualifikation setzen.",
+      "message": "Der Nachtdienst braucht zwingend jemanden mit der Qualifikation Ersthelfer.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_shift_required_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-qualification",
-      "message": "Bitte Qualification neu anlegen.",
+      "message": "Leg eine neue Qualifikation 'Staplerschein' an, die Mitarbeitende künftig eintragen können.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-shift-preferences",
-      "message": "Bitte Bevorzugt setzen.",
+      "message": "Frau Baumann bevorzugt für den Spätdienst am Dienstag eingeteilt zu werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_shift_preferences",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-shift",
-      "message": "Bitte Shift ändern.",
+      "message": "Ändere die Startzeit des Spätdiensts auf 14:00 statt bisher 13:00.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-shift",
-      "message": "Bitte Shift löschen.",
+      "message": "Der Dienst 'Bereitschaft Pikett alt' wird nicht mehr benötigt, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-import-calendar-rules",
-      "message": "Bitte Feiertag ausführen.",
+      "message": "Importier die offiziellen Feiertagsregeln für den Kanton Wallis ins System.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "import_calendar_rules",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-selected-clients-to-group",
-      "message": "Bitte Selektiert hinzufügen.",
+      "message": "Häng alle in der Liste markierten Mitarbeitenden der Gruppe 'Pool' an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_selected_clients_to_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-fill-group-by-criteria",
-      "message": "Bitte Befüllen ausfüllen.",
+      "message": "Füll die Gruppe 'Region Bern' mit allen Mitarbeitenden, die in der Postleitzahl 30 wohnen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "fill_group_by_criteria",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-group-ungrouped-by-city-name",
-      "message": "Bitte Stadtname gruppieren.",
+      "message": "Ordne alle noch nicht zugeteilten Mitarbeitenden anhand ihres Wohnorts der gleichnamigen Gruppe zu.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "group_ungrouped_by_city_name",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-group-location",
-      "message": "Bitte Group location setzen.",
+      "message": "Trag für die Gruppe 'Standort Luzern' die genauen Koordinaten ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_group_location",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-geocode-location-groups",
-      "message": "Bitte Location groups geokodieren.",
+      "message": "Ermittle für alle Standortgruppen automatisch die passenden Koordinaten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "geocode_location_groups",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-apply-grouping",
-      "message": "Bitte Grouping anwenden.",
+      "message": "Übernimm die vorgeschlagene Standortzuordnung jetzt fest für alle Kunden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_grouping",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-macro",
-      "message": "Bitte Skript ändern.",
+      "message": "Passe das Skript der Rechenregel 'Feiertagszuschlag' an, es rechnet aktuell falsch.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_macro",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-qualification",
-      "message": "Bitte Qualification ändern.",
+      "message": "Benenn die Qualifikation 'Staplerschein' um in 'Staplerschein Kat. R'.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-qualification",
-      "message": "Bitte Qualification löschen.",
+      "message": "Die Qualifikation 'Alter Ersthelferkurs' wird nicht mehr angeboten, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-schedule-note",
-      "message": "Bitte Plannotiz hinzufügen.",
+      "message": "Trag bei Frau Ott für Montag die Notiz ein, dass sie diese Woche lieber Frühdienst hätte.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-schedule-note",
-      "message": "Bitte Schedule note löschen.",
+      "message": "Die Plannotiz bei Herrn Berger vom letzten Freitag kann weg.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-membership",
-      "message": "Bitte Mitgliedschaft ändern.",
+      "message": "Verschieb das Eintrittsdatum von Frau Kunz in der Gruppe auf den 1. Juni.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-end-client-membership",
-      "message": "Bitte Anstellungsende ausführen.",
+      "message": "Herr Graf verlässt uns Ende Monat, trag den letzten Arbeitstag ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "end_client_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-contract",
-      "message": "Bitte Arbeitsvertrag ändern.",
+      "message": "Erhöh die Vertragsstunden im Vertrag 'Teilzeit 60%' auf ein neues Pensum.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-contract",
-      "message": "Bitte Arbeitsvertrag löschen.",
+      "message": "Die Vertragsvorlage '40h alt' wird nicht mehr gebraucht, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-client-availability",
-      "message": "Bitte Availability setzen.",
+      "message": "Mark Mr. Bianchi as unavailable next Saturday, he can't work that day.",
       "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_client_availability",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-expense",
-      "message": "Bitte Auslage hinzufügen.",
+      "message": "Trag für den Einsatz von Frau Huber Spesen von 45.50 Franken ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-expense",
-      "message": "Bitte Expense ändern.",
+      "message": "The expense amount I booked for Mr. Keller's shift was wrong, please correct it to 32 francs.",
       "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-expense",
-      "message": "Bitte Expense löschen.",
+      "message": "Please remove the expense entry I booked on Mrs. Frei's shift by mistake.",
       "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_expense",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-autonomy-level",
-      "message": "Bitte Selbständig setzen.",
+      "message": "Klacksy darf ab sofort selbständig arbeiten und muss nicht mehr jede Aktion bestätigen lassen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_autonomy_level",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-proactive-governance",
-      "message": "Bitte Not-aus setzen.",
+      "message": "Wenn Klacksy leere Container findet, soll sie das künftig nur noch melden statt selbst zu handeln.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_proactive_governance",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-mark-email-read",
-      "message": "Bitte Email read markieren.",
+      "message": "Markier die E-Mail von der ERP-Firma als gelesen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "mark_email_read",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-fetch-new-emails",
-      "message": "Bitte Fetch new emails ausführen.",
+      "message": "Schau doch gleich jetzt nach, ob neue E-Mails eingetroffen sind.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "fetch_new_emails",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-move-email-to-folder",
-      "message": "Bitte Junk verschieben.",
+      "message": "This message from the unknown sender looks like spam, move it to junk.",
       "locale": "en",
       "source": "w0.5-seed-coverage",
       "expectedTool": "move_email_to_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-email",
-      "message": "Bitte Email löschen.",
+      "message": "Die Werbemail von heute Morgen kannst du in den Papierkorb verschieben.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_email",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-restore-email",
-      "message": "Bitte Restore email ausführen.",
+      "message": "Kannst du die Mail wiederherstellen, die ich gestern versehentlich gelöscht habe?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "restore_email",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-transcription-dictionary-entry",
-      "message": "Bitte Aussprachekorrektur hinzufügen.",
+      "message": "Klacksy hört bei der Spracheingabe immer 'Klaxi' statt 'Klacksy' — bitte im Wörterbuch korrigieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-transcription-dictionary-entry",
-      "message": "Bitte Transcription dictionary entry ändern.",
+      "message": "Der Wörterbucheintrag für 'Nachtzuschlag' braucht noch eine zweite Ausspracheform.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-transcription-dictionary-entry",
-      "message": "Bitte Transcription dictionary entry löschen.",
+      "message": "Der alte Wörterbucheintrag für 'Frühdienst' ist doppelt, einen davon bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_transcription_dictionary_entry",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-install-language-pack",
-      "message": "Bitte Language pack installieren.",
+      "message": "Schalt bitte das Schweizerdeutsch-Sprachpaket frei.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_language_pack",
       "alternativeTools": [],
-      "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "expectedSlots": [
+        {
+          "name": "code",
+          "match": "exact",
+          "value": "gsw"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-uninstall-language-pack",
-      "message": "Bitte Language pack deinstallieren.",
+      "message": "Wir brauchen das italienische Sprachpaket nicht mehr, bitte deaktivieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_language_pack",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-identity-provider",
-      "message": "Bitte Anmeldeanbieter neu anlegen.",
+      "message": "Richte einen neuen LDAP-Anmeldeanbieter für unser internes Verzeichnis ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-identity-provider",
-      "message": "Bitte Anmeldeanbieter ändern.",
+      "message": "Der bestehende SSO-Anbieter braucht eine neue Client-ID.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-identity-provider",
-      "message": "Bitte Anmeldeanbieter löschen.",
+      "message": "Den alten OAuth-Anbieter verwenden wir nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_identity_provider",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-confirm-pending-action",
-      "message": "Bitte Bestätigung ausführen.",
+      "message": "Ja, mach das jetzt so wie vorgeschlagen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "confirm_pending_action",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-guided-tour",
-      "message": "Bitte Einführung starten.",
+      "message": "Zeig mir doch mal, wie die App grundsätzlich funktioniert, ich bin neu hier.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_guided_tour",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-communication",
-      "message": "Bitte Communication löschen.",
+      "message": "Die alte Telefonnummer bei Herrn Egli kann gelöscht werden, die stimmt nicht mehr.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_communication",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-communication",
-      "message": "Bitte Communication ändern.",
+      "message": "Die E-Mail-Adresse von Frau Zaugg hat sich geändert, bitte korrigieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_communication",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-address",
-      "message": "Bitte Address neu anlegen.",
+      "message": "Erfass für Herrn Blaser eine neue Wohnadresse in Thun.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-address",
-      "message": "Bitte Address ändern.",
+      "message": "Die Postleitzahl in der Adresse von Frau Roth ist falsch, bitte berichtigen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-address",
-      "message": "Bitte Address löschen.",
+      "message": "Die alte Adresse von Herrn Suter braucht es nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_address",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-annotation",
-      "message": "Bitte Annotation ändern.",
+      "message": "Die Notiz bei Frau Iten muss angepasst werden, der Text ist veraltet.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_annotation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-annotation",
-      "message": "Bitte Annotation löschen.",
+      "message": "Die Bemerkung bei Herrn Wenger vom letzten Jahr kann gelöscht werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_annotation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-membership",
-      "message": "Bitte Austritt löschen.",
+      "message": "Die Zugehörigkeit von Frau Peter zur Gruppe 'Pool' wurde irrtümlich erfasst, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_membership",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-schedule-note",
-      "message": "Bitte Schedule note ändern.",
+      "message": "Korrigier den Text der Plannotiz bei Herrn Rey vom Mittwoch.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_schedule_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-break",
-      "message": "Bitte Break ändern.",
+      "message": "Die Krankheitsabsenz von Frau Christen war nur ein halber statt ein ganzer Tag, bitte korrigieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_break",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-workchange",
-      "message": "Bitte Workchange ändern.",
+      "message": "Die Ablösezeit bei Herrn Bühler muss von 12:00 auf 12:30 verschoben werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-workchange",
-      "message": "Bitte Workchange löschen.",
+      "message": "Die eingetragene Reisezeit bei Frau Gerber war ein Versehen, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_workchange",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-stash-pending-note",
-      "message": "Bitte Stash pending note ausführen.",
+      "message": "Merk dir für später, dass ich Frau Lehmann noch über den neuen Dienstplan informieren muss.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "stash_pending_note",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-manage-pending-notes",
-      "message": "Bitte Manage pending notes ausführen.",
+      "message": "Was habe ich mir eigentlich für später vorgemerkt? Zeig mir die offenen Notizen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "manage_pending_notes",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-schedule-recurring-task",
-      "message": "Bitte Wiederkehrend ausführen.",
+      "message": "Erinner mich jeden Montagmorgen daran, die Abwesenheiten der Woche zu prüfen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "schedule_recurring_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cancel-recurring-task",
-      "message": "Bitte Recurring task abbrechen.",
+      "message": "Die wöchentliche Erinnerung an die Abwesenheitsprüfung kannst du wieder stoppen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_recurring_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-trigger-erp-import-run",
-      "message": "Bitte Trigger erp import run ausführen.",
+      "message": "Kannst du die Bestellungen vom ERP-System gleich jetzt importieren, statt auf den nächsten Lauf zu warten?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "trigger_erp_import_run",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-erp-import-schedule",
-      "message": "Bitte Erp import schedule setzen.",
+      "message": "Der ERP-Import soll künftig nur noch einmal pro Stunde laufen statt alle 5 Minuten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_erp_import_schedule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-break-placeholder",
-      "message": "Bitte Abwesenheitswunsch hinzufügen.",
+      "message": "Frau Marti möchte vom 10. bis 20. Juli Ferien beziehen, trag den Wunsch vor.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-schedule-commands-range",
-      "message": "Bitte Wochenwunsch hinzufügen.",
+      "message": "Herr Kuster hat vom 5. bis 9. August frei gewünscht, trag das für die ganze Woche ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_schedule_commands_range",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-break-placeholder",
-      "message": "Bitte Break placeholder ändern.",
+      "message": "Verschieb den vorgemerkten Ferienwunsch von Frau Vogt um eine Woche nach hinten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-break-placeholder",
-      "message": "Bitte Break placeholder löschen.",
+      "message": "Der Ferienwunsch von Herrn Baumgartner im Mai ist hinfällig, bitte streichen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_break_placeholder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-seal-shift",
-      "message": "Bitte Versiegeln versiegeln.",
+      "message": "Der Auftrag von Kunde Meyer AG ist jetzt endgültig fixiert, bitte versiegeln.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "seal_shift",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-sealed-order-until-date",
-      "message": "Bitte Auftragsende setzen.",
+      "message": "Trag beim versiegelten Auftrag von Kunde Huber ein Enddatum per Ende Jahr ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_sealed_order_until_date",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-reset-shift-cuts",
-      "message": "Bitte Wiederherstellen zurücksetzen.",
+      "message": "Führ die aufgeteilten Teile des Auftrags von Frau Zürcher ab nächster Woche wieder zusammen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reset_shift_cuts",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cut-shift-by-date",
-      "message": "Bitte Datumsschnitt schneiden.",
+      "message": "Teil den Dauerauftrag von Herrn Fankhauser genau ab dem 1. September in zwei Stücke.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cut_shift_by_date",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-remove-shift-from-group",
-      "message": "Bitte Entfernen entfernen.",
+      "message": "Lös die Verknüpfung des Frühdiensts von der Gruppe 'Team Süd', der gehört da nicht mehr hin.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_shift_from_group",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-remove-shift-required-qualification",
-      "message": "Bitte Qualifikation entfernen.",
+      "message": "Der Nachtdienst braucht die Pflichtqualifikation Ersthelfer nicht mehr, bitte Anforderung entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_shift_required_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-add-container-template-task",
-      "message": "Bitte Hinzufügen hinzufügen.",
+      "message": "Füg der Wochenvorlage des Containers 'Route Nord' am Dienstag noch eine Teilschicht hinzu.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "add_container_template_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-container-template",
-      "message": "Bitte Wochentagvorlage neu anlegen.",
+      "message": "Leg für den Container 'Route Süd' die Wochentagvorlage von 07:00 bis 19:00 an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_container_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-container-template",
-      "message": "Bitte Container template löschen.",
+      "message": "Die Wochentagvorlage des Containers 'Alte Route' wird nicht mehr gebraucht, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_container_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-remove-container-template-task",
-      "message": "Bitte Entfernen entfernen.",
+      "message": "Entfern die Teilschicht am Mittwoch aus der Vorlage des Containers 'Route Nord'.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_container_template_task",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-reset-container-day",
-      "message": "Bitte Zurücksetzen zurücksetzen.",
+      "message": "Der Dienstag beim Container 'Route Ost' wurde manuell überschrieben, setz ihn zurück auf die Vorlage.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "reset_container_day",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-company-rule-parameters",
-      "message": "Bitte Zuschlagsregel setzen.",
+      "message": "Der Nachtzuschlag soll neu 25 Prozent statt 20 Prozent betragen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_company_rule_parameters",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-apply-company-rule",
-      "message": "Bitte Zuschlagsregel anwenden.",
+      "message": "Die Zuschlagsregel, die wir gerade besprochen haben, kannst du jetzt fest übernehmen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cancel-company-rule",
-      "message": "Bitte Zuschlagsregel abbrechen.",
+      "message": "Lass die angefangene Zuschlagsregel fallen, wir machen das später nochmal.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-revert-company-rule",
-      "message": "Bitte Zuschlagsregel rückgängig machen.",
+      "message": "Mach die Zuschlagsregel 'Nachtzuschlag25' wieder rückgängig, das war ein Fehler.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revert_company_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-start-planning-profile-setup",
-      "message": "Bitte Planungseinstellungen starten.",
+      "message": "Ich möchte ein eigenes Planungsprofil für unsere Spitex-Tour einrichten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "start_planning_profile_setup",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-planning-profile-parameters",
-      "message": "Bitte Planungseinstellungen setzen.",
+      "message": "Für unser Planungsprofil soll die maximale Tagesarbeitszeit bei 10 Stunden liegen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_planning_profile_parameters",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-apply-planning-profile",
-      "message": "Bitte Planungseinstellungen anwenden.",
+      "message": "Das angefangene Planungsprofil kannst du jetzt fest übernehmen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "apply_planning_profile",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-cancel-planning-profile-setup",
-      "message": "Bitte Planungseinstellungen abbrechen.",
+      "message": "Brich die Einrichtung des Planungsprofils ab, wir brauchen das doch nicht.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "cancel_planning_profile_setup",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-bundle-nearby-timerange-shifts-into-container",
-      "message": "Bitte Nearby timerange shifts into container bündeln.",
+      "message": "Bündel alle mobilen Dienste rund um Winterthur am Donnerstag in einen gemeinsamen Container.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "bundle_nearby_timerange_shifts_into_container",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-monthly-target-hours",
-      "message": "Bitte Monthly target hours neu anlegen.",
+      "message": "Leg fest, dass der Februar 2026 firmenweit mit 160 Sollstunden zählt.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-monthly-target-hours",
-      "message": "Bitte Monthly target hours ändern.",
+      "message": "Korrigier das Monatssoll für Januar 2026 von 184 auf 176 Stunden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-monthly-target-hours",
-      "message": "Bitte Monthly target hours löschen.",
+      "message": "Der eingetragene Sonderwert für März wurde irrtümlich erfasst, bitte wieder entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_monthly_target_hours",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-counter-rule",
-      "message": "Bitte Counter rule neu anlegen.",
+      "message": "Richte eine Regel ein, die höchstens vier Nachtdienste pro Person und Monat erlaubt.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-counter-rule",
-      "message": "Bitte Counter rule ändern.",
+      "message": "Die Regel zu den Nachtdiensten soll künftig fünf statt vier erlauben.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-counter-rule",
-      "message": "Bitte Counter rule löschen.",
+      "message": "Die Zählregel zu den Nachtdiensten brauchen wir nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_counter_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-period-cap-rule",
-      "message": "Bitte Period cap rule neu anlegen.",
+      "message": "Setz einen Stundendeckel von 170 Stunden pro Monat für alle Mitarbeitenden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-period-cap-rule",
-      "message": "Bitte Period cap rule ändern.",
+      "message": "Heb den Stundendeckel pro Monat von 170 auf 180 Stunden an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-period-cap-rule",
-      "message": "Bitte Period cap rule löschen.",
+      "message": "Der Stundendeckel für Teilzeitkräfte gilt nicht mehr, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_period_cap_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-restricted-time-window-rule",
-      "message": "Bitte Restricted time window rule neu anlegen.",
+      "message": "Sperr für die Sommersaison die Arbeitszeit zwischen 22:00 und 06:00 für alle mit dem Tag 'Aussendienst'.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-restricted-time-window-rule",
-      "message": "Bitte Restricted time window rule ändern.",
+      "message": "Verschieb die gesperrte Zeitspanne neu auf 23:00 bis 05:00.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-restricted-time-window-rule",
-      "message": "Bitte Restricted time window rule löschen.",
+      "message": "Die Sperrzeit für die Sommersaison brauchen wir dieses Jahr nicht, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_restricted_time_window_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-individual-period",
-      "message": "Bitte Individual period neu anlegen.",
+      "message": "Richte für unsere Aussendienstler einen eigenen Abrechnungszyklus vom 26. bis 25. ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-individual-period",
-      "message": "Bitte Individual period ändern.",
+      "message": "Verschieb den Stichtag unseres eigenen Abrechnungszyklus vom 26. auf den 21.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-individual-period",
-      "message": "Bitte Individual period löschen.",
+      "message": "Den eigenen Abrechnungszyklus '26er-Modell' verwenden wir nicht mehr, bitte löschen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_individual_period",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-spam-rule",
-      "message": "Bitte Spam rule neu anlegen.",
+      "message": "Sperr alle Mails von der Domain werbung-xyz.com als Spam.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-spam-rule",
-      "message": "Bitte Spam rule ändern.",
+      "message": "Die Spam-Regel für die Domain xyz.com bitte vorübergehend deaktivieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-spam-rule",
-      "message": "Bitte Spam rule löschen.",
+      "message": "Die Domain darf jetzt wieder Mails schicken, entfern die Spam-Regel dafür.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_spam_rule",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-export-format-override",
-      "message": "Bitte Export format override setzen.",
+      "message": "Beim Lohnexport soll das Trennzeichen künftig ein Semikolon statt ein Komma sein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_export_format_override",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-export-format-override",
-      "message": "Bitte Export format override löschen.",
+      "message": "Setz das Exportformat für den Lohnexport wieder auf die Standardeinstellung zurück.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_export_format_override",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-erp-drop-point-settings",
-      "message": "Bitte Erp drop point settings ändern.",
+      "message": "Die ERP-Übergabe soll künftig einen anderen Ordner überwachen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_erp_drop_point_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-erp-import-token",
-      "message": "Bitte Erp import token neu anlegen.",
+      "message": "Wie erstelle ich einen neuen Zugangsschlüssel, damit das Fremdsystem Dateien anliefern kann?",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_erp_import_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-revoke-erp-import-token",
-      "message": "Bitte Erp import token widerrufen.",
+      "message": "Der Anlieferungsschlüssel für das alte ERP-System ist kompromittiert, bitte sperren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "revoke_erp_import_token",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-report-template",
-      "message": "Bitte Report template neu anlegen.",
+      "message": "Erstell eine neue Druckvorlage für den monatlichen Dienstplan-Ausdruck.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-report-template",
-      "message": "Bitte Report template ändern.",
+      "message": "Die Druckvorlage 'Monatsplan' soll künftig auch Tage ohne Einträge anzeigen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-report-template",
-      "message": "Bitte Report template löschen.",
+      "message": "Die alte Druckvorlage 'Jahresübersicht 2023' wird nicht mehr gebraucht.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_report_template",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-install-feature-plugin",
-      "message": "Bitte Feature plugin installieren.",
+      "message": "Installier das Zusatzmodul für die SMS-Benachrichtigung.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-uninstall-feature-plugin",
-      "message": "Bitte Feature plugin deinstallieren.",
+      "message": "Das Zusatzmodul für SMS-Benachrichtigungen wird nicht mehr gebraucht, bitte entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-enable-feature-plugin",
-      "message": "Bitte Feature plugin aktivieren.",
+      "message": "Schalt das installierte SMS-Modul jetzt scharf.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "enable_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-disable-feature-plugin",
-      "message": "Bitte Feature plugin deaktivieren.",
+      "message": "Leg das SMS-Modul vorübergehend still, wir testen gerade etwas anderes.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "disable_feature_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-active-industries-settings",
-      "message": "Bitte Active industries settings ändern.",
+      "message": "Stell die Installation von Gesundheitswesen auf Sicherheitsdienst als aktive Branche um.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_active_industries_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-compliance-enforcement-settings",
-      "message": "Bitte Compliance enforcement settings ändern.",
+      "message": "Verletzungen der maximalen Tagesarbeitszeit sollen künftig nur noch warnen statt die Zuteilung zu blockieren.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_compliance_enforcement_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-compensatory-rest-settings",
-      "message": "Bitte Compensatory rest settings ändern.",
+      "message": "Ersatzruhe soll künftig innert 14 statt 21 Tagen gewährt werden müssen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_compensatory_rest_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-surcharge-mode-settings",
-      "message": "Bitte Surcharge mode settings ändern.",
+      "message": "Der Nachtzuschlag soll künftig als fixer Frankenbetrag statt als Prozentsatz berechnet werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_surcharge_mode_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-overtime-settings",
-      "message": "Bitte Overtime settings ändern.",
+      "message": "Ändere den Satz für Überstunden ab der zweiten Stufe.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_overtime_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-wizard-settings",
-      "message": "Bitte Wizard settings ändern.",
+      "message": "Der Harmonisierer soll künftig ein anderes Sprachmodell für die Gesamtüberarbeitung nutzen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_wizard_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-export-formats-settings",
-      "message": "Bitte Export formats settings ändern.",
+      "message": "Schalt das CSV-Exportformat frei und leg das neue Lohnsystem als Standard fest.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_export_formats_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-grid-color-settings",
-      "message": "Bitte Grid color settings ändern.",
+      "message": "Färb die Sonntage im Dienstplan neu in einem kräftigeren Rot ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_grid_color_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-openroute-settings",
-      "message": "Bitte Openroute settings ändern.",
+      "message": "Trag den neuen Schlüssel für den Routendienst ein und setz die Mindestfahrzeit mit dem Auto auf 10 Minuten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_openroute_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-speech-settings",
-      "message": "Bitte Speech settings ändern.",
+      "message": "Schalt das Vorlesen der Antworten aus, das nervt beim Arbeiten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_speech_settings",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-accept-skill-relation",
-      "message": "Bitte Skill relation akzeptieren.",
+      "message": "Der von Klacksy vorgeschlagene Zusammenhang zwischen den beiden Fähigkeiten stimmt, bitte übernehmen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "accept_skill_relation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-dismiss-skill-relation",
-      "message": "Bitte Skill relation verwerfen.",
+      "message": "Der vorgeschlagene Zusammenhang zwischen den beiden Fähigkeiten ist falsch, bitte verwerfen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "dismiss_skill_relation",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-install-whisper-plugin",
-      "message": "Bitte Whisper plugin installieren.",
+      "message": "Richt die lokale Spracherkennung auf unserem eigenen Server ein, wir wollen keine Daten nach aussen schicken.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "install_whisper_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-uninstall-whisper-plugin",
-      "message": "Bitte Whisper plugin deinstallieren.",
+      "message": "Entfern das lokale Spracherkennungsmodell wieder, wir nutzen wieder den externen Dienst.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "uninstall_whisper_plugin",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-optimize-llm-models-for-klacksy",
-      "message": "Bitte Llm models for klacksy optimieren.",
+      "message": "Probier doch mal alle hinterlegten Sprachmodelle durch und sortier die aus, die nicht taugen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "optimize_llm_models_for_klacksy",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-default-llm-model",
-      "message": "Bitte Default llm model setzen.",
+      "message": "Klacksy soll standardmässig mit dem neuen Modell antworten.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_default_llm_model",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-my-theme",
-      "message": "Bitte Dunkelmodus setzen.",
+      "message": "Der Bildschirm ist mir zu hell, schalt bitte den Dunkelmodus ein.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_my_theme",
       "alternativeTools": [],
-      "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "expectedSlots": [
+        {
+          "name": "theme",
+          "match": "exact",
+          "value": "dark"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-set-my-display-language",
-      "message": "Bitte Anzeigesprache setzen.",
+      "message": "Stell meine Anzeigesprache bitte auf Französisch um.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "set_my_display_language",
       "alternativeTools": [],
-      "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "expectedSlots": [
+        {
+          "name": "language",
+          "match": "exact",
+          "value": "fr"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-open-absence-calendar-pdf-export",
-      "message": "Bitte Open absence calendar pdf export ausführen.",
+      "message": "Druck mir die Jahresübersicht aller Abwesenheiten zum Aushängen aus.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "open_absence_calendar_pdf_export",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-email-folder",
-      "message": "Bitte Email folder neu anlegen.",
+      "message": "Leg im Postfach einen neuen Ordner für die Korrespondenz mit der Bächli AG an.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_email_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-delete-email-folder",
-      "message": "Bitte Email folder löschen.",
+      "message": "Der Mailordner für das abgeschlossene Projekt kann gelöscht werden.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "delete_email_folder",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-update-client-type",
-      "message": "Bitte Personentyp ändern.",
+      "message": "Herr Vogel wechselt von Mitarbeiter zu Kunde, bitte den Personentyp umstellen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "update_client_type",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-remove-client-contract",
-      "message": "Bitte Client contract entfernen.",
+      "message": "Lös die Vertragszuordnung von Frau Studer, sie hat einen neuen Vertrag bekommen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_client_contract",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-remove-client-qualification",
-      "message": "Bitte Client qualification entfernen.",
+      "message": "Der Staplerschein von Herrn Brunner ist abgelaufen, bitte die Qualifikation entfernen.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "remove_client_qualification",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-create-donation-checkout",
-      "message": "Bitte Donation neu anlegen.",
+      "message": "Ich möchte das Klacks-Projekt mit 50 Franken unterstützen, erstell mir einen Spendenlink.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "create_donation_checkout",
       "alternativeTools": [],
-      "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "expectedSlots": [
+        {
+          "name": "amount",
+          "match": "exact",
+          "value": "50"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     },
     {
       "id": "w05-coverage-check-erp-drop-point-folder-health",
-      "message": "Bitte Check erp drop point folder health ausführen.",
+      "message": "Prüf, ob der Übergabeordner für den ERP-Import überhaupt richtig eingerichtet ist.",
       "locale": "de",
       "source": "w0.5-seed-coverage",
       "expectedTool": "check_erp_drop_point_folder_health",
       "alternativeTools": [],
       "expectedSlots": [],
-      "comment": "mutating-skill coverage: keyword-carrying natural request"
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
     }
   ]
 }
