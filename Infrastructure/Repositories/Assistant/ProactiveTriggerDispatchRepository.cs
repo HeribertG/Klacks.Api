@@ -226,4 +226,15 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
         return true;
     }
+
+    public async Task<int> AcknowledgeAllForKindAsync(string userId, string triggerKind, CancellationToken cancellationToken = default)
+    {
+        var acknowledgedAt = _timeProvider.GetUtcNow().UtcDateTime;
+
+        return await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind && d.AcknowledgedAtUtc == null)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(d => d.AcknowledgedAtUtc, acknowledgedAt)
+                .SetProperty(d => d.NextReminderAtUtc, (DateTime?)null), cancellationToken);
+    }
 }

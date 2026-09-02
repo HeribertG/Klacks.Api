@@ -5,12 +5,15 @@
 /// specific kinds (e.g. mute target_hours_drift, snooze unstaffed_shift until tomorrow,
 /// raise the threshold for scenario_pending to 'high' only).
 /// </summary>
-/// <param name="preferenceService">In-memory store for S8; persistent store in a later sprint.</param>
+/// <param name="preferenceService">Reads the current preference and applies snooze and severity.</param>
+/// <param name="mediator">Runs the mute, which also acknowledges the user's open rows of that kind.</param>
 
 using System.Security.Claims;
+using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +26,12 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class AgentTriggerPreferencesController : ControllerBase
 {
     private readonly IAgentTriggerPreferenceService _preferenceService;
+    private readonly IMediator _mediator;
 
-    public AgentTriggerPreferencesController(IAgentTriggerPreferenceService preferenceService)
+    public AgentTriggerPreferencesController(IAgentTriggerPreferenceService preferenceService, IMediator mediator)
     {
         _preferenceService = preferenceService;
+        _mediator = mediator;
     }
 
     [HttpGet]
@@ -60,7 +65,14 @@ public class AgentTriggerPreferencesController : ControllerBase
 
         if (request.Muted.HasValue)
         {
-            await _preferenceService.MuteAsync(userId, triggerKind, request.Muted.Value);
+            await _mediator.Send(
+                new MuteTriggerKindCommand
+                {
+                    UserId = userId,
+                    TriggerKind = triggerKind,
+                    Muted = request.Muted.Value
+                },
+                HttpContext.RequestAborted);
         }
 
         if (request.SnoozedUntilUtc.HasValue || request.Muted == false)

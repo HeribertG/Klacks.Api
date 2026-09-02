@@ -74,4 +74,13 @@ public interface IProactiveTriggerDispatchRepository
     /// false; acknowledging an already acknowledged row is idempotent and keeps the first timestamp.
     /// </summary>
     Task<bool> AcknowledgeAsync(Guid id, string userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Acknowledges every still open row of one user for one trigger kind in a single set-based
+    /// statement: stamps AcknowledgedAtUtc on rows that carry none and clears NextReminderAtUtc, which
+    /// ends their reminder loop. Rows already acknowledged keep their first timestamp because the
+    /// filter excludes them, so repeating the call is idempotent. Soft-deleted rows are excluded by the
+    /// entity's global query filter. Returns how many rows were acknowledged.
+    /// </summary>
+    Task<int> AcknowledgeAllForKindAsync(string userId, string triggerKind, CancellationToken cancellationToken = default);
 }
