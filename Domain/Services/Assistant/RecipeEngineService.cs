@@ -103,9 +103,21 @@ public class RecipeEngineService
             return null;
         }
 
+        // W5.3: pre-fill slots the first message already contains (times, dates, weekdays) so the
+        // plan skips those ask steps ("ask whose slot is filled"). Deliberately no group/name
+        // extraction here: entity names must be validated against the database and are asked for or
+        // guarded at execution time instead of being trusted from free text.
+        var initialSlots = RecipeInitialSlotExtractor.Extract(
+            message,
+            steps
+                .Where(step => !string.IsNullOrWhiteSpace(step.Slot))
+                .Select(step => step.Slot!)
+                .ToList());
+
         return new RecipeExecutionPlan(
             recipe.Name,
             steps,
+            slots: initialSlots,
             needsConfirmation: matchedSemantically || hasCompetingSkillIntent,
             goal: recipe.Goal,
             alternativeGoal: alternativeGoal,
