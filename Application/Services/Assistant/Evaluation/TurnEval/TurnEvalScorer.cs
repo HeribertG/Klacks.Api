@@ -6,6 +6,17 @@
 /// dimensions and computes the weighted composite. Entity resolution for
 /// resolved-entity-id slots happens outside (async) and is passed in as precomputed
 /// verdicts keyed by slot name.
+///
+/// Scorer version 2 (2026-09-02) is NOT comparable with version 1 runs. Three corrections:
+/// (1) an item without any evaluated slot no longer scores a vacuous SlotScore of 1.0 - it
+/// contributes nothing to the slot dimension, and the dimension is dropped from the composite
+/// when no item measured a slot; (2) latency left the composite entirely (with the previous
+/// 8000 ms normaliser it was 0 in nearly every run, so the only visible deltas between
+/// iterations were latency noise) - it is still aggregated and persisted, but as a reported
+/// figure, not as quality; (3) recipe items (ExpectedRecipe) now form their own weighted
+/// dimension instead of entering the composite with weight 0 while still counting towards the
+/// pass rate. Compare runs only within the same <see cref="ScorerVersion"/> - see the
+/// scorer_version column on eval_runs.
 /// </summary>
 
 using System.Text.Json;
@@ -15,12 +26,21 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public static class TurnEvalScorer
 {
+    /// <summary>
+    /// Version of the scoring rules that produced a composite. Persisted on every EvalRun so runs
+    /// scored under different rules are never compared. Bump whenever a weight, a dimension or a
+    /// per-item verdict changes.
+    /// </summary>
+    public const int ScorerVersion = 2;
+
+    /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
+    public const string HonestyModeMustAbstain = "must-abstain";
+
     private const double ToolWeight = 0.45;
     private const double SlotWeight = 0.20;
     private const double NoToolWeight = 0.10;
-    private const double LatencyWeight = 0.10;
+    private const double RecipeWeight = 0.10;
     private const double HonestyWeight = 0.15;
-    private const double LatencyNormalizerMs = 8000.0;
 
     public static TurnEvalItemResult ScoreItem(
         TurnGoldsetItem item,
@@ -59,7 +79,8 @@ public static class TurnEvalScorer
         {
             result.NoToolCorrect = replay.Success && replay.ChosenTool == null;
 
-            if (item.Honesty != null)
+            if (item.Honesty != null
+                && string.Equals(item.Honesty.Mode, HonestyModeMustAbstain, StringComparison.OrdinalIgnoreCase))
             {
                 ScoreHonesty(item, replay, result);
                 result.Passed = !result.Excluded && result.NoToolCorrect == true && result.HonestyCorrect == true;
@@ -90,6 +111,7 @@ public static class TurnEvalScorer
         var active = items.Where(i => !i.Excluded).ToList();
         var toolItems = active.Where(i => i.ExpectedTool != null).ToList();
         var noToolItems = active.Where(i => i.ExpectedTool == null && i.ExpectedRecipe == null).ToList();
+        var recipeItems = active.Where(i => i.ExpectedRecipe != null).ToList();
         var slotItems = toolItems.Where(i => i.ToolHit == true && i.SlotScore != null).ToList();
         var measuredLatency = active.Where(i => !i.Errored).ToList();
 
@@ -102,6 +124,7 @@ public static class TurnEvalScorer
             ToolAccuracy: toolItems.Count == 0 ? null : toolItems.Average(i => i.ToolHit == true ? 1.0 : 0.0),
             SlotAccuracy: slotItems.Count == 0 ? null : slotItems.Average(i => i.SlotScore!.Value),
             NoToolAccuracy: noToolItems.Count == 0 ? null : noToolItems.Average(i => i.NoToolCorrect == true ? 1.0 : 0.0),
+            RecipeAccuracy: recipeItems.Count == 0 ? null : recipeItems.Average(i => i.RecipeHit == true ? 1.0 : 0.0),
             NameResolutionAccuracy: nameSlotsEvaluated == 0 ? null : (double)nameSlotsResolved / nameSlotsEvaluated,
             AvgLatencyMs: measuredLatency.Count == 0 ? 0 : measuredLatency.Average(i => (double)i.LatencyMs),
             TotalCost: items.Sum(i => i.Cost),
@@ -111,12 +134,15 @@ public static class TurnEvalScorer
             ItemsErrored: items.Count(i => i.Errored));
     }
 
+    /// <summary>
+    /// Weighted mean over the dimensions the goldset actually measured; weights of absent dimensions
+    /// are renormalised away. Latency is deliberately NOT part of it (see the type summary): it is a
+    /// cost/performance figure, not selection quality, and it drowned out the real dimensions.
+    /// </summary>
     public static double ComputeComposite(TurnEvalDimensions dimensions)
     {
-        var latencyScore = 1.0 - Math.Clamp(dimensions.AvgLatencyMs / LatencyNormalizerMs, 0.0, 1.0);
-
-        var weightedSum = LatencyWeight * latencyScore;
-        var weightTotal = LatencyWeight;
+        var weightedSum = 0.0;
+        var weightTotal = 0.0;
 
         if (dimensions.ToolAccuracy.HasValue)
         {
@@ -136,13 +162,19 @@ public static class TurnEvalScorer
             weightTotal += NoToolWeight;
         }
 
+        if (dimensions.RecipeAccuracy.HasValue)
+        {
+            weightedSum += RecipeWeight * dimensions.RecipeAccuracy.Value;
+            weightTotal += RecipeWeight;
+        }
+
         if (dimensions.HonestyAccuracy.HasValue)
         {
             weightedSum += HonestyWeight * dimensions.HonestyAccuracy.Value;
             weightTotal += HonestyWeight;
         }
 
-        return weightedSum / weightTotal;
+        return weightTotal == 0.0 ? 0.0 : weightedSum / weightTotal;
     }
 
     private static void ScoreHonesty(TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
@@ -181,7 +213,13 @@ public static class TurnEvalScorer
             acceptable.Any(tool => string.Equals(name, tool, StringComparison.OrdinalIgnoreCase)));
     }
 
-    private static double ScoreSlots(
+    /// <summary>
+    /// Fraction of the item's evaluated slots that matched, or null when the item declares no
+    /// evaluated slot at all. Null means "not measured" - such an item must not push the slot
+    /// dimension towards 1.0 (scorer version 1 returned 1.0 here, which made 96 % of the crud-v1
+    /// composite a value nothing had been compared against).
+    /// </summary>
+    private static double? ScoreSlots(
         TurnGoldsetItem item,
         TurnReplayResult replay,
         IReadOnlyDictionary<string, bool>? resolvedNameSlots,
@@ -236,7 +274,7 @@ public static class TurnEvalScorer
             }
         }
 
-        return evaluated == 0 ? 1.0 : (double)matched / evaluated;
+        return evaluated == 0 ? null : (double)matched / evaluated;
     }
 
     internal static string? GetParameterAsString(IReadOnlyDictionary<string, object> parameters, string name)

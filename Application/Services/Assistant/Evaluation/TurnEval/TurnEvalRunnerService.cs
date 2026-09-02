@@ -3,8 +3,10 @@
 /// <summary>
 /// Orchestrates a turn-selection eval run: loads the goldset, replays every item
 /// sequentially against the requested model, resolves name slots deterministically,
-/// aggregates the scorecard and persists one EvalRun per model with regression against
-/// the latest run of the same goldset and model.
+/// aggregates the scorecard and persists one EvalRun per model. The regression is measured
+/// against the BEST completed run of the same goldset, model, item count and scorer version
+/// - never against the latest run (which would let quality ratchet down by the tolerance on
+/// every run) and never against a run over a different number of items.
 /// </summary>
 
 using System.Diagnostics;
@@ -59,6 +61,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         CancellationToken cancellationToken = default)
     {
         var items = maxItems.HasValue ? allItems.Take(maxItems.Value).ToList() : allItems.ToList();
+        var isPartial = items.Count != allItems.Count;
 
         var runStopwatch = Stopwatch.StartNew();
         var itemResults = new List<TurnEvalItemResult>(items.Count);
@@ -80,7 +83,12 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var dimensions = TurnEvalScorer.Aggregate(itemResults);
         var composite = TurnEvalScorer.ComputeComposite(dimensions);
 
-        var baseline = await _evalRunRepository.GetLatestAsync(goldset, modelId, cancellationToken);
+        // A partial run covers a different population than any completed run, so it has no
+        // comparable baseline at all and must not report a regression against one.
+        var baseline = isPartial
+            ? null
+            : await _evalRunRepository.GetBestBaselineAsync(
+                goldset, modelId, dimensions.ItemsTotal, TurnEvalScorer.ScorerVersion, cancellationToken);
         decimal? regression = baseline == null ? null : (decimal)composite - baseline.CompositeScore;
 
         var evalRun = new EvalRun
@@ -95,16 +103,20 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             ItemsTotal = dimensions.ItemsTotal,
             ItemsPassed = dimensions.ItemsPassed,
             DurationMs = (int)runStopwatch.ElapsedMilliseconds,
+            ScorerVersion = TurnEvalScorer.ScorerVersion,
+            IsPartial = isPartial,
             CreateTime = DateTime.UtcNow
         };
 
         await _evalRunRepository.AddAsync(evalRun, cancellationToken);
 
         _logger.LogInformation(
-            "TurnEvalRun {Goldset} model {Model}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, nameRes={NameRes:F2}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, regression={Regression}",
-            goldset.ForLog(), modelId.ForLog(), composite,
+            "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, regression={Regression}",
+            goldset.ForLog(), modelId.ForLog(), TurnEvalScorer.ScorerVersion, isPartial, composite,
             dimensions.ToolAccuracy ?? -1, dimensions.SlotAccuracy ?? -1,
-            dimensions.NoToolAccuracy ?? -1, dimensions.NameResolutionAccuracy ?? -1,
+            dimensions.NoToolAccuracy ?? -1, dimensions.RecipeAccuracy ?? -1,
+            dimensions.HonestyAccuracy ?? -1, dimensions.NameResolutionAccuracy ?? -1,
+            dimensions.AvgLatencyMs,
             dimensions.ItemsTotal, dimensions.ItemsExcluded, dimensions.ItemsErrored,
             dimensions.TotalCost, regression);
 

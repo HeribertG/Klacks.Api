@@ -16,6 +16,9 @@ public class EvalRunConfiguration : IEntityTypeConfiguration<EvalRun>
         builder.ToTable("eval_runs");
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.Goldset, p.CreateTime });
+        builder.HasIndex(p => new { p.Goldset, p.Model, p.ScorerVersion, p.ItemsTotal });
+        builder.Property(p => p.ScorerVersion).HasDefaultValue(EvalRunDefaults.LegacyScorerVersion);
+        builder.Property(p => p.IsPartial).HasDefaultValue(false);
         builder.Property(p => p.Goldset).HasMaxLength(64);
         builder.Property(p => p.Provider).HasMaxLength(32);
         builder.Property(p => p.Model).HasMaxLength(64);
