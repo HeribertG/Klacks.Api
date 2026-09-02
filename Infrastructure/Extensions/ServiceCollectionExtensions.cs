@@ -361,6 +361,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMacroEngine, MacroEngine>();
         services.AddSingleton<IMacroCache, MacroCache>();
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
+        services.AddSingleton<ISettingsChangeVersion, SettingsChangeVersion>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
         services.AddScoped<IMacroCompilationService, MacroCompilationService>();
         services.AddScoped<IMacroScriptValidator, MacroScriptValidator>();

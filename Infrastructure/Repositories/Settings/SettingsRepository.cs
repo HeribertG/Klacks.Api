@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -17,18 +18,21 @@ public class SettingsRepository : ISettingsRepository
     private readonly ICalendarRuleSortingService _sortingService;
     private readonly ICalendarRulePaginationService _paginationService;
     private readonly IMacroManagementService _macroManagementService;
+    private readonly ISettingsChangeVersion? _settingsChangeVersion;
 
     public SettingsRepository(DataBaseContext context,
         ICalendarRuleFilterService filterService,
         ICalendarRuleSortingService sortingService,
         ICalendarRulePaginationService paginationService,
-        IMacroManagementService macroManagementService)
+        IMacroManagementService macroManagementService,
+        ISettingsChangeVersion? settingsChangeVersion = null)
     {
         this.context = context;
         _filterService = filterService;
         _sortingService = sortingService;
         _paginationService = paginationService;
         _macroManagementService = macroManagementService;
+        _settingsChangeVersion = settingsChangeVersion;
     }
 
     #region Setting
@@ -89,9 +93,18 @@ public class SettingsRepository : ISettingsRepository
 
     public async Task<bool> TryAdvanceSettingAsync(string type, string expectedValue, string newValue)
     {
+        // ExecuteUpdateAsync writes straight to the database, bypassing the change tracker and
+        // therefore DataBaseContext.SaveChangesAsync — that override is where every other settings
+        // write bumps ISettingsChangeVersion, so this path bumps for itself, right after a confirmed
+        // write.
         var affected = await context.Settings
             .Where(x => x.Type == type && x.Value == expectedValue)
             .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.Value, newValue));
+
+        if (affected > 0)
+        {
+            _settingsChangeVersion?.Bump();
+        }
 
         return affected > 0;
     }

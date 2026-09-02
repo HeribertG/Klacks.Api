@@ -34,15 +34,19 @@ public class DataBaseContext : IdentityDbContext
 {
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly ISettingsEncryptionService? settingsEncryptionService;
+    private readonly ISettingsChangeVersion? settingsChangeVersion;
+    private bool _hasPendingSettingsChange;
 
     public DataBaseContext(
         DbContextOptions<DataBaseContext> options,
         IHttpContextAccessor httpContextAccessor,
-        ISettingsEncryptionService? settingsEncryptionService = null)
+        ISettingsEncryptionService? settingsEncryptionService = null,
+        ISettingsChangeVersion? settingsChangeVersion = null)
         : base(options)
     {
         this.httpContextAccessor = httpContextAccessor;
         this.settingsEncryptionService = settingsEncryptionService;
+        this.settingsChangeVersion = settingsChangeVersion;
     }
 
     public DbSet<Absence> Absence { get; set; }  
@@ -327,25 +331,49 @@ public class DataBaseContext : IdentityDbContext
     public override int SaveChanges()
     {
         OnBeforeSaving();
-        return base.SaveChanges();
+        var result = base.SaveChanges();
+        BumpSettingsChangeVersionIfPending();
+        return result;
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         OnBeforeSaving();
-        return base.SaveChanges(acceptAllChangesOnSuccess);
+        var result = base.SaveChanges(acceptAllChangesOnSuccess);
+        BumpSettingsChangeVersionIfPending();
+        return result;
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         OnBeforeSaving();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        BumpSettingsChangeVersionIfPending();
+        return result;
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         OnBeforeSaving();
-        return base.SaveChangesAsync(cancellationToken);
+        var result = await base.SaveChangesAsync(cancellationToken);
+        BumpSettingsChangeVersionIfPending();
+        return result;
+    }
+
+    // Called after SaveChanges/SaveChangesAsync returns successfully (an exception skips this line,
+    // so a rolled-back write never bumps the version). Skill chains and plan runs execute several
+    // skills in one DI scope (SkillExecutorService.ExecuteChainAsync, PlanStepExecutor), so a settings
+    // write and a later contract-data resolve can share the same scope and the same cached provider
+    // instance; this version is how that provider notices its cache is stale. Detected against the
+    // ChangeTracker instead of a specific write path so it also covers direct context writes and
+    // ExecuteUpdateAsync-based writes that never go through ISettingsRepository.
+    private void BumpSettingsChangeVersionIfPending()
+    {
+        if (_hasPendingSettingsChange)
+        {
+            _hasPendingSettingsChange = false;
+            settingsChangeVersion?.Bump();
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -472,6 +500,9 @@ public class DataBaseContext : IdentityDbContext
 
     private void OnBeforeSaving()
     {
+        _hasPendingSettingsChange = ChangeTracker.Entries<Klacks.Api.Domain.Models.Settings.Settings>()
+            .Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
+
         var entries = ChangeTracker.Entries();
         foreach (var entry in entries)
         {

@@ -4,6 +4,7 @@ using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Schedules;
@@ -29,25 +30,35 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
     private readonly DataBaseContext _context;
     private readonly ILogger<ClientContractDataProvider> _logger;
+    private readonly ISettingsChangeVersion _settingsChangeVersion;
     private readonly HashSet<Guid> _workloadWarnedContractIds = new();
     private readonly Dictionary<(int Year, int Month), MonthlyTargetHours?> _monthlyTargetHoursByMonth = new();
 
-    // Resolved once per scoped provider. The recalculation pipeline asks for contract data once per
-    // Work, so without this every single work paid the 40-key settings query and the revision probe.
-    // Safe because no code path writes settings and resolves contract data in the same scope: the
-    // settings handler only QUEUES a recalculation, and ThoroughRecalculationBackgroundService opens a
-    // fresh scope per request - a settings change is therefore always picked up by the next scope.
-    // The monthly target hours probe follows the same argument: the settings card commits the row in
-    // its own request scope, so the next resolving scope always sees it.
+    // Resolved once per scoped provider and re-resolved when ISettingsChangeVersion has advanced since
+    // the cached copy was built. This is NOT a "settings writes and contract-data resolves never share
+    // a scope" argument - they do: SkillExecutorService.ExecuteChainAsync and the plan runner
+    // (PlanStepExecutor) execute several skills in one DI scope, and a settings-writing skill
+    // (e.g. UpdateSurchargeModeSettingsSkill) followed by a work recalculation in the same chain would
+    // otherwise read this provider's stale cache. _defaultSettingsVersion is the version stamp
+    // observed at load time; a mismatch against the current version forces a reload.
+    // _hasRateRevisions and _hasMonthlyTargetHours/_monthlyTargetHoursByMonth are NOT covered by this
+    // stamp - they probe different tables (rate revisions, MonthlyTargetHours) that have no version of
+    // their own, so they remain scope-lifetime caches and can go stale under the same shared-scope
+    // shape. Not fixed here - tracked as open.
     private DefaultSettings? _defaultSettings;
+    private long? _defaultSettingsVersion;
     private bool? _hasRateRevisions;
     private bool? _hasMonthlyTargetHours;
 
 
-    public ClientContractDataProvider(DataBaseContext context, ILogger<ClientContractDataProvider> logger)
+    public ClientContractDataProvider(
+        DataBaseContext context,
+        ILogger<ClientContractDataProvider> logger,
+        ISettingsChangeVersion settingsChangeVersion)
     {
         _context = context;
         _logger = logger;
+        _settingsChangeVersion = settingsChangeVersion;
     }
 
     public async Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date, int? paymentInterval = null)
@@ -383,7 +394,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
     private async Task<DefaultSettings> LoadDefaultSettingsAsync()
     {
-        if (_defaultSettings is not null)
+        var versionAtLoad = _settingsChangeVersion.Current;
+        if (_defaultSettings is not null && _defaultSettingsVersion == versionAtLoad)
         {
             return _defaultSettings;
         }
@@ -456,6 +468,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkOnSunday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSunday)),
             PerformsShiftWork = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultPerformsShiftWork))
         };
+        _defaultSettingsVersion = versionAtLoad;
 
         return _defaultSettings;
     }
