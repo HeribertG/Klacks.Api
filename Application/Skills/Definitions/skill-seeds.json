@@ -31445,7 +31445,7 @@
     {
       "name": "explain_klacksy_learning",
       "area": "klacksy",
-      "description": "Explains how Klacksy learns: wishes it could not serve are grouped by wording and taken up only when the same one recurs — three times, or from two people. A ready group becomes a learned phrasing, a learned capability, or an open wish; useless ones are withdrawn. This runs automatically; an administrator supervises afterwards in the card 'Klacksy learns' and gets a weekly digest. Learning never changes what a capability may do. Use this when the user asks whether Klacksy learns or improves.",
+      "description": "Explains how Klacksy learns: unserved wishes are grouped by wording and taken up once the same one recurs — three times, or from two people. A ready group becomes a learned phrasing, capability, or open wish; useless ones are withdrawn. This runs automatically; an administrator supervises via the 'Klacksy learns' card and gets a weekly digest. Only a 120-character excerpt of a wording is stored. Learning never changes what a capability may do. Use when asked whether Klacksy learns or improves.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31507,7 +31507,7 @@
           "miglioramento"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_contracts",
