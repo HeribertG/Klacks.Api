@@ -308,6 +308,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
+        services.AddScoped<ISkillEffectivenessRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillEffectivenessRepository>();
         services.AddScoped<IProposedSkillChangeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProposedSkillChangeRepository>();
         services.AddScoped<ISkillDescriptionOptimizer, Klacks.Api.Application.Services.Assistant.Evaluation.SkillDescriptionOptimizer>();
         services.AddScoped<IReceivedEmailRepository, ReceivedEmailRepository>();

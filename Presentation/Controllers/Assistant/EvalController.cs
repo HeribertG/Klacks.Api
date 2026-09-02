@@ -163,12 +163,28 @@ public class EvalController : ControllerBase
         return Ok(history);
     }
 
+    /// <summary>
+    /// The "Skill-Wirksamkeit" scorecard over a reporting window (W6). An out-of-range window is a
+    /// client error rather than a silently clamped one: a card that shows 30 days after asking for
+    /// 3000 would label the wrong period.
+    /// </summary>
     [HttpGet("skill-effectiveness")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<SkillEffectivenessResource>> SkillEffectiveness(
+        [FromQuery] int? days,
         CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new GetSkillEffectivenessQuery(), cancellationToken));
+        var window = days ?? SkillEffectivenessDefaults.DefaultDays;
+        if (window < SkillEffectivenessDefaults.MinDays || window > SkillEffectivenessDefaults.MaxDays)
+        {
+            return BadRequest(new
+            {
+                error = $"days must be between {SkillEffectivenessDefaults.MinDays} and {SkillEffectivenessDefaults.MaxDays}"
+            });
+        }
+
+        return Ok(await _mediator.Send(
+            new GetSkillEffectivenessQuery { Days = window }, cancellationToken));
     }
 
     [HttpPost("correction")]

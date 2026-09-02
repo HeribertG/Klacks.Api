@@ -9072,6 +9072,17 @@
     "obsolete": false
   },
   {
+    "targetId": "skill-effectiveness",
+    "route": "/workplace/settings",
+    "labelKey": "settings.skillEffectiveness",
+    "category": "settings.ai",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-09-02T19:26:04.143Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "spam-rules",
     "route": "/workplace/settings",
     "labelKey": "settings.spamRules",
