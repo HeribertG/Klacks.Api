@@ -212,6 +212,8 @@ public class RecipeRunRecorder : IRecipeRunRecorder
         }
 
         var trimmed = value.Trim();
-        return trimmed.Length <= 500 ? trimmed : trimmed[..500];
+        return trimmed.Length <= RecipeRunDefaults.AbortReasonMaxLength
+            ? trimmed
+            : trimmed[..RecipeRunDefaults.AbortReasonMaxLength];
     }
 }

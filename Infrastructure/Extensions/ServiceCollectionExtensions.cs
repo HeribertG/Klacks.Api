@@ -734,6 +734,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingRecipeStore>();
         services.AddScoped<Klacks.Api.Application.Interfaces.IRecipeRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.RecipeRunRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeRunExpirySweep, Klacks.Api.Application.Services.Assistant.RecipeRunExpirySweep>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeRunRecorder, Klacks.Api.Application.Services.Assistant.RecipeRunRecorder>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingCompanyRuleDraftRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingCompanyRuleDraftStore>();

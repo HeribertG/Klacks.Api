@@ -1009,7 +1009,7 @@
         "fr": "Déplacer un groupe existant sous un autre groupe parent dans l'arbre.",
         "it": "Spostare un gruppo esistente sotto un altro gruppo padre nell'albero."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 31,
       "trigger": {
@@ -1023,7 +1023,7 @@
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "when ", "where ", "who ", "whom "]
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
           },
           {
             "anyWordStart": ["turno", "order"],
@@ -1415,7 +1415,7 @@
         "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
         "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 41,
       "trigger": {
@@ -1430,7 +1430,7 @@
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "when ", "where ", "who ", "whom "]
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
           },
           {
             "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra", "container", "conteneur", "contenitore", "versiegel", "siegel", "seal", "scell", "sigill", "verrouill", "zuschneid", "zerschneid", "schnitt", "split", "découp", "tagli", "einsatzplan", "dienstplan", "planung", "planning", "plan ", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "abwesenheit", "absence", "ferien", "urlaub", "krank", "lösch", "delete", "supprim", "elimin", "entfern", "remove", "retir", "rimuov", "démission", "dimission", "austritt", "kündigung", "offboard", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
@@ -1559,7 +1559,7 @@
         "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
         "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 46,
       "trigger": {
@@ -1573,7 +1573,7 @@
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "when ", "where ", "who ", "whom "]
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
           },
           {
             "anySubstring": ["lösch", "entfern", "remove", "delete", "supprim", "retir", "elimin", "rimuov", "zurücksetz", "reset", "réinitialis", "ripristin", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
@@ -2725,7 +2725,7 @@
         "fr": "Trouver les services-tâches TimeRange mobiles autour d'une ville ou d'une localité pour un jour de la semaine et les regrouper automatiquement dans un nouveau service conteneur optimisé par itinéraire avec son modèle hebdomadaire.",
         "it": "Trovare i servizi-attività TimeRange mobili attorno a una città o una località per un giorno della settimana e raggrupparli automaticamente in un nuovo servizio contenitore ottimizzato per il percorso con il relativo modello settimanale."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 47,
       "trigger": {
@@ -2815,7 +2815,7 @@
               "show ",
               "which ",
               "explain",
-              "is there",
+              "is there", "is ", "are ",
               "when ",
               "where ",
               "who ",

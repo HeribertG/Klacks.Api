@@ -4,8 +4,9 @@
 /// Periodic background service that runs all registered IAgentTriggerDetectors once per hour and turns
 /// what they find into a row in the condition ledger (the user-independent memory) plus a notification
 /// through IAgentTriggerService, then hands the ledger to the action dispatcher, which is where
-/// Klacksy actually remediates something on its own, and finally runs the reminder sweep, which
-/// re-delivers dispatch rows the user never acknowledged. First run is delayed
+/// Klacksy actually remediates something on its own, then runs the reminder sweep, which
+/// re-delivers dispatch rows the user never acknowledged, and finally the recipe-run expiry sweep,
+/// which retires guided flows the user abandoned. First run is delayed
 /// ProactiveHeartbeat.FirstRunDelayMinutes so the application is fully warmed up before scanning.
 /// </summary>
 /// <param name="scopeFactory">Creates a scoped DI provider per tick.</param>
@@ -111,6 +112,8 @@ public class AgentTriggerBackgroundService : BackgroundService
 
         await RunReminderSweepAsync(scope, cancellationToken);
 
+        await RunRecipeRunExpirySweepAsync(scope, cancellationToken);
+
         _logger.LogDebug(
             "Agent trigger scan tick complete — {Count} detector(s), {Events} event(s), {Dispatched} dispatched, {Resolved} resolved",
             detectors.Count, totalEvents, totalDispatched, totalResolved);
@@ -163,6 +166,33 @@ public class AgentTriggerBackgroundService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Proactive reminder sweep failed");
+        }
+    }
+
+    /// <summary>
+    /// The recipe-run expiry branch (W1.5), the last sibling step of the tick. A guided flow the user
+    /// simply walks away from never reaches Completed or Aborted, so without this its row stays
+    /// Running and inflates the funnel denominator forever. Isolated like the other siblings: a
+    /// failing sweep must not cost the tick its already persisted work.
+    /// </summary>
+    private async Task RunRecipeRunExpirySweepAsync(IServiceScope scope, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var sweep = scope.ServiceProvider.GetRequiredService<IRecipeRunExpirySweep>();
+            var expired = await sweep.RunAsync(cancellationToken);
+            if (expired > 0)
+            {
+                _logger.LogDebug("Recipe-run expiry sweep complete — {Expired} run(s) expired", expired);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Recipe-run expiry sweep failed");
         }
     }
 

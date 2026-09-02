@@ -46,14 +46,14 @@
     "effect": "Mutate",
     "isEnabled": true,
     "alwaysOn": false,
-    "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "threema", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
+    "triggerKeywords": { "mul": ["sms", "whatsapp", "telegram", "signal", "threema"], "und": ["nachricht", "message", "senden", "send", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "myself"] },
     "synonyms": {
       "de": ["nachricht senden", "schick eine nachricht", "sende eine nachricht", "sms senden", "whatsapp senden"],
       "en": ["send a message", "send message", "text someone", "write a message"],
       "fr": ["envoyer un message"],
       "it": ["inviare un messaggio"]
     },
-    "version": 14
+    "version": 15
   },
   {
     "name": "read_messages",
@@ -116,13 +116,13 @@
     "effect": "Read",
     "isEnabled": true,
     "alwaysOn": false,
-    "triggerKeywords": ["messaging", "provider", "dienste", "services", "kanäle", "channels", "telegram", "whatsapp", "signal", "sms", "nachricht", "message", "schick", "senden", "send"],
+    "triggerKeywords": { "mul": ["sms", "messaging", "telegram", "whatsapp", "signal"], "und": ["provider", "dienste", "services", "kanäle", "channels", "nachricht", "message", "schick", "senden", "send"] },
     "synonyms": {
       "de": ["messaging-dienste auflisten", "verfügbare kanäle"],
       "en": ["list messaging providers", "which channels are configured"],
       "fr": ["lister les fournisseurs de messagerie"],
       "it": ["elencare i provider di messaggistica"]
     },
-    "version": 8
+    "version": 9
   }
 ]
