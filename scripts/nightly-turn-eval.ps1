@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    Non-blocking nightly turn-selection eval for the Klacksy assistant (AP 0.4).
+    Nightly turn-selection eval for the Klacksy assistant (AP 0.4).
 
 .DESCRIPTION
-    Drives the turn-selection goldset ('turn-selection-v1') against a small, fixed set of
-    models and produces a scorecard file plus a loud regression signal - WITHOUT ever failing
-    the build. It is meant to run locally (dev machine / Windows Task Scheduler), never in CI,
-    because it makes real, paid LLM provider calls and needs provider API keys.
+    Drives a turn-eval goldset against a small, fixed set of models, produces a scorecard file and
+    signals both regressions and apparatus failures through the exit code. It is meant to run
+    locally (dev machine / Windows Task Scheduler), never in CI, because it makes real, paid LLM
+    provider calls and needs provider API keys.
 
     IMPORTANT - where the secrets live:
         Provider API keys are stored ENCRYPTED IN THE DATABASE (llm_providers.api_key), never
@@ -17,17 +17,35 @@
         The eval is exposed as the [Explicit] integration test
         Klacks.IntegrationTest/Assistant/TurnSelectionGoldenSetTests. That test self-hosts the API
         (WebApplicationFactory) against the real dev DB on port 5434, replays every goldset item
-        once against the model named in the TURNEVAL_MODEL_ID environment variable, and PERSISTS
-        one row per run into the eval_runs table (composite_score, regression_vs_baseline, ...).
-        This script invokes that test once per model, then reads the authoritative result back
-        from eval_runs via psql (console scraping is deliberately avoided - it is adapter/verbosity
+        once against the model named in TURNEVAL_MODEL_ID, and PERSISTS one row per run into the
+        eval_runs table (composite_score, regression_vs_baseline, scorer_version, is_partial, ...).
+        This script invokes that test once per model, then reads the authoritative result back from
+        eval_runs via psql (console scraping is deliberately avoided - it is adapter/verbosity
         fragile).
 
-    Non-blocking contract:
-        The script exits 0 when no model regressed and 2 when a regression beyond the threshold
-        was detected, so the Windows Task Scheduler records a failed last-run result. A skipped or
-        unavailable model, or a "0 tests executed" invocation produces a loud WARNING in the console
-        and in the scorecard file but is not itself a failure (exit stays 0).
+        The test is selected by its FULL name, not by a substring. Both forms were verified to
+        execute an [Explicit] fixture on this machine (2026-09-02, .NET 10 / NUnit adapter: an
+        explicit test DOES run when a --filter selects it), so the exact name is used purely for
+        precision - it can never drag in a sibling fixture and spend money on it.
+
+    Environment contract (this is what the test reads):
+        TURNEVAL_MODEL_ID   - model to replay; set per model by this script.
+        TURNEVAL_GOLDSET    - goldset name; exported from -Goldset. Previously never exported, so
+                              -Goldset silently had no effect on the run while the result was still
+                              looked up under that name - a run of one goldset could be reported as
+                              another. Now they cannot diverge.
+        TURNEVAL_MAX_ITEMS  - item cap; exported from -MaxItems / -Profile.
+        TURNEVAL_MIN_PASS_RATE - optional absolute gate; not set here, the test's own baseline
+                              ratchet plus its absolute floor decide.
+
+    Exit contract (a scheduled task must be able to see a broken apparatus):
+        0 - every model produced exactly one new eval_runs row and no composite regressed.
+        2 - at least one model regressed beyond -RegressionThreshold.
+        3 - APPARATUS FAILURE: a model was skipped, dotnet test returned non-zero, no test ran, or
+            the run did not add exactly one eval_runs row. A run that measured nothing is a failure,
+            not a warning - the previous version exited 0 here, which is why five months of "green"
+            nightlies contained no measurement at all.
+        Precedence: 3 beats 2, because a broken apparatus makes the numbers untrustworthy.
 
 .PARAMETER Models
     Comma-separated llm_models.model_id values to evaluate. Default is the production model only,
@@ -35,31 +53,42 @@
     disabled in the current dev DB, so only deepseek-v4-pro runs until it is re-enabled).
     Verify availability yourself before trusting a default: the live catalog differs per machine.
     Query:  SELECT model_id, is_default, cost_per_input_token FROM llm_models WHERE is_enabled AND NOT is_deleted;
-    Swap in other presets via -Models once their provider is enabled and keyed - the pre-flight
-    below skips anything not runnable.
 
 .PARAMETER Goldset
-    Goldset name (without .json). Default: turn-selection-v1.
+    Goldset name (without .json). Default: turn-selection-v1. Exported as TURNEVAL_GOLDSET.
+
+.PARAMETER Profile
+    daily  - caps the run at the first 70 goldset items (the curated head of turn-selection-v1;
+             RunAsync takes them with Take, so positions 0-69). Roughly a fifth of the cost.
+             NOTE: a capped run is a PARTIAL run. Partial runs are never used as a baseline, so the
+             daily series does not move the ratchet - its gate is the absolute floor in
+             TurnEvalPassRateGate. Only the weekly full run advances the baseline. That is the
+             intended trade: cheap daily smoke detection, weekly ratchet.
+    weekly - full goldset, no cap. This is the run that sets the baseline.
+    Explicitly passing -MaxItems overrides the profile.
+
+.PARAMETER MaxItems
+    Item cap; 0 means "use the profile". Exported as TURNEVAL_MAX_ITEMS.
 
 .PARAMETER RegressionThreshold
-    Composite drop (vs. the same model's previous baseline run) that triggers a loud warning.
-    Positive number; a regression_vs_baseline of -0.03 with threshold 0.02 warns. Default: 0.02.
+    Composite drop (vs. the best comparable baseline run) that triggers exit code 2. Positive
+    number; a regression_vs_baseline of -0.03 with threshold 0.02 fires. Default: 0.02.
 
 .PARAMETER OutputDir
-    Directory for scorecard files. Default: <repo>/artifacts/turn-eval.
+    Directory for scorecard and test-log files. Default: <repo>/artifacts/turn-eval.
 
 .PARAMETER RepoRoot
     Klacks.Api repo root. Default: the parent of this script's folder.
 
 .PARAMETER DryRun
     Validate prerequisites and PRINT the exact per-model commands that would run, WITHOUT
-    invoking dotnet test and WITHOUT any LLM call or cost. Use this to sanity-check wiring.
+    invoking dotnet test and WITHOUT any LLM call or cost.
 
 .EXAMPLE
     pwsh ./scripts/nightly-turn-eval.ps1 -DryRun
 
 .EXAMPLE
-    pwsh ./scripts/nightly-turn-eval.ps1 -Models "gpt-54,gemini-31-flash-lite,claude-sonnet-5"
+    pwsh ./scripts/nightly-turn-eval.ps1 -Profile weekly
 
 .NOTES
     Prerequisites for a REAL run:
@@ -67,29 +96,43 @@
         - PostgreSQL reachable at localhost:5434 (db 'klacks', user 'postgres', pw 'admin') - the
           shared dev/integration DB. psql.exe must be reachable (default path below or on PATH).
         - Each evaluated model must be enabled in llm_models AND its provider enabled + keyed in
-          llm_providers. The script pre-flights this and skips (with a warning) any model that is not.
+          llm_providers. The script pre-flights this and FAILS (exit 3) on anything not runnable.
         - No running backend is required: the integration test self-hosts its own host.
         - Real provider calls cost money.
     This script performs NO git actions and NO deployment.
 
-    Register as a Windows Scheduled Task (run once, elevated PowerShell; adjust the path).
-    DO NOT commit any credentials; the task runs as the current interactive user so it inherits the
-    same DB access the dev tools already have:
+    Recommended scheduled tasks (register manually; this script does not touch the scheduler):
 
         schtasks /Create ^
-          /TN "Klacks\NightlyTurnEval" ^
-          /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1" ^
-          /SC DAILY /ST 03:30 /RL LIMITED /F
+          /TN "Klacks\NightlyTurnEval-Daily" ^
+          /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1 -Profile daily" ^
+          /SC WEEKLY /D MON,TUE,WED,THU,FRI /ST 03:30 /RL LIMITED /F
 
-    Inspect / remove later:
-        schtasks /Query /TN "Klacks\NightlyTurnEval" /V /FO LIST
-        schtasks /Delete /TN "Klacks\NightlyTurnEval" /F
+        schtasks /Create ^
+          /TN "Klacks\NightlyTurnEval-Weekly" ^
+          /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1 -Profile weekly" ^
+          /SC WEEKLY /D SAT /ST 02:00 /RL LIMITED /F
+
+    Three scheduling constraints, all of them load-bearing:
+      - The weekly run must NOT collide with Klacks-GoldenSet-Nightly-Full (Sunday 00:00), hence
+        Saturday.
+      - The daily must NOT fire on Saturday (weekdays only, not /SC DAILY): the weekly full run
+        over 334 items takes roughly 95 min at the measured ~17 s/item, so a 03:30 daily would
+        start while it is still running, both would write eval_runs, and the "exactly one new row"
+        guard would report an apparatus failure for a run that was in fact fine.
+      - Neither should run while a backend or the E2E suite occupies the dev DB on 5434.
+    Inspect / remove:
+        schtasks /Query /TN "Klacks\NightlyTurnEval-Daily" /V /FO LIST
+        schtasks /Delete /TN "Klacks\NightlyTurnEval-Daily" /F
 #>
 
 [CmdletBinding()]
 param(
     [string]$Models = "deepseek-v4-pro",
     [string]$Goldset = "turn-selection-v1",
+    [ValidateSet("daily", "weekly")]
+    [string]$Profile = "daily",
+    [int]$MaxItems = 0,
     [double]$RegressionThreshold = 0.02,
     [string]$OutputDir,
     [string]$RepoRoot,
@@ -101,23 +144,33 @@ $ErrorActionPreference = "Stop"
 
 # --- Constants ---------------------------------------------------------------
 $ModelEnvVar          = "TURNEVAL_MODEL_ID"
+$GoldsetEnvVar        = "TURNEVAL_GOLDSET"
+$MaxItemsEnvVar       = "TURNEVAL_MAX_ITEMS"
 $IntegrationProject   = "Klacks.IntegrationTest/Klacks.IntegrationTest.csproj"
-$TestFilter           = "FullyQualifiedName~TurnSelectionGoldenSetTests"
+$TestFullName         = "Klacks.IntegrationTest.Assistant.TurnSelectionGoldenSetTests.TurnSelectionGoldset_ReplaysAllItemsAndReportsScorecard"
+$TestFilter           = "FullyQualifiedName=$TestFullName"
 $EvalRunsTable        = "eval_runs"
+$DailyMaxItems        = 70
 $DbHost               = "localhost"
 $DbPort               = "5434"
 $DbName               = "klacks"
 $DbUser               = "postgres"
 $DbPassword           = "admin"
 $PsqlDefaultPath      = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$ExitOk               = 0
+$ExitRegression       = 2
+$ExitApparatusFailure = 3
 
-# --- Resolve paths -----------------------------------------------------------
+# --- Resolve paths and run scope ---------------------------------------------
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $RepoRoot)  { $RepoRoot  = Split-Path -Parent $ScriptDir }
 if (-not $OutputDir) { $OutputDir = Join-Path $RepoRoot "artifacts/turn-eval" }
 
 $ModelList = @($Models -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
 if ($ModelList.Count -eq 0) { throw "No models provided." }
+
+$EffectiveMaxItems = if ($MaxItems -gt 0) { $MaxItems } elseif ($Profile -eq "daily") { $DailyMaxItems } else { 0 }
+$ScopeText = if ($EffectiveMaxItems -gt 0) { "first $EffectiveMaxItems items (PARTIAL run - never a baseline)" } else { "full goldset" }
 
 $Timestamp    = Get-Date -Format "yyyyMMdd-HHmmss"
 $ScorecardOut = Join-Path $OutputDir "turn-eval-$Timestamp.md"
@@ -169,15 +222,16 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $sw = [System.IO.StreamWriter]::new($ScorecardOut, $false, [System.Text.UTF8Encoding]::new($false))
 
 $anyRegression = $false
-$anyWarning    = $false
+$anyFailure    = $false
 
 try {
     $modeText = if ($DryRun) { "DRY-RUN (no dotnet test, no LLM calls)" } else { "LIVE" }
     Write-Line "# Turn-selection nightly eval - $Timestamp" $sw
     Write-Line "" $sw
     Write-Line "Goldset:              $Goldset" $sw
+    Write-Line "Profile:              $Profile -> $ScopeText" $sw
     Write-Line "Models:               $($ModelList -join ', ')" $sw
-    Write-Line "Regression threshold: -$RegressionThreshold (composite vs. same-model baseline)" $sw
+    Write-Line "Regression threshold: -$RegressionThreshold (composite vs. best comparable baseline)" $sw
     Write-Line "Mode:                 $modeText" $sw
     Write-Line "DB reachable:         $dbReachable" $sw
     Write-Line "" $sw
@@ -185,100 +239,130 @@ try {
     foreach ($model in $ModelList) {
         Write-Line "## Model: $model" $sw
 
-        # -- Enablement pre-flight (best-effort; needs a reachable DB) --------
+        # -- Enablement pre-flight -------------------------------------------
         if ($dbReachable) {
             $sqlEnabled = "SELECT (m.is_enabled AND p.is_enabled AND (NOT p.requires_api_key OR p.api_key IS NOT NULL)) FROM llm_models m JOIN llm_providers p ON p.provider_id = m.provider_id WHERE m.model_id = '$model' AND m.is_deleted = false AND p.is_deleted = false LIMIT 1;"
             $en = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlEnabled
             if (-not $en.Ok -or [string]::IsNullOrWhiteSpace($en.Value)) {
-                Write-Line "  WARNING: model '$model' not found in llm_models - skipping." $sw "Yellow"
-                $anyWarning = $true
+                Write-Line "  FAILURE: model '$model' not found in llm_models - skipped, nothing was measured." $sw "Red"
+                $anyFailure = $true
                 Write-Line "" $sw
                 continue
             }
             if ($en.Value -ne "t") {
-                Write-Line "  WARNING: model '$model' or its provider is disabled / missing an API key - skipping." $sw "Yellow"
-                $anyWarning = $true
+                Write-Line "  FAILURE: model '$model' or its provider is disabled / missing an API key - skipped, nothing was measured." $sw "Red"
+                $anyFailure = $true
                 Write-Line "" $sw
                 continue
             }
         } elseif (-not $DryRun) {
-            Write-Line "  WARNING: DB not reachable for enablement pre-flight - attempting anyway." $sw "Yellow"
-            $anyWarning = $true
-        }
-
-        $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release --logger `"trx;LogFileName=turneval-$model-$Timestamp.trx`" (env $ModelEnvVar=$model)"
-
-        if ($DryRun) {
-            Write-Line "  [dry-run] would run: $cmd" $sw
-            Write-Line "  [dry-run] would then read latest $EvalRunsTable row for goldset='$Goldset', model='$model'." $sw
+            Write-Line "  FAILURE: DB not reachable for the enablement pre-flight." $sw "Red"
+            $anyFailure = $true
             Write-Line "" $sw
             continue
         }
 
-        # -- Baseline BEFORE the run (to detect that a new row was actually written) --
-        $sqlCountBefore = "SELECT count(*) FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false;"
-        $before = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCountBefore
+        $envText = "$ModelEnvVar=$model $GoldsetEnvVar=$Goldset $MaxItemsEnvVar=$EffectiveMaxItems"
+        $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release (env $envText)"
+
+        if ($DryRun) {
+            Write-Line "  [dry-run] would run: $cmd" $sw
+            Write-Line "  [dry-run] would then require exactly one new $EvalRunsTable row for goldset='$Goldset', model='$model'." $sw
+            Write-Line "" $sw
+            continue
+        }
+
+        # -- Row count BEFORE the run ----------------------------------------
+        $sqlCount = "SELECT count(*) FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false;"
+        $before = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
+        if (-not $before.Ok) {
+            Write-Line "  FAILURE: could not read the $EvalRunsTable row count before the run." $sw "Red"
+            $anyFailure = $true
+            Write-Line "" $sw
+            continue
+        }
         $countBefore = 0
         [int]::TryParse($before.Value, [ref]$countBefore) | Out-Null
 
         # -- Run the [Explicit] integration test for this model --------------
-        Write-Host "  Running eval for '$model' ..." -ForegroundColor Cyan
-        $prevModel = $env:TURNEVAL_MODEL_ID
-        $env:TURNEVAL_MODEL_ID = $model
-        $testOutput = ""
+        Write-Host "  Running eval for '$model' ($ScopeText) ..." -ForegroundColor Cyan
+        $logPath = Join-Path $OutputDir "turneval-$model-$Timestamp.log"
+        $prevModel    = $env:TURNEVAL_MODEL_ID
+        $prevGoldset  = $env:TURNEVAL_GOLDSET
+        $prevMaxItems = $env:TURNEVAL_MAX_ITEMS
+        $env:TURNEVAL_MODEL_ID  = $model
+        $env:TURNEVAL_GOLDSET   = $Goldset
+        $env:TURNEVAL_MAX_ITEMS = "$EffectiveMaxItems"
+        $testExitCode = -1
         try {
             $testOutput = & dotnet test $IntegrationProject `
                 --filter $TestFilter `
                 --configuration Release `
                 --logger "trx;LogFileName=turneval-$model-$Timestamp.trx" 2>&1 | Out-String
+            $testExitCode = $LASTEXITCODE
         } catch {
-            $testOutput = "$testOutput`n$($_.Exception.Message)"
+            $testOutput = "$($_.Exception.Message)"
+            $testExitCode = -1
         } finally {
-            $env:TURNEVAL_MODEL_ID = $prevModel
+            $env:TURNEVAL_MODEL_ID  = $prevModel
+            $env:TURNEVAL_GOLDSET   = $prevGoldset
+            $env:TURNEVAL_MAX_ITEMS = $prevMaxItems
         }
 
-        # -- Guard: did the [Explicit] test actually execute? ----------------
-        # A name filter that fails to select the Explicit test runs NOTHING and still exits 0.
-        # Detect it two ways: (a) the vstest summary reporting zero total, (b) no new eval_runs row.
-        $ranZero = $testOutput -match "Passed!\s*-\s*Failed:\s*0,\s*Passed:\s*0" `
-            -or $testOutput -match "No test (matches|is available|source files)" `
-            -or $testOutput -match "Total tests:\s*0" `
-            -or ($testOutput -match "Passed:\s*0" -and $testOutput -notmatch "Passed:\s*[1-9]")
+        # The full console output is the only place a build error or a provider failure is visible,
+        # and losing it is what made the 01.09. empty nightly undiagnosable. Always keep it.
+        Set-Content -Path $logPath -Value $testOutput -Encoding UTF8
 
-        $after = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCountBefore
+        # -- Guard: exactly one new row. Locale-independent, unlike scraping the vstest summary
+        #    (a German SDK prints "erfolgreich:", so every English "Passed: 0" heuristic is blind).
+        $after = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
         $countAfter = 0
         [int]::TryParse($after.Value, [ref]$countAfter) | Out-Null
-        $newRowWritten = ($countAfter -gt $countBefore)
+        $rowsAdded = $countAfter - $countBefore
 
-        if ($ranZero -or -not $newRowWritten) {
-            Write-Line "  WARNING: no eval executed for '$model' (0 tests ran or no eval_runs row written)." $sw "Red"
-            Write-Line "           The --filter may not have selected the [Explicit] test, or the run errored before persisting." $sw "Red"
-            $anyWarning = $true
+        Write-Line "  dotnet test exit code: $testExitCode" $sw
+        Write-Line "  eval_runs rows:        $countBefore -> $countAfter (added $rowsAdded, expected 1)" $sw
+        Write-Line "  test log:              $logPath" $sw
+
+        if ($testExitCode -ne 0) {
+            Write-Line "  FAILURE: dotnet test returned $testExitCode - the eval did not complete cleanly. See the log above." $sw "Red"
+            $anyFailure = $true
+        }
+
+        if ($rowsAdded -ne 1) {
+            Write-Line "  FAILURE: the run added $rowsAdded rows to $EvalRunsTable, expected exactly 1." $sw "Red"
+            Write-Line "           Either no test executed, or the run errored before persisting, or the goldset/model" $sw "Red"
+            Write-Line "           the test used differs from the one queried here. NOTHING WAS MEASURED." $sw "Red"
+            $anyFailure = $true
             Write-Line "" $sw
             continue
         }
 
         # -- Read the authoritative scorecard back from eval_runs ------------
-        $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
+        $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider, scorer_version, is_partial FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
         $row = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatest
         if (-not $row.Ok -or [string]::IsNullOrWhiteSpace($row.Value)) {
-            Write-Line "  WARNING: could not read the persisted eval_runs row for '$model'." $sw "Yellow"
-            $anyWarning = $true
+            Write-Line "  FAILURE: could not read the persisted $EvalRunsTable row for '$model'." $sw "Red"
+            $anyFailure = $true
             Write-Line "" $sw
             continue
         }
 
         $cols = $row.Value.Split("|")
-        $composite  = $cols[0].Trim()
-        $regression = $cols[1].Trim()
-        $itemsTotal = if ($cols.Count -gt 2) { $cols[2].Trim() } else { "?" }
-        $itemsPass  = if ($cols.Count -gt 3) { $cols[3].Trim() } else { "?" }
-        $provider   = if ($cols.Count -gt 4) { $cols[4].Trim() } else { "?" }
+        $composite     = $cols[0].Trim()
+        $regression    = $cols[1].Trim()
+        $itemsTotal    = if ($cols.Count -gt 2) { $cols[2].Trim() } else { "?" }
+        $itemsPass     = if ($cols.Count -gt 3) { $cols[3].Trim() } else { "?" }
+        $provider      = if ($cols.Count -gt 4) { $cols[4].Trim() } else { "?" }
+        $scorerVersion = if ($cols.Count -gt 5) { $cols[5].Trim() } else { "?" }
+        $isPartial     = if ($cols.Count -gt 6) { $cols[6].Trim() } else { "?" }
 
-        Write-Line "  provider:   $provider" $sw
-        Write-Line "  composite:  $composite" $sw
-        Write-Line "  regression: $regression" $sw
-        Write-Line "  items:      passed=$itemsPass / total=$itemsTotal" $sw
+        Write-Line "  provider:       $provider" $sw
+        Write-Line "  scorer version: $scorerVersion (composites are comparable only within one version)" $sw
+        Write-Line "  partial run:    $isPartial" $sw
+        Write-Line "  composite:      $composite" $sw
+        Write-Line "  regression:     $regression" $sw
+        Write-Line "  items:          passed=$itemsPass / total=$itemsTotal" $sw
 
         $regValue = 0.0
         if ([double]::TryParse($regression, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$regValue)) {
@@ -286,6 +370,10 @@ try {
                 Write-Line "  >>> REGRESSION: composite dropped by $regValue vs baseline (threshold -$RegressionThreshold) <<<" $sw "Red"
                 $anyRegression = $true
             }
+        } elseif ($isPartial -eq "t") {
+            Write-Line "  (no regression figure: partial runs have no comparable baseline by design)" $sw
+        } else {
+            Write-Line "  (no regression figure: no comparable baseline of the same size and scorer version yet)" $sw
         }
         Write-Line "" $sw
     }
@@ -293,12 +381,12 @@ try {
     Write-Line "---" $sw
     if ($DryRun) {
         Write-Line "DRY-RUN complete. No tests were executed and no LLM calls were made." $sw "Green"
+    } elseif ($anyFailure) {
+        Write-Line "RESULT: APPARATUS FAILURE - at least one model measured nothing. The numbers above are incomplete." $sw "Red"
     } elseif ($anyRegression) {
         Write-Line "RESULT: REGRESSION DETECTED - review the models flagged above." $sw "Red"
-    } elseif ($anyWarning) {
-        Write-Line "RESULT: completed WITH WARNINGS (skipped models / missing rows) - review above." $sw "Yellow"
     } else {
-        Write-Line "RESULT: OK - no regression beyond threshold." $sw "Green"
+        Write-Line "RESULT: OK - every model produced exactly one run, none regressed beyond the threshold." $sw "Green"
     }
     Write-Line "Scorecard: $ScorecardOut" $sw
 }
@@ -310,7 +398,7 @@ finally {
 Write-Host ""
 Write-Host "Scorecard written to: $ScorecardOut" -ForegroundColor Cyan
 
-# Regression is signalled loudly above AND via a non-zero exit code, so the scheduled task
-# records a failed run when the composite drops beyond the threshold.
-if ($anyRegression) { exit 2 }
-exit 0
+if ($DryRun)       { exit $ExitOk }
+if ($anyFailure)   { exit $ExitApparatusFailure }
+if ($anyRegression){ exit $ExitRegression }
+exit $ExitOk
