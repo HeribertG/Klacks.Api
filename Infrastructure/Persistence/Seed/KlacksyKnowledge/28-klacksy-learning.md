@@ -102,6 +102,16 @@ open wish be discarded. A discarded wish never comes back, even if the same sent
 This requires administrator rights, and Klacksy has no capability of its own for this card — an
 assistant that could edit its own learning results could reinforce itself.
 
+## The weekly digest
+
+Once a week an administrator gets a digest of what the loop did. It reports the **finished** week,
+never the running one, and counts four things: how many phrasings were learned, how many capabilities
+were learned, how many wishes still nobody can serve, and how many description sharpenings the
+regression gate withheld. A week in which none of the four happened produces no digest at all —
+silence means nothing was learned. At most one digest per calendar week is sent, however often the
+detector runs. It reaches administrators only, as a line in the inbox and a badge that links to the
+card: a badge, not a push, and never a chat bubble in a running conversation.
+
 ## An important limit
 
 Learning changes **wording and composition**, never permissions and never what a capability is

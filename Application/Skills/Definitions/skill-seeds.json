@@ -288,7 +288,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: settings: settings-general,data-retention,user-management,group-scope,identity-providers,branches,contracts,states,countries,qualifications,work-setting,wizard,email-config,imap-setting,spam-rules,reports,report-defaults,grid-color,macros,openroute,deepl,messaging-providers,updates,personal-access-tokens,llm-{models,provider,sync-log},assistant-{speech,personality,skill-proposals,skill-relations},klacksy-{model-check,autonomy},owner-{address,messengers},scheduling-{defaults,rules},absence-{types,detail},calendar-{rules,selection},language-plugins,feature-plugins; edit-employee/edit-address: address-{persona,membership,contracts,groups,qualifications,note,image}; edit-shift: shift-{item,group,qualifications,weekday,macro,address,special-feature,expenses}; edit-group: group-{item,parent,members}; period-closing: period-closing-{periods,exports,audit}; profile: profile-{picture,data,settings,microphone}. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: settings: settings-general,data-retention,user-management,group-scope,identity-providers,branches,contracts,states,countries,qualifications,work-setting,wizard,email-config,imap-setting,spam-rules,reports,report-defaults,grid-color,macros,openroute,deepl,messaging-providers,updates,personal-access-tokens,llm-{models,provider,sync-log},assistant-{speech,personality,learning,skill-relations},klacksy-{model-check,autonomy},owner-{address,messengers},scheduling-{defaults,rules},absence-{types,detail},calendar-{rules,selection},language-plugins,feature-plugins; edit-employee/edit-address: address-{persona,membership,contracts,groups,qualifications,note,image}; edit-shift: shift-{item,group,qualifications,weekday,macro,address,special-feature,expenses}; edit-group: group-{item,parent,members}; period-closing: period-closing-{periods,exports,audit}; profile: profile-{picture,data,settings,microphone}. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -328,7 +328,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 17
+      "version": 18
     },
     {
       "name": "get_page_controls",
@@ -25597,7 +25597,7 @@
     {
       "name": "explain_page_settings_overview",
       "area": "settings",
-      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its thirteen collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for detail), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed order shifts). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
+      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its thirteen collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, learning, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for detail), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed order shifts). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -25718,7 +25718,7 @@
           "icona dell'ingranaggio"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "explain_page_profile",
@@ -31445,7 +31445,7 @@
     {
       "name": "explain_klacksy_learning",
       "area": "klacksy",
-      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group is triaged into a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet. A learned wording must pass a routing replay (O1), a learned capability additionally an execution probe (O2), and whatever proves useless is withdrawn again by the fitness quote, which a thumbs up improves. All of it runs automatically; an administrator supervises afterwards in the settings card 'Klacksy learns'. Only a 120-character excerpt of a wording is stored, and learning never changes what a capability is allowed to do. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its capabilities grow.",
+      "description": "Explains how Klacksy learns: requests it could not serve are grouped by their normalised wording, counted, and only taken up once the same wish recurs at least three times or comes from at least two different people. A ready group is triaged into a learned phrasing for an existing capability, a learned capability composed from existing ones, or an open wish nobody can serve yet. A learned wording must pass a routing replay (O1), a learned capability additionally an execution probe (O2), and whatever proves useless is withdrawn again by the fitness quote, which a thumbs up improves. All of it runs automatically; an administrator supervises afterwards in the settings card 'Klacksy learns' and gets a weekly digest of the finished week in the inbox, which stays silent in a week nothing was learned. Only a 120-character excerpt of a wording is stored, and learning never changes what a capability is allowed to do. Use this when the user asks whether Klacksy learns, why it picked the wrong thing, what happens to a correction, or how its capabilities grow.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -31507,7 +31507,7 @@
           "miglioramento"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_contracts",

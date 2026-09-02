@@ -1112,31 +1112,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "se forslag til nye kompetencer",
-      "se kompetenceforslag",
-      "åbn kompetenceforslag",
-      "kompetenceforslag",
-      "se nye kompetencer",
-      "kompetenceanbefalinger",
-      "foreslåede kompetencer",
-      "se anbefalede kompetencer",
-      "kompetenceforslag fra ai",
-      "ai kompetenceforslag",
-      "se ubehandlede kompetenceforslag",
-      "kompetenceønsker",
-      "se kompetenceønsker",
-      "åbn kompetenceforslag i indstillinger",
-      "kompetenceforslag under indstillinger",
-      "se forslag til kompetencer",
-      "nye kompetencer fra ai",
-      "ai forslag til kompetencer",
-      "gå til kompetenceforslag",
-      "se kompetenceanbefalinger"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "åbn filialformular",

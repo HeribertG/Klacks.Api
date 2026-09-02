@@ -1121,31 +1121,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "cadangan kemahiran",
-      "saranan kemahiran",
-      "cadangan kemahiran klaks",
-      "semakan kemahiran",
-      "kemahiran baharu",
-      "permintaan kemahiran",
-      "cadangan kemahiran terbuka",
-      "proposal kemahiran",
-      "kemahiran yang dicadangkan",
-      "senarai kemahiran dicadang",
-      "kemahiran dalam semakan",
-      "usul kemahiran",
-      "pencadangan kemahiran",
-      "kemahiran untuk diluluskan",
-      "kemahiran yang diminta",
-      "cadangan kemahiran baharu",
-      "kemahiran dalam proses",
-      "kemahiran menunggu kelulusan",
-      "saranan kemahiran klaks",
-      "proposal kemahiran klaks"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "buka borang cawangan",

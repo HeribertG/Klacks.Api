@@ -1119,31 +1119,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "förslag på färdigheter",
-      "färdighetsförslag",
-      "förslag om kompetenser",
-      "föreslagna kompetenser",
-      "öppna kompetensförslag",
-      "förslag på nya färdigheter",
-      "nya färdigheter som föreslås",
-      "obesvarade kompetensförslag",
-      "granska kompetensförslag",
-      "kompetensförslag för granskning",
-      "förslag på kompetens",
-      "färdighetsförfrågningar",
-      "förfrågningar om nya färdigheter",
-      "nya kompetensförslag",
-      "öppna färdighetsförslag",
-      "se förslag på färdigheter",
-      "förslag om nya färdigheter",
-      "kompetensförslag att hantera",
-      "förslag på kompetenser",
-      "hantera kompetensförslag"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "öppna filialformuläret",

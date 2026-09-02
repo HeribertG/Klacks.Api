@@ -1122,30 +1122,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "návrhy dovedností",
-      "doporučené dovednosti",
-      "návrhy na nové dovednosti",
-      "nepotvrzené dovednosti",
-      "ke schválení dovednosti",
-      "návrhy schopností",
-      "nové dovednosti ke kontrole",
-      "přidat dovednost z návrhu",
-      "návrhy od klakse",
-      "čekající návrhy dovedností",
-      "přehled návrhů dovedností",
-      "schválit dovednosti",
-      "návrhy na dovednosti zaměstnanců",
-      "dovednosti k posouzení",
-      "správa návrhů dovedností",
-      "vyřídit návrhy dovedností",
-      "otevřené návrhy dovedností",
-      "návrhy z analýzy",
-      "umělé inteligence návrhy dovedností"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "otevřít formulář pobočky",

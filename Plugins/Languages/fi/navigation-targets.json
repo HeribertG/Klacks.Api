@@ -1101,31 +1101,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "ehdotetut taidot",
-      "osaamisehdotukset",
-      "taitojen ehdotukset",
-      "ehdotetut osaamiset",
-      "uudet taitoesitykset",
-      "taitoesitysten tarkastelu",
-      "avoimet taitoesitykset",
-      "osaamisehdotusten katselu",
-      "ehdotetut kyvyt",
-      "taitojen tarkastelu",
-      "osaamisen ehdotukset",
-      "taitojen hyväksyntä",
-      "ehdotetut osaamiset asetuksista",
-      "taidoehdotukset asetuksissa",
-      "ehdotettujen taitojen katselu",
-      "taitoesitysten hallinta",
-      "avoimet osaamisehdotukset",
-      "uudet taitoehdotukset",
-      "osaamisehdotukset asetuksista",
-      "taitoesitysten hyväksyminen"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "näytä toimipisteen tiedot",

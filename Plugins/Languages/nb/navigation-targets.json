@@ -1117,31 +1117,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "forslag til nye ferdigheter",
-      "ferdighetsforslag fra ki",
-      "vurder ferdighetsforslag",
-      "ferdighetsønsker",
-      "nye ferdigheter foreslått",
-      "ferdighetsanbefalinger",
-      "åpne ferdighetsforslag",
-      "se foreslåtte ferdigheter",
-      "ferdighetsforslag i innstillinger",
-      "ki-genererte ferdigheter",
-      "ferdighetsforslag for ansatte",
-      "administrer ferdighetsforslag",
-      "ferdighetsinnspill",
-      "foreslåtte ferdigheter venter",
-      "ferdighetsforslag fra systemet",
-      "sjekk ferdighetsforslag",
-      "ferdighetsanmodninger",
-      "nye ferdigheter fra ki",
-      "ferdighetsforslag til vurdering",
-      "se hvilke ferdigheter som foreslås"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "åpne filialskjema",

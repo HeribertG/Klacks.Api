@@ -11,7 +11,7 @@ description: |
   details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam
   rules, report templates and defaults), Appearance & Automation (grid colors, calculation
   macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech,
-  personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when
+  personality, learning, autonomy), External Services (OpenRoute, DeepL, messaging when
   the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML
   upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for
   detail), Plugins (language packs, feature plugins) and System (software updates). Also covers
@@ -154,8 +154,8 @@ mit — erwähne die Marker und Anker-IDs niemals im Text.
    `llm-sync-log` (Sync-Protokoll), `klacksy-model-check` (Check "Beste
    Klacksy-Modelle").
 9. **Klacksy** (in allen Sprachen "Klacksy"): `assistant-speech` (Stimme/Diktat),
-   `assistant-personality` (Persönlichkeit), `assistant-skill-proposals`
-   (Skill-Vorschläge), `klacksy-autonomy` (Autonomie-Stufe des Assistenten).
+   `assistant-personality` (Persönlichkeit), `assistant-learning` (Klacksy lernt),
+   `klacksy-autonomy` (Autonomie-Stufe des Assistenten).
 10. **Externe Dienste** (de: "Externe Dienste", en: "External Services",
     fr: "Services externes", it: "Servizi esterni"): `openroute` (Routing/Geodaten),
     `deepl` (Übersetzung). Ist das Messaging-Feature-Plugin aktiviert, erscheinen

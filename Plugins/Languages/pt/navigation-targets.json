@@ -1124,31 +1124,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "propostas de habilidades",
-      "sugestões de competências",
-      "revisão de habilidades",
-      "novas habilidades",
-      "solicitações de habilidades",
-      "propostas de competências pendentes",
-      "habilidades sugeridas",
-      "pedidos de novas habilidades",
-      "propostas de skill",
-      "sugestões de skill",
-      "revisão de propostas de habilidade",
-      "habilidades em revisão",
-      "solicitações de competências",
-      "propostas de habilidades abertas",
-      "sugestões de competências do assistente",
-      "propostas de skill do assistente",
-      "revisar propostas de habilidade",
-      "ver propostas de skills",
-      "analisar sugestões de competências",
-      "propostas de habilidades da ia"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "abrir formulário de filial",

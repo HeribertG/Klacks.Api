@@ -1121,31 +1121,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "đề xuất kỹ năng",
-      "gợi ý kỹ năng mới",
-      "xem đề xuất kỹ năng",
-      "kỹ năng được đề xuất",
-      "kiểm tra đề xuất kỹ năng",
-      "đề nghị kỹ năng",
-      "kỹ năng chờ duyệt",
-      "yêu cầu kỹ năng mới",
-      "đề xuất kỹ năng từ ai",
-      "quản lý đề xuất kỹ năng",
-      "duyệt đề xuất kỹ năng",
-      "xem lại kỹ năng đề xuất",
-      "kỹ năng đề xuất chưa xử lý",
-      "mở đề xuất kỹ năng",
-      "đề xuất kỹ năng cho nhân viên",
-      "cập nhật đề xuất kỹ năng",
-      "xử lý đề xuất kỹ năng",
-      "danh sách đề xuất kỹ năng",
-      "đề xuất kỹ năng mới nhất",
-      "xem tất cả đề xuất kỹ năng"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "mở form chi nhánh",

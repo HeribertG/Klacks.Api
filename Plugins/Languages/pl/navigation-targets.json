@@ -1121,31 +1121,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "propozycje umiejętności",
-      "sugestie umiejętności",
-      "propozycje nowych umiejętności",
-      "sugestie nowych umiejętności",
-      "przegląd umiejętności",
-      "ocena propozycji umiejętności",
-      "nowe umiejętności do dodania",
-      "prośby o umiejętności",
-      "oczekujące propozycje umiejętności",
-      "propozycje umiejętności od zespołu",
-      "sugerowane umiejętności",
-      "umiejętności do zatwierdzenia",
-      "lista proponowanych umiejętności",
-      "propozycje dla asystenta",
-      "umiejętności asystenta",
-      "sugestie dla asystenta",
-      "przejdź do propozycji umiejętności",
-      "otwórz sugestie umiejętności",
-      "zarządzaj propozycjami umiejętności",
-      "zobacz proponowane umiejętności"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "edytuj oddział",

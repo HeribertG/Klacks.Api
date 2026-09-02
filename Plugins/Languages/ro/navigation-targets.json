@@ -1121,31 +1121,6 @@
     ],
     "status": "generated"
   },
-  "assistant-skill-proposals": {
-    "synonyms": [
-      "propuneri de competențe",
-      "sugestii de competențe",
-      "recenzie competențe",
-      "competențe noi",
-      "cereri de competențe",
-      "propuneri competențe deschise",
-      "sugestii de skilluri",
-      "competențe propuse",
-      "revizuire competențe",
-      "competențe în așteptare",
-      "propuneri de skilluri",
-      "sugestii de abilități",
-      "cereri competențe",
-      "competențe viitoare",
-      "sugestii competențe ai",
-      "propuneri abilități noi",
-      "competențe solicitate",
-      "în lucru competențe",
-      "propuneri de abilități",
-      "sugestii pentru competențe"
-    ],
-    "status": "generated"
-  },
   "branch-form": {
     "synonyms": [
       "deschide formularul sucursalei",
