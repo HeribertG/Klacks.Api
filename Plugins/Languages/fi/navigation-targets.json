@@ -1624,30 +1624,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "ryhmärakenne",
-      "organisaatiorakenne",
-      "ryhmähierarkia",
-      "ryhmäpuu",
-      "näytä ryhmärakenne",
-      "avaa ryhmärakenne",
-      "siirry ryhmärakenteeseen",
-      "ryhmän hierarkia",
-      "organisaation rakenne",
-      "ryhmän rakenne",
-      "näytä organisaatiorakenne",
-      "avaa organisaatiorakenne",
-      "siirry organisaatiorakenteeseen",
-      "ryhmäkaavio",
-      "organisaatiokaavio",
-      "ryhmien hierarkia",
-      "henkilöstön rakenne",
-      "organisaatiorakenteen hallinta",
-      "tarkastele ryhmärakennetta"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "siirry tekoälymallin tarkistukseen",
@@ -2095,6 +2071,21 @@
       "työpaikan asetusnäkymä",
       "muokkaa työvuoroasetuksia",
       "asetukset työvuoroille"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy oppii",
+      "klacksyn oppiminen",
+      "oppimisasetukset",
+      "mitä klacksy on oppinut",
+      "opitut ilmaisut",
+      "avoimet toiveet",
+      "taitoehdotukset",
+      "uudet taidot",
+      "avaa klacksyn oppiminen",
+      "taitojen tarkistus"
     ],
     "status": "generated"
   }

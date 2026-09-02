@@ -1645,31 +1645,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "structura grupului",
-      "ierarhia grupului",
-      "arborele grupului",
-      "structura organizațională",
-      "organigramă",
-      "structura organizației",
-      "ierarhia organizației",
-      "vedeți structura grupului",
-      "deschideți structura grupului",
-      "structura echipei",
-      "arborele organizațional",
-      "grupul ierarhic",
-      "structura departamentelor",
-      "vedeți organigrama",
-      "structura pe grupuri",
-      "navigați la structura grupului",
-      "deschideți organigrama",
-      "structura ierarhică",
-      "arborele departamentelor",
-      "vedeți ierarhia"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "verifică modelul ai",
@@ -2117,6 +2092,21 @@
       "deschide setări muncă",
       "editează setări muncă",
       "setări muncă formular"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy învață",
+      "învățarea klacksy",
+      "setări de învățare",
+      "ce a învățat klacksy",
+      "formulări învățate",
+      "dorințe deschise",
+      "propuneri de competențe",
+      "competențe noi",
+      "deschide învățarea klacksy",
+      "revizuirea competențelor"
     ],
     "status": "generated"
   }

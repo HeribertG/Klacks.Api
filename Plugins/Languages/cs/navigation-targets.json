@@ -1643,31 +1643,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "struktura skupiny",
-      "hierarchie skupiny",
-      "strom skupiny",
-      "organizační struktura",
-      "struktura organizace",
-      "skupinová hierarchie",
-      "zobrazit strukturu skupiny",
-      "přejít na strukturu skupiny",
-      "otevřít hierarchii skupiny",
-      "skupinový strom",
-      "struktura týmu",
-      "hierarchie pracoviště",
-      "organizační schéma",
-      "strom organizace",
-      "zobrazit skupinu",
-      "nastavení skupin",
-      "skupiny a podskupiny",
-      "stromová struktura skupin",
-      "úroveň skupiny",
-      "rozvržení skupiny"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "ukázat model check",
@@ -2114,6 +2089,21 @@
       "přejít na formulář nastavení",
       "editovat nastavení směn",
       "ukázat nastavení pracoviště"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy se učí",
+      "učení klacksy",
+      "nastavení učení",
+      "co se klacksy naučil",
+      "naučené formulace",
+      "otevřená přání",
+      "návrhy dovedností",
+      "nové dovednosti",
+      "otevři učení klacksy",
+      "kontrola dovedností"
     ],
     "status": "generated"
   }

@@ -1640,31 +1640,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "gruppestruktur",
-      "organisasjonsstruktur",
-      "gruppetre",
-      "hierarki",
-      "gruppens omfang",
-      "vis gruppestruktur",
-      "åpne gruppestruktur",
-      "se organisasjonstruktur",
-      "gruppens hierarki",
-      "strukturen til grupper",
-      "gå til gruppestruktur",
-      "gruppestrukturside",
-      "naviger til gruppestruktur",
-      "organisasjonskart",
-      "gruppens organisering",
-      "gruppetreet",
-      "gruppestrukturen",
-      "organisering av grupper",
-      "gruppestruktur visning",
-      "gruppesammensetning"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "modellkontroll",
@@ -2111,6 +2086,21 @@
       "åpne redigeringsskjema for arbeidssted",
       "gå til redigeringsskjema for arbeidssted",
       "arbeidssted konfigurasjonskjema"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy lærer",
+      "klacksy læring",
+      "læringsinnstillinger",
+      "hva klacksy har lært",
+      "lærte formuleringer",
+      "åpne ønsker",
+      "ferdighetsforslag",
+      "nye ferdigheter",
+      "åpne klacksy læring",
+      "gjennomgang av ferdigheter"
     ],
     "status": "generated"
   }

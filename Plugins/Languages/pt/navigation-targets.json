@@ -1649,31 +1649,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "estrutura de grupos",
-      "hierarquia da organização",
-      "árvore de grupos",
-      "estrutura organizacional",
-      "hierarquia do grupo",
-      "organograma",
-      "estrutura do grupo",
-      "abrir estrutura de grupos",
-      "navegar para a hierarquia",
-      "ver estrutura organizacional",
-      "grupo de escopo",
-      "hierarquia da empresa",
-      "estrutura da equipe",
-      "árvore hierárquica",
-      "estrutura de níveis",
-      "hierarquia de grupos",
-      "estrutura de organização",
-      "navegar para estrutura de grupos",
-      "ver hierarquia do grupo",
-      "estrutura de departamentos"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "verificar modelo de ia",
@@ -2119,6 +2094,21 @@
       "ajustes de trabalho",
       "navegar para configurações de trabalho",
       "formulário de definições do posto"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy aprende",
+      "aprendizagem do klacksy",
+      "definições de aprendizagem",
+      "o que o klacksy aprendeu",
+      "formulações aprendidas",
+      "desejos em aberto",
+      "propostas de competências",
+      "sugestões de competências",
+      "novas competências",
+      "abrir aprendizagem do klacksy"
     ],
     "status": "generated"
   }

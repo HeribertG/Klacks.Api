@@ -1642,31 +1642,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "gruppstruktur",
-      "organisationsstruktur",
-      "grupphierarki",
-      "gruppträd",
-      "se gruppstrukturen",
-      "visa grupphierarki",
-      "öppna gruppstruktur",
-      "gruppens struktur",
-      "organisationshierarki",
-      "hierarki",
-      "gruppomfång",
-      "trädstruktur",
-      "struktur för grupper",
-      "grupp organisation",
-      "se hierarkin",
-      "öppna hierarki",
-      "grupperingar",
-      "organisationsschema",
-      "gruppträdstruktur",
-      "gruppens hierarki"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "gå till ai-inställningar",
@@ -2114,6 +2089,21 @@
       "inställningar för arbetsplatsen",
       "redigera arbetsplatsens inställningar",
       "formulär för arbetspassinställningar"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy lär sig",
+      "klacksy inlärning",
+      "inlärningsinställningar",
+      "vad klacksy har lärt sig",
+      "inlärda formuleringar",
+      "öppna önskemål",
+      "färdighetsförslag",
+      "nya färdigheter",
+      "öppna klacksy inlärning",
+      "granskning av färdigheter"
     ],
     "status": "generated"
   }

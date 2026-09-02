@@ -1644,31 +1644,6 @@
     ],
     "status": "generated"
   },
-  "group-structure": {
-    "synonyms": [
-      "groepsstructuur",
-      "organisatiestructuur",
-      "afdeling structuur",
-      "groepering",
-      "hiërarchie",
-      "team structuur",
-      "organigram",
-      "groep overzicht",
-      "groep indeling",
-      "structuur van de organisatie",
-      "groepsboom",
-      "groep hiërarchie",
-      "groepssamenstelling",
-      "groepsopbouw",
-      "organisatie hiërarchie",
-      "afdeling hiërarchie",
-      "groepsscherm",
-      "naar groep structuur",
-      "groep structuur pagina",
-      "structuur weergeven"
-    ],
-    "status": "generated"
-  },
   "klacksy-model-check": {
     "synonyms": [
       "controleer het model in instellingen",
@@ -2116,6 +2091,21 @@
       "werkplek instellingen aanpassen",
       "werkplek formulier openen",
       "werkplekinstellingen pagina"
+    ],
+    "status": "generated"
+  },
+  "assistant-learning": {
+    "synonyms": [
+      "klacksy leert",
+      "klacksy leren",
+      "leerinstellingen",
+      "wat klacksy heeft geleerd",
+      "geleerde formuleringen",
+      "open wensen",
+      "vaardigheidsvoorstellen",
+      "nieuwe vaardigheden",
+      "open klacksy leren",
+      "vaardigheden beoordelen"
     ],
     "status": "generated"
   }

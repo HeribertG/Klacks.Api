@@ -3,9 +3,9 @@
   "name": "Malay",
   "displayName": "Bahasa Melayu",
   "speechLocale": "ms-MY",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "author": "Klacks Community",
-  "coverage": 100.0,
+  "coverage": 97.8,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr",
   "description": "Malay language pack for Klacks — UI translations, calendar rules, and country/state data."
