@@ -26,5 +26,16 @@ public enum SkillRelationType
     /// curated Advise skill has no usage history of its own yet. Appended last: the underlying column
     /// stores the enum ordinal and a unique index keys off it, so existing rows must not shift.
     /// </summary>
-    AdvisesFor
+    AdvisesFor,
+
+    /// <summary>
+    /// A's description names B as a cross-reference ("see also"), including a deliberate delimitation
+    /// ("not this one — that one"). Curated documentation metadata, NOT an experience claim: it exists
+    /// so a name-drop inside a skill description is backed by a graph edge. Deliberately RETRIEVAL-NEUTRAL
+    /// — SkillRetrievalExpander only expands over CoRequired, so a see-also edge can never spend one of
+    /// the three expansion slots and can never displace learned co-occurrence evidence. Appended last:
+    /// the underlying column stores the enum ordinal and a unique index keys off it, so existing rows
+    /// must not shift.
+    /// </summary>
+    SeeAlso
 }

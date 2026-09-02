@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260902185521_AddRecipeRunIndexes")]
+    partial class AddRecipeRunIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1803,12 +1806,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsPartial")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_partial");
-
                     b.Property<int>("ItemsPassed")
                         .HasColumnType("integer")
                         .HasColumnName("items_passed");
@@ -1832,12 +1829,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(6,4)")
                         .HasColumnName("regression_vs_baseline");
 
-                    b.Property<int>("ScorerVersion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
-                        .HasColumnName("scorer_version");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -1847,9 +1838,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Goldset", "CreateTime")
                         .HasDatabaseName("ix_eval_runs_goldset_create_time");
-
-                    b.HasIndex("Goldset", "Model", "ScorerVersion", "ItemsTotal")
-                        .HasDatabaseName("ix_eval_runs_goldset_model_scorer_version_items_total");
 
                     b.ToTable("eval_runs", (string)null);
                 });

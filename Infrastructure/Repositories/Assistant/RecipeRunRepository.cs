@@ -47,6 +47,20 @@ public class RecipeRunRepository : IRecipeRunRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<int> ExpireStaleAsync(
+        DateTime olderThanUtc, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.RecipeRuns
+            .Where(r => r.Status == RecipeRunStatus.Running
+                && r.UpdateTime != null
+                && r.UpdateTime < olderThanUtc)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(r => r.Status, RecipeRunStatus.Expired)
+                    .SetProperty(r => r.UpdateTime, nowUtc),
+                cancellationToken);
+    }
+
     public async Task<int> ExpireStaleRunsAsync(
         Guid userId, string conversationId, DateTime olderThanUtc, CancellationToken cancellationToken = default)
     {

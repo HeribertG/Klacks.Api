@@ -930,8 +930,7 @@
         ],
         "de": [
           "nächste",
-          "nahe",
-          "ort"
+          "nahe"
         ],
         "en": [
           "nearest"
@@ -973,7 +972,7 @@
           "indirizzo"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_calendars",
@@ -2389,7 +2388,6 @@
         ],
         "en": [
           "tax id",
-          "vat",
           "commercial register",
           "company registration"
         ]
@@ -2409,7 +2407,7 @@
           "registrazione aziendale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_data_retention_settings",
@@ -3600,8 +3598,6 @@
           "canton"
         ],
         "de": [
-          "ort",
-          "plz",
           "kanton",
           "postleitzahl",
           "stadt"
@@ -3649,7 +3645,7 @@
           "localita"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_llm_models",
@@ -12004,7 +12000,6 @@
           "gesplittet"
         ],
         "en": [
-          "cut",
           "split"
         ]
       },
@@ -12030,7 +12025,7 @@
           "tagliare il turno"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_test_environment",
@@ -15522,7 +15517,6 @@
         "de": [
           "erstell",
           "anleg",
-          "neu",
           "kalenderauswahl",
           "feiertagskalender",
           "kalender fusionieren"
@@ -15556,7 +15550,7 @@
           "unire calendari festivi"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_calendar_selection",
@@ -18701,7 +18695,6 @@
         ],
         "en": [
           "gender",
-          "sex",
           "male",
           "female"
         ]
@@ -18721,7 +18714,7 @@
           "modificare il genere"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "assign_contract_by_name",
@@ -21437,7 +21430,6 @@
         ],
         "en": [
           "location",
-          "map",
           "city"
         ]
       },
@@ -21470,7 +21462,7 @@
           "mappa dei clienti"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_sealed_orders",
@@ -24406,8 +24398,7 @@
           "resource monitor",
           "locations",
           "coverage",
-          "confirmation",
-          "map"
+          "confirmation"
         ]
       },
       "synonyms": {
@@ -24452,7 +24443,7 @@
           "monitor risorse"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_page_schedule",
@@ -26975,9 +26966,7 @@
           "rain",
           "cold",
           "snow",
-          "hot",
           "storm",
-          "sun",
           "temperature",
           "forecast"
         ],
@@ -27053,7 +27042,7 @@
           "che tempo fa"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "stash_pending_note",
