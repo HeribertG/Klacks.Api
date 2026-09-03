@@ -101,17 +101,23 @@
         - Real provider calls cost money.
     This script performs NO git actions and NO deployment.
 
-    Recommended scheduled tasks (register manually; this script does not touch the scheduler):
+    Recommended scheduled tasks (register manually; this script does not touch the scheduler).
+    Use Register-ScheduledTask, not a bare `schtasks /TR "powershell.exe ... -File ..."`: schtasks'
+    /TR runs powershell.exe as the executable with no working-directory switch, so the task starts
+    in %SystemRoot%\System32, not the repo - which is exactly what turned an MSB1009 (IT project
+    resolved as a path relative to the CWD) into a silent apparatus failure on 2026-09-02/03. The
+    script now resolves every path from $PSScriptRoot and no longer needs a specific CWD to find
+    the IT project, but WorkingDirectory is still set below as defense in depth:
 
-        schtasks /Create ^
-          /TN "Klacks\NightlyTurnEval-Daily" ^
-          /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1 -Profile daily" ^
-          /SC WEEKLY /D MON,TUE,WED,THU,FRI /ST 03:30 /RL LIMITED /F
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" `
+          -Argument '-NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1 -Profile daily' `
+          -WorkingDirectory 'C:\SourceCode'
+        $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At 03:30
+        $principal = New-ScheduledTaskPrincipal -UserId 'hgasp' -LogonType Interactive -RunLevel Limited
+        $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 4) -StartWhenAvailable
+        Register-ScheduledTask -TaskPath '\Klacks\' -TaskName 'NightlyTurnEval-Daily' -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force
 
-        schtasks /Create ^
-          /TN "Klacks\NightlyTurnEval-Weekly" ^
-          /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SourceCode\Klacks.Api\scripts\nightly-turn-eval.ps1 -Profile weekly" ^
-          /SC WEEKLY /D SAT /ST 02:00 /RL LIMITED /F
+        # NightlyTurnEval-Weekly: same shape, -Profile weekly, -DaysOfWeek Saturday, -At 02:00.
 
     Three scheduling constraints, all of them load-bearing:
       - The weekly run must NOT collide with Klacks-GoldenSet-Nightly-Full (Sunday 00:00), hence
@@ -146,7 +152,7 @@ $ErrorActionPreference = "Stop"
 $ModelEnvVar          = "TURNEVAL_MODEL_ID"
 $GoldsetEnvVar        = "TURNEVAL_GOLDSET"
 $MaxItemsEnvVar       = "TURNEVAL_MAX_ITEMS"
-$IntegrationProject   = "Klacks.IntegrationTest/Klacks.IntegrationTest.csproj"
+$IntegrationProjectRelative = "Klacks.IntegrationTest/Klacks.IntegrationTest.csproj"
 $TestFullName         = "Klacks.IntegrationTest.Assistant.TurnSelectionGoldenSetTests.TurnSelectionGoldset_ReplaysAllItemsAndReportsScorecard"
 $TestFilter           = "FullyQualifiedName=$TestFullName"
 $EvalRunsTable        = "eval_runs"
@@ -162,9 +168,17 @@ $ExitRegression       = 2
 $ExitApparatusFailure = 3
 
 # --- Resolve paths and run scope ---------------------------------------------
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-if (-not $RepoRoot)  { $RepoRoot  = Split-Path -Parent $ScriptDir }
+# The scheduled task's action has no WorkingDirectory (verified 2026-09-03 on
+# NightlyTurnEval-Weekly, which failed with MSB1009 for exactly this reason), so every path below
+# is anchored to $PSScriptRoot, never to the process CWD. $SolutionRoot is the super-repo root
+# (C:\SourceCode) - the parent of Klacks.Api - because $IntegrationProjectRelative crosses into
+# the sibling Klacks.IntegrationTest repo.
+$SolutionRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
+Set-Location $SolutionRoot
+
+if (-not $RepoRoot)  { $RepoRoot  = Split-Path -Parent $PSScriptRoot }
 if (-not $OutputDir) { $OutputDir = Join-Path $RepoRoot "artifacts/turn-eval" }
+$IntegrationProject = Join-Path $SolutionRoot $IntegrationProjectRelative
 
 $ModelList = @($Models -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
 if ($ModelList.Count -eq 0) { throw "No models provided." }
