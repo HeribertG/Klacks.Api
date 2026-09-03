@@ -1,11 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Globalization;
 using System.Text;
+using Klacks.Api.Data.Seed.Demo;
 
 namespace Klacks.Api.Data.Seed
 {
     public static class ShiftSeed
     {
+        private const string ShiftTimeSqlFormat = "HH:mm:ss";
+
+        private const string ShiftDateSqlFormat = "yyyy-MM-dd";
+
+        private const string SqlNullLiteral = "NULL";
+
+        private const string SqlTrueLiteral = "true";
+
+        private const string SqlFalseLiteral = "false";
+
+        private const int HoursPerDay = 24;
+
         private static readonly string user = "Anonymus";
 
         public static Dictionary<Guid, List<string>> ShiftGroupMappings { get; private set; } = new Dictionary<Guid, List<string>>();
@@ -15,193 +29,22 @@ namespace Klacks.Api.Data.Seed
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
             ShiftGroupMappings.Clear();
-            var usedNames = new HashSet<string>();
-            var usedAbbreviations = new HashSet<string>();
-
-            var baseDate = new DateOnly(2025, 1, 1);
+            var baseDate = DemoOrderDefinitionFactory.DefaultBaseDate;
             var currentTime = DateTime.UtcNow;
-            var random = Random.Shared;
 
             script.AppendLine("-- Shift Seed Data - Following Correct Workflow");
             script.AppendLine("-- Status: 0 = OriginalOrder, 1 = SealedOrder, 2 = OriginalShift, 3 = SplitShift");
 
-            // Available ROOT GROUP names for assignment (4 Root Groups)
-            var availableRootGroups = new[] {
-                "Westschweiz",           // Root 1: GE, VD, NE, JU, FR
-                "Deutschschweiz Zürich",    // Root 2: ZH, AG
-                "Deutschschweiz Mitte",     // Root 3: BE, SO, BS, BL
-                "Deutschschweiz Ost"        // Root 4: LU, SG, etc.
-            };
+            var nameRegistry = new DemoSeedNameRegistry(language);
+            var definitionFactory = new DemoOrderDefinitionFactory(language, nameRegistry, baseDate);
+            var definitions = definitionFactory.CreateShiftOrders()
+                .GroupBy(d => d.Category)
+                .ToDictionary(g => g.Key, g => (IReadOnlyList<DemoOrderDefinition>)g.ToList());
 
-            List<string> GetRandomRootGroups(int count)
+            void TrackShiftGroups(Guid shiftId, IReadOnlyList<string> cantonNames)
             {
-                return availableRootGroups.OrderBy(x => random.Next()).Take(count).ToList();
+                ShiftGroupMappings[shiftId] = cantonNames.ToList();
             }
-
-            void TrackShiftGroups(Guid shiftId, List<string> cantonNames)
-            {
-                ShiftGroupMappings[shiftId] = cantonNames;
-            }
-
-            var nameTranslations = new Dictionary<string, Dictionary<string, string>>
-            {
-                ["Morgenschicht"] = new() { ["ar"] = "وردية صباحية", ["he"] = "משמרת בוקר", ["ja"] = "朝番" },
-                ["Tagschicht"] = new() { ["ar"] = "وردية نهارية", ["he"] = "משמרת יום", ["ja"] = "日勤" },
-                ["Nachtdienst Mo-Fr"] = new() { ["ar"] = "مناوبة ليلية الإثنين-الجمعة", ["he"] = "תורנות לילה ב׳-ו׳", ["ja"] = "夜勤 月-金" },
-                ["Nachtdienst Sa-So"] = new() { ["ar"] = "مناوبة ليلية السبت-الأحد", ["he"] = "תורנות לילה ש׳-א׳", ["ja"] = "夜勤 土-日" },
-                ["24h-Schichtdienst"] = new() { ["ar"] = "دوام 24 ساعة", ["he"] = "משמרת 24 שעות", ["ja"] = "24時間勤務" },
-                ["Frühschicht-Teil"] = new() { ["ar"] = "جزء الوردية الصباحية", ["he"] = "חלק משמרת בוקר", ["ja"] = "早番部分" },
-                ["Spätschicht-Teil"] = new() { ["ar"] = "جزء الوردية المسائية", ["he"] = "חלק משמרת ערב", ["ja"] = "遅番部分" },
-                ["Nachtschicht-Teil"] = new() { ["ar"] = "جزء الوردية الليلية", ["he"] = "חלק משמרת לילה", ["ja"] = "夜勤部分" },
-                ["Nachtschicht-Teilung"] = new() { ["ar"] = "تقسيم الوردية الليلية", ["he"] = "פיצול משמרת לילה", ["ja"] = "夜勤分割" },
-                ["Vor-Mitternacht-Teil"] = new() { ["ar"] = "جزء ما قبل منتصف الليل", ["he"] = "חלק לפני חצות", ["ja"] = "深夜前部分" },
-                ["Nach-Mitternacht-Teil"] = new() { ["ar"] = "جزء ما بعد منتصف الليل", ["he"] = "חלק אחרי חצות", ["ja"] = "深夜後部分" },
-            };
-
-            var abbrTranslations = new Dictionary<string, Dictionary<string, string>>
-            {
-                ["MOR"] = new() { ["ar"] = "صبح", ["he"] = "בקר", ["ja"] = "朝" },
-                ["TAG"] = new() { ["ar"] = "نهر", ["he"] = "יום", ["ja"] = "日" },
-                ["NMF"] = new() { ["ar"] = "لنج", ["he"] = "לבו", ["ja"] = "夜月金" },
-                ["NSS"] = new() { ["ar"] = "لسح", ["he"] = "לשא", ["ja"] = "夜土日" },
-                ["24H"] = new() { ["ar"] = "24س", ["he"] = "24ש", ["ja"] = "24時" },
-                ["F"] = new() { ["ar"] = "ص", ["he"] = "ב", ["ja"] = "早" },
-                ["S"] = new() { ["ar"] = "م", ["he"] = "ע", ["ja"] = "遅" },
-                ["N"] = new() { ["ar"] = "ل", ["he"] = "ל", ["ja"] = "夜" },
-                ["NCT"] = new() { ["ar"] = "تل", ["he"] = "פל", ["ja"] = "夜分" },
-                ["VM"] = new() { ["ar"] = "قم", ["he"] = "לח", ["ja"] = "前" },
-                ["NM"] = new() { ["ar"] = "بم", ["he"] = "אח", ["ja"] = "後" },
-            };
-
-            string GetUniqueName(string baseName, int counter)
-            {
-                if (nameTranslations.TryGetValue(baseName, out var translations) && translations.TryGetValue(language, out var translated))
-                {
-                    baseName = translated;
-                }
-
-                var name = counter == 1 ? baseName : $"{baseName} {counter}";
-                while (usedNames.Contains(name))
-                {
-                    counter++;
-                    name = $"{baseName} {counter}";
-                }
-                usedNames.Add(name);
-                return name;
-            }
-
-            string GetUniqueAbbreviation(string baseAbbr, int counter)
-            {
-                if (abbrTranslations.TryGetValue(baseAbbr, out var translations) && translations.TryGetValue(language, out var translated))
-                {
-                    baseAbbr = translated;
-                }
-
-                var abbr = counter == 1 ? baseAbbr : $"{baseAbbr}{counter}";
-                while (usedAbbreviations.Contains(abbr))
-                {
-                    counter++;
-                    abbr = $"{baseAbbr}{counter}";
-                }
-                usedAbbreviations.Add(abbr);
-                return abbr;
-            }
-
-            string SimpleShiftDescription(string name, int employees) => language switch
-            {
-                "ar" => $"{name} بواقع {employees} موظف",
-                "he" => $"{name} עם {employees} עובדים",
-                "ja" => $"{name}(担当者{employees}名)",
-                _ => $"{name} mit {employees} Mitarbeiter(n)",
-            };
-
-            string MorningShiftDescription(int employees) => language switch
-            {
-                "ar" => $"وردية صباحية لمدة 6 ساعات - {employees} موظف لكل وردية",
-                "he" => $"משמרת בוקר בת 6 שעות - {employees} עובדים למשמרת",
-                "ja" => $"6時間の朝番 - 1シフトあたり{employees}名",
-                _ => $"6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht",
-            };
-
-            string DayShiftDescription(int employees) => language switch
-            {
-                "ar" => $"وردية نهارية الإثنين-الجمعة مع استراحة غداء ساعة - {employees} موظف لكل وردية",
-                "he" => $"משמרת יום ב׳-ו׳ עם הפסקת צהריים של שעה - {employees} עובדים למשמרת",
-                "ja" => $"月-金の日勤(昼休憩1時間あり) - 1シフトあたり{employees}名",
-                _ => $"Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht",
-            };
-
-            string NightShiftMfDescription() => language switch
-            {
-                "ar" => "مناوبة ليلية الإثنين-الجمعة - موظف واحد لكل مناوبة",
-                "he" => "תורנות לילה ב׳-ו׳ - עובד אחד למשמרת",
-                "ja" => "月-金の夜勤 - 1シフトあたり1名",
-                _ => "Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht",
-            };
-
-            string NightShiftSsDescription() => language switch
-            {
-                "ar" => "مناوبة ليلية السبت-الأحد - موظف واحد لكل مناوبة",
-                "he" => "תורנות לילה ש׳-א׳ - עובד אחד למשמרת",
-                "ja" => "土-日の夜勤 - 1シフトあたり1名",
-                _ => "Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht",
-            };
-
-            string TwentyFourHourDescription(int employees) => language switch
-            {
-                "ar" => $"دوام 24 ساعة - {employees} موظف لكل دوام",
-                "he" => $"משמרת 24 שעות - {employees} עובדים למשמרת",
-                "ja" => $"24時間勤務 - 1シフトあたり{employees}名",
-                _ => $"24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht",
-            };
-
-            string SplitMorningDescription(int employees) => language switch
-            {
-                "ar" => $"الوردية الصباحية - {employees} موظف",
-                "he" => $"משמרת בוקר - {employees} עובדים",
-                "ja" => $"早番 - {employees}名",
-                _ => $"Frühschicht - {employees} Mitarbeiter",
-            };
-
-            string SplitAfternoonDescription(int employees) => language switch
-            {
-                "ar" => $"الوردية المسائية - {employees} موظف",
-                "he" => $"משמרת ערב - {employees} עובדים",
-                "ja" => $"遅番 - {employees}名",
-                _ => $"Spätschicht - {employees} Mitarbeiter",
-            };
-
-            string SplitNightDescription(int employees) => language switch
-            {
-                "ar" => $"الوردية الليلية - {employees} موظف",
-                "he" => $"משמרת לילה - {employees} עובדים",
-                "ja" => $"夜勤 - {employees}名",
-                _ => $"Nachtschicht - {employees} Mitarbeiter",
-            };
-
-            string NightCutDescription() => language switch
-            {
-                "ar" => "الوردية الليلية 22:00-06:00 مع تقسيم عند 02:00",
-                "he" => "משמרת לילה 22:00-06:00 עם פיצול בשעה 02:00",
-                "ja" => "夜勤 22:00-06:00(02:00で分割)",
-                _ => "Nachtschicht 22:00-06:00 mit Teilung bei 02:00",
-            };
-
-            string PreMidnightDescription() => language switch
-            {
-                "ar" => "الجزء قبل منتصف الليل (22:00-02:00)",
-                "he" => "החלק שלפני חצות (22:00-02:00)",
-                "ja" => "深夜0時前の部分 (22:00-02:00)",
-                _ => "Teil VOR Mitternacht (22:00-02:00)",
-            };
-
-            string PostMidnightDescription() => language switch
-            {
-                "ar" => "الجزء بعد منتصف الليل (02:00-06:00)",
-                "he" => "החלק שאחרי חצות (02:00-06:00)",
-                "ja" => "深夜0時後の部分 (02:00-06:00)",
-                _ => "Teil NACH Mitternacht (02:00-06:00)",
-            };
 
             // 1. Create 10 simple OriginalOrder shifts (Status = 0) → SealedOrder (Status = 1) → OriginalShift (Status = 2)
             // VERDOPPELT: 5 → 10, Root Groups zugewiesen
@@ -247,13 +90,14 @@ namespace Klacks.Api.Data.Seed
             var simpleShifts = simpleShiftsBase.Concat(simpleShiftsBase).ToArray();
 
             script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
-            foreach (var shift in simpleShifts)
+            foreach (var definition in definitions[DemoOrderCategory.SimpleShift])
             {
                 var orderId = Guid.NewGuid(); // SealedOrder ID
                 var originalShiftId = Guid.NewGuid(); // OriginalShift ID (Kopie)
-                var uniqueName = GetUniqueName(shift.Name, 1);
-                var uniqueAbbr = GetUniqueAbbreviation(shift.Abbr, 1);
-                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
 
                 // Step 1: Create OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -267,14 +111,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{SimpleShiftDescription(shift.Name, shift.Employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 0,
-                    '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
-                    true, false, true, false, false, true, true, true,
-                    false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
-                    {shift.WorkTime}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{uniqueAbbr}', '00:00:00',
+                    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{definition.Abbreviation}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-                    '00:00:00', {shift.Employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(orderId);
@@ -301,14 +145,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{SimpleShiftDescription(shift.Name, shift.Employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 2,
-                    '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
-                    true, false, true, false, false, true, true, true,
-                    false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
-                    {shift.WorkTime}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(7))}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(8))}', '{orderId}', '{uniqueAbbr}', '00:00:00',
+                    '{originalShiftId}', false, '{definition.OriginalShiftDescription}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(7))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(8))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-                    '00:00:00', {shift.Employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(originalShiftId);
@@ -322,12 +166,11 @@ INSERT INTO public.shift (
             {
                 var orderId = Guid.NewGuid();
                 var originalShiftId = Guid.NewGuid();
-                var startHour = random.Next(5, 8);
-                var endHour = startHour + 6;
-                var employees = (i <= 3) ? 2 : 1;
-                var uniqueNameMorning = GetUniqueName("Morgenschicht", i);
-                var uniqueAbbrMorning = GetUniqueAbbreviation("MOR", i);
-                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+                var definition = definitions[DemoOrderCategory.MorningShift][i - 1];
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
 
                 // Step 1: OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -341,14 +184,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{MorningShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 0,
-                    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
-                    true, false, true, false, false, true, true, true,
-                    false, false, false, 1, '00:00:00', '00:00:00',
-                    6, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(10))}', NULL, '{uniqueAbbrMorning}', '00:00:00',
+                    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(10))}', NULL, '{definition.Abbreviation}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-                    '00:00:00', {employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(orderId);
@@ -375,14 +218,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{MorningShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 2,
-                    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
-                    true, false, true, false, false, true, true, true,
-                    false, false, false, 1, '00:00:00', '00:00:00',
-                    6, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(12))}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(13))}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00',
+                    '{originalShiftId}', false, '{definition.OriginalShiftDescription}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(12))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(13))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-                    '00:00:00', {employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(originalShiftId);
@@ -396,10 +239,11 @@ INSERT INTO public.shift (
             {
                 var orderId = Guid.NewGuid();
                 var originalShiftId = Guid.NewGuid();
-                var employees = (i <= 5) ? 2 : 1;
-                var uniqueNameDay = GetUniqueName("Tagschicht", i);
-                var uniqueAbbrDay = GetUniqueAbbreviation("TAG", i + 100);
-                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+                var definition = definitions[DemoOrderCategory.DayShift][i - 1];
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
 
                 // Step 1: OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -413,14 +257,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{DayShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 0,
-                    '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
-                    true, false, true, false, false, true, true, true,
-                    true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(15))}', NULL, '{uniqueAbbrDay}', '00:00:00',
+                    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(15))}', NULL, '{definition.Abbreviation}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-                    '00:00:00', {employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(orderId);
@@ -447,14 +291,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{DayShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 2,
-                    '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
-                    true, false, true, false, false, true, true, true,
-                    true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(17))}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(18))}', '{orderId}', '{uniqueAbbrDay}', '00:00:00',
+                    '{originalShiftId}', false, '{definition.OriginalShiftDescription}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(17))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(18))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-                    '00:00:00', {employees}, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(originalShiftId);
@@ -468,9 +312,11 @@ INSERT INTO public.shift (
             {
                 var orderId = Guid.NewGuid();
                 var originalShiftId = Guid.NewGuid();
-                var uniqueNameNightMF = GetUniqueName("Nachtdienst Mo-Fr", i);
-                var uniqueAbbrNightMF = GetUniqueAbbreviation("NMF", i);
-                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+                var definition = definitions[DemoOrderCategory.NightShiftWeekday][i - 1];
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
 
                 // Step 1: OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -484,14 +330,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{NightShiftMfDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 0,
-                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
-                    true, false, true, false, false, true, true, false,
-                    true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(20))}', NULL, '{uniqueAbbrNightMF}', '00:00:00',
+                    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(20))}', NULL, '{definition.Abbreviation}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-                    '00:00:00', 1, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(orderId);
@@ -518,14 +364,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{NightShiftMfDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 2,
-                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
-                    true, false, true, false, false, true, true, false,
-                    true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(22))}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(23))}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00',
+                    '{originalShiftId}', false, '{definition.OriginalShiftDescription}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(22))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(23))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-                    '00:00:00', 1, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(originalShiftId);
@@ -539,9 +385,11 @@ INSERT INTO public.shift (
             {
                 var orderId = Guid.NewGuid();
                 var originalShiftId = Guid.NewGuid();
-                var uniqueNameNightSS = GetUniqueName("Nachtdienst Sa-So", i);
-                var uniqueAbbrNightSS = GetUniqueAbbreviation("NSS", i);
-                var assignedGroups = GetRandomRootGroups(random.Next(1, 3)); // 1-2 random ROOT GROUPS
+                var definition = definitions[DemoOrderCategory.NightShiftWeekend][i - 1];
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
 
                 // Step 1: OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -555,14 +403,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{NightShiftSsDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 0,
-                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
-                    false, false, false, true, true, false, false, false,
-                    false, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(25))}', NULL, '{uniqueAbbrNightSS}', '00:00:00',
+                    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(25))}', NULL, '{definition.Abbreviation}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-                    '00:00:00', 1, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(orderId);
@@ -589,14 +437,14 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{NightShiftSsDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 2,
-                    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
-                    false, false, false, true, true, false, false, false,
-                    false, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(27))}', '{user}', NULL, '{user}',
-                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(28))}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00',
+                    '{originalShiftId}', false, '{definition.OriginalShiftDescription}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+                    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+                    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+                    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+                    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(27))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(28))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-                    '00:00:00', 1, 0, NULL, NULL
+                    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
                 );");
 
                 shiftIds.Add(originalShiftId);
@@ -611,13 +459,13 @@ INSERT INTO public.shift (
             for (int i = 1; i <= 20; i++)
             {
                 var orderId = Guid.NewGuid(); // EINE ID für Order (wird von Status 0 -> 1 updated)
-                var employees = (i <= 2) ? 2 : 1;
-
-                var uniqueName24h = GetUniqueName("24h-Schichtdienst", i);
-                var uniqueAbbr24h = GetUniqueAbbreviation("24H", i);
-
-                // WICHTIG: ALLE Shifts in diesem Workflow bekommen die GLEICHEN Root Groups!
-                var workflowGroups = GetRandomRootGroups(random.Next(1, 2)); // 1 ROOT GROUP for workflow consistency
+                var definition = definitions[DemoOrderCategory.TwentyFourHourShift][i - 1];
+                var employees = definition.SumEmployees;
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
+                var workflowGroups = definition.RootGroups;
 
                 // Step 1: Create OriginalOrder (Status = 0)
                 script.AppendLine($@"
@@ -631,14 +479,14 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, '{TwentyFourHourDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName24h}', NULL, NULL, 0,
-    '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
-    true, true, true, true, true, true, true, true,
-    false, false, false, 1, '00:00:00', '00:00:00',
-    24, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{uniqueAbbr24h}', '00:00:00',
+    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{definition.Abbreviation}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-    '00:00:00', {employees}, 0, NULL, NULL
+    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
 );");
 
                 shiftIds.Add(orderId);
@@ -657,8 +505,8 @@ WHERE id = '{orderId}';");
                 // WICHTIG: Beim Seeding gibt es KEINEN ROOT SplitShift!
                 // Stattdessen: 3 eigenständige SplitShifts als Geschwister
                 var split1Id = Guid.NewGuid();
-                var uniqueNameFrüh = GetUniqueName("Frühschicht-Teil", i);
-                var uniqueAbbrFrüh = GetUniqueAbbreviation("F", i);
+                var uniqueNameFrüh = nameRegistry.UniqueName("Frühschicht-Teil", i);
+                var uniqueAbbrFrüh = nameRegistry.UniqueAbbreviation("F", i);
 
                 script.AppendLine($@"
 -- SplitShift 1 (Status = 3) - Frühschicht 07:00-15:00 - Eigenständig, KEIN Parent!
@@ -671,7 +519,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, '{SplitMorningDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
+    '{split1Id}', false, '{DemoOrderDescriptions.SplitMorning(language, employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '15:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -684,8 +532,8 @@ INSERT INTO public.shift (
                 TrackShiftGroups(split1Id, workflowGroups);
 
                 var split2Id = Guid.NewGuid();
-                var uniqueNameSpät = GetUniqueName("Spätschicht-Teil", i);
-                var uniqueAbbrSpät = GetUniqueAbbreviation("S", i);
+                var uniqueNameSpät = nameRegistry.UniqueName("Spätschicht-Teil", i);
+                var uniqueAbbrSpät = nameRegistry.UniqueAbbreviation("S", i);
 
                 script.AppendLine($@"
 -- SplitShift 2 (Status = 3) - Spätschicht 15:00-23:00 - Eigenständig, KEIN Parent!
@@ -698,7 +546,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', false, '{SplitAfternoonDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameSpät}', NULL, '{orderId}', 3,
+    '{split2Id}', false, '{DemoOrderDescriptions.SplitAfternoon(language, employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameSpät}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '23:00:00', '{baseDate:yyyy-MM-dd}', '15:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -711,8 +559,8 @@ INSERT INTO public.shift (
                 TrackShiftGroups(split2Id, workflowGroups);
 
                 var split3Id = Guid.NewGuid();
-                var uniqueNameNacht = GetUniqueName("Nachtschicht-Teil", i);
-                var uniqueAbbrNacht = GetUniqueAbbreviation("N", i);
+                var uniqueNameNacht = nameRegistry.UniqueName("Nachtschicht-Teil", i);
+                var uniqueAbbrNacht = nameRegistry.UniqueAbbreviation("N", i);
 
                 script.AppendLine($@"
 -- SplitShift 3 (Status = 3) - Night shift 23:00-07:00 - Independent, NO Parent!
@@ -726,7 +574,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split3Id}', false, '{SplitNightDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNacht}', NULL, '{orderId}', 3,
+    '{split3Id}', false, '{DemoOrderDescriptions.SplitNight(language, employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNacht}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
@@ -748,9 +596,12 @@ INSERT INTO public.shift (
             for (int i = 1; i <= 10; i++)
             {
                 var orderId = Guid.NewGuid();
-                var uniqueNameNightCut = GetUniqueName("Nachtschicht-Teilung", i);
-                var uniqueAbbrNightCut = GetUniqueAbbreviation("NCT", i);
-                var workflowGroups = GetRandomRootGroups(random.Next(1, 2));
+                var definition = definitions[DemoOrderCategory.NightCutShift][i - 1];
+                var startShift = FormatShiftTime(definition.StartShift);
+                var endShift = FormatShiftTime(definition.EndShift);
+                var untilDate = FormatUntilDate(definition.UntilDate);
+                var assignedGroups = definition.RootGroups;
+                var workflowGroups = definition.RootGroups;
 
                 // Step 1: Create OriginalOrder (Status = 0) - Nachtschicht 22:00-06:00
                 script.AppendLine($@"
@@ -764,14 +615,14 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, '{NightCutDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightCut}', NULL, NULL, 0,
-    '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
-    true, false, true, false, false, true, true, true,
-    false, false, false, 1, '00:00:00', '00:00:00',
-    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(30))}', NULL, '{uniqueAbbrNightCut}', '00:00:00',
+    '{orderId}', false, '{definition.Description}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(30))}', NULL, '{definition.Abbreviation}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-    '00:00:00', 1, 0, NULL, NULL
+    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
 );");
 
                 shiftIds.Add(orderId);
@@ -788,8 +639,8 @@ WHERE id = '{orderId}';");
 
                 // Step 3: Create 2 SplitShifts - Split at 02:00 (AFTER midnight!)
                 var split1Id = Guid.NewGuid();
-                var uniqueNamePre = GetUniqueName("Vor-Mitternacht-Teil", i);
-                var uniqueAbbrPre = GetUniqueAbbreviation("VM", i);
+                var uniqueNamePre = nameRegistry.UniqueName("Vor-Mitternacht-Teil", i);
+                var uniqueAbbrPre = nameRegistry.UniqueAbbreviation("VM", i);
 
                 script.AppendLine($@"
 -- SplitShift 1 (Status = 3) - BEFORE midnight: 22:00-02:00
@@ -803,7 +654,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, '{PreMidnightDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePre}', NULL, '{orderId}', 3,
+    '{split1Id}', false, '{DemoOrderDescriptions.PreMidnightPart(language)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePre}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '02:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -817,8 +668,8 @@ INSERT INTO public.shift (
                 TrackShiftGroups(split1Id, workflowGroups);
 
                 var split2Id = Guid.NewGuid();
-                var uniqueNamePost = GetUniqueName("Nach-Mitternacht-Teil", i);
-                var uniqueAbbrPost = GetUniqueAbbreviation("NM", i);
+                var uniqueNamePost = nameRegistry.UniqueName("Nach-Mitternacht-Teil", i);
+                var uniqueAbbrPost = nameRegistry.UniqueAbbreviation("NM", i);
                 var nextDay = baseDate.AddDays(1);
 
                 script.AppendLine($@"
@@ -834,7 +685,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', true, '{PostMidnightDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePost}', NULL, '{orderId}', 3,
+    '{split2Id}', true, '{DemoOrderDescriptions.PostMidnightPart(language)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePost}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '06:00:00', '{nextDay:yyyy-MM-dd}', '02:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -1157,74 +1008,39 @@ INSERT INTO public.shift (
         {
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
-            var random = Random.Shared;
             var currentTime = DateTime.UtcNow;
-            var baseDate = new DateOnly(2025, 1, 1);
+            var baseDate = DemoOrderDefinitionFactory.DefaultBaseDate;
 
             script.AppendLine("\n-- TimeRange Shifts with Clients (100 Shifts PRO RootGroup = 400 total, 10-30 min WorkTime, 6-8h TimeRange)");
             script.AppendLine("-- WICHTIG: is_time_range=true, client_id wird per Subquery von Customer-Clients (type=2) geholt");
             script.AppendLine("-- Workflow: OriginalOrder (Status 0) -> SealedOrder (Status 1) -> OriginalShift (Status 2)");
 
-            var availableRootGroups = new[] {
-                "Westschweiz",
-                "Deutschschweiz Zürich",
-                "Deutschschweiz Mitte",
-                "Deutschschweiz Ost"
-            };
+            var nameRegistry = new DemoSeedNameRegistry(language);
+            var definitionFactory = new DemoOrderDefinitionFactory(language, nameRegistry, baseDate);
+            var definitions = definitionFactory.CreateTimeRangeOrders();
 
-            var shiftsPerGroup = 100;
+            var rootGroups = DemoOrderDefinitionFactory.RootGroups;
 
-            for (int groupIndex = 0; groupIndex < availableRootGroups.Length; groupIndex++)
+            for (int groupIndex = 0; groupIndex < rootGroups.Count; groupIndex++)
             {
-                var rootGroup = availableRootGroups[groupIndex];
+                var rootGroup = rootGroups[groupIndex];
 
-                script.AppendLine($"\n-- {shiftsPerGroup} TimeRange Shifts für RootGroup: {rootGroup}");
+                script.AppendLine($"\n-- {DemoOrderDefinitionFactory.TimeRangeShiftsPerRootGroup} TimeRange Shifts für RootGroup: {rootGroup}");
 
-                for (int i = 1; i <= shiftsPerGroup; i++)
+                for (int i = 1; i <= DemoOrderDefinitionFactory.TimeRangeShiftsPerRootGroup; i++)
                 {
+                    var definition = definitions[(groupIndex * DemoOrderDefinitionFactory.TimeRangeShiftsPerRootGroup) + i - 1];
                     var orderId = Guid.NewGuid();
                     var originalShiftId = Guid.NewGuid();
 
-                    var workTimeMinutes = random.Next(10, 31);
-                    var workTimeDecimal = Math.Round(workTimeMinutes / 60.0, 4);
-
-                    var timeRangeHours = random.Next(6, 9);
-
-                    // 50% der Shifts gehen über Mitternacht
-                    bool crossesMidnight = random.Next(100) < 50;
-                    int startHour, endHour;
-
-                    if (crossesMidnight)
-                    {
-                        // Mitternachtsüberschreitung: Start zwischen 18:00 und 23:00
-                        startHour = random.Next(18, 24);
-                        endHour = (startHour + timeRangeHours) % 24;
-                    }
-                    else
-                    {
-                        // Normale Shifts: Start zwischen 06:00 und (19 - timeRangeHours)
-                        startHour = random.Next(6, Math.Max(7, 19 - timeRangeHours));
-                        endHour = startHour + timeRangeHours;
-                    }
-
-                    var shiftNumber = (groupIndex * shiftsPerGroup) + i;
-                    var name = language switch
-                    {
-                        "ar" => $"وردية زمنية {shiftNumber}",
-                        "he" => $"משמרת גמישה {shiftNumber}",
-                        "ja" => $"フレックス勤務{shiftNumber}",
-                        _ => $"TimeRange-Shift {shiftNumber}",
-                    };
-                    var abbr = language switch
-                    {
-                        "ar" => $"وز{shiftNumber}",
-                        "he" => $"מג{shiftNumber}",
-                        "ja" => $"フレ{shiftNumber}",
-                        _ => $"TR{shiftNumber}",
-                    };
+                    var startShift = FormatShiftTime(definition.StartShift);
+                    var endShift = FormatShiftTime(definition.EndShift);
+                    var untilDate = FormatUntilDate(definition.UntilDate);
+                    var crossesMidnight = definition.EndShift <= definition.StartShift;
+                    var timeRangeHours = ((definition.EndShift.Hour - definition.StartShift.Hour) + HoursPerDay) % HoursPerDay;
 
                     script.AppendLine($@"
--- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(crossesMidnight ? "crosses midnight" : "daytime")})
+-- TimeRange Shift #{definition.Index} (WorkTime: {definition.WorkTimeMinutes} min = {definition.WorkTimeSqlLiteral} h, Range: {timeRangeHours}h, {(crossesMidnight ? "crosses midnight" : "daytime")})
 -- Step 1: Create OriginalOrder (Status = 0) with random Customer client
 -- CuttingAfterMidnight = false because OriginalOrder is not a SplitShift
 INSERT INTO public.shift (
@@ -1236,15 +1052,15 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, '{(language switch { "ar" => $"وردية زمنية بمدة عمل {workTimeMinutes} دقيقة ضمن نافذة {timeRangeHours} ساعات{(crossesMidnight ? " (عبر منتصف الليل)" : "")}", "he" => $"משמרת גמישה באורך {workTimeMinutes} דקות בחלון של {timeRangeHours} שעות{(crossesMidnight ? " (חוצה חצות)" : "")}", "ja" => $"作業時間{workTimeMinutes}分、{timeRangeHours}時間の枠内のフレックス勤務{(crossesMidnight ? "(深夜0時をまたぐ)" : "")}", _ => $"TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}" })}',
-    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 0,
-    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
-    true, false, true, false, false, true, true, true,
-    false, false, true, 1, '00:00:00', '00:00:00',
-    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
-    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(1))}', NULL, '{abbr}', '00:00:00',
+    '{orderId}', false, '{definition.Description}',
+    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 0,
+    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(1))}', NULL, '{definition.Abbreviation}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
-    '00:00:00', 1, 0, NULL, NULL
+    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
 );");
 
                     shiftIds.Add(orderId);
@@ -1270,15 +1086,15 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{originalShiftId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
-    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 2,
-    '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
-    true, false, true, false, false, true, true, true,
-    false, false, true, 1, '00:00:00', '00:00:00',
-    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(3))}', '{user}', NULL, '{user}',
-    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(4))}', '{orderId}', '{abbr}', '00:00:00',
+    '{originalShiftId}', false, '{definition.OriginalShiftDescription}',
+    'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{definition.Name}', NULL, NULL, 2,
+    '00:00:00', '00:00:00', '{endShift}', '{definition.FromDate:yyyy-MM-dd}', '{startShift}', {untilDate},
+    {SqlBool(definition.IsFriday)}, {SqlBool(definition.IsHoliday)}, {SqlBool(definition.IsMonday)}, {SqlBool(definition.IsSaturday)}, {SqlBool(definition.IsSunday)}, {SqlBool(definition.IsThursday)}, {SqlBool(definition.IsTuesday)}, {SqlBool(definition.IsWednesday)},
+    {SqlBool(definition.IsWeekdayAndHoliday)}, false, {SqlBool(definition.IsTimeRange)}, {definition.Quantity}, '00:00:00', '00:00:00',
+    {definition.WorkTimeSqlLiteral}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(3))}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(4))}', '{orderId}', '{definition.Abbreviation}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
-    '00:00:00', 1, 0, NULL, NULL
+    '00:00:00', {definition.SumEmployees}, 0, NULL, NULL
 );");
 
                     shiftIds.Add(originalShiftId);
@@ -1288,5 +1104,12 @@ INSERT INTO public.shift (
 
             return (script.ToString(), shiftIds);
         }
+
+        private static string FormatShiftTime(TimeOnly value) => value.ToString(ShiftTimeSqlFormat, CultureInfo.InvariantCulture);
+
+        private static string FormatUntilDate(DateOnly? value) =>
+            value is { } date ? $"'{date.ToString(ShiftDateSqlFormat, CultureInfo.InvariantCulture)}'" : SqlNullLiteral;
+
+        private static string SqlBool(bool value) => value ? SqlTrueLiteral : SqlFalseLiteral;
     }
 }

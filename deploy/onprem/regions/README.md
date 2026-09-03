@@ -279,6 +279,42 @@ Set it to `true` only for evaluation installations; `false` or omitting the
 field means no demo data. When a region setup file is configured, this field
 is the only switch — the legacy `Fake__WithFake` configuration is ignored.
 
+The top-level field `seedDemoShiftsAndGroups` narrows `seedDemoData: true` down
+to demo clients only: set it to `false` to seed the ~5000 fake clients
+(addresses, employment records, contracts, communications) without any
+groups, group items (client-to-group assignment) or shifts — useful for a
+fresh install where the roster grouping and shift plan arrive later through a
+separate import (e.g. an ERP order feed). Omitting the field, or setting it
+to `true`, keeps seeding groups and shifts alongside the clients as before.
+It has no effect when `seedDemoData` is `false` or omitted.
+
+When `seedDemoShiftsAndGroups` is `false`, the demo shift plan is not thrown
+away: the seed writes it as an ERP order import file to
+`<ContentRoot>/SeedData/demo-orders.xml` and logs the absolute path at
+information level. The file is deliberately **not** placed in the ERP drop
+point, because the import background service polls that folder every minute --
+it is up to the operator to import it. To do so, copy the file into the drop
+point configured for the installation:
+
+```bash
+# bare metal / systemd install
+cp /srv/klacks/SeedData/demo-orders.xml /srv/klacks/erp-droppoint/inbox/
+
+# docker compose install
+docker cp klacks-api:/app/SeedData/demo-orders.xml ./demo-orders.xml
+docker cp ./demo-orders.xml klacks-api:/app/erp-droppoint/inbox/
+```
+
+Every order carries a stable `ExternalOrderReference` (`DEMO-0001`, ...) under
+the source system `KLACKS_DEMO_SEED`, so importing the same file twice is
+handled by the regular order supersession instead of creating duplicates. The
+customer block repeats the company and address of a seeded demo customer, which
+is the business key the importer reuses customers by -- no duplicate customers
+are created. Every order starts on the first day of the month the file was
+generated in, so a fresh install does not receive a plan that begins in the
+past. The imported orders arrive as editable drafts (`OriginalOrder`); they
+only become plannable once an administrator seals them.
+
 All profile blocks and fields are optional; only the provided values are
 written. See `de.json` for a realistic German profile — adjust `locale.state`
 and `locale.calendarSelection.state` to the customer's federal state before

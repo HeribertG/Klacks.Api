@@ -8,9 +8,12 @@
 /// <param name="configuration">App configuration providing connection string, region setup file path and legacy fake flag</param>
 /// <param name="storedProcedureInitializer">Installs or refreshes the stored procedures</param>
 /// <param name="identityProviderSecretBackfill">Encrypts legacy identity provider secrets</param>
+/// <param name="demoOrderSeedFileWriter">Exports the demo shift plan as an ERP order file when demo shifts are not seeded</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Data.Seed;
+using Klacks.Api.Infrastructure.Persistence.Seed.Demo;
 using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
 using Klacks.Api.Infrastructure.Services.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -35,19 +38,22 @@ public class DatabaseInitializer : IDatabaseInitializer
     private readonly IConfiguration _configuration;
     private readonly IStoredProcedureInitializer _storedProcedureInitializer;
     private readonly IIdentityProviderSecretBackfill _identityProviderSecretBackfill;
+    private readonly IDemoOrderSeedFileWriter _demoOrderSeedFileWriter;
 
     public DatabaseInitializer(
         DataBaseContext context,
         ILogger<DatabaseInitializer> logger,
         IConfiguration configuration,
         IStoredProcedureInitializer storedProcedureInitializer,
-        IIdentityProviderSecretBackfill identityProviderSecretBackfill)
+        IIdentityProviderSecretBackfill identityProviderSecretBackfill,
+        IDemoOrderSeedFileWriter demoOrderSeedFileWriter)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _storedProcedureInitializer = storedProcedureInitializer;
         _identityProviderSecretBackfill = identityProviderSecretBackfill;
+        _demoOrderSeedFileWriter = demoOrderSeedFileWriter;
     }
 
     public async Task InitializeAsync()
@@ -130,7 +136,7 @@ public class DatabaseInitializer : IDatabaseInitializer
             return;
         }
 
-        var (seedDemoData, seedLanguage) = await ResolveDemoDataSeedAsync();
+        var (seedDemoData, seedDemoShiftsAndGroups, seedLanguage) = await ResolveDemoDataSeedAsync();
 
         _logger.LogInformation("Starting seed data insertion...");
 
@@ -150,7 +156,7 @@ public class DatabaseInitializer : IDatabaseInitializer
                     var activeProvider = _context.Database.ProviderName;
                     var migrationBuilder = new MigrationBuilder(activeProvider);
 
-                    DataSeeder.Add(migrationBuilder, seedDemoData, seedLanguage);
+                    DataSeeder.Add(migrationBuilder, seedDemoData, seedDemoShiftsAndGroups, seedLanguage);
 
                     var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
 
@@ -185,34 +191,43 @@ public class DatabaseInitializer : IDatabaseInitializer
         {
             _context.Database.SetCommandTimeout(previousTimeout);
         }
+
+        if (DemoDataSeedDecision.ShouldExportDemoOrders(seedDemoData, seedDemoShiftsAndGroups))
+        {
+            await _demoOrderSeedFileWriter.WriteAsync(seedLanguage);
+        }
     }
 
-    private async Task<(bool SeedDemoData, string Language)> ResolveDemoDataSeedAsync()
+    private async Task<(bool SeedDemoData, bool SeedDemoShiftsAndGroups, string Language)> ResolveDemoDataSeedAsync()
     {
         var regionFilePath = RegionSetupFileReader.GetConfiguredPath(_configuration);
         bool? profileSeedDemoData = null;
+        bool? profileSeedDemoShiftsAndGroups = null;
         var language = "de";
 
         if (regionFilePath != null)
         {
             var profile = await RegionSetupFileReader.ReadProfileAsync(regionFilePath);
             profileSeedDemoData = profile.SeedDemoData;
+            profileSeedDemoShiftsAndGroups = profile.SeedDemoShiftsAndGroups;
             language = string.IsNullOrWhiteSpace(profile.Languages?.Default) ? "de" : profile.Languages!.Default!;
         }
 
         var legacyFakeConfigEnabled = _configuration.GetValue(FakeWithFakeConfigKey, false);
 
-        var (seedDemoData, source) = DemoDataSeedDecision.Decide(
+        var (seedDemoData, seedDemoShiftsAndGroups, source) = DemoDataSeedDecision.Decide(
             regionFilePath != null,
             profileSeedDemoData,
+            profileSeedDemoShiftsAndGroups,
             legacyFakeConfigEnabled);
 
         _logger.LogInformation(
-            "Demo data seeding {State} (decided by {Source}).",
+            "Demo data seeding {State} ({ShiftsAndGroupsState} groups/group items/shifts), decided by {Source}.",
             seedDemoData ? "enabled" : "disabled",
+            seedDemoShiftsAndGroups ? "including" : "excluding",
             source);
 
-        return (seedDemoData, language);
+        return (seedDemoData, seedDemoShiftsAndGroups, language);
     }
 }
 
@@ -222,6 +237,8 @@ public static class DatabaseInitializerExtensions
     {
         services.AddStoredProcedureInitializer();
         services.AddScoped<IIdentityProviderSecretBackfill, IdentityProviderSecretBackfill>();
+        services.AddScoped<IDemoOrderXmlGenerator, DemoOrderXmlGenerator>();
+        services.AddScoped<IDemoOrderSeedFileWriter, DemoOrderSeedFileWriter>();
         services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
         return services;
     }

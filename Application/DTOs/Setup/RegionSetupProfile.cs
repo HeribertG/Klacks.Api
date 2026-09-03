@@ -69,4 +69,12 @@ public class RegionSetupProfile
     /// omitted or false means no demo data is seeded.
     /// </summary>
     public bool? SeedDemoData { get; set; }
+
+    /// <summary>
+    /// Restricts demo data to clients (addresses, employment records, contracts, communications) when
+    /// false, omitting groups, group items (client-to-group assignment) and shifts; omitted means the
+    /// same as <see cref="SeedDemoData"/> (true seeds groups/shifts too, matching pre-existing
+    /// behavior). Has no effect when <see cref="SeedDemoData"/> is false or omitted.
+    /// </summary>
+    public bool? SeedDemoShiftsAndGroups { get; set; }
 }

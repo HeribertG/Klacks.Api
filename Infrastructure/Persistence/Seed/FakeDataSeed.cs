@@ -13,15 +13,15 @@ namespace Klacks.Api.Data.Seed
     {
         private const int DefaultClientsNumber = 5000;
 
-        public static void SeedData(MigrationBuilder migrationBuilder, string language = "de")
+        public static void SeedData(MigrationBuilder migrationBuilder, bool withDemoShiftsAndGroups = true, string language = "de")
         {
             if (FakeSettings.UseDumpFile)
             {
-                SeedFromDump(migrationBuilder, language);
+                SeedFromDump(migrationBuilder, withDemoShiftsAndGroups, language);
             }
             else
             {
-                SeedDynamically(migrationBuilder, language);
+                SeedDynamically(migrationBuilder, withDemoShiftsAndGroups, language);
             }
 
             migrationBuilder.Sql(
@@ -29,15 +29,22 @@ namespace Klacks.Api.Data.Seed
                 "GREATEST((SELECT COALESCE(MAX(id_number), 1) FROM client), 1), true);");
         }
 
-        private static void SeedFromDump(MigrationBuilder migrationBuilder, string language)
+        private static void SeedFromDump(MigrationBuilder migrationBuilder, bool withDemoShiftsAndGroups, string language)
         {
             var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
-            var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
-
             migrationBuilder.Sql(scriptForSettings);
-            migrationBuilder.Sql(scriptForGroups);
 
-            var dumpSql = StaticFakeDataLoader.LoadSeedDump("fake_seed_5000.sql");
+            if (withDemoShiftsAndGroups)
+            {
+                var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
+                migrationBuilder.Sql(scriptForGroups);
+            }
+
+            var rawDumpSql = StaticFakeDataLoader.LoadSeedDump("fake_seed_5000.sql");
+            var dumpSql = withDemoShiftsAndGroups
+                ? rawDumpSql
+                : FakeSeedDumpTableFilter.RemoveTables(rawDumpSql, FakeSeedExcludedTables.ShiftsAndGroupsTables);
+
             foreach (var chunk in SplitSqlIntoChunks(dumpSql, 1000))
             {
                 migrationBuilder.Sql(chunk);
@@ -45,6 +52,11 @@ namespace Klacks.Api.Data.Seed
 
             var scriptForBreakPlaceholders = GenerateBreakPlaceholdersSql();
             migrationBuilder.Sql(scriptForBreakPlaceholders);
+
+            if (!withDemoShiftsAndGroups)
+            {
+                return;
+            }
 
             var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts(language);
             var (scriptForContainerTemplates, containerTemplateIds) = ShiftSeed.GenerateContainerTemplates(language);
@@ -97,7 +109,7 @@ END $$;");
             return sb.ToString();
         }
 
-        private static void SeedDynamically(MigrationBuilder migrationBuilder, string language)
+        private static void SeedDynamically(MigrationBuilder migrationBuilder, bool withDemoShiftsAndGroups, string language)
         {
             var number = int.TryParse(FakeSettings.ClientsNumber, out var configuredNumber)
                 ? configuredNumber
@@ -129,13 +141,17 @@ END $$;");
             migrationBuilder.Sql(scriptForAnnotations);
             migrationBuilder.Sql(scriptForBreakPlaceholders);
             migrationBuilder.Sql(scriptForSettings);
-            migrationBuilder.Sql(scriptForGroups);
-            migrationBuilder.Sql(scriptForGroupItems);
-            migrationBuilder.Sql(scriptForShifts);
-            migrationBuilder.Sql(scriptForContainerTemplates);
-            migrationBuilder.Sql(scriptForContainers);
-            migrationBuilder.Sql(scriptForTimeRangeShifts);
-            migrationBuilder.Sql(scriptForShiftGroupItems);
+
+            if (withDemoShiftsAndGroups)
+            {
+                migrationBuilder.Sql(scriptForGroups);
+                migrationBuilder.Sql(scriptForGroupItems);
+                migrationBuilder.Sql(scriptForShifts);
+                migrationBuilder.Sql(scriptForContainerTemplates);
+                migrationBuilder.Sql(scriptForContainers);
+                migrationBuilder.Sql(scriptForTimeRangeShifts);
+                migrationBuilder.Sql(scriptForShiftGroupItems);
+            }
         }
         private static IEnumerable<string> SplitSqlIntoChunks(string sql, int statementsPerChunk)
         {
