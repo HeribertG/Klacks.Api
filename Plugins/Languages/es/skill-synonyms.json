@@ -3113,5 +3113,17 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
+  ],
+  "partition_clients_by_address": [
+    "dividir clientes por dirección",
+    "repartir empleados en grupos por dirección"
+  ],
+  "assign_orders_to_groups": [
+    "agrupar pedidos importados",
+    "pedidos sin grupo"
+  ],
+  "seal_open_orders": [
+    "sellar todos los pedidos abiertos",
+    "convertir pedidos en turnos"
   ]
 }

@@ -34,6 +34,8 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<Shift> AddWithSealedOrderHandling(Shift shift);
 
+    Task<List<Shift>> GetOpenOrdersAsync(OpenOrderFilter filter, CancellationToken cancellationToken = default);
+
     Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default);
 
     Task<Shift?> FindActiveByExternalReferenceAsync(string sourceSystemId, string externalOrderReference, CancellationToken cancellationToken = default);

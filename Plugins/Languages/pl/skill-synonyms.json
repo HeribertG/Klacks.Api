@@ -3145,5 +3145,17 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
+  ],
+  "partition_clients_by_address": [
+    "podziel klientów według adresu",
+    "podziel pracowników na grupy według adresu"
+  ],
+  "assign_orders_to_groups": [
+    "pogrupuj zaimportowane zamówienia",
+    "zamówienia bez grupy"
+  ],
+  "seal_open_orders": [
+    "zapieczętuj wszystkie otwarte zamówienia",
+    "przekształć zamówienia w zmiany"
   ]
 }

@@ -411,6 +411,64 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         return await _groupManagementService.GetGroupsForShiftAsync(shiftId);
     }
 
+    public async Task<List<Shift>> GetOpenOrdersAsync(
+        OpenOrderFilter filter, CancellationToken cancellationToken = default)
+    {
+        var query = context.Shift
+            .Include(s => s.Client!)
+                .ThenInclude(c => c.Addresses!)
+            .Include(s => s.GroupItems)
+            .Where(s => s.Status == ShiftStatus.OriginalOrder
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null
+                && !s.IsDeleted);
+
+        if (!string.IsNullOrWhiteSpace(filter.SourceSystemId))
+        {
+            var sourceSystemId = filter.SourceSystemId.Trim();
+            query = query.Where(s => s.SourceSystemId == sourceSystemId);
+        }
+
+        if (filter.FromDate.HasValue)
+        {
+            query = query.Where(s => s.FromDate >= filter.FromDate.Value);
+        }
+
+        if (filter.UntilDate.HasValue)
+        {
+            query = query.Where(s => s.FromDate <= filter.UntilDate.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.CustomerName))
+        {
+            var customerName = filter.CustomerName.Trim().ToLower();
+            query = query.Where(s => s.Client != null
+                && (s.Client.Name.ToLower().Contains(customerName)
+                    || (s.Client.Company != null && s.Client.Company.ToLower().Contains(customerName))));
+        }
+
+        if (filter.GroupId.HasValue)
+        {
+            query = query.Where(s => s.GroupItems.Any(gi => !gi.IsDeleted
+                && gi.AnalyseToken == null
+                && gi.GroupId == filter.GroupId.Value));
+        }
+
+        query = query
+            .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Name);
+
+        if (filter.MaxCount.HasValue)
+        {
+            query = query.Take(filter.MaxCount.Value);
+        }
+
+        return await query
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Shift> AddWithSealedOrderHandling(Shift shift)
     {
         await Add(shift);

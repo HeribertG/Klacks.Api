@@ -3072,5 +3072,17 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
+  ],
+  "partition_clients_by_address": [
+    "opdel klienter efter adresse",
+    "del medarbejdere op i grupper efter adresse"
+  ],
+  "assign_orders_to_groups": [
+    "gruppér importerede ordrer",
+    "ordrer uden gruppe"
+  ],
+  "seal_open_orders": [
+    "forsegl alle åbne ordrer",
+    "konvertér ordrer til vagter"
   ]
 }

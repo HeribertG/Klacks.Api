@@ -483,6 +483,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Assistant.KlacksyModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.ICustomerGroupingPlanner,
             Klacks.Api.Application.Services.Grouping.CustomerGroupingPlanner>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IOrderSealingService,
+            Klacks.Api.Application.Services.Orders.OrderSealingService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,

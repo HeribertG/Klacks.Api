@@ -3085,5 +3085,17 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
+  ],
+  "partition_clients_by_address": [
+    "jaa asiakkaat osoitteen mukaan",
+    "jaa työntekijät ryhmiin osoitteen mukaan"
+  ],
+  "assign_orders_to_groups": [
+    "ryhmittele tuodut tilaukset",
+    "tilaukset ilman ryhmää"
+  ],
+  "seal_open_orders": [
+    "sinetöi kaikki avoimet tilaukset",
+    "muunna tilaukset vuoroiksi"
   ]
 }

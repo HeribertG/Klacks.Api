@@ -58,7 +58,7 @@ public class UpdateErpDropPointSettingsSkill : BaseSkillImplementation
         }
 
         var bucketPrefix = GetParameter<string>(parameters, "bucketPrefix");
-        if (bucketPrefix != null && bucketPrefix.Trim() != existing.BucketPrefix)
+        if (!string.IsNullOrWhiteSpace(bucketPrefix) && bucketPrefix.Trim() != existing.BucketPrefix)
         {
             existing.BucketPrefix = bucketPrefix.Trim();
             changed.Add("bucketPrefix");

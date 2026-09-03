@@ -3065,5 +3065,17 @@
     "websøk",
     "internettsøk",
     "søk på nett"
+  ],
+  "partition_clients_by_address": [
+    "del klienter etter adresse",
+    "del ansatte inn i grupper etter adresse"
+  ],
+  "assign_orders_to_groups": [
+    "grupper importerte bestillinger",
+    "bestillinger uten gruppe"
+  ],
+  "seal_open_orders": [
+    "forsegl alle åpne bestillinger",
+    "konverter bestillinger til vakter"
   ]
 }

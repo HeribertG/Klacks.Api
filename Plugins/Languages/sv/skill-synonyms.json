@@ -3079,5 +3079,17 @@
     "internetsökning",
     "sök på nätet",
     "googla"
+  ],
+  "partition_clients_by_address": [
+    "dela klienter efter adress",
+    "dela medarbetare i grupper efter adress"
+  ],
+  "assign_orders_to_groups": [
+    "gruppera importerade beställningar",
+    "beställningar utan grupp"
+  ],
+  "seal_open_orders": [
+    "försegla alla öppna beställningar",
+    "omvandla beställningar till pass"
   ]
 }

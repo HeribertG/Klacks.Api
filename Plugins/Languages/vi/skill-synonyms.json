@@ -3063,5 +3063,17 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
+  ],
+  "partition_clients_by_address": [
+    "chia khách hàng theo địa chỉ",
+    "chia nhân viên thành nhóm theo địa chỉ"
+  ],
+  "assign_orders_to_groups": [
+    "nhóm các đơn hàng đã nhập",
+    "đơn hàng không có nhóm"
+  ],
+  "seal_open_orders": [
+    "niêm phong tất cả đơn hàng đang mở",
+    "chuyển đơn hàng thành ca làm"
   ]
 }

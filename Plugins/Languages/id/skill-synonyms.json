@@ -3038,5 +3038,17 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
+  ],
+  "partition_clients_by_address": [
+    "bagi klien berdasarkan alamat",
+    "bagi karyawan ke dalam grup berdasarkan alamat"
+  ],
+  "assign_orders_to_groups": [
+    "kelompokkan pesanan impor",
+    "pesanan tanpa grup"
+  ],
+  "seal_open_orders": [
+    "segel semua pesanan terbuka",
+    "ubah pesanan menjadi shift"
   ]
 }

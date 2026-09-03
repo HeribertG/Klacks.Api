@@ -3056,5 +3056,17 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
+  ],
+  "partition_clients_by_address": [
+    "bahagikan klien mengikut alamat",
+    "bahagikan pekerja kepada kumpulan mengikut alamat"
+  ],
+  "assign_orders_to_groups": [
+    "kumpulkan pesanan yang diimport",
+    "pesanan tanpa kumpulan"
+  ],
+  "seal_open_orders": [
+    "meterai semua pesanan terbuka",
+    "tukar pesanan kepada syif"
   ]
 }

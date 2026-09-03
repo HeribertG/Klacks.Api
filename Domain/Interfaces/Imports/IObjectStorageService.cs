@@ -28,6 +28,14 @@ public interface IObjectStorageService
     Task DeleteAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Resolves an object-key prefix to its absolute on-disk location, for display in diagnostics
+    /// and settings answers. Pure path computation -- no file-system access, no directory creation.
+    /// Throws for a key that would resolve outside of the storage root.
+    /// </summary>
+    /// <param name="key">Object-key prefix or file key (e.g. "erp/orders/")</param>
+    string ResolvePath(string key);
+
+    /// <summary>
     /// Verifies that the storage root is reachable and writable via a temporary marker file, and
     /// ensures the given object-key prefixes exist as directories (created if missing). Never
     /// throws for filesystem problems -- they are reported as unhealthy in the result instead.

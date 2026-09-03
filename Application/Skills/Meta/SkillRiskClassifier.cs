@@ -161,7 +161,13 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // into a permanently immutable SealedOrder, and set_sealed_order_until_date is the single change
         // that row ever accepts again ("only allowed once", and only while no work exists after the date).
         // Both guard their data-losing edge in the handler, but neither can be undone at all afterwards.
+        // seal_open_orders runs exactly that transition over a whole batch through the same service, so it
+        // cannot be gated more weakly than the single-order skill it shares its code with: one confirmed
+        // call turns every matching order into an immutable SealedOrder at once. The price is that its
+        // apply=false preview asks for a confirmation too, unlike the Irreversible bulk group writers
+        // below — deliberate, because there is no counterpart skill that could take any of it back.
         "seal_shift",
+        "seal_open_orders",
         "set_sealed_order_until_date",
         // Membership dates are the plannability boundary - the exact reason delete_membership is listed
         // above. end_client_membership writes validUntil on the active membership without needing its
@@ -359,9 +365,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "apply_grouping",
         "fill_group_by_criteria",
         "group_ungrouped_by_city_name",
+        "partition_clients_by_address",
         "bulk_add_shifts_to_group",
         "bulk_add_absence_for_group",
         "add_selected_clients_to_group",
+        // Same bulk-writer shape for the ERP-imported orders: assign_orders_to_groups derives the group
+        // of every unlinked open order from its customer's address and defaults to apply=false, so
+        // Sensitive would gate its preview too. Each run writes one group_item row per order; a wrong
+        // placement is corrected by remove_shift_from_group and add_shift_to_group.
+        "assign_orders_to_groups",
         // Shift and container structure. delete_shift, reset_container_day and
         // remove_container_template_task all refuse the data-losing case in the handler itself (assigned works,
         // existing cuts), so the destructive edge is blocked below this classification.
