@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Τι μπορείς να κάνεις;",
   "assistant-chat.whisper-loading": "Φόρτωση γλωσσικού μοντέλου...",
   "assistant.proactive.availabilityGap": "{{name}} δεν έχει καταχωρίσει ακόμη διαθεσιμότητα για {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Ο Klacksy ολοκλήρωσε τη σφράγιση των παραγγελιών: {{sealed}} από {{total}} σφραγίστηκαν, {{blocked}} αποκλείστηκαν, {{failed}} απέτυχαν ({{duration}} δευτ.).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Η εργασία παρασκηνίου για τη σφράγιση των παραγγελιών διακόπηκε: {{error}} Οι ήδη σφραγισμένες παραγγελίες παραμένουν σφραγισμένες· έλεγξε την τρέχουσα κατάσταση με seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} δεν έχει καταχωρισμένη διεύθυνση.",
   "assistant.proactive.clientMissingContact": "{{name}} δεν έχει καταχωρισμένο ούτε e-mail ούτε αριθμό τηλεφώνου.",
   "assistant.proactive.containerAutoResolved": "Επιλύθηκε από το Klacksy στις {{date}}",

@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Vad kan du göra?",
   "assistant-chat.whisper-loading": "Talmodellen laddas...",
   "assistant.proactive.availabilityGap": "{{name}} har ännu inte registrerat någon tillgänglighet för {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy slutförde förseglingen av beställningarna: {{sealed}} av {{total}} förseglade, {{blocked}} blockerade, {{failed}} misslyckades ({{duration}} sek.).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Bakgrundsjobbet för att försegla beställningarna avbröts: {{error}} Redan förseglade beställningar förblir förseglade; kontrollera aktuellt läge med seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} har ingen adress registrerad.",
   "assistant.proactive.clientMissingContact": "{{name}} har varken e-post eller telefonnummer registrerat.",
   "assistant.proactive.containerAutoResolved": "Åtgärdat av Klacksy den {{date}}",

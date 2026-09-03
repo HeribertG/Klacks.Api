@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Apa yang boleh anda lakukan?",
   "assistant-chat.whisper-loading": "Model pertuturan sedang dimuatkan...",
   "assistant.proactive.availabilityGap": "{{name}} belum merekodkan ketersediaan untuk {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy selesai memeteraikan pesanan: {{sealed}} daripada {{total}} dimeteraikan, {{blocked}} disekat, {{failed}} gagal ({{duration}} saat).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Tugas latar belakang untuk memeteraikan pesanan telah dihentikan: {{error}} Pesanan yang telah dimeteraikan kekal dimeteraikan; semak status semasa dengan seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} tiada alamat yang disimpan.",
   "assistant.proactive.clientMissingContact": "{{name}} tiada e-mel mahupun nombor telefon yang disimpan.",
   "assistant.proactive.containerAutoResolved": "Diselesaikan oleh Klacksy pada {{date}}",

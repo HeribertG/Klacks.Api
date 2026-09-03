@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Bạn có thể làm gì?",
   "assistant-chat.whisper-loading": "Đang tải mô hình giọng nói...",
   "assistant.proactive.availabilityGap": "{{name}} chưa ghi nhận thời gian khả dụng cho {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy đã hoàn tất việc niêm phong đơn hàng: {{sealed}}/{{total}} đã niêm phong, {{blocked}} bị chặn, {{failed}} thất bại ({{duration}} giây).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Tác vụ nền để niêm phong đơn hàng đã bị hủy: {{error}} Các đơn hàng đã niêm phong vẫn giữ nguyên trạng thái; kiểm tra trạng thái hiện tại bằng seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} chưa có địa chỉ được lưu.",
   "assistant.proactive.clientMissingContact": "{{name}} không có email cũng như số điện thoại được lưu.",
   "assistant.proactive.containerAutoResolved": "Đã được Klacksy xử lý vào {{date}}",

@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "무엇을 할 수 있나요?",
   "assistant-chat.whisper-loading": "음성 모델 로딩 중...",
   "assistant.proactive.availabilityGap": "{{name}} 님은 {{from}}–{{until}} 기간의 가용성을 아직 등록하지 않았습니다.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy가 주문 확정 작업을 완료했습니다: {{total}}건 중 {{sealed}}건 확정, {{blocked}}건 차단, {{failed}}건 실패 ({{duration}}초).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "주문 확정 백그라운드 작업이 중단되었습니다: {{error}} 이미 확정된 주문은 그대로 유지됩니다. seal_open_orders (apply=false)로 현재 상태를 확인하세요.",
   "assistant.proactive.clientMissingAddress": "{{name}} 님은 등록된 주소가 없습니다.",
   "assistant.proactive.clientMissingContact": "{{name}} 님은 이메일도 전화번호도 등록되어 있지 않습니다.",
   "assistant.proactive.containerAutoResolved": "{{date}}에 Klacksy가 해결함",

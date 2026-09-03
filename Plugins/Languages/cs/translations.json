@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Co všechno umíš?",
   "assistant-chat.whisper-loading": "Načítání hlasového modelu...",
   "assistant.proactive.availabilityGap": "{{name}} zatím nemá pro {{from}}–{{until}} zadanou žádnou dostupnost.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy dokončil zapečeťování objednávek: {{sealed}} z {{total}} zapečetěno, {{blocked}} blokováno, {{failed}} selhalo ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Úloha na pozadí pro zapečetění objednávek byla přerušena: {{error}} Již zapečetěné objednávky zůstávají zapečetěné; aktuální stav zkontroluj pomocí seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} nemá uloženou žádnou adresu.",
   "assistant.proactive.clientMissingContact": "{{name}} nemá uložený ani e-mail, ani telefonní číslo.",
   "assistant.proactive.containerAutoResolved": "Vyřešeno Klacksy dne {{date}}",

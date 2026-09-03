@@ -255,6 +255,11 @@ builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.IGroupGeocodingQ
     sp => sp.GetRequiredService<GroupGeocodingBackgroundService>());
 if (bgOptions.GroupGeocoding)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<GroupGeocodingBackgroundService>());
+builder.Services.AddSingleton<Klacks.Api.Infrastructure.Services.Orders.SealOpenOrdersJobBackgroundService>();
+builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.ISealOpenOrdersJobQueue>(
+    sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Orders.SealOpenOrdersJobBackgroundService>());
+if (bgOptions.SealOpenOrdersJob)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Orders.SealOpenOrdersJobBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)

@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "คุณทำอะไรได้บ้าง?",
   "assistant-chat.whisper-loading": "กำลังโหลดโมเดลเสียง...",
   "assistant.proactive.availabilityGap": "{{name}} ยังไม่ได้บันทึกความพร้อมสำหรับ {{from}}–{{until}}",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy ปิดผนึกคำสั่งเสร็จสิ้นแล้ว: {{sealed}} จาก {{total}} รายการถูกปิดผนึก, {{blocked}} รายการถูกบล็อก, {{failed}} รายการล้มเหลว ({{duration}} วินาที).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "งานเบื้องหลังสำหรับการปิดผนึกคำสั่งถูกยกเลิก: {{error}} คำสั่งที่ปิดผนึกไปแล้วจะยังคงปิดผนึกอยู่ ตรวจสอบสถานะปัจจุบันด้วย seal_open_orders (apply=false)",
   "assistant.proactive.clientMissingAddress": "{{name}} ยังไม่มีที่อยู่ที่บันทึกไว้",
   "assistant.proactive.clientMissingContact": "{{name}} ไม่มีทั้งอีเมลและหมายเลขโทรศัพท์ที่บันทึกไว้",
   "assistant.proactive.containerAutoResolved": "แก้ไขโดย Klacksy เมื่อ {{date}}",

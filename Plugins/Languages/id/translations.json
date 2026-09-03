@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Apa saja yang bisa kamu lakukan?",
   "assistant-chat.whisper-loading": "Memuat model suara...",
   "assistant.proactive.availabilityGap": "{{name}} belum mencatat ketersediaan untuk {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy selesai mengunci pesanan: {{sealed}} dari {{total}} terkunci, {{blocked}} diblokir, {{failed}} gagal ({{duration}} dtk).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Tugas latar belakang untuk mengunci pesanan dihentikan: {{error}} Pesanan yang sudah terkunci tetap terkunci; periksa status saat ini dengan seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} belum memiliki alamat yang tersimpan.",
   "assistant.proactive.clientMissingContact": "{{name}} tidak memiliki email maupun nomor telepon yang tersimpan.",
   "assistant.proactive.containerAutoResolved": "Diselesaikan oleh Klacksy pada {{date}}",

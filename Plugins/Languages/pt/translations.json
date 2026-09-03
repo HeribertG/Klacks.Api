@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "O que pode fazer?",
   "assistant-chat.whisper-loading": "A carregar modelo de voz...",
   "assistant.proactive.availabilityGap": "{{name}} ainda não registou disponibilidades para {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "O Klacksy concluiu a selagem das encomendas: {{sealed}} de {{total}} seladas, {{blocked}} bloqueadas, {{failed}} falhadas ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "A tarefa em segundo plano para selar as encomendas foi interrompida: {{error}} As encomendas já seladas permanecem seladas; verifica o estado atual com seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} não tem nenhum endereço registado.",
   "assistant.proactive.clientMissingContact": "{{name}} não tem e-mail nem número de telefone registados.",
   "assistant.proactive.containerAutoResolved": "Resolvido pelo Klacksy em {{date}}",

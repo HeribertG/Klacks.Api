@@ -3,7 +3,7 @@
   "name": "Danish",
   "displayName": "Dansk",
   "speechLocale": "da-DK",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "author": "Klacks Community",
   "coverage": 100.0,
   "minKlacksVersion": "1.0.0",

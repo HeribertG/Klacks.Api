@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Co potrafisz?",
   "assistant-chat.whisper-loading": "Ładowanie modelu mowy...",
   "assistant.proactive.availabilityGap": "{{name}} nie ma jeszcze wprowadzonej dostępności na {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy zakończył plombowanie zamówień: {{sealed}} z {{total}} zaplombowanych, {{blocked}} zablokowanych, {{failed}} nieudanych ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Zadanie w tle do plombowania zamówień zostało przerwane: {{error}} Już zaplombowane zamówienia pozostają zaplombowane; sprawdź aktualny stan za pomocą seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} nie ma zapisanego adresu.",
   "assistant.proactive.clientMissingContact": "{{name}} nie ma zapisanego ani adresu e-mail, ani numeru telefonu.",
   "assistant.proactive.containerAutoResolved": "Rozwiązane przez Klacksy dnia {{date}}",

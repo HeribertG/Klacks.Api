@@ -91,7 +91,12 @@ Der Skill `seal_open_orders` versiegelt alle offenen Bestellungen eines Filters
 (Quellsystem, Zeitraum, Kunde, Gruppe) auf einmal — jede in ihrer eigenen
 Transaktion, blockierte und fehlgeschlagene Bestellungen werden einzeln
 ausgewiesen statt den ganzen Lauf abzubrechen; mit `apply=false` ist es nur eine
-Vorschau, und Versiegeln lässt sich danach nicht mehr rückgängig machen.
+Vorschau, und Versiegeln lässt sich danach nicht mehr rückgängig machen. Betrifft
+der Lauf mehr als 25 versiegelbare Bestellungen, läuft er als Hintergrund-Auftrag:
+Klacksy antwortet sofort mit einer Auftrags-Id, und das Ergebnis (versiegelt/
+blockiert/fehlgeschlagen, Dauer) landet als Meldung im Klacksy-Postfach, sobald
+der Auftrag fertig ist — bis dahin bleibt der Zustand der noch nicht bearbeiteten
+Bestellungen unverändert.
 Weil eine Bestellung ohne Gruppe nicht versiegelbar ist und der ERP-Import
 Bestellungen ohne Gruppe anlegt, leitet der Skill `assign_orders_to_groups` die
 Gruppe jeder noch gruppenlosen Bestellung aus der Adresse ihres Kunden ab (Ort,

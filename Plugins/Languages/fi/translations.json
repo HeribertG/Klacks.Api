@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Mitä kaikkea osaat?",
   "assistant-chat.whisper-loading": "Puhemallia ladataan...",
   "assistant.proactive.availabilityGap": "Henkilöllä {{name}} ei ole vielä kirjattuja saatavuuksia ajalle {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy vahvisti tilaukset loppuun: {{sealed}}/{{total}} vahvistettu, {{blocked}} estetty, {{failed}} epäonnistui ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Tilausten vahvistamisen taustatyö keskeytyi: {{error}} Jo vahvistetut tilaukset pysyvät vahvistettuina; tarkista nykytila komennolla seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "Henkilöllä {{name}} ei ole tallennettua osoitetta.",
   "assistant.proactive.clientMissingContact": "Henkilöllä {{name}} ei ole tallennettuna sähköpostiosoitetta eikä puhelinnumeroa.",
   "assistant.proactive.containerAutoResolved": "Klacksyn korjaama {{date}}",

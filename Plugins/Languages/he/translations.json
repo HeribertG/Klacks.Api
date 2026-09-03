@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "מה אתה יכול לעשות?",
   "assistant-chat.whisper-loading": "מודל דיבור נטען...",
   "assistant.proactive.availabilityGap": "ל-{{name}} אין עדיין זמינות רשומה עבור {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy סיים לחתום את ההזמנות: {{sealed}} מתוך {{total}} נחתמו, {{blocked}} חסומות, {{failed}} נכשלו ({{duration}} שנ').{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "המשימה ברקע לחתימת ההזמנות בוטלה: {{error}} הזמנות שכבר נחתמו נשארות חתומות; בדוק את המצב הנוכחי באמצעות seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "ל-{{name}} אין כתובת רשומה.",
   "assistant.proactive.clientMissingContact": "ל-{{name}} לא רשומה כתובת דוא״ל ולא מספר טלפון.",
   "assistant.proactive.containerAutoResolved": "טופל על ידי Klacksy בתאריך {{date}}",

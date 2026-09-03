@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "何ができますか？",
   "assistant-chat.whisper-loading": "音声モデルを読み込み中...",
   "assistant.proactive.availabilityGap": "{{name}}さんは{{from}}–{{until}}の空き状況をまだ登録していません。",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksyは受注の確定処理を完了しました: {{sealed}}/{{total}}件確定、{{blocked}}件ブロック、{{failed}}件失敗（{{duration}}秒）。{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "受注確定のバックグラウンドジョブが中断されました: {{error}} 既に確定済みの受注はそのまま確定状態を維持します。seal_open_orders (apply=false) で現在の状態を確認してください。",
   "assistant.proactive.clientMissingAddress": "{{name}}さんの住所が登録されていません。",
   "assistant.proactive.clientMissingContact": "{{name}}さんはメールアドレスも電話番号も登録されていません。",
   "assistant.proactive.containerAutoResolved": "Klacksy が {{date}} に解決しました",

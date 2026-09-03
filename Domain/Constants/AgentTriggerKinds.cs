@@ -32,6 +32,8 @@ public static class AgentTriggerKinds
     public const string ScenarioPrepared = "scenario_prepared";
     public const string NextPeriodSchedulingDue = "next_period_scheduling_due";
     public const string KlacksyLearnedDigest = "klacksy_learned_digest";
+    public const string BulkSealOrdersCompleted = "bulk_seal_orders_completed";
+    public const string BulkSealOrdersFailed = "bulk_seal_orders_failed";
 
     /// <summary>
     /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
@@ -70,7 +72,9 @@ public static class AgentTriggerKinds
         DailyDigest,
         ScenarioPrepared,
         NextPeriodSchedulingDue,
-        KlacksyLearnedDigest
+        KlacksyLearnedDigest,
+        BulkSealOrdersCompleted,
+        BulkSealOrdersFailed
     ];
 }
 

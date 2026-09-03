@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Ce poți face?",
   "assistant-chat.whisper-loading": "Se încarcă modelul de voce...",
   "assistant.proactive.availabilityGap": "{{name}} nu a înregistrat încă disponibilități pentru {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy a finalizat sigilarea comenzilor: {{sealed}} din {{total}} sigilate, {{blocked}} blocate, {{failed}} eșuate ({{duration}} s).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Sarcina de fundal pentru sigilarea comenzilor a fost întreruptă: {{error}} Comenzile deja sigilate rămân sigilate; verifică starea actuală cu seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} nu are nicio adresă înregistrată.",
   "assistant.proactive.clientMissingContact": "{{name}} nu are înregistrate nici e-mail, nici număr de telefon.",
   "assistant.proactive.containerAutoResolved": "Rezolvat de Klacksy la {{date}}",

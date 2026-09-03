@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "Hvad kan du?",
   "assistant-chat.whisper-loading": "Sprogmodel indlæses...",
   "assistant.proactive.availabilityGap": "{{name}} har endnu ikke registreret nogen tilgængelighed for {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy afsluttede forseglingen af ordrerne: {{sealed}} af {{total}} forseglet, {{blocked}} blokeret, {{failed}} mislykkedes ({{duration}} sek.).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "Baggrundsjobbet til forsegling af ordrerne blev afbrudt: {{error}} Allerede forseglede ordrer forbliver forseglede; tjek den aktuelle status med seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "{{name}} har ingen adresse registreret.",
   "assistant.proactive.clientMissingContact": "{{name}} har hverken e-mail eller telefonnummer registreret.",
   "assistant.proactive.containerAutoResolved": "Løst af Klacksy den {{date}}",

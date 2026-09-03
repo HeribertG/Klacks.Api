@@ -34,4 +34,6 @@ public static class ProactiveMessageI18nKeys
     public const string NextPeriodPlanCommitted = "assistant.proactive.nextPeriodPlanCommitted";
     public const string NextPeriodAutoCommitBlocked = "assistant.proactive.nextPeriodAutoCommitBlocked";
     public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
+    public const string BulkSealOrdersCompleted = "assistant.proactive.bulkSealOrdersCompleted";
+    public const string BulkSealOrdersFailed = "assistant.proactive.bulkSealOrdersFailed";
 }

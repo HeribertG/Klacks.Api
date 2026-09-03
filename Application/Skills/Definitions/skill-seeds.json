@@ -18730,7 +18730,7 @@
     {
       "name": "seal_open_orders",
       "area": "shift",
-      "description": "Seals every open order matching the filter in ONE server-side call, turning each into an immutable sealed order plus its plannable shift. Use for 'turn all orders into shifts' or 'seal all open orders'. Each order is sealed in its own transaction, so one failure never rolls back the rest; blocked and failed orders are reported per order. With autoAssignGroups the missing group links are derived first. Sealing can never be undone.",
+      "description": "Seals every open order matching the filter in one call, turning each into an immutable sealed order plus its plannable shift. Use for 'turn all orders into shifts' or 'seal all open orders'. Each order seals in its own transaction; blocked and failed orders are reported per order, not aborted. With autoAssignGroups the missing group links are derived first. Sealing can never be undone. Over 25 sealable orders runs as a background job; the user is notified in their inbox when done.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18847,7 +18847,7 @@
           "convertire gli ordini in servizi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "remove_client_from_group",

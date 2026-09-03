@@ -321,4 +321,17 @@ public class BackgroundServiceOptions
     /// </summary>
     public string AgentConditionDigestTimeOfDayLocal { get; set; } =
         Klacks.Api.Domain.Constants.AgentConditionDigestDefaults.DefaultTimeOfDayLocal;
+
+    /// <summary>
+    /// Enables the worker that drains seal_open_orders batches too large to seal synchronously within a
+    /// chat turn (see SealOpenOrdersSkill.SealOpenOrdersSynchronousLimit). Default ON, unlike most flags
+    /// in this file: SealOpenOrdersSkill enqueues into ISealOpenOrdersJobQueue unconditionally once a
+    /// batch crosses the limit and already told the user a job id and "you will be notified" — turning
+    /// this off on every instance leaves that queue undrained, so the user is told sealing is running
+    /// and it silently never does. Like GroupGeocoding, pin it to one instance when scaling out; each
+    /// instance holds its own in-process queue, so only the instance that accepted the original chat
+    /// call can ever process the job it enqueued. Override via env
+    /// <c>BackgroundServices__SealOpenOrdersJob=false</c>.
+    /// </summary>
+    public bool SealOpenOrdersJob { get; set; } = true;
 }

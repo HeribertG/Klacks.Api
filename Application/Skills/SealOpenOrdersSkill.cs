@@ -8,7 +8,12 @@
 /// reports how many orders are sealable and what blocks the others. With autoAssignGroups=true the group
 /// assignment runs first, so orders held back only by a missing group become sealable in the same call.
 /// Sealing can never be undone. Restricted to users with unrestricted group scope, because the run
-/// reaches every group in the installation.
+/// reaches every group in the installation. With apply=true, a batch whose sealable count (from the
+/// same count the preview reports) exceeds SealOpenOrdersSynchronousLimit is NOT sealed inline: it is
+/// handed to SealOpenOrdersJobBackgroundService and this call returns immediately with a job id. The
+/// user is notified in their Klacksy inbox once that job finishes (BulkSealOrdersCompletedTriggerEvent)
+/// or aborts (BulkSealOrdersFailedTriggerEvent). Below the limit apply=true still seals inline and
+/// returns the outcome directly, unchanged from before.
 /// </summary>
 /// <param name="sourceSystemId">Only orders imported from this external system; omit for every source.</param>
 /// <param name="fromDate">Only orders starting on or after this date (YYYY-MM-DD or 'today').</param>
@@ -38,6 +43,19 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
     private const int MaxSealedPreviewNames = 5;
     private const int MaxFailurePreviewNames = 10;
 
+    /// <summary>
+    /// Above this sealable-order count, apply=true no longer seals inline: sealing 20 orders measured
+    /// 1.6s, 600 orders measured 153s (live, 2026-09-03) — far past the ~120s a chat turn can wait for a
+    /// reply. Chosen so the synchronous path stays well under that budget while still answering most
+    /// everyday batches immediately.
+    /// </summary>
+    private const int SealOpenOrdersSynchronousLimit = 25;
+
+    private static readonly string QueueFullError =
+        "This batch would run as a background job, but the job queue is currently full. " +
+        "Try again shortly, or narrow the filter (fromDate/untilDate/groupName/maxCount) to fit within " +
+        $"{SealOpenOrdersSynchronousLimit} sealable order(s) so it runs immediately instead.";
+
     private const string RestrictedScopeError =
         "This skill seals every open order in the installation and the sealing cannot be undone; " +
         "it is only available to users with unrestricted group scope. Your scope is limited to: {0}. " +
@@ -55,17 +73,20 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
+    private readonly ISealOpenOrdersJobQueue _sealOpenOrdersJobQueue;
 
     public SealOpenOrdersSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IMediator mediator,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ISealOpenOrdersJobQueue sealOpenOrdersJobQueue)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _mediator = mediator;
         _companyClock = companyClock;
+        _sealOpenOrdersJobQueue = sealOpenOrdersJobQueue;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -118,22 +139,33 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
 
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
+        var command = new SealOpenOrdersCommand(
+            GetParameter<string>(parameters, "sourceSystemId"),
+            fromDate.HasValue ? DateOnly.FromDateTime(fromDate.Value) : null,
+            untilDate.HasValue ? DateOnly.FromDateTime(untilDate.Value) : null,
+            GetParameter<string>(parameters, "customerName"),
+            groupId,
+            maxCount,
+            autoAssignGroups,
+            ValidFrom: null,
+            apply,
+            context.UserName);
+
         SealOpenOrdersResult result;
         try
         {
-            result = await _mediator.Send(
-                new SealOpenOrdersCommand(
-                    GetParameter<string>(parameters, "sourceSystemId"),
-                    fromDate.HasValue ? DateOnly.FromDateTime(fromDate.Value) : null,
-                    untilDate.HasValue ? DateOnly.FromDateTime(untilDate.Value) : null,
-                    GetParameter<string>(parameters, "customerName"),
-                    groupId,
-                    maxCount,
-                    autoAssignGroups,
-                    ValidFrom: null,
-                    apply,
-                    context.UserName),
-                cancellationToken);
+            if (apply)
+            {
+                // Same count the apply=false preview reports — no second sizing algorithm — decides
+                // whether this batch still seals inline or moves to the background job.
+                var previewResult = await _mediator.Send(command with { Apply = false }, cancellationToken);
+                if (previewResult.SealableCount > SealOpenOrdersSynchronousLimit)
+                {
+                    return EnqueueJob(context.UserId, command, previewResult);
+                }
+            }
+
+            result = await _mediator.Send(command, cancellationToken);
         }
         catch (SkillVerificationException ex)
         {
@@ -141,6 +173,31 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
         }
 
         return apply ? BuildAppliedResult(result) : BuildPreviewResult(result);
+    }
+
+    private SkillResult EnqueueJob(Guid userId, SealOpenOrdersCommand command, SealOpenOrdersResult previewResult)
+    {
+        var jobId = Guid.NewGuid();
+        if (!_sealOpenOrdersJobQueue.Enqueue(new SealOpenOrdersJob(jobId, userId, command)))
+        {
+            return SkillResult.Error(QueueFullError);
+        }
+
+        return BuildEnqueuedResult(jobId, previewResult);
+    }
+
+    private static SkillResult BuildEnqueuedResult(Guid jobId, SealOpenOrdersResult previewResult)
+    {
+        var autoAssignNote = previewResult.AutoAssignRequested
+            ? $"The group assignment will link {previewResult.AutoAssignedCount} order(s) first. "
+            : string.Empty;
+
+        return SkillResult.SuccessResult(
+            new SealOpenOrdersJobAcceptedResult(jobId, previewResult.SealableCount),
+            $"{previewResult.SealableCount} of {previewResult.TotalOrders} open order(s) are sealable, " +
+            $"more than the {SealOpenOrdersSynchronousLimit} this can seal within a chat reply, so it runs " +
+            $"as a background job (id {jobId}) instead. {autoAssignNote}" +
+            "You will be notified in your Klacksy inbox once it finishes.");
     }
 
     private static SkillResult BuildPreviewResult(SealOpenOrdersResult result)

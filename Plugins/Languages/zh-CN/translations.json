@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "你能做什么？",
   "assistant-chat.whisper-loading": "正在加载语音模型...",
   "assistant.proactive.availabilityGap": "{{name}} 尚未录入 {{from}}–{{until}} 的可用性。",
+  "assistant.proactive.bulkSealOrdersCompleted": "Klacksy 已完成订单确认处理：{{sealed}}/{{total}} 已确认，{{blocked}} 被阻止，{{failed}} 失败（{{duration}} 秒）。{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "订单确认后台任务已中止：{{error}} 已确认的订单保持确认状态；请使用 seal_open_orders (apply=false) 检查当前状态。",
   "assistant.proactive.clientMissingAddress": "{{name}} 尚未登记地址。",
   "assistant.proactive.clientMissingContact": "{{name}} 既没有登记电子邮件，也没有登记电话号码。",
   "assistant.proactive.containerAutoResolved": "由 Klacksy 于 {{date}} 解决",

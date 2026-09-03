@@ -627,6 +627,8 @@
   "assistant-chat.welcome.suggestion-4": "ماذا يمكنك أن تفعل؟",
   "assistant-chat.whisper-loading": "جاري تحميل نموذج الكلام...",
   "assistant.proactive.availabilityGap": "لم يسجّل {{name}} بعد أي توفر للفترة {{from}}–{{until}}.",
+  "assistant.proactive.bulkSealOrdersCompleted": "أنهى Klacksy عملية ختم الطلبات: {{sealed}} من {{total}} مختومة، {{blocked}} محظورة، {{failed}} فاشلة ({{duration}} ث).{{failureSample}}",
+  "assistant.proactive.bulkSealOrdersFailed": "تم إيقاف المهمة الخلفية لختم الطلبات: {{error}} الطلبات المختومة مسبقًا تبقى مختومة؛ تحقق من الحالة الحالية باستخدام seal_open_orders (apply=false).",
   "assistant.proactive.clientMissingAddress": "ليس لدى {{name}} عنوان مسجل.",
   "assistant.proactive.clientMissingContact": "ليس لدى {{name}} بريد إلكتروني ولا رقم هاتف مسجل.",
   "assistant.proactive.containerAutoResolved": "تمت المعالجة بواسطة Klacksy بتاريخ {{date}}",
