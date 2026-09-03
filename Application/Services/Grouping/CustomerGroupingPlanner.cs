@@ -216,7 +216,9 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
             .ToDictionary(byName => byName.Key, byName => byName.First(), StringComparer.OrdinalIgnoreCase);
     }
 
-    private static bool HasCoordinates(Address address) => address.Latitude.HasValue && address.Longitude.HasValue;
+    // Internal (not private): reused read-only by OrderGroupPlanner so an order's geo fallback uses the
+    // same definition of a usable address as the client-grouping paths.
+    internal static bool HasCoordinates(Address address) => address.Latitude.HasValue && address.Longitude.HasValue;
 
     private static string ResolveUnassignedReason(
         Address? cityAddress, Address? coordinateAddress, bool hasGeoAnchors, bool hasAnyAnchor)

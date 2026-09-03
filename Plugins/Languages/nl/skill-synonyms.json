@@ -3130,5 +3130,17 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
+  ],
+  "partition_clients_by_address": [
+    "cliënten splitsen op adres",
+    "medewerkers indelen in groepen op adres"
+  ],
+  "assign_orders_to_groups": [
+    "geïmporteerde orders groeperen",
+    "orders zonder groep"
+  ],
+  "seal_open_orders": [
+    "alle open orders verzegelen",
+    "orders omzetten naar diensten"
   ]
 }

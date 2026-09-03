@@ -85,6 +85,19 @@ updatedShift.Status == SealedOrder  AND  previousStatus != SealedOrder
 
 Bei jedem späteren PUT auf einem bereits gesealten Shift → kein erneuter Klon.
 
+## Ganze Bestellungs-Stapel versiegeln (z. B. nach einem ERP-Import)
+
+Der Skill `seal_open_orders` versiegelt alle offenen Bestellungen eines Filters
+(Quellsystem, Zeitraum, Kunde, Gruppe) auf einmal — jede in ihrer eigenen
+Transaktion, blockierte und fehlgeschlagene Bestellungen werden einzeln
+ausgewiesen statt den ganzen Lauf abzubrechen; mit `apply=false` ist es nur eine
+Vorschau, und Versiegeln lässt sich danach nicht mehr rückgängig machen.
+Weil eine Bestellung ohne Gruppe nicht versiegelbar ist und der ERP-Import
+Bestellungen ohne Gruppe anlegt, leitet der Skill `assign_orders_to_groups` die
+Gruppe jeder noch gruppenlosen Bestellung aus der Adresse ihres Kunden ab (Ort,
+sonst Kanton, sonst nächstgelegene Gruppe mit Koordinaten) — entweder vorab als
+eigener Aufruf oder direkt über den Parameter `autoAssignGroups`.
+
 ## Wo Mitarbeiter gebucht werden
 
 `Work`-Entitäten hängen **ausschließlich** an Shifts mit Status ≥ 2 — also
@@ -214,6 +227,8 @@ Ressourcen-Monitors auf dem Dashboard.
 
 - `explain_shift_sporadic` / `explain_shift_time_range` / `explain_shift_container`
 - `explain_planning_assistant` — der Assistent bucht an OriginalShift/SplitShift
+- `assign_orders_to_groups` — leitet die fehlenden Gruppen importierter Bestellungen aus der Kundenadresse ab
+- `seal_open_orders` — versiegelt alle offenen Bestellungen eines Filters in einem Lauf
 
 ## Trigger-Phrasen
 

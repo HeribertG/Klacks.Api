@@ -3096,5 +3096,17 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
+  ],
+  "partition_clients_by_address": [
+    "împarte clienții după adresă",
+    "împarte angajații în grupuri după adresă"
+  ],
+  "assign_orders_to_groups": [
+    "grupează comenzile importate",
+    "comenzi fără grup"
+  ],
+  "seal_open_orders": [
+    "sigilează toate comenzile deschise",
+    "transformă comenzile în ture"
   ]
 }

@@ -23,9 +23,12 @@ triggerKeywords:
   - xml import
   - erp anbindung
   - drop zone erp
+  - xml ablegen
+  - import ordner
+  - where to put the xml
 synonyms:
-  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport]
-  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work]
+  de: [wie richte ich den erp import ein, was ist ein drop point, bestellungen automatisch importieren, xml datei hochladen erp, erp zugriffstoken, wie funktioniert der bestellungsimport, wo lege ich die xml datei physisch ab, welcher server-ordner fuer den erp import]
+  en: [how do i set up erp import, what is a drop point, automatically import orders, upload xml file erp, erp access token, how does the order import work, which server folder receives the erp xml]
   fr: [comment configurer l'import erp, qu'est-ce qu'un drop point, importer des commandes automatiquement, jeton d'accès erp]
   it: [come configuro l'import erp, cos'è un drop point, importare ordini automaticamente, token di accesso erp]
 ---
@@ -46,6 +49,15 @@ Anlegen mehrerer Briefkästen. Jede importierte Bestellung wird als **Dienst
 (`Shift`) im Status `SealedOrder`** angelegt oder aktualisiert — es gibt kein eigenes
 Bestellungs-Datenmodell. Admin-only (Seite selbst ist Admin-only, siehe
 `explain_page_settings_overview`).
+
+Der Drop-Point ist nicht nur ein Ui-Feature: das liefernde ERP-System (oder ein Admin per
+Hand, z. B. bei der Ersteinrichtung) kann XML-Dateien auch direkt auf den physischen
+Server-Ordner kopieren, ohne die Seite je zu öffnen — der nächste Zeitplan-Tick holt sie
+genauso ab wie einen manuellen Upload. Für „Wo kopiere ich die XML hin?" den absoluten
+Pfad NICHT raten, sondern per Skill `get_erp_drop_point_settings` abfragen (liefert den
+aufgelösten Pfad auf der Platte, die Unterordner processing/processed/error und den
+Zeitplan); bei Zweifel, ob der Ordner wirklich beschreibbar ist und ob er einen Neustart
+übersteht, zusätzlich `check_erp_drop_point_folder_health`.
 
 <!-- level:elements -->
 
@@ -119,6 +131,11 @@ vollständig und minimal).
 
 ### Typische Aufgaben
 
+- Physischen Ablage-Pfad für die ERP-XML erfragen ("Wo kopiere ich die XML hin?") —
+  Skill `get_erp_drop_point_settings` (aufgelöster absoluter Pfad, Unterordner,
+  Zeitplan)
+- Prüfen, ob der Ablage-Ordner erreichbar/beschreibbar ist und seine Unterordner
+  existieren — Skill `check_erp_drop_point_folder_health`
 - Status abfragen (aktiv, Zeitplan, nächster Lauf, Anzahl Dateien) — Skill
   `get_erp_import_status`
 - Import sofort auslösen, statt auf den Zeitplan zu warten — Skill
@@ -142,3 +159,4 @@ vollständig und minimal).
 - "Wie importiere ich Bestellungen automatisch?"
 - "How do I upload an ERP order XML file?"
 - "Läuft der ERP-Import gerade?" / "Importiere jetzt"
+- "Wo muss ich die ERP-Bestell-XML hinkopieren?" / "Where do I copy the order XML to?"

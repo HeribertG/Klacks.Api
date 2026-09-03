@@ -47,6 +47,7 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         }
 
         var normalizedPrefix = ErpImportStorageKeys.NormalizePrefix(dropPoint.BucketPrefix);
+        var dropPointPath = _objectStorageService.ResolvePath(normalizedPrefix);
         var requiredPrefixes = new[]
         {
             ErpImportStorageKeys.SegmentPrefix(normalizedPrefix, ErpImportStorageKeys.ProcessedSegment),
@@ -59,6 +60,7 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         var data = new
         {
             health.RootPath,
+            DropPointPath = dropPointPath,
             health.RootDirectoryExisted,
             health.RootDirectoryReady,
             health.IsWritable,
@@ -67,20 +69,20 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
             IsHealthy = isHealthy,
         };
 
-        return SkillResult.SuccessResult(data, BuildMessage(health));
+        return SkillResult.SuccessResult(data, BuildMessage(health, dropPointPath));
     }
 
-    private static string BuildMessage(ObjectStorageHealthResult health)
+    private static string BuildMessage(ObjectStorageHealthResult health, string dropPointPath)
     {
         if (!health.RootDirectoryReady)
         {
-            return $"Drop point folder '{health.RootPath}' does not exist and could not be created. " +
+            return $"Drop point folder '{dropPointPath}' does not exist and could not be created. " +
                    "Check the container's file system permissions.";
         }
 
         if (!health.IsWritable)
         {
-            return $"Drop point folder '{health.RootPath}' exists but is not writable ({health.WriteTestError}). " +
+            return $"Drop point folder '{dropPointPath}' exists but is not writable ({health.WriteTestError}). " +
                    "Check the container's file system permissions.";
         }
 
@@ -88,17 +90,17 @@ public class CheckErpDropPointFolderHealthSkill : BaseSkillImplementation
         if (failedPrefixes.Count > 0)
         {
             var names = string.Join(", ", failedPrefixes.Select(p => p.Prefix));
-            return $"Drop point folder '{health.RootPath}' is writable, but these sub-folders could not be created: {names}.";
+            return $"Drop point folder '{dropPointPath}' is writable, but these sub-folders could not be created: {names}.";
         }
 
         var justCreatedWarning = health.RootDirectoryExisted
             ? string.Empty
-            : $" NOTE: '{health.RootPath}' did not exist before this check and was just created -- " +
+            : $" NOTE: '{dropPointPath}' did not exist before this check and was just created -- " +
               "confirm this is really the path the delivering system writes to, a typo in RootPath would " +
               "otherwise create and report a healthy but unused folder.";
 
         return
-            $"Drop point folder '{health.RootPath}' is writable and its processed/error sub-folders are in place." +
+            $"Drop point folder '{dropPointPath}' is writable and its processed/error sub-folders are in place." +
             justCreatedWarning +
             " This check runs inside the running container and cannot inspect the host's docker-compose.yml volume " +
             $"configuration. For files to survive a container restart, RootPath must be mounted as a named volume " +

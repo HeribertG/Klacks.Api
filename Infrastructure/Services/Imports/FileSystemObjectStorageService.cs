@@ -106,6 +106,11 @@ public class FileSystemObjectStorageService : IObjectStorageService
         File.Move(tempPath, destinationPath, overwrite: true);
     }
 
+    public string ResolvePath(string key)
+    {
+        return ToSafePath(key);
+    }
+
     public Task<ObjectStorageHealthResult> CheckHealthAsync(
         IReadOnlyList<string> requiredPrefixes,
         CancellationToken cancellationToken = default)

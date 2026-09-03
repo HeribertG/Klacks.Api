@@ -13,6 +13,9 @@
 /// row per affected order. A crash between claim and completion parks the file under processing/,
 /// where no later run picks it up again: unprocessed rather than imported twice. The drop point view
 /// lists such a file among the errors so it stays visible, and it can be removed there and re-uploaded.
+/// Guarantees the single default drop point exists on every due run, via the same get-or-create
+/// provider the settings/status skills use, so a fresh install never silently drops files simply
+/// because no one has opened the settings page or asked Klacksy about it yet.
 /// </summary>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -41,6 +44,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromHours(1);
 
     private readonly IErpDropPointRepository _dropPointRepository;
+    private readonly IErpDefaultDropPointProvider _defaultDropPointProvider;
     private readonly IObjectStorageService _objectStorageService;
     private readonly IOrderImportParser _parser;
     private readonly ErpCustomerResolver _customerResolver;
@@ -55,6 +59,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
     public ErpOrderImportRunner(
         IErpDropPointRepository dropPointRepository,
+        IErpDefaultDropPointProvider defaultDropPointProvider,
         IObjectStorageService objectStorageService,
         IOrderImportParser parser,
         ErpCustomerResolver customerResolver,
@@ -68,6 +73,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         ILogger<ErpOrderImportRunner> logger)
     {
         _dropPointRepository = dropPointRepository;
+        _defaultDropPointProvider = defaultDropPointProvider;
         _objectStorageService = objectStorageService;
         _parser = parser;
         _customerResolver = customerResolver;
@@ -91,6 +97,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _runState.MarkStarted();
         try
         {
+            await _defaultDropPointProvider.GetOrCreateDefaultAsync(cancellationToken);
+
             var dropPoints = await _dropPointRepository.List();
             foreach (var dropPoint in dropPoints.Where(d => d.IsEnabled))
             {

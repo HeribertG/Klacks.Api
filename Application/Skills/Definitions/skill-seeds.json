@@ -1,5 +1,5 @@
 {
-  "version": 21,
+  "version": 23,
   "skills": [
     {
       "name": "get_current_time",
@@ -18507,6 +18507,349 @@
       "version": 3
     },
     {
+      "name": "partition_clients_by_address",
+      "area": "group",
+      "description": "Splits every employee (or external employee) into a canton, city, or canton-then-city group hierarchy built from their current address, adding any missing groups and every client to its group in ONE server-side call. Use for bulk requests such as 'split all clients into groups by canton and city' on an install that has clients but no groups yet. An existing group with the right name is reused, not duplicated; already-grouped clients are skipped unless told otherwise.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanCreateGroups",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "level",
+          "description": "Granularity of the split: 'canton', 'city', or 'canton_city' which nests each city group under its canton group; defaults to canton_city.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "canton_city",
+          "enumValues": [
+            "canton",
+            "city",
+            "canton_city"
+          ]
+        },
+        {
+          "name": "entityType",
+          "description": "Client type to partition; 'Customer' is rejected because the ERP import creates customers as clients too and this skill is meant for the staff address book.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Employee",
+          "enumValues": [
+            "Employee",
+            "ExternEmp"
+          ]
+        },
+        {
+          "name": "rootGroupName",
+          "description": "Optional name of an existing group every top-level node attaches under; when omitted the default regional hierarchy used by the demo data is mirrored instead.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "includeAlreadyGrouped",
+          "description": "When true, clients that already belong to a group are placed again too; defaults to false so only ungrouped clients are touched.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when this is left out.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the plan; when true creates the groups and persists the memberships. Only set true after the user explicitly confirmed the preview.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "aufteilen",
+          "partitionieren",
+          "nach adresse gruppieren"
+        ],
+        "en": [
+          "partition",
+          "split into groups"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "clients nach adresse aufteilen",
+          "mitarbeiter in gruppen aufteilen",
+          "gruppenhierarchie aus adressen aufbauen"
+        ],
+        "en": [
+          "partition clients by address",
+          "split employees into groups by address",
+          "build groups from addresses"
+        ],
+        "fr": [
+          "répartir les clients par adresse",
+          "diviser les employés en groupes par adresse"
+        ],
+        "it": [
+          "suddividere i clienti per indirizzo",
+          "dividere i dipendenti in gruppi per indirizzo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "assign_orders_to_groups",
+      "area": "shift",
+      "description": "Places every open order that has no group yet into the group its customer's address points to, in ONE server-side call: a group named after the customer's city, else one named after its canton code, else the nearest group with coordinates. Use for 'put the imported orders into their groups' or 'the orders have no group' after an ERP import. Orders that already have a group are never touched, so running it twice changes nothing.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "sourceSystemId",
+          "description": "Only orders imported from this external system (the ERP identifier stored on the order); leave out for every source.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Only orders starting on or after this date (format YYYY-MM-DD, or 'today'); leave out for no lower bound.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Only orders starting on or before this date (format YYYY-MM-DD, or 'today'); leave out for no upper bound.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "customerName",
+          "description": "Fragment the customer's name or company must contain, matched case-insensitively; leave out for every customer.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxCount",
+          "description": "Upper bound on how many orders this run processes; leave out to process every match.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new group links (the plannability boundary; format YYYY-MM-DD, or 'today'); defaults to today when left out.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the placements; when true persists the group links. Only set true after the user explicitly confirmed the preview.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "importierte bestellungen",
+          "bestellungen ohne gruppe",
+          "alle bestellungen gruppieren"
+        ],
+        "en": [
+          "imported orders",
+          "orders without group",
+          "orders to groups"
+        ],
+        "fr": [
+          "commandes importées",
+          "commandes sans groupe"
+        ],
+        "it": [
+          "ordini importati",
+          "ordini senza gruppo"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "importierte bestellungen gruppieren",
+          "bestellungen ohne gruppe verteilen",
+          "gruppen für bestellungen aus der kundenadresse"
+        ],
+        "en": [
+          "group imported orders",
+          "orders without a group",
+          "derive order groups from customer address"
+        ],
+        "fr": [
+          "regrouper les commandes importées",
+          "commandes sans groupe"
+        ],
+        "it": [
+          "raggruppare gli ordini importati",
+          "ordini senza gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "seal_open_orders",
+      "area": "shift",
+      "description": "Seals every open order matching the filter in ONE server-side call, turning each into an immutable sealed order plus its plannable shift. Use for 'turn all orders into shifts' or 'seal all open orders'. Each order is sealed in its own transaction, so one failure never rolls back the rest; blocked and failed orders are reported per order. With autoAssignGroups the missing group links are derived first. Sealing can never be undone.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "sourceSystemId",
+          "description": "Only orders imported from this external system (the ERP identifier stored on the order); leave out for every source.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Only orders starting on or after this date (format YYYY-MM-DD, or 'today'); leave out for no lower bound.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Only orders starting on or before this date (format YYYY-MM-DD, or 'today'); leave out for no upper bound.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "customerName",
+          "description": "Fragment the customer's name or company must contain, matched case-insensitively; leave out for every customer.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxCount",
+          "description": "Upper bound on how many orders this run processes; leave out to process every match.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Name of a group the orders must already be linked to; leave out to ignore group membership. Cannot be combined with autoAssignGroups.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "autoAssignGroups",
+          "description": "When true, derives and writes the missing group links from the customers' addresses before sealing, so orders held back only by a missing group become sealable in the same call. Cannot be combined with groupName. Defaults to false.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only reports how many orders are sealable and what blocks the others; when true performs the sealing. Only set true after the user explicitly confirmed the preview.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "bestellungen siegeln",
+          "alle bestellungen umwandeln",
+          "offene bestellungen"
+        ],
+        "en": [
+          "seal orders",
+          "convert orders",
+          "open orders"
+        ],
+        "fr": [
+          "sceller les commandes",
+          "commandes ouvertes"
+        ],
+        "it": [
+          "sigillare gli ordini",
+          "ordini aperti"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "alle bestellungen in dienste umwandeln",
+          "alle offenen bestellungen siegeln",
+          "bestellungen versiegeln"
+        ],
+        "en": [
+          "seal all open orders",
+          "convert all orders into shifts",
+          "bulk seal orders"
+        ],
+        "fr": [
+          "sceller toutes les commandes ouvertes",
+          "convertir les commandes en services"
+        ],
+        "it": [
+          "sigillare tutti gli ordini aperti",
+          "convertire gli ordini in servizi"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "remove_client_from_group",
       "area": "client",
       "description": "Removes an existing employee/customer (by name) from a group (by name). Use directly for 'remove <person> from group <X>'.",
@@ -27689,10 +28032,13 @@
         "de": [
           "bestellungsimport",
           "kunden-import",
-          "erp anbindung"
+          "erp anbindung",
+          "xml ablegen",
+          "import ordner"
         ],
         "en": [
-          "order import"
+          "order import",
+          "where to put the xml"
         ],
         "und": [
           "drop zone erp"
@@ -27705,7 +28051,9 @@
           "bestellungen automatisch importieren",
           "xml datei hochladen erp",
           "erp zugriffstoken",
-          "wie funktioniert der bestellungsimport"
+          "wie funktioniert der bestellungsimport",
+          "wo lege ich die xml datei physisch ab",
+          "welcher server-ordner fuer den erp import"
         ],
         "en": [
           "how do i set up erp import",
@@ -27713,7 +28061,8 @@
           "automatically import orders",
           "upload xml file erp",
           "erp access token",
-          "how does the order import work"
+          "how does the order import work",
+          "which server folder receives the erp xml"
         ],
         "fr": [
           "comment configurer l'import erp",
@@ -27728,7 +28077,7 @@
           "token di accesso erp"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_break_placeholder",
@@ -34568,7 +34917,7 @@
     {
       "name": "get_erp_drop_point_settings",
       "area": "settings",
-      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the folder path files are picked up from, whether pickup happens at all, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the resolved absolute folder path on disk files must be copied to, its processing/processed/error sub-folders, whether pickup happens at all, the poll schedule, when it last looked and what went wrong the last time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34599,26 +34948,33 @@
           "wo werden dateien abgelegt",
           "ablageordner der lieferung",
           "abholpfad einstellungen",
-          "welcher ordner wird überwacht"
+          "welcher ordner wird überwacht",
+          "wohin kopiere ich die xml",
+          "wo lege ich die bestell-xml ab",
+          "wo kopiere ich die importdatei hin"
         ],
         "en": [
           "handover point settings",
           "where files are dropped off",
           "pickup folder for deliveries",
-          "which folder is watched"
+          "which folder is watched",
+          "where do i copy the xml file to",
+          "where should i put the order xml"
         ],
         "fr": [
           "point de remise",
           "ou les fichiers sont deposes",
-          "dossier de recuperation"
+          "dossier de recuperation",
+          "ou copier le fichier xml de commande"
         ],
         "it": [
           "punto di consegna",
           "dove vengono depositati i file",
-          "cartella di prelievo"
+          "cartella di prelievo",
+          "dove copio il file xml dell'ordine"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_erp_drop_point_settings",
