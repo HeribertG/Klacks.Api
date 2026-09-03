@@ -145,7 +145,21 @@ public static class GoalTypeCatalog
                 "nextPeriodSchedulingDue",
                 "the next planning period begins soon and no schedule draft exists for it yet",
                 "Prepare the next period's schedule earlier",
-                "An unplanned upcoming period came up {0} time(s) in the last {1} days.")
+                "An unplanned upcoming period came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.BulkSealOrdersCompleted] = Define(
+                AgentTriggerKinds.BulkSealOrdersCompleted,
+                "bulkSealOrdersCompleted",
+                "a background bulk order-sealing run finished but left some orders blocked or failed instead of sealed",
+                "Reduce blocked and failed orders in bulk sealing runs",
+                "A bulk order-sealing run came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.BulkSealOrdersFailed] = Define(
+                AgentTriggerKinds.BulkSealOrdersFailed,
+                "bulkSealOrdersFailed",
+                "a background bulk order-sealing run aborted before it could finish",
+                "Get bulk order sealing running reliably",
+                "An aborted bulk order-sealing run came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>
