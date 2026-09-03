@@ -382,3 +382,6 @@ appsettings.*.json
 
 # ASP.NET Data Protection dev keys (local-only)
 DataProtection-Keys/
+
+# Demo ERP order seed file (generated at runtime into content root)
+SeedData/

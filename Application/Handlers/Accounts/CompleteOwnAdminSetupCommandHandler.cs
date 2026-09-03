@@ -37,9 +37,14 @@ public class CompleteOwnAdminSetupCommandHandler : BaseHandler, IRequestHandler<
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
+            if (await _adminSetupGateService.IsExemptAsync())
+            {
+                throw new ConflictException(AdminSetupMessages.NotRequiredInEnvironment);
+            }
+
             if (!await _adminSetupGateService.IsGateActiveAsync())
             {
-                throw new ConflictException("Own admin account setup was already completed.");
+                throw new ConflictException(AdminSetupMessages.AlreadyCompleted);
             }
 
             var newAdmin = _authMapper.ToAppUser(request.NewAdmin);

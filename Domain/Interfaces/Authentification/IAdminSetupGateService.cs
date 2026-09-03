@@ -13,4 +13,10 @@ public interface IAdminSetupGateService
     /// deactivated.
     /// </summary>
     Task<bool> IsGateActiveAsync();
+
+    /// <summary>
+    /// True when this environment (Development or Playground) never enforces the own-admin setup gate,
+    /// regardless of whether the seeded admin account has already been deactivated.
+    /// </summary>
+    Task<bool> IsExemptAsync();
 }

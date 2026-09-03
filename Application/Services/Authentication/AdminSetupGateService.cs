@@ -26,8 +26,7 @@ public class AdminSetupGateService : IAdminSetupGateService
 
     public async Task<bool> IsGateActiveAsync()
     {
-        var isPlayground = _configuration.GetValue<bool>(DeploymentConstants.IsPlaygroundConfigKey, false);
-        var isExempt = isPlayground || _environment.IsDevelopment();
+        var isExempt = IsExempt();
         if (isExempt)
         {
             return false;
@@ -37,5 +36,16 @@ public class AdminSetupGateService : IAdminSetupGateService
         var seedAdminStillActive = seedAdmin != null && seedAdmin.DeactivatedAt is null;
 
         return RequireOwnAdminGateDecision.Decide(isExempt, seedAdminStillActive);
+    }
+
+    public Task<bool> IsExemptAsync()
+    {
+        return Task.FromResult(IsExempt());
+    }
+
+    private bool IsExempt()
+    {
+        var isPlayground = _configuration.GetValue<bool>(DeploymentConstants.IsPlaygroundConfigKey, false);
+        return isPlayground || _environment.IsDevelopment();
     }
 }
