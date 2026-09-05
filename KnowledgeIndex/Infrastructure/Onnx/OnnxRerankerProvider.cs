@@ -16,12 +16,17 @@ namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 /// </summary>
 /// <param name="loader">Model loader used to download and cache ONNX model files.</param>
 /// <param name="modelDirectory">Local directory where model and tokenizer files are stored.</param>
+/// <param name="profile">Session construction, arena shrinkage and concurrency limit; defaults to the shipped behaviour.</param>
 public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
 {
     private readonly ModelLoader _loader;
     private readonly string _modelDirectory;
+    private readonly OnnxRerankerRuntimeProfile _profile;
     private InferenceSession? _session;
     private Tokenizer? _tokenizer;
+    private string[] _outputNames = [];
+    private RunOptions? _runOptions;
+    private readonly SemaphoreSlim? _gate;
     private readonly SemaphoreSlim _initLock = new(1, 1);
 
     private const long PadTokenId = 1;
@@ -29,6 +34,8 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
     // XLM-RoBERTa position embeddings allow indices [0, 513] with a padding offset of 2,
     // so each tokenized sequence must be capped at 512 tokens to avoid an out-of-bounds Gather.
     private const int MaxSequenceLength = 512;
+
+    private const string LogitsOutputName = "logits";
 
     private readonly string _modelUrl;
     private readonly string _modelSha256;
@@ -44,7 +51,8 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
         string? modelUrl = null,
         string? modelSha256 = null,
         string? tokenizerUrl = null,
-        string? tokenizerSha256 = null)
+        string? tokenizerSha256 = null,
+        OnnxRerankerRuntimeProfile? profile = null)
     {
         _loader = loader;
         _modelDirectory = modelDirectory;
@@ -52,6 +60,10 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
         _modelSha256 = modelSha256 ?? KnowledgeIndexConstants.RerankerModelSha256;
         _tokenizerUrl = tokenizerUrl ?? KnowledgeIndexConstants.RerankerTokenizerUrl;
         _tokenizerSha256 = tokenizerSha256 ?? KnowledgeIndexConstants.RerankerTokenizerSha256;
+        _profile = profile ?? OnnxRerankerRuntimeProfile.Default;
+        _gate = _profile.MaxConcurrentRuns > OnnxRerankerRuntimeProfile.UnlimitedConcurrency
+            ? new SemaphoreSlim(_profile.MaxConcurrentRuns, _profile.MaxConcurrentRuns)
+            : null;
     }
 
     public async Task<double[]> ScoreAsync(string query, IReadOnlyList<string> candidates, CancellationToken ct)
@@ -81,7 +93,24 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             .OrderBy(i => encoded[i].Length)
             .ToArray();
 
-        var scores = new double[candidates.Count];
+        if (_gate is not null)
+        {
+            await _gate.WaitAsync(ct);
+        }
+
+        try
+        {
+            return ScoreInBatches(encoded, order, ct);
+        }
+        finally
+        {
+            _gate?.Release();
+        }
+    }
+
+    private double[] ScoreInBatches(long[][] encoded, int[] order, CancellationToken ct)
+    {
+        var scores = new double[encoded.Length];
         var batchSize = KnowledgeIndexConstants.RerankBatchSize;
         for (var start = 0; start < order.Length; start += batchSize)
         {
@@ -129,8 +158,10 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<long>(attentionMask, dims))
         };
 
-        using var outputs = _session!.Run(inputs);
-        var logitsTensor = outputs.First(o => o.Name == "logits").AsTensor<float>();
+        using var outputs = _runOptions is null
+            ? _session!.Run(inputs)
+            : _session!.Run(inputs, _outputNames, _runOptions);
+        var logitsTensor = outputs.First(o => o.Name == LogitsOutputName).AsTensor<float>();
 
         var scores = new double[batchSize];
         for (var i = 0; i < batchSize; i++)
@@ -156,9 +187,18 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             await _loader.EnsureFileAsync(modelPath, _modelUrl, _modelSha256, ct);
             await _loader.EnsureFileAsync(tokenizerPath, _tokenizerUrl, _tokenizerSha256, ct);
 
-            using var sessionOptions = OnnxSessionOptionsFactory.CreateThroughput();
+            using var sessionOptions = _profile.CreateSessionOptions();
             _session = new InferenceSession(modelPath, sessionOptions);
+            _outputNames = _session.OutputMetadata.Keys.ToArray();
             _tokenizer = new Tokenizer(vocabPath: tokenizerPath);
+
+            if (_profile.ShrinkArenaAfterRun)
+            {
+                _runOptions = new RunOptions();
+                _runOptions.AddRunConfigEntry(
+                    OnnxRuntimeConfigKeys.RunEnableMemoryArenaShrinkage,
+                    OnnxRuntimeConfigKeys.CpuDeviceZero);
+            }
         }
         finally
         {
@@ -168,7 +208,9 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
 
     public ValueTask DisposeAsync()
     {
+        _runOptions?.Dispose();
         _session?.Dispose();
+        _gate?.Dispose();
         _initLock.Dispose();
         return ValueTask.CompletedTask;
     }
