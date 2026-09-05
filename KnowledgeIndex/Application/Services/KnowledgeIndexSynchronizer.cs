@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -10,6 +11,7 @@ using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Klacks.Api.KnowledgeIndex.Presentation.Attributes;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
@@ -23,6 +25,8 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <param name="embeddingProvider">Provider used to compute text embeddings for new or changed entries.</param>
 /// <param name="repository">Repository for reading hashes and writing knowledge index entries.</param>
 /// <param name="phraseRepository">Repository providing the trigger keywords and synonyms of every skill and recipe.</param>
+/// <param name="snapshotReader">Reader for the shipped embedding snapshot used to avoid re-embedding known texts.</param>
+/// <param name="logger">Logger for the per-run synchronization summary.</param>
 public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
@@ -32,23 +36,31 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IKnowledgeIndexRepository _repository;
     private readonly ISkillPhraseRepository _phraseRepository;
+    private readonly IKnowledgeEmbeddingSnapshotReader _snapshotReader;
+    private readonly ILogger<KnowledgeIndexSynchronizer> _logger;
 
     public KnowledgeIndexSynchronizer(
         ISkillRegistry skillRegistry,
         IAgentRecipeRepository recipeRepository,
         IEmbeddingProvider embeddingProvider,
         IKnowledgeIndexRepository repository,
-        ISkillPhraseRepository phraseRepository)
+        ISkillPhraseRepository phraseRepository,
+        IKnowledgeEmbeddingSnapshotReader snapshotReader,
+        ILogger<KnowledgeIndexSynchronizer> logger)
     {
         _skillRegistry = skillRegistry;
         _recipeRepository = recipeRepository;
         _embeddingProvider = embeddingProvider;
         _repository = repository;
         _phraseRepository = phraseRepository;
+        _snapshotReader = snapshotReader;
+        _logger = logger;
     }
 
     public async Task SyncAsync(CancellationToken cancellationToken)
     {
+        var stopwatch = Stopwatch.StartNew();
+
         var existingHashes = await _repository.GetAllHashesAsync(cancellationToken);
         var recipes = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
 
@@ -63,12 +75,38 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
                         || !h.SequenceEqual(x.Entry.TextHash))
             .ToList();
 
+        var restoredFromSnapshot = 0;
+
         if (toEmbed.Count > 0)
         {
-            var texts = toEmbed.Select(x => x.EmbeddingText).ToList();
-            var vectors = await _embeddingProvider.EmbedBatchAsync(texts, cancellationToken);
-            for (var i = 0; i < toEmbed.Count; i++)
-                toEmbed[i].Entry.Embedding = vectors[i];
+            // Shipped vectors are resolved first: on a fresh database every entry is dirty, and
+            // embedding several hundred texts locally is the single most expensive part of startup.
+            var snapshot = await _snapshotReader.LoadAsync(
+                _embeddingProvider.EmbeddingSpaceId,
+                _embeddingProvider.Dimension,
+                cancellationToken);
+
+            var misses = new List<(KnowledgeEntry Entry, string EmbeddingText)>();
+            foreach (var candidate in toEmbed)
+            {
+                if (snapshot.TryGetValue(KnowledgeEmbeddingCodec.ToHex(candidate.Entry.TextHash), out var stored))
+                {
+                    candidate.Entry.Embedding = stored;
+                    restoredFromSnapshot++;
+                }
+                else
+                {
+                    misses.Add(candidate);
+                }
+            }
+
+            if (misses.Count > 0)
+            {
+                var texts = misses.Select(x => x.EmbeddingText).ToList();
+                var vectors = await _embeddingProvider.EmbedBatchAsync(texts, cancellationToken);
+                for (var i = 0; i < misses.Count; i++)
+                    misses[i].Entry.Embedding = vectors[i];
+            }
 
             var entries = toEmbed.Select(x => x.Entry).ToList();
             await _repository.UpsertAsync(entries, cancellationToken);
@@ -78,6 +116,16 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         var orphans = existingHashes.Keys.Where(k => !currentKeys.Contains(k)).ToList();
         if (orphans.Count > 0)
             await _repository.DeleteAsync(orphans, cancellationToken);
+
+        stopwatch.Stop();
+        _logger.LogInformation(
+            "Knowledge index sync: {Total} entries, {Unchanged} unchanged, {FromSnapshot} restored from snapshot, {Embedded} embedded, {Orphans} orphans removed, {ElapsedMs} ms",
+            current.Count,
+            current.Count - toEmbed.Count,
+            restoredFromSnapshot,
+            toEmbed.Count - restoredFromSnapshot,
+            orphans.Count,
+            stopwatch.ElapsedMilliseconds);
     }
 
     private List<(KnowledgeEntry Entry, string EmbeddingText)> BuildCurrentEntries(

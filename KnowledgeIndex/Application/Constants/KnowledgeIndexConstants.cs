@@ -182,5 +182,20 @@ public static class KnowledgeIndexConstants
     // warning in KnowledgeIndexStartupService.
     public const string LocalEmbeddingSpacePrefix = "onnx:";
 
+    // Pre-computed embedding vectors shipped with the application. On a fresh database the
+    // synchronizer would otherwise embed every skill and recipe on first start; the snapshot resolves
+    // those vectors by text hash instead. Bumping the format version invalidates a shipped file.
+    public const int SnapshotFormatVersion = 1;
+
+    public const string SnapshotFileName = "knowledge-index-snapshot.json";
+
+    public const string SnapshotFileRelativePath = "KnowledgeIndex/Snapshot/knowledge-index-snapshot.json";
+
+    // Optional absolute or content-root-relative override of the snapshot file location.
+    public const string SnapshotFileConfigKey = "KnowledgeIndex:SnapshotFile";
+
+    // Set to "false" to ignore the shipped snapshot and always re-embed. Defaults to true.
+    public const string SnapshotEnabledConfigKey = "KnowledgeIndex:SnapshotEnabled";
+
     public const string HttpClientName = "knowledge-index-models";
 }

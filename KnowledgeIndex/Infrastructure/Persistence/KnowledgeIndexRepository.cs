@@ -208,6 +208,28 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         return results;
     }
 
+    public async Task<IReadOnlyList<KnowledgeEntry>> GetAllWithEmbeddingsAsync(CancellationToken ct)
+    {
+        const string sql = """
+            SELECT id, kind, source_id, text, text_hash, embedding::text,
+                   required_permission, exposed_endpoint_key, updated_at
+              FROM knowledge_index
+             ORDER BY kind, source_id;
+            """;
+
+        await using var cmd = _connection.CreateCommand();
+        cmd.CommandText = sql;
+
+        var results = new List<KnowledgeEntry>();
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            results.Add(MapRow(reader));
+        }
+
+        return results;
+    }
+
     private static KnowledgeEntry MapRow(NpgsqlDataReader reader)
     {
         var embeddingText = (string)reader["embedding"];

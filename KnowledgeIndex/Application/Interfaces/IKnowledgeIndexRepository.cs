@@ -48,4 +48,10 @@ public interface IKnowledgeIndexRepository
     Task<IReadOnlyList<KnowledgeEntry>> GetByKeysAsync(
         IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys,
         CancellationToken ct);
+
+    /// <summary>
+    /// Fetches every entry with its stored embedding vector, ordered by kind then source id. Used by
+    /// the snapshot exporter, which needs the full table rather than a KNN-ranked or key-filtered subset.
+    /// </summary>
+    Task<IReadOnlyList<KnowledgeEntry>> GetAllWithEmbeddingsAsync(CancellationToken ct);
 }

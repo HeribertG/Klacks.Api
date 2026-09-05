@@ -96,6 +96,9 @@
 	  <Content Update="Application\Skills\Definitions\skill-relation-seeds.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Update="KnowledgeIndex\Snapshot\knowledge-index-snapshot.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Update="Application\Skills\Goldsets\*.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>

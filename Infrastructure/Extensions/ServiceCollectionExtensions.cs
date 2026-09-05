@@ -87,6 +87,8 @@ using Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Extensions;
@@ -1103,6 +1105,14 @@ public static class ServiceCollectionExtensions
             return new KnowledgeIndexRepository(conn);
         });
 
+        var snapshotEnabled = configuration.GetValue<bool>(KnowledgeIndexConstants.SnapshotEnabledConfigKey, true);
+        services.AddSingleton<IKnowledgeEmbeddingSnapshotReader>(sp => new FileKnowledgeEmbeddingSnapshotReader(
+            ResolveSnapshotFile(configuration, sp.GetRequiredService<IHostEnvironment>()),
+            snapshotEnabled,
+            sp.GetRequiredService<ILogger<FileKnowledgeEmbeddingSnapshotReader>>()));
+
+        services.AddScoped<IKnowledgeEmbeddingSnapshotExporter, KnowledgeEmbeddingSnapshotExporter>();
+
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
@@ -1147,6 +1157,19 @@ public static class ServiceCollectionExtensions
         // any new platform). Keeping the block would silently downgrade every ARM host to a remote
         // embedding API, and ARM servers are becoming ordinary deployment targets.
         return true;
+    }
+
+    private static string ResolveSnapshotFile(IConfiguration configuration, IHostEnvironment environment)
+    {
+        var configured = configuration[KnowledgeIndexConstants.SnapshotFileConfigKey];
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            return Path.IsPathRooted(configured)
+                ? configured
+                : Path.Combine(environment.ContentRootPath, configured);
+        }
+
+        return Path.Combine(environment.ContentRootPath, KnowledgeIndexConstants.SnapshotFileRelativePath);
     }
 
     private static string ResolveModelsRoot(IConfiguration configuration)
