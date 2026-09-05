@@ -4013,5 +4013,7 @@
   "setup.password": "รหัสผ่าน",
   "setup.submit": "สร้างบัญชี",
   "setup.success": "สร้างบัญชีผู้ดูแลระบบของคุณแล้ว กรุณาเข้าสู่ระบบด้วยข้อมูลบัญชีใหม่",
-  "setup.userName": "ชื่อผู้ใช้"
+  "setup.userName": "ชื่อผู้ใช้",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

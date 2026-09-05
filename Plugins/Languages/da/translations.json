@@ -4013,5 +4013,7 @@
   "setup.password": "Adgangskode",
   "setup.submit": "Opret konto",
   "setup.success": "Din administratorkonto er oprettet. Log venligst ind med de nye adgangsoplysninger.",
-  "setup.userName": "Brugernavn"
+  "setup.userName": "Brugernavn",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

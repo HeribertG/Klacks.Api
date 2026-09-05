@@ -4013,5 +4013,7 @@
   "setup.password": "비밀번호",
   "setup.submit": "계정 만들기",
   "setup.success": "관리자 계정이 생성되었습니다. 새 자격 증명으로 로그인해 주세요.",
-  "setup.userName": "사용자명"
+  "setup.userName": "사용자명",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

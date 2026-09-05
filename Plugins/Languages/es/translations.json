@@ -4013,5 +4013,7 @@
   "setup.password": "Contraseña",
   "setup.submit": "Crear cuenta",
   "setup.success": "Su cuenta de administrador ha sido creada. Inicie sesión con sus nuevas credenciales.",
-  "setup.userName": "Nombre de usuario"
+  "setup.userName": "Nombre de usuario",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

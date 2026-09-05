@@ -4013,5 +4013,7 @@
   "setup.password": "Salasana",
   "setup.submit": "Luo tili",
   "setup.success": "Pääkäyttäjätilisi on luotu. Kirjaudu sisään uusilla tunnuksillasi.",
-  "setup.userName": "Käyttäjänimi"
+  "setup.userName": "Käyttäjänimi",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

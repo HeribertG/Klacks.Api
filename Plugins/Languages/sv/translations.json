@@ -4013,5 +4013,7 @@
   "setup.password": "Lösenord",
   "setup.submit": "Skapa konto",
   "setup.success": "Ditt administratörskonto har skapats. Logga in med dina nya inloggningsuppgifter.",
-  "setup.userName": "Användarnamn"
+  "setup.userName": "Användarnamn",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

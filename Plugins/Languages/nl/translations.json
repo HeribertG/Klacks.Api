@@ -4013,5 +4013,7 @@
   "setup.password": "Wachtwoord",
   "setup.submit": "Account aanmaken",
   "setup.success": "Uw beheerdersaccount is aangemaakt. Meld u aan met uw nieuwe gegevens.",
-  "setup.userName": "Gebruikersnaam"
+  "setup.userName": "Gebruikersnaam",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

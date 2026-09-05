@@ -4013,5 +4013,7 @@
   "setup.password": "Kata Sandi",
   "setup.submit": "Buat Akun",
   "setup.success": "Akun admin Anda telah dibuat. Silakan masuk dengan kredensial baru Anda.",
-  "setup.userName": "Nama Pengguna"
+  "setup.userName": "Nama Pengguna",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

@@ -4013,5 +4013,7 @@
   "setup.password": "パスワード",
   "setup.submit": "アカウントを作成",
   "setup.success": "管理者アカウントが作成されました。新しい認証情報でサインインしてください。",
-  "setup.userName": "ユーザー名"
+  "setup.userName": "ユーザー名",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

@@ -4013,5 +4013,7 @@
   "setup.password": "Kata laluan",
   "setup.submit": "Cipta Akaun",
   "setup.success": "Akaun pentadbir anda telah dicipta. Sila log masuk dengan kelayakan baharu anda.",
-  "setup.userName": "Nama pengguna"
+  "setup.userName": "Nama pengguna",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

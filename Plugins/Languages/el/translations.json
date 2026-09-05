@@ -4013,5 +4013,7 @@
   "setup.password": "Κωδικός πρόσβασης",
   "setup.submit": "Δημιουργία λογαριασμού",
   "setup.success": "Ο λογαριασμός διαχειριστή σας δημιουργήθηκε. Παρακαλώ συνδεθείτε με τα νέα σας στοιχεία σύνδεσης.",
-  "setup.userName": "Όνομα χρήστη"
+  "setup.userName": "Όνομα χρήστη",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

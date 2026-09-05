@@ -4013,5 +4013,7 @@
   "setup.password": "Mật khẩu",
   "setup.submit": "Tạo tài khoản",
   "setup.success": "Tài khoản quản trị của bạn đã được tạo. Vui lòng đăng nhập bằng thông tin đăng nhập mới.",
-  "setup.userName": "Tên đăng nhập"
+  "setup.userName": "Tên đăng nhập",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

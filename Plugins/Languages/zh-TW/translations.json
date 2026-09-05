@@ -4013,5 +4013,7 @@
   "setup.password": "密碼",
   "setup.submit": "建立帳戶",
   "setup.success": "您的管理員帳戶已建立。請使用新的登入憑證登入。",
-  "setup.userName": "使用者名稱"
+  "setup.userName": "使用者名稱",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

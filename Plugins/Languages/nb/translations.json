@@ -4013,5 +4013,7 @@
   "setup.password": "Passord",
   "setup.submit": "Opprett konto",
   "setup.success": "Administratorkontoen din er opprettet. Logg inn med de nye påloggingsopplysningene.",
-  "setup.userName": "Brukernavn"
+  "setup.userName": "Brukernavn",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

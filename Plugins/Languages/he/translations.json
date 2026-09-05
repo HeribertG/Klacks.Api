@@ -4013,5 +4013,7 @@
   "setup.password": "סיסמה",
   "setup.submit": "צור חשבון",
   "setup.success": "חשבון המנהל שלך נוצר. אנא התחבר עם פרטי הגישה החדשים.",
-  "setup.userName": "שם משתמש"
+  "setup.userName": "שם משתמש",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

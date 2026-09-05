@@ -4013,5 +4013,7 @@
   "setup.password": "Hasło",
   "setup.submit": "Utwórz konto",
   "setup.success": "Twoje konto administratora zostało utworzone. Zaloguj się proszę przy użyciu nowych danych logowania.",
-  "setup.userName": "Nazwa użytkownika"
+  "setup.userName": "Nazwa użytkownika",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }

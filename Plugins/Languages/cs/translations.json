@@ -4013,5 +4013,7 @@
   "setup.password": "Heslo",
   "setup.submit": "Vytvořit účet",
   "setup.success": "Váš admin účet byl vytvořen. Přihlaste se prosím pomocí nových přihlašovacích údajů.",
-  "setup.userName": "Uživatelské jméno"
+  "setup.userName": "Uživatelské jméno",
+  "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
 }
