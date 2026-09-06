@@ -87,6 +87,7 @@ using Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -1055,9 +1056,22 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGenericSkillDispatcher, GenericSkillDispatcher>();
     }
 
-    private static void AddKnowledgeIndexServices(this IServiceCollection services, IConfiguration configuration)
+    // internal so a unit test can assert the registration shape - one provider instance behind three
+    // service types - against a bare ServiceCollection, without booting a host that would immediately
+    // warm the sessions and load 674 MB of models.
+    internal static void AddKnowledgeIndexServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient(KnowledgeIndexConstants.HttpClientName);
+
+        // Registered here rather than relied upon from AddLLMCoreServices: the idle unload sweep needs
+        // it, and a registration method that only works when another one ran first is a trap for both
+        // the next caller and every test that composes this method on its own. TryAdd, so the existing
+        // registration in the LLM block stays the single instance wherever both run.
+        services.TryAddSingleton(TimeProvider.System);
+
+        // Harmless in the non-ONNX branch too: it holds no state and reports false on every platform
+        // whose allocator has no malloc_trim, which is every platform that is not Linux/glibc.
+        services.AddSingleton<IProcessHeapTrimmer, GlibcHeapTrimmer>();
 
         var modelsRoot = ResolveModelsRoot(configuration);
         var onnxSupported = IsOnnxRuntimeSupported(configuration);
@@ -1067,13 +1081,20 @@ public static class ServiceCollectionExtensions
 
         if (onnxSupported)
         {
-            services.AddSingleton<IEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
+            // One instance, three service types. Registering the interfaces with their own factory
+            // lambda would build a SECOND session per interface - 608 MB of model weights that nothing
+            // ever calls and no idle sweep would ever recognise as unused.
+            services.AddSingleton<OnnxEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
                 sp.GetRequiredService<ModelLoader>(),
                 Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName)));
+            services.AddSingleton<IEmbeddingProvider>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
+            services.AddSingleton<IUnloadableInferenceSession>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
 
-            services.AddSingleton<IRerankerProvider>(sp => new OnnxRerankerProvider(
+            services.AddSingleton<OnnxRerankerProvider>(sp => new OnnxRerankerProvider(
                 sp.GetRequiredService<ModelLoader>(),
                 Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName)));
+            services.AddSingleton<IRerankerProvider>(sp => sp.GetRequiredService<OnnxRerankerProvider>());
+            services.AddSingleton<IUnloadableInferenceSession>(sp => sp.GetRequiredService<OnnxRerankerProvider>());
         }
         else
         {
@@ -1139,6 +1160,12 @@ public static class ServiceCollectionExtensions
         // hosts already exists in KnowledgeIndexConstants.WarmupEnabledConfigKey; a second switch
         // would only create two controls with unclear precedence.
         services.AddHostedService<OnnxWarmupService>();
+
+        // Same reasoning as the warm-up above: the sessions are per-process state, so every instance
+        // has to release its own. Injecting IEnumerable<IUnloadableInferenceSession> is safe from a
+        // singleton because every registration of that interface above is itself a singleton; on a host
+        // without ONNX the sequence is empty and the service returns without starting a timer.
+        services.AddHostedService<OnnxSessionIdleUnloadService>();
     }
 
     private static bool IsOnnxRuntimeSupported(IConfiguration configuration)

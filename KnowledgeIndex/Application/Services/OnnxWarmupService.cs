@@ -11,12 +11,14 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
 /// Builds the ONNX inference sessions once after startup instead of leaving them to the first chat
-/// request. Both providers initialize lazily behind a double-checked lock, and nothing in the startup
+/// request. Both providers initialize lazily under their session lock, and nothing in the startup
 /// path touches the reranker at all - KnowledgeIndexSynchronizer only embeds when the index actually
 /// changed, and never reranks. Whoever asks the assistant the first question after a restart therefore
 /// paid for reading ~674 MB of model files and constructing two sessions.
 /// Runs as a BackgroundService so it does not delay the host becoming healthy, and swallows its own
 /// failures: a warm-up is an optimization, never a reason for the application not to start.
+/// The warm-up counts as a use, so OnnxSessionIdleUnloadService releases the sessions again after the
+/// configured idle window if nobody asks a question; that is intended, not a reason to skip warming.
 /// </summary>
 /// <param name="serviceProvider">Root provider used to resolve the singleton ONNX providers.</param>
 /// <param name="configuration">Holds the opt-out flag for memory-constrained hosts.</param>

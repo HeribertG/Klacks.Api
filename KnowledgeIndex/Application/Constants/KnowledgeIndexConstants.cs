@@ -109,13 +109,13 @@ public static class KnowledgeIndexConstants
     // 25-candidate pool entirely, where no reranking can recover them. fp16 costs one flipped case
     // in 877 (cosine vs fp32: 0.999999) - it does not measurably degrade retrieval.
     //
-    // 🔴 The fp16 export loads ONLY under ORT_ENABLE_BASIC (CreateMemoryFrugal, which is what the
-    // embedding provider uses). Under ORT_ENABLE_ALL the session fails to build outright, throwing
-    // on an inserted precision-free cast in SimplifiedLayerNormFusion - reproduced both with
-    // onnxruntime 1.23.2 (Python) and Microsoft.ML.OnnxRuntime 1.27.1 (.NET). intfloat's O4 export
-    // does survive that level, but still costs 777 MB against 608 MB here, so it is no way around
-    // the restriction either. Never move this model onto the throughput profile. ORT computes fp16
-    // through inserted casts rather than native kernels, so expect roughly double the latency on
+    // 🔴 The fp16 export loads ONLY under ORT_ENABLE_BASIC (CreateMemoryFrugal until 2026-09-06,
+    // CreateEmbedding since - arena on, same level). Under ORT_ENABLE_ALL the session failed to build
+    // outright on 1.27.1, throwing on an inserted precision-free cast in SimplifiedLayerNormFusion;
+    // on 1.29.0 it loads but yields different vectors under an unchanged EmbeddingSpaceId. intfloat's
+    // O4 export does survive that level, but still costs 777 MB against 608 MB here, so it is no way
+    // around the restriction either. Never move this model onto the throughput profile. ORT computes
+    // fp16 through inserted casts rather than native kernels, so expect roughly double the latency on
     // short queries (+0.15 s absolute, measured) and parity on long ones.
     //
     // 🔴 Where these numbers come from: every measurement in this session ran on win-arm64
@@ -176,6 +176,31 @@ public static class KnowledgeIndexConstants
     // lifetime of the process, and warming them moves that allocation earlier rather than avoiding it.
     // Production runs in a 2.5 GB container, so if a host ever OOMs during startup, this is the switch.
     public const string WarmupEnabledConfigKey = "KnowledgeIndex:WarmupEnabled";
+
+    // Minutes an ONNX inference session may sit unused before it is disposed and its memory returned
+    // to the process. Zero disables idle unloading entirely.
+    public const string IdleUnloadMinutesConfigKey = "KnowledgeIndex:IdleUnloadMinutes";
+
+    // 30 rather than the 15 the design sketched, because the reload cost was measured afterwards
+    // instead of guessed: building the embedding session takes 2.2-2.9 s and the reranker 1.1 s, so a
+    // single unnecessary unload costs a user up to ~4 s of added latency on the next question. The
+    // standing rule for this codebase is that anything above 3 s of reload cost gets a 30-minute idle
+    // window; below that, 15 would be defensible. Shipped enabled: a feature that only stops
+    // production OOM kills once someone sets a config key does not stop them.
+    public const int DefaultIdleUnloadMinutes = 30;
+
+    public const int IdleUnloadDisabled = 0;
+
+    // Lower bound for a configured idle window, applied to every value above IdleUnloadDisabled.
+    // Security review 2026-09-05: without a floor, a misconfiguration to one minute lets an ordinary
+    // user force a 555 MB reload on every single question simply by spacing the questions out, and that
+    // reload runs under the provider's _initLock, so it stalls every other user for the duration.
+    // Zero stays the explicit off switch; anything between one and this value is raised and logged.
+    public const int MinimumIdleUnloadMinutes = 5;
+
+    // Well below DefaultIdleUnloadMinutes: the effective idle window is the threshold plus up to one
+    // poll interval, so a coarse poll would silently stretch the configured minutes.
+    public const int IdleUnloadPollSeconds = 60;
 
     // Prefix of the EmbeddingSpaceId produced by the local ONNX provider. Anything else means the
     // process fell back to a remote embedding API, which changes retrieval quality — see the startup

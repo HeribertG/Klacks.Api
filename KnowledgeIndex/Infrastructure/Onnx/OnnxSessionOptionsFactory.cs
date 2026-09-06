@@ -6,22 +6,28 @@ using SessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions;
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
-/// Builds memory-frugal ONNX Runtime session options for running the embedding and reranker
-/// models inside a memory-capped container. The default CPU arena and memory-pattern optimizer
-/// reserve and retain buffers sized to the largest inference run, which spikes resident memory
-/// past the container limit during startup index building; disabling them plus pinning
-/// single-threaded sequential execution keeps the peak bounded and releases memory between runs.
+/// Builds the ONNX Runtime session options for the two knowledge-index models. Three profiles, one
+/// per measured workload: CreateMemoryFrugal (arena off, single thread - the historical default and
+/// the fallback for hosts without headroom), CreateEmbedding (arena on at ORT_ENABLE_BASIC - the
+/// embedder since 2026-09-06) and CreateThroughput (arena on at ORT_ENABLE_ALL - the reranker).
 ///
-/// 🔴 The frugal profile is also the ONLY one the fp16 embedding export can run under. Raising its
-/// GraphOptimizationLevel to ORT_ENABLE_ALL makes session construction throw outright, on an
-/// inserted precision-free cast in SimplifiedLayerNormFusion - reproduced with onnxruntime 1.23.2
-/// (Python) and Microsoft.ML.OnnxRuntime 1.27.1 (.NET). The alternative fp16 export from intfloat
-/// does build at that level but costs more memory than this one does here, so it is no way around
-/// the restriction. Measured 2026-08-20. Treat the optimization level here as load-bearing, not as
-/// a tuning knob.
+/// 🔴 The fp16 embedding export loads ONLY at ORT_ENABLE_BASIC. Raising its GraphOptimizationLevel
+/// to ORT_ENABLE_ALL made session construction throw outright, on an inserted precision-free cast in
+/// SimplifiedLayerNormFusion - reproduced with onnxruntime 1.23.2 (Python) and Microsoft.ML.OnnxRuntime
+/// 1.27.1 (.NET), measured 2026-08-20. On 1.29.0 the same file happens to load at ORT_ENABLE_ALL, but
+/// the fused graph produces different vectors while EmbeddingSpaceId stays the same, so switching the
+/// level silently mixes vector spaces in the index. Treat the level as load-bearing, not as a knob.
 /// </summary>
 public static class OnnxSessionOptionsFactory
 {
+    /// <summary>
+    /// Arena off, memory pattern off, one thread. Releases activation buffers to the allocator after
+    /// every run, which is what kept the startup index build inside the container in 2026. Measured
+    /// 2026-09-05/06 against the arena profile below: the freed buffers are not returned to the kernel
+    /// but fragment the glibc heap, so resident memory grows under concurrent queries (2683 MB at eight
+    /// callers, still rising) and oscillates across bulk passes (1313-1734 MB, high-water 2574 MB).
+    /// Kept as the opt-out profile; no production model runs on it since 2026-09-06.
+    /// </summary>
     public static SessionOptions CreateMemoryFrugal()
     {
         return new SessionOptions
@@ -32,6 +38,28 @@ public static class OnnxSessionOptionsFactory
             GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_BASIC,
             InterOpNumThreads = 1,
             IntraOpNumThreads = 1,
+        };
+    }
+
+    /// <summary>
+    /// Embedding profile: CPU arena and memory pattern on, ORT_ENABLE_BASIC (see the class note), all
+    /// cores. Measured 2026-09-05/06 on linux/glibc against CreateMemoryFrugal, vectors bit-identical:
+    /// under eight concurrent queries gated to two, resident memory plateaus at ~1810 MB instead of
+    /// growing past 2683 MB; on the bulk index build the arena would keep the pass's high-water mark
+    /// (2060 MB) resident for the process lifetime, which is why OnnxEmbeddingProvider shrinks the arena
+    /// after every bulk chunk (1306 MB after a pass, stationary over four passes). Thread count does not
+    /// change resident memory (1809 vs 1823 MB) and halves query latency on two cores.
+    /// </summary>
+    public static SessionOptions CreateEmbedding()
+    {
+        return new SessionOptions
+        {
+            EnableCpuMemArena = true,
+            EnableMemoryPattern = true,
+            ExecutionMode = ExecutionMode.ORT_SEQUENTIAL,
+            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_BASIC,
+            InterOpNumThreads = 1,
+            IntraOpNumThreads = Environment.ProcessorCount,
         };
     }
 
