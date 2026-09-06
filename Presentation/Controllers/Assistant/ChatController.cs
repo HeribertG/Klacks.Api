@@ -284,7 +284,7 @@ public class ChatController : ControllerBase
             _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
             try
             {
-                var errorChunk = SseChunk.Error(ex.Message);
+                var errorChunk = SseChunk.Error(AssistantStreamErrorMessages.UnexpectedFailure);
                 var errorData = System.Text.Json.JsonSerializer.Serialize(errorChunk, jsonOptions);
                 await Response.WriteAsync($"event: error\ndata: {errorData}\n\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);

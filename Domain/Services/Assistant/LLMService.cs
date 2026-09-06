@@ -239,7 +239,7 @@ public class LLMService : ILLMService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error preparing stream context for user {UserId}", context.UserId);
-            preparationError = $"Context preparation failed: {ex.Message}";
+            preparationError = AssistantStreamErrorMessages.ContextPreparationFailure;
         }
 
         if (preparationError != null)
@@ -460,7 +460,9 @@ public class LLMService : ILLMService
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Streaming provider error for model {ModelId}", model!.ApiModelId);
-                            streamErrorMessage = $"Provider error: {ex.Message}";
+                            // Kept raw for the transient-error classification and the retry log below;
+                            // the client only ever sees the generic text.
+                            streamErrorMessage = ex.Message;
                             break;
                         }
 
@@ -517,7 +519,7 @@ public class LLMService : ILLMService
                         continue;
                     }
 
-                    yield return SseChunk.Error(streamErrorMessage);
+                    yield return SseChunk.Error(AssistantStreamErrorMessages.ProviderFailure);
                     yield break;
                 }
             }

@@ -20,6 +20,8 @@ public sealed class EmbeddingSimilarityRerankerProvider : IRerankerProvider
         _embeddingProvider = embeddingProvider;
     }
 
+    public Task EnsureLoadedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
     public async Task<double[]> ScoreAsync(
         string query, IReadOnlyList<string> candidates, CancellationToken cancellationToken)
     {

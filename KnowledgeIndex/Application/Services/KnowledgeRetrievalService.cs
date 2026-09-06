@@ -85,6 +85,12 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             return new RetrievalResult([]);
 
         var call = _callCounter?.NextCall() ?? 0;
+
+        // Started before the query is embedded and awaited only where the scores are needed. After an
+        // idle unload both sessions are cold, and building the reranker (1.1 s) behind the embedder
+        // (2.2-2.9 s) instead of beside it cost the first question after a quiet half hour a full second.
+        var rerankerReady = PreloadRerankerAsync(cancellationToken);
+
         var embedWatch = Stopwatch.StartNew();
         var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
         var embedMs = embedWatch.ElapsedMilliseconds;
@@ -121,6 +127,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             return new RetrievalResult([]);
 
         var texts = filtered.Select(f => f.Text).ToList();
+
+        await rerankerReady;
 
         var rerankWatch = Stopwatch.StartNew();
         var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
@@ -209,6 +217,21 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // and this line is meant to be safe at Information. The pair also answers whether a cross-request
     // cache would ever hit — count repeated (query, perms) pairs in the logs before building one.
     // NOTE: production log level is Warning, so this stays invisible there until it is raised.
+    // Never throws: the preload is only ever a head start. Whatever went wrong here happens again in
+    // ScoreAsync a moment later, where it surfaces with the call that actually needs the session - and
+    // a request that ends early for lack of candidates must not fail on a task nobody awaited.
+    private async Task PreloadRerankerAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _rerankerProvider.EnsureLoadedAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Reranker preload failed; the scoring call will report the cause.");
+        }
+    }
+
     private void LogPass(
         int call,
         string userQuery,

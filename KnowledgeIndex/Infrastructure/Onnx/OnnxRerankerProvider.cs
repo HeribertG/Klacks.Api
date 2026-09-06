@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.Diagnostics;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Microsoft.ML.OnnxRuntime;
@@ -22,25 +21,10 @@ namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 /// <param name="profile">Session construction, arena shrinkage and concurrency limit; defaults to the shipped behaviour.</param>
 public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferenceSession, IAsyncDisposable
 {
-    // Everything a run needs, copied out of the fields while the init lock is held. The run works off
-    // this value and never reads a field again, which is what makes an unload mid-inference impossible.
-    private readonly record struct SessionLease(
-        InferenceSession Session, Tokenizer Tokenizer, string[] OutputNames, RunOptions? RunOptions);
-
     private readonly ModelLoader _loader;
     private readonly string _modelDirectory;
     private readonly OnnxRerankerRuntimeProfile _profile;
-    private InferenceSession? _session;
-    private Tokenizer? _tokenizer;
-    private string[] _outputNames = [];
-    private RunOptions? _runOptions;
-    private readonly SemaphoreSlim? _gate;
-    private readonly SemaphoreSlim _initLock = new(1, 1);
-
-    private int _activeRuns;
-    private long _lastUsedTimestamp;
-    private int _loadCount;
-    private int _disposed;
+    private readonly OnnxSessionHolder<OnnxSessionLease> _holder;
 
     private const long PadTokenId = 1;
 
@@ -74,25 +58,26 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
         _tokenizerUrl = tokenizerUrl ?? KnowledgeIndexConstants.RerankerTokenizerUrl;
         _tokenizerSha256 = tokenizerSha256 ?? KnowledgeIndexConstants.RerankerTokenizerSha256;
         _profile = profile ?? OnnxRerankerRuntimeProfile.Default;
-        _gate = _profile.MaxConcurrentRuns > OnnxRerankerRuntimeProfile.UnlimitedConcurrency
-            ? new SemaphoreSlim(_profile.MaxConcurrentRuns, _profile.MaxConcurrentRuns)
-            : null;
+        _holder = new OnnxSessionHolder<OnnxSessionLease>(BuildLeaseAsync, _profile.MaxConcurrentRuns);
     }
 
     public string SessionName => KnowledgeIndexConstants.RerankerModelName;
 
-    // Read outside the init lock on purpose: this is only ever an optimization that lets the sweep
-    // skip a provider that holds nothing, and a stale answer costs at most one wasted try-acquire.
-    // Nothing dereferences the session based on this property.
-    public bool IsLoaded => _session is not null;
+    public bool IsLoaded => _holder.IsLoaded;
 
-    public int LoadCount => Volatile.Read(ref _loadCount);
+    public int LoadCount => _holder.LoadCount;
+
+    public async Task EnsureLoadedAsync(CancellationToken ct)
+    {
+        await _holder.AcquireAsync(ct);
+        _holder.Release();
+    }
 
     public async Task<double[]> ScoreAsync(string query, IReadOnlyList<string> candidates, CancellationToken ct)
     {
         if (candidates.Count == 0) return [];
 
-        var lease = await AcquireSessionAsync(ct);
+        var lease = await _holder.AcquireAsync(ct);
         try
         {
             // Every row of a batch is padded to the batch's longest row, so a batch that mixes lengths
@@ -116,59 +101,26 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
                 .OrderBy(i => encoded[i].Length)
                 .ToArray();
 
-            // Lock order invariant: lease first, gate second. The reverse would hold the only gate slot
-            // while a cold session load reads 119 MB off disk.
-            if (_gate is not null)
-            {
-                await _gate.WaitAsync(ct);
-            }
-
+            await _holder.WaitForSlotAsync(ct);
             try
             {
                 return ScoreInBatches(lease, encoded, order, ct);
             }
             finally
             {
-                _gate?.Release();
+                _holder.ReleaseSlot();
             }
         }
         finally
         {
-            ReleaseSession();
+            _holder.Release();
         }
     }
 
-    public async Task<bool> TryUnloadIfIdleAsync(TimeSpan idleFor, CancellationToken cancellationToken)
-    {
-        // Try-acquire, never block: whoever is building or tearing down the session wins, and the sweep
-        // simply looks again on its next tick.
-        if (!await _initLock.WaitAsync(0, cancellationToken))
-        {
-            return false;
-        }
+    public Task<bool> TryUnloadIfIdleAsync(TimeSpan idleFor, CancellationToken cancellationToken)
+        => _holder.TryUnloadIfIdleAsync(idleFor, cancellationToken);
 
-        try
-        {
-            if (_session is null) return false;
-            if (Volatile.Read(ref _activeRuns) > 0) return false;
-            if (Stopwatch.GetElapsedTime(Volatile.Read(ref _lastUsedTimestamp)) < idleFor) return false;
-
-            _runOptions?.Dispose();
-            _runOptions = null;
-            _session.Dispose();
-            _session = null;
-            _tokenizer?.Dispose();
-            _tokenizer = null;
-            _outputNames = [];
-            return true;
-        }
-        finally
-        {
-            _initLock.Release();
-        }
-    }
-
-    private double[] ScoreInBatches(in SessionLease lease, long[][] encoded, int[] order, CancellationToken ct)
+    private double[] ScoreInBatches(in OnnxSessionLease lease, long[][] encoded, int[] order, CancellationToken ct)
     {
         var scores = new double[encoded.Length];
         var batchSize = KnowledgeIndexConstants.RerankBatchSize;
@@ -188,7 +140,7 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
         return scores;
     }
 
-    private static double[] RunScoreBatch(in SessionLease lease, IReadOnlyList<long[]> encoded)
+    private static double[] RunScoreBatch(in OnnxSessionLease lease, IReadOnlyList<long[]> encoded)
     {
         var maxLen = encoded.Max(e => e.Length);
         var batchSize = encoded.Count;
@@ -233,41 +185,9 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
         return scores;
     }
 
-    private async Task<SessionLease> AcquireSessionAsync(CancellationToken ct)
-    {
-        // No lock-free fast path here on purpose. TryUnloadIfIdleAsync can dispose the session, and a
-        // native InferenceSession freed under a running Run() faults the process rather than throwing.
-        // Reading the fields under the lock and handing the caller a value copy is what makes an unload
-        // during inference structurally impossible. The uncontended acquire costs ~100 ns against an
-        // inference measured in tens of milliseconds - do not reintroduce the shortcut.
-        await _initLock.WaitAsync(ct);
-        try
-        {
-            if (_session is null)
-            {
-                await LoadAsync(ct);
-            }
-
-            Interlocked.Increment(ref _activeRuns);
-            return new SessionLease(_session!, _tokenizer!, _outputNames, _runOptions);
-        }
-        finally
-        {
-            _initLock.Release();
-        }
-    }
-
-    // Timestamp is written BEFORE the counter drops: the unloader only looks at the timestamp once it
-    // has seen the counter at zero, so this ordering can only ever make a session look busier, never
-    // idler, than it is.
-    private void ReleaseSession()
-    {
-        Volatile.Write(ref _lastUsedTimestamp, Stopwatch.GetTimestamp());
-        Interlocked.Decrement(ref _activeRuns);
-    }
-
-    // Callers hold _initLock.
-    private async Task LoadAsync(CancellationToken ct)
+    // Runs under the holder's init lock. Returns a complete lease or throws with nothing left behind:
+    // a tokenizer that fails to build after the session was created must not leak that session.
+    private async Task<OnnxSessionLease> BuildLeaseAsync(CancellationToken ct)
     {
         var modelPath = Path.Combine(_modelDirectory, KnowledgeIndexConstants.RerankerModelFileName);
         var tokenizerPath = Path.Combine(_modelDirectory, KnowledgeIndexConstants.RerankerTokenizerFileName);
@@ -275,75 +195,34 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IUnloadableInferen
         await _loader.EnsureFileAsync(modelPath, _modelUrl, _modelSha256, ct);
         await _loader.EnsureFileAsync(tokenizerPath, _tokenizerUrl, _tokenizerSha256, ct);
 
+        InferenceSession? session = null;
+        Tokenizer? tokenizer = null;
+        RunOptions? runOptions = null;
         try
         {
             using var sessionOptions = _profile.CreateSessionOptions();
-            _session = new InferenceSession(modelPath, sessionOptions);
-            _outputNames = _session.OutputMetadata.Keys.ToArray();
-            _tokenizer = new Tokenizer(vocabPath: tokenizerPath);
+            session = new InferenceSession(modelPath, sessionOptions);
+            var outputNames = session.OutputMetadata.Keys.ToArray();
+            tokenizer = new Tokenizer(vocabPath: tokenizerPath);
 
             if (_profile.ShrinkArenaAfterRun)
             {
-                _runOptions = new RunOptions();
-                _runOptions.AddRunConfigEntry(
+                runOptions = new RunOptions();
+                runOptions.AddRunConfigEntry(
                     OnnxRuntimeConfigKeys.RunEnableMemoryArenaShrinkage,
                     OnnxRuntimeConfigKeys.CpuDeviceZero);
             }
+
+            return new OnnxSessionLease(session, tokenizer, outputNames, runOptions);
         }
         catch
         {
-            // Either every field is valid or none is. A tokenizer that fails to build after the session
-            // was created would otherwise leave _session non-null next to a null _tokenizer, and since
-            // AcquireSessionAsync only rebuilds when _session is null, every later call would dereference
-            // that null - until a sweep happened to unload the half-built session and let it retry.
-            _runOptions?.Dispose();
-            _runOptions = null;
-            _session?.Dispose();
-            _session = null;
-            _tokenizer?.Dispose();
-            _tokenizer = null;
-            _outputNames = [];
+            runOptions?.Dispose();
+            session?.Dispose();
+            tokenizer?.Dispose();
             throw;
         }
-
-        // Stamped here rather than only on release: a session that has been built but has not yet
-        // finished a call would otherwise carry timestamp 0, and Stopwatch.GetElapsedTime(0) measures
-        // time since boot - the sweep would read a brand new session as infinitely idle.
-        Volatile.Write(ref _lastUsedTimestamp, Stopwatch.GetTimestamp());
-        Interlocked.Increment(ref _loadCount);
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        // The container hands this one instance out under three service types and disposes each of
-        // them, so this method runs more than once. That used to be free because every call was a
-        // no-op on already-disposed objects; waiting on the init lock is not - SemaphoreSlim.WaitAsync
-        // throws ObjectDisposedException - so the second entry has to turn back here.
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
-        {
-            return;
-        }
-
-        // Taken under the init lock, unlike a plain dispose: it closes the shutdown window in which the
-        // idle sweep is mid-unload or a call still holds a lease. Freeing a native InferenceSession
-        // while Run() executes on it faults the process instead of throwing.
-        await _initLock.WaitAsync();
-        try
-        {
-            _runOptions?.Dispose();
-            _runOptions = null;
-            _session?.Dispose();
-            _session = null;
-            _tokenizer?.Dispose();
-            _tokenizer = null;
-            _outputNames = [];
-        }
-        finally
-        {
-            _initLock.Release();
-        }
-
-        _gate?.Dispose();
-        _initLock.Dispose();
-    }
+    public ValueTask DisposeAsync() => _holder.DisposeAsync();
 }
