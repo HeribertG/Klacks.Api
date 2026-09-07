@@ -32692,7 +32692,6 @@
           "einführung",
           "zeig mir die app",
           "neu hier",
-          "erste schritte",
           "überblick über die anwendung",
           "einarbeitung"
         ],
@@ -32702,7 +32701,6 @@
           "introduction",
           "show me the app",
           "new here",
-          "first steps",
           "overview of the application",
           "app tour"
         ],
@@ -32710,18 +32708,16 @@
           "visite guidée",
           "introduction",
           "montre-moi l application",
-          "nouveau ici",
-          "premiers pas"
+          "nouveau ici"
         ],
         "it": [
           "tour guidato",
           "introduzione",
           "mostrami l applicazione",
-          "nuovo qui",
-          "primi passi"
+          "nuovo qui"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_navigation_learning",
