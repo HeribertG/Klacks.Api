@@ -2,14 +2,19 @@
 
 /// <summary>
 /// Maps the free-text answers of the setup consultation onto enums, deterministically and without a
-/// model call. The order of the checks is the point: an exact chip value wins first, then a domain
-/// noun, then an unclear marker, then a leading negation, and only afterwards a plain affirmation —
-/// AffirmationDetector's token set contains "bitte", "mach" and "gerne", so "Bitte intern" would
-/// otherwise come out as a yes. The unclear-marker check sits before the negation fallback because
-/// DeclineDetector treats "kein"/"keine"/"keinen" as a leading negation, so "Keine Ahnung" ("no
-/// idea") would otherwise be misread as a concrete No for attribution or a Manual order source.
+/// model call. The order of the checks is the point: an exact chip value wins first, then a NEGATED
+/// domain noun (its meaning flips: a negated customer noun means None, a negated ERP noun means
+/// Manual), then a plain domain noun, then an unclear marker, then a leading negation, and only
+/// afterwards a plain affirmation — AffirmationDetector's token set contains "bitte", "mach" and
+/// "gerne", so "Bitte intern" would otherwise come out as a yes. A domain noun is read as negated
+/// only when a negation marker sits within the two tokens directly before it ("Wir haben keine
+/// Kunden"), not anywhere earlier in the message, so a genuine customer answer several words after
+/// an unrelated "nicht" is not misread. The unclear-marker check sits before the negation fallback
+/// because DeclineDetector treats "kein"/"keine"/"keinen" as a leading negation, so "Keine Ahnung"
+/// ("no idea") would otherwise be misread as a concrete No for attribution or a Manual order source.
 /// Anything that matches nothing stays Unknown, which every caller must treat as the cautious path
-/// rather than as a default answer.
+/// rather than as a default answer — landing on None is expensive because it seals a clientless
+/// service immediately and irreversibly, while landing on Unknown only re-asks.
 /// </summary>
 /// <param name="message">The raw slot value the recipe captured from the user's reply.</param>
 
@@ -27,6 +32,8 @@ public static class SetupConsultationAnswerClassifier
     private const string ChipCreate = "create";
     private const string ChipShow = "show";
     private const string ChipNone = "none";
+
+    private const int NegationLookback = 2;
 
     private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
@@ -54,6 +61,11 @@ public static class SetupConsultationAnswerClassifier
         }
 
         var tokens = Tokenize(trimmed);
+
+        if (HasNegatedMatch(tokens, SetupConsultationKeywords.AttributedToCustomer))
+        {
+            return SetupAttributionAnswer.None;
+        }
 
         if (tokens.Any(SetupConsultationKeywords.AttributedToNobody.Contains))
         {
@@ -104,6 +116,11 @@ public static class SetupConsultationAnswerClassifier
         }
 
         var tokens = Tokenize(trimmed);
+
+        if (HasNegatedMatch(tokens, SetupConsultationKeywords.OrderSourceExternal))
+        {
+            return SetupOrderSourceAnswer.Manual;
+        }
 
         if (tokens.Any(SetupConsultationKeywords.OrderSourceExternal.Contains))
         {
@@ -174,4 +191,26 @@ public static class SetupConsultationAnswerClassifier
         WordPattern.Matches(message)
             .Select(match => match.Value)
             .ToList();
+
+    private static bool HasNegatedMatch(IReadOnlyList<string> tokens, HashSet<string> domainNouns)
+    {
+        for (var i = 0; i < tokens.Count; i++)
+        {
+            if (!domainNouns.Contains(tokens[i]))
+            {
+                continue;
+            }
+
+            var windowStart = Math.Max(0, i - NegationLookback);
+            for (var j = windowStart; j < i; j++)
+            {
+                if (SetupConsultationKeywords.NegationMarkers.Contains(tokens[j]))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

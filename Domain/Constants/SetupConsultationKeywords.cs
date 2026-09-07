@@ -63,4 +63,12 @@ public static class SetupConsultationKeywords
         "idée", "sûr",
         "sicuro",
     };
+
+    public static readonly HashSet<string> NegationMarkers = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "kein", "keine", "keinen", "keiner", "nicht",
+        "no", "not", "without",
+        "ohne", "pas", "aucun",
+        "nessun", "senza", "nemmeno",
+    };
 }
