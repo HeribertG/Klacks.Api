@@ -88,7 +88,7 @@ public class ScheduleActivityProbe : IScheduleActivityProbe
         var hasWork = await _context.Work
             .AnyAsync(work => !work.IsDeleted && work.AnalyseToken == null, cancellationToken);
 
-        return new ScheduleSetupState(hasOrders, hasShifts, hasWork);
+        return new ScheduleSetupState(hasOrders, hasShifts, hasWork, false, false);
     }
 
     /// <summary>
