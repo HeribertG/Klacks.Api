@@ -2911,6 +2911,114 @@
           "note": "Create the container, find nearby TimeRange task shifts and fill the weekday template — all atomically. Normalize transportMode to one of car/bicycle/foot/mix before injecting. The skill rejects bicycle/foot/mix when no OpenRouteService key is configured; relay that error verbatim instead of retrying with car unless the user explicitly agrees to switch. Relay the verified confirmation including the container name, bundled task count and route summary."
         }
       ]
+    },
+    {
+      "name": "setup-consultation",
+      "goal": "Guide an installation that cannot be scheduled yet to its first plannable duty: explain how an order becomes a plannable shift, ask whether hours are attributed to a customer and whether orders come from an outside system, derive everything else from the database, and end by offering the next step.",
+      "goalTranslations": {
+        "de": "Beratung bis zum ersten planbaren Dienst: erklärt den Weg von der Bestellung zum Dienst, fragt zwei Dinge und schlägt den nächsten Schritt vor.",
+        "en": "Consultation up to the first plannable duty: explains how an order becomes a shift, asks two questions and offers the next step.",
+        "fr": "Conseil jusqu'au premier service planifiable : explique comment une commande devient un service, pose deux questions et propose l'étape suivante.",
+        "it": "Consulenza fino al primo servizio pianificabile: spiega come un ordine diventa un turno, pone due domande e propone il passo successivo."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 75,
+      "trigger": {
+        "allOf": [
+          {
+            "anySubstring": [
+              "wie fange ich an", "wie fang ich an", "wo fange ich an", "womit fange ich an",
+              "erste schritte", "ersten schritte", "noch nichts geplant", "nichts geplant",
+              "kann ich nichts planen", "wie richte ich klacks ein", "klacks einrichten", "loslegen",
+              "how do i get started", "getting started", "where do i start", "how do i start",
+              "first steps", "nothing planned yet", "set up klacks",
+              "comment commencer", "par où commencer", "par ou commencer", "premiers pas",
+              "premières étapes", "rien n'est encore planifié",
+              "come inizio", "da dove comincio", "come iniziare", "primi passi",
+              "non è stato ancora pianificato"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "anyWordStart": ["erstell", "anleg", "erfass", "create", "crée", "crea"]
+          },
+          {
+            "anySubstring": [
+              "tour", "rundgang", "walkthrough", "visite guid",
+              "planungsprofil", "planning profile", "profil de planification", "profilo di pianificazione",
+              "kalender", "calendar", "calendrier", "calendario",
+              "import status", "statut de l'import", "stato dell'import"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "search",
+          "skill": "get_setup_guidance",
+          "inject": { "phase": "intro" },
+          "note": "RECIPE 'setup-consultation' step 1 of 6: the result describes the installation and what an order, sealing and a plannable shift are. In your NEXT reply explain this in three short sentences, then ask the first recipe question. Do not offer any action yet, and never invent a folder, page or button that is not in the result."
+        },
+        {
+          "kind": "ask",
+          "slot": "attribution",
+          "prompt": "Ask whether the working hours are attributed to a customer who orders them, or whether the work is the company's own operation. Offer [REPLIES:single \"Ja, ein Kunde=yes\" | \"Nein, eigener Betrieb=no\" | \"Weiss ich nicht=unknown\"].",
+          "promptTranslations": {
+            "de": "Werden die Arbeitsstunden einem Auftraggeber zugerechnet — gibt es einen Kunden, der sie bestellt? Oder ist es eigene Arbeit, etwa Station, Küche oder Werkstatt?",
+            "en": "Are the working hours attributed to a customer who orders them, or is the work your own operation — a ward, a kitchen, a workshop?",
+            "fr": "Les heures de travail sont-elles attribuées à un client qui les commande, ou s'agit-il de votre propre exploitation ?",
+            "it": "Le ore di lavoro sono attribuite a un cliente che le ordina, oppure si tratta di lavoro interno?"
+          },
+          "description": "whether the working hours are attributed to a customer: yes, no or unknown"
+        },
+        {
+          "kind": "ask",
+          "slot": "orderSource",
+          "prompt": "Ask whether orders arrive from an outside system such as an ERP, or are entered by hand in Klacks. Offer [REPLIES:single \"Ja, aus einem ERP=yes\" | \"Nein, von Hand=no\" | \"Weiss ich nicht=unknown\"].",
+          "promptTranslations": {
+            "de": "Kommen eure Aufträge aus einem Fremdsystem, etwa einem ERP — oder werden sie in Klacks von Hand erfasst?",
+            "en": "Do your orders come from an outside system such as an ERP, or are they entered by hand in Klacks?",
+            "fr": "Vos commandes proviennent-elles d'un système externe comme un ERP, ou sont-elles saisies à la main ?",
+            "it": "I vostri ordini provengono da un sistema esterno come un ERP, o vengono inseriti a mano?"
+          },
+          "description": "whether orders arrive from an external system: yes, no or unknown"
+        },
+        {
+          "kind": "search",
+          "skill": "get_setup_guidance",
+          "inject": {
+            "phase": "route",
+            "attribution": "$attribution",
+            "orderSource": "$orderSource"
+          },
+          "note": "RECIPE 'setup-consultation' step 4 of 6: the result names the fitting route in Data.Route and what is still missing in Data.Route.MissingPrerequisites. Explain that route and name every missing prerequisite. Use only what the result contains — never invent a folder, page or button. Then ask the next recipe question."
+        },
+        {
+          "kind": "ask",
+          "slot": "nextStep",
+          "prompt": "Ask whether to create it together step by step, only show where it is done, or leave it for now. Offer [REPLIES:single \"Gemeinsam anlegen=create\" | \"Nur zeigen wo=show\" | \"Vorerst nichts=none\"].",
+          "promptTranslations": {
+            "de": "Soll ich es Schritt für Schritt mit dir anlegen, dir nur zeigen wo das geht, oder es vorerst dabei belassen?",
+            "en": "Shall I create it with you step by step, only show you where it is done, or leave it for now?",
+            "fr": "Dois-je le créer avec vous étape par étape, seulement vous montrer où, ou en rester là pour l'instant ?",
+            "it": "Devo crearlo con te passo dopo passo, mostrarti solo dove si fa, o lasciar perdere per ora?"
+          },
+          "description": "the chosen follow-up: create, show or none"
+        },
+        {
+          "kind": "search",
+          "skill": "get_setup_guidance",
+          "inject": {
+            "phase": "act",
+            "attribution": "$attribution",
+            "orderSource": "$orderSource",
+            "nextStep": "$nextStep"
+          },
+          "note": "RECIPE 'setup-consultation' step 6 of 6: if the result navigated, tell the user what they will see there. If it carries Data.Handoff, offer exactly that value as a single reply chip and call no other tool. If it carries neither, summarize what was decided and stop."
+        }
+      ]
     }
   ]
 }
