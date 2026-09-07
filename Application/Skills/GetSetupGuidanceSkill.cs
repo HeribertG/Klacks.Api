@@ -106,9 +106,9 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             ManualRoute = new
             {
                 OrderMeaning =
-                    "An order records work to be done. It usually names the customer it is billed to, "
-                    + "but a customer is NOT required: internal duties nobody is invoiced for are "
-                    + "created the same way, without one.",
+                    "An order records work to be done. Naming a customer makes the working hours "
+                    + "attributable to that customer: customer -> order -> shift -> hours. A customer is "
+                    + "NOT required, though.",
                 ShiftMeaning =
                     "A plannable shift is not created directly. It only ever comes into existence by "
                     + "sealing an order: sealing marks the order immutable and creates the plannable "
@@ -119,10 +119,23 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
                     + "without the draft flag seals it at once and produces the plannable shift "
                     + "immediately.",
                 ClientlessDuties =
-                    "For a duty nobody is billed for, the Plannable Shifts view has its own New button "
-                    + "(administrators only). It creates the order without a customer and hides the "
-                    + "customer card; sealing does not ask for one either. Everything else about the "
-                    + "route is identical.",
+                    "A duty whose hours are attributable to no single customer is created through the "
+                    + "Plannable Shifts view's own New button (administrators only), which hides the "
+                    + "customer card entirely. Two kinds: work caused by the orders but chargeable to "
+                    + "none of them (refuelling, vehicle care, cleaning, back office), and businesses "
+                    + "where no customer places an order at all - a ward, a kitchen, a salon. In those, "
+                    + "EVERY duty is clientless, so an empty customer must never be read as an "
+                    + "incomplete record.",
+                ClientlessIsSealedOnCreation =
+                    "Such a duty is created SEALED, never as a draft: a draft is a customer's request "
+                    + "still being worked out, so a draft without a customer could not be told apart "
+                    + "from one where the customer is merely still missing. A draft without a customer "
+                    + "is therefore refused, and a clientless duty must be complete when it is created, "
+                    + "because sealing cannot be undone.",
+                HoursCountEitherWay =
+                    "Attribution decides WHOSE the hours are, not whether they count. A clientless duty "
+                    + "is paid working time and enters target/actual hours, wages, supplements and rest "
+                    + "periods exactly like any other.",
                 ClientlessTarget = OrderListTarget,
                 WhenToUseADraft =
                     "Keep the order a draft when details are still missing or somebody has to check "

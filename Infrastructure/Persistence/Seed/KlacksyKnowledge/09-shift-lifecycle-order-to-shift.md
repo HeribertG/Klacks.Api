@@ -7,7 +7,10 @@ description: |
   with expert mode and the sealing lock, Group, Required Qualifications,
   Hours and Weekdays, Macro, Address, Special Features, Default Expenses).
   Use this when the user asks what an order is, how to create one, why an
-  order is not yet bookable, or what the fields of the order mask do.
+  order is not yet bookable, what the fields of the order mask do, or what
+  separates a duty billed to a customer from one that has none (internal work
+  such as refuelling or cleaning, and positions such as a ward, kitchen or
+  salon shift).
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -22,11 +25,13 @@ triggerKeywords:
   - sealing
   - sealen
   - workflow
+  - kundenlos
+  - ohne kunde
 synonyms:
-  de: [bestellung, auftrag, skizze, vertrag, sealen, versiegeln, schicht-schnitt, lebenszyklus]
-  en: [order, draft, contract, sealed, lifecycle, shift cut, status]
-  fr: [commande, ébauche, contrat, verrouillé, cycle de vie, coupe]
-  it: [ordine, bozza, contratto, sigillato, ciclo di vita, taglio]
+  de: [bestellung, auftrag, skizze, vertrag, sealen, versiegeln, schicht-schnitt, lebenszyklus, dienst ohne kunde, kundenloser dienst, interner dienst]
+  en: [order, draft, contract, sealed, lifecycle, shift cut, status, shift without customer, clientless shift, internal duty]
+  fr: [commande, ébauche, contrat, verrouillé, cycle de vie, coupe, service sans client, service interne]
+  it: [ordine, bozza, contratto, sigillato, ciclo di vita, taglio, servizio senza cliente, servizio interno]
 ---
 
 # Workflow Bestellung → Shift — die 4 Status-Stufen
@@ -108,6 +113,66 @@ eigener Aufruf oder direkt über den Parameter `autoAssignGroups`.
 `Work`-Entitäten hängen **ausschließlich** an Shifts mit Status ≥ 2 — also
 `OriginalShift` oder `SplitShift`. Versuche, auf `OriginalOrder` oder
 `SealedOrder` zu buchen, sind technisch und semantisch ausgeschlossen.
+
+## Dienste mit Kunde und Dienste ohne Kunde
+
+Der Unterschied liegt in der **Zurechenbarkeit der Arbeitsstunden**:
+
+**Direkte Zurechnung** — Kunde → Auftrag → Dienst → Arbeitsstunden. Die
+Stunden sind einem *bestimmten* Auftraggeber zurechenbar, der die Leistung
+bestellt hat: Bewachung eines Objekts, Reinigung im Auftrag, Personalverleih
+an eine Firma. Fällt der Auftraggeber weg, fällt der Dienst weg.
+
+**Keine direkte Zurechnung** — Dienst → Arbeitsstunden. Die Stunden gehören
+zum Betrieb, nicht zu einem Auftraggeber. Drei typische Formen:
+
+1. **Versteckter Teil der Dienstleistung** — Arbeiten, die zwar durch die
+   Aufträge verursacht werden, aber keinem einzelnen zurechenbar sind
+   (Gemeinkosten): Tanken, Autopflege, Putzen.
+2. **Innendienst** — Büro, Verwaltung, Disposition.
+3. **Ganze Berufsbilder** — Pflege auf einer Station, Koch in der Küche,
+   Coiffeur im Salon. Hier gibt es im Geschäftsmodell **gar keinen**
+   Auftraggeber, dem ein einzelner Dienst zugerechnet würde — auch keinen
+   indirekten. Wechselnde Patienten oder Gäste sind keine Auftraggeber im
+   Sinne eines Auftrags.
+
+In einem Spital, einem Restaurant oder einem Salon ist der kundenlose Dienst
+damit **der Regelfall, nicht die Ausnahme** — dort trägt der gesamte
+Dienstplan keinen Kunden. Ein Dienst ohne Kunde ist deshalb **nie** als
+unvollständig erfasster Datensatz zu deuten.
+
+**Für die Arbeitsstunden macht es keinen Unterschied.** Tanken und
+Stationsdienst sind bezahlte Arbeitszeit und fliessen genauso in Soll/Ist,
+Lohn, Zuschläge und Ruhezeiten ein wie ein Kundendienst. Klacks selbst stellt
+keine Kundenrechnungen — es plant Dienste und rechnet Arbeitsstunden. Die
+Zurechnung entscheidet also nicht, *ob* Stunden zählen, sondern **wem** sie
+zugeordnet werden können.
+
+Technisch ist die Zurechnung genau das Feld `Shift.ClientId`: gesetzt heisst
+direkt zurechenbar, leer heisst nicht zurechenbar. Damit es leer nur mit
+Absicht sein kann, gelten die Regeln im nächsten Abschnitt.
+
+### Wie ein kundenloser Dienst entsteht
+
+In der Ansicht **Planbare Dienste** gibt es für Administratoren einen eigenen
+Button "Neuer Dienst". Die Kundenkarte wird dort gar nicht erst angezeigt, ein
+Kunde ist also nicht setzbar — die fehlende Zurechnung ist damit eine bewusste
+Entscheidung des Nutzers und kein Versehen.
+
+Ein solcher Dienst wird **sofort versiegelt** angelegt, nie als Entwurf. Der
+Grund ist die Aussage des Status selbst: `OriginalOrder` heisst "Anfrage eines
+Kunden, die noch ausgearbeitet wird" — ein Entwurf ohne Kunde wäre von einem
+Entwurf, bei dem der Kunde noch fehlt, nicht zu unterscheiden. Daraus folgen
+zwei feste Regeln:
+
+- Eine Bestellung im Status `OriginalOrder` **ohne** Kunde wird abgelehnt.
+- Ein kundenloser Dienst wird sofort versiegelt und muss deshalb schon beim
+  Anlegen vollständig sein (Kürzel, Name, Startdatum, mindestens ein Wochentag
+  oder Feiertag, mindestens eine Gruppe, Anzahl > 0, Mitarbeiterzahl > 0) —
+  Versiegeln ist unumkehrbar.
+
+Container sind davon nicht betroffen: sie sind Vorlagen, keine Bestellungen,
+und tragen ohnehin nie einen Kunden.
 
 ## Beispiel-Lebenszyklus
 

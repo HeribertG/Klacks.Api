@@ -24629,7 +24629,7 @@
     {
       "name": "explain_shift_lifecycle_order_to_shift",
       "area": "shift",
-      "description": "Explains how an order (Bestellung) becomes a plannable shift AND walks through every card of the order entry mask (General with expert mode and the green sealing lock, Group, Required Qualifications, Hours and Weekdays, Macro, Address, Special Features, Default Expenses). An order starts as a freely editable draft that is not plannable yet; sealing it with the green lock makes it final and automatically creates the plannable shift for scheduling; cutting a plannable shift produces split pieces.",
+      "description": "Explains how an order (Bestellung) becomes a plannable shift and walks through the cards of the order entry mask. An order starts as an editable draft that is not plannable; sealing it makes it final and creates the plannable shift; cutting that shift produces split pieces. Also explains what separates a duty billed to a customer from one that has none - internal work such as refuelling, positions such as a ward or kitchen shift - and why such a duty is sealed on creation.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24652,13 +24652,21 @@
           "bestellungen",
           "was ist eine bestellung",
           "bestellung erklaeren",
-          "auftrag"
+          "auftrag",
+          "kundenlos",
+          "ohne kunde",
+          "dienst ohne kunde",
+          "interner dienst"
         ],
         "en": [
           "lifecycle",
           "sealing",
           "order lifecycle",
-          "what is an order"
+          "what is an order",
+          "clientless",
+          "without customer",
+          "shift without a customer",
+          "internal duty"
         ],
         "und": [
           "originalorder",
@@ -24676,7 +24684,10 @@
           "sealen",
           "versiegeln",
           "schicht-schnitt",
-          "lebenszyklus"
+          "lebenszyklus",
+          "was ist ein kundenloser dienst",
+          "was bedeutet ein dienst ohne kunde",
+          "unterschied dienst mit und ohne kunde"
         ],
         "en": [
           "order",
@@ -24685,7 +24696,10 @@
           "sealed",
           "lifecycle",
           "shift cut",
-          "status"
+          "status",
+          "what is a clientless shift",
+          "what does a shift without a customer mean",
+          "difference between billable and internal duty"
         ],
         "fr": [
           "commande",
@@ -24693,7 +24707,9 @@
           "contrat",
           "verrouillé",
           "cycle de vie",
-          "coupe"
+          "coupe",
+          "service sans client",
+          "difference entre service facturable et interne"
         ],
         "it": [
           "ordine",
@@ -24701,10 +24717,12 @@
           "contratto",
           "sigillato",
           "ciclo di vita",
-          "taglio"
+          "taglio",
+          "servizio senza cliente",
+          "differenza tra servizio fatturabile e interno"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "explain_page_dashboard",
