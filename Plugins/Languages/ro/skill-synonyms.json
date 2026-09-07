@@ -182,6 +182,10 @@
     "atașează contractul la un angajat",
     "leagă contractul de client"
   ],
+  "assign_orders_to_groups": [
+    "grupează comenzile importate",
+    "comenzi fără grup"
+  ],
   "assign_user_permissions": [
     "acordă rol de administrator utilizatorului 123",
     "setează permisiuni de autorizat pentru userul ana",
@@ -1632,6 +1636,13 @@
     "ce zile și ore sunt în comanda x?",
     "ce este facturat în comanda x?"
   ],
+  "get_setup_guidance": [
+    "cum incep",
+    "de unde incep",
+    "primii pasi in sistem",
+    "de ce nu pot planifica nimic",
+    "diferenta dintre comanda si serviciu"
+  ],
   "get_shift_details": [
     "detalii schimb",
     "arată schimbul",
@@ -2200,6 +2211,10 @@
     "verifică ce modele funcționează și dezactivează-le pe cele nepotrivite",
     "alege automat cel mai bun model de limbaj"
   ],
+  "partition_clients_by_address": [
+    "împarte clienții după adresă",
+    "împarte angajații în grupuri după adresă"
+  ],
   "place_work": [
     "plasează clientul pe schimb",
     "adaugă un work în planificare",
@@ -2361,6 +2376,10 @@
     "setează o comandă care rulează la fiecare 30 de minute",
     "repetă notificarea săptămânal",
     "adaugă un reminder zilnic"
+  ],
+  "seal_open_orders": [
+    "sigilează toate comenzile deschise",
+    "transformă comenzile în ture"
   ],
   "seal_shift": [
     "sigilează această comandă",
@@ -3096,17 +3115,5 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
-  ],
-  "partition_clients_by_address": [
-    "împarte clienții după adresă",
-    "împarte angajații în grupuri după adresă"
-  ],
-  "assign_orders_to_groups": [
-    "grupează comenzile importate",
-    "comenzi fără grup"
-  ],
-  "seal_open_orders": [
-    "sigilează toate comenzile deschise",
-    "transformă comenzile în ture"
   ]
 }

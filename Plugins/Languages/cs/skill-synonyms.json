@@ -191,6 +191,10 @@
     "přiřadit existující smlouvu klientovi",
     "nastavit platnou smlouvu pro klienta"
   ],
+  "assign_orders_to_groups": [
+    "seskupit importované objednávky",
+    "objednávky bez skupiny"
+  ],
   "assign_user_permissions": [
     "nastav uživateli administrátorská práva",
     "dej uživateli roli",
@@ -1643,6 +1647,13 @@
     "směny v zakázce",
     "kdo pracoval na zakázce"
   ],
+  "get_setup_guidance": [
+    "jak zacnu",
+    "kde mam zacit",
+    "prvni kroky v systemu",
+    "proc nemohu nic naplanovat",
+    "rozdil mezi objednavkou a smenou"
+  ],
   "get_shift_details": [
     "zobrazit podrobnosti směny",
     "detaily směny",
@@ -2227,6 +2238,10 @@
     "oproti všem modelům a nefunkční vypni",
     "proveď optimalizaci modelů pro asistenta"
   ],
+  "partition_clients_by_address": [
+    "rozdělit klienty podle adresy",
+    "rozdělit zaměstnance do skupin podle adresy"
+  ],
   "place_work": [
     "přiřaď klienta na směnu 15.5.",
     "zapiš coline na n10 18.5.",
@@ -2387,6 +2402,10 @@
     "spouštěj každý den v 18:00",
     "naplánuj připomínku",
     "vytvoř cron úlohu"
+  ],
+  "seal_open_orders": [
+    "zapečetit všechny otevřené objednávky",
+    "převést objednávky na směny"
   ],
   "seal_shift": [
     "zapečeť tuto objednávku",
@@ -3127,17 +3146,5 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
-  ],
-  "partition_clients_by_address": [
-    "rozdělit klienty podle adresy",
-    "rozdělit zaměstnance do skupin podle adresy"
-  ],
-  "assign_orders_to_groups": [
-    "seskupit importované objednávky",
-    "objednávky bez skupiny"
-  ],
-  "seal_open_orders": [
-    "zapečetit všechny otevřené objednávky",
-    "převést objednávky na směny"
   ]
 }

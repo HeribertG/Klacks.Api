@@ -41190,6 +41190,77 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "get_setup_guidance",
+      "area": "settings",
+      "description": "Reports how far this installation has been set up before anything can be scheduled: whether customer requests exist, whether plannable duties exist and whether anybody is assigned, plus the facts needed to continue - the resolved folder an outside system hands its files in with its poll schedule, and what separates a recorded customer request from the plannable duty it becomes. Use when somebody asks how to get started or why nothing can be planned yet. Do NOT use to change data.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "wie fange ich an",
+          "erste schritte",
+          "noch nichts geplant"
+        ],
+        "en": [
+          "how do i get started",
+          "first steps",
+          "nothing planned yet"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie fange ich an",
+          "wo fange ich an",
+          "erste schritte in klacks",
+          "warum kann ich nichts planen",
+          "es ist noch nichts geplant",
+          "wie richte ich klacks ein",
+          "was muss ich zuerst erfassen",
+          "wie kommen bestellungen ins system",
+          "unterschied bestellung und dienst",
+          "brauche ich bestellungen oder dienste"
+        ],
+        "en": [
+          "how do i get started",
+          "where do i start",
+          "first steps in klacks",
+          "why can i not plan anything",
+          "nothing has been planned yet",
+          "how do i set up klacks",
+          "what do i need to enter first",
+          "how do orders get into the system",
+          "difference between order and shift",
+          "do i need orders or shifts"
+        ],
+        "fr": [
+          "comment commencer",
+          "par ou commencer",
+          "premieres etapes",
+          "pourquoi je ne peux rien planifier",
+          "rien n'est encore planifie",
+          "difference entre commande et service"
+        ],
+        "it": [
+          "come inizio",
+          "da dove comincio",
+          "primi passi",
+          "perche non posso pianificare nulla",
+          "non e stato ancora pianificato nulla",
+          "differenza tra ordine e servizio"
+        ]
+      },
+      "version": 1
     }
   ]
 }

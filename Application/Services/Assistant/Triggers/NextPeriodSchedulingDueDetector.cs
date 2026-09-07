@@ -4,7 +4,12 @@
 /// Detects groups whose NEXT pay-period starts within NextPeriodScheduling.LeadTimeDays and has no
 /// AnalyseScenario covering it yet. Period boundaries follow the group's PaymentInterval exactly like
 /// PeriodCloseDueDetector, shifted one period into the future; Individual is skipped (custom, no
-/// derivable cycle), as are groups without any clients or shifts in themselves or a descendant group.
+/// derivable cycle), as are groups without any clients or shifts in themselves or a descendant group,
+/// and — since 2026-09-07 — groups whose next period contains no shift that could be planned at all.
+/// The gate deliberately asks about SHIFTS and not about work: this trigger exists precisely because
+/// nothing has been planned yet, so gating it on existing assignments would switch it off forever.
+/// A period with no shift in it is a different case — there is nothing to staff, and both the hint
+/// and the autofill chain below it would have no input.
 /// While the EMAIL_ANALYSIS_ENABLED setting is active, an unprocessed inbox backlog defers the whole
 /// scan one tick, because availability/day-off mail may not be incorporated yet. At an effective
 /// autonomy level of Autonomous or higher — the minimum over all admin users, capped by the global
@@ -20,6 +25,7 @@
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period boundaries.</param>
 /// <param name="scenarioRepository">Checks whether a scenario already covers the next period.</param>
+/// <param name="activityProbe">Answers whether the next period holds any plannable shift at all.</param>
 /// <param name="autoWizardJobRunner">Starts the Wizard 1+2+3 chain when autonomy permits.</param>
 /// <param name="clientRepository">Resolves the group's active clients as wizard agents.</param>
 /// <param name="shiftScheduleRepository">Resolves the group's visible shifts for the period.</param>
@@ -58,6 +64,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private readonly IGroupRepository _groupRepository;
     private readonly IWeekConfiguration _weekConfiguration;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
+    private readonly IScheduleActivityProbe _activityProbe;
     private readonly IAutoWizardJobRunner _autoWizardJobRunner;
     private readonly IClientRepository _clientRepository;
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
@@ -74,6 +81,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         IGroupRepository groupRepository,
         IWeekConfiguration weekConfiguration,
         IAnalyseScenarioRepository scenarioRepository,
+        IScheduleActivityProbe activityProbe,
         IAutoWizardJobRunner autoWizardJobRunner,
         IClientRepository clientRepository,
         IShiftScheduleRepository shiftScheduleRepository,
@@ -89,6 +97,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         _groupRepository = groupRepository;
         _weekConfiguration = weekConfiguration;
         _scenarioRepository = scenarioRepository;
+        _activityProbe = activityProbe;
         _autoWizardJobRunner = autoWizardJobRunner;
         _clientRepository = clientRepository;
         _shiftScheduleRepository = shiftScheduleRepository;
@@ -133,6 +142,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         AutonomyLevel? effectiveLevel = null;
         var events = new List<IAgentTriggerEvent>();
         var autofillStarts = 0;
+        var skippedWithoutShifts = 0;
 
         foreach (var group in groups)
         {
@@ -153,6 +163,12 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
 
             var periodEnd = ComputeNextPeriodEnd(group, periodStart);
             if (await ScenarioCoversPeriodAsync(group.Id, periodStart, periodEnd, cancellationToken)) continue;
+
+            if (!await _activityProbe.HasPlannableShiftsInRangeAsync(group, periodStart, periodEnd, cancellationToken))
+            {
+                skippedWithoutShifts++;
+                continue;
+            }
 
             effectiveLevel ??= await ResolveEffectiveAutonomyLevelAsync(cancellationToken);
             if (!killSwitchActive && effectiveLevel >= AutoRunMinimumLevel)
@@ -179,8 +195,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         }
 
         _logger.LogInformation(
-            "NextPeriodSchedulingDue scan: {Total} group(s) scanned, {Events} event(s) emitted, {Autofills} autofill run(s) started",
-            groups.Count, events.Count, autofillStarts);
+            "NextPeriodSchedulingDue scan: {Total} group(s) scanned, {Events} event(s) emitted, {Autofills} autofill run(s) started, {SkippedWithoutShifts} skipped because the next period holds no plannable shift",
+            groups.Count, events.Count, autofillStarts, skippedWithoutShifts);
 
         return events;
     }

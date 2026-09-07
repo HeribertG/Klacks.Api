@@ -184,6 +184,10 @@
     "vincular contrato con cliente",
     "registrar contrato de trabajo para empleado"
   ],
+  "assign_orders_to_groups": [
+    "agrupar pedidos importados",
+    "pedidos sin grupo"
+  ],
   "assign_user_permissions": [
     "asigna rol de administrador al usuario 42",
     "dale permisos de autorizado a juan perez",
@@ -1636,6 +1640,13 @@
     "consultar las horas imputadas al pedido",
     "mostrar quién trabajó en esa orden"
   ],
+  "get_setup_guidance": [
+    "como empiezo",
+    "por donde empiezo",
+    "primeros pasos en el sistema",
+    "por que no puedo planificar nada",
+    "diferencia entre pedido y turno"
+  ],
   "get_shift_details": [
     "detalles del turno",
     "mostrar turno",
@@ -2214,6 +2225,10 @@
     "selecciona automáticamente el mejor modelo para ti",
     "descubre qué modelos puedo usar y desactiva los que no sirven"
   ],
+  "partition_clients_by_address": [
+    "dividir clientes por dirección",
+    "repartir empleados en grupos por dirección"
+  ],
   "place_work": [
     "poner a yasmine en turno temprano el 15 de mayo",
     "asignar cliente a turno el 18 de mayo",
@@ -2376,6 +2391,10 @@
     "que se repita cada viernes",
     "avísame todos los días a las 8",
     "establecer tarea automática"
+  ],
+  "seal_open_orders": [
+    "sellar todos los pedidos abiertos",
+    "convertir pedidos en turnos"
   ],
   "seal_shift": [
     "sella este pedido para crear un turno planificable",
@@ -3113,17 +3132,5 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
-  ],
-  "partition_clients_by_address": [
-    "dividir clientes por dirección",
-    "repartir empleados en grupos por dirección"
-  ],
-  "assign_orders_to_groups": [
-    "agrupar pedidos importados",
-    "pedidos sin grupo"
-  ],
-  "seal_open_orders": [
-    "sellar todos los pedidos abiertos",
-    "convertir pedidos en turnos"
   ]
 }

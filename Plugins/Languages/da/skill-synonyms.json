@@ -183,6 +183,10 @@
     "tildel kontrakt",
     "medarbejderkontrakt"
   ],
+  "assign_orders_to_groups": [
+    "gruppér importerede ordrer",
+    "ordrer uden gruppe"
+  ],
   "assign_user_permissions": [
     "giv brugeren administratorrettigheder",
     "tildel rolle til bruger",
@@ -1635,6 +1639,13 @@
     "timer booket i ordren",
     "skift i ordren"
   ],
+  "get_setup_guidance": [
+    "hvordan kommer jeg i gang",
+    "hvor skal jeg starte",
+    "foerste skridt i systemet",
+    "hvorfor kan jeg ikke planlaegge noget",
+    "forskel mellem ordre og vagt"
+  ],
   "get_shift_details": [
     "vis vagtdetaljer",
     "hvad er vagttiderne",
@@ -2193,6 +2204,10 @@
     "gennemgå alle modeller og vælg den bedste",
     "optimér sprogmodellerne til klacks"
   ],
+  "partition_clients_by_address": [
+    "opdel klienter efter adresse",
+    "del medarbejdere op i grupper efter adresse"
+  ],
   "place_work": [
     "sæt yasmine på morgenvagt den 15. maj",
     "tilføj coline til n10 den 18. maj",
@@ -2352,6 +2367,10 @@
     "planlæg en reminder hver dag",
     "kør rapport automatisk",
     "mind mig om frokost hver dag"
+  ],
+  "seal_open_orders": [
+    "forsegl alle åbne ordrer",
+    "konvertér ordrer til vagter"
   ],
   "seal_shift": [
     "forsegl denne bestilling",
@@ -3072,17 +3091,5 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
-  ],
-  "partition_clients_by_address": [
-    "opdel klienter efter adresse",
-    "del medarbejdere op i grupper efter adresse"
-  ],
-  "assign_orders_to_groups": [
-    "gruppér importerede ordrer",
-    "ordrer uden gruppe"
-  ],
-  "seal_open_orders": [
-    "forsegl alle åbne ordrer",
-    "konvertér ordrer til vagter"
   ]
 }

@@ -723,6 +723,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GoalCandidateRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalReflectionService, Klacks.Api.Application.Services.Assistant.Reflection.GoalReflectionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalSignalSource, Klacks.Api.Application.Services.Assistant.Reflection.TriggerHistoryGoalSignalSource>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalCandidateRevalidationService, Klacks.Api.Application.Services.Assistant.Reflection.GoalCandidateRevalidationService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IScheduleActivityProbe, Klacks.Api.Infrastructure.Repositories.Assistant.ScheduleActivityProbe>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanDraftService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanDraftService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanExecutionService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanExecutionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISlackOwnerBridgeService, Klacks.Api.Application.Services.Assistant.SlackOwnerBridgeService>();
@@ -801,6 +803,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EmptyContainerDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodSchedulingDueDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.KlacksyLearnedDigestDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NoScheduleYetDetector>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.INextPeriodAutoCommitService, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutoCommitService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentSkillExecutionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillExecutionRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientContractReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientContractReadRepository>();

@@ -12,6 +12,7 @@
 /// </summary>
 /// <param name="clientRepository">Active client roster, customers included.</param>
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
+/// <param name="activityProbe">Answers whether the scanned period was ever planned at all.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="timeProvider">Clock used to derive the last completed month.</param>
 
@@ -32,17 +33,20 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
 
     private readonly IClientRepository _clientRepository;
     private readonly IWorkRepository _workRepository;
+    private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<TargetHoursDriftDetector> _logger;
     private readonly TimeProvider _timeProvider;
 
     public TargetHoursDriftDetector(
         IClientRepository clientRepository,
         IWorkRepository workRepository,
+        IScheduleActivityProbe activityProbe,
         ILogger<TargetHoursDriftDetector> logger,
         TimeProvider timeProvider)
     {
         _clientRepository = clientRepository;
         _workRepository = workRepository;
+        _activityProbe = activityProbe;
         _logger = logger;
         _timeProvider = timeProvider;
     }
@@ -52,6 +56,11 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
         var (periodStart, periodEnd, periodLabel) = ComputePeriod();
+
+        if (!await WasPeriodPlannedAsync(periodStart, periodEnd, periodLabel, cancellationToken))
+        {
+            return Array.Empty<IAgentTriggerEvent>();
+        }
 
         var clients = await BuildCandidateQuery()
             .Select(c => new { c.Id, c.FirstName, c.Name })
@@ -89,6 +98,11 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
     {
         var (periodStart, periodEnd, periodLabel) = ComputePeriod();
 
+        if (!await WasPeriodPlannedAsync(periodStart, periodEnd, periodLabel, cancellationToken))
+        {
+            return new HashSet<string>(StringComparer.Ordinal);
+        }
+
         var clientIds = await BuildCandidateQuery()
             .Select(c => c.Id)
             .ToListAsync(cancellationToken);
@@ -105,6 +119,31 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
                 Kind,
                 TargetHoursDriftTriggerEvent.DedupKeyFor(id, periodLabel)))
             .ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// A period in which nobody was scheduled at all reports the full guaranteed hours as a deficit for
+    /// every single employee — the same defect the ComputePeriod comment describes for the running
+    /// month, one level up: arithmetic, not a finding. Observed on 2026-09-07 in an installation with
+    /// zero work rows, where every employee was reported with a deficit of 170 to 180 hours. Gating the
+    /// fingerprint source too keeps the condition ledger from opening rows the scan will never report.
+    /// </summary>
+    private async Task<bool> WasPeriodPlannedAsync(
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        string periodLabel,
+        CancellationToken cancellationToken)
+    {
+        if (await _activityProbe.HasAnyWorkInRangeAsync(periodStart, periodEnd, cancellationToken))
+        {
+            return true;
+        }
+
+        _logger.LogInformation(
+            "TargetHoursDrift scan for {Period} skipped — the period holds no work assignment at all, so every deviation would be the contract itself",
+            periodLabel);
+
+        return false;
     }
 
     private static bool ExceedsThreshold(PeriodHoursResource hours, out decimal drift)

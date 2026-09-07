@@ -179,6 +179,10 @@
     "chỉ định hợp đồng lao động",
     "cập nhật hợp đồng cho nhân sự"
   ],
+  "assign_orders_to_groups": [
+    "nhóm các đơn hàng đã nhập",
+    "đơn hàng không có nhóm"
+  ],
   "assign_user_permissions": [
     "gán quyền admin cho người dùng 456",
     "đặt vai trò 'authorised' cho user tên nam",
@@ -1600,6 +1604,13 @@
     "ai đã làm việc trong đơn hàng này",
     "xem chi tiết chấm công của đơn hàng"
   ],
+  "get_setup_guidance": [
+    "toi bat dau nhu the nao",
+    "bat dau tu dau",
+    "cac buoc dau tien trong he thong",
+    "tai sao toi khong the len ke hoach gi",
+    "su khac biet giua don hang va ca lam viec"
+  ],
   "get_shift_details": [
     "xem chi tiết ca",
     "thông tin ca làm",
@@ -2174,6 +2185,10 @@
     "tự động tìm mô hình phù hợp nhất",
     "thử nghiệm các mô hình và loại bỏ mô hình không dùng được"
   ],
+  "partition_clients_by_address": [
+    "chia khách hàng theo địa chỉ",
+    "chia nhân viên thành nhóm theo địa chỉ"
+  ],
   "place_work": [
     "gán yasmine vào ca sáng ngày 15/5",
     "thêm coline vào ca n10 ngày 18 tháng 5",
@@ -2332,6 +2347,10 @@
     "thiết lập tác vụ định kỳ",
     "cron job nhắc việc",
     "đặt lịch gửi báo cáo"
+  ],
+  "seal_open_orders": [
+    "niêm phong tất cả đơn hàng đang mở",
+    "chuyển đơn hàng thành ca làm"
   ],
   "seal_shift": [
     "niêm phong đơn hàng này",
@@ -3063,17 +3082,5 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
-  ],
-  "partition_clients_by_address": [
-    "chia khách hàng theo địa chỉ",
-    "chia nhân viên thành nhóm theo địa chỉ"
-  ],
-  "assign_orders_to_groups": [
-    "nhóm các đơn hàng đã nhập",
-    "đơn hàng không có nhóm"
-  ],
-  "seal_open_orders": [
-    "niêm phong tất cả đơn hàng đang mở",
-    "chuyển đơn hàng thành ca làm"
   ]
 }

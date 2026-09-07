@@ -181,6 +181,10 @@
     "koble kontrakt til klient",
     "sett ny kontrakt på den ansatte"
   ],
+  "assign_orders_to_groups": [
+    "grupper importerte bestillinger",
+    "bestillinger uten gruppe"
+  ],
   "assign_user_permissions": [
     "gi ole admin-tilgang",
     "sett kari som autorisert bruker",
@@ -1611,6 +1615,13 @@
     "skift i ordren",
     "hvem jobbet på ordren"
   ],
+  "get_setup_guidance": [
+    "hvordan kommer jeg i gang",
+    "hvor skal jeg begynne",
+    "foerste trinn i systemet",
+    "hvorfor kan jeg ikke planlegge noe",
+    "forskjell mellom ordre og vakt"
+  ],
   "get_shift_details": [
     "vis vaktinformasjon",
     "detaljer om vakt",
@@ -2167,6 +2178,10 @@
     "finn den beste modellen automatisk",
     "prøv alle modeller og velg den beste"
   ],
+  "partition_clients_by_address": [
+    "del klienter etter adresse",
+    "del ansatte inn i grupper etter adresse"
+  ],
   "place_work": [
     "sette yasmine på nattevakt 12. mai",
     "legg inn coline på n10 den 18. mai",
@@ -2325,6 +2340,10 @@
     "kjør rapport hver dag kl 18",
     "planlegg en påminnelse",
     "gjenta hver fredag"
+  ],
+  "seal_open_orders": [
+    "forsegl alle åpne bestillinger",
+    "konverter bestillinger til vakter"
   ],
   "seal_shift": [
     "forsegl denne bestillingen",
@@ -3065,17 +3084,5 @@
     "websøk",
     "internettsøk",
     "søk på nett"
-  ],
-  "partition_clients_by_address": [
-    "del klienter etter adresse",
-    "del ansatte inn i grupper etter adresse"
-  ],
-  "assign_orders_to_groups": [
-    "grupper importerte bestillinger",
-    "bestillinger uten gruppe"
-  ],
-  "seal_open_orders": [
-    "forsegl alle åpne bestillinger",
-    "konverter bestillinger til vakter"
   ]
 }

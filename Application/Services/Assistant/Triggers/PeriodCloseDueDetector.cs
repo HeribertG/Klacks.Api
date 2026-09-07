@@ -6,10 +6,17 @@
 /// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly and
 /// MonthlyTargetHours = end of calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
 /// clients or shifts in themselves or in a descendant group. Emits one PeriodCloseDueTriggerEvent per match.
+///
+/// A group that holds shifts has not necessarily been planned: when the period contains no work
+/// assignment at all there is nothing in it to close, and the reminder is noise. The probe runs as
+/// the LAST gate, after the sealed-day check, so it only costs a query for groups that would
+/// otherwise have produced an event. Same defect class as PeriodOverdueDetector — see its summary
+/// for the measured case.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period ends.</param>
+/// <param name="activityProbe">Answers whether the period holds any real work assignment at all.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -29,6 +36,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
     private readonly IGroupRepository _groupRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IWeekConfiguration _weekConfiguration;
+    private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<PeriodCloseDueDetector> _logger;
     private readonly TimeProvider _timeProvider;
 
@@ -36,12 +44,14 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
         IGroupRepository groupRepository,
         ISealedDayRepository sealedDayRepository,
         IWeekConfiguration weekConfiguration,
+        IScheduleActivityProbe activityProbe,
         ILogger<PeriodCloseDueDetector> logger,
         TimeProvider timeProvider)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
         _weekConfiguration = weekConfiguration;
+        _activityProbe = activityProbe;
         _logger = logger;
         _timeProvider = timeProvider;
     }
@@ -64,6 +74,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
 
         var events = new List<IAgentTriggerEvent>();
+        var skippedUnplanned = 0;
         foreach (var group in groups)
         {
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
@@ -76,6 +87,13 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             var existingSeals = await _sealedDayRepository.GetRangeAsync(periodEnd, periodEnd, group.Id, cancellationToken);
             if (existingSeals.Count > 0) continue;
 
+            var periodStart = PeriodBoundaries.StartFor(group.PaymentInterval, periodEnd);
+            if (!await _activityProbe.HasWorkInRangeAsync(group, periodStart, periodEnd, cancellationToken))
+            {
+                skippedUnplanned++;
+                continue;
+            }
+
             events.Add(new PeriodCloseDueTriggerEvent(
                 group.Id,
                 group.Name,
@@ -84,8 +102,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
         }
 
         _logger.LogInformation(
-            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted",
-            groups.Count, events.Count);
+            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted, {SkippedUnplanned} skipped because the period holds no work",
+            groups.Count, events.Count, skippedUnplanned);
 
         return events;
     }

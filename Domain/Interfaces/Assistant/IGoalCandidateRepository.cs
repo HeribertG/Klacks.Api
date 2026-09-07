@@ -36,6 +36,14 @@ public interface IGoalCandidateRepository
     Task<GoalCandidate?> GetByPlanIdAsync(Guid planId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Lists every non-terminal candidate of every user, oldest first, limited by
+    /// <paramref name="limit"/>. Feeds the revalidation sweep, which is the only caller that has to
+    /// look across users: a candidate is expired when the observation it was drawn from has stopped
+    /// occurring, and that check is per user but the sweep itself is installation-wide.
+    /// </summary>
+    Task<IReadOnlyList<GoalCandidate>> GetOpenAsync(int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Lists approved candidates that already have a drafted plan, oldest first, limited by
     /// <paramref name="limit"/>. Feeds the Phase 4 retry sweep
     /// (GoalPlanExecutionRetryBackgroundService) that re-attempts execution for a candidate whose first

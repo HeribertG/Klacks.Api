@@ -175,6 +175,10 @@
     "tetapkan kontrak sedia ada kepada pekerja",
     "lampirkan kontrak untuk kakitangan"
   ],
+  "assign_orders_to_groups": [
+    "kumpulkan pesanan yang diimport",
+    "pesanan tanpa kumpulan"
+  ],
   "assign_user_permissions": [
     "beri kebenaran pentadbir kepada pengguna ahmad",
     "tetapkan peranan 'authorised' untuk user id 5",
@@ -1610,6 +1614,13 @@
     "senarai syif untuk pesanan tersebut",
     "tunjukkan jam kerja dalam pesanan"
   ],
+  "get_setup_guidance": [
+    "bagaimana saya bermula",
+    "di mana saya bermula",
+    "langkah pertama dalam sistem",
+    "mengapa saya tidak boleh merancang apa-apa",
+    "perbezaan antara pesanan dan tugas"
+  ],
   "get_shift_details": [
     "perincian syif",
     "lihat syif",
@@ -2173,6 +2184,10 @@
     "semak model mana yang sesuai dan matikan yang tidak perlu",
     "cari model terbaik secara automatik"
   ],
+  "partition_clients_by_address": [
+    "bahagikan klien mengikut alamat",
+    "bahagikan pekerja kepada kumpulan mengikut alamat"
+  ],
   "place_work": [
     "letakkan yasmine di syif pagi pada 15 mei",
     "tambah coline ke n10 pada 18 mei",
@@ -2332,6 +2347,10 @@
     "buat peringatan mingguan",
     "tetapkan tugasan automatik",
     "cron setiap isnin"
+  ],
+  "seal_open_orders": [
+    "meterai semua pesanan terbuka",
+    "tukar pesanan kepada syif"
   ],
   "seal_shift": [
     "meterai tempahan ini",
@@ -3056,17 +3075,5 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
-  ],
-  "partition_clients_by_address": [
-    "bahagikan klien mengikut alamat",
-    "bahagikan pekerja kepada kumpulan mengikut alamat"
-  ],
-  "assign_orders_to_groups": [
-    "kumpulkan pesanan yang diimport",
-    "pesanan tanpa kumpulan"
-  ],
-  "seal_open_orders": [
-    "meterai semua pesanan terbuka",
-    "tukar pesanan kepada syif"
   ]
 }

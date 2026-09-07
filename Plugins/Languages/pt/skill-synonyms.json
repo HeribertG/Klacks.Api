@@ -186,6 +186,10 @@
     "vincular contrato a funcionário",
     "associar contrato a colaborador"
   ],
+  "assign_orders_to_groups": [
+    "agrupar encomendas importadas",
+    "encomendas sem grupo"
+  ],
   "assign_user_permissions": [
     "atribui permissão de administrador ao usuário",
     "define o papel do usuário como autorizado",
@@ -1640,6 +1644,13 @@
     "detalhar as horas do pedido",
     "consultar os registros de trabalho do pedido"
   ],
+  "get_setup_guidance": [
+    "como comeco",
+    "por onde comeco",
+    "primeiros passos no sistema",
+    "por que nao consigo planear nada",
+    "diferenca entre encomenda e servico"
+  ],
   "get_shift_details": [
     "detalhes do turno",
     "exibir turno",
@@ -2211,6 +2222,10 @@
     "otimiza os modelos de ia para o klacks",
     "procurar o melhor modelo automaticamente"
   ],
+  "partition_clients_by_address": [
+    "dividir clientes por endereço",
+    "dividir funcionários em grupos por endereço"
+  ],
   "place_work": [
     "colocar a yasmine na escala do dia 15 para o turno da manhã",
     "adicionar a coline no turno n10 no dia 18",
@@ -2377,6 +2392,10 @@
     "repetir toda sexta-feira",
     "configurar lembrete semanal",
     "cron job para enviar relatório"
+  ],
+  "seal_open_orders": [
+    "selar todas as encomendas abertas",
+    "converter encomendas em turnos"
   ],
   "seal_shift": [
     "sela este pedido para criar um turno planejável",
@@ -3114,17 +3133,5 @@
     "pesquisa web",
     "procurar na internet",
     "pesquisa online"
-  ],
-  "partition_clients_by_address": [
-    "dividir clientes por endereço",
-    "dividir funcionários em grupos por endereço"
-  ],
-  "assign_orders_to_groups": [
-    "agrupar encomendas importadas",
-    "encomendas sem grupo"
-  ],
-  "seal_open_orders": [
-    "selar todas as encomendas abertas",
-    "converter encomendas em turnos"
   ]
 }

@@ -159,7 +159,14 @@ public static class GoalTypeCatalog
                 "bulkSealOrdersFailed",
                 "a background bulk order-sealing run aborted before it could finish",
                 "Get bulk order sealing running reliably",
-                "An aborted bulk order-sealing run came up {0} time(s) in the last {1} days.")
+                "An aborted bulk order-sealing run came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.NoScheduleYet] = Define(
+                AgentTriggerKinds.NoScheduleYet,
+                "noScheduleYet",
+                "nothing has been scheduled anywhere yet, so no duty is assigned to anybody",
+                "Get the first schedule off the ground",
+                "An unplanned installation came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>

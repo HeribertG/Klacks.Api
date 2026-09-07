@@ -4,7 +4,10 @@
 /// Periodic background service that runs IGoalReflectionService.RunReflectionCycleAsync once per
 /// configured interval (default 24 hours) so Klacksy can surface self-directed goal candidates without
 /// a human trigger. Phase 1 is shadow mode: this service only owns the schedule, the reflection
-/// service itself decides what happens with a cycle's candidates. Disabled by default via
+/// service itself decides what happens with a cycle's candidates. Each cycle first revalidates the
+/// candidates already in the inbox and expires the ones whose observation has stopped occurring —
+/// before drafting new ones, so a candidate that is about to expire cannot block its own successor
+/// through the reflection service's duplicate check. Disabled by default via
 /// BackgroundServiceOptions.GoalReflection — when disabled it logs once and never polls.
 /// First run is delayed so the application is fully warmed up before the first cycle.
 /// </summary>
@@ -82,11 +85,15 @@ public class GoalReflectionBackgroundService : BackgroundService
         try
         {
             using var scope = _serviceProvider.CreateScope();
+
+            var revalidationService = scope.ServiceProvider.GetRequiredService<IGoalCandidateRevalidationService>();
+            var expiredCount = await revalidationService.RunRevalidationCycleAsync(cancellationToken);
+
             var reflectionService = scope.ServiceProvider.GetRequiredService<IGoalReflectionService>();
             var candidateCount = await reflectionService.RunReflectionCycleAsync(cancellationToken);
             _logger.LogInformation(
-                "GoalReflectionBackgroundService - reflection cycle completed in {Ms}ms, {Count} candidate(s)",
-                sw.ElapsedMilliseconds, candidateCount);
+                "GoalReflectionBackgroundService - cycle completed in {Ms}ms, {Count} candidate(s) created, {Expired} expired",
+                sw.ElapsedMilliseconds, candidateCount, expiredCount);
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {

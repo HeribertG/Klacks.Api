@@ -56,6 +56,7 @@ public static class ProactiveGovernanceDefaults
         AgentTriggerKinds.KlacksyLearnedDigest,
         AgentTriggerKinds.LockConflict,
         AgentTriggerKinds.NextPeriodSchedulingDue,
+        AgentTriggerKinds.NoScheduleYet,
         AgentTriggerKinds.OpenOrder,
         AgentTriggerKinds.OrderImportFailed,
         AgentTriggerKinds.PeriodCloseDue,

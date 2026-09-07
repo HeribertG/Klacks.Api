@@ -186,6 +186,10 @@
     "berikan kontrak baru ke pegawai",
     "tetapkan perjanjian kerja untuk staf"
   ],
+  "assign_orders_to_groups": [
+    "kelompokkan pesanan impor",
+    "pesanan tanpa grup"
+  ],
   "assign_user_permissions": [
     "beri izin admin ke user",
     "ubah peran pengguna",
@@ -1602,6 +1606,13 @@
     "shift di dalam pesanan",
     "siapa yang bekerja di pesanan"
   ],
+  "get_setup_guidance": [
+    "bagaimana saya memulai",
+    "dari mana saya mulai",
+    "langkah pertama di sistem",
+    "mengapa saya tidak bisa merencanakan apa pun",
+    "perbedaan antara pesanan dan dinas"
+  ],
   "get_shift_details": [
     "detail shift",
     "info shift",
@@ -2163,6 +2174,10 @@
     "tes model yang tersedia dan nonaktifkan yang gagal",
     "pilih model terbaik secara otomatis"
   ],
+  "partition_clients_by_address": [
+    "bagi klien berdasarkan alamat",
+    "bagi karyawan ke dalam grup berdasarkan alamat"
+  ],
   "place_work": [
     "tugaskan yasmine ke shift pagi tanggal 15 mei",
     "jadwalkan coline di n10 pada 18 mei",
@@ -2322,6 +2337,10 @@
     "set pengingat mingguan",
     "cron job untuk laporan",
     "buat tugas otomatis setiap senin"
+  ],
+  "seal_open_orders": [
+    "segel semua pesanan terbuka",
+    "ubah pesanan menjadi shift"
   ],
   "seal_shift": [
     "segel pesanan ini",
@@ -3038,17 +3057,5 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
-  ],
-  "partition_clients_by_address": [
-    "bagi klien berdasarkan alamat",
-    "bagi karyawan ke dalam grup berdasarkan alamat"
-  ],
-  "assign_orders_to_groups": [
-    "kelompokkan pesanan impor",
-    "pesanan tanpa grup"
-  ],
-  "seal_open_orders": [
-    "segel semua pesanan terbuka",
-    "ubah pesanan menjadi shift"
   ]
 }

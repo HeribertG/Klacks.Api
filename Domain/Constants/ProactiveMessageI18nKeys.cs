@@ -36,4 +36,14 @@ public static class ProactiveMessageI18nKeys
     public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
     public const string BulkSealOrdersCompleted = "assistant.proactive.bulkSealOrdersCompleted";
     public const string BulkSealOrdersFailed = "assistant.proactive.bulkSealOrdersFailed";
+
+    /// <summary>
+    /// Three mutually exclusive stages of an installation that has never been planned. Kept apart
+    /// instead of one parameterised sentence because "no orders exist" and "orders exist but nothing
+    /// is assigned" are different statements of fact — a single wording would be wrong in at least
+    /// one of the cases, and the offer of help that follows it differs too.
+    /// </summary>
+    public const string SetupNothingYet = "assistant.proactive.setupNothingYet";
+    public const string SetupOrdersButNoShifts = "assistant.proactive.setupOrdersButNoShifts";
+    public const string SetupShiftsButNoWork = "assistant.proactive.setupShiftsButNoWork";
 }

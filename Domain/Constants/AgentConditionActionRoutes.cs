@@ -35,6 +35,7 @@ public static class AgentConditionActionRoutes
         [AgentTriggerKinds.AvailabilityGap] = ProactiveActionRoutes.ClientAvailability,
         [AgentTriggerKinds.PeriodOverdue] = ProactiveActionRoutes.PeriodClosing,
         [AgentTriggerKinds.ClientMissingCoreData] = ProactiveActionRoutes.ClientEdit,
+        [AgentTriggerKinds.NoScheduleYet] = ProactiveActionRoutes.Schedule,
     };
 
     public static string? For(string triggerKind) =>

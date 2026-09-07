@@ -186,6 +186,10 @@
     "umowa pracownika",
     "powiąż umowę"
   ],
+  "assign_orders_to_groups": [
+    "pogrupuj zaimportowane zamówienia",
+    "zamówienia bez grupy"
+  ],
   "assign_user_permissions": [
     "ustaw rolę admin dla użytkownika jank",
     "przydziel uprawnienia authorized dla usera123",
@@ -1649,6 +1653,13 @@
     "pokaż pracowników w zamówieniu",
     "szczegóły zamówienia"
   ],
+  "get_setup_guidance": [
+    "jak zaczac",
+    "od czego zaczac",
+    "pierwsze kroki w systemie",
+    "dlaczego nie moge nic zaplanowac",
+    "roznica miedzy zamowieniem a sluzba"
+  ],
   "get_shift_details": [
     "pokaż szczegóły zmiany",
     "szczegóły zmiany",
@@ -2237,6 +2248,10 @@
     "automatycznie wybierz najlepszy model",
     "optymalizuj modele językowe"
   ],
+  "partition_clients_by_address": [
+    "podziel klientów według adresu",
+    "podziel pracowników na grupy według adresu"
+  ],
   "place_work": [
     "przypisz pracownika do zmiany",
     "dodaj pracę na zmianę",
@@ -2401,6 +2416,10 @@
     "chcę dostawać przypomnienie codziennie o 8 rano",
     "zaplanuj zadanie powtarzające się w każdy pierwszy dzień miesiąca",
     "dodaj cykliczne przypomnienie o spotkaniu w każdy wtorek"
+  ],
+  "seal_open_orders": [
+    "zapieczętuj wszystkie otwarte zamówienia",
+    "przekształć zamówienia w zmiany"
   ],
   "seal_shift": [
     "zapieczętuj to zamówienie",
@@ -3145,17 +3164,5 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
-  ],
-  "partition_clients_by_address": [
-    "podziel klientów według adresu",
-    "podziel pracowników na grupy według adresu"
-  ],
-  "assign_orders_to_groups": [
-    "pogrupuj zaimportowane zamówienia",
-    "zamówienia bez grupy"
-  ],
-  "seal_open_orders": [
-    "zapieczętuj wszystkie otwarte zamówienia",
-    "przekształć zamówienia w zmiany"
   ]
 }

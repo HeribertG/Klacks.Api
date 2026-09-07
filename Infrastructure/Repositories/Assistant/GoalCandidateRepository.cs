@@ -92,6 +92,15 @@ public class GoalCandidateRepository : IGoalCandidateRepository
     // instead of accumulating every candidate ever approved. Without this the oldest finished candidates
     // would fill the row limit forever and newer, genuinely retryable ones would never be reached.
     // The caller still re-checks the plan status before executing; this only keeps the sweep bounded.
+    public async Task<IReadOnlyList<GoalCandidate>> GetOpenAsync(int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.GoalCandidates
+            .Where(c => c.Status == GoalCandidateStatus.Shadow || c.Status == GoalCandidateStatus.Proposed)
+            .OrderBy(c => c.CreateTime)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<GoalCandidate>> GetApprovedWithPlanAsync(int limit, CancellationToken cancellationToken = default)
     {
         var draftingPlanIds = _context.AgentPlans

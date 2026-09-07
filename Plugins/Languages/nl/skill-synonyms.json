@@ -186,6 +186,10 @@
     "koppel een bestaand contract aan een klant",
     "stel een arbeidscontract in voor een werknemer"
   ],
+  "assign_orders_to_groups": [
+    "geïmporteerde orders groeperen",
+    "orders zonder groep"
+  ],
   "assign_user_permissions": [
     "wijs rol toe aan gebruiker",
     "geef rechten aan...",
@@ -1645,6 +1649,13 @@
     "diensten in de order",
     "wie heeft er aan de order gewerkt"
   ],
+  "get_setup_guidance": [
+    "hoe begin ik",
+    "waar moet ik beginnen",
+    "eerste stappen in het systeem",
+    "waarom kan ik niets plannen",
+    "verschil tussen order en dienst"
+  ],
   "get_shift_details": [
     "toon de details van de dienst",
     "wat zijn de tijden van de dienst",
@@ -2222,6 +2233,10 @@
     "laat de beste ai-modellen automatisch selecteren",
     "probeer alle taalmodellen en sorteer ze uit"
   ],
+  "partition_clients_by_address": [
+    "cliënten splitsen op adres",
+    "medewerkers indelen in groepen op adres"
+  ],
   "place_work": [
     "zet yasmine op 15 mei vroege dienst",
     "voeg coline toe aan n10 op 18 mei",
@@ -2383,6 +2398,10 @@
     "elke dag om 18:00 een rapport",
     "zet een herinnering op elke vrijdag",
     "voeg een cron-taak toe"
+  ],
+  "seal_open_orders": [
+    "alle open orders verzegelen",
+    "orders omzetten naar diensten"
   ],
   "seal_shift": [
     "verzegel deze bestelling",
@@ -3130,17 +3149,5 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
-  ],
-  "partition_clients_by_address": [
-    "cliënten splitsen op adres",
-    "medewerkers indelen in groepen op adres"
-  ],
-  "assign_orders_to_groups": [
-    "geïmporteerde orders groeperen",
-    "orders zonder groep"
-  ],
-  "seal_open_orders": [
-    "alle open orders verzegelen",
-    "orders omzetten naar diensten"
   ]
 }

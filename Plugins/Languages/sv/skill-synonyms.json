@@ -181,6 +181,10 @@
     "avtalstilldelning",
     "kontrakt"
   ],
+  "assign_orders_to_groups": [
+    "gruppera importerade beställningar",
+    "beställningar utan grupp"
+  ],
   "assign_user_permissions": [
     "tilldela administratörsroll till användaren",
     "sätt behörigheten för användaren",
@@ -1627,6 +1631,13 @@
     "skift som ingår i ordern",
     "vem arbetade på ordern"
   ],
+  "get_setup_guidance": [
+    "hur kommer jag igang",
+    "var ska jag boerja",
+    "foersta stegen i systemet",
+    "varfoer kan jag inte planera nagot",
+    "skillnad mellan order och pass"
+  ],
   "get_shift_details": [
     "visa passdetaljer",
     "visa passet",
@@ -2189,6 +2200,10 @@
     "hitta den bästa språkmodellen för dig",
     "testa vilka modeller som fungerar med klacks och ställ in bästa som standard"
   ],
+  "partition_clients_by_address": [
+    "dela klienter efter adress",
+    "dela medarbetare i grupper efter adress"
+  ],
   "place_work": [
     "sätt yasmine på morgonskiftet den 15 maj",
     "lägg till coline på n10 den 18 maj",
@@ -2348,6 +2363,10 @@
     "jag vill ha en rapport varje kväll klockan sex",
     "sätt upp ett cron-jobb som kör varje timme",
     "påminn mig om att checka in varje morgon"
+  ],
+  "seal_open_orders": [
+    "försegla alla öppna beställningar",
+    "omvandla beställningar till pass"
   ],
   "seal_shift": [
     "försegla den här beställningen",
@@ -3079,17 +3098,5 @@
     "internetsökning",
     "sök på nätet",
     "googla"
-  ],
-  "partition_clients_by_address": [
-    "dela klienter efter adress",
-    "dela medarbetare i grupper efter adress"
-  ],
-  "assign_orders_to_groups": [
-    "gruppera importerade beställningar",
-    "beställningar utan grupp"
-  ],
-  "seal_open_orders": [
-    "försegla alla öppna beställningar",
-    "omvandla beställningar till pass"
   ]
 }
