@@ -32677,14 +32677,12 @@
         "de": [
           "tour",
           "rundgang",
-          "neu hier",
-          "wo fange ich an"
+          "neu hier"
         ],
         "en": [
           "tour",
           "walkthrough",
-          "new here",
-          "where do i start"
+          "new here"
         ]
       },
       "synonyms": {
@@ -32694,7 +32692,6 @@
           "einführung",
           "zeig mir die app",
           "neu hier",
-          "wo fange ich an",
           "erste schritte",
           "überblick über die anwendung",
           "einarbeitung"
@@ -32705,7 +32702,6 @@
           "introduction",
           "show me the app",
           "new here",
-          "where do i start",
           "first steps",
           "overview of the application",
           "app tour"
@@ -32715,7 +32711,6 @@
           "introduction",
           "montre-moi l application",
           "nouveau ici",
-          "par où commencer",
           "premiers pas"
         ],
         "it": [
@@ -32723,11 +32718,10 @@
           "introduzione",
           "mostrami l applicazione",
           "nuovo qui",
-          "da dove comincio",
           "primi passi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "explain_navigation_learning",
