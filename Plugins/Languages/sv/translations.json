@@ -4015,5 +4015,10 @@
   "setup.success": "Ditt administratörskonto har skapats. Logga in med dina nya inloggningsuppgifter.",
   "setup.userName": "Användarnamn",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Pass raderat",
+  "schedule.undo.restore": "Ångra",
+  "schedule.undo.failed": "Återställning är inte längre möjlig",
+  "schedule.undo.conflict": "Återställning inte möjlig, platsen är under tiden upptagen",
+  "assistant-chat.onboarding.header-badge.start": "Starta rundtur"
 }

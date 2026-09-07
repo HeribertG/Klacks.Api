@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -84,5 +85,36 @@ public sealed class WorkSofteningRepository : IWorkSofteningRepository
             .ToListAsync(ct);
 
         _context.WorkSoftening.RemoveRange(existing);
+    }
+
+    public async Task RestoreForClientDayAsync(
+        Guid clientId,
+        DateOnly date,
+        Guid? analyseToken,
+        DateTime deletedTime,
+        string? deletedBy,
+        CancellationToken ct)
+    {
+        var tolerance = TimeSpan.FromSeconds(WorkRestoreDefaults.SiblingDeleteToleranceSeconds);
+        var windowStart = deletedTime - tolerance;
+        var windowEnd = deletedTime + tolerance;
+
+        var deleted = await _context.WorkSoftening
+            .IgnoreQueryFilters()
+            .Where(s => s.ClientId == clientId
+                        && s.CurrentDate == date
+                        && (s.AnalyseToken == analyseToken || (s.AnalyseToken == null && analyseToken == null))
+                        && s.IsDeleted
+                        && s.CurrentUserDeleted == deletedBy
+                        && s.DeletedTime >= windowStart
+                        && s.DeletedTime <= windowEnd)
+            .ToListAsync(ct);
+
+        foreach (var row in deleted)
+        {
+            row.IsDeleted = false;
+            row.DeletedTime = null;
+            row.CurrentUserDeleted = null;
+        }
     }
 }

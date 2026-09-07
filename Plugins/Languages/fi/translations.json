@@ -4015,5 +4015,10 @@
   "setup.success": "Pääkäyttäjätilisi on luotu. Kirjaudu sisään uusilla tunnuksillasi.",
   "setup.userName": "Käyttäjänimi",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Vuoro poistettu",
+  "schedule.undo.restore": "Kumoa",
+  "schedule.undo.failed": "Palauttaminen ei ole enää mahdollista",
+  "schedule.undo.conflict": "Palauttaminen ei onnistu, paikka on sillä välin varattu",
+  "assistant-chat.onboarding.header-badge.start": "Aloita esittely"
 }

@@ -4015,5 +4015,10 @@
   "setup.success": "管理者アカウントが作成されました。新しい認証情報でサインインしてください。",
   "setup.userName": "ユーザー名",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "シフトを削除しました",
+  "schedule.undo.restore": "元に戻す",
+  "schedule.undo.failed": "復元はもうできません",
+  "schedule.undo.conflict": "復元できません。枠はすでに埋まっています",
+  "assistant-chat.onboarding.header-badge.start": "ツアーを開始"
 }

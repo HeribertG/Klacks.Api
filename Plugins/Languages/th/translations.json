@@ -4015,5 +4015,10 @@
   "setup.success": "สร้างบัญชีผู้ดูแลระบบของคุณแล้ว กรุณาเข้าสู่ระบบด้วยข้อมูลบัญชีใหม่",
   "setup.userName": "ชื่อผู้ใช้",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "ลบกะแล้ว",
+  "schedule.undo.restore": "เลิกทำ",
+  "schedule.undo.failed": "ไม่สามารถกู้คืนได้อีกต่อไป",
+  "schedule.undo.conflict": "ไม่สามารถกู้คืนได้ ตำแหน่งถูกจองไปแล้ว",
+  "assistant-chat.onboarding.header-badge.start": "เริ่มทัวร์"
 }

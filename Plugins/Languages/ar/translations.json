@@ -4015,5 +4015,10 @@
   "setup.success": "تم إنشاء حساب المسؤول الخاص بك. يرجى تسجيل الدخول باستخدام بيانات الاعتماد الجديدة.",
   "setup.userName": "اسم المستخدم",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "تم حذف الخدمة",
+  "schedule.undo.restore": "تراجع",
+  "schedule.undo.failed": "لم تعد الاستعادة ممكنة",
+  "schedule.undo.conflict": "الاستعادة غير ممكنة، المكان أصبح مشغولاً",
+  "assistant-chat.onboarding.header-badge.start": "بدء الجولة"
 }

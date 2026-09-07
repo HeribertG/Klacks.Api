@@ -47,4 +47,19 @@ public interface IWorkRepository : IBaseRepository<Work>
     /// <param name="shiftId">Shift whose Work rows are checked.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task<bool> HasLockedWorkForShiftAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Loads a soft-deleted Work past the global query filter. Returns null for an unknown id and for a
+    /// Work that is not deleted, so the caller can treat both as "nothing to restore".
+    /// </summary>
+    /// <param name="id">Work id.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<Work?> GetDeletedAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Clears the soft-delete stamp of a tracked Work and re-runs the work macro, exactly like Add and Put
+    /// do, so surcharges and overtime reflect the plan as it is now. Stage-only; the caller commits.
+    /// </summary>
+    /// <param name="work">The tracked, soft-deleted Work.</param>
+    Task RestoreAsync(Work work);
 }

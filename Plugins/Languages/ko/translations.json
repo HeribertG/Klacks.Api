@@ -4015,5 +4015,10 @@
   "setup.success": "관리자 계정이 생성되었습니다. 새 자격 증명으로 로그인해 주세요.",
   "setup.userName": "사용자명",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "근무가 삭제되었습니다",
+  "schedule.undo.restore": "실행 취소",
+  "schedule.undo.failed": "더 이상 복원할 수 없습니다",
+  "schedule.undo.conflict": "복원할 수 없습니다. 자리가 이미 채워졌습니다",
+  "assistant-chat.onboarding.header-badge.start": "투어 시작"
 }

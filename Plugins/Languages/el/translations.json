@@ -4015,5 +4015,10 @@
   "setup.success": "Ο λογαριασμός διαχειριστή σας δημιουργήθηκε. Παρακαλώ συνδεθείτε με τα νέα σας στοιχεία σύνδεσης.",
   "setup.userName": "Όνομα χρήστη",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Η βάρδια διαγράφηκε",
+  "schedule.undo.restore": "Αναίρεση",
+  "schedule.undo.failed": "Η επαναφορά δεν είναι πλέον δυνατή",
+  "schedule.undo.conflict": "Η επαναφορά δεν είναι δυνατή, η θέση έχει εν τω μεταξύ καταληφθεί",
+  "assistant-chat.onboarding.header-badge.start": "Έναρξη περιήγησης"
 }

@@ -4015,5 +4015,10 @@
   "setup.success": "Uw beheerdersaccount is aangemaakt. Meld u aan met uw nieuwe gegevens.",
   "setup.userName": "Gebruikersnaam",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Dienst verwijderd",
+  "schedule.undo.restore": "Ongedaan maken",
+  "schedule.undo.failed": "Herstellen is niet meer mogelijk",
+  "schedule.undo.conflict": "Herstellen niet mogelijk, de plaats is inmiddels bezet",
+  "assistant-chat.onboarding.header-badge.start": "Rondleiding starten"
 }

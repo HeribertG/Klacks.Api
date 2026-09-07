@@ -4015,5 +4015,10 @@
   "setup.success": "Akaun pentadbir anda telah dicipta. Sila log masuk dengan kelayakan baharu anda.",
   "setup.userName": "Nama pengguna",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Syif dipadam",
+  "schedule.undo.restore": "Buat asal",
+  "schedule.undo.failed": "Pemulihan tidak lagi boleh dilakukan",
+  "schedule.undo.conflict": "Pemulihan tidak boleh dilakukan, tempat sudah diisi",
+  "assistant-chat.onboarding.header-badge.start": "Mulakan lawatan"
 }

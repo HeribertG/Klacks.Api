@@ -4015,5 +4015,10 @@
   "setup.success": "Administratorkontoen din er opprettet. Logg inn med de nye påloggingsopplysningene.",
   "setup.userName": "Brukernavn",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Vakt slettet",
+  "schedule.undo.restore": "Angre",
+  "schedule.undo.failed": "Gjenoppretting er ikke lenger mulig",
+  "schedule.undo.conflict": "Gjenoppretting ikke mulig, plassen er i mellomtiden opptatt",
+  "assistant-chat.onboarding.header-badge.start": "Start omvisning"
 }

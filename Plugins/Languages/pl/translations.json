@@ -4015,5 +4015,10 @@
   "setup.success": "Twoje konto administratora zostało utworzone. Zaloguj się proszę przy użyciu nowych danych logowania.",
   "setup.userName": "Nazwa użytkownika",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Zmiana usunięta",
+  "schedule.undo.restore": "Cofnij",
+  "schedule.undo.failed": "Przywrócenie nie jest już możliwe",
+  "schedule.undo.conflict": "Przywrócenie niemożliwe, miejsce zostało w międzyczasie zajęte",
+  "assistant-chat.onboarding.header-badge.start": "Rozpocznij przewodnik"
 }

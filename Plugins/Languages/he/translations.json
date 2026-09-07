@@ -4015,5 +4015,10 @@
   "setup.success": "חשבון המנהל שלך נוצר. אנא התחבר עם פרטי הגישה החדשים.",
   "setup.userName": "שם משתמש",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "המשמרת נמחקה",
+  "schedule.undo.restore": "בטל",
+  "schedule.undo.failed": "השחזור אינו אפשרי עוד",
+  "schedule.undo.conflict": "השחזור אינו אפשרי, המקום נתפס בינתיים",
+  "assistant-chat.onboarding.header-badge.start": "התחל סיור"
 }

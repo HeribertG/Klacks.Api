@@ -4015,5 +4015,10 @@
   "setup.success": "Tài khoản quản trị của bạn đã được tạo. Vui lòng đăng nhập bằng thông tin đăng nhập mới.",
   "setup.userName": "Tên đăng nhập",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Đã xóa ca làm việc",
+  "schedule.undo.restore": "Hoàn tác",
+  "schedule.undo.failed": "Không thể khôi phục được nữa",
+  "schedule.undo.conflict": "Không thể khôi phục, vị trí đã có người",
+  "assistant-chat.onboarding.header-badge.start": "Bắt đầu hướng dẫn"
 }

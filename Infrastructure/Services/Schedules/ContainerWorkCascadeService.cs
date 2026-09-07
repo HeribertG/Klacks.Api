@@ -1,10 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Cascades operations (delete, move, lock-level) from a container work to its children.
+/// Cascades operations (delete, restore, move, lock-level) from a container work to its children. The
+/// restore brings back only the children the same delete took away: same stamped user and a delete time
+/// within the sibling tolerance of the container's, so children removed earlier or by another actor
+/// (scenario cleanup, harmonizer) stay deleted.
 /// </summary>
 /// <param name="context">The EF Core database context used for direct bulk queries on child entities</param>
 /// <param name="logger">Logger for diagnostic output</param>
+using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -45,6 +50,48 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
         _logger.LogDebug(
             "Deleted {WorkCount} child works and {BreakCount} child breaks for parentWorkId={ParentWorkId}",
             childWorks.Count, childBreaks.Count, parentWorkId);
+    }
+
+    public async Task RestoreChildrenAsync(Guid parentWorkId, DateTime deletedTime, string? deletedBy)
+    {
+        var tolerance = TimeSpan.FromSeconds(WorkRestoreDefaults.SiblingDeleteToleranceSeconds);
+        var windowStart = deletedTime - tolerance;
+        var windowEnd = deletedTime + tolerance;
+
+        var childWorks = await _context.Work
+            .IgnoreQueryFilters()
+            .Where(w => w.ParentWorkId == parentWorkId
+                && w.IsDeleted
+                && w.CurrentUserDeleted == deletedBy
+                && w.DeletedTime >= windowStart
+                && w.DeletedTime <= windowEnd)
+            .ToListAsync();
+
+        var childBreaks = await _context.Break
+            .IgnoreQueryFilters()
+            .Where(b => b.ParentWorkId == parentWorkId
+                && b.IsDeleted
+                && b.CurrentUserDeleted == deletedBy
+                && b.DeletedTime >= windowStart
+                && b.DeletedTime <= windowEnd)
+            .ToListAsync();
+
+        foreach (var work in childWorks)
+            ClearDeleteStamp(work);
+
+        foreach (var breakEntry in childBreaks)
+            ClearDeleteStamp(breakEntry);
+
+        _logger.LogDebug(
+            "Restored {WorkCount} child works and {BreakCount} child breaks for parentWorkId={ParentWorkId}",
+            childWorks.Count, childBreaks.Count, parentWorkId);
+    }
+
+    private static void ClearDeleteStamp(BaseEntity entity)
+    {
+        entity.IsDeleted = false;
+        entity.DeletedTime = null;
+        entity.CurrentUserDeleted = null;
     }
 
     public async Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid newClientId)

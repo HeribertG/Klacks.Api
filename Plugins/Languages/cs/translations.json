@@ -4015,5 +4015,10 @@
   "setup.success": "Váš admin účet byl vytvořen. Přihlaste se prosím pomocí nových přihlašovacích údajů.",
   "setup.userName": "Uživatelské jméno",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Směna smazána",
+  "schedule.undo.restore": "Zpět",
+  "schedule.undo.failed": "Obnovení již není možné",
+  "schedule.undo.conflict": "Obnovení není možné, místo je mezitím obsazeno",
+  "assistant-chat.onboarding.header-badge.start": "Spustit prohlídku"
 }

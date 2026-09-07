@@ -80,6 +80,25 @@ public class SealedDayRepository : ISealedDayRepository
                     && gi.GroupId == s.GroupId)), cancellationToken);
     }
 
+    public async Task<bool> IsDayLockedForShiftAsync(DateOnly date, Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        var globalLocked = await _context.SealedDay
+            .AsNoTracking()
+            .AnyAsync(s => s.Date == date && s.GroupId == null, cancellationToken);
+
+        if (globalLocked)
+        {
+            return true;
+        }
+
+        return await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.Date == date && s.GroupId != null)
+            .AnyAsync(s => _context.GroupItem.Any(gi => !gi.IsDeleted
+                && gi.ShiftId == shiftId
+                && gi.GroupId == s.GroupId), cancellationToken);
+    }
+
     public async Task<HashSet<(DateOnly Date, Guid ClientId)>> GetLockedPairsAsync(
         IReadOnlyCollection<(DateOnly Date, Guid ClientId)> pairs,
         CancellationToken cancellationToken = default)

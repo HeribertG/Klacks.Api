@@ -4015,5 +4015,10 @@
   "setup.success": "Contul dvs. de administrator a fost creat. Vă rugăm să vă autentificați cu noile date de acces.",
   "setup.userName": "Nume de utilizator",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Tură ștearsă",
+  "schedule.undo.restore": "Anulează",
+  "schedule.undo.failed": "Restaurarea nu mai este posibilă",
+  "schedule.undo.conflict": "Restaurarea nu este posibilă, locul a fost între timp ocupat",
+  "assistant-chat.onboarding.header-badge.start": "Pornește turul"
 }

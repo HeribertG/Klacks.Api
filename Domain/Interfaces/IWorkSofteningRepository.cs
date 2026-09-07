@@ -49,4 +49,17 @@ public interface IWorkSofteningRepository
         DateOnly untilDate,
         Guid? analyseToken,
         CancellationToken ct);
+
+    /// <summary>
+    /// Undoes the soft-delete cascade a Work delete applied to the client's softenings of that day:
+    /// restores only the rows stamped by the same user within the sibling tolerance of the Work's
+    /// delete time, so rows removed earlier or by another actor stay deleted. Stage-only.
+    /// </summary>
+    Task RestoreForClientDayAsync(
+        Guid clientId,
+        DateOnly date,
+        Guid? analyseToken,
+        DateTime deletedTime,
+        string? deletedBy,
+        CancellationToken ct);
 }

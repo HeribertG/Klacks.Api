@@ -31,6 +31,19 @@ public class DayLockService : IDayLockService
         }
     }
 
+    public async Task EnsureNotLockedForShiftAsync(DateOnly date, Guid shiftId, Guid? analyseToken, CancellationToken cancellationToken = default)
+    {
+        if (analyseToken.HasValue)
+        {
+            return;
+        }
+
+        if (await _repository.IsDayLockedForShiftAsync(date, shiftId, cancellationToken))
+        {
+            throw new InvalidRequestException(SealedDayMessage(date));
+        }
+    }
+
     public async Task EnsureNoneLockedAsync(
         IReadOnlyCollection<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)> entries,
         CancellationToken cancellationToken = default)

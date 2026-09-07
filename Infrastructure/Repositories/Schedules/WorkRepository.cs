@@ -78,6 +78,21 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return new SporadicCapacityUsage(engagedAtDay, distinctBookedDays);
     }
 
+    public async Task<Work?> GetDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Work
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(w => w.Id == id && w.IsDeleted, cancellationToken);
+    }
+
+    public async Task RestoreAsync(Work work)
+    {
+        work.IsDeleted = false;
+        work.DeletedTime = null;
+        work.CurrentUserDeleted = null;
+        await _workMacroService.ProcessWorkMacroAsync(work);
+    }
+
     public override async Task<Work?> Put(Work work)
     {
         await _workMacroService.ProcessWorkMacroAsync(work);

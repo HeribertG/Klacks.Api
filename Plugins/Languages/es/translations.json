@@ -4015,5 +4015,10 @@
   "setup.success": "Su cuenta de administrador ha sido creada. Inicie sesión con sus nuevas credenciales.",
   "setup.userName": "Nombre de usuario",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Turno eliminado",
+  "schedule.undo.restore": "Deshacer",
+  "schedule.undo.failed": "La restauración ya no es posible",
+  "schedule.undo.conflict": "Restauración no posible, la plaza ya está ocupada",
+  "assistant-chat.onboarding.header-badge.start": "Iniciar recorrido"
 }

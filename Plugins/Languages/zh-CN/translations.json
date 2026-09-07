@@ -4015,5 +4015,10 @@
   "setup.success": "您的管理员账户已创建。请使用新的登录凭据登录。",
   "setup.userName": "用户名",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "班次已删除",
+  "schedule.undo.restore": "撤销",
+  "schedule.undo.failed": "无法再恢复",
+  "schedule.undo.conflict": "无法恢复，该位置已被占用",
+  "assistant-chat.onboarding.header-badge.start": "开始导览"
 }

@@ -120,6 +120,17 @@ public class WorksController : BaseController
         return Ok(model);
     }
 
+    [HttpPost("{id}/Restore")]
+    public async Task<ActionResult<WorkResource>> Restore([FromRoute] Guid id)
+    {
+        var model = await _mediator.Send(new RestoreWorkCommand(id));
+        if (model == null)
+        {
+            return NotFound();
+        }
+        return Ok(model);
+    }
+
     [HttpPost("{id}/Unconfirm")]
     public async Task<ActionResult<WorkResource>> Unconfirm([FromRoute] Guid id)
     {

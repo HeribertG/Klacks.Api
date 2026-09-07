@@ -18,6 +18,16 @@ public interface IDayLockService
     Task EnsureNotLockedAsync(DateOnly date, Guid clientId, Guid? analyseToken, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Same guard resolved through the shift instead of the client: throws when the date is sealed
+    /// globally or by any group containing the shift. Used where the client has no live Work to bind
+    /// him to a group - restoring a deleted Work. Skips for scenario writes like the client-based check.
+    /// </summary>
+    /// <param name="date">The CurrentDate of the entity to be written</param>
+    /// <param name="shiftId">The ShiftId of the entity to be written</param>
+    /// <param name="analyseToken">Scenario token; when not null the check is skipped</param>
+    Task EnsureNotLockedForShiftAsync(DateOnly date, Guid shiftId, Guid? analyseToken, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Same guard for a whole batch, resolved in one repository call. Entries carrying an analyse token
     /// are scenario writes and are skipped, exactly as in the single-entry check.
     /// </summary>

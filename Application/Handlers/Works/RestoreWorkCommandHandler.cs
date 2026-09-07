@@ -1,16 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Creates a Work: day-lock and write guards first, then the Work with its container expansion and
-/// default expenses, commit, overtime successors, period hours, notifications and the three-day
-/// WorkResource the client repaints from.
+/// Undoes a Work soft-delete. Re-runs the guards a create would run (the client-based day seal, plus the
+/// seal resolved via the shift's group because the deleted Work no longer binds its client to a group;
+/// sporadic capacity; hard-blocking conflicts), brings back the container children and the softening
+/// rows the same delete cascaded away, clears the delete stamp, then replays the create-side commit
+/// sequence: commit, overtime successors, period hours, created-notifications, and the same three-day
+/// WorkResource the delete answered with. A foreign delete (caller is neither Admin nor the deleting
+/// user) is answered exactly like "not found" so the endpoint reveals nothing about it.
 /// </summary>
-/// <param name="request">Carries the WorkResource to persist</param>
+/// <param name="request">Carries the id of the soft-deleted Work</param>
 
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -19,39 +25,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
-public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkResource>, WorkResource?>
+public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWorkCommand, WorkResource?>
 {
+    public const string MissingDeleteStampMessage = "The work entry carries no delete time and cannot be restored.";
+
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
-    private readonly IShiftExpensesRepository _shiftExpensesRepository;
-    private readonly IExpensesRepository _expensesRepository;
-    private readonly IContainerWorkExpansionService _expansionService;
+    private readonly IContainerWorkCascadeService _cascadeService;
+    private readonly IWorkSofteningRepository _softeningRepository;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
+    private readonly IWorkWriteGuard _writeGuard;
+    private readonly IWorkRestoreAuthorizer _authorizer;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
-    private readonly IWorkWriteGuard _writeGuard;
 
-    public PostCommandHandler(
+    public RestoreWorkCommandHandler(
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
-        IShiftExpensesRepository shiftExpensesRepository,
-        IExpensesRepository expensesRepository,
-        IContainerWorkExpansionService expansionService,
+        IContainerWorkCascadeService cascadeService,
+        IWorkSofteningRepository softeningRepository,
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
+        IWorkWriteGuard writeGuard,
+        IWorkRestoreAuthorizer authorizer,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
-        IWorkWriteGuard writeGuard,
-        ILogger<PostCommandHandler> logger)
+        ILogger<RestoreWorkCommandHandler> logger)
         : base(logger)
     {
         _workRepository = workRepository;
@@ -60,54 +68,56 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _scheduleEntriesService = scheduleEntriesService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
-        _shiftExpensesRepository = shiftExpensesRepository;
-        _expensesRepository = expensesRepository;
-        _expansionService = expansionService;
+        _cascadeService = cascadeService;
+        _softeningRepository = softeningRepository;
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
+        _writeGuard = writeGuard;
+        _authorizer = authorizer;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
-        _writeGuard = writeGuard;
     }
 
-    public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
+    public async Task<WorkResource?> Handle(RestoreWorkCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var work = _scheduleMapper.ToWorkEntity(request.Resource);
+            var work = await _workRepository.GetDeletedAsync(request.Id, cancellationToken);
+            if (work == null || _authorizer.Resolve(work) == WorkRestoreAccess.Hidden)
+            {
+                throw new KeyNotFoundException($"Deleted work with ID {request.Id} not found.");
+            }
+
+            if (!work.DeletedTime.HasValue)
+            {
+                throw new InvalidRequestException(MissingDeleteStampMessage);
+            }
+
+            var deletedTime = work.DeletedTime.Value;
+            var deletedBy = work.CurrentUserDeleted;
 
             await _dayLockService.EnsureNotLockedAsync(
                 work.CurrentDate,
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+            await _dayLockService.EnsureNotLockedForShiftAsync(
+                work.CurrentDate,
+                work.ShiftId,
+                work.AnalyseToken,
+                cancellationToken);
 
             await _writeGuard.EnsureNoSporadicConflictAsync(work, cancellationToken);
-
             await _writeGuard.EnsureNoHardBlockingConflictAsync(work, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
-            await _workRepository.Add(work);
-            await _expansionService.ExpandAsync(work, work.CurrentDate);
+            await _cascadeService.RestoreChildrenAsync(work.Id, deletedTime, deletedBy);
+            await _softeningRepository.RestoreForClientDayAsync(
+                work.ClientId, work.CurrentDate, work.AnalyseToken, deletedTime, deletedBy, cancellationToken);
 
-            var defaultExpenses = await _shiftExpensesRepository.GetByShiftId(work.ShiftId);
-            foreach (var defaultExpense in defaultExpenses)
-            {
-                var expense = new Domain.Models.Schedules.Expenses
-                {
-                    WorkId = work.Id,
-                    Amount = defaultExpense.Amount,
-                    Description = defaultExpense.Description,
-                    Taxable = defaultExpense.Taxable
-                };
-                await _expensesRepository.Add(expense);
-            }
+            await _workRepository.RestoreAsync(work);
 
-            // K3/K4 cascade: commit the new Work first, then reprocess the successor Works in its
-            // overtime basis period (their prior-hours sums read committed database state, never the
-            // change tracker) BEFORE the completion service recalculates period hours, so the stored
-            // ClientPeriodHours already include the successors' adjusted surcharges.
             await _unitOfWork.CompleteAsync();
             await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
 
@@ -134,6 +144,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
             workResource.ScheduleEntries = scheduleEntries.Select(_scheduleMapper.ToWorkScheduleResource).ToList();
 
             return workResource;
-        }, "CreateWork", new { request.Resource.ClientId });
+        },
+        "restoring work",
+        new { WorkId = request.Id });
     }
 }

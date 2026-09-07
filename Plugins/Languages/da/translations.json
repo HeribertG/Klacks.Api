@@ -4015,5 +4015,10 @@
   "setup.success": "Din administratorkonto er oprettet. Log venligst ind med de nye adgangsoplysninger.",
   "setup.userName": "Brugernavn",
   "assistant-chat.audio-mode.goal-candidates": "Goal Candidates",
-  "assistant-chat.audio-mode.plan-execution": "Plan Execution"
+  "assistant-chat.audio-mode.plan-execution": "Plan Execution",
+  "schedule.undo.workDeleted": "Vagt slettet",
+  "schedule.undo.restore": "Fortryd",
+  "schedule.undo.failed": "Gendannelse er ikke længere mulig",
+  "schedule.undo.conflict": "Gendannelse ikke mulig, pladsen er i mellemtiden optaget",
+  "assistant-chat.onboarding.header-badge.start": "Start rundvisning"
 }
