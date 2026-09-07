@@ -23,5 +23,6 @@
   "offboard-employee": ["registar a saída de um funcionário", "o funcionário sai da empresa", "último dia de trabalho do funcionário"],
   "close-payroll-period": ["fechar o período salarial", "selar o mês"],
   "bundle-mobile-services-into-container": ["agrupar serviços móveis num novo contêiner", "criar contêiner a partir de serviços próximos", "construir contêiner com rota otimizada"],
-  "setup-planning-profile": ["configurar um perfil de planeamento próprio", "definir regras de planeamento próprias da empresa"]
+  "setup-planning-profile": ["configurar um perfil de planeamento próprio", "definir regras de planeamento próprias da empresa"],
+  "setup-consultation": ["como eu começo a usar o sistema do zero", "quais são os primeiros passos no sistema", "ainda não há absolutamente nada planejado", "como configuro o Klacks desde o início"]
 }

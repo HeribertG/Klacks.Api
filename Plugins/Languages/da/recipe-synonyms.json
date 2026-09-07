@@ -23,5 +23,6 @@
   "offboard-employee": ["registrere medarbejderens fratrædelse", "medarbejderen stopper i virksomheden", "sidste arbejdsdag for medarbejder"],
   "close-payroll-period": ["luk lønperioden", "forsegl måneden"],
   "bundle-mobile-services-into-container": ["saml mobile tjenester i en ny container", "opret container fra nærliggende tjenester", "byg container med ruteoptimering"],
-  "setup-planning-profile": ["opsætte en egen planlægningsprofil", "fastlægge egne planlægningsregler for virksomheden"]
+  "setup-planning-profile": ["opsætte en egen planlægningsprofil", "fastlægge egne planlægningsregler for virksomheden"],
+  "setup-consultation": ["hvordan kommer jeg overhovedet i gang", "hvad er de første skridt i systemet", "der er slet ikke planlagt noget endnu", "hvordan sætter jeg Klacks op fra bunden"]
 }

@@ -23,5 +23,6 @@
   "offboard-employee": ["登记员工离职", "员工要离开公司了", "员工的最后工作日"],
   "close-payroll-period": ["关闭工资期间", "封存本月账期"],
   "bundle-mobile-services-into-container": ["把移动服务合并到新容器", "根据附近服务创建容器", "通过路线优化构建容器"],
-  "setup-planning-profile": ["设置自己的排班规划配置", "制定公司自己的排班规则"]
+  "setup-planning-profile": ["设置自己的排班规划配置", "制定公司自己的排班规则"],
+  "setup-consultation": ["到底该怎么开始使用这个系统", "系统里的第一步应该做什么", "日历里现在还什么都没有安排", "应该怎么从头设置Klacks"]
 }

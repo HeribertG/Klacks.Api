@@ -23,5 +23,6 @@
   "offboard-employee": ["mencatat pengunduran diri karyawan", "karyawan keluar dari perusahaan", "hari kerja terakhir karyawan"],
   "close-payroll-period": ["tutup periode penggajian", "segel bulan ini"],
   "bundle-mobile-services-into-container": ["gabungkan layanan mobile ke kontainer baru", "buat kontainer dari layanan terdekat", "susun kontainer dengan rute optimal"],
-  "setup-planning-profile": ["menyiapkan profil perencanaan sendiri", "menetapkan aturan perencanaan sendiri untuk perusahaan"]
+  "setup-planning-profile": ["menyiapkan profil perencanaan sendiri", "menetapkan aturan perencanaan sendiri untuk perusahaan"],
+  "setup-consultation": ["bagaimana cara memulai menggunakan sistem ini", "apa saja langkah pertama dalam sistem", "belum ada sama sekali yang direncanakan", "bagaimana cara mengatur Klacks dari awal"]
 }

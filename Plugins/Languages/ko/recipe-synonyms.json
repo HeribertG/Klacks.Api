@@ -23,5 +23,6 @@
   "offboard-employee": ["직원 퇴사 등록", "직원이 회사를 떠납니다", "직원의 마지막 근무일"],
   "close-payroll-period": ["급여 기간 마감", "월 마감 봉인"],
   "bundle-mobile-services-into-container": ["모바일 서비스를 새 컨테이너로 묶기", "근처 서비스로 컨테이너 생성하기", "경로 최적화로 컨테이너 구성하기"],
-  "setup-planning-profile": ["우리 회사 전용 계획 프로필 설정하기", "회사 자체 계획 규칙 정하기"]
+  "setup-planning-profile": ["우리 회사 전용 계획 프로필 설정하기", "회사 자체 계획 규칙 정하기"],
+  "setup-consultation": ["도대체 어디서부터 시작해야 하나요", "시스템에서 첫 단계는 무엇인가요", "아직 달력에 아무것도 계획되어 있지 않습니다", "Klacks를 처음부터 어떻게 설정하나요"]
 }

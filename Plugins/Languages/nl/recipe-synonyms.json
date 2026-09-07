@@ -23,5 +23,6 @@
   "offboard-employee": ["uitdiensttreding van een medewerker vastleggen", "de medewerker verlaat het bedrijf", "laatste werkdag van medewerker"],
   "close-payroll-period": ["loonperiode afsluiten", "de maand verzegelen"],
   "bundle-mobile-services-into-container": ["mobiele diensten bundelen in een nieuwe container", "container maken van nabijgelegen diensten", "container bouwen met routeoptimalisatie"],
-  "setup-planning-profile": ["een eigen planningsprofiel instellen", "eigen planningsregels voor het bedrijf vastleggen"]
+  "setup-planning-profile": ["een eigen planningsprofiel instellen", "eigen planningsregels voor het bedrijf vastleggen"],
+  "setup-consultation": ["hoe begin ik eigenlijk met het systeem", "wat zijn de eerste stappen in het systeem", "er staat nog helemaal niets gepland", "hoe stel ik Klacks helemaal vanaf het begin in"]
 }
