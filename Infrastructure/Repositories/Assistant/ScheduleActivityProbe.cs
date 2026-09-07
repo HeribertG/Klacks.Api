@@ -12,6 +12,11 @@
 /// Scenario rows are excluded on BOTH sides of the join: a what-if clone sets AnalyseToken on the
 /// Work/Shift row AND on the GroupItem that attaches it, so filtering only the entity would let a
 /// scenario satisfy a gate that is asking about the real schedule.
+///
+/// The two prerequisite probes (customers, groups) are deliberately FLAT existence checks with no
+/// nested-set condition: 364 of the 438 groups in the reference installation carry Root = NULL with
+/// Lft = Rgt = 0, and a scoped query would report those as absent. Here the question is only whether
+/// anything exists at all, so scoping would be wrong as well as dangerous.
 /// </summary>
 /// <param name="context">EF context the existence checks run against.</param>
 
@@ -87,8 +92,12 @@ public class ScheduleActivityProbe : IScheduleActivityProbe
         var hasShifts = await realShifts.AnyAsync(shift => ShiftStatuses.Contains(shift.Status), cancellationToken);
         var hasWork = await _context.Work
             .AnyAsync(work => !work.IsDeleted && work.AnalyseToken == null, cancellationToken);
+        var hasCustomers = await _context.Client
+            .AnyAsync(client => !client.IsDeleted && client.Type == EntityTypeEnum.Customer, cancellationToken);
+        var hasGroups = await _context.Group
+            .AnyAsync(group => !group.IsDeleted, cancellationToken);
 
-        return new ScheduleSetupState(hasOrders, hasShifts, hasWork, false, false);
+        return new ScheduleSetupState(hasOrders, hasShifts, hasWork, hasCustomers, hasGroups);
     }
 
     /// <summary>
