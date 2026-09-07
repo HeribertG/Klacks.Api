@@ -41216,9 +41216,42 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanViewShifts"
       ],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "phase",
+          "description": "Which step of the setup consultation is running: intro, route or act. Omit outside the guided consultation.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "attribution",
+          "description": "The user's answer to whether the working hours are attributed to a customer.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "orderSource",
+          "description": "The user's answer to whether orders arrive from an outside system.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nextStep",
+          "description": "The user's chosen follow-up: create it together, only show where, or nothing.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
       "handlerConfig": null,
       "handlerType": null,
       "effect": "Read",
@@ -41278,7 +41311,7 @@
           "differenza tra ordine e servizio"
         ]
       },
-      "version": 1
+      "version": 2
     }
   ]
 }
