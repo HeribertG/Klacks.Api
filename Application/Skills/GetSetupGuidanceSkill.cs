@@ -28,6 +28,20 @@
 ///
 /// Reachable independently of the one-off no_schedule_yet notification (which dedups permanently),
 /// which is what makes the guide re-enterable after the user abandons it.
+///
+/// The same skill also drives the guided setup consultation recipe through the optional
+/// <c>phase</c> parameter, so one implementation stays the single source of truth for the route
+/// logic instead of forking it across skills:
+/// - Absent (the default, free-form model call): behaves exactly as before, no route is resolved
+///   into navigation.
+/// - <c>intro</c>: the opening turn, before either question has been answered. The route is
+///   deliberately withheld from the data (see below) so the model cannot state a route before the
+///   user has answered anything.
+/// - <c>route</c>: after both questions were answered, reports the resolved route as data for the
+///   conversation to explain in words.
+/// - <c>act</c>: after the follow-up choice was made. Only navigates (<see cref="SkillResultType.Navigation"/>)
+///   when the classified choice is "show me where"; every other choice, including an unclear
+///   attribution that could otherwise assemble into a create offer, stays data-only.
 /// </summary>
 /// <param name="mediator">Resolves the default ERP drop point and its import tokens.</param>
 /// <param name="activityProbe">Installation-wide setup snapshot along the order -> shift -> assignment chain.</param>
@@ -89,73 +103,121 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
                 + "left to set up before scheduling.");
         }
 
+        var phase = GetParameter<string>(parameters, SetupConsultationParameters.Phase);
+        var attribution = SetupConsultationAnswerClassifier.ClassifyAttribution(
+            GetParameter<string>(parameters, SetupConsultationParameters.Attribution));
+        var orderSource = SetupConsultationAnswerClassifier.ClassifyOrderSource(
+            GetParameter<string>(parameters, SetupConsultationParameters.OrderSource));
+        var nextStep = SetupConsultationAnswerClassifier.ClassifyNextStep(
+            GetParameter<string>(parameters, SetupConsultationParameters.NextStep));
+
         var stage = ScheduleSetupStages.For(state);
         var erpRoute = await BuildErpRouteAsync(cancellationToken);
+        var route = SetupRouteResolver.Resolve(
+            state, attribution, orderSource, context.UserPermissions.Contains(Roles.Admin));
 
-        var data = new
+        var isIntro = string.Equals(phase, SetupConsultationPhases.Intro, StringComparison.OrdinalIgnoreCase);
+        var data = BuildData(state, stage, erpRoute, isIntro ? null : route, attribution, orderSource);
+
+        if (string.Equals(phase, SetupConsultationPhases.Act, StringComparison.OrdinalIgnoreCase)
+            && nextStep == SetupNextStepChoice.Show)
         {
-            SetupComplete = false,
-            Stage = stage.ToString(),
-            Installation = new
-            {
-                state.HasOrders,
-                state.HasShifts,
-                state.HasWork
-            },
-            ErpRoute = erpRoute,
-            ManualRoute = new
-            {
-                OrderMeaning =
-                    "An order records work to be done. Naming a customer makes the working hours "
-                    + "attributable to that customer: customer -> order -> shift -> hours. A customer is "
-                    + "NOT required, though.",
-                ShiftMeaning =
-                    "A plannable shift is not created directly. It only ever comes into existence by "
-                    + "sealing an order: sealing marks the order immutable and creates the plannable "
-                    + "shift derived from it, in the same transaction. Sealing cannot be undone.",
-                TheOnlyChoice =
-                    "The choice is therefore not 'order or shift' but WHEN to seal: creating an order "
-                    + "as a draft leaves it editable and produces no shift yet, while creating it "
-                    + "without the draft flag seals it at once and produces the plannable shift "
-                    + "immediately.",
-                ClientlessDuties =
-                    "A duty whose hours are attributable to no single customer is created through the "
-                    + "Plannable Shifts view's own New button (administrators only), which hides the "
-                    + "customer card entirely. Two kinds: work caused by the orders but chargeable to "
-                    + "none of them (refuelling, vehicle care, cleaning, back office), and businesses "
-                    + "where no customer places an order at all - a ward, a kitchen, a salon. In those, "
-                    + "EVERY duty is clientless, so an empty customer must never be read as an "
-                    + "incomplete record.",
-                ClientlessIsSealedOnCreation =
-                    "Such a duty is created SEALED, never as a draft: a draft is a customer's request "
-                    + "still being worked out, so a draft without a customer could not be told apart "
-                    + "from one where the customer is merely still missing. A draft without a customer "
-                    + "is therefore refused, and a clientless duty must be complete when it is created, "
-                    + "because sealing cannot be undone.",
-                HoursCountEitherWay =
-                    "Attribution decides WHOSE the hours are, not whether they count. A clientless duty "
-                    + "is paid working time and enters target/actual hours, wages, supplements and rest "
-                    + "periods exactly like any other.",
-                ClientlessTarget = OrderListTarget,
-                WhenToUseADraft =
-                    "Keep the order a draft when details are still missing or somebody has to check "
-                    + "it, and when orders arrive from an outside system — an import always delivers "
-                    + "drafts and never seals anything by itself.",
-                WhenToSealImmediately =
-                    "Seal at once when the order is complete and the duty should become plannable "
-                    + "right away.",
-                FullDayOrders =
-                    "A duty spanning a whole day is ONE order over the full span, cut into its parts "
-                    + "afterwards — never several orders.",
-                OrderAndShiftListTarget = OrderListTarget,
-                NewShiftTarget,
-                CutFullDayShiftTarget = CutShiftTarget,
-                ScheduleTarget
-            }
-        };
+            return SkillResult.Navigation(
+                new { Route = route.ShowTarget, Target = route.ShowTarget },
+                BuildMessage(stage, erpRoute));
+        }
 
         return SkillResult.SuccessResult(data, BuildMessage(stage, erpRoute));
     }
+
+    private object BuildData(
+        ScheduleSetupState state,
+        ScheduleSetupStage stage,
+        ErpRouteFacts erpRoute,
+        SetupRouteFacts? route,
+        SetupAttributionAnswer attribution,
+        SetupOrderSourceAnswer orderSource) => new
+    {
+        SetupComplete = false,
+        Stage = stage.ToString(),
+        Installation = new
+        {
+            state.HasOrders,
+            state.HasShifts,
+            state.HasWork,
+            state.HasCustomers,
+            state.HasGroups
+        },
+        Answers = new
+        {
+            Attribution = attribution.ToString(),
+            OrderSource = orderSource.ToString()
+        },
+        Route = route == null
+            ? null
+            : new
+            {
+                Kind = route.Kind.ToString(),
+                route.ShowTarget,
+                route.MissingPrerequisites,
+                route.RequiresAdmin
+            },
+        Handoff = route?.HandoffPhrase == null
+            ? null
+            : new { Label = route.HandoffPhrase, Value = route.HandoffPhrase },
+        ErpRoute = erpRoute,
+        ManualRoute = BuildManualRoute()
+    };
+
+    private object BuildManualRoute() => new
+    {
+        OrderMeaning =
+            "An order records work to be done. Naming a customer makes the working hours "
+            + "attributable to that customer: customer -> order -> shift -> hours. A customer is "
+            + "NOT required, though.",
+        ShiftMeaning =
+            "A plannable shift is not created directly. It only ever comes into existence by "
+            + "sealing an order: sealing marks the order immutable and creates the plannable "
+            + "shift derived from it, in the same transaction. Sealing cannot be undone.",
+        TheOnlyChoice =
+            "The choice is therefore not 'order or shift' but WHEN to seal: creating an order "
+            + "as a draft leaves it editable and produces no shift yet, while creating it "
+            + "without the draft flag seals it at once and produces the plannable shift "
+            + "immediately.",
+        ClientlessDuties =
+            "A duty whose hours are attributable to no single customer is created through the "
+            + "Plannable Shifts view's own New button (administrators only), which hides the "
+            + "customer card entirely. Two kinds: work caused by the orders but chargeable to "
+            + "none of them (refuelling, vehicle care, cleaning, back office), and businesses "
+            + "where no customer places an order at all - a ward, a kitchen, a salon. In those, "
+            + "EVERY duty is clientless, so an empty customer must never be read as an "
+            + "incomplete record.",
+        ClientlessIsSealedOnCreation =
+            "Such a duty is created SEALED, never as a draft: a draft is a customer's request "
+            + "still being worked out, so a draft without a customer could not be told apart "
+            + "from one where the customer is merely still missing. A draft without a customer "
+            + "is therefore refused, and a clientless duty must be complete when it is created, "
+            + "because sealing cannot be undone.",
+        HoursCountEitherWay =
+            "Attribution decides WHOSE the hours are, not whether they count. A clientless duty "
+            + "is paid working time and enters target/actual hours, wages, supplements and rest "
+            + "periods exactly like any other.",
+        ClientlessTarget = OrderListTarget,
+        WhenToUseADraft =
+            "Keep the order a draft when details are still missing or somebody has to check "
+            + "it, and when orders arrive from an outside system — an import always delivers "
+            + "drafts and never seals anything by itself.",
+        WhenToSealImmediately =
+            "Seal at once when the order is complete and the duty should become plannable "
+            + "right away.",
+        FullDayOrders =
+            "A duty spanning a whole day is ONE order over the full span, cut into its parts "
+            + "afterwards — never several orders.",
+        OrderAndShiftListTarget = OrderListTarget,
+        NewShiftTarget,
+        CutFullDayShiftTarget = CutShiftTarget,
+        ScheduleTarget
+    };
 
     private async Task<ErpRouteFacts> BuildErpRouteAsync(CancellationToken cancellationToken)
     {
