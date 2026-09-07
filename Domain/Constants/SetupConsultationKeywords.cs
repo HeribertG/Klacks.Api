@@ -4,6 +4,10 @@
 /// Word lists the setup consultation classifies its two free-text answers with. Domain nouns are
 /// listed separately from plain yes/no because they must be checked FIRST: the affirmation tokens
 /// include "bitte", "mach" and "gerne", so "Bitte intern" would otherwise be read as a yes.
+/// <see cref="UnclearMarkers"/> exists because DeclineDetector treats "kein"/"keine"/"keinen" as a
+/// leading negation, so an idiom like "Keine Ahnung" ("no idea") would otherwise be misread as a
+/// concrete No — it must be checked before the negation fallback so it wins only when no domain
+/// noun already answered the question.
 /// Core languages only (de/en/fr/it); plugin languages degrade to yes/no and then to Unknown, which
 /// is the safe path.
 /// </summary>
@@ -50,5 +54,13 @@ public static class SetupConsultationKeywords
     {
         "zeigen", "zeig", "wo", "ansehen", "hinführen", "hinfuehren", "navigier",
         "show", "where", "montre", "montrer", "où", "mostra", "dove",
+    };
+
+    public static readonly HashSet<string> UnclearMarkers = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ahnung", "unklar", "unsicher",
+        "idea", "clue", "unsure",
+        "idée", "sûr",
+        "sicuro",
     };
 }
