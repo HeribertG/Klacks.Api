@@ -242,7 +242,7 @@
       "parameters": [
         {
           "name": "page",
-          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); klacksy-training for admin training review.",
+          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; new-plannable-shift for create a plannable duty without a customer; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); klacksy-training for admin training review.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -260,6 +260,7 @@
             "edit-group",
             "shift-list",
             "new-shift",
+            "new-plannable-shift",
             "edit-shift",
             "cut-shift",
             "container-template",
@@ -328,7 +329,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 18
+      "version": 19
     },
     {
       "name": "get_page_controls",

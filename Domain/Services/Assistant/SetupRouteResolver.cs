@@ -22,6 +22,7 @@ public static class SetupRouteResolver
 {
     private const string OrderListTarget = "shift-list";
     private const string NewShiftTarget = "new-shift";
+    private const string NewPlannableShiftTarget = "new-plannable-shift";
     private const string GroupListTarget = "group-list";
     private const string NewEmployeeTarget = "new-employee";
     private const string ErpDropPointsTarget = "erp-drop-points";
@@ -117,7 +118,7 @@ public static class SetupRouteResolver
         IReadOnlyList<string> missing = isAdmin ? NothingMissing : [SetupPrerequisites.AdminRights];
 
         return new SetupRouteFacts(
-            SetupRouteKind.ClientlessDuty, OrderListTarget, missing, null, true);
+            SetupRouteKind.ClientlessDuty, NewPlannableShiftTarget, missing, null, true);
     }
 
     private static SetupRouteFacts ResolveUnclearRoute(ScheduleSetupState state)

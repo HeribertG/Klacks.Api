@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T21:26:23.055Z",
+  "generatedAt": "2026-09-08T07:07:23.772Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -85,6 +85,13 @@
       "requiredPermission": "CanCreateShifts",
       "hasEntityParam": false,
       "llmHint": "create shift template"
+    },
+    {
+      "pageKey": "new-plannable-shift",
+      "route": "/workplace/shift?create=plannable",
+      "requiredPermission": "CanCreateShifts",
+      "hasEntityParam": false,
+      "llmHint": "create a plannable duty without a customer"
     },
     {
       "pageKey": "edit-shift",

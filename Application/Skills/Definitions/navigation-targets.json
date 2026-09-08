@@ -5789,6 +5789,34 @@
     "obsolete": false
   },
   {
+    "targetId": "new-plannable-shift",
+    "route": "/workplace/shift?create=plannable",
+    "labelKey": "nav.new-plannable-shift",
+    "category": "page",
+    "requiredPermission": "CanCreateShifts",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-09-08T07:07:23.772Z",
+    "synonyms": {
+      "de": [
+        "kundenloser dienst",
+        "dienst ohne kunde",
+        "planbarer dienst ohne kunde"
+      ],
+      "en": [
+        "clientless duty",
+        "duty without a customer"
+      ],
+      "fr": [
+        "service sans client"
+      ],
+      "it": [
+        "servizio senza cliente"
+      ]
+    },
+    "synonymStatus": "reviewed",
+    "obsolete": false
+  },
+  {
     "targetId": "new-shift",
     "route": "/workplace/new-shift",
     "labelKey": "nav.new-shift",
