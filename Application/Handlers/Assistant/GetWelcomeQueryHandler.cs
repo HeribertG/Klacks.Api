@@ -51,6 +51,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private readonly IPublicHolidayProvider _holidayProvider;
     private readonly IGreetingComposer _greetingComposer;
     private readonly IConfiguration _configuration;
+    private readonly IWelcomeFocusResolver _welcomeFocusResolver;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
@@ -59,7 +60,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         IOnboardingService onboardingService,
         IPublicHolidayProvider holidayProvider,
         IGreetingComposer greetingComposer,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWelcomeFocusResolver welcomeFocusResolver)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
@@ -68,6 +70,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         _holidayProvider = holidayProvider;
         _greetingComposer = greetingComposer;
         _configuration = configuration;
+        _welcomeFocusResolver = welcomeFocusResolver;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -107,6 +110,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             cancellationToken);
 
         var onboarding = await _onboardingService.GetStateAsync(request.UserRights, cancellationToken);
+        var focus = await _welcomeFocusResolver.ResolveAsync(request.UserId, cancellationToken);
 
         return new WelcomeResource
         {
@@ -123,6 +127,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
                 .Where(k => SuggestionKeyRoutes.ContainsKey(k))
                 .ToDictionary(k => k, k => SuggestionKeyRoutes[k]),
             Onboarding = onboarding,
+            Focus = focus,
         };
     }
 
