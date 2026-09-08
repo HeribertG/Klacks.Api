@@ -18,7 +18,9 @@ public static class RecipeReplyGuard
 {
     // Latin '?', CJK fullwidth '？', Arabic '؟' — a yes/no confirmation is question-shaped in every
     // supported script, so their absence is the signal that the model answered with a claim, not a question.
-    private static readonly char[] QuestionMarks = { '?', '？', '؟' };
+    // Internal (not private): RecipeTopicSwitchDetector reuses the same multilingual mark set as one of
+    // its own guards, rather than duplicating the list.
+    internal static readonly char[] QuestionMarks = { '?', '？', '؟' };
 
     private static readonly Dictionary<string, string> SingleFrames = new(StringComparer.OrdinalIgnoreCase)
     {
