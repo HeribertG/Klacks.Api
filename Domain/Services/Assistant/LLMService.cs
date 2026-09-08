@@ -617,12 +617,36 @@ public class LLMService : ILLMService
 
         // The turn above ran normally (full toolset) because the user's reply to the pending ask was
         // recognized as an independent question, not a slot answer. The plan is still exactly where it
-        // was — same ask step, slot untouched — so once the turn's own answer is done, re-ask it
-        // deterministically (no extra model call) and pause the recipe exactly like a normal ask-pause.
+        // was — same ask step, slot untouched — so once the turn's own answer is done, re-ask it with the
+        // SAME tool-less ask-instruction call the normal ask-only branch above uses (not a purely
+        // deterministic append): the ask step's English "prompt" carries the "Offer [REPLIES:...]"
+        // instruction, and only a live model turn regenerates those reply chips. SafeAsk still guards the
+        // reply exactly as it does for the normal ask branch, so a malformed/non-question model reply
+        // falls back to the deterministic authored translation.
         if (enginePlan != null && enginePlan.TopicSwitchThisTurn && enginePlan.IsActive && enginePlan.CurrentIsAsk)
         {
+            var reaskInstruction = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
+            var reaskResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
+            {
+                Message = currentMessage,
+                SystemPrompt = systemPrompt!,
+                VolatileSystemPrompt = CombineVolatile(volatilePrompt, reaskInstruction),
+                ModelId = model!.ApiModelId,
+                ConversationHistory = runningHistory,
+                AvailableFunctions = new List<LLMFunction>(),
+                Temperature = 0.7,
+                MaxTokens = model.MaxTokens,
+                SupportedParameters = model.SupportedParameters,
+                CostPerInputToken = model.CostPerInputToken,
+                CostPerOutputToken = model.CostPerOutputToken,
+                CostPerCacheWriteToken = model.CostPerCacheWriteToken,
+                CostPerCacheReadToken = model.CostPerCacheReadToken
+            }, cancellationToken);
+            AccumulateUsage(totalUsage, reaskResponse.Usage);
             var reaskText = RecipeReplyGuard.SafeAsk(
-                null, enginePlan.CurrentAskPrompt ?? string.Empty,
+                reaskResponse.Success ? reaskResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
                 enginePlan.CurrentAskPromptTranslations, context.Language);
             var reaskChunk = RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
             fullResponseContent.Append(reaskChunk);
@@ -1122,13 +1146,37 @@ public class LLMService : ILLMService
 
         // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
         // to the pending ask was recognized as an independent question, not a slot answer. The plan is
-        // still on the same ask step with the slot untouched, so re-ask it deterministically (no extra
-        // model call) once the turn's own answer is in responseContent, and pause exactly like a normal
-        // ask-pause.
+        // still on the same ask step with the slot untouched, so re-ask it with the SAME tool-less
+        // ask-instruction call the normal ask-only branch above uses (not a purely deterministic append):
+        // the ask step's English "prompt" carries the "Offer [REPLIES:...]" instruction, and only a live
+        // model turn regenerates those reply chips. SafeAsk still guards the reply exactly as it does for
+        // the normal ask branch.
         if (enginePlan != null && enginePlan.TopicSwitchThisTurn && enginePlan.IsActive && enginePlan.CurrentIsAsk)
         {
+            var reaskInstruction = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
+            var reaskRequest = new LLMProviderRequest
+            {
+                Message = currentMessage,
+                SystemPrompt = ctx.SystemPrompt,
+                VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt, reaskInstruction),
+                ModelId = ctx.Model.ApiModelId,
+                ConversationHistory = runningHistory,
+                AvailableFunctions = new List<LLMFunction>(),
+                Temperature = 0.7,
+                MaxTokens = ctx.Model.MaxTokens,
+                SupportedParameters = ctx.Model.SupportedParameters,
+                CostPerInputToken = ctx.Model.CostPerInputToken,
+                CostPerOutputToken = ctx.Model.CostPerOutputToken,
+                CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
+                CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken
+            };
+
+            var reaskResponse = await ProcessWithTransientRetryAsync(ctx.Provider, reaskRequest, ctx.CancellationToken);
+            AccumulateUsage(ctx.TotalUsage, reaskResponse.Usage);
             var reaskText = RecipeReplyGuard.SafeAsk(
-                null, enginePlan.CurrentAskPrompt ?? string.Empty,
+                reaskResponse.Success ? reaskResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
                 enginePlan.CurrentAskPromptTranslations, ctx.Context.Language);
             responseContent += RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
             askedSlot = enginePlan.CurrentStep?.Slot;
