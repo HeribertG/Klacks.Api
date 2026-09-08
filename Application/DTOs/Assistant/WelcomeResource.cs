@@ -74,4 +74,11 @@ public class WelcomeResource
     /// (not a fresh install, or the user is not an admin).
     /// </summary>
     public OnboardingResource? Onboarding { get; set; }
+
+    /// <summary>
+    /// The most urgent open state of the installation, or null when there is none, the user is
+    /// not a planner, or resolving it failed. The frontend turns it into the toast headline and
+    /// its first button; without it the toast keeps its neutral prompt.
+    /// </summary>
+    public WelcomeFocusResource? Focus { get; init; }
 }
