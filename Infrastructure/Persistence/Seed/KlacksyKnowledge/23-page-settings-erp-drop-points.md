@@ -3,8 +3,8 @@ name: explain_page_settings_erp_drop_points
 description: |
   Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks
   settings — the single-drop-point ("one mailbox") model for automatically importing orders
-  (as SealedOrder shifts) from XML files delivered by an external ERP system. Covers the four
-  cards: import schedule (cron expression, time zone, enable toggle, run-now button,
+  (as unsealed, group-less OriginalOrder draft shifts) from XML files delivered by an external
+  ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button,
   last-polled/last-error status), manual upload (drag & drop an XML file), the file explorer
   (pending/processed/error tabs with retry and delete) and the ERP push access tokens for
   HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this
@@ -46,8 +46,10 @@ zwischen "Externe Dienste" und "Plugins") und konfiguriert den automatischen Imp
 Bestellungen aus XML-Dateien, die ein externes ERP-System liefert. Klacks folgt dem
 **Ein-Briefkasten-Modell**: es gibt genau einen Drop-Point ("Default"), keine Liste zum
 Anlegen mehrerer Briefkästen. Jede importierte Bestellung wird als **Dienst
-(`Shift`) im Status `SealedOrder`** angelegt oder aktualisiert — es gibt kein eigenes
-Bestellungs-Datenmodell. Admin-only (Seite selbst ist Admin-only, siehe
+(`Shift`) im Status `OriginalOrder` (Entwurf)** angelegt oder aktualisiert — es gibt kein
+eigenes Bestellungs-Datenmodell. Der Import versiegelt nie von selbst und weist auch keine
+Gruppe zu; erst wenn ein Planer von Hand eine Gruppe zuweist und die Bestellung versiegelt,
+entsteht daraus ein planbarer Dienst. Admin-only (Seite selbst ist Admin-only, siehe
 `explain_page_settings_overview`).
 
 Der Drop-Point ist nicht nur ein Ui-Feature: das liefernde ERP-System (oder ein Admin per
@@ -123,8 +125,9 @@ vollständig und minimal).
   Import komplett stillstehen (kein automatischer Lauf mehr), deshalb validiert die
   Oberfläche den Ausdruck sofort.
 - **Zielort der importierten Bestellungen**: Bestellungseingang / Alle Dienste (nicht
-  diese Settings-Seite) — dort erscheinen sie als versiegelte Dienste zur weiteren
-  Bearbeitung durch den Planer.
+  diese Settings-Seite) — dort erscheinen sie als **Entwurf ohne Gruppe**. Erst wenn der
+  Planer von Hand eine Gruppe zuweist und die Bestellung versiegelt, existiert daraus ein
+  planbarer Dienst.
 - **Berechtigung**: wie die gesamte Einstellungen-Seite Admin-only; die
   Zugriffstoken-Sektion ist zusätzlich sicherheitssensibel (Klartext-Token nur bei
   Erzeugung sichtbar).
@@ -150,7 +153,7 @@ vollständig und minimal).
 - **Einstellungen-Übersicht** (`/workplace/settings`) — siehe
   `explain_page_settings_overview` für die anderen zwölf Sektionen.
 - **Bestellungseingang / Alle Dienste** — hier landen die importierten Bestellungen
-  als versiegelte Dienste zur Weiterbearbeitung.
+  als Entwurf ohne Gruppe; Gruppen-Zuweisung und Versiegeln erfolgen von Hand.
 
 ### Trigger-Phrasen
 
