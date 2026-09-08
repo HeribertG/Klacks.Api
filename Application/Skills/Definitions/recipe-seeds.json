@@ -2921,7 +2921,7 @@
         "fr": "Conseil jusqu'au premier service planifiable : explique comment une commande devient un service, pose deux questions et propose l'étape suivante.",
         "it": "Consulenza fino al primo servizio pianificabile: spiega come un ordine diventa un turno, pone due domande e propone il passo successivo."
       },
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 75,
       "trigger": {
@@ -2964,7 +2964,7 @@
         {
           "kind": "ask",
           "slot": "attribution",
-          "prompt": "Ask whether the working hours are attributed to a customer who orders them, or whether the work is the company's own operation. Offer [REPLIES:single \"Ja, ein Kunde=yes\" | \"Nein, eigener Betrieb=no\" | \"Weiss ich nicht=unknown\"].",
+          "prompt": "Using ONLY the facts in the preceding tool result, first explain in two or three short sentences how a customer order differs from a clientless duty and that sealing an order cannot be undone. Then ask whether the working hours are attributed to a customer who orders them, or whether the work is the company's own operation. Offer [REPLIES:single \"Ja, ein Kunde=yes\" | \"Nein, eigener Betrieb=no\" | \"Weiss ich nicht=unknown\"].",
           "promptTranslations": {
             "de": "Ein planbarer Dienst entsteht in Klacks nie direkt, sondern immer erst durch das Versiegeln einer Bestellung — und das ist unumkehrbar. Ein Kunde ist dafür nicht zwingend nötig: Auch kundenlose Dienste wie Tanken, Reinigung oder ganze Betriebe wie Station oder Küche zählen genauso für Stundensoll, Lohn und Ruhezeiten. Werden die Arbeitsstunden einem Auftraggeber zugerechnet, der sie bestellt, oder ist es eure eigene Arbeit?",
             "en": "A plannable shift in Klacks never exists directly — it only comes into being once an order is sealed, and sealing cannot be undone. A customer is not required for this: clientless duties such as refuelling, cleaning or an entire operation like a ward or kitchen count exactly the same for target hours, wages and rest periods. Are the working hours attributed to a customer who orders them, or is this your own operation?",
@@ -2998,7 +2998,7 @@
         {
           "kind": "ask",
           "slot": "nextStep",
-          "prompt": "Ask whether to create it together step by step, only show where it is done, or leave it for now. Offer [REPLIES:single \"Gemeinsam anlegen=create\" | \"Nur zeigen wo=show\" | \"Vorerst nichts=none\"].",
+          "prompt": "Using ONLY Data.Route from the preceding tool result, first state in one sentence which route it names as the fitting one for this installation. Then ask whether to create it together step by step, only show where it is done, or leave it for now. Offer [REPLIES:single \"Gemeinsam anlegen=create\" | \"Nur zeigen wo=show\" | \"Vorerst nichts=none\"].",
           "promptTranslations": {
             "de": "Je nachdem, was du bei der Zuordnung gewählt hast, führt der Weg entweder über eine Kundenbestellung oder über einen kundenlosen Dienst. Soll ich es Schritt für Schritt mit dir anlegen, dir nur zeigen wo das geht, oder es vorerst dabei belassen?",
             "en": "Depending on what you chose for the attribution, the path leads either through a customer order or through a clientless duty. Shall I create it with you step by step, only show you where it is done, or leave it for now?",
