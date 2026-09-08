@@ -71,6 +71,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
     private const string NewShiftTarget = "new-shift";
     private const string CutShiftTarget = "cut-shift";
     private const string ScheduleTarget = "schedule";
+    private const string ClientlessRouteTarget = "new-plannable-shift";
 
     private readonly IMediator _mediator;
     private readonly IScheduleActivityProbe _activityProbe;
@@ -202,7 +203,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             "Attribution decides WHOSE the hours are, not whether they count. A clientless duty "
             + "is paid working time and enters target/actual hours, wages, supplements and rest "
             + "periods exactly like any other.",
-        ClientlessTarget = OrderListTarget,
+        ClientlessTarget = ClientlessRouteTarget,
         WhenToUseADraft =
             "Keep the order a draft when details are still missing or somebody has to check "
             + "it, and when orders arrive from an outside system — an import always delivers "
