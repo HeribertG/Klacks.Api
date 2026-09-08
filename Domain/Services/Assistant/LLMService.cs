@@ -337,7 +337,7 @@ public class LLMService : ILLMService
                 break;
             }
 
-            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk && !enginePlan.TopicSwitchThisTurn)
             {
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
@@ -613,6 +613,30 @@ public class LLMService : ILLMService
                 currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
                 gateHoldEndedRecipe = false;
             }
+        }
+
+        // The turn above ran normally (full toolset) because the user's reply to the pending ask was
+        // recognized as an independent question, not a slot answer. The plan is still exactly where it
+        // was — same ask step, slot untouched — so once the turn's own answer is done, re-ask it
+        // deterministically (no extra model call) and pause the recipe exactly like a normal ask-pause.
+        if (enginePlan != null && enginePlan.TopicSwitchThisTurn && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+        {
+            var reaskText = RecipeReplyGuard.SafeAsk(
+                null, enginePlan.CurrentAskPrompt ?? string.Empty,
+                enginePlan.CurrentAskPromptTranslations, context.Language);
+            var reaskChunk = RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
+            fullResponseContent.Append(reaskChunk);
+            yield return SseChunk.Content(reaskChunk);
+            askedSlot = enginePlan.CurrentStep?.Slot;
+            _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
+            recipePausedOnAsk = true;
+            if (recipeRun != null)
+            {
+                await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
+            }
+            _logger.LogInformation(
+                "Recipe '{Recipe}' re-asked after answering an independent question mid-flow (slot {Slot})",
+                enginePlan.Name, askedSlot);
         }
 
         if (recipeRun != null && !recipePausedOnAsk)
@@ -908,7 +932,7 @@ public class LLMService : ILLMService
                 break;
             }
 
-            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk && !enginePlan.TopicSwitchThisTurn)
             {
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
@@ -1094,6 +1118,29 @@ public class LLMService : ILLMService
                 currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
                 gateHoldEndedRecipe = false;
             }
+        }
+
+        // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
+        // to the pending ask was recognized as an independent question, not a slot answer. The plan is
+        // still on the same ask step with the slot untouched, so re-ask it deterministically (no extra
+        // model call) once the turn's own answer is in responseContent, and pause exactly like a normal
+        // ask-pause.
+        if (enginePlan != null && enginePlan.TopicSwitchThisTurn && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+        {
+            var reaskText = RecipeReplyGuard.SafeAsk(
+                null, enginePlan.CurrentAskPrompt ?? string.Empty,
+                enginePlan.CurrentAskPromptTranslations, ctx.Context.Language);
+            responseContent += RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
+            askedSlot = enginePlan.CurrentStep?.Slot;
+            _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
+            recipePausedOnAsk = true;
+            if (recipeRun != null)
+            {
+                await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
+            }
+            _logger.LogInformation(
+                "Recipe '{Recipe}' re-asked after answering an independent question mid-flow (slot {Slot})",
+                enginePlan.Name, askedSlot);
         }
 
         if (recipeRun != null && !recipePausedOnAsk)
@@ -1329,7 +1376,23 @@ public class LLMService : ILLMService
                         return null;
                     }
 
-                    resumed.FillSlot(step!.Slot!, context.Message);
+                    // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
+                    // pending slot either — raw-filling it would silence every skill the tool-less ask-step
+                    // call could otherwise have used to answer it. Leave the slot unfilled and let the loop
+                    // run this one turn with its full toolset instead; the recipe stays on this same ask
+                    // step and is re-asked once that turn's own answer is done.
+                    if (RecipeTopicSwitchDetector.IsTopicSwitch(context.Message))
+                    {
+                        resumed.MarkTopicSwitchThisTurn();
+                        _logger.LogInformation(
+                            "Recipe '{Recipe}' ask step (slot {Slot}) bypassed for one turn: message reads " +
+                            "as an independent question, running a normal full-tool turn and re-asking afterwards",
+                            resumed.Name, step!.Slot);
+                    }
+                    else
+                    {
+                        resumed.FillSlot(step!.Slot!, context.Message);
+                    }
                 }
 
                 resumed.AdvanceOverSatisfied();

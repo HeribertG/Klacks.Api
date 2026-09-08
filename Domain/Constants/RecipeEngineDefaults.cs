@@ -30,4 +30,11 @@ public static class RecipeEngineDefaults
         "trigger phrase: {0} A second guided flow matched almost as closely: {1} Ask the user, in their " +
         "own language, a brief question asking which of the two flows they meant (or neither). Do NOT " +
         "call any tool and do NOT start any flow yet.";
+
+    /// <summary>
+    /// Separates a normal turn's own answer from the recipe's re-asked question when
+    /// RecipeTopicSwitchDetector recognized the user's reply as an independent question: the turn answers
+    /// it with the full toolset, then this joins the still-open ask question onto the same response.
+    /// </summary>
+    public const string TopicSwitchReaskSeparator = "\n\n";
 }

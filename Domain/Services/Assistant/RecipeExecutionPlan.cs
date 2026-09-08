@@ -37,6 +37,7 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     private int _index;
     private bool _deactivated;
     private bool _captureRewindUsed;
+    private bool _topicSwitchThisTurn;
 
     public RecipeExecutionPlan(
         string name,
@@ -177,6 +178,23 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         {
             _slots[slot] = value;
         }
+    }
+
+    /// <summary>
+    /// True for exactly the turn in which RecipeTopicSwitchDetector recognized the user's reply to the
+    /// pending ask question as an independent question rather than a slot answer. Deliberately NOT
+    /// persisted (RecipeEngineService.Persist copies only StepIndex/Slots/AwaitingConfirmation/
+    /// CaptureRewindUsed onto the pending-store record) — a freshly resumed plan always starts with this
+    /// false, so the flag can only ever apply to the one turn that set it. The chat loop reads it to skip
+    /// the tool-less ask-only shortcut for this turn (so the model answers with its full toolset instead
+    /// of raw-filling the slot) and, once that turn's own answer is done, to re-ask the still-open recipe
+    /// question so the user is not left hanging mid-flow.
+    /// </summary>
+    public bool TopicSwitchThisTurn => _topicSwitchThisTurn;
+
+    public void MarkTopicSwitchThisTurn()
+    {
+        _topicSwitchThisTurn = true;
     }
 
     public IReadOnlyDictionary<string, string> AskSlotHints()
