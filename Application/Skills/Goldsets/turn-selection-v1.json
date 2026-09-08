@@ -1456,6 +1456,17 @@
       "expectedRecipe": "bundle-mobile-services-into-container"
     },
     {
+      "id": "w05-recipe-setup-consultation",
+      "message": "Wie fange ich an, es ist noch nichts geplant.",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: setup-consultation",
+      "expectedRecipe": "setup-consultation"
+    },
+    {
       "id": "w05-messaging-send-message",
       "message": "Sende eine Nachricht an Max",
       "locale": "de",
