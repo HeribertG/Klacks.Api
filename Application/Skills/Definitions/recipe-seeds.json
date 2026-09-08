@@ -2921,7 +2921,7 @@
         "fr": "Conseil jusqu'au premier service planifiable : explique comment une commande devient un service, pose deux questions et propose l'étape suivante.",
         "it": "Consulenza fino al primo servizio pianificabile: spiega come un ordine diventa un turno, pone due domande e propone il passo successivo."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 75,
       "trigger": {
@@ -2959,17 +2959,17 @@
           "kind": "search",
           "skill": "get_setup_guidance",
           "inject": { "phase": "intro" },
-          "note": "RECIPE 'setup-consultation' step 1 of 6: the result describes the installation and what an order, sealing and a plannable shift are. In your NEXT reply explain this in three short sentences, then ask the first recipe question. Do not offer any action yet, and never invent a folder, page or button that is not in the result."
+          "note": "RECIPE 'setup-consultation' step 1 of 6: Data.ManualRoute explains what an order is, what a clientless duty is, and that sealing (an order, or a clientless duty on creation) is irreversible. Your NEXT reply MUST first explain, in two to three short sentences and using ONLY facts from Data.ManualRoute, the difference between a customer order and a clientless duty and that sealing cannot be undone — and ONLY AFTER that explanation ask the first recipe question. Never reply with the question alone. Do not offer any action yet, and never invent a folder, page or button that is not in Data.ManualRoute."
         },
         {
           "kind": "ask",
           "slot": "attribution",
           "prompt": "Ask whether the working hours are attributed to a customer who orders them, or whether the work is the company's own operation. Offer [REPLIES:single \"Ja, ein Kunde=yes\" | \"Nein, eigener Betrieb=no\" | \"Weiss ich nicht=unknown\"].",
           "promptTranslations": {
-            "de": "Werden die Arbeitsstunden einem Auftraggeber zugerechnet — gibt es einen Kunden, der sie bestellt? Oder ist es eigene Arbeit, etwa Station, Küche oder Werkstatt?",
-            "en": "Are the working hours attributed to a customer who orders them, or is the work your own operation — a ward, a kitchen, a workshop?",
-            "fr": "Les heures de travail sont-elles attribuées à un client qui les commande, ou s'agit-il de votre propre exploitation ?",
-            "it": "Le ore di lavoro sono attribuite a un cliente che le ordina, oppure si tratta di lavoro interno?"
+            "de": "Ein planbarer Dienst entsteht in Klacks nie direkt, sondern immer erst durch das Versiegeln einer Bestellung — und das ist unumkehrbar. Ein Kunde ist dafür nicht zwingend nötig: Auch kundenlose Dienste wie Tanken, Reinigung oder ganze Betriebe wie Station oder Küche zählen genauso für Stundensoll, Lohn und Ruhezeiten. Werden die Arbeitsstunden einem Auftraggeber zugerechnet, der sie bestellt, oder ist es eure eigene Arbeit?",
+            "en": "A plannable shift in Klacks never exists directly — it only comes into being once an order is sealed, and sealing cannot be undone. A customer is not required for this: clientless duties such as refuelling, cleaning or an entire operation like a ward or kitchen count exactly the same for target hours, wages and rest periods. Are the working hours attributed to a customer who orders them, or is this your own operation?",
+            "fr": "Un service planifiable ne voit jamais le jour directement chez Klacks — il naît uniquement lorsqu'une commande est scellée, et ce scellement est irréversible. Un client n'est pas obligatoire : les services sans client, comme le ravitaillement, le nettoyage ou toute une exploitation (unité, cuisine), comptent exactement de la même façon pour les heures cibles, le salaire et les temps de repos. Les heures de travail sont-elles attribuées à un client qui les commande, ou s'agit-il de votre propre exploitation ?",
+            "it": "Un turno pianificabile in Klacks non nasce mai direttamente, ma solo sigillando un ordine — e questo sigillo è irreversibile. Un cliente non è obbligatorio: anche i servizi senza cliente, come rifornimento, pulizie o un intero reparto come un reparto ospedaliero o una cucina, contano esattamente allo stesso modo per ore obiettivo, salario e periodi di riposo. Le ore di lavoro sono attribuite a un cliente che le ordina, oppure si tratta di lavoro interno?"
           },
           "description": "whether the working hours are attributed to a customer: yes, no or unknown"
         },
@@ -3000,10 +3000,10 @@
           "slot": "nextStep",
           "prompt": "Ask whether to create it together step by step, only show where it is done, or leave it for now. Offer [REPLIES:single \"Gemeinsam anlegen=create\" | \"Nur zeigen wo=show\" | \"Vorerst nichts=none\"].",
           "promptTranslations": {
-            "de": "Soll ich es Schritt für Schritt mit dir anlegen, dir nur zeigen wo das geht, oder es vorerst dabei belassen?",
-            "en": "Shall I create it with you step by step, only show you where it is done, or leave it for now?",
-            "fr": "Dois-je le créer avec vous étape par étape, seulement vous montrer où, ou en rester là pour l'instant ?",
-            "it": "Devo crearlo con te passo dopo passo, mostrarti solo dove si fa, o lasciar perdere per ora?"
+            "de": "Je nachdem, was du bei der Zuordnung gewählt hast, führt der Weg entweder über eine Kundenbestellung oder über einen kundenlosen Dienst. Soll ich es Schritt für Schritt mit dir anlegen, dir nur zeigen wo das geht, oder es vorerst dabei belassen?",
+            "en": "Depending on what you chose for the attribution, the path leads either through a customer order or through a clientless duty. Shall I create it with you step by step, only show you where it is done, or leave it for now?",
+            "fr": "Selon ce que vous avez choisi pour l'attribution, le chemin passe soit par une commande client, soit par un service sans client. Dois-je le créer avec vous étape par étape, seulement vous montrer où, ou en rester là pour l'instant ?",
+            "it": "In base a quanto scelto per l'attribuzione, il percorso passa attraverso un ordine cliente oppure attraverso un servizio senza cliente. Devo crearlo con te passo dopo passo, mostrarti solo dove si fa, o lasciar perdere per ora?"
           },
           "description": "the chosen follow-up: create, show or none"
         },
