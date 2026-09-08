@@ -83,4 +83,16 @@ public interface IProactiveTriggerDispatchRepository
     /// entity's global query filter. Returns how many rows were acknowledged.
     /// </summary>
     Task<int> AcknowledgeAllForKindAsync(string userId, string triggerKind, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The subset of <paramref name="conditionIds"/> whose dispatch row for this user carries an
+    /// AcknowledgedAtUtc. Read-only, no commit. Acknowledgement is the one field that covers all
+    /// three inbox gestures - "done", a reaction and muting the kind all stamp it - so the welcome
+    /// focus only has to ask about this column to stop re-asking about a finding the user already
+    /// answered in the inbox. An empty input short-circuits without touching the database.
+    /// </summary>
+    Task<IReadOnlySet<Guid>> GetAcknowledgedConditionIdsAsync(
+        string userId,
+        IReadOnlyCollection<Guid> conditionIds,
+        CancellationToken cancellationToken = default);
 }

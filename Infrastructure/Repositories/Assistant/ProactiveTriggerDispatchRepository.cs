@@ -237,4 +237,27 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
                 .SetProperty(d => d.AcknowledgedAtUtc, acknowledgedAt)
                 .SetProperty(d => d.NextReminderAtUtc, (DateTime?)null), cancellationToken);
     }
+
+    public async Task<IReadOnlySet<Guid>> GetAcknowledgedConditionIdsAsync(
+        string userId,
+        IReadOnlyCollection<Guid> conditionIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (conditionIds.Count == 0)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var acknowledged = await _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.UserId == userId
+                && d.ConditionId != null
+                && conditionIds.Contains(d.ConditionId.Value)
+                && d.AcknowledgedAtUtc != null)
+            .Select(d => d.ConditionId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return acknowledged.ToHashSet();
+    }
 }
