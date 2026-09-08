@@ -166,7 +166,14 @@ public class ChatController : ControllerBase
             IsVoiceMode = request.IsVoiceMode
         });
 
-        response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
+        // Only fill in an id the handler did not supply. The handler creates or resolves the
+        // conversation itself and persists state (history, a paused recipe) under ITS id, so
+        // overwriting that with a fresh GUID hands the client an id nothing is stored under: the
+        // next turn then opens an empty conversation and a running recipe is silently lost.
+        if (string.IsNullOrWhiteSpace(response.ConversationId))
+        {
+            response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
+        }
 
         return Ok(response);
     }
