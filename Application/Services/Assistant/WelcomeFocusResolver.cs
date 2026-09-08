@@ -6,7 +6,10 @@
 /// NextPeriodSchedulingDueDetector starts the auto wizard as a side effect - and adds one fresh
 /// setup probe on top, so a brand new installation is answered correctly before the hourly
 /// heartbeat has ever run. Journal rows of kind no_schedule_yet are always discarded: either the
-/// fresh probe already produced the current stage, or work exists and the row is stale.
+/// fresh probe already produced the current stage, or work exists and the row is stale. When the
+/// winning candidate maps to the generic prompt, its count param is the total number of open
+/// findings in the user's scope - the same figure list_open_findings reports - not the number of
+/// candidates that survived the in-memory filters, which the journal take would otherwise cap.
 /// </summary>
 /// <param name="scopeResolver">Decides whether this user is a planner and which group roots they see</param>
 /// <param name="setupProbe">Fresh installation-wide snapshot along orders -> shifts -> assignments</param>
@@ -31,7 +34,12 @@ namespace Klacks.Api.Application.Services.Assistant;
 
 public class WelcomeFocusResolver : IWelcomeFocusResolver
 {
-    private const int JournalTake = 20;
+    /// <summary>
+    /// Row cap passed to GetOpenForScopeAsync. Generous rather than tight because a ranked kind such
+    /// as period_close_due can carry Low severity and must still surface from behind a pile of
+    /// Medium-severity generic rows instead of falling out of the window.
+    /// </summary>
+    private const int JournalTake = 200;
 
     private static readonly DateTime FreshSetupDetectedAtUtc = DateTime.MinValue;
 
@@ -80,9 +88,16 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
                 .ThenBy(candidate => WelcomeFocusPriority.SeverityRank(candidate.Severity))
                 .ThenBy(candidate => candidate.DetectedAtUtc);
 
+            int? openFindingsCount = null;
             foreach (var candidate in ordered)
             {
-                var focus = TryMap(candidate, survivors.Count);
+                if (IsGenericWinner(candidate))
+                {
+                    openFindingsCount ??= await _conditionRepository.CountOpenForScopeAsync(
+                        scope.IsUnrestricted, scope.VisibleRootIds, cancellationToken);
+                }
+
+                var focus = TryMap(candidate, openFindingsCount ?? default);
                 if (focus != null)
                 {
                     return focus;
@@ -180,7 +195,23 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
         return survivors;
     }
 
-    private static WelcomeFocusResource? TryMap(WelcomeFocusCandidate candidate, int survivingCount)
+    private static bool IsGenericWinner(WelcomeFocusCandidate candidate)
+    {
+        if (candidate.Stage != null)
+        {
+            return false;
+        }
+
+        return candidate.Kind switch
+        {
+            AgentTriggerKinds.PeriodOverdue => false,
+            AgentTriggerKinds.PeriodCloseDue => false,
+            AgentTriggerKinds.NextPeriodSchedulingDue => false,
+            _ => true
+        };
+    }
+
+    private static WelcomeFocusResource? TryMap(WelcomeFocusCandidate candidate, int openFindingsCount)
     {
         if (candidate.Stage != null)
         {
@@ -213,7 +244,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
                 WelcomeFocusPayloadKeys.PeriodStartDate,
                 WelcomeFocusParamKeys.PeriodStart,
                 WelcomeFocusPayloadKeys.DaysUntilStart),
-            _ => MapGeneric(candidate, survivingCount)
+            _ => MapGeneric(candidate, openFindingsCount)
         };
     }
 
@@ -295,7 +326,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
         }
     }
 
-    private static WelcomeFocusResource MapGeneric(WelcomeFocusCandidate candidate, int survivingCount)
+    private static WelcomeFocusResource MapGeneric(WelcomeFocusCandidate candidate, int openFindingsCount)
     {
         return new WelcomeFocusResource
         {
@@ -303,7 +334,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
             PromptKey = WelcomeFocusI18nKeys.GenericPrompt,
             PromptParams = new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                [WelcomeFocusParamKeys.Count] = survivingCount.ToString(CultureInfo.InvariantCulture)
+                [WelcomeFocusParamKeys.Count] = openFindingsCount.ToString(CultureInfo.InvariantCulture)
             },
             ActionKind = WelcomeFocusActionKinds.Navigate,
             ActionLabelKey = WelcomeFocusI18nKeys.GenericAction,
