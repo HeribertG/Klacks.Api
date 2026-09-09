@@ -294,6 +294,7 @@ builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
     var manifest = Path.Combine(baseDir, "Application", "Skills", "Definitions", "klacksy-page-keys.generated.json");
     return new KlacksyPageKeyCatalog(manifest);
 });
+builder.Services.AddSingleton<INavigationTargetCatalog, NavigationTargetCatalog>();
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
 builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();

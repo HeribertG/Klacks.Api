@@ -11,6 +11,9 @@ using Klacks.Api.Application.Klacksy.Models;
 ///   Tier 2 — token-overlap across synonyms → score 0.5–0.85
 ///   Tier 3 — trigram-Jaccard fuzzy match against all synonyms → score ≤ 0.85
 /// Targets whose RequiredPermission the user lacks are filtered out at every tier.
+/// NavigationMatchResult.IsFastPath only ever fires for Tier 1 with exactly one allowed target behind
+/// the phrase: Tier 2/3 and ambiguous Tier 1 hits stay candidates for NavigationMissDetector and for the
+/// LLM, they never short-circuit the chat request.
 /// </summary>
 public sealed class NavigationTargetMatcher : INavigationTargetMatcher
 {
@@ -28,17 +31,28 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         if (string.IsNullOrWhiteSpace(normalizedUtterance))
             return Empty();
 
-        var exact = FindFirstAllowed(_cache.FindBySynonym(normalizedUtterance, locale), userPermissions)
-                    ?? FindFirstAllowed(_cache.FindBySynonymAnyLocale(normalizedUtterance), userPermissions);
+        var localeMatches = FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, locale), userPermissions);
+        var exactMatches = localeMatches.Count > 0
+            ? localeMatches
+            : locale != NavigationLocaleConstants.English
+                ? FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, NavigationLocaleConstants.English), userPermissions)
+                : Array.Empty<NavigationTarget>();
 
-        if (exact != null)
+        if (exactMatches.Count > 0)
+        {
+            var exact = exactMatches[0];
             return new NavigationMatchResult
             {
                 TargetId = exact.TargetId,
                 Route = exact.Route,
                 Score = 1.0,
-                Candidates = new[] { new NavigationCandidate(exact.TargetId, exact.Route, 1.0) }
+                Tier = NavigationMatchTier.Exact,
+                Candidates = exactMatches
+                    .Take(MaxCandidates)
+                    .Select(t => new NavigationCandidate(t.TargetId, t.Route, 1.0))
+                    .ToList()
             };
+        }
 
         var tokenResult = TokenOverlap(normalizedUtterance, locale, userPermissions);
         if (tokenResult.Score >= NavigationMatchThresholds.MinScoreForMatch)
@@ -82,6 +96,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             TargetId = top?.Score >= NavigationMatchThresholds.MinScoreForMatch ? top.TargetId : null,
             Route = top?.Score >= NavigationMatchThresholds.MinScoreForMatch ? top.Route : null,
             Score = top?.Score ?? 0,
+            Tier = NavigationMatchTier.TokenOverlap,
             Candidates = candidates
         };
     }
@@ -126,6 +141,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             TargetId = top?.Score >= FuzzyMinScore ? top.TargetId : null,
             Route = top?.Score >= FuzzyMinScore ? top.Route : null,
             Score = top?.Score ?? 0,
+            Tier = NavigationMatchTier.Fuzzy,
             Candidates = candidates
         };
     }
@@ -137,7 +153,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             foreach (var s in primary) yield return s;
         }
 
-        if (locale != "en" && target.Synonyms.TryGetValue("en", out var english))
+        if (locale != NavigationLocaleConstants.English && target.Synonyms.TryGetValue(NavigationLocaleConstants.English, out var english))
         {
             foreach (var s in english) yield return s;
         }
@@ -167,15 +183,17 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         return union == 0 ? 0 : (double)intersect / union;
     }
 
-    private static NavigationTarget? FindFirstAllowed(IReadOnlyList<NavigationTarget> targets, IReadOnlyCollection<string> userPermissions)
+    private static IReadOnlyList<NavigationTarget> FindAllAllowed(IReadOnlyList<NavigationTarget> targets, IReadOnlyCollection<string> userPermissions)
     {
+        var allowed = new List<NavigationTarget>();
+        var seenTargetIds = new HashSet<string>();
         foreach (var target in targets)
         {
-            if (IsAllowed(target, userPermissions))
-                return target;
+            if (IsAllowed(target, userPermissions) && seenTargetIds.Add(target.TargetId))
+                allowed.Add(target);
         }
 
-        return null;
+        return allowed;
     }
 
     private static bool IsAllowed(NavigationTarget t, IReadOnlyCollection<string> perms)
@@ -183,6 +201,6 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
 
     private static NavigationMatchResult Empty() => new()
     {
-        TargetId = null, Route = null, Score = 0, Candidates = Array.Empty<NavigationCandidate>()
+        TargetId = null, Route = null, Score = 0, Tier = NavigationMatchTier.None, Candidates = Array.Empty<NavigationCandidate>()
     };
 }

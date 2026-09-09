@@ -11,14 +11,21 @@ using Klacks.Api.Application.Constants;
 
 /// <summary>
 /// Normalizes user utterances before matching: lowercases, strips wake-word salutations,
-/// maps STT variants, removes filler words. Supports core locales (de/en/fr/it) via
-/// wake-word-variants.json and plugin locales via per-locale wake-words.json files.
+/// maps STT variants, strips a leading command prefix ("show me", "zeig mir mal") and a
+/// leading article, then removes filler words at the end. Prefix and article stripping only
+/// ever run on the core locales (de/en/fr/it) declared in wake-word-variants.json; any other
+/// locale has no configured list and is left untouched. Plugin locales additionally get their
+/// own salutations/filler words from per-locale wake-words.json files.
 /// </summary>
 public sealed class UtteranceNormalizer : IUtteranceNormalizer
 {
+    private const int MaxPrefixStripIterations = 5;
+
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private readonly WakeWordConfig _config;
+    private readonly IReadOnlyDictionary<string, string[]> _prefixesByLocale;
+    private readonly IReadOnlyDictionary<string, string[]> _articlesByLocale;
     private readonly ConcurrentDictionary<string, (string[] Salutations, string[] FillerWords)> _pluginCache = new();
 
     public UtteranceNormalizer()
@@ -26,7 +33,14 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         var path = Path.Combine(AppContext.BaseDirectory, "Application", "Klacksy", "wake-word-variants.json");
         var json = File.ReadAllText(path);
         _config = JsonSerializer.Deserialize<WakeWordConfig>(json, JsonOptions)!;
+        _prefixesByLocale = SortByDescendingLength(_config.Prefixes);
+        _articlesByLocale = SortByDescendingLength(_config.Articles);
     }
+
+    private static IReadOnlyDictionary<string, string[]> SortByDescendingLength(Dictionary<string, string[]> byLocale)
+        => byLocale.ToDictionary(
+            kv => kv.Key,
+            kv => kv.Value.OrderByDescending(phrase => phrase.Length).ToArray());
 
     public NormalizedUtterance Normalize(string raw, string locale)
     {
@@ -49,6 +63,14 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         var stripped = Regex.Replace(working, wakePattern, string.Empty);
         var wakeWasStripped = stripped.Length < working.Length;
 
+        var beforePrefixPhase = stripped;
+        var prefixes = _prefixesByLocale.TryGetValue(locale, out var pre) ? pre : Array.Empty<string>();
+        var articles = _articlesByLocale.TryGetValue(locale, out var art) ? art : Array.Empty<string>();
+        stripped = StripLeadingPhrases(stripped, prefixes);
+        stripped = StripLeadingPhrases(stripped, articles);
+        if (string.IsNullOrWhiteSpace(stripped))
+            stripped = beforePrefixPhase;
+
         var coreFillers = _config.FillerWords.TryGetValue(locale, out var f) ? f : Array.Empty<string>();
         var allFillers = coreFillers.Concat(pluginConfig.FillerWords);
         foreach (var filler in allFillers)
@@ -56,6 +78,24 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
 
         stripped = stripped.Trim();
         return new NormalizedUtterance(raw, stripped, wakeWasStripped, string.IsNullOrEmpty(stripped));
+    }
+
+    private static string StripLeadingPhrases(string input, string[] phrasesLongestFirst)
+    {
+        if (phrasesLongestFirst.Length == 0)
+            return input;
+
+        var pattern = $@"^\s*(?:{string.Join("|", phrasesLongestFirst.Select(Regex.Escape))})\b\s*";
+        var current = input;
+        for (var i = 0; i < MaxPrefixStripIterations; i++)
+        {
+            var next = Regex.Replace(current, pattern, string.Empty);
+            if (next == current)
+                break;
+            current = next;
+        }
+
+        return current;
     }
 
     private (string[] Salutations, string[] FillerWords) GetPluginLocaleConfig(string locale)
@@ -88,6 +128,8 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         public string[] UniversalSalutations { get; set; } = Array.Empty<string>();
         public Dictionary<string, string[]> LocaleSalutations { get; set; } = new();
         public Dictionary<string, string[]> FillerWords { get; set; } = new();
+        public Dictionary<string, string[]> Prefixes { get; set; } = new();
+        public Dictionary<string, string[]> Articles { get; set; } = new();
     }
 
     private sealed class PluginWakeWords

@@ -14,9 +14,11 @@
 /// blocks the navigation itself.
 /// </summary>
 /// <param name="pageKeyCatalog">Singleton catalog loaded once from the generated JSON</param>
+/// <param name="navigationTargetCatalog">Route-scoped view of the in-page navigation target catalog, used to validate the optional 'target' parameter</param>
 /// <param name="guidanceProviders">Optional per-page guidance sources consulted for entity navigations (first match wins)</param>
-/// <param name="logger">Logger for non-fatal guidance lookup failures</param>
+/// <param name="logger">Logger for non-fatal guidance lookup failures and skipped target validation</param>
 
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -26,18 +28,23 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 [SkillImplementation("navigate_to")]
-public class NavigateToSkill : BaseSkillImplementation
+public partial class NavigateToSkill : BaseSkillImplementation
 {
+    private const int MaxTargetCandidatesInMessage = 20;
+
     private readonly IKlacksyPageKeyCatalog _pageKeyCatalog;
+    private readonly INavigationTargetCatalog _navigationTargetCatalog;
     private readonly IEnumerable<INavigationGuidanceProvider> _guidanceProviders;
     private readonly ILogger<NavigateToSkill> _logger;
 
     public NavigateToSkill(
         IKlacksyPageKeyCatalog pageKeyCatalog,
+        INavigationTargetCatalog navigationTargetCatalog,
         IEnumerable<INavigationGuidanceProvider> guidanceProviders,
         ILogger<NavigateToSkill> logger)
     {
         _pageKeyCatalog = pageKeyCatalog;
+        _navigationTargetCatalog = navigationTargetCatalog;
         _guidanceProviders = guidanceProviders;
         _logger = logger;
     }
@@ -94,6 +101,17 @@ public class NavigateToSkill : BaseSkillImplementation
         {
             return SkillResult.Error(
                 $"User '{context.UserName}' is not allowed to open page '{page}' (requires permission '{entry.RequiredPermission}').");
+        }
+
+        if (!string.IsNullOrEmpty(target))
+        {
+            var resolvedTarget = ResolveTarget(target, page, entry.Route);
+            if (resolvedTarget.Error != null)
+            {
+                return SkillResult.Error(resolvedTarget.Error);
+            }
+
+            target = resolvedTarget.TargetId;
         }
 
         var route = entry.Route;
@@ -155,4 +173,62 @@ public class NavigateToSkill : BaseSkillImplementation
 
         return message;
     }
+
+    private TargetResolution ResolveTarget(string target, string page, string route)
+    {
+        var routeTargets = _navigationTargetCatalog.GetByRoute(route);
+        if (routeTargets == null || routeTargets.Count == 0)
+        {
+            _logger.LogWarning(
+                "Navigation target validation skipped for page {Page} (route {Route}) — no targets are known for this route",
+                page,
+                route);
+            return new TargetResolution(target, null);
+        }
+
+        var exactMatch = routeTargets.FirstOrDefault(
+            t => string.Equals(t.TargetId, target, StringComparison.OrdinalIgnoreCase));
+        if (exactMatch != null)
+        {
+            return new TargetResolution(exactMatch.TargetId, null);
+        }
+
+        var normalizedTarget = NormalizeForComparison(target);
+        var synonymMatches = routeTargets
+            .Where(t => t.Synonyms.Values.Any(
+                synonyms => synonyms.Any(synonym => NormalizeForComparison(synonym) == normalizedTarget)))
+            .ToList();
+
+        if (synonymMatches.Count == 1)
+        {
+            return new TargetResolution(synonymMatches[0].TargetId, null);
+        }
+
+        return new TargetResolution(null, BuildInvalidTargetMessage(target, page, routeTargets));
+    }
+
+    private static string BuildInvalidTargetMessage(
+        string target, string page, IReadOnlyList<NavigationTargetEntry> routeTargets)
+    {
+        var candidateIds = routeTargets.Select(t => t.TargetId).ToList();
+        var shown = candidateIds.Take(MaxTargetCandidatesInMessage).ToList();
+        var omittedCount = candidateIds.Count - shown.Count;
+        var suffix = omittedCount > 0 ? $", and {omittedCount} more" : string.Empty;
+
+        return $"'{target}' is not a valid target for page '{page}'. Valid targets on this page: " +
+               $"{string.Join(", ", shown)}{suffix}. Do not repeat this value or list internal target ids " +
+               "to the user — pick one of these exact target ids for your next call, or omit 'target' to " +
+               "navigate without an in-page scroll target.";
+    }
+
+    private static string NormalizeForComparison(string value)
+    {
+        var lowered = value.Trim().ToLowerInvariant().Replace('-', ' ');
+        return WhitespaceRegex().Replace(lowered, " ").Trim();
+    }
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex WhitespaceRegex();
+
+    private readonly record struct TargetResolution(string? TargetId, string? Error);
 }

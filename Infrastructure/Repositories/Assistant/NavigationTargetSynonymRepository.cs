@@ -4,6 +4,7 @@
 /// EF Core repository for NavigationTargetSynonym entities.
 /// </summary>
 /// <param name="context">The database context for accessing the navigation_target_synonyms table</param>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -80,5 +81,62 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
     {
         return await _context.NavigationTargetSynonyms
             .AnyAsync(s => s.TargetId == targetId && s.Language == language, ct);
+    }
+
+    public async Task<NavigationTargetSynonymSyncResult> SyncSeedKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, CancellationToken ct = default)
+    {
+        var existing = await _context.NavigationTargetSynonyms
+            .Where(s => s.TargetId == targetId && s.Language == language)
+            .ToListAsync(ct);
+
+        var manifestKeywords = keywords
+            .GroupBy(k => k, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+        var manifestKeywordSet = new HashSet<string>(manifestKeywords, StringComparer.OrdinalIgnoreCase);
+
+        var seedRows = existing
+            .Where(e => string.Equals(e.Source, SynonymSources.Seed, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var foreignRows = existing
+            .Where(e => !string.Equals(e.Source, SynonymSources.Seed, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var seedRowsToRemove = seedRows
+            .Where(e => !manifestKeywordSet.Contains(e.Keyword))
+            .ToList();
+        if (seedRowsToRemove.Count > 0)
+        {
+            _context.NavigationTargetSynonyms.RemoveRange(seedRowsToRemove);
+        }
+
+        var remainingKeywords = new HashSet<string>(
+            existing.Except(seedRowsToRemove).Select(e => e.Keyword),
+            StringComparer.OrdinalIgnoreCase);
+
+        var keywordsToInsert = manifestKeywords
+            .Where(k => !remainingKeywords.Contains(k))
+            .ToList();
+
+        var now = DateTime.UtcNow;
+        foreach (var keyword in keywordsToInsert)
+        {
+            _context.NavigationTargetSynonyms.Add(new NavigationTargetSynonym
+            {
+                Id = Guid.NewGuid(),
+                TargetId = targetId,
+                Language = language,
+                Keyword = keyword,
+                Source = SynonymSources.Seed,
+                CreateTime = now
+            });
+        }
+
+        if (seedRowsToRemove.Count > 0 || keywordsToInsert.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+        }
+
+        return new NavigationTargetSynonymSyncResult(keywordsToInsert.Count, seedRowsToRemove.Count, foreignRows.Count);
     }
 }

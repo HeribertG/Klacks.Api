@@ -13,5 +13,61 @@
     "en": ["please", "pls"],
     "fr": ["s'il te plaît", "stp"],
     "it": ["per favore", "pf"]
+  },
+  "prefixes": {
+    "de": [
+      "bitte zeige mir",
+      "zeigen sie mir",
+      "zeig mir mal",
+      "zeige mir",
+      "zeig mir",
+      "öffne mal",
+      "öffne",
+      "gehe zu",
+      "geh zu",
+      "navigiere zu",
+      "wo finde ich",
+      "wo ist",
+      "ich möchte",
+      "ich will"
+    ],
+    "en": [
+      "please show me",
+      "where can i find",
+      "i want to see",
+      "take me to",
+      "navigate to",
+      "show me",
+      "where is",
+      "go to",
+      "open"
+    ],
+    "fr": [
+      "montre-moi s'il te plaît",
+      "où puis-je trouver",
+      "je veux voir",
+      "navigue vers",
+      "montre-moi",
+      "affiche-moi",
+      "où est",
+      "va à",
+      "ouvre"
+    ],
+    "it": [
+      "per favore mostrami",
+      "dove posso trovare",
+      "voglio vedere",
+      "naviga verso",
+      "mostrami",
+      "dov'è",
+      "vai a",
+      "apri"
+    ]
+  },
+  "articles": {
+    "de": ["die", "der", "das", "den", "dem", "des"],
+    "en": ["the"],
+    "fr": ["le", "la", "les"],
+    "it": ["il", "lo", "la", "gli", "le", "i"]
   }
 }

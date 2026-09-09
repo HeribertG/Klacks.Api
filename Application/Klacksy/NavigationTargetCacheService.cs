@@ -19,10 +19,11 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
     private sealed record CacheSnapshot(
         List<NavigationTarget> Targets,
         Dictionary<string, NavigationTarget> ById,
+        Dictionary<string, List<NavigationTarget>> ByRoute,
         Dictionary<string, Dictionary<string, List<NavigationTarget>>> SynonymIndex,
         DateTime LoadedAt);
 
-    private static readonly CacheSnapshot EmptySnapshot = new([], [], [], DateTime.MinValue);
+    private static readonly CacheSnapshot EmptySnapshot = new([], [], [], [], DateTime.MinValue);
     private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(5);
 
     private readonly string _coreManifestPath;
@@ -47,6 +48,12 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         return _snapshot.ById.TryGetValue(targetId, out var t) ? t : null;
     }
 
+    public IReadOnlyList<NavigationTarget> GetByRoute(string route)
+    {
+        _ = EnsureFreshAsync();
+        return _snapshot.ByRoute.TryGetValue(route, out var list) ? list : Array.Empty<NavigationTarget>();
+    }
+
     public IReadOnlyList<NavigationTarget> FindBySynonym(string token, string locale)
     {
         _ = EnsureFreshAsync();
@@ -54,7 +61,7 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         var normalized = token.Trim().ToLowerInvariant();
         if (!snap.SynonymIndex.TryGetValue(locale, out var byLocale))
         {
-            if (locale != "en" && snap.SynonymIndex.TryGetValue("en", out var enFallback))
+            if (locale != NavigationLocaleConstants.English && snap.SynonymIndex.TryGetValue(NavigationLocaleConstants.English, out var enFallback))
                 byLocale = enFallback;
             else
                 return Array.Empty<NavigationTarget>();
@@ -135,7 +142,12 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         }
 
         var filtered = targets.Where(t => !t.Obsolete).ToList();
-        _snapshot = new(filtered, filtered.ToDictionary(t => t.TargetId), BuildSynonymIndex(filtered), DateTime.UtcNow);
+        _snapshot = new(
+            filtered,
+            filtered.ToDictionary(t => t.TargetId),
+            filtered.GroupBy(t => t.Route).ToDictionary(g => g.Key, g => g.ToList()),
+            BuildSynonymIndex(filtered),
+            DateTime.UtcNow);
     }
 
     private static Dictionary<string, Dictionary<string, List<NavigationTarget>>> BuildSynonymIndex(List<NavigationTarget> targets)
