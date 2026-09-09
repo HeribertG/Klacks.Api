@@ -44,6 +44,7 @@ public class ChatController : ControllerBase
     private readonly INavigationTargetMatcher _navMatcher;
     private readonly INavigationTargetCacheService _navCache;
     private readonly INavigationFeedbackLogger _navLogger;
+    private readonly INavigationMissDetector _navMissDetector;
     private readonly ILLMRepository _llmRepository;
     private readonly IUserActivityTracker _activityTracker;
 
@@ -58,6 +59,7 @@ public class ChatController : ControllerBase
         INavigationTargetMatcher navMatcher,
         INavigationTargetCacheService navCache,
         INavigationFeedbackLogger navLogger,
+        INavigationMissDetector navMissDetector,
         ILLMRepository llmRepository,
         IUserActivityTracker activityTracker)
     {
@@ -71,6 +73,7 @@ public class ChatController : ControllerBase
         _navMatcher = navMatcher;
         _navCache = navCache;
         _navLogger = navLogger;
+        _navMissDetector = navMissDetector;
         _llmRepository = llmRepository;
         _activityTracker = activityTracker;
     }
@@ -175,6 +178,10 @@ public class ChatController : ControllerBase
             response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
         }
 
+        response.MissedTargetId = await DetectAndLogSuspectedMissAsync(
+            navMatch, response.NavigateTo, response.NavigateToTarget, request.Message, locale,
+            currentUserGuid, HttpContext.RequestAborted);
+
         return Ok(response);
     }
 
@@ -265,6 +272,13 @@ public class ChatController : ControllerBase
         {
             await foreach (var chunk in _streamingOrchestrator.ProcessStreamAsync(streamRequest, cancellationToken))
             {
+                if (chunk.Type == SseChunkType.Metadata)
+                {
+                    chunk.MissedTargetId = await DetectAndLogSuspectedMissAsync(
+                        navMatch, chunk.NavigateTo, chunk.Target, request.Message, locale,
+                        currentUserGuid, cancellationToken);
+                }
+
                 var eventName = chunk.Type switch
                 {
                     SseChunkType.StreamStart => "stream_start",
@@ -470,6 +484,37 @@ public class ChatController : ControllerBase
                 "Create Vollzeit 160 contract for Zurich"
             }
         });
+    }
+
+    /// <summary>
+    /// Flags a navigation the model performed without an in-page target although the matcher saw a
+    /// plausible candidate on that same route, and books it as feedback right here: the browser has
+    /// nothing to report in this case, only the server knows the matcher ever had a candidate.
+    /// </summary>
+    /// <param name="navMatch">This turn's matcher result, including the candidates below fast-path</param>
+    /// <param name="navigatedRoute">Route the model sent the browser to</param>
+    /// <param name="navigatedTarget">In-page target it passed along, if any</param>
+    /// <returns>The candidate's target id when a miss is suspected, otherwise null</returns>
+    private async Task<string?> DetectAndLogSuspectedMissAsync(
+        NavigationMatchResult navMatch,
+        string? navigatedRoute,
+        string? navigatedTarget,
+        string utterance,
+        string locale,
+        Guid? currentUserGuid,
+        CancellationToken cancellationToken)
+    {
+        var suspectedMiss = _navMissDetector.DetectSuspectedMiss(navMatch, navigatedRoute, navigatedTarget);
+        if (suspectedMiss == null)
+        {
+            return null;
+        }
+
+        await _navLogger.LogOutcomeAsync(
+            utterance, locale, suspectedMiss.TargetId, NavigationOutcomeKinds.SuspectedMiss,
+            navigatedRoute ?? string.Empty, currentUserGuid, cancellationToken);
+
+        return suspectedMiss.TargetId;
     }
 
     private string GetCurrentUserId()

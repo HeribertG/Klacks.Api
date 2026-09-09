@@ -7,14 +7,11 @@
 namespace Klacks.Api.Application.Klacksy;
 
 using Klacks.Api.Application.Interfaces.Klacksy;
+using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Domain.Models.Klacksy;
 
 public sealed class NavigationFeedbackLogger : INavigationFeedbackLogger
 {
-    private const int MaxUtteranceLength = 500;
-    private const string UserActionAccepted = "accepted-match";
-    private const string UserActionGaveUp = "gave-up";
-
     private readonly IKlacksyNavigationFeedbackRepository _repo;
 
     public NavigationFeedbackLogger(IKlacksyNavigationFeedbackRepository repo) => _repo = repo;
@@ -22,13 +19,25 @@ public sealed class NavigationFeedbackLogger : INavigationFeedbackLogger
     public Task LogAsync(string rawUtterance, string locale, string? matchedTargetId, double score, string? actualRoute, Guid? userId, CancellationToken ct)
         => _repo.AddAsync(new KlacksyNavigationFeedback
         {
-            Utterance = Truncate(rawUtterance, MaxUtteranceLength),
+            Utterance = Truncate(rawUtterance),
             Locale = locale,
             MatchedTargetId = matchedTargetId,
             MatchedScore = score > 0 ? score : null,
-            UserAction = matchedTargetId == null ? UserActionGaveUp : UserActionAccepted,
+            UserAction = matchedTargetId == null ? NavigationOutcomeKinds.GaveUp : NavigationOutcomeKinds.AcceptedMatch,
             ActualRoute = actualRoute,
         }, ct);
 
-    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max];
+    public Task LogOutcomeAsync(string? utterance, string locale, string? targetId, string outcome, string route, Guid? userId, CancellationToken ct)
+        => _repo.AddAsync(new KlacksyNavigationFeedback
+        {
+            Utterance = Truncate(utterance ?? string.Empty),
+            Locale = locale,
+            MatchedTargetId = targetId,
+            UserAction = outcome,
+            ActualRoute = route,
+        }, ct);
+
+    private static string Truncate(string s) => s.Length <= NavigationFeedbackLimits.MaxUtteranceLength
+        ? s
+        : s[..NavigationFeedbackLimits.MaxUtteranceLength];
 }
