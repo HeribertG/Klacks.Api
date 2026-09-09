@@ -16,7 +16,6 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
 {
     private const int MaxCandidates = 3;
     private const double MaxTokenOverlapScore = 0.85;
-    private const double MinScoreForMatch = 0.5;
     private const double FuzzyMinScore = 0.6;
     private const int TrigramSize = 3;
 
@@ -42,7 +41,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             };
 
         var tokenResult = TokenOverlap(normalizedUtterance, locale, userPermissions);
-        if (tokenResult.Score >= MinScoreForMatch)
+        if (tokenResult.Score >= NavigationMatchThresholds.MinScoreForMatch)
             return tokenResult;
 
         var fuzzyResult = Fuzzy(normalizedUtterance, locale, userPermissions);
@@ -80,8 +79,8 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         var top = candidates.FirstOrDefault();
         return new NavigationMatchResult
         {
-            TargetId = top?.Score >= MinScoreForMatch ? top.TargetId : null,
-            Route = top?.Score >= MinScoreForMatch ? top.Route : null,
+            TargetId = top?.Score >= NavigationMatchThresholds.MinScoreForMatch ? top.TargetId : null,
+            Route = top?.Score >= NavigationMatchThresholds.MinScoreForMatch ? top.Route : null,
             Score = top?.Score ?? 0,
             Candidates = candidates
         };

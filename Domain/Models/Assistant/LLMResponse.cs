@@ -20,6 +20,8 @@ public class LLMResponse
 
     public string? NavigateToTarget { get; set; }
 
+    public string? MissedTargetId { get; set; }
+
     public List<object>? FunctionCalls { get; set; }
 
     public LLMUsageInfo? Usage { get; set; }

@@ -24,6 +24,7 @@ public class SseChunk
     public SuggestedRepliesConfig? SuggestedReplies { get; set; }
     public string? NavigateTo { get; set; }
     public string? Target { get; set; }
+    public string? MissedTargetId { get; set; }
     public bool ActionPerformed { get; set; }
     public List<object>? FunctionCalls { get; set; }
     public string? ErrorMessage { get; set; }
@@ -65,6 +66,7 @@ public class SseChunk
         SuggestedReplies = response.SuggestedReplies,
         NavigateTo = response.NavigateTo,
         Target = response.NavigateToTarget,
+        MissedTargetId = response.MissedTargetId,
         ActionPerformed = response.ActionPerformed,
         FunctionCalls = response.FunctionCalls
     };

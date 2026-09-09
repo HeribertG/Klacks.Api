@@ -297,6 +297,7 @@ builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
 builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();
+builder.Services.AddScoped<INavigationMissDetector, NavigationMissDetector>();
 builder.Services.AddSingleton<LLMMapper>();
 builder.Services.AddSingleton<IAssistantConnectionTracker, AssistantConnectionTracker>();
 builder.Services.AddScoped<IAssistantNotificationService, AssistantNotificationService>();

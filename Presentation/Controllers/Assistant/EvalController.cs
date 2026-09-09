@@ -303,6 +303,50 @@ public class EvalController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// The browser reporting the real outcome of a Klacksy navigation it executed (W0 honest
+    /// navigation feedback): whether it scrolled to the target, could not find it, or the router
+    /// refused the navigation. Body carries route/target/outcome; the caller identity comes from
+    /// the token, same pattern as ui-action-result.
+    /// </summary>
+    [HttpPost("navigation-outcome")]
+    public async Task<ActionResult<ReportNavigationOutcomeResult>> ReportNavigationOutcome(
+        [FromBody] ReportNavigationOutcomeRequest body,
+        CancellationToken cancellationToken)
+    {
+        if (body == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _mediator.Send(
+                new ReportNavigationOutcomeCommand
+                {
+                    UserId = userId,
+                    Route = body.Route ?? string.Empty,
+                    Target = body.Target,
+                    Outcome = body.Outcome ?? string.Empty,
+                    Locale = body.Locale ?? string.Empty,
+                    Utterance = body.Utterance
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     public sealed class SubmitCorrectionRequest
     {
         public string? UserMessage { get; set; }
@@ -329,6 +373,15 @@ public class EvalController : ControllerBase
         public Guid TrackingId { get; set; }
         public string? Status { get; set; }
         public string? ErrorMessage { get; set; }
+    }
+
+    public sealed class ReportNavigationOutcomeRequest
+    {
+        public string? Route { get; set; }
+        public string? Target { get; set; }
+        public string? Outcome { get; set; }
+        public string? Locale { get; set; }
+        public string? Utterance { get; set; }
     }
 
     private List<string> GetCurrentUserRights() => User.GetUserRights();
