@@ -119,6 +119,25 @@ public class ChatController : ControllerBase
         return !await IsOngoingConversationAsync(conversationId, userId);
     }
 
+    /// <summary>
+    /// Resolves the fast-path match's in-page target, suppressing page-level entries. A page-level
+    /// target (Category == NavigationTargetCategories.PageLevel) has no data-klacksy-target marker in
+    /// the DOM, so returning it would make the frontend's MutationObserver wait out its full 1500 ms
+    /// timeout for a marker that never appears. Any other category, including null, is an in-page
+    /// marker and is passed through.
+    /// </summary>
+    /// <param name="navMatch">The exact, single-candidate match the fast-path is about to answer</param>
+    private string? ResolveInPageTarget(NavigationMatchResult navMatch)
+    {
+        if (string.IsNullOrEmpty(navMatch.TargetId))
+        {
+            return null;
+        }
+
+        var isPageLevel = _navCache.GetById(navMatch.TargetId)?.Category == NavigationTargetCategories.PageLevel;
+        return isPageLevel ? null : navMatch.TargetId;
+    }
+
     [HttpPost]
     public async Task<ActionResult<LLMResponse>> ProcessMessage([FromBody] LLMRequest request)
     {
@@ -150,6 +169,7 @@ public class ChatController : ControllerBase
             {
                 Message = NavigationResponseKeys.SuccessRouted,
                 NavigateTo = navMatch.Route,
+                NavigateToTarget = ResolveInPageTarget(navMatch),
                 ActionPerformed = true
             });
         }
@@ -236,7 +256,7 @@ public class ChatController : ControllerBase
             {
                 Type = SseChunkType.Metadata,
                 NavigateTo = navMatch.Route,
-                Target = navMatch.TargetId,
+                Target = ResolveInPageTarget(navMatch),
                 ActionPerformed = true
             };
             var navData = System.Text.Json.JsonSerializer.Serialize(navMetadata, jsonOptions);
