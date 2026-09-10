@@ -333,6 +333,27 @@ jobs:
           done
           sleep 2
 
+          # Refuse to touch the server before BOTH release images exist on ghcr. The UI image comes
+          # from the parallel Klacks.Ui tag workflow; if that tag is missing or its build failed, every
+          # step below (repo reset, compose sync, .env tags) would leave the server inconsistent for a
+          # deploy that cannot complete — exactly what happened on 2026-09-06 (v1.0.26: .env pointed at
+          # 1.0.26 while 1.0.25 kept running) and again on 2026-09-10 (v1.0.27 tagged on Api only).
+          echo "🔎 Checking that klacks-api:${KLACKS_API_TAG} and klacks-ui:${KLACKS_UI_TAG} exist on ghcr..."
+          image_exists() { docker manifest inspect "$1" >/dev/null 2>&1; }
+          for attempt in $(seq 1 15); do
+            if image_exists "ghcr.io/heribertg/klacks-api:${KLACKS_API_TAG}" && image_exists "ghcr.io/heribertg/klacks-ui:${KLACKS_UI_TAG}"; then
+              echo "✅ Both release images are available"
+              break
+            fi
+            if [ "$attempt" -eq 15 ]; then
+              echo "❌ Release images not available after 15 minutes (api=${KLACKS_API_TAG}, ui=${KLACKS_UI_TAG}) — aborting BEFORE touching the server."
+              echo "   Tag Klacks.Ui with the same version via scripts/release.ps1 (never by hand) and re-run this workflow."
+              exit 1
+            fi
+            echo "⏳ Waiting for release images (attempt $attempt/15), retrying in 60s..."
+            sleep 60
+          done
+
           # Navigate to correct directory
           cd /root/apps
 
