@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed;
@@ -84,6 +85,26 @@ public static class AssistantExtensions
         using var scope = app.ApplicationServices.CreateScope();
         var seedService = scope.ServiceProvider.GetRequiredService<NavigationTargetSynonymSeedService>();
         await seedService.SeedAsync();
+        return app;
+    }
+
+    public static async Task<IApplicationBuilder> WarmUpNavigationTargetCacheAsync(this IApplicationBuilder app)
+    {
+        var cache = app.ApplicationServices.GetRequiredService<INavigationTargetCacheService>();
+        var logger = app.ApplicationServices.GetRequiredService<ILogger<INavigationTargetCacheService>>();
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            await cache.WarmUpAsync();
+            logger.LogInformation(
+                "Navigation target cache warmed up: {TargetCount} targets in {ElapsedMs} ms.",
+                cache.All.Count, stopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Navigation target cache warm-up failed; the first lookups will fall back to the lazy reload.");
+        }
+
         return app;
     }
 

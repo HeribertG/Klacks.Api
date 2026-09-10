@@ -12,4 +12,5 @@ public interface INavigationTargetCacheService
     IReadOnlyList<NavigationTarget> FindBySynonym(string token, string locale);
     IReadOnlyList<NavigationTarget> FindBySynonymAnyLocale(string token);
     void Invalidate();
+    Task WarmUpAsync(CancellationToken cancellationToken = default);
 }

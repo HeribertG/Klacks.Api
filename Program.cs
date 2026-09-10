@@ -712,6 +712,11 @@ await app.InitializeSkillRegistryAsync();
 await app.LoadSkillRelationSeedsAsync();
 await app.DeriveSubstratePriorAsync();
 
+// Must follow the synonym seed and the language plugin install above, and must finish before
+// app.Run(): the cache refreshes lazily, so without it the first request after a restart sees an
+// empty snapshot and misses every navigation fast path.
+await app.WarmUpNavigationTargetCacheAsync();
+
 app.Run();
 
 static async Task InitializeFeaturePluginsThenLoadSkillSeedsAsync(WebApplication application)

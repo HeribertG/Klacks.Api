@@ -11,6 +11,8 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 /// Singleton cache for navigation targets. Loads target metadata from the core manifest (JSON SSOT)
 /// and synonyms from the database via INavigationTargetSynonymRepository.
 /// TTL 5 min analogous to SkillCacheService. Lookup by targetId or synonym+locale.
+/// Lookups refresh fire-and-forget and serve the current snapshot, so WarmUpAsync must be awaited at
+/// startup — otherwise the first request after a restart sees an empty snapshot.
 /// </summary>
 /// <param name="coreManifestPath">Absolute path to the navigation-targets.json file</param>
 /// <param name="scopeFactory">Factory for creating DI scopes when querying the scoped synonym repository</param>
@@ -94,6 +96,19 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
     public void Invalidate()
     {
         _snapshot = _snapshot with { LoadedAt = DateTime.MinValue };
+    }
+
+    public async Task WarmUpAsync(CancellationToken cancellationToken = default)
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try
+        {
+            await ReloadAsync();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     private async Task EnsureFreshAsync()
