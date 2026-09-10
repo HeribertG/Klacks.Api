@@ -34,6 +34,10 @@ gen_secret() { head -c "${1:-48}" /dev/urandom | base64 | tr -d '\n'; }
 set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="$v" || true; }
 
 set_if_empty COMPOSE_PROJECT_NAME klacks
+# Absolute host path of this directory; the updater mounts it at the same path and uses it as its
+# compose project dir so relative bind mounts resolve identically inside and outside the container.
+ENVMAP[KLACKS_INSTALL_DIR]="$(pwd -P)"
+ENVMAP[KLACKS_UPDATER_PROJECT_DIR]="$(pwd -P)"
 set_if_empty POSTGRES_PASSWORD "$(gen_secret 48)"
 set_if_empty JWT_SECRET "$(gen_secret 64)"
 

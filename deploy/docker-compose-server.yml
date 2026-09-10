@@ -183,7 +183,12 @@ services:
       - DOTNET_ENVIRONMENT=Production
       - Updater__ConnectionString=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - Updater__HealthUrl=http://klacks-api:5000/internal/health/deep
-      - Updater__ComposeProjectDir=/apps
+      # Must equal the HOST path of this directory. The updater runs `docker compose up` against the
+      # host's Docker socket, and the daemon resolves the compose file's relative bind mounts
+      # (./regions, ./init-scripts) against the project dir as seen by the HOST — a container-only
+      # path like /apps made Docker create empty /apps/regions on the host, so the API lost its
+      # region profile and crash-looped after the 2026-09-10 auto-update.
+      - Updater__ComposeProjectDir=/root/apps
       - Updater__ApiImageRepository=ghcr.io/heribertg/klacks-api
       - Updater__ApiServiceName=klacks-api
       - Updater__ApiTagEnvVar=KLACKS_API_TAG
@@ -194,7 +199,7 @@ services:
       - Updater__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/apps:/apps
+      - /root/apps:/root/apps
       - api-update-backups:/backups
     depends_on:
       postgres:

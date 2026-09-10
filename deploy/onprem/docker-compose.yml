@@ -132,8 +132,14 @@ services:
 
   # Out-of-process auto-update executor. Runs by default (no profile gate) — at a customer site there
   # is no operator to start it manually, and auto-update is the product. Idles safely when no update
-  # is pending. Drives the host's containers via the mounted Docker socket; ComposeProjectDir=/apps is
-  # this directory bind-mounted, so it sees the same compose + .env (and COMPOSE_PROJECT_NAME) as the host.
+  # is pending. Drives the host's containers via the mounted Docker socket. install.sh sets
+  # KLACKS_INSTALL_DIR and KLACKS_UPDATER_PROJECT_DIR both to this directory's absolute HOST path, so
+  # the updater sees the compose project at the same path as the host. That is required: the daemon
+  # resolves the relative bind mounts above (./regions, ./init-scripts) against the project dir as
+  # seen by the HOST, so a container-only path (the old /apps) pointed them at empty host directories
+  # and crash-looped the API (production incident 2026-09-10). The /apps defaults only keep the stack
+  # startable on Windows (install.ps1), where a Windows path cannot double as the container path;
+  # the updater is not supported there until DockerApplier passes --project-directory itself.
   klacks-updater:
     image: ghcr.io/heribertg/klacks-updater:${KLACKS_UPDATER_TAG:-latest}
     container_name: klacks-updater
@@ -142,7 +148,7 @@ services:
       - DOTNET_ENVIRONMENT=Production
       - Updater__ConnectionString=Host=postgres;Database=Klacks;Username=admin;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - Updater__HealthUrl=http://klacks-api:5000/internal/health/deep
-      - Updater__ComposeProjectDir=/apps
+      - Updater__ComposeProjectDir=${KLACKS_UPDATER_PROJECT_DIR:-/apps}
       - Updater__ApiImageRepository=ghcr.io/heribertg/klacks-api
       - Updater__ApiServiceName=klacks-api
       - Updater__ApiTagEnvVar=KLACKS_API_TAG
@@ -153,7 +159,7 @@ services:
       - Updater__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:?UPDATE_SIGNATURE_PUBLIC_KEY must be set (vendor trust root)}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/apps
+      - ${KLACKS_INSTALL_DIR:-.}:${KLACKS_UPDATER_PROJECT_DIR:-/apps}
       - api-update-backups:/backups
     depends_on:
       postgres:
