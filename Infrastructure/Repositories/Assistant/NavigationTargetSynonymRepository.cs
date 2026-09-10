@@ -83,7 +83,12 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
             .AnyAsync(s => s.TargetId == targetId && s.Language == language, ct);
     }
 
-    public async Task<NavigationTargetSynonymSyncResult> SyncSeedKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, CancellationToken ct = default)
+    public Task<NavigationTargetSynonymSyncResult> SyncSeedKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, CancellationToken ct = default)
+    {
+        return SyncSourceKeywordsForTargetLanguageAsync(targetId, language, keywords, SynonymSources.Seed, ct);
+    }
+
+    public async Task<NavigationTargetSynonymSyncResult> SyncSourceKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, string source, CancellationToken ct = default)
     {
         var existing = await _context.NavigationTargetSynonyms
             .Where(s => s.TargetId == targetId && s.Language == language)
@@ -95,23 +100,23 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
             .ToList();
         var manifestKeywordSet = new HashSet<string>(manifestKeywords, StringComparer.OrdinalIgnoreCase);
 
-        var seedRows = existing
-            .Where(e => string.Equals(e.Source, SynonymSources.Seed, StringComparison.OrdinalIgnoreCase))
+        var ownRows = existing
+            .Where(e => string.Equals(e.Source, source, StringComparison.OrdinalIgnoreCase))
             .ToList();
         var foreignRows = existing
-            .Where(e => !string.Equals(e.Source, SynonymSources.Seed, StringComparison.OrdinalIgnoreCase))
+            .Where(e => !string.Equals(e.Source, source, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        var seedRowsToRemove = seedRows
+        var ownRowsToRemove = ownRows
             .Where(e => !manifestKeywordSet.Contains(e.Keyword))
             .ToList();
-        if (seedRowsToRemove.Count > 0)
+        if (ownRowsToRemove.Count > 0)
         {
-            _context.NavigationTargetSynonyms.RemoveRange(seedRowsToRemove);
+            _context.NavigationTargetSynonyms.RemoveRange(ownRowsToRemove);
         }
 
         var remainingKeywords = new HashSet<string>(
-            existing.Except(seedRowsToRemove).Select(e => e.Keyword),
+            existing.Except(ownRowsToRemove).Select(e => e.Keyword),
             StringComparer.OrdinalIgnoreCase);
 
         var keywordsToInsert = manifestKeywords
@@ -127,16 +132,16 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
                 TargetId = targetId,
                 Language = language,
                 Keyword = keyword,
-                Source = SynonymSources.Seed,
+                Source = source,
                 CreateTime = now
             });
         }
 
-        if (seedRowsToRemove.Count > 0 || keywordsToInsert.Count > 0)
+        if (ownRowsToRemove.Count > 0 || keywordsToInsert.Count > 0)
         {
             await _context.SaveChangesAsync(ct);
         }
 
-        return new NavigationTargetSynonymSyncResult(keywordsToInsert.Count, seedRowsToRemove.Count, foreignRows.Count);
+        return new NavigationTargetSynonymSyncResult(keywordsToInsert.Count, ownRowsToRemove.Count, foreignRows.Count);
     }
 }

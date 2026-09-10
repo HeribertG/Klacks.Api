@@ -340,6 +340,11 @@ public class LanguagePluginContentInstaller
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Reconciles the pack's navigation synonyms row by row for source "plugin" only. The former
+    /// replace deleted every row of the (target, language) pair — including customer-trained "user"
+    /// synonyms — on each reinstall and uninstall.
+    /// </summary>
     public async Task InstallNavigationSynonymsAsync(IServiceScope scope, string code)
     {
         var navTargetsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.NavigationTargetsFileName);
@@ -358,10 +363,7 @@ public class LanguagePluginContentInstaller
 
             foreach (var (targetId, entry) in overlay)
             {
-                if (entry.Synonyms == null || entry.Synonyms.Length == 0)
-                    continue;
-
-                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, entry.Synonyms, SynonymSources.Plugin);
+                await synonymRepo.SyncSourceKeywordsForTargetLanguageAsync(targetId, code, entry.Synonyms ?? [], SynonymSources.Plugin);
                 count++;
             }
 
@@ -393,7 +395,7 @@ public class LanguagePluginContentInstaller
 
             foreach (var targetId in overlay.Keys)
             {
-                await synonymRepo.ReplaceForTargetLanguageAsync(targetId, code, [], SynonymSources.Plugin);
+                await synonymRepo.SyncSourceKeywordsForTargetLanguageAsync(targetId, code, [], SynonymSources.Plugin);
                 count++;
             }
 

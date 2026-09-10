@@ -26,4 +26,11 @@ public interface INavigationTargetSynonymRepository
     /// that already exists case-insensitively and therefore cannot violate that index.
     /// </summary>
     Task<NavigationTargetSynonymSyncResult> SyncSeedKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, CancellationToken ct = default);
+
+    /// <summary>
+    /// Same per-row reconcile as SyncSeedKeywordsForTargetLanguageAsync, for rows owned by the given
+    /// source (e.g. "plugin" for a language pack). Rows of every other source — above all customer-trained
+    /// "user" rows — are never modified or removed. An empty keyword list removes the source's rows only.
+    /// </summary>
+    Task<NavigationTargetSynonymSyncResult> SyncSourceKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, string source, CancellationToken ct = default);
 }
