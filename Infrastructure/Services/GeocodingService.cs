@@ -24,6 +24,7 @@ public class GeocodingService : IGeocodingService
     private readonly SemaphoreSlim _rateLimiter;
     private const string NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
     private const int REQUEST_DELAY_MS = 1100;
+    private const string MATCH_TYPE_ERROR = "error";
 
     public GeocodingService(
         IHttpClientFactory httpClientFactory,
@@ -309,7 +310,8 @@ public class GeocodingService : IGeocodingService
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
-                return new GeocodingValidationResult { Found = false, MatchType = "error" };
+                _logger.LogWarning("Nominatim answered {StatusCode} while validating an address", (int)response.StatusCode);
+                return UnavailableResult();
             }
 
             var json = await response.Content.ReadAsStringAsync();
@@ -322,6 +324,11 @@ public class GeocodingService : IGeocodingService
                 if (!string.IsNullOrEmpty(street))
                 {
                     var fallbackResult = await ValidateWithoutStreetAsync(postalCode, city, country);
+                    if (fallbackResult.ServiceUnavailable)
+                    {
+                        return fallbackResult;
+                    }
+
                     if (fallbackResult.Found)
                     {
                         fallbackResult.ExactMatch = false;
@@ -363,13 +370,17 @@ public class GeocodingService : IGeocodingService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating address");
-            return new GeocodingValidationResult { Found = false, MatchType = "error" };
+            return UnavailableResult();
         }
         finally
         {
             _rateLimiter.Release();
         }
     }
+
+    // Never cached: an outage must not make a real address look non-existent after Nominatim recovers.
+    private static GeocodingValidationResult UnavailableResult() =>
+        new() { Found = false, ServiceUnavailable = true, MatchType = MATCH_TYPE_ERROR };
 
     private async Task<GeocodingValidationResult> ValidateWithoutStreetAsync(string postalCode, string city, string country)
     {
@@ -380,7 +391,8 @@ public class GeocodingService : IGeocodingService
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
         {
-            return new GeocodingValidationResult { Found = false };
+            _logger.LogWarning("Nominatim answered {StatusCode} on the city-level address fallback", (int)response.StatusCode);
+            return UnavailableResult();
         }
 
         var json = await response.Content.ReadAsStringAsync();

@@ -73,6 +73,11 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
             var result = await _geocodingService.ValidateExactAddressAsync(
                 address.Street, address.Zip, address.City, geocodingCountry);
 
+            if (result.ServiceUnavailable)
+            {
+                return true;
+            }
+
             var hasStreet = !string.IsNullOrWhiteSpace(address.Street);
 
             if (result.Found && (!hasStreet || result.ExactMatch || result.MatchType == "exact"))

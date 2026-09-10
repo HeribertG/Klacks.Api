@@ -19,6 +19,8 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
 
 public class AddressesController : InputBaseController<AddressResource>
 {
+    private const string ValidationUnavailableMatchType = "validation_error";
+
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
     private readonly StateAbbreviationResolver _stateResolver;
@@ -117,6 +119,12 @@ public class AddressesController : InputBaseController<AddressResource>
             var validationResult = await _geocodingService.ValidateExactAddressAsync(
                 resource.Street, resource.Zip, resource.City, country);
 
+            if (validationResult.ServiceUnavailable)
+            {
+                _logger.LogWarning("Geocoding unavailable, address accepted without coordinates: {Street}, {Zip} {City}", resource.Street.ForLog(), resource.Zip.ForLog(), resource.City.ForLog());
+                return AcceptedWithoutValidation();
+            }
+
             var hasStreet = !string.IsNullOrWhiteSpace(resource.Street);
 
             // When requireExactMatch is set, mirror the strictness of AddressGeocodingValidator
@@ -184,11 +192,16 @@ public class AddressesController : InputBaseController<AddressResource>
         {
             _logger.LogWarning(ex, "Address validation failed for {Street}, {Zip} {City}", resource.Street.ForLog(), resource.Zip.ForLog(), resource.City.ForLog());
 
-            return new AddressValidationResponse
-            {
-                IsValid = true,
-                MatchType = "validation_error"
-            };
+            return AcceptedWithoutValidation();
         }
     }
+
+    // A geocoder that cannot be reached says nothing about the address, so saving is not blocked:
+    // the address is stored without coordinates, which geocode-all can fill in later. Only a
+    // geocoder that answers "not found" rejects the address.
+    private static AddressValidationResponse AcceptedWithoutValidation() => new()
+    {
+        IsValid = true,
+        MatchType = ValidationUnavailableMatchType
+    };
 }

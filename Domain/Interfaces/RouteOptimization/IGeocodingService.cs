@@ -20,6 +20,11 @@ public interface IGeocodingService
 public class GeocodingValidationResult
 {
     public bool Found { get; set; }
+    /// <summary>
+    /// True when the geocoder could not be asked at all (network error, non-success response). Found is
+    /// false then too, but it means "unknown", not "this address does not exist".
+    /// </summary>
+    public bool ServiceUnavailable { get; set; }
     public bool ExactMatch { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

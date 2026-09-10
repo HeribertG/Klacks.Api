@@ -129,6 +129,11 @@ public class ValidateAddressSkill : BaseSkillImplementation
         try
         {
             var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, geocodingCountry);
+            if (validation.ServiceUnavailable)
+            {
+                return CouldNotValidate(fullAddress, "The geocoding service is currently unavailable, so the address could not be checked. This says nothing about whether it is correct.");
+            }
+
             var state = validation.State;
 
             var zipInfo = state != null
@@ -197,19 +202,21 @@ public class ValidateAddressSkill : BaseSkillImplementation
         }
         catch (Exception ex)
         {
-            return new SkillResult
-            {
-                Success = true,
-                Data = new
-                {
-                    IsValid = false,
-                    ExactMatch = false,
-                    InputAddress = fullAddress,
-                    Error = ex.Message
-                },
-                Message = $"Could not validate address via geocoding.",
-                Type = SkillResultType.Data
-            };
+            return CouldNotValidate(fullAddress, ex.Message);
         }
     }
+
+    private static SkillResult CouldNotValidate(string fullAddress, string error) => new()
+    {
+        Success = true,
+        Data = new
+        {
+            IsValid = false,
+            ExactMatch = false,
+            InputAddress = fullAddress,
+            Error = error
+        },
+        Message = "Could not validate address via geocoding.",
+        Type = SkillResultType.Data
+    };
 }

@@ -488,6 +488,7 @@ var mvcBuilder = builder.Services
         opts.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         opts.JsonSerializerOptions.Converters.Add(new DateOnlyNullableJsonConverter());
         opts.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+        opts.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
         opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         opts.JsonSerializerOptions.WriteIndented = true;
     });
