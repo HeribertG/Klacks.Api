@@ -185,6 +185,7 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         AddPhrases(ownerKind, ownerName, kind, source, language, phrases);
 
         await _context.SaveChangesAsync(cancellationToken);
+        DetachTrackedPhrases();
     }
 
     public async Task ReplaceAllLanguagesAsync(
