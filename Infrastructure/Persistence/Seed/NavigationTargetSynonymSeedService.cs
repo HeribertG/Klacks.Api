@@ -4,7 +4,8 @@
 /// Seeds navigation target synonyms from the core navigation-targets.json manifest into the database.
 /// Reconciles vendor-owned (Source == "seed") rows against the manifest row by row per (TargetId,
 /// Language) pair, never touching customer-trained ("user") or plugin-installed ("plugin") rows in the
-/// same pair.
+/// same pair. An empty keyword list is reconciled too: it removes the pair's stale seed rows, which
+/// a skip would leave matching forever.
 /// </summary>
 /// <param name="repository">Repository for navigation target synonym persistence</param>
 /// <param name="environment">Provides the content root path for locating the manifest file</param>
@@ -71,9 +72,6 @@ public class NavigationTargetSynonymSeedService
         {
             foreach (var (language, keywords) in target.Synonyms)
             {
-                if (keywords.Length == 0)
-                    continue;
-
                 var result = await _repository.SyncSeedKeywordsForTargetLanguageAsync(target.TargetId, language, keywords, ct);
 
                 if (result.InsertedCount == 0 && result.RemovedCount == 0)
