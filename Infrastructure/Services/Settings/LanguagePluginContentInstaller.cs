@@ -403,11 +403,13 @@ public class LanguagePluginContentInstaller
                 count++;
             }
 
+            var stale = await synonymRepo.RemoveSourceRowsForLanguageExceptAsync(code, SynonymSources.Plugin, overlay.Keys.ToList());
+
             await WarmUpNavigationCacheAsync(scope);
 
             _logger.LogInformation(
-                "Installed navigation synonyms for language plugin '{Code}': {Count} target(s) updated",
-                code.ForLog(), count);
+                "Installed navigation synonyms for language plugin '{Code}': {Count} target(s) updated, {Stale} stale row(s) removed",
+                code.ForLog(), count, stale);
         }
         catch (Exception ex)
         {
@@ -415,33 +417,20 @@ public class LanguagePluginContentInstaller
         }
     }
 
+    // Removes every plugin row of the language, not only those of the targets the current pack file
+    // lists: a target an earlier pack version had and this one dropped or renamed would otherwise stay.
     public async Task UninstallNavigationSynonymsAsync(IServiceScope scope, string code)
     {
-        var navTargetsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.NavigationTargetsFileName);
-        if (!File.Exists(navTargetsPath))
-            return;
-
         try
         {
-            var json = File.ReadAllText(navTargetsPath);
-            var overlay = JsonSerializer.Deserialize<Dictionary<string, PluginNavigationEntry>>(json, JsonOptions);
-            if (overlay == null || overlay.Count == 0)
-                return;
-
             var synonymRepo = scope.ServiceProvider.GetRequiredService<INavigationTargetSynonymRepository>();
-            var count = 0;
-
-            foreach (var targetId in overlay.Keys)
-            {
-                await synonymRepo.SyncSourceKeywordsForTargetLanguageAsync(targetId, code, [], SynonymSources.Plugin);
-                count++;
-            }
+            var removed = await synonymRepo.RemoveSourceRowsForLanguageExceptAsync(code, SynonymSources.Plugin, []);
 
             await WarmUpNavigationCacheAsync(scope);
 
             _logger.LogInformation(
-                "Uninstalled navigation synonyms for language plugin '{Code}': {Count} target(s) cleared",
-                code.ForLog(), count);
+                "Uninstalled navigation synonyms for language plugin '{Code}': {Count} row(s) removed",
+                code.ForLog(), removed);
         }
         catch (Exception ex)
         {

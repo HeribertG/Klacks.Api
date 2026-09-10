@@ -33,4 +33,12 @@ public interface INavigationTargetSynonymRepository
     /// "user" rows — are never modified or removed. An empty keyword list removes the source's rows only.
     /// </summary>
     Task<NavigationTargetSynonymSyncResult> SyncSourceKeywordsForTargetLanguageAsync(string targetId, string language, IReadOnlyCollection<string> keywords, string source, CancellationToken ct = default);
+
+    /// <summary>
+    /// Removes the rows of one source in one language whose target is not in keepTargetIds. A language
+    /// pack only lists the targets of its current version, so a target it dropped or renamed would keep
+    /// its old rows forever; an empty keep set removes every row of that source and language (uninstall).
+    /// Rows of every other source are never touched. Returns the number of removed rows.
+    /// </summary>
+    Task<int> RemoveSourceRowsForLanguageExceptAsync(string language, string source, IReadOnlyCollection<string> keepTargetIds, CancellationToken ct = default);
 }

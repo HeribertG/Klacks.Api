@@ -146,6 +146,24 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
         return new NavigationTargetSynonymSyncResult(keywordsToInsert.Count, ownRowsToRemove.Count, foreignRows.Count);
     }
 
+    public async Task<int> RemoveSourceRowsForLanguageExceptAsync(string language, string source, IReadOnlyCollection<string> keepTargetIds, CancellationToken ct = default)
+    {
+        var keep = keepTargetIds.ToList();
+        var stale = await _context.NavigationTargetSynonyms
+            .Where(s => s.Language == language && s.Source == source && !keep.Contains(s.TargetId))
+            .ToListAsync(ct);
+
+        if (stale.Count == 0)
+        {
+            return 0;
+        }
+
+        _context.NavigationTargetSynonyms.RemoveRange(stale);
+        await _context.SaveChangesAsync(ct);
+        DetachSavedSynonyms();
+        return stale.Count;
+    }
+
     // The seed service and the language-pack installer call the sync once per target on one scoped
     // context. Without this every loaded and inserted row stayed tracked, so each further SaveChanges
     // ran DetectChanges over all rows written so far - quadratic in the synonym count, the same bug the
