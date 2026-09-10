@@ -11187,9 +11187,10 @@
           "calendrier des absences",
           "congés éligibles",
           "vacances"
-        ]
+        ],
+        "it": ["tipi di assenza", "tipologie di assenza", "categorie di assenza", "tipi di congedo", "quali assenze"]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_absence_type",
@@ -11635,9 +11636,10 @@
           "calendrier des congés",
           "périodes de disponibilité pour congés",
           "vacances"
-        ]
+        ],
+        "it": ["chi è assente", "chi è in ferie", "chi è malato", "chi manca", "cerca assenze", "ricerca assenze", "chi non c'è"]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "create_shift",
@@ -18023,10 +18025,10 @@
           "mail",
           "add email"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["e-mail", "courriel", "adresse e-mail", "ajouter e-mail"],
+        "it": ["e-mail", "indirizzo e-mail", "aggiungi e-mail", "posta elettronica"]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_client_note",
@@ -18091,10 +18093,10 @@
           "remark",
           "comment"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["note client", "ajouter une note", "remarque", "commentaire"],
+        "it": ["nota cliente", "aggiungi nota", "osservazione", "commento"]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_client_to_group_by_name",
@@ -18170,10 +18172,10 @@
           "add to group",
           "assign group"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["ajouter au groupe", "affecter au groupe", "assigner un groupe"],
+        "it": ["aggiungi al gruppo", "assegna al gruppo", "assegnare gruppo"]
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "add_selected_clients_to_group",
@@ -18239,10 +18241,10 @@
           "add ticked clients to group",
           "add marked rows to group"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["ajouter les employés sélectionnés au groupe", "ajouter les lignes cochées au groupe", "employés marqués vers le groupe"],
+        "it": ["aggiungi i dipendenti selezionati al gruppo", "aggiungi le righe spuntate al gruppo", "dipendenti selezionati nel gruppo"]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "fill_group_by_criteria",
@@ -18367,10 +18369,10 @@
           "populate group",
           "add employees to group"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["remplir le groupe", "peupler le groupe", "ajouter des employés au groupe"],
+        "it": ["riempi il gruppo", "popola il gruppo", "aggiungi dipendenti al gruppo"]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -18502,10 +18504,10 @@
           "group employees without a group by town name",
           "assign by matching address city to group name"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["classer les employés sans groupe par ville", "regrouper les employés sans groupe par commune", "affecter selon la ville de l'adresse"],
+        "it": ["classifica i dipendenti senza gruppo per città", "raggruppa i dipendenti senza gruppo per comune", "assegna in base alla città dell'indirizzo"]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "partition_clients_by_address",
@@ -18911,10 +18913,10 @@
           "remove from group",
           "leave group"
         ],
-        "fr": [],
-        "it": []
+        "fr": ["retirer du groupe", "supprimer du groupe", "quitter le groupe"],
+        "it": ["rimuovi dipendente dal gruppo", "togli dal gruppo", "esci dal gruppo"]
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_client_birthdate",

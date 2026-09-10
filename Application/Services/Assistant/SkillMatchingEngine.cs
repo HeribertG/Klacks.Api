@@ -1,11 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Static utility for Tier1 keyword matching: checks whether any of a skill's trigger keywords
-/// or synonyms appear as a substring in the given user message. Powers the deterministic
-/// keyword guarantee in both skill-selection pipelines (LLMStreamingOrchestrator and
-/// ProcessLLMMessageCommand): skills literally named in the message are always in the tool set,
-/// independent of embedding ranking — weak models must not depend on probabilistic retrieval.
+/// Static utility for deterministic keyword matching: checks whether any of a skill's trigger keywords
+/// or synonyms appear as a substring in the given user message. Powers the keyword guarantee in
+/// SkillToolsetAssembler (skills literally named in the message outrank retrieval-only skills in the
+/// tool set, independent of embedding ranking — weak models must not depend on probabilistic
+/// retrieval) and the recipe over-match safety net in CompetingSkillIntentDetector.
 /// Ranking under the guarantee cap: number of distinct matched terms first, then longest matched
 /// term, then read-only skills before mutating ones (per SkillRiskClassifier), then skill name as
 /// the final deterministic tiebreak.
@@ -63,11 +63,12 @@ public static class SkillMatchingEngine
 
             if (skill.Synonyms != null)
             {
-                foreach (var synonyms in skill.Synonyms.Values)
+                foreach (var group in skill.Synonyms)
                 {
-                    foreach (var synonym in synonyms)
+                    var isAnchor = IsAnchorLanguage(group.Key);
+                    foreach (var synonym in group.Value)
                     {
-                        bestLength = Math.Max(bestLength, CollectMatch(messageLower, synonym, matchedTerms, isAnchor: false));
+                        bestLength = Math.Max(bestLength, CollectMatch(messageLower, synonym, matchedTerms, isAnchor));
                     }
                 }
             }
@@ -228,35 +229,6 @@ public static class SkillMatchingEngine
         {
             phrases.Add(trimmed);
         }
-    }
-
-    public static bool MatchesSkillKeywords(AgentSkill skill, string userMessage, string language)
-    {
-        if (string.IsNullOrWhiteSpace(userMessage))
-            return false;
-
-        var messageLower = userMessage.ToLowerInvariant();
-
-        var keywords = ParseKeywords(skill.TriggerKeywords);
-        foreach (var keyword in keywords)
-        {
-            if (!string.IsNullOrWhiteSpace(keyword) &&
-                messageLower.Contains(keyword.ToLowerInvariant()))
-                return true;
-        }
-
-        if (skill.Synonyms != null &&
-            skill.Synonyms.TryGetValue(language, out var synonyms))
-        {
-            foreach (var synonym in synonyms)
-            {
-                if (!string.IsNullOrWhiteSpace(synonym) &&
-                    messageLower.Contains(synonym.ToLowerInvariant()))
-                    return true;
-            }
-        }
-
-        return false;
     }
 
     // Language-blind on purpose: every caller here searches the message for a literal substring, and

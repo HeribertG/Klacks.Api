@@ -30,7 +30,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public class RecipeEngineService
 {
     // Single grey-zone floor for the semantic fallback (no explicit trigger keyword), deliberately far
-    // above the skill retrieval cutoff (0.05): a recipe match commits the user to a multi-turn guided
+    // above the skill retrieval cutoff (KnowledgeIndexConstants.DefaultScoreCutoff, 0.0001): a recipe match commits the user to a multi-turn guided
     // flow, so EVERY match above the floor — high score or grey zone — runs through the confirmation
     // gate; the gate question, not the score, is the safety net. The floor is set low (0.4) on purpose
     // because cross-lingual queries score lower against the de/en embedding text and would otherwise
