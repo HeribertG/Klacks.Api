@@ -375,25 +375,35 @@
     "lastScannedAt": "2026-07-23T21:26:23.055Z",
     "synonyms": {
       "de": [
+        "mitgliedschaft",
+        "mitarbeiter-mitgliedschaft",
+        "gruppenmitgliedschaft",
+        "team-mitgliedschaft",
+        "öffne mitgliedschaft",
         "adressmitgliedschaft"
       ],
       "en": [
-        "address membership",
-        "registration"
+        "membership",
+        "employee membership",
+        "group membership",
+        "team membership",
+        "open membership",
+        "address membership"
       ],
       "fr": [
-        "affiliation",
-        "inscription",
-        "rattachement à l'adresse"
+        "adhésion",
+        "adhésion employé",
+        "appartenance au groupe",
+        "affiliation"
       ],
       "it": [
-        "appartenenza indirizzo",
-        "registrazione indirizzo",
-        "associazione indirizzo",
-        "iscrizione indirizzo"
+        "appartenenza",
+        "appartenenza dipendente",
+        "iscrizione gruppo",
+        "appartenenza indirizzo"
       ]
     },
-    "synonymStatus": "generated",
+    "synonymStatus": "reviewed",
     "obsolete": false
   },
   {
@@ -1935,7 +1945,7 @@
       ]
     },
     "synonymStatus": "reviewed",
-    "obsolete": false
+    "obsolete": true
   },
   {
     "targetId": "employee-membership.type",

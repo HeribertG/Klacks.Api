@@ -1501,31 +1501,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "jäsenyys",
-      "työntekijän jäsenyys",
-      "ryhmän jäsenyys",
-      "tiimin jäsenyys",
-      "avaa jäsenyys",
-      "jäsenyystiedot",
-      "jäsenyyden hallinta",
-      "henkilöstön jäsenyydet",
-      "muokkaa jäsenyyttä",
-      "jäsenyysasetukset",
-      "työpaikan jäsenyys",
-      "jäsenluettelo",
-      "jäsenyysnäkymä",
-      "jäsenyyden tila",
-      "liity ryhmään",
-      "jäsenyysosio",
-      "työsuhdejäsenyys",
-      "ryhmäjäsenyydet",
-      "jäsenyyssivu",
-      "hallinnoi jäsenyyksiä"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "jäsenyystyyppi",
@@ -2783,6 +2758,31 @@
       "lisäkulut asetuksissa",
       "näytä lisäkulumääritykset",
       "lisäkulumoodin asetukset"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "jäsenyys",
+      "työntekijän jäsenyys",
+      "ryhmän jäsenyys",
+      "tiimin jäsenyys",
+      "avaa jäsenyys",
+      "jäsenyystiedot",
+      "jäsenyyden hallinta",
+      "henkilöstön jäsenyydet",
+      "muokkaa jäsenyyttä",
+      "jäsenyysasetukset",
+      "työpaikan jäsenyys",
+      "jäsenluettelo",
+      "jäsenyysnäkymä",
+      "jäsenyyden tila",
+      "liity ryhmään",
+      "jäsenyysosio",
+      "työsuhdejäsenyys",
+      "ryhmäjäsenyydet",
+      "jäsenyyssivu",
+      "hallinnoi jäsenyyksiä"
     ],
     "status": "generated"
   }

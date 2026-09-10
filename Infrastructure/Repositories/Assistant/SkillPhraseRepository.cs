@@ -168,6 +168,26 @@ public class SkillPhraseRepository : ISkillPhraseRepository
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
 
+    public async Task<IReadOnlyList<string>> GetPhraseTextsBySourceAsync(
+        string ownerKind,
+        string ownerName,
+        string kind,
+        string source,
+        string language,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillPhrases
+            .AsNoTracking()
+            .Where(p => p.OwnerKind == ownerKind
+                && p.OwnerName == ownerName
+                && p.Kind == kind
+                && p.Source == source
+                && p.Language == language)
+            .OrderBy(p => p.SortOrder)
+            .Select(p => p.Phrase)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task ReplaceForLanguageAsync(
         string ownerKind,
         string ownerName,

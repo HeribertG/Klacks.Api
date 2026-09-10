@@ -1520,31 +1520,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "datele de membru ale angajatului",
-      "statutul de membru în echipă",
-      "accesez membrii echipei",
-      "gestionez calitatea de membru",
-      "membrii grupului de lucru",
-      "apartenența la echipă",
-      "membrii personalului",
-      "înscrierea în grup",
-      "calendarul membrilor",
-      "lista membrilor echipei",
-      "detalii membru echipă",
-      "opțiuni membru",
-      "gestionare membri echipă",
-      "membrii actuali",
-      "statut apartenență",
-      "membrii grupului",
-      "echipa mea",
-      "membrii înregistrați",
-      "gestionez membrii",
-      "accesez lista de membri"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "tip de membru angajat",
@@ -2782,6 +2757,31 @@
       "arată performanța abilităților în echipă",
       "calitatea abilităților echipei, unde o văd?",
       "cum stau abilitățile mele, eficacitatea lor"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "datele de membru ale angajatului",
+      "statutul de membru în echipă",
+      "accesez membrii echipei",
+      "gestionez calitatea de membru",
+      "membrii grupului de lucru",
+      "apartenența la echipă",
+      "membrii personalului",
+      "înscrierea în grup",
+      "calendarul membrilor",
+      "lista membrilor echipei",
+      "detalii membru echipă",
+      "opțiuni membru",
+      "gestionare membri echipă",
+      "membrii actuali",
+      "statut apartenență",
+      "membrii grupului",
+      "echipa mea",
+      "membrii înregistrați",
+      "gestionez membrii",
+      "accesez lista de membri"
     ],
     "status": "generated"
   }

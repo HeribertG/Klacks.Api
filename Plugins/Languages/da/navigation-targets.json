@@ -1512,31 +1512,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "medlemskab",
-      "medlemskab for medarbejder",
-      "gruppe medlemskab",
-      "team medlemskab",
-      "åbent medlemskab",
-      "medlemskabsindstillinger",
-      "rediger medlemskab",
-      "medlemskab på vagtplan",
-      "medarbejder medlemskab",
-      "medlemskab for vagthold",
-      "gruppe tilknytning",
-      "team tilmelding",
-      "medlemskab af team",
-      "medlemskab af gruppe",
-      "medlemskabsdetaljer",
-      "administrer medlemskab",
-      "tilføj medlemskab",
-      "fjern medlemskab",
-      "vis medlemskab",
-      "medlemskab for ansatte"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "medlemskabstype",
@@ -2786,6 +2761,31 @@
       "find tillægsindstillinger",
       "vis indstillinger for merbetaling",
       "gå til tillægsopsætning"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "medlemskab",
+      "medlemskab for medarbejder",
+      "gruppe medlemskab",
+      "team medlemskab",
+      "åbent medlemskab",
+      "medlemskabsindstillinger",
+      "rediger medlemskab",
+      "medlemskab på vagtplan",
+      "medarbejder medlemskab",
+      "medlemskab for vagthold",
+      "gruppe tilknytning",
+      "team tilmelding",
+      "medlemskab af team",
+      "medlemskab af gruppe",
+      "medlemskabsdetaljer",
+      "administrer medlemskab",
+      "tilføj medlemskab",
+      "fjern medlemskab",
+      "vis medlemskab",
+      "medlemskab for ansatte"
     ],
     "status": "generated"
   }

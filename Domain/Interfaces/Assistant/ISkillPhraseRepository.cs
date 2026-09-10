@@ -72,6 +72,24 @@ public interface ISkillPhraseRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Phrase texts of one owner, kind, origin and language, in any status. The language-pack installer
+    /// reads the pack's previous phrases with it, so it can replace exactly those in the legacy jsonb
+    /// value and leave every entry of another origin untouched.
+    /// </summary>
+    /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
+    /// <param name="ownerName">Business name of the skill or recipe</param>
+    /// <param name="kind">Synonym or Keyword, see SkillPhraseKinds</param>
+    /// <param name="source">Origin to filter on, see SkillPhraseSources</param>
+    /// <param name="language">ISO tag of the phrases</param>
+    Task<IReadOnlyList<string>> GetPhraseTextsBySourceAsync(
+        string ownerKind,
+        string ownerName,
+        string kind,
+        string source,
+        string language,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Replaces the phrases of one owner for exactly one language. By default only rows of the given
     /// source are removed.
     /// </summary>

@@ -1520,31 +1520,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "thành viên nhóm",
-      "tư cách thành viên",
-      "thành viên tổ",
-      "mở thành viên",
-      "quản lý thành viên",
-      "thành viên tổ chức",
-      "tham gia nhóm",
-      "danh sách thành viên",
-      "thành viên đội",
-      "cấp thành viên",
-      "thành viên nhóm làm việc",
-      "quyền thành viên",
-      "thành viên hiện tại",
-      "thêm thành viên",
-      "xóa thành viên",
-      "quản lý tư cách thành viên",
-      "thành viên ca",
-      "thành viên hợp đồng",
-      "thành viên vắng mặt",
-      "thông tin thành viên"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "loại thành viên",
@@ -2780,6 +2755,31 @@
       "xem mức độ đáp ứng công việc của kỹ năng",
       "mở trang tổng quan về năng lực nhân viên",
       "đến khu vực quản lý hiệu quả kỹ năng"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "thành viên nhóm",
+      "tư cách thành viên",
+      "thành viên tổ",
+      "mở thành viên",
+      "quản lý thành viên",
+      "thành viên tổ chức",
+      "tham gia nhóm",
+      "danh sách thành viên",
+      "thành viên đội",
+      "cấp thành viên",
+      "thành viên nhóm làm việc",
+      "quyền thành viên",
+      "thành viên hiện tại",
+      "thêm thành viên",
+      "xóa thành viên",
+      "quản lý tư cách thành viên",
+      "thành viên ca",
+      "thành viên hợp đồng",
+      "thành viên vắng mặt",
+      "thông tin thành viên"
     ],
     "status": "generated"
   }

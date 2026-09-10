@@ -1519,31 +1519,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "członkostwo pracownika",
-      "członkostwo w grupie",
-      "przynależność pracownika",
-      "członkostwo w zespole",
-      "otwórz członkostwo",
-      "ustawienia członkostwa",
-      "zarządzaj członkostwem",
-      "członkostwo zespołowe",
-      "przynależność do grupy",
-      "edytuj członkostwo",
-      "członkostwo grupowe",
-      "dodaj do członkostwa",
-      "modyfikuj członkostwo",
-      "ustaw członkostwo",
-      "przeglądaj członkostwo",
-      "szczegóły członkostwa",
-      "członkostwo pracownika w zespole",
-      "zmień członkostwo",
-      "aktywuj członkostwo",
-      "zobacz członkostwo"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "typ członkostwa pracownika",
@@ -2106,6 +2081,31 @@
       "nowe umiejętności",
       "otwórz uczenie klacksy",
       "przegląd umiejętności"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "członkostwo pracownika",
+      "członkostwo w grupie",
+      "przynależność pracownika",
+      "członkostwo w zespole",
+      "otwórz członkostwo",
+      "ustawienia członkostwa",
+      "zarządzaj członkostwem",
+      "członkostwo zespołowe",
+      "przynależność do grupy",
+      "edytuj członkostwo",
+      "członkostwo grupowe",
+      "dodaj do członkostwa",
+      "modyfikuj członkostwo",
+      "ustaw członkostwo",
+      "przeglądaj członkostwo",
+      "szczegóły członkostwa",
+      "członkostwo pracownika w zespole",
+      "zmień członkostwo",
+      "aktywuj członkostwo",
+      "zobacz członkostwo"
     ],
     "status": "generated"
   }

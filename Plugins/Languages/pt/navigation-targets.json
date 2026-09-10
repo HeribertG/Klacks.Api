@@ -1524,31 +1524,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "associação de funcionário",
-      "associação de membro",
-      "membros do grupo",
-      "membros da equipe",
-      "abrir associação",
-      "vincular funcionário",
-      "vínculo de funcionário",
-      "agrupar funcionários",
-      "associar a equipe",
-      "participação em grupo",
-      "fazer parte da equipe",
-      "adicionar membro",
-      "inserir membro",
-      "cadastrar associação",
-      "gerenciar associação de funcionário",
-      "configurar membro",
-      "membro do time",
-      "associação de grupo",
-      "vínculo de grupo",
-      "status de associação"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "tipo de adesão do colaborador",
@@ -2783,6 +2758,31 @@
       "ir para configurações de eficácia de habilidades",
       "ver quão eficazes são as habilidades da equipe",
       "navegar para eficácia das habilidades"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "associação de funcionário",
+      "associação de membro",
+      "membros do grupo",
+      "membros da equipe",
+      "abrir associação",
+      "vincular funcionário",
+      "vínculo de funcionário",
+      "agrupar funcionários",
+      "associar a equipe",
+      "participação em grupo",
+      "fazer parte da equipe",
+      "adicionar membro",
+      "inserir membro",
+      "cadastrar associação",
+      "gerenciar associação de funcionário",
+      "configurar membro",
+      "membro do time",
+      "associação de grupo",
+      "vínculo de grupo",
+      "status de associação"
     ],
     "status": "generated"
   }

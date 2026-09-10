@@ -1516,31 +1516,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "keahlian ahli",
-      "keanggotaan kakitangan",
-      "ahli kumpulan",
-      "pasukan ahli",
-      "keahlian dalam kumpulan",
-      "buka keahlian",
-      "sertai pasukan",
-      "senarai ahli kumpulan",
-      "urus keahlian",
-      "tetapkan ahli pasukan",
-      "pilih ahli kumpulan",
-      "masuk ke keahlian",
-      "keahlian pekerja",
-      "status ahli",
-      "ahli pasukan kerja",
-      "perbarui keahlian",
-      "paparan keahlian",
-      "keahlian kakitangan",
-      "halaman keahlian",
-      "tetapan keahlian"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "jenis keahlian pekerja",
@@ -2102,6 +2077,31 @@
       "kemahiran baharu",
       "buka pembelajaran klacksy",
       "semakan kemahiran"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "keahlian ahli",
+      "keanggotaan kakitangan",
+      "ahli kumpulan",
+      "pasukan ahli",
+      "keahlian dalam kumpulan",
+      "buka keahlian",
+      "sertai pasukan",
+      "senarai ahli kumpulan",
+      "urus keahlian",
+      "tetapkan ahli pasukan",
+      "pilih ahli kumpulan",
+      "masuk ke keahlian",
+      "keahlian pekerja",
+      "status ahli",
+      "ahli pasukan kerja",
+      "perbarui keahlian",
+      "paparan keahlian",
+      "keahlian kakitangan",
+      "halaman keahlian",
+      "tetapan keahlian"
     ],
     "status": "generated"
   }

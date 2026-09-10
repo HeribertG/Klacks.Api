@@ -1516,31 +1516,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "medlemskap",
-      "ansattmedlemskap",
-      "gruppemedlemskap",
-      "teamtilhørighet",
-      "åpne medlemskap",
-      "medlemskapsinnstillinger",
-      "medlemskapsinformasjon",
-      "medlemskapsoversikt",
-      "endre medlemskap",
-      "vis medlemskap",
-      "administrer medlemskap",
-      "medlemskapsdetaljer",
-      "medlemskapsstatus",
-      "medlemskapsliste",
-      "medlemskapstyper",
-      "medlemskapsredigering",
-      "medlemskapsdata",
-      "medlemskapsmeny",
-      "medlemskapsvalg",
-      "medlemskapsoppsett"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "medlemstype",
@@ -2101,6 +2076,31 @@
       "nye ferdigheter",
       "åpne klacksy læring",
       "gjennomgang av ferdigheter"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "medlemskap",
+      "ansattmedlemskap",
+      "gruppemedlemskap",
+      "teamtilhørighet",
+      "åpne medlemskap",
+      "medlemskapsinnstillinger",
+      "medlemskapsinformasjon",
+      "medlemskapsoversikt",
+      "endre medlemskap",
+      "vis medlemskap",
+      "administrer medlemskap",
+      "medlemskapsdetaljer",
+      "medlemskapsstatus",
+      "medlemskapsliste",
+      "medlemskapstyper",
+      "medlemskapsredigering",
+      "medlemskapsdata",
+      "medlemskapsmeny",
+      "medlemskapsvalg",
+      "medlemskapsoppsett"
     ],
     "status": "generated"
   }

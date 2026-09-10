@@ -1517,31 +1517,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "medlemskap",
-      "anställdas medlemskap",
-      "gruppmedlemskap",
-      "team-medlemskap",
-      "öppna medlemskap",
-      "visa medlemskap",
-      "redigera medlemskap",
-      "hantera medlemskap",
-      "medlemskapsinställningar",
-      "medlemskapsinformation",
-      "medlemskap för anställda",
-      "medlemskap i grupp",
-      "medlemskap i team",
-      "min medlemskap",
-      "alla medlemskap",
-      "medlemskapslista",
-      "medlemskapsuppgifter",
-      "medlemskapshantering",
-      "uppdatera medlemskap",
-      "se medlemskap"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "medlemstyp",
@@ -2777,6 +2752,31 @@
       "visa statistik över färdighetseffektivitet",
       "gå till inställningarna för hur väl färdigheterna fungerar",
       "jag vill granska färdighetseffektiviteten"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "medlemskap",
+      "anställdas medlemskap",
+      "gruppmedlemskap",
+      "team-medlemskap",
+      "öppna medlemskap",
+      "visa medlemskap",
+      "redigera medlemskap",
+      "hantera medlemskap",
+      "medlemskapsinställningar",
+      "medlemskapsinformation",
+      "medlemskap för anställda",
+      "medlemskap i grupp",
+      "medlemskap i team",
+      "min medlemskap",
+      "alla medlemskap",
+      "medlemskapslista",
+      "medlemskapsuppgifter",
+      "medlemskapshantering",
+      "uppdatera medlemskap",
+      "se medlemskap"
     ],
     "status": "generated"
   }

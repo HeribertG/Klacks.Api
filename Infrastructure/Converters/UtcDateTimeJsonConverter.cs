@@ -11,8 +11,10 @@
 /// client's intended calendar day is already lost once the offset has been applied. So the value is
 /// rejected with a message that says what to send instead.
 ///
-/// "Z" and "+00:00" are accepted as UTC. Values without any offset keep their previous behaviour
-/// (Kind Unspecified); inferring a time zone for them would be guesswork. Writing is unchanged.
+/// "Z" and "+00:00" are accepted as UTC. A value without any offset is read as UTC too (owner decision
+/// 2026-09-10): UTC is the Klacks wire convention, a calendar date sent as "2026-09-10T00:00:00" lands
+/// exactly on UTC midnight of that day, and Kind Unspecified used to fail in the database the same way
+/// Local did. No backend code treats a request value as server-local wall clock. Writing is unchanged.
 /// </summary>
 
 using System.Text.Json;
@@ -36,9 +38,14 @@ public class UtcDateTimeJsonConverter : JsonConverter<DateTime>
             throw new JsonException(InvalidFormatMessage);
         }
 
-        if (value.Kind != DateTimeKind.Local)
+        if (value.Kind == DateTimeKind.Utc)
         {
             return value;
+        }
+
+        if (value.Kind == DateTimeKind.Unspecified)
+        {
+            return DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }
 
         if (reader.TryGetDateTimeOffset(out var withOffset) && withOffset.Offset == TimeSpan.Zero)

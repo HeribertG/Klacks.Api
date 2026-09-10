@@ -1522,31 +1522,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "ver membresía de empleado",
-      "editar membresía de empleado",
-      "cambiar membresía de grupo",
-      "membresía de equipo",
-      "abrir membresía",
-      "ir a membresía de empleado",
-      "navegar a membresía",
-      "acceder a membresía",
-      "modificar membresía",
-      "gestionar membresía",
-      "ver membresía",
-      "membresía de personal",
-      "asignación de grupo",
-      "pertenencia a equipo",
-      "membresía abierta",
-      "cambiar grupo de empleado",
-      "editar grupo de empleado",
-      "ver asignación de equipo",
-      "gestionar pertenencia",
-      "membresía de empleados"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "tipo de membresía del empleado",
@@ -2809,6 +2784,31 @@
       "reglas de modo recargo",
       "abrir configuración de recargos",
       "cómo configuro el modo de recargo"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "ver membresía de empleado",
+      "editar membresía de empleado",
+      "cambiar membresía de grupo",
+      "membresía de equipo",
+      "abrir membresía",
+      "ir a membresía de empleado",
+      "navegar a membresía",
+      "acceder a membresía",
+      "modificar membresía",
+      "gestionar membresía",
+      "ver membresía",
+      "membresía de personal",
+      "asignación de grupo",
+      "pertenencia a equipo",
+      "membresía abierta",
+      "cambiar grupo de empleado",
+      "editar grupo de empleado",
+      "ver asignación de equipo",
+      "gestionar pertenencia",
+      "membresía de empleados"
     ],
     "status": "generated"
   }

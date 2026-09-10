@@ -1520,31 +1520,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "členství zaměstnance",
-      "členství v týmu",
-      "otevřít členství",
-      "skupinové členství",
-      "členské skupiny",
-      "seznam členství",
-      "moje členství",
-      "upravit členství",
-      "přiřazení k týmu",
-      "nastavení členství",
-      "členové týmu",
-      "zobrazit členství",
-      "členské role",
-      "přidat členství",
-      "změnit členství",
-      "členství v organizaci",
-      "spravovat členství",
-      "členské přihlášky",
-      "detail členství",
-      "členská přiřazení"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "typ členství",
@@ -2805,6 +2780,31 @@
       "nastavení přirážkového režimu",
       "kde se konfigurují přirážky",
       "zobrazit přirážkový systém"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "členství zaměstnance",
+      "členství v týmu",
+      "otevřít členství",
+      "skupinové členství",
+      "členské skupiny",
+      "seznam členství",
+      "moje členství",
+      "upravit členství",
+      "přiřazení k týmu",
+      "nastavení členství",
+      "členové týmu",
+      "zobrazit členství",
+      "členské role",
+      "přidat členství",
+      "změnit členství",
+      "členství v organizaci",
+      "spravovat členství",
+      "členské přihlášky",
+      "detail členství",
+      "členská přiřazení"
     ],
     "status": "generated"
   }

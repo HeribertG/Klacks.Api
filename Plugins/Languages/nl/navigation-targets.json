@@ -1521,31 +1521,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "lidmaatschap van medewerker",
-      "medewerker lidmaatschap",
-      "groepslidmaatschap bekijken",
-      "teamlidmaatschap openen",
-      "lidmaatschap bewerken",
-      "naar lidmaatschap medewerker",
-      "open lidmaatschap",
-      "lidmaatschap groep",
-      "lidmaatschap team",
-      "medewerker groepslidmaatschap",
-      "teamlidmaatschap medewerker",
-      "groepslidmaatschap aanpassen",
-      "lidmaatschap instellingen",
-      "bekijk lidmaatschap",
-      "ga naar lidmaatschap",
-      "medewerker lidmaatschap wijzigen",
-      "lidmaatschap overzicht",
-      "groepslidmaatschap medewerker",
-      "teamlidmaatschap aanpassen",
-      "lidmaatschap van team"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "type lidmaatschap instellen",
@@ -2106,6 +2081,31 @@
       "nieuwe vaardigheden",
       "open klacksy leren",
       "vaardigheden beoordelen"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "lidmaatschap van medewerker",
+      "medewerker lidmaatschap",
+      "groepslidmaatschap bekijken",
+      "teamlidmaatschap openen",
+      "lidmaatschap bewerken",
+      "naar lidmaatschap medewerker",
+      "open lidmaatschap",
+      "lidmaatschap groep",
+      "lidmaatschap team",
+      "medewerker groepslidmaatschap",
+      "teamlidmaatschap medewerker",
+      "groepslidmaatschap aanpassen",
+      "lidmaatschap instellingen",
+      "bekijk lidmaatschap",
+      "ga naar lidmaatschap",
+      "medewerker lidmaatschap wijzigen",
+      "lidmaatschap overzicht",
+      "groepslidmaatschap medewerker",
+      "teamlidmaatschap aanpassen",
+      "lidmaatschap van team"
     ],
     "status": "generated"
   }

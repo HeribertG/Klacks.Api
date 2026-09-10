@@ -142,6 +142,22 @@ public class NavigationTargetSynonymRepository : INavigationTargetSynonymReposit
             await _context.SaveChangesAsync(ct);
         }
 
+        DetachSavedSynonyms();
         return new NavigationTargetSynonymSyncResult(keywordsToInsert.Count, ownRowsToRemove.Count, foreignRows.Count);
+    }
+
+    // The seed service and the language-pack installer call the sync once per target on one scoped
+    // context. Without this every loaded and inserted row stayed tracked, so each further SaveChanges
+    // ran DetectChanges over all rows written so far - quadratic in the synonym count, the same bug the
+    // skill-phrase seed hit on 2026-09-10. Only saved (Unchanged) rows are detached, so a pending change
+    // of another caller in the same scope is never dropped.
+    private void DetachSavedSynonyms()
+    {
+        foreach (var entry in _context.ChangeTracker.Entries<NavigationTargetSynonym>()
+                     .Where(e => e.State == EntityState.Unchanged)
+                     .ToList())
+        {
+            entry.State = EntityState.Detached;
+        }
     }
 }

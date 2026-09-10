@@ -670,16 +670,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "직원 멤버십",
-      "임직원 멤버십",
-      "구성원 멤버십",
-      "직원 멤버십 정보",
-      "회원자격"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "유형",
@@ -957,6 +947,11 @@
   },
   "address-membership": {
     "synonyms": [
+      "직원 멤버십",
+      "임직원 멤버십",
+      "구성원 멤버십",
+      "직원 멤버십 정보",
+      "회원자격",
       "주소 멤버십",
       "주소 구성원",
       "근무지 멤버십",

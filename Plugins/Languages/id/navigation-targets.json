@@ -1520,31 +1520,6 @@
     ],
     "status": "generated"
   },
-  "employee-membership": {
-    "synonyms": [
-      "keanggotaan karyawan",
-      "keanggotaan grup",
-      "keanggotaan tim",
-      "buka keanggotaan",
-      "anggota kelompok",
-      "status keanggotaan",
-      "edit keanggotaan",
-      "kelola keanggotaan",
-      "data keanggotaan",
-      "ubah keanggotaan",
-      "keanggotaan shift",
-      "keanggotaan kontrak",
-      "anggota tim",
-      "daftar anggota",
-      "keanggotaan pengguna",
-      "detail keanggotaan",
-      "atur keanggotaan",
-      "menu keanggotaan",
-      "halaman keanggotaan",
-      "ke anggotaan"
-    ],
-    "status": "generated"
-  },
   "employee-membership.type": {
     "synonyms": [
       "tipe keanggotaan karyawan",
@@ -2802,6 +2777,31 @@
       "ke halaman biaya tambahan",
       "buka mode biaya khusus",
       "masuk ke menu biaya tambahan"
+    ],
+    "status": "generated"
+  },
+  "address-membership": {
+    "synonyms": [
+      "keanggotaan karyawan",
+      "keanggotaan grup",
+      "keanggotaan tim",
+      "buka keanggotaan",
+      "anggota kelompok",
+      "status keanggotaan",
+      "edit keanggotaan",
+      "kelola keanggotaan",
+      "data keanggotaan",
+      "ubah keanggotaan",
+      "keanggotaan shift",
+      "keanggotaan kontrak",
+      "anggota tim",
+      "daftar anggota",
+      "keanggotaan pengguna",
+      "detail keanggotaan",
+      "atur keanggotaan",
+      "menu keanggotaan",
+      "halaman keanggotaan",
+      "ke anggotaan"
     ],
     "status": "generated"
   }

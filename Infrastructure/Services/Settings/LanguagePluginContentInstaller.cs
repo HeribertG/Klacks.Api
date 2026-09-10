@@ -113,7 +113,8 @@ public class LanguagePluginContentInstaller
                     continue;
 
                 skill.Synonyms ??= new Dictionary<string, List<string>>();
-                skill.Synonyms[code] = keywords;
+                skill.Synonyms[code] = await MergePackIntoMirrorAsync(
+                    phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms.GetValueOrDefault(code), keywords);
                 await skillRepo.UpdateAsync(skill);
                 await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, keywords);
                 count++;
@@ -155,7 +156,8 @@ public class LanguagePluginContentInstaller
                 if (skill.Synonyms == null || !skill.Synonyms.ContainsKey(code))
                     continue;
 
-                skill.Synonyms.Remove(code);
+                SetOrRemove(skill.Synonyms, code, await MergePackIntoMirrorAsync(
+                    phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms[code], []));
                 await skillRepo.UpdateAsync(skill);
                 await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, []);
                 count++;
@@ -195,7 +197,8 @@ public class LanguagePluginContentInstaller
                     continue;
 
                 recipe.Synonyms ??= new Dictionary<string, List<string>>();
-                recipe.Synonyms[code] = keywords;
+                recipe.Synonyms[code] = await MergePackIntoMirrorAsync(
+                    phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, recipe.Synonyms.GetValueOrDefault(code), keywords);
                 await recipeRepo.UpdateAsync(recipe);
                 await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, keywords);
                 count++;
@@ -237,7 +240,8 @@ public class LanguagePluginContentInstaller
                 if (recipe.Synonyms == null || !recipe.Synonyms.ContainsKey(code))
                     continue;
 
-                recipe.Synonyms.Remove(code);
+                SetOrRemove(recipe.Synonyms, code, await MergePackIntoMirrorAsync(
+                    phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, recipe.Synonyms[code], []));
                 await recipeRepo.UpdateAsync(recipe);
                 await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, []);
                 count++;
@@ -265,6 +269,37 @@ public class LanguagePluginContentInstaller
     /// <param name="ownerName">Business name of the skill or recipe</param>
     /// <param name="code">Language code of the plugin being installed or uninstalled</param>
     /// <param name="synonyms">The synonyms of that language; an empty list removes them</param>
+    // The legacy jsonb value of a language is not only the pack: an admin edit on the learning card
+    // (UpdateLearnedCapabilityCommandHandler) writes it directly, without a skill_phrase row. So a pack
+    // install or uninstall replaces exactly the pack's previous phrases - read from skill_phrase before
+    // ReplacePackPhrasesAsync overwrites them - and keeps every other entry of that language.
+    private static async Task<List<string>> MergePackIntoMirrorAsync(
+        ISkillPhraseRepository phraseRepo,
+        string ownerKind,
+        string ownerName,
+        string code,
+        IReadOnlyList<string>? currentMirror,
+        IReadOnlyList<string> packPhrases)
+    {
+        var previousPack = await phraseRepo.GetPhraseTextsBySourceAsync(
+            ownerKind, ownerName, SkillPhraseKinds.Synonym, SkillPhraseSources.LanguagePack, code);
+        var previousPackSet = new HashSet<string>(previousPack, StringComparer.Ordinal);
+        var retained = (currentMirror ?? []).Where(phrase => !previousPackSet.Contains(phrase));
+
+        return packPhrases.Concat(retained).Distinct(StringComparer.Ordinal).ToList();
+    }
+
+    private static void SetOrRemove(Dictionary<string, List<string>> mirror, string code, List<string> phrases)
+    {
+        if (phrases.Count == 0)
+        {
+            mirror.Remove(code);
+            return;
+        }
+
+        mirror[code] = phrases;
+    }
+
     private static async Task ReplacePackPhrasesAsync(
         ISkillPhraseRepository phraseRepo,
         string ownerKind,
