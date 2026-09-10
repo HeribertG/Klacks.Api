@@ -209,6 +209,21 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+        DetachTrackedPhrases();
+    }
+
+    // The startup seed loader calls ReplaceAllLanguagesAsync once per skill and kind on one scoped
+    // context. Every saved phrase stayed tracked, so each further SaveChanges ran DetectChanges over
+    // all phrases written so far - quadratic in the phrase count. With ~28k seed phrases on the
+    // production database that made the 1.0.27 startup take over ten minutes at 100% CPU, longer
+    // than the updater's health gate, and the auto-update rolled back (2026-09-10). Phrases are
+    // write-only here, so detaching them after each save keeps the tracker at per-skill size.
+    private void DetachTrackedPhrases()
+    {
+        foreach (var entry in _context.ChangeTracker.Entries<SkillPhrase>().ToList())
+        {
+            entry.State = EntityState.Detached;
+        }
     }
 
     // The source belongs into the delete filter, and that is the whole point of this repository.
@@ -251,6 +266,7 @@ public class SkillPhraseRepository : ISkillPhraseRepository
 
         _context.SkillPhrases.RemoveRange(existing);
         await _context.SaveChangesAsync(cancellationToken);
+        DetachTrackedPhrases();
     }
 
     private void AddPhrases(
