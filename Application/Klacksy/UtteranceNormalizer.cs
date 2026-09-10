@@ -15,7 +15,10 @@ using Klacks.Api.Application.Constants;
 /// leading article, then removes filler words at the end. Prefix and article stripping only
 /// ever run on the core locales (de/en/fr/it) declared in wake-word-variants.json; any other
 /// locale has no configured list and is left untouched. Plugin locales additionally get their
-/// own salutations/filler words from per-locale wake-words.json files.
+/// own salutations/filler words from per-locale wake-words.json files, and languages written
+/// without spaces (ja, zh, th) get command prefixes/suffixes that are stripped without a word
+/// boundary. The wake word may follow a salutation without a space and be followed by CJK
+/// punctuation ("你好klacksy，…", "klacksy、…").
 /// </summary>
 public sealed class UtteranceNormalizer : IUtteranceNormalizer
 {
@@ -26,7 +29,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
     private readonly WakeWordConfig _config;
     private readonly IReadOnlyDictionary<string, string[]> _prefixesByLocale;
     private readonly IReadOnlyDictionary<string, string[]> _articlesByLocale;
-    private readonly ConcurrentDictionary<string, (string[] Salutations, string[] FillerWords)> _pluginCache = new();
+    private readonly ConcurrentDictionary<string, PluginLocaleConfig> _pluginCache = new();
 
     public UtteranceNormalizer()
     {
@@ -59,7 +62,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
             .Concat(pluginConfig.Salutations)
             .ToArray();
 
-        var wakePattern = $@"^\s*(?:({string.Join("|", allSalutations.Select(Regex.Escape))})\s+)?{Regex.Escape(_config.Canonical)}\s*[,!\.]?\s*";
+        var wakePattern = $@"^\s*(?:({string.Join("|", allSalutations.Select(Regex.Escape))})\s*)?{Regex.Escape(_config.Canonical)}\s*[,!\.、，！。:：]?\s*";
         var stripped = Regex.Replace(working, wakePattern, string.Empty);
         var wakeWasStripped = stripped.Length < working.Length;
 
@@ -68,6 +71,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         var articles = _articlesByLocale.TryGetValue(locale, out var art) ? art : Array.Empty<string>();
         stripped = StripLeadingPhrases(stripped, prefixes);
         stripped = StripLeadingPhrases(stripped, articles);
+        stripped = StripUnspacedPrefixes(stripped, pluginConfig.CommandPrefixes);
         if (string.IsNullOrWhiteSpace(stripped))
             stripped = beforePrefixPhase;
 
@@ -75,6 +79,11 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         var allFillers = coreFillers.Concat(pluginConfig.FillerWords);
         foreach (var filler in allFillers)
             stripped = Regex.Replace(stripped, $@"\s+{Regex.Escape(filler)}\s*$", string.Empty);
+
+        var beforeSuffixPhase = stripped;
+        stripped = StripUnspacedSuffixes(stripped, pluginConfig.CommandSuffixes);
+        if (string.IsNullOrWhiteSpace(stripped))
+            stripped = beforeSuffixPhase;
 
         stripped = stripped.Trim();
         return new NormalizedUtterance(raw, stripped, wakeWasStripped, string.IsNullOrEmpty(stripped));
@@ -98,27 +107,70 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
         return current;
     }
 
-    private (string[] Salutations, string[] FillerWords) GetPluginLocaleConfig(string locale)
+    // Languages written without spaces between words (ja, zh, th) put the command right against the
+    // noun: "残業を見せて", "打开设置". The spaced prefix and filler rules never fire there, so these
+    // plugin-supplied phrases are stripped without any word boundary, longest first, and only at the
+    // very start or end of the utterance.
+    private static string StripUnspacedPrefixes(string input, string[] phrasesLongestFirst)
+    {
+        var current = input.TrimStart();
+        for (var i = 0; i < MaxPrefixStripIterations; i++)
+        {
+            var hit = phrasesLongestFirst.FirstOrDefault(p => current.StartsWith(p, StringComparison.Ordinal));
+            if (hit == null)
+                break;
+            current = current[hit.Length..].TrimStart();
+        }
+
+        return current;
+    }
+
+    private static string StripUnspacedSuffixes(string input, string[] phrasesLongestFirst)
+    {
+        var current = input.TrimEnd();
+        for (var i = 0; i < MaxPrefixStripIterations; i++)
+        {
+            var hit = phrasesLongestFirst.FirstOrDefault(p => current.EndsWith(p, StringComparison.Ordinal));
+            if (hit == null)
+                break;
+            current = current[..^hit.Length].TrimEnd();
+        }
+
+        return current;
+    }
+
+    private PluginLocaleConfig GetPluginLocaleConfig(string locale)
     {
         if (LanguagePluginConstants.CoreLanguages.Contains(locale))
-            return (Array.Empty<string>(), Array.Empty<string>());
+            return PluginLocaleConfig.Empty;
 
         return _pluginCache.GetOrAdd(locale, loc =>
         {
             var file = Path.Combine(AppContext.BaseDirectory, LanguagePluginConstants.PluginDirectory, loc, "wake-words.json");
             if (!File.Exists(file))
-                return (Array.Empty<string>(), Array.Empty<string>());
+                return PluginLocaleConfig.Empty;
             try
             {
                 var json = File.ReadAllText(file);
                 var data = JsonSerializer.Deserialize<PluginWakeWords>(json, JsonOptions);
-                return (data?.Salutations ?? Array.Empty<string>(), data?.FillerWords ?? Array.Empty<string>());
+                if (data == null)
+                    return PluginLocaleConfig.Empty;
+                return new PluginLocaleConfig(
+                    data.Salutations,
+                    data.FillerWords,
+                    data.CommandPrefixes.OrderByDescending(p => p.Length).ToArray(),
+                    data.CommandSuffixes.OrderByDescending(p => p.Length).ToArray());
             }
             catch
             {
-                return (Array.Empty<string>(), Array.Empty<string>());
+                return PluginLocaleConfig.Empty;
             }
         });
+    }
+
+    private sealed record PluginLocaleConfig(string[] Salutations, string[] FillerWords, string[] CommandPrefixes, string[] CommandSuffixes)
+    {
+        public static readonly PluginLocaleConfig Empty = new([], [], [], []);
     }
 
     private sealed class WakeWordConfig
@@ -136,5 +188,7 @@ public sealed class UtteranceNormalizer : IUtteranceNormalizer
     {
         public string[] Salutations { get; set; } = Array.Empty<string>();
         public string[] FillerWords { get; set; } = Array.Empty<string>();
+        public string[] CommandPrefixes { get; set; } = Array.Empty<string>();
+        public string[] CommandSuffixes { get; set; } = Array.Empty<string>();
     }
 }
