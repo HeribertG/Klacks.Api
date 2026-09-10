@@ -295,6 +295,7 @@ builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
     return new KlacksyPageKeyCatalog(manifest);
 });
 builder.Services.AddSingleton<INavigationTargetCatalog, NavigationTargetCatalog>();
+builder.Services.AddSingleton<INavigationEntityRouteGuard, NavigationEntityRouteGuard>();
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
 builder.Services.AddScoped<INavigationFeedbackLogger, NavigationFeedbackLogger>();

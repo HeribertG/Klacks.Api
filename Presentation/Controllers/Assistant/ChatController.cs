@@ -47,6 +47,7 @@ public class ChatController : ControllerBase
     private readonly INavigationMissDetector _navMissDetector;
     private readonly ILLMRepository _llmRepository;
     private readonly IUserActivityTracker _activityTracker;
+    private readonly INavigationEntityRouteGuard _entityRouteGuard;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -61,7 +62,8 @@ public class ChatController : ControllerBase
         INavigationFeedbackLogger navLogger,
         INavigationMissDetector navMissDetector,
         ILLMRepository llmRepository,
-        IUserActivityTracker activityTracker)
+        IUserActivityTracker activityTracker,
+        INavigationEntityRouteGuard entityRouteGuard)
     {
         _logger = logger;
         _mediator = mediator;
@@ -76,6 +78,7 @@ public class ChatController : ControllerBase
         _navMissDetector = navMissDetector;
         _llmRepository = llmRepository;
         _activityTracker = activityTracker;
+        _entityRouteGuard = entityRouteGuard;
     }
 
     private async Task<bool> IsOngoingConversationAsync(string? conversationId, string userId)
@@ -107,6 +110,11 @@ public class ChatController : ControllerBase
     private async Task<bool> ShouldFastPathAsync(NavigationMatchResult navMatch, string rawMessage, string? conversationId, string userId)
     {
         if (!navMatch.IsFastPath)
+        {
+            return false;
+        }
+
+        if (_entityRouteGuard.RequiresEntity(navMatch.TargetId, navMatch.Route))
         {
             return false;
         }
