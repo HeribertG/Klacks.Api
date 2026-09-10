@@ -9,6 +9,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -367,6 +368,8 @@ public class LanguagePluginContentInstaller
                 count++;
             }
 
+            await WarmUpNavigationCacheAsync(scope);
+
             _logger.LogInformation(
                 "Installed navigation synonyms for language plugin '{Code}': {Count} target(s) updated",
                 code.ForLog(), count);
@@ -399,6 +402,8 @@ public class LanguagePluginContentInstaller
                 count++;
             }
 
+            await WarmUpNavigationCacheAsync(scope);
+
             _logger.LogInformation(
                 "Uninstalled navigation synonyms for language plugin '{Code}': {Count} target(s) cleared",
                 code.ForLog(), count);
@@ -406,6 +411,19 @@ public class LanguagePluginContentInstaller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to uninstall navigation synonyms for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    /// <summary>
+    /// The navigation cache refreshes lazily, so without an awaited reload the first request after an
+    /// install or uninstall still matched against the previous synonym set.
+    /// </summary>
+    private static async Task WarmUpNavigationCacheAsync(IServiceScope scope)
+    {
+        var cache = scope.ServiceProvider.GetService<INavigationTargetCacheService>();
+        if (cache != null)
+        {
+            await cache.WarmUpAsync();
         }
     }
 
