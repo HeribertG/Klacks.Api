@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Exportación de Nómina (Alemania / DATEV)",
+    "payroll-export-de.description": "Al cerrar un período, exporta los valores de tiempo sellados de un grupo como un archivo de datos de movimiento DATEV Lohn & Gehalt para su descarga posterior.",
+    "payroll-export-de.category": "Nómina"
+}

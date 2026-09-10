@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "給与エクスポート(ドイツ / DATEV)",
+  "payroll-export-de.description": "期間を締めた際に、グループの確定済み時間データをDATEV Lohn & Gehalt形式の移動データファイルとして書き出し、後でダウンロードできるようにします。",
+  "payroll-export-de.category": "給与"
+}

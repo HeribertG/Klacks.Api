@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Export mezd (Německo / DATEV)",
+  "payroll-export-de.description": "Při uzávěrce období exportuje uzavřené časové hodnoty skupiny jako soubor pohybových dat DATEV Lohn & Gehalt pro pozdější stažení.",
+  "payroll-export-de.category": "Mzdová agenda"
+}

@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Exportação de Salários (Alemanha / DATEV)",
+    "payroll-export-de.description": "No fecho do período, exporta os valores de tempo selados de um grupo como um ficheiro de dados de movimento DATEV Lohn & Gehalt para download posterior.",
+    "payroll-export-de.category": "Salários"
+}

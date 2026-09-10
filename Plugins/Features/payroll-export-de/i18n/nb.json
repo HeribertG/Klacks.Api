@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Lønnseksport (Tyskland / DATEV)",
+    "payroll-export-de.description": "Ved periodeavslutning eksporteres en gruppes forseglede tidsverdier som en DATEV Lohn & Gehalt-bevegelsesdatafil for senere nedlasting.",
+    "payroll-export-de.category": "Lønn"
+}

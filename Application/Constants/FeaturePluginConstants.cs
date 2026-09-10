@@ -14,4 +14,5 @@ public static class FeaturePluginConstants
     public const string SettingPrefix = "FEATURE_PLUGIN_";
     public const string EnabledSuffix = "_ENABLED";
     public const string I18nDirectory = "i18n";
+    public const string I18nFallbackLanguage = "en";
 }

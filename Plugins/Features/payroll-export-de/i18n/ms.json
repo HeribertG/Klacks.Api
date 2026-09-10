@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Eksport Gaji (Jerman / DATEV)",
+    "payroll-export-de.description": "Semasa penutupan tempoh, mengeksport nilai masa yang dimeterai bagi satu kumpulan sebagai fail data pergerakan DATEV Lohn & Gehalt untuk dimuat turun kemudian.",
+    "payroll-export-de.category": "Gaji"
+}

@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Εξαγωγή μισθοδοσίας (Γερμανία / DATEV)",
+  "payroll-export-de.description": "Κατά το κλείσιμο περιόδου, εξάγει τις κλειστές χρονικές τιμές μιας ομάδας ως αρχείο δεδομένων κίνησης DATEV Lohn & Gehalt για μεταγενέστερη λήψη.",
+  "payroll-export-de.category": "Μισθοδοσία"
+}

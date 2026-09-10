@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "薪資匯出(德國 / DATEV)",
+  "payroll-export-de.description": "結算期間關閉時,將某個群組已確認的工時資料匯出為 DATEV Lohn & Gehalt 格式的異動資料檔,供之後下載。",
+  "payroll-export-de.category": "薪資"
+}

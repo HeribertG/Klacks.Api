@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Ekspor Penggajian (Jerman / DATEV)",
+  "payroll-export-de.description": "Saat periode ditutup, mengekspor nilai waktu yang sudah ditutup milik suatu grup sebagai berkas data pergerakan format DATEV Lohn & Gehalt untuk diunduh nanti.",
+  "payroll-export-de.category": "Penggajian"
+}

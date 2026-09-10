@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "ส่งออกเงินเดือน (เยอรมนี / DATEV)",
+  "payroll-export-de.description": "เมื่อปิดรอบงวด ระบบจะส่งออกค่าชั่วโมงทำงานที่ปิดแล้วของกลุ่มเป็นไฟล์ข้อมูลการเคลื่อนไหวรูปแบบ DATEV Lohn & Gehalt เพื่อให้ดาวน์โหลดได้ในภายหลัง",
+  "payroll-export-de.category": "เงินเดือน"
+}

@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "تصدير الرواتب (ألمانيا / DATEV)",
+  "payroll-export-de.description": "عند إغلاق الفترة، يُصدّر قيم الوقت المُغلقة لمجموعة ما كملف بيانات حركة DATEV Lohn & Gehalt لتنزيله لاحقًا.",
+  "payroll-export-de.category": "الرواتب"
+}

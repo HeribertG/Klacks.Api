@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Palkkavienti (Saksa / DATEV)",
+  "payroll-export-de.description": "Jakson päättyessä vie ryhmän suljetut tuntiarvot DATEV Lohn & Gehalt -liikedatatiedostoksi myöhempää latausta varten.",
+  "payroll-export-de.category": "Palkanlaskenta"
+}

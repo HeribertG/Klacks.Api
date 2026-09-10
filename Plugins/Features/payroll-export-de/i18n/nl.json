@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Loonexport (Duitsland / DATEV)",
+    "payroll-export-de.description": "Exporteert bij de periodeafsluiting de verzegelde tijdwaarden van een groep als een DATEV Lohn & Gehalt-mutatiegegevensbestand voor latere download.",
+    "payroll-export-de.category": "Loon"
+}

@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "ייצוא שכר (גרמניה / DATEV)",
+  "payroll-export-de.description": "בסגירת התקופה, מייצא את ערכי הזמן הסגורים של קבוצה כקובץ נתוני תנועה DATEV Lohn & Gehalt להורדה מאוחרת יותר.",
+  "payroll-export-de.category": "שכר"
+}

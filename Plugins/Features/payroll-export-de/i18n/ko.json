@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "급여 내보내기 (독일 / DATEV)",
+  "payroll-export-de.description": "기간을 마감하면 그룹의 확정된 근무 시간 데이터를 DATEV Lohn & Gehalt 형식의 이동 데이터 파일로 내보내 이후 다운로드할 수 있도록 합니다.",
+  "payroll-export-de.category": "급여"
+}

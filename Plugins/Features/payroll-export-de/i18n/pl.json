@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Eksport płac (Niemcy / DATEV)",
+  "payroll-export-de.description": "Przy zamknięciu okresu eksportuje zamknięte wartości czasowe grupy jako plik danych ruchu DATEV Lohn & Gehalt do późniejszego pobrania.",
+  "payroll-export-de.category": "Płace"
+}

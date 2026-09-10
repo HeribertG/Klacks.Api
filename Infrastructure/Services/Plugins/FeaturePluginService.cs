@@ -363,31 +363,46 @@ public class FeaturePluginService : IFeaturePluginService
                 continue;
 
             var pluginDir = Path.Combine(_pluginDirectory, kvp.Key, FeaturePluginConstants.I18nDirectory);
-            var filePath = Path.Combine(pluginDir, $"{safeLang}.json");
 
-            if (!File.Exists(filePath))
-                continue;
-
-            try
+            if (!string.Equals(safeLang, FeaturePluginConstants.I18nFallbackLanguage, StringComparison.OrdinalIgnoreCase))
             {
-                var json = File.ReadAllText(filePath);
-                var translations = JsonSerializer.Deserialize<Dictionary<string, string>>(json, JsonOptions);
+                MergePluginTranslations(merged, kvp.Key, pluginDir, FeaturePluginConstants.I18nFallbackLanguage);
+            }
 
-                if (translations != null)
-                {
-                    foreach (var entry in translations)
-                    {
-                        merged[entry.Key] = entry.Value;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to load translations for plugin '{Plugin}' lang '{Lang}'", kvp.Key, safeLang.ForLog());
-            }
+            MergePluginTranslations(merged, kvp.Key, pluginDir, safeLang);
         }
 
         return merged.Count > 0 ? merged : null;
+    }
+
+    /// <summary>
+    /// Merges one plugin language file into the result. GetTranslations applies the English file first
+    /// and the requested language on top, so a plugin that ships only a few languages shows English text
+    /// instead of raw i18n keys, and a partial translation falls back per key.
+    /// </summary>
+    private void MergePluginTranslations(Dictionary<string, string> merged, string pluginName, string pluginDir, string language)
+    {
+        var filePath = Path.Combine(pluginDir, $"{language}.json");
+        if (!File.Exists(filePath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            var translations = JsonSerializer.Deserialize<Dictionary<string, string>>(json, JsonOptions);
+
+            if (translations == null)
+                return;
+
+            foreach (var entry in translations)
+            {
+                merged[entry.Key] = entry.Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load translations for plugin '{Plugin}' lang '{Lang}'", pluginName, language.ForLog());
+        }
     }
 
     private static bool IsVersionCompatible(string minVersion)

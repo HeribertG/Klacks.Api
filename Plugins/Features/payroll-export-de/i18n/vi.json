@@ -1,0 +1,5 @@
+{
+  "payroll-export-de.name": "Xuất lương (Đức / DATEV)",
+  "payroll-export-de.description": "Khi đóng kỳ, xuất các giá trị thời gian đã chốt của một nhóm thành tệp dữ liệu chuyển động định dạng DATEV Lohn & Gehalt để tải xuống sau.",
+  "payroll-export-de.category": "Lương"
+}
