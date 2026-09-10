@@ -11,7 +11,7 @@
   "fillerWords": {
     "de": ["bitte", "mal", "doch"],
     "en": ["please", "pls"],
-    "fr": ["s'il te plaît", "stp"],
+    "fr": ["s'il te plaît", "s’il te plaît", "stp"],
     "it": ["per favore", "pf"]
   },
   "prefixes": {
@@ -44,30 +44,45 @@
     ],
     "fr": [
       "montre-moi s'il te plaît",
+      "montre-moi s’il te plaît",
       "où puis-je trouver",
       "je veux voir",
       "navigue vers",
+      "emmène-moi à",
       "montre-moi",
       "affiche-moi",
+      "où se trouve",
       "où est",
+      "aller à",
       "va à",
-      "ouvre"
+      "ouvre",
+      "affiche",
+      "montre",
+      "emmène-moi",
+      "aller",
+      "va"
     ],
     "it": [
       "per favore mostrami",
       "dove posso trovare",
+      "dove si trova",
       "voglio vedere",
+      "fammi vedere",
       "naviga verso",
       "mostrami",
+      "portami a",
       "dov'è",
+      "dov’è",
       "vai a",
-      "apri"
+      "portami",
+      "apri",
+      "vai"
     ]
   },
   "articles": {
     "de": ["die", "der", "das", "den", "dem", "des"],
     "en": ["the"],
-    "fr": ["le", "la", "les"],
-    "it": ["il", "lo", "la", "gli", "le", "i"]
+    "fr": ["le", "la", "les", "l'", "l’", "de la", "une", "des", "aux", "un", "du", "au"],
+    "it": ["il", "lo", "la", "gli", "le", "i", "della", "dell'", "dell’", "all'", "all’", "alla", "un'", "un’", "uno", "una", "del", "al", "l'", "l’", "un"]
   }
 }

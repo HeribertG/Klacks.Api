@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Ångra",
   "schedule.undo.failed": "Återställning är inte längre möjlig",
   "schedule.undo.conflict": "Återställning inte möjlig, platsen är under tiden upptagen",
-  "assistant-chat.onboarding.header-badge.start": "Starta rundtur"
+  "assistant-chat.onboarding.header-badge.start": "Starta rundtur",
+  "shift.edit-shift.group.header": "Tilldelade grupper",
+  "profile.nav.aria-label": "Öppna profil",
+  "settings.nav.aria-label": "Öppna inställningar"
 }

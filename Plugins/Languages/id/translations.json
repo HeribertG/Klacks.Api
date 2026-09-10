@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Urungkan",
   "schedule.undo.failed": "Pemulihan tidak lagi memungkinkan",
   "schedule.undo.conflict": "Pemulihan tidak memungkinkan, tempat sudah terisi",
-  "assistant-chat.onboarding.header-badge.start": "Mulai tur"
+  "assistant-chat.onboarding.header-badge.start": "Mulai tur",
+  "shift.edit-shift.group.header": "Grup yang Ditetapkan",
+  "profile.nav.aria-label": "Buka profil",
+  "settings.nav.aria-label": "Buka pengaturan"
 }

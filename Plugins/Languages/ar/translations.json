@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "تراجع",
   "schedule.undo.failed": "لم تعد الاستعادة ممكنة",
   "schedule.undo.conflict": "الاستعادة غير ممكنة، المكان أصبح مشغولاً",
-  "assistant-chat.onboarding.header-badge.start": "بدء الجولة"
+  "assistant-chat.onboarding.header-badge.start": "بدء الجولة",
+  "shift.edit-shift.group.header": "المجموعات المخصصة",
+  "profile.nav.aria-label": "فتح الملف الشخصي",
+  "settings.nav.aria-label": "فتح الإعدادات"
 }

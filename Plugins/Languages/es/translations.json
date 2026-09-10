@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Deshacer",
   "schedule.undo.failed": "La restauración ya no es posible",
   "schedule.undo.conflict": "Restauración no posible, la plaza ya está ocupada",
-  "assistant-chat.onboarding.header-badge.start": "Iniciar recorrido"
+  "assistant-chat.onboarding.header-badge.start": "Iniciar recorrido",
+  "shift.edit-shift.group.header": "Grupos asignados",
+  "profile.nav.aria-label": "Abrir perfil",
+  "settings.nav.aria-label": "Abrir configuración"
 }

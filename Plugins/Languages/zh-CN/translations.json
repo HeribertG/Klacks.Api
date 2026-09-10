@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "撤销",
   "schedule.undo.failed": "无法再恢复",
   "schedule.undo.conflict": "无法恢复，该位置已被占用",
-  "assistant-chat.onboarding.header-badge.start": "开始导览"
+  "assistant-chat.onboarding.header-badge.start": "开始导览",
+  "shift.edit-shift.group.header": "已分配的分组",
+  "profile.nav.aria-label": "打开个人资料",
+  "settings.nav.aria-label": "打开设置"
 }

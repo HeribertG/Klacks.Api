@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Angre",
   "schedule.undo.failed": "Gjenoppretting er ikke lenger mulig",
   "schedule.undo.conflict": "Gjenoppretting ikke mulig, plassen er i mellomtiden opptatt",
-  "assistant-chat.onboarding.header-badge.start": "Start omvisning"
+  "assistant-chat.onboarding.header-badge.start": "Start omvisning",
+  "shift.edit-shift.group.header": "Tildelte grupper",
+  "profile.nav.aria-label": "Åpne profil",
+  "settings.nav.aria-label": "Åpne innstillinger"
 }

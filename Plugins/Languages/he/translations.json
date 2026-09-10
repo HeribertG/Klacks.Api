@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "בטל",
   "schedule.undo.failed": "השחזור אינו אפשרי עוד",
   "schedule.undo.conflict": "השחזור אינו אפשרי, המקום נתפס בינתיים",
-  "assistant-chat.onboarding.header-badge.start": "התחל סיור"
+  "assistant-chat.onboarding.header-badge.start": "התחל סיור",
+  "shift.edit-shift.group.header": "קבוצות משויכות",
+  "profile.nav.aria-label": "פתח פרופיל",
+  "settings.nav.aria-label": "פתח הגדרות"
 }

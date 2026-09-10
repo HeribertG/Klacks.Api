@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Fortryd",
   "schedule.undo.failed": "Gendannelse er ikke længere mulig",
   "schedule.undo.conflict": "Gendannelse ikke mulig, pladsen er i mellemtiden optaget",
-  "assistant-chat.onboarding.header-badge.start": "Start rundvisning"
+  "assistant-chat.onboarding.header-badge.start": "Start rundvisning",
+  "shift.edit-shift.group.header": "Tildelte grupper",
+  "profile.nav.aria-label": "Åbn profil",
+  "settings.nav.aria-label": "Åbn indstillinger"
 }

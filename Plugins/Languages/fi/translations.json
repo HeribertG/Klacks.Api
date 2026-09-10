@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Kumoa",
   "schedule.undo.failed": "Palauttaminen ei ole enää mahdollista",
   "schedule.undo.conflict": "Palauttaminen ei onnistu, paikka on sillä välin varattu",
-  "assistant-chat.onboarding.header-badge.start": "Aloita esittely"
+  "assistant-chat.onboarding.header-badge.start": "Aloita esittely",
+  "shift.edit-shift.group.header": "Määritetyt ryhmät",
+  "profile.nav.aria-label": "Avaa profiili",
+  "settings.nav.aria-label": "Avaa asetukset"
 }

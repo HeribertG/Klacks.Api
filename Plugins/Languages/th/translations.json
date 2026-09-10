@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "เลิกทำ",
   "schedule.undo.failed": "ไม่สามารถกู้คืนได้อีกต่อไป",
   "schedule.undo.conflict": "ไม่สามารถกู้คืนได้ ตำแหน่งถูกจองไปแล้ว",
-  "assistant-chat.onboarding.header-badge.start": "เริ่มทัวร์"
+  "assistant-chat.onboarding.header-badge.start": "เริ่มทัวร์",
+  "shift.edit-shift.group.header": "กลุ่มที่กำหนด",
+  "profile.nav.aria-label": "เปิดโปรไฟล์",
+  "settings.nav.aria-label": "เปิดการตั้งค่า"
 }

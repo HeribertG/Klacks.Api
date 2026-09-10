@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Cofnij",
   "schedule.undo.failed": "Przywrócenie nie jest już możliwe",
   "schedule.undo.conflict": "Przywrócenie niemożliwe, miejsce zostało w międzyczasie zajęte",
-  "assistant-chat.onboarding.header-badge.start": "Rozpocznij przewodnik"
+  "assistant-chat.onboarding.header-badge.start": "Rozpocznij przewodnik",
+  "shift.edit-shift.group.header": "Przypisane grupy",
+  "profile.nav.aria-label": "Otwórz profil",
+  "settings.nav.aria-label": "Otwórz ustawienia"
 }

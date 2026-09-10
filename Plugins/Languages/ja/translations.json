@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "元に戻す",
   "schedule.undo.failed": "復元はもうできません",
   "schedule.undo.conflict": "復元できません。枠はすでに埋まっています",
-  "assistant-chat.onboarding.header-badge.start": "ツアーを開始"
+  "assistant-chat.onboarding.header-badge.start": "ツアーを開始",
+  "shift.edit-shift.group.header": "割り当てられたグループ",
+  "profile.nav.aria-label": "プロフィールを開く",
+  "settings.nav.aria-label": "設定を開く"
 }

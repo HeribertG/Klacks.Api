@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Anular",
   "schedule.undo.failed": "A restauração já não é possível",
   "schedule.undo.conflict": "Restauração impossível, a vaga entretanto foi ocupada",
-  "assistant-chat.onboarding.header-badge.start": "Iniciar visita guiada"
+  "assistant-chat.onboarding.header-badge.start": "Iniciar visita guiada",
+  "shift.edit-shift.group.header": "Grupos atribuídos",
+  "profile.nav.aria-label": "Abrir perfil",
+  "settings.nav.aria-label": "Abrir configurações"
 }

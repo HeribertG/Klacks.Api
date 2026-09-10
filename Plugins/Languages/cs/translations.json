@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Zpět",
   "schedule.undo.failed": "Obnovení již není možné",
   "schedule.undo.conflict": "Obnovení není možné, místo je mezitím obsazeno",
-  "assistant-chat.onboarding.header-badge.start": "Spustit prohlídku"
+  "assistant-chat.onboarding.header-badge.start": "Spustit prohlídku",
+  "shift.edit-shift.group.header": "Přiřazené skupiny",
+  "profile.nav.aria-label": "Otevřít profil",
+  "settings.nav.aria-label": "Otevřít nastavení"
 }

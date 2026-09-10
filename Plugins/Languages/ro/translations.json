@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "Anulează",
   "schedule.undo.failed": "Restaurarea nu mai este posibilă",
   "schedule.undo.conflict": "Restaurarea nu este posibilă, locul a fost între timp ocupat",
-  "assistant-chat.onboarding.header-badge.start": "Pornește turul"
+  "assistant-chat.onboarding.header-badge.start": "Pornește turul",
+  "shift.edit-shift.group.header": "Grupuri alocate",
+  "profile.nav.aria-label": "Deschide profilul",
+  "settings.nav.aria-label": "Deschide setările"
 }

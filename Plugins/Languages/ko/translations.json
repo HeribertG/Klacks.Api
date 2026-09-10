@@ -4037,5 +4037,8 @@
   "schedule.undo.restore": "실행 취소",
   "schedule.undo.failed": "더 이상 복원할 수 없습니다",
   "schedule.undo.conflict": "복원할 수 없습니다. 자리가 이미 채워졌습니다",
-  "assistant-chat.onboarding.header-badge.start": "투어 시작"
+  "assistant-chat.onboarding.header-badge.start": "투어 시작",
+  "shift.edit-shift.group.header": "할당된 그룹",
+  "profile.nav.aria-label": "프로필 열기",
+  "settings.nav.aria-label": "설정 열기"
 }
