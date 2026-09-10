@@ -380,7 +380,8 @@
         "gruppenmitgliedschaft",
         "team-mitgliedschaft",
         "öffne mitgliedschaft",
-        "adressmitgliedschaft"
+        "adressmitgliedschaft",
+        "registration"
       ],
       "en": [
         "membership",
@@ -388,19 +389,26 @@
         "group membership",
         "team membership",
         "open membership",
-        "address membership"
+        "address membership",
+        "registration"
       ],
       "fr": [
         "adhésion",
         "adhésion employé",
         "appartenance au groupe",
-        "affiliation"
+        "affiliation",
+        "inscription",
+        "rattachement à l'adresse"
       ],
       "it": [
         "appartenenza",
         "appartenenza dipendente",
         "iscrizione gruppo",
-        "appartenenza indirizzo"
+        "appartenenza indirizzo",
+        "registrazione",
+        "registrazione indirizzo",
+        "iscrizione indirizzo",
+        "associazione indirizzo"
       ]
     },
     "synonymStatus": "reviewed",
