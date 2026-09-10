@@ -1,200 +1,72 @@
 {
   "absence-detail": {
     "synonyms": [
-      "xem chi tiết vắng mặt",
-      "thông tin nghỉ làm",
-      "chi tiết ngày nghỉ",
-      "xem nghỉ phép trong lịch",
-      "thông tin vắng mặt trong lịch trình",
-      "xem chi tiết ca nghỉ",
-      "chi tiết nghỉ trong lịch làm việc",
-      "thông tin vắng mặt chi tiết",
-      "xem thông tin nghỉ phép",
-      "chi tiết nghỉ trong cài đặt lịch",
-      "xem thông tin nghỉ trong lịch",
-      "chi tiết vắng mặt trong lịch",
-      "thông tin nghỉ làm chi tiết",
-      "xem chi tiết vắng mặt trong lịch",
-      "thông tin nghỉ trong lịch làm",
-      "chi tiết vắng mặt trong cài đặt",
-      "xem thông tin vắng mặt",
-      "thông tin vắng mặt trong lịch làm việc",
-      "xem chi tiết nghỉ phép"
+      "nghỉ phép mở rộng",
+      "chi tiết nghỉ phép mở rộng",
+      "thông tin nghỉ phép mở rộng",
+      "cài đặt nghỉ phép mở rộng"
     ],
     "status": "generated"
   },
   "absence-types": {
     "synonyms": [
-      "quản lý ngày nghỉ",
-      "đăng ký nghỉ phép",
-      "yêu cầu nghỉ",
+      "nghỉ phép",
       "loại nghỉ phép",
-      "cài đặt nghỉ",
-      "thiết lập ngày nghỉ",
-      "kiểu vắng mặt",
-      "quản lý vắng mặt",
-      "đăng ký vắng mặt",
-      "yêu cầu vắng",
-      "cấu hình loại nghỉ",
-      "cài đặt loại nghỉ",
-      "xem loại vắng mặt",
-      "tạo loại nghỉ",
-      "chỉnh sửa loại nghỉ",
-      "xóa loại nghỉ",
-      "danh sách loại nghỉ",
-      "nghỉ phép hàng năm",
-      "nghỉ ốm",
-      "nghỉ không lương"
+      "kiểu nghỉ phép",
+      "cấu hình nghỉ phép"
     ],
     "status": "generated"
   },
   "addresses": {
     "synonyms": [
-      "danh sách nhân viên ở đâu",
-      "xem thông tin đồng nghiệp",
-      "tra cứu hồ sơ nhân viên",
-      "kiểm tra địa chỉ của nhân viên",
-      "mở danh bạ nhân sự",
-      "xem chi tiết nhân viên",
-      "tìm kiếm thông tin nhân viên",
-      "vào phần thông tin người dùng",
-      "xem dữ liệu nhân viên",
-      "đi tới danh sách liên lạc",
-      "mở thông tin cá nhân của nhân viên",
-      "tìm địa chỉ của nhân viên",
-      "xem danh sách nhân sự",
-      "vào mục nhân viên",
-      "xem hồ sơ nhân viên",
-      "tìm kiếm địa chỉ liên lạc",
-      "kiểm tra thông tin liên hệ",
-      "mở danh sách nhân viên",
-      "xem thông tin nhân sự",
-      "tới phần thông tin nhân viên"
+      "địa chỉ",
+      "tất cả địa chỉ",
+      "danh sách địa chỉ",
+      "sổ địa chỉ",
+      "địa chỉ liên hệ",
+      "danh bạ"
     ],
     "status": "generated"
   },
   "assistant-speech": {
     "synonyms": [
-      "cài đặt giọng nói trợ lý ai",
-      "tùy chọn giọng nói trợ lý",
-      "cấu hình giọng nói ai",
-      "cài đặt trợ lý giọng nói",
-      "tùy chỉnh giọng nói trợ lý",
-      "cài đặt giọng nói thông minh",
-      "tùy chọn giọng nói thông minh",
-      "cấu hình trợ lý giọng nói",
-      "cài đặt giọng nói ai trong hệ thống",
-      "tùy chỉnh giọng nói ai",
-      "cài đặt trợ lý ảo giọng nói",
-      "tùy chọn trợ lý giọng nói ai",
-      "cấu hình giọng nói trợ lý ảo",
-      "cài đặt giọng nói cho trợ lý",
-      "tùy chỉnh giọng nói trợ lý ảo",
-      "cài đặt trợ lý giọng nói thông minh",
-      "tùy chọn giọng nói trợ lý thông minh",
-      "cấu hình trợ lý ảo giọng nói",
-      "cài đặt giọng nói trợ lý trong ứng dụng",
-      "tùy chỉnh trợ lý giọng nói"
+      "giọng nói trợ lý",
+      "trợ lý giọng nói",
+      "cài đặt giọng nói trợ lý"
     ],
     "status": "generated"
   },
   "branches": {
     "synonyms": [
-      "chi nhánh",
-      "cài đặt chi nhánh",
       "quản lý chi nhánh",
-      "các chi nhánh",
-      "thiết lập chi nhánh",
-      "xem chi nhánh",
-      "thông tin chi nhánh",
-      "chỉnh sửa chi nhánh",
-      "cấu hình chi nhánh",
-      "danh sách chi nhánh",
-      "cơ sở",
-      "quản lý cơ sở",
-      "cài đặt cơ sở",
-      "các cơ sở",
-      "văn phòng",
-      "các văn phòng",
-      "địa điểm",
-      "quản lý địa điểm",
-      "cài đặt tổ chức",
-      "tổ chức"
+      "danh sách chi nhánh"
     ],
     "status": "generated"
   },
   "calendar-rules": {
     "synonyms": [
-      "quy tắc lịch",
-      "quy tắc lập lịch",
-      "quy tắc lịch làm việc",
-      "quy tắc ca làm",
-      "quy tắc về sự sẵn sàng",
-      "quy tắc nghỉ phép",
-      "quy tắc trực",
-      "chính sách lịch trình",
-      "cài đặt quy tắc lịch",
-      "quy tắc lịch biểu",
-      "quy tắc sắp xếp ca",
-      "quy tắc về ca",
-      "quy tắc lịch trực",
-      "quy tắc đăng ký ca",
-      "quy tắc lịch nhân sự",
-      "quy tắc phân ca",
-      "quy tắc lịch làm",
-      "quy tắc thời gian làm việc",
-      "quy tắc lịch trình ca",
-      "quy tắc lịch nghỉ"
+      "quy tắc ngày lễ",
+      "quy tắc nghỉ lễ",
+      "cấu hình quy tắc ngày lễ"
     ],
     "status": "generated"
   },
   "calendar-selection": {
     "synonyms": [
-      "chọn lịch",
-      "chọn lịch làm việc",
-      "chọn lịch trình",
-      "chọn lịch biểu",
-      "chọn lịch cho ca làm việc",
-      "chọn lịch làm việc của tôi",
-      "chọn lịch làm việc cho nhân viên",
-      "chọn lịch làm việc theo ca",
-      "chọn lịch làm việc hàng tuần",
-      "chọn lịch làm việc hàng tháng",
-      "chọn lịch làm việc mới",
-      "chọn lịch làm việc hiện tại",
-      "chọn lịch làm việc cho ca trực",
-      "chọn lịch làm việc cho nhóm",
-      "chọn lịch làm việc theo bộ phận",
-      "chọn lịch làm việc cho dự án",
-      "chọn lịch làm việc theo hợp đồng",
-      "chọn lịch làm việc tùy chỉnh",
-      "chọn lịch làm việc mặc định",
-      "chọn lịch làm việc ưu tiên"
+      "lựa chọn lịch",
+      "chỉnh sửa lựa chọn lịch",
+      "tùy chọn lịch"
     ],
     "status": "generated"
   },
   "contracts": {
     "synonyms": [
+      "hợp đồng",
+      "giao kèo",
       "hợp đồng lao động",
-      "xem hợp đồng làm việc",
-      "hợp đồng ca làm",
-      "thỏa thuận ca trực",
-      "hợp đồng thời vụ",
-      "cập nhật hợp đồng",
-      "thông tin hợp đồng",
-      "hợp đồng nhân viên",
-      "xem lại hợp đồng",
-      "chỉnh sửa hợp đồng",
-      "hợp đồng công việc",
-      "thỏa thuận làm việc",
-      "hợp đồng chính thức",
+      "danh sách hợp đồng",
       "quản lý hợp đồng",
-      "hợp đồng ca trực",
-      "hợp đồng linh hoạt",
-      "điều chỉnh hợp đồng",
-      "kiểm tra hợp đồng",
-      "hợp đồng mới nhất",
-      "hợp đồng đã ký"
+      "hợp đồng nhân viên"
     ],
     "status": "generated"
   },
@@ -203,148 +75,57 @@
       "quốc gia",
       "danh sách quốc gia",
       "cài đặt quốc gia",
-      "khu vực",
-      "vùng lãnh thổ",
-      "địa điểm",
-      "quốc tế",
-      "cài đặt toàn cầu",
-      "địa lý",
-      "danh sách vùng",
-      "thiết lập địa lý",
-      "quản lý quốc gia",
-      "cấu hình quốc gia",
-      "khu vực làm việc",
-      "địa bàn",
-      "lãnh thổ",
-      "quốc tế hóa",
-      "thiết lập khu vực",
-      "xem quốc gia",
-      "địa chỉ quốc gia"
+      "thiết lập quốc gia",
+      "quản lý quốc gia"
     ],
     "status": "generated"
   },
   "dashboard": {
     "synonyms": [
-      "bảng điều khiển công việc",
-      "tổng quan ca làm việc",
-      "bảng tổng quan lịch làm",
-      "trang chủ công việc",
-      "tổng quan lịch của tôi",
-      "xem tổng quan ca",
-      "bảng điều khiển ca làm",
-      "tổng quan công việc",
-      "giao diện chính lịch làm",
-      "trang tổng quan lịch",
-      "bảng tóm tắt ca",
-      "xem tổng quan công việc",
-      "trang tổng quan ca làm",
-      "dashboard công việc",
-      "tổng quan lịch trực",
-      "trang chủ lịch làm",
-      "bảng tóm tắt lịch làm",
-      "tổng quan ca trực",
-      "xem dashboard ca",
-      "trang tổng quan lịch trực"
+      "bảng điều khiển",
+      "trang tổng quan",
+      "màn hình chính",
+      "bảng quản lý",
+      "dashboard"
     ],
     "status": "generated"
   },
   "data-retention": {
     "synonyms": [
-      "cài đặt thời gian lưu dữ liệu",
-      "quản lý chính sách lưu trữ dữ liệu",
-      "thiết lập thời gian giữ dữ liệu",
-      "cấu hình xóa dữ liệu tự động",
-      "chỉnh sửa thời gian lưu trữ",
-      "xem chính sách lưu dữ liệu",
-      "điều chỉnh thời gian lưu",
-      "cài đặt xóa dữ liệu cũ",
-      "quản lý thời gian lưu trữ",
-      "thiết lập chính sách dữ liệu",
-      "cấu hình lưu trữ dữ liệu",
-      "thay đổi thời gian giữ dữ liệu",
-      "cài đặt thời gian xóa",
-      "chính sách lưu dữ liệu",
-      "thời gian lưu dữ liệu",
-      "cấu hình lưu trữ",
-      "cài đặt dữ liệu",
-      "lịch xóa dữ liệu",
-      "thời gian giữ dữ liệu",
-      "quản lý dữ liệu lưu trữ"
+      "lưu trữ dữ liệu",
+      "thời hạn lưu trữ dữ liệu",
+      "bảo vệ dữ liệu",
+      "gdpr",
+      "chính sách lưu trữ dữ liệu"
     ],
     "status": "generated"
   },
   "deepl": {
     "synonyms": [
-      "cài đặt tích hợp deepl trong phần cài đặt",
-      "kết nối deepl với klacks trong tích hợp",
-      "cấu hình deepl trong phần tích hợp",
-      "bật tính năng dịch deepl",
-      "thiết lập deepl cho lịch làm việc",
-      "vào phần cài đặt tích hợp deepl",
-      "thêm deepl vào klacks",
-      "liên kết deepl với ứng dụng nhân sự",
-      "tích hợp deepl vào lịch làm việc",
-      "mở tích hợp deepl trong cài đặt",
-      "tìm deepl trong phần tích hợp",
-      "cài deepl trong cài đặt ứng dụng",
-      "kích hoạt deepl trong tích hợp",
-      "thiết lập deepl dịch thuật",
-      "vào cài đặt để kết nối deepl",
-      "chỉnh sửa tích hợp deepl",
-      "cấu hình deepl trong cài đặt nhân sự",
-      "bật deepl trong phần tích hợp",
-      "thêm deepl vào hệ thống",
-      "tích hợp deepl với công cụ lịch"
+      "dịch thuật deepl",
+      "deepl",
+      "dịch vụ deepl",
+      "tích hợp deepl",
+      "dịch tự động deepl"
     ],
     "status": "generated"
   },
   "email-config": {
     "synonyms": [
       "cài đặt email",
-      "quản lý email",
-      "cấu hình email admin",
-      "thiết lập thông báo email",
-      "tùy chỉnh email thông báo",
-      "email quản trị",
-      "cấu hình thông báo admin",
-      "thiết lập thông báo quản trị",
-      "tùy chỉnh thông báo email",
-      "quản lý cài đặt email",
-      "cấu hình email quản trị",
-      "thông báo email admin",
-      "cài đặt thông báo quản trị",
-      "email cấu hình quản trị",
-      "tùy chỉnh email admin",
-      "quản lý thông báo email",
-      "cấu hình email thông báo",
-      "thiết lập email quản trị",
-      "thông báo quản trị email",
-      "cài đặt thông báo email admin"
+      "cấu hình email",
+      "thiết lập email",
+      "cấu hình gửi email",
+      "smtp"
     ],
     "status": "generated"
   },
   "feature-plugins": {
     "synonyms": [
-      "plugin quản lý",
-      "công cụ quản trị",
-      "tính năng có sẵn",
-      "cấu hình plugin",
-      "tùy chỉnh tính năng",
-      "bật tiện ích mở rộng",
-      "phần mở rộng",
-      "tiện ích bổ sung tính năng",
-      "cài đặt plugin",
-      "quản lý tiện ích",
-      "thiết lập module",
-      "bổ sung chức năng",
-      "tính năng mở rộng",
-      "cấu hình tiện ích",
-      "quản trị plugin",
-      "công cụ mở rộng",
-      "tùy chỉnh plugin",
-      "cài đặt tiện ích",
-      "quản lý tính năng",
-      "thiết lập plugin"
+      "plugin tính năng",
+      "tiện ích mở rộng",
+      "marketplace plugin tính năng",
+      "cài đặt plugin tính năng"
     ],
     "status": "generated"
   },
@@ -400,924 +181,337 @@
   },
   "grid-color": {
     "synonyms": [
-      "đổi màu lưới",
-      "chỉnh màu lưới",
-      "sửa màu lưới",
-      "cài màu lưới",
-      "tùy chỉnh màu lưới",
-      "màu lưới trong settings",
-      "cài đặt màu lưới",
-      "tùy chọn màu lưới",
-      "cấu hình màu lưới",
-      "cài màu nền lưới",
-      "màu sắc lưới",
-      "chọn màu lưới",
-      "đặt màu lưới",
-      "điều chỉnh màu lưới",
-      "màu lưới ở đâu",
-      "vào phần màu lưới",
-      "tìm màu lưới",
-      "menu màu lưới",
-      "thiết lập màu lưới",
-      "màu lưới trong giao diện"
+      "màu bảng",
+      "màu lưới",
+      "cài đặt màu bảng",
+      "tùy chỉnh màu lưới"
     ],
     "status": "generated"
   },
   "group-scope": {
     "synonyms": [
-      "cài đặt nhóm làm việc",
-      "phạm vi nhóm là gì",
-      "ai trong nhóm của tôi",
-      "thiết lập đội nhóm",
-      "cài đặt phòng ban",
-      "phạm vi công việc nhóm",
-      "quản lý nhóm",
-      "cấu hình nhóm",
-      "thông tin nhóm",
-      "nhóm của tôi ở đâu",
-      "thiết lập nhân sự theo nhóm",
-      "xem nhóm làm việc",
-      "cài đặt tổ chức nhóm",
-      "phạm vi đội",
-      "tùy chỉnh nhóm",
-      "thiết lập quyền nhóm",
-      "nhóm và phòng ban",
-      "cấu trúc nhóm",
-      "xác định nhóm",
-      "cài đặt nhân viên theo nhóm"
+      "phạm vi nhóm",
+      "nhóm theo người dùng",
+      "hiển thị nhóm theo người dùng",
+      "nhóm người dùng"
     ],
     "status": "generated"
   },
   "groups": {
     "synonyms": [
-      "nhóm làm việc",
-      "tổ đội",
-      "phòng ban",
-      "đơn vị",
-      "nhóm nhân sự",
-      "danh sách nhân viên",
-      "đội ngũ",
-      "bộ phận",
-      "các đội",
-      "các nhóm",
-      "tổ sản xuất",
-      "nhóm ca",
-      "danh sách tổ",
-      "quản lý nhóm",
-      "phân nhóm",
-      "nhóm theo phòng",
-      "nhóm tổ chức",
-      "các đơn vị",
-      "nhóm dự án",
-      "đội nhóm"
+      "nhóm",
+      "tất cả nhóm",
+      "cây nhóm",
+      "nhóm làm việc"
     ],
     "status": "generated"
   },
   "identity-providers": {
     "synonyms": [
+      "nhà cung cấp danh tính",
+      "danh tính",
+      "sso",
       "nhà cung cấp định danh",
-      "cấu hình idp",
       "nhà cung cấp xác thực",
-      "nhà cung cấp đăng nhập",
-      "cấu hình sso",
-      "thiết lập đăng nhập một lần",
-      "quản lý định danh bên ngoài",
-      "tùy chọn đăng nhập bên thứ ba",
-      "cài đặt nhà cung cấp định danh",
-      "cấu hình xác thực ngoài",
-      "thiết lập identity provider",
-      "quản lý idp",
-      "nhà cung cấp xác thực sso",
-      "đăng nhập qua bên thứ ba",
-      "cấu hình đăng nhập ngoài",
-      "cài đặt xác thực bên ngoài",
-      "quản lý nhà cung cấp đăng nhập",
-      "thiết lập sso",
-      "nhà cung cấp định danh bên ngoài",
-      "cấu hình đăng nhập một lần"
+      "quản lý danh tính"
     ],
     "status": "generated"
   },
   "imap-setting": {
     "synonyms": [
+      "imap",
       "cài đặt imap",
-      "cấu hình imap",
-      "tích hợp imap",
-      "thiết lập imap",
+      "máy chủ nhận imap",
       "kết nối imap",
-      "tài khoản imap",
-      "máy chủ imap",
-      "email imap",
-      "thiết đặt imap",
-      "đăng ký imap",
-      "sử dụng imap",
-      "imap trong cài đặt",
-      "điều chỉnh imap",
-      "quản lý imap",
-      "imap cho email",
-      "nhập imap",
-      "imap tích hợp",
-      "imap server",
-      "imap account",
-      "chỉnh sửa imap"
+      "hòm thư imap"
     ],
     "status": "generated"
   },
   "inbox": {
     "synonyms": [
-      "kiểm tra tin nhắn của tôi",
-      "xem thông báo của tôi",
-      "xem cảnh báo của tôi",
-      "mở hộp thư đến của tôi",
-      "đi tới tin nhắn của tôi",
-      "hiển thị thông tin liên lạc của tôi",
-      "hiển thị cập nhật của tôi",
-      "truy cập cảnh báo của tôi",
-      "xem hộp thư đến",
-      "vào mục tin nhắn",
-      "mở thông báo",
-      "kiểm tra thông báo",
-      "xem tin nhắn mới",
-      "đọc tin nhắn",
-      "vào hộp thư",
-      "xem cảnh báo mới",
-      "mở thông tin cập nhật",
-      "kiểm tra cập nhật",
-      "xem liên lạc",
-      "truy cập hộp thư đến"
+      "hộp thư đến",
+      "hộp thư",
+      "thư đến",
+      "hòm thư",
+      "inbox"
     ],
     "status": "generated"
   },
   "klacksy-training": {
     "synonyms": [
-      "đào tạo klacksy",
-      "huấn luyện klacksy",
-      "khóa học klacksy",
-      "lớp tập huấn klacksy",
-      "chương trình đào tạo klacksy",
-      "học phần klacksy",
-      "bài học klacksy",
-      "nội dung đào tạo klacksy",
-      "tài liệu huấn luyện klacksy",
-      "phòng đào tạo klacksy",
-      "trang đào tạo klacksy",
-      "khu vực học tập klacksy",
-      "mục đào tạo klacksy",
-      "trung tâm đào tạo klacksy",
-      "hướng dẫn klacksy",
-      "bài tập klacksy",
-      "kiểm tra klacksy",
-      "đánh giá klacksy",
-      "chứng chỉ klacksy",
-      "lịch sử đào tạo klacksy"
+      "quản lý đào tạo",
+      "huấn luyện",
+      "chương trình đào tạo",
+      "khóa đào tạo"
     ],
     "status": "generated"
   },
   "language-plugins": {
     "synonyms": [
-      "cài đặt ngôn ngữ",
-      "ngôn ngữ bổ sung",
-      "tiện ích ngôn ngữ",
       "gói ngôn ngữ",
-      "mô-đun ngôn ngữ",
       "tiện ích mở rộng ngôn ngữ",
-      "plugin ngôn ngữ",
-      "thêm ngôn ngữ",
-      "cấu hình ngôn ngữ",
-      "tùy chọn ngôn ngữ",
-      "ngôn ngữ trong cài đặt",
-      "quản lý ngôn ngữ",
-      "ngôn ngữ hệ thống",
-      "ngôn ngữ giao diện",
-      "thay đổi ngôn ngữ",
-      "ngôn ngữ ứng dụng",
-      "thiết lập ngôn ngữ",
-      "hỗ trợ ngôn ngữ",
-      "ngôn ngữ mới",
-      "công cụ ngôn ngữ"
+      "plugin ngôn ngữ"
     ],
     "status": "generated"
   },
   "llm-models": {
     "synonyms": [
-      "cài đặt mô hình ai",
-      "cấu hình llm",
-      "quản lý mô hình ai",
-      "tùy chọn mô hình llm",
-      "ưu tiên mô hình ai",
-      "cài đặt mô hình llm",
-      "cấu hình ai",
-      "quản lý llm",
-      "thiết lập mô hình ngôn ngữ",
-      "cấu hình mô hình ngôn ngữ",
-      "cài đặt llm",
-      "tùy chỉnh mô hình ai",
-      "quản lý mô hình ngôn ngữ",
-      "cài đặt mô hình ngôn ngữ",
-      "tùy chọn ai",
-      "thiết lập ai",
-      "cấu hình mô hình ai",
-      "quản lý cài đặt llm",
-      "tùy chỉnh llm",
-      "cài đặt trí tuệ nhân tạo"
+      "mô hình llm",
+      "mô hình ngôn ngữ lớn",
+      "cấu hình mô hình llm",
+      "danh sách mô hình llm"
     ],
     "status": "generated"
   },
   "llm-provider": {
     "synonyms": [
-      "cài đặt nhà cung cấp ai",
-      "cấu hình dịch vụ llm",
-      "thiết lập mô hình ai",
-      "tùy chỉnh nhà cung cấp trí tuệ nhân tạo",
-      "cài đặt tích hợp ai",
-      "quản lý nhà cung cấp mô hình ngôn ngữ",
-      "chọn nhà cung cấp ai",
-      "thiết lập llm provider",
-      "cấu hình ai provider",
-      "tùy chọn mô hình ai",
-      "cài đặt ai",
       "nhà cung cấp llm",
-      "cấu hình trí tuệ nhân tạo",
-      "thiết lập mô hình ngôn ngữ",
-      "quản lý llm provider",
-      "cài đặt nhà cung cấp llm",
-      "tùy chỉnh ai integration",
-      "cấu hình nguồn ai",
-      "thiết lập ai model provider",
-      "cài đặt provider ai"
+      "cấu hình llm",
+      "cài đặt llm",
+      "danh sách nhà cung cấp llm"
     ],
     "status": "generated"
   },
   "macros": {
     "synonyms": [
-      "macros trong cài đặt",
-      "quy tắc tự động hóa",
-      "hành động đã lên lịch",
-      "lối tắt quy trình làm việc",
-      "mẫu nhiệm vụ",
-      "quy trình tự động",
-      "hành động nhanh",
-      "quy trình làm việc tái sử dụng",
-      "cài đặt tự động hóa",
-      "mục macros",
-      "tới macros",
-      "vào cài đặt macros",
-      "chức năng tự động hóa",
-      "quản lý macros",
-      "thiết lập macros",
-      "mở macros",
-      "truy cập macros",
-      "macros trong phần cài đặt",
-      "tự động hóa lịch làm việc",
-      "quy tắc tự động trong ca làm"
+      "macro",
+      "macros",
+      "quản lý macro",
+      "thiết lập macro",
+      "cấu hình macro",
+      "danh sách macro"
     ],
     "status": "generated"
   },
   "messaging-providers": {
     "synonyms": [
-      "cài đặt nhà cung cấp tin nhắn",
-      "quản lý dịch vụ nhắn tin",
-      "nhà cung cấp sms",
-      "tích hợp tin nhắn văn bản",
-      "kênh thông báo",
-      "dịch vụ thông báo",
-      "nhà cung cấp cảnh báo",
-      "nền tảng nhắn tin",
-      "cổng sms",
-      "nhà cung cấp tin nhắn sms",
-      "thiết lập nhà cung cấp tin nhắn",
-      "cấu hình sms",
-      "tích hợp sms",
-      "nhà cung cấp dịch vụ nhắn tin",
-      "quản lý tin nhắn văn bản",
-      "cài đặt tích hợp sms",
-      "danh sách nhà cung cấp tin nhắn",
-      "bảng điều khiển nhắn tin",
-      "nhà cung cấp thông báo",
-      "kết nối sms"
+      "nhà cung cấp nhắn tin",
+      "dịch vụ nhắn tin",
+      "tích hợp nhắn tin",
+      "sms"
     ],
     "status": "generated"
   },
   "openroute": {
     "synonyms": [
-      "mở cài đặt tuyến đường",
-      "vào cấu hình tuyến đường",
-      "xem tùy chọn tuyến đường",
-      "đi đến quản lý tuyến đường",
-      "hiển thị cài đặt tuyến đường",
-      "xem tích hợp tuyến đường",
-      "đưa tôi đến thiết lập tuyến đường",
-      "mở quản lý tuyến đường",
-      "vào phần cài đặt tuyến đường",
-      "chỉnh sửa tuyến đường",
-      "cấu hình tuyến đường",
-      "vào tích hợp tuyến đường",
-      "mở cấu hình lộ trình",
-      "đi tới cài đặt lộ trình",
-      "hiển thị lộ trình",
-      "xem cài đặt lộ trình",
-      "vào phần lộ trình",
-      "mở tùy chọn lộ trình",
-      "điều chỉnh lộ trình",
-      "truy cập tuyến đường"
+      "openroute",
+      "openrouteservice",
+      "tích hợp openroute",
+      "cài đặt openroute",
+      "dịch vụ openroute",
+      "khóa api openroute"
     ],
     "status": "generated"
   },
   "owner-address": {
     "synonyms": [
-      "chỉnh sửa địa chỉ doanh nghiệp",
-      "cập nhật thông tin chủ sở hữu",
-      "địa chỉ liên hệ chủ doanh nghiệp",
-      "thông tin địa chỉ của tôi",
-      "thay đổi địa chỉ công ty",
-      "cài đặt địa chỉ văn phòng",
-      "địa chỉ nhận thư",
-      "sửa thông tin chủ sở hữu",
-      "cập nhật địa chỉ doanh nghiệp",
-      "thay đổi địa chỉ liên lạc",
-      "địa chỉ kinh doanh",
-      "thông tin địa chỉ văn phòng",
-      "sửa địa chỉ công ty",
-      "cập nhật địa chỉ gửi thư",
-      "địa chỉ chủ doanh nghiệp",
-      "cài đặt địa chỉ công ty",
-      "thay đổi thông tin địa chỉ",
-      "địa chỉ doanh nghiệp của tôi",
-      "sửa thông tin địa chỉ văn phòng",
-      "cập nhật địa chỉ kinh doanh"
+      "địa chỉ văn phòng",
+      "địa chỉ công ty",
+      "địa chỉ doanh nghiệp",
+      "địa chỉ chủ sở hữu"
     ],
     "status": "generated"
   },
   "owner-messengers": {
     "synonyms": [
-      "cài đặt chủ sở hữu messenger",
-      "quản lý messenger của chủ sở hữu",
-      "thiết lập liên lạc chủ sở hữu",
-      "tùy chỉnh tin nhắn chủ sở hữu",
-      "cấu hình thông báo chủ sở hữu",
-      "kênh liên lạc chủ sở hữu",
-      "tích hợp messenger chủ sở hữu",
-      "cài đặt thông báo chủ sở hữu",
-      "quản lý kênh tin nhắn chủ sở hữu",
-      "thiết lập liên kết chủ sở hữu",
-      "tùy chỉnh kênh liên lạc chủ sở hữu",
-      "cấu hình phương thức liên lạc chủ sở hữu",
-      "cài đặt gửi tin chủ sở hữu",
-      "quản lý tích hợp chủ sở hữu",
-      "thiết lập kênh thông báo chủ sở hữu",
-      "tùy chỉnh liên lạc chủ sở hữu",
-      "cấu hình messenger chủ sở hữu",
-      "cài đặt liên lạc chủ sở hữu",
-      "quản lý thông báo chủ sở hữu",
-      "thiết lập tích hợp chủ sở hữu"
+      "messenger văn phòng",
+      "cài đặt messenger văn phòng",
+      "tích hợp messenger văn phòng",
+      "kết nối messenger văn phòng"
     ],
     "status": "generated"
   },
   "period-closing": {
     "synonyms": [
-      "chốt kỳ làm việc",
-      "kết thúc kỳ xếp ca",
-      "hoàn tất chốt kỳ",
-      "đóng kỳ phân ca",
-      "kết thúc chu kỳ lịch làm việc",
-      "chốt kỳ lương",
-      "kết thúc kỳ tính công",
-      "hoàn thành chốt kỳ",
-      "đóng chu kỳ xếp ca",
-      "kết thúc kỳ làm việc",
-      "chốt kỳ lịch trực",
-      "hoàn tất đóng kỳ",
-      "kết thúc kỳ xếp lịch",
-      "đóng kỳ tính lương",
-      "chốt chu kỳ làm việc",
-      "kết thúc kỳ ca",
-      "hoàn thành kỳ xếp ca",
-      "đóng kỳ lương",
-      "kết thúc chu kỳ xếp lịch",
-      "chốt kỳ lịch làm"
+      "khóa kỳ",
+      "chốt công",
+      "chốt sổ"
     ],
     "status": "generated"
   },
   "report-defaults": {
     "synonyms": [
-      "mặc định báo cáo",
-      "cài đặt báo cáo mặc định",
-      "thiết lập mặc định cho báo cáo",
-      "tùy chọn báo cáo mặc định",
-      "tham số báo cáo mặc định",
-      "cấu hình báo cáo mặc định",
-      "báo cáo mẫu mặc định",
-      "định dạng báo cáo mặc định",
-      "cài đặt mặc định của báo cáo",
-      "mặc định báo cáo cần xem",
-      "lấy mặc định báo cáo",
-      "báo cáo mặc định hệ thống",
-      "chỉnh sửa mặc định báo cáo",
-      "xem mặc định báo cáo",
-      "truy cập mặc định báo cáo",
-      "mặc định cho báo cáo",
-      "báo cáo mặc định hiện tại",
-      "cập nhật mặc định báo cáo",
-      "thiết lập lại mặc định báo cáo",
-      "quản lý mặc định báo cáo"
+      "mẫu mặc định",
+      "mẫu in nhanh",
+      "mẫu mặc định in nhanh",
+      "mẫu báo cáo mặc định"
     ],
     "status": "generated"
   },
   "reports": {
     "synonyms": [
       "báo cáo",
-      "xem báo cáo",
-      "vào mục báo cáo",
-      "mở báo cáo",
-      "thống kê",
-      "xem thống kê",
-      "báo cáo thống kê",
-      "phân tích dữ liệu",
-      "xem phân tích",
-      "chỉ số hiệu suất",
-      "hiệu suất làm việc",
-      "báo cáo nhân sự",
-      "báo cáo ca làm",
-      "báo cáo lịch làm việc",
-      "báo cáo vắng mặt",
-      "xem báo cáo nhân sự",
-      "báo cáo hợp đồng",
-      "báo cáo cài đặt",
-      "xem thông tin thống kê",
-      "mở thống kê"
+      "mẫu báo cáo",
+      "báo cáo mẫu",
+      "biểu mẫu báo cáo"
     ],
     "status": "generated"
   },
   "scheduling-defaults": {
     "synonyms": [
-      "cài đặt mặc định lịch làm việc",
-      "cấu hình mặc định cho ca làm",
-      "thiết lập mặc định lịch trực",
-      "tùy chọn mặc định lịch làm",
-      "mặc định lịch làm việc",
-      "cài đặt mặc định ca làm",
-      "thiết lập lịch mặc định",
-      "cấu hình mặc định lịch",
-      "tùy chỉnh mặc định ca làm",
-      "mặc định cho lịch trực",
-      "cài đặt lịch mặc định",
-      "thiết lập mặc định ca",
-      "cấu hình mặc định ca",
-      "tùy chọn lịch mặc định",
-      "mặc định ca làm việc",
-      "cài đặt mặc định trực",
-      "thiết lập mặc định trực",
-      "cấu hình mặc định trực",
-      "tùy chọn mặc định trực",
-      "mặc định lịch trực"
+      "mặc định lịch trình",
+      "lịch trình mặc định",
+      "cài đặt mặc định lịch trình"
     ],
     "status": "generated"
   },
   "scheduling-rules": {
     "synonyms": [
-      "quy tắc lập lịch làm việc",
-      "chính sách xếp ca",
-      "quy định phân công ca",
-      "cài đặt quy tắc lịch làm việc",
-      "quy tắc sắp xếp ca trực",
-      "chính sách lập lịch nhân sự",
-      "quy định về ca làm việc",
-      "quy tắc lập lịch ca",
-      "thiết lập quy tắc ca",
-      "chính sách phân ca",
-      "quy tắc lên lịch làm việc",
-      "quy tắc lịch trực",
-      "cài đặt chính sách lịch làm",
-      "quy tắc quản lý ca",
-      "chính sách lịch làm việc",
-      "quy tắc xếp lịch nhân viên",
-      "quy định lên lịch",
-      "cài đặt quy tắc lịch",
-      "quy tắc lịch trình làm việc",
-      "chính sách ca làm"
+      "quy tắc lập kế hoạch",
+      "quy tắc xếp ca",
+      "cấu hình quy tắc lịch trình"
     ],
     "status": "generated"
   },
   "settings-general": {
     "synonyms": [
-      "cài đặt chung",
-      "cài đặt cơ bản",
-      "thiết lập tổng thể",
-      "cài đặt chính",
+      "tổng quát",
       "cài đặt tổng quát",
-      "thiết lập cơ bản",
-      "cài đặt nền tảng",
-      "cài đặt cốt lõi",
-      "cài đặt mặc định",
-      "thiết lập chung",
-      "cài đặt toàn bộ",
-      "cài đặt quan trọng",
-      "thiết lập chính",
-      "cài đặt thiết yếu",
-      "cài đặt toàn cục",
+      "cài đặt chung",
+      "chung",
       "thiết lập tổng quát",
-      "cài đặt căn bản",
-      "cài đặt tổng cộng"
+      "cấu hình tổng quát"
     ],
     "status": "generated"
   },
   "shifts": {
     "synonyms": [
-      "lịch làm việc của tôi",
-      "ca làm việc sắp tới",
-      "xem lịch ca",
-      "lịch phân công",
-      "ca làm việc hôm nay",
-      "lịch trực",
-      "các ca của tôi",
-      "lịch làm việc hàng tuần",
-      "xem lịch trực",
-      "lịch ca nhân viên",
-      "lịch làm việc tuần này",
-      "ca làm việc của tôi",
-      "lịch phân ca",
-      "xem ca làm",
-      "lịch làm việc tháng này",
-      "lịch ca của tôi",
-      "xem lịch phân công",
-      "lịch làm việc",
-      "lịch trực của tôi",
-      "xem ca làm việc"
+      "ca làm việc",
+      "tất cả ca làm",
+      "danh sách ca làm việc",
+      "lịch ca làm việc",
+      "ca"
     ],
     "status": "generated"
   },
   "spam-rules": {
     "synonyms": [
-      "quy tắc quản lý spam",
-      "cấu hình quy tắc spam",
-      "chỉnh sửa quy tắc spam",
-      "cập nhật quy tắc spam",
-      "thiết lập quy tắc spam",
-      "điều chỉnh quy tắc spam",
-      "sửa đổi quy tắc spam",
-      "thay đổi quy tắc spam",
-      "vào phần quy tắc chống spam",
-      "mở quy tắc spam",
-      "xem quy tắc spam",
-      "cài đặt quy tắc spam",
-      "tùy chỉnh quy tắc spam",
-      "quản lý bộ lọc spam",
-      "cấu hình chống spam",
-      "chỉnh sửa bộ lọc spam",
-      "thiết lập chống spam",
-      "điều chỉnh chống spam",
-      "sửa đổi bộ lọc spam",
-      "thay đổi cài đặt spam"
+      "quy tắc thư rác",
+      "thư rác",
+      "quy định thư rác",
+      "cài đặt thư rác",
+      "spam"
     ],
     "status": "generated"
   },
   "states": {
     "synonyms": [
-      "xem danh sách các tỉnh/thành phố",
-      "đến trang cài đặt địa lý",
-      "quản lý khu vực làm việc",
-      "cấu hình địa điểm theo tỉnh",
-      "nơi nhân viên đang ở đâu",
-      "thiết lập vùng miền cho cửa hàng",
-      "vào mục địa bàn hoạt động",
-      "xem phân bố nhân sự theo vùng",
-      "quản lý danh mục tỉnh thành",
-      "thêm tỉnh mới vào danh sách",
-      "tìm địa điểm theo tỉnh",
-      "thiết lập địa lý cho công ty",
-      "xem tất cả các bang có nhân viên",
-      "điều chỉnh vùng địa lý",
-      "xem báo cáo theo tỉnh",
-      "quản lý địa chỉ chi nhánh",
-      "vào phần cấu hình vùng miền",
-      "thiết lập nơi làm việc theo tỉnh",
-      "xem danh sách địa điểm hoạt động",
-      "cập nhật thông tin tỉnh thành"
+      "bang",
+      "tiểu bang",
+      "tỉnh",
+      "quản lý bang",
+      "danh sách bang",
+      "cài đặt bang"
     ],
     "status": "generated"
   },
   "user-management": {
     "synonyms": [
       "quản lý người dùng",
-      "cài đặt người dùng",
-      "quản trị người dùng",
       "tài khoản người dùng",
-      "quản lý nhân viên",
-      "hồ sơ nhân viên",
-      "thành viên nhóm",
-      "quyền người dùng",
-      "xem danh sách người dùng",
-      "chỉnh sửa thông tin nhân viên",
-      "phân quyền người dùng",
-      "thêm người dùng mới",
-      "quản lý tài khoản",
-      "cập nhật hồ sơ nhân viên",
-      "thiết lập người dùng",
-      "quản lý thành viên",
-      "xóa người dùng",
-      "trang quản lý người dùng",
-      "cài đặt tài khoản nhân viên",
-      "quản lý quyền truy cập"
+      "quản lý tài khoản"
     ],
     "status": "generated"
   },
   "work-setting": {
     "synonyms": [
-      "cài đặt công việc",
-      "cài đặt lịch làm việc",
-      "cấu hình ca làm việc",
-      "thiết lập giờ làm",
-      "tùy chỉnh lịch trình",
-      "cài đặt thời gian làm việc",
-      "quản lý ca",
-      "cấu hình lịch làm",
-      "thiết lập ca làm",
-      "tùy chọn sắp xếp công việc",
-      "cài đặt lịch trình",
-      "cấu hình giờ làm",
-      "quản lý lịch làm việc",
-      "thiết lập thời gian làm",
-      "cài đặt sắp xếp ca",
-      "cấu hình công việc",
-      "tùy chỉnh ca làm",
-      "cài đặt giờ làm việc",
-      "quản lý sắp xếp công việc",
-      "thiết lập lịch ca"
+      "thiết lập kế hoạch",
+      "cấu hình kế hoạch"
     ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
-      "chi tiết vắng mặt",
-      "sửa thông tin vắng mặt",
-      "form vắng mặt",
-      "mở chi tiết vắng mặt",
-      "xem vắng mặt",
-      "thay đổi vắng mặt",
-      "chỉnh sửa vắng mặt",
-      "thông tin vắng mặt",
-      "mở form vắng mặt",
-      "cập nhật vắng mặt",
-      "xem chi tiết vắng mặt",
-      "sửa vắng mặt",
-      "mở sửa vắng mặt",
-      "chỉnh sửa thông tin vắng mặt",
-      "mở thông tin vắng mặt",
-      "đến trang vắng mặt",
-      "vào chi tiết vắng mặt",
-      "sửa đổi vắng mặt",
-      "xem form vắng mặt",
-      "mở sửa chi tiết vắng mặt"
+      "chi tiết nghỉ phép",
+      "thông tin nghỉ phép",
+      "biểu mẫu nghỉ phép"
     ],
     "status": "generated"
   },
   "absences": {
     "synonyms": [
-      "nghỉ phép",
-      "ngày nghỉ",
+      "vắng",
       "lịch nghỉ",
-      "quản lý nghỉ phép",
-      "xem nghỉ phép",
-      "đơn nghỉ",
-      "phép năm",
-      "nghỉ không lương",
-      "nghỉ có lương",
-      "nghỉ ốm",
-      "nghỉ phép cá nhân",
-      "lịch vắng mặt",
-      "tổng quan nghỉ phép",
-      "đăng ký nghỉ",
-      "theo dõi nghỉ phép",
-      "nghỉ phép của tôi",
-      "yêu cầu nghỉ",
-      "phê duyệt nghỉ phép",
-      "lịch nghỉ phép",
-      "danh sách nghỉ phép"
+      "danh sách vắng mặt",
+      "tổng quan vắng mặt"
     ],
     "status": "generated"
   },
   "assistant-personality": {
     "synonyms": [
-      "mở tính cách trợ lý",
-      "vào phần tính cách ai",
-      "xem tính cách trợ lý",
-      "điều chỉnh tính cách trợ lý",
-      "cá nhân hóa trợ lý",
-      "tính cách của trợ lý",
-      "cài đặt tính cách trợ lý",
-      "thay đổi tính cách ai",
-      "thiết lập tính cách trợ lý",
-      "tính cách trợ lý ảo",
-      "chỉnh sửa tính cách trợ lý",
-      "cấu hình tính cách trợ lý",
-      "tùy chỉnh tính cách trợ lý",
-      "lựa chọn tính cách trợ lý",
-      "tính cách của ai",
-      "cài đặt tính cách ai",
-      "vào cài đặt tính cách trợ lý",
-      "xem tính cách ai",
-      "chọn tính cách trợ lý",
-      "tính cách trợ lý là gì"
+      "tính cách",
+      "cá tính",
+      "tính cách trợ lý",
+      "phong cách trợ lý"
     ],
     "status": "generated"
   },
   "branch-form": {
     "synonyms": [
-      "mở form chi nhánh",
-      "sửa chi nhánh",
-      "chi tiết chi nhánh",
-      "form chi nhánh",
-      "vào trang chi nhánh",
-      "chỉnh sửa thông tin chi nhánh",
-      "cập nhật chi nhánh",
-      "xem chi nhánh",
-      "chi nhánh settings",
       "cài đặt chi nhánh",
-      "hiệu chỉnh chi nhánh",
-      "thông tin chi nhánh",
-      "đi đến chi nhánh",
-      "mở thông tin chi nhánh",
-      "sửa thông tin chi nhánh",
-      "vào form chi nhánh",
-      "edit chi nhánh",
-      "trang chi nhánh",
-      "chi nhánh detail",
-      "mở chi nhánh"
+      "chi tiết chi nhánh"
     ],
     "status": "generated"
   },
   "calendar-rule-form": {
     "synonyms": [
-      "mở form quy tắc lịch",
-      "sửa quy tắc lịch",
-      "chi tiết quy tắc lịch",
-      "vào phần quy tắc lịch",
-      "cập nhật quy tắc lịch",
-      "thay đổi quy tắc lịch",
-      "chỉnh sửa quy tắc lịch",
-      "xem quy tắc lịch",
-      "quy tắc lịch",
-      "hiệu chỉnh quy tắc lịch",
-      "tạo quy tắc lịch mới",
-      "điều chỉnh quy tắc lịch",
-      "form quy tắc lịch",
-      "đến trang quy tắc lịch",
-      "quản lý quy tắc lịch",
-      "quy tắc cho lịch",
-      "cài đặt quy tắc lịch",
-      "thiết lập quy tắc lịch",
-      "sửa đổi quy tắc lịch",
-      "đặt quy tắc lịch"
+      "định nghĩa quy tắc",
+      "quy tắc lịch làm việc",
+      "cài đặt quy tắc lịch"
     ],
     "status": "generated"
   },
   "client-availability": {
     "synonyms": [
-      "khả năng sẵn sàng của nhân viên",
-      "lịch sẵn sàng của nhân viên",
-      "xem lịch sẵn sàng nhân viên",
-      "thời gian rảnh của nhân viên",
-      "thời gian rảnh khách hàng",
-      "xem khả năng sẵn sàng",
-      "quản lý sẵn sàng nhân viên",
-      "sẵn sàng của nhân viên",
-      "lịch sẵn sàng khách hàng",
-      "xem sẵn sàng của nhân viên",
-      "khả năng sẵn sàng khách hàng",
-      "thời gian rảnh",
-      "xem thời gian rảnh",
-      "quản lý thời gian rảnh",
-      "sẵn sàng nhân viên",
-      "lịch sẵn sàng",
-      "xem lịch sẵn sàng",
-      "quản lý sẵn sàng",
-      "khả năng sẵn sàng",
-      "xem khả năng sẵn sàng nhân viên"
+      "khả dụng khách hàng",
+      "thời gian rảnh của khách hàng",
+      "lịch trống khách hàng",
+      "khung giờ rảnh khách hàng"
     ],
     "status": "generated"
   },
   "client-detail": {
     "synonyms": [
-      "xem chi tiết nhân viên",
-      "sửa thông tin nhân viên",
-      "mở hồ sơ nhân viên",
-      "chi tiết khách hàng",
-      "sửa khách hàng",
-      "hồ sơ nhân viên",
-      "xem thông tin nhân viên",
-      "chỉnh sửa nhân viên",
-      "mở thông tin khách hàng",
-      "xem chi tiết khách hàng",
-      "sửa địa chỉ khách hàng",
-      "vào trang nhân viên",
-      "xem hồ sơ cá nhân",
-      "mở chi tiết nhân viên",
-      "cập nhật nhân viên",
-      "chi tiết hợp đồng nhân viên",
-      "xem thông tin cá nhân",
-      "vào thông tin khách hàng",
-      "sửa hồ sơ khách hàng",
-      "mở chi tiết khách hàng"
+      "thông tin cá nhân",
+      "thông tin khách hàng",
+      "địa chỉ khách hàng"
     ],
     "status": "generated"
   },
   "client-detail.birthday": {
     "synonyms": [
-      "sinh nhật của nhân viên",
-      "ngày tháng năm sinh",
-      "ngày sinh của khách hàng",
-      "thông tin ngày sinh",
-      "xem ngày sinh nhân viên",
-      "chỉnh sửa ngày sinh",
-      "ngày sinh trong hồ sơ",
-      "chi tiết ngày sinh",
-      "ngày tháng năm sinh của khách",
-      "cập nhật ngày sinh",
-      "tuổi của nhân viên",
-      "ngày sinh cụ thể",
-      "xác nhận ngày sinh",
-      "điều chỉnh ngày sinh",
-      "thông tin birthday",
-      "ngày sinh khách hàng",
-      "nhập ngày sinh",
-      "xem birthday",
-      "sửa birthday",
-      "ngày sinh chính xác"
+      "ngày sinh",
+      "sinh nhật",
+      "ngày sinh nhật",
+      "ngày tháng năm sinh"
     ],
     "status": "generated"
   },
   "client-detail.firstname": {
     "synonyms": [
-      "tên nhân viên",
-      "tên gọi của nhân viên",
-      "tên đầu tiên của nhân viên",
-      "tên chính của nhân viên",
-      "tên cá nhân của nhân viên",
-      "xem tên nhân viên",
-      "sửa tên nhân viên",
-      "nhập tên nhân viên",
-      "tên gọi đầu tiên",
-      "tên riêng của nhân viên",
-      "tên nhân viên đầu tiên",
-      "chỉnh sửa tên đầu tiên",
-      "cập nhật tên nhân viên",
-      "điền tên nhân viên",
-      "tên đệm và tên chính",
-      "tên họ của nhân viên",
-      "phần tên nhân viên",
-      "tên giao tiếp của nhân viên",
-      "tên thường dùng của nhân viên",
-      "tên ứng dụng"
+      "tên khách hàng",
+      "tên riêng",
+      "tên cá nhân"
     ],
     "status": "generated"
   },
   "client-detail.gender": {
     "synonyms": [
-      "giới tính của nhân viên",
+      "danh xưng",
+      "giới tính",
+      "danh xưng khách hàng",
       "giới tính khách hàng",
-      "chỉnh sửa giới tính",
-      "thông tin giới tính",
-      "mục giới tính",
-      "giới tính nam nữ",
-      "giới tính trong hồ sơ",
-      "xem giới tính",
-      "cập nhật giới tính",
-      "giới tính cá nhân",
-      "giới tính của client",
-      "giới tính nhân viên",
-      "sửa giới tính",
-      "chi tiết giới tính",
-      "chọn giới tính",
-      "giới tính khách",
-      "thay đổi giới tính",
-      "giới tính trong hợp đồng",
-      "giới tính người dùng",
-      "giới tính trên hồ sơ"
+      "danh xưng của khách hàng",
+      "thông tin danh xưng"
     ],
     "status": "generated"
   },
   "client-detail.lastname": {
     "synonyms": [
-      "họ của khách hàng",
-      "tên họ khách",
-      "họ và tên khách",
-      "họ của nhân viên",
-      "tên họ nhân viên",
       "họ khách hàng",
-      "họ nhân viên",
-      "nhập họ khách",
-      "sửa họ khách",
-      "xem họ khách",
-      "họ của người dùng",
-      "tên họ đầy đủ",
-      "họ của chủ hợp đồng",
-      "họ trên giấy tờ",
-      "họ chính xác",
-      "họ không dấu",
-      "họ viết hoa",
-      "họ khách hàng mới",
-      "họ nhân viên mới",
-      "họ người dùng hệ thống"
+      "họ của khách hàng",
+      "tên họ",
+      "họ liên hệ"
     ],
     "status": "generated"
   },
@@ -1325,523 +519,181 @@
     "synonyms": [
       "danh sách nhân viên",
       "danh sách nhân sự",
-      "danh sách nhân viên của tôi",
-      "danh sách đội ngũ",
-      "danh sách nhóm",
-      "danh sách nhân viên trong công ty",
-      "xem danh sách nhân viên",
-      "danh sách thành viên",
-      "danh sách nhân viên toàn bộ",
-      "danh sách nhân viên hiện tại",
-      "danh sách nhân sự trong team",
-      "danh sách nhân viên đang làm",
-      "danh sách nhân viên theo hợp đồng",
-      "danh sách nhân viên mới",
-      "danh sách nhân viên cũ",
-      "danh sách nhân viên văn phòng",
-      "danh sách nhân viên ca",
-      "danh sách nhân viên làm việc",
-      "danh sách nhân viên chính thức",
-      "danh sách nhân viên thử việc"
+      "đội ngũ nhân viên",
+      "nhân công"
     ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "mẫu ca làm việc",
-      "mẫu container ca",
-      "xem mẫu container",
-      "mở mẫu ca",
-      "container mẫu",
-      "mẫu ca trong container",
-      "mẫu ca làm",
-      "xem mẫu ca làm",
-      "mở container mẫu",
-      "mẫu khung giờ",
-      "khung giờ mẫu",
-      "mẫu ca trực",
-      "container mẫu ca trực",
-      "xem mẫu khung giờ",
-      "mở mẫu khung giờ",
-      "mẫu container ca làm",
-      "mẫu ca container",
-      "xem container mẫu ca",
-      "mở mẫu container ca",
-      "mẫu ca làm việc container"
+      "mẫu container",
+      "mẫu khung ca",
+      "mẫu khung chứa ca"
     ],
     "status": "generated"
   },
   "contract-form": {
     "synonyms": [
-      "mở biểu mẫu hợp đồng",
-      "sửa hợp đồng",
-      "xem hợp đồng lao động",
-      "biểu mẫu hợp đồng nhân viên",
-      "chỉnh sửa hợp đồng làm việc",
-      "mở form hợp đồng",
-      "hợp đồng lao động chi tiết",
-      "điền hợp đồng nhân viên",
-      "xem chi tiết hợp đồng",
-      "sửa thông tin hợp đồng",
-      "mở biểu mẫu hợp đồng lao động",
-      "form hợp đồng nhân viên",
-      "chỉnh sửa chi tiết hợp đồng",
-      "mở hợp đồng làm việc",
-      "biểu mẫu hợp đồng làm việc",
-      "xem sửa hợp đồng",
-      "form chi tiết hợp đồng",
-      "mở biểu mẫu hợp đồng cho nhân viên",
-      "sửa / xem hợp đồng",
-      "chi tiết hợp đồng lao động"
+      "mẫu hợp đồng",
+      "biểu mẫu hợp đồng",
+      "thông tin hợp đồng",
+      "chi tiết hợp đồng"
     ],
     "status": "generated"
   },
   "contract-form.name": {
     "synonyms": [
-      "tên hợp đồng",
-      "tên của hợp đồng",
-      "nhập tên hợp đồng",
-      "sửa tên hợp đồng",
-      "đổi tên hợp đồng",
-      "chỉnh sửa tên hợp đồng",
-      "xem tên hợp đồng",
-      "cập nhật tên hợp đồng",
-      "điền tên hợp đồng",
-      "tên hợp đồng là gì",
-      "đặt tên hợp đồng",
-      "thay đổi tên hợp đồng",
-      "kiểm tra tên hợp đồng",
-      "tìm tên hợp đồng",
-      "sửa tên contract",
-      "tên contract",
-      "nhập tên contract",
-      "đổi tên contract",
-      "xem tên contract",
-      "cập nhật tên contract"
+      "tên biểu mẫu hợp đồng",
+      "tên mẫu hợp đồng",
+      "tên form hợp đồng",
+      "tên hợp đồng"
     ],
     "status": "generated"
   },
   "cut-shift": {
     "synonyms": [
       "cắt ca",
-      "chia ca",
       "tách ca",
-      "cắt giảm ca",
-      "chia nhỏ ca",
-      "phân ca",
-      "cắt bớt ca",
-      "rút ngắn ca",
-      "tách ca làm việc",
-      "chia ca làm",
-      "cắt ca làm việc",
-      "điều chỉnh ca",
-      "cắt ngắn ca",
-      "phân chia ca",
-      "cắt ca trực",
-      "tách ca trực",
-      "chia ca trực",
-      "cắt bớt giờ làm",
-      "chia nhỏ giờ làm",
-      "tách giờ làm"
+      "chia ca",
+      "phân tách ca"
     ],
     "status": "generated"
   },
   "edit-employee": {
     "synonyms": [
-      "sửa địa chỉ nhân viên",
-      "sửa thông tin nhân viên",
-      "chỉnh sửa nhân viên",
-      "cập nhật địa chỉ nhân viên",
-      "sửa địa chỉ",
-      "chỉnh sửa thông tin liên hệ",
-      "sửa thông tin liên hệ",
-      "cập nhật thông tin nhân viên",
-      "điều chỉnh địa chỉ",
-      "sửa chi tiết nhân viên",
-      "cập nhật địa chỉ",
-      "chỉnh sửa địa chỉ",
-      "sửa liên hệ nhân viên",
-      "điều chỉnh thông tin nhân viên",
-      "cập nhật liên hệ",
-      "chỉnh sửa liên hệ",
-      "sửa thông tin cá nhân",
-      "cập nhật thông tin cá nhân",
-      "chỉnh sửa thông tin cá nhân",
-      "đổi địa chỉ nhân viên"
+      "hồ sơ nhân viên",
+      "thông tin nhân viên",
+      "địa chỉ nhân viên",
+      "liên hệ nhân viên"
     ],
     "status": "generated"
   },
   "edit-group": {
     "synonyms": [
       "chỉnh sửa nhóm",
-      "sửa nhóm làm việc",
-      "mở nhóm",
-      "xem chi tiết nhóm",
-      "thay đổi nhóm",
-      "cập nhật nhóm",
-      "vào phần nhóm",
-      "sửa đổi nhóm",
-      "nhóm hiện tại",
-      "xem nhóm",
-      "đi tới nhóm",
-      "chỉnh nhóm",
-      "mở trang nhóm",
-      "hiệu chỉnh nhóm",
-      "sửa thông tin nhóm",
-      "nhóm làm việc",
-      "vào nhóm",
-      "xem nhóm đã chọn",
-      "chỉnh sửa nhóm này"
+      "sửa nhóm",
+      "biên tập nhóm",
+      "thay đổi nhóm"
     ],
     "status": "generated"
   },
   "edit-shift": {
     "synonyms": [
-      "sửa ca làm",
       "chỉnh sửa ca",
-      "thay đổi ca",
-      "cập nhật ca",
-      "mở ca làm",
-      "xem chi tiết ca",
-      "chỉnh sửa ca làm việc",
-      "sửa thông tin ca",
-      "điều chỉnh ca",
-      "vào sửa ca",
-      "chuyển đến sửa ca",
-      "mở trang sửa ca",
       "sửa ca làm việc",
-      "chỉnh ca",
-      "cập nhật ca làm",
-      "thay đổi thông tin ca",
-      "xem sửa ca",
-      "sửa ca trực",
-      "điều chỉnh ca làm",
-      "sửa ca mẫu"
+      "trang sửa ca"
     ],
     "status": "generated"
   },
   "employee-membership.type": {
     "synonyms": [
+      "loại nhân viên",
       "loại thành viên",
-      "loại tư cách thành viên",
-      "kiểu thành viên",
-      "phân loại thành viên",
-      "hạng thành viên",
-      "cấp thành viên",
-      "loại membership",
-      "kiểu membership",
-      "tư cách thành viên",
-      "chọn loại thành viên",
-      "đổi loại thành viên",
-      "thay đổi loại thành viên",
-      "loại tư cách",
-      "kiểu tư cách thành viên",
-      "phân loại tư cách",
-      "cập nhật loại thành viên",
-      "xem loại thành viên",
-      "định dạng thành viên",
-      "mục loại thành viên",
-      "thiết lập loại thành viên"
+      "kiểu nhân viên",
+      "phân loại nhân viên"
     ],
     "status": "generated"
   },
   "group-detail": {
     "synonyms": [
-      "chi tiết nhóm",
-      "thông tin nhóm",
-      "xem nhóm",
-      "dữ liệu nhóm",
-      "nhóm chi tiết",
-      "xem chi tiết nhóm",
-      "sửa nhóm",
-      "chỉnh sửa nhóm",
-      "thông tin chi tiết nhóm",
-      "nhóm làm việc",
-      "xem thông tin nhóm",
-      "nhóm hiện tại",
-      "đi đến nhóm",
-      "mở nhóm",
-      "chi tiết về nhóm",
-      "hiển thị nhóm",
-      "nhóm của tôi",
-      "quản lý nhóm",
-      "nhóm này",
-      "xem nhóm làm việc"
+      "trang nhóm"
     ],
     "status": "generated"
   },
   "group-detail.name": {
     "synonyms": [
       "tên nhóm",
-      "tên của nhóm",
-      "xem tên nhóm",
-      "sửa tên nhóm",
-      "nhập tên nhóm",
-      "đặt tên nhóm",
-      "tên nhóm làm việc",
-      "tên group",
-      "gọi tên nhóm",
-      "hiển thị tên nhóm",
-      "thay đổi tên nhóm",
-      "chỉnh sửa tên nhóm",
-      "nhóm tên là gì",
-      "điền tên nhóm",
-      "cập nhật tên nhóm",
       "tên nhóm chi tiết",
-      "group detail name",
-      "mở tên nhóm",
-      "chọn tên nhóm",
-      "kiểm tra tên nhóm"
+      "tên chi tiết nhóm",
+      "tên của nhóm"
     ],
     "status": "generated"
   },
   "group-list": {
     "synonyms": [
-      "danh sách nhóm",
-      "nhóm làm việc",
-      "các nhóm",
-      "tổ nhóm",
-      "xem nhóm",
-      "đi đến nhóm",
-      "quản lý nhóm",
-      "nhóm của tôi",
-      "tổ chức nhóm",
-      "nhóm và phòng ban",
-      "danh sách đội",
-      "các đội",
-      "đi đến đội",
-      "xem đội",
-      "quản lý đội",
+      "danh sách đội nhóm",
       "phòng ban",
-      "trung tâm chi phí",
-      "chọn nhóm",
-      "mở danh sách nhóm",
-      "vào trang nhóm"
+      "danh sách nhóm làm việc"
     ],
     "status": "generated"
   },
   "klacksy-model-check": {
     "synonyms": [
-      "kiểm tra lịch sử mô hình ai",
-      "coi lại mô hình dự đoán",
-      "xem kết quả mô hình",
-      "kiểm tra dữ liệu mô hình ai",
-      "đánh giá mô hình trong cài đặt",
-      "kiểm định mô hình thông minh",
-      "xem mô hình ai đã chạy",
-      "kiểm tra lỗi mô hình",
-      "xem trạng thái mô hình",
-      "kiểm tra kết quả từ mô hình",
-      "đi tới kiểm tra mô hình",
-      "mở kiểm tra mô hình ai",
-      "xem báo cáo mô hình",
-      "kiểm tra mô hình dự báo",
-      "vào phần kiểm tra mô hình",
-      "xem thống kê mô hình ai",
-      "kiểm tra hiệu suất mô hình",
-      "xem chi tiết mô hình",
-      "kiểm tra mô hình trong cài đặt ai",
-      "điều chỉnh kiểm tra mô hình"
+      "mô hình tốt nhất",
+      "kiểm tra mô hình",
+      "đánh giá mô hình",
+      "kiểm tra mô hình llm"
     ],
     "status": "generated"
   },
   "llm-sync-log": {
     "synonyms": [
-      "mở nhật ký đồng bộ ai",
-      "vào lịch sử đồng bộ mô hình",
-      "xem log đồng bộ llm",
-      "mở log đồng bộ ai",
-      "kiểm tra nhật ký đồng bộ",
-      "vào sync log của ai",
-      "xem nhật ký đồng bộ mô hình",
-      "mở lịch sử đồng bộ llm",
-      "vào phần log đồng bộ",
-      "kiểm tra sync log ai",
-      "mở nhật ký đồng bộ thông minh",
-      "vào lịch sử đồng bộ ai",
-      "xem log đồng bộ thông minh",
-      "mở sync log mô hình",
-      "kiểm tra nhật ký đồng bộ thông minh",
-      "vào log đồng bộ",
-      "xem lịch sử đồng bộ",
-      "mở nhật ký đồng bộ mô hình",
-      "kiểm tra log đồng bộ ai",
-      "vào sync log"
+      "nhật ký đồng bộ",
+      "nhật ký đồng bộ ai",
+      "nhật ký đồng bộ llm",
+      "lịch sử đồng bộ"
     ],
     "status": "generated"
   },
   "messaging": {
     "synonyms": [
-      "tin nhắn",
-      "chat",
-      "tin nhắn trong app",
       "trò chuyện",
-      "hộp thư",
-      "nhắn tin",
       "tin nhắn nội bộ",
-      "trung tâm tin nhắn",
-      "tin nhắn công việc",
-      "chat với đồng nghiệp",
-      "xem tin nhắn",
-      "nhắn tin nội bộ",
-      "inbox",
       "tin nhắn nhóm",
-      "trao đổi tin nhắn",
-      "khu vực chat",
-      "tin nhắn mới",
-      "nhắn tin cho team",
-      "thư mục tin nhắn",
-      "chat công việc"
+      "tin nhắn riêng tư"
     ],
     "status": "generated"
   },
   "new-employee": {
     "synonyms": [
-      "thêm nhân viên mới",
-      "tạo nhân viên",
-      "thêm nhân viên",
-      "nhập nhân viên",
-      "địa chỉ nhân viên",
-      "sửa địa chỉ nhân viên",
-      "thông tin nhân viên",
-      "chi tiết nhân viên",
-      "sửa thông tin nhân viên",
-      "thêm người mới",
-      "tạo hồ sơ nhân viên",
-      "nhập thông tin nhân viên",
-      "địa chỉ mới cho nhân viên",
-      "cập nhật địa chỉ nhân viên",
-      "thêm hợp đồng nhân viên",
-      "sửa địa chỉ",
-      "tạo mới nhân viên",
-      "thêm vào danh sách nhân viên",
       "nhân viên mới",
-      "tạo tài khoản nhân viên"
+      "hồ sơ nhân viên mới",
+      "nhân sự mới",
+      "tân binh"
     ],
     "status": "generated"
   },
   "new-group": {
     "synonyms": [
-      "tạo nhóm mới",
-      "thêm nhóm",
       "nhóm mới",
-      "tạo team mới",
-      "thêm team",
-      "mở nhóm mới",
-      "đi đến tạo nhóm",
-      "lập nhóm",
-      "thêm nhóm mới",
-      "tạo nhóm làm việc",
-      "mở tạo nhóm",
-      "đến trang nhóm mới",
-      "tạo đội mới",
-      "thêm đội",
-      "mở thêm nhóm",
-      "đi tới nhóm mới",
-      "nhóm mới trong lịch",
-      "tạo nhóm cho ca",
-      "thêm nhóm vào lịch",
-      "lập nhóm mới"
+      "tạo nhóm",
+      "thêm nhóm",
+      "đội mới"
     ],
     "status": "generated"
   },
   "new-shift": {
     "synonyms": [
-      "tạo ca làm mới",
-      "thêm ca làm",
-      "tạo ca mới",
-      "thêm ca mới",
-      "lập ca làm",
-      "thêm một ca",
-      "tạo ca trực mới",
-      "đăng ký ca mới",
-      "thêm ca làm việc",
-      "tạo ca làm việc",
-      "tạo ca trực",
-      "thêm ca trực",
-      "mở ca mới",
-      "tạo ca khác",
-      "thêm ca mới vào lịch",
-      "tạo ca làm mới ngay",
-      "thêm ca làm bây giờ",
-      "tạo một ca mới",
-      "thêm ca trực mới",
-      "lập ca làm việc mới"
+      "ca mới",
+      "phiếu tạo ca",
+      "mẫu ca mới",
+      "bảng ca mới"
     ],
     "status": "generated"
   },
   "plan-execution-panel": {
     "synonyms": [
-      "bảng thực thi kế hoạch",
-      "mở bảng thực thi",
-      "vào bảng thực thi kế hoạch",
-      "bảng thực thi",
-      "xem bảng thực thi",
-      "thực thi kế hoạch",
-      "bảng điều khiển thực thi",
-      "mở bảng điều khiển thực thi",
-      "đi đến bảng thực thi",
-      "bảng thực thi kế hoạch làm việc",
-      "giao diện thực thi",
-      "mở giao diện thực thi",
-      "thực thi kế hoạch nhân sự",
-      "bảng thực thi công việc",
-      "vào bảng thực thi",
-      "mở panel thực thi",
-      "panel thực thi kế hoạch",
-      "bảng chạy kế hoạch",
-      "trang thực thi",
-      "mở trang thực thi"
+      "kế hoạch cần phê duyệt",
+      "bảng thực hiện kế hoạch",
+      "kế hoạch chờ duyệt",
+      "bước tiếp theo cần phê duyệt"
     ],
     "status": "generated"
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "phê duyệt kế hoạch",
-      "xác nhận thực hiện",
-      "duyệt kế hoạch thực thi",
-      "chấp thuận kế hoạch hành động",
-      "duyệt phương án thực hiện",
-      "xác nhận kế hoạch",
-      "phê duyệt thực thi",
-      "chấp thuận kế hoạch thực hiện",
-      "duyệt kế hoạch hành động",
-      "xác nhận thực thi kế hoạch",
-      "phê duyệt kế hoạch thực thi",
-      "duyệt phương án",
-      "chấp nhận kế hoạch",
-      "xác nhận kế hoạch thực hiện",
-      "phê duyệt thực hiện",
-      "duyệt kế hoạch và thực thi",
-      "chấp thuận thực hiện kế hoạch",
-      "xác nhận phương án thực hiện",
-      "phê duyệt hành động",
-      "duyệt và xác nhận kế hoạch"
+      "phê duyệt và tiếp tục",
+      "duyệt kế hoạch",
+      "phê duyệt kế hoạch"
     ],
     "status": "generated"
   },
   "profile": {
     "synonyms": [
-      "hồ sơ của tôi",
+      "hồ sơ",
       "trang cá nhân",
-      "thông tin cá nhân",
-      "hồ sơ người dùng",
-      "trang hồ sơ",
-      "cài đặt hồ sơ",
-      "tài khoản của tôi",
-      "trang tài khoản",
-      "hồ sơ tài khoản",
-      "xem hồ sơ",
-      "mở hồ sơ",
-      "vào trang cá nhân",
-      "đi tới hồ sơ",
-      "tới trang cá nhân",
-      "xem thông tin cá nhân",
-      "chỉnh sửa hồ sơ",
-      "thông tin tài khoản",
-      "hồ sơ làm việc",
-      "hồ sơ nhân viên",
-      "trang thông tin cá nhân"
+      "hồ sơ cá nhân",
+      "hồ sơ của tôi"
     ],
     "status": "generated"
   },
@@ -1849,937 +701,607 @@
     "synonyms": [
       "lịch làm việc",
       "lịch trực",
-      "lịch tuần",
-      "lịch tháng",
-      "xem lịch làm việc",
-      "mở lịch làm việc",
-      "bảng phân công",
-      "lịch phân công",
-      "kế hoạch làm việc",
-      "lịch làm",
-      "lịch nhân viên",
-      "lịch ca",
-      "ca làm việc",
-      "điều chỉnh lịch",
-      "quản lý lịch",
-      "lịch biểu",
-      "lịch trực tuần",
-      "lịch trực tháng",
-      "kế hoạch trực",
-      "phân ca"
+      "bảng phân công ca",
+      "lịch nhân viên"
     ],
     "status": "generated"
   },
   "settings": {
     "synonyms": [
-      "cài đặt",
-      "thiết lập",
-      "tùy chọn",
-      "cấu hình",
-      "quản trị",
-      "cài đặt hệ thống",
-      "cài đặt chung",
-      "cài đặt tài khoản",
-      "cài đặt cá nhân",
-      "quản lý hệ thống",
-      "cấu hình hệ thống",
-      "thiết đặt",
-      "tùy chỉnh",
-      "cài đặt ứng dụng",
-      "thiết lập hệ thống",
-      "quản trị viên",
-      "cấu hình tài khoản",
-      "thiết lập chung",
-      "tuỳ chọn cài đặt",
-      "chỉnh sửa cấu hình"
+      "trang cài đặt",
+      "cài đặt hệ thống"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "mở form ca làm việc",
-      "sửa ca làm việc",
-      "chỉnh sửa ca trực",
-      "tạo ca mới",
-      "điều chỉnh ca",
-      "form ca trực",
-      "mở form sửa ca",
-      "cập nhật ca làm",
-      "sửa thông tin ca",
-      "form ca làm",
-      "mở form ca",
-      "sửa mẫu ca",
-      "ca làm việc",
-      "điền form ca",
-      "mở form chỉnh ca",
-      "sửa ca trực",
-      "chỉnh sửa ca làm",
-      "mở mẫu ca",
-      "tạo ca trực",
-      "mở sửa ca"
+      "biểu mẫu ca",
+      "phiếu ca",
+      "thông tin ca"
     ],
     "status": "generated"
   },
   "shift-form.abbreviation": {
     "synonyms": [
-      "tên viết tắt của ca",
-      "mã ca làm việc",
-      "viết tắt ca",
-      "tên ngắn ca",
-      "chỉnh sửa tên viết tắt ca",
-      "đặt tên viết tắt cho ca",
-      "mã hiệu ca",
-      "viết tắt tên ca",
-      "tên rút gọn ca",
-      "kí hiệu ca",
-      "cập nhật mã ca",
-      "sửa tên viết tắt ca",
-      "đổi mã ca",
-      "nhập mã viết tắt ca",
-      "tên ca ngắn gọn",
-      "mã số ca",
-      "tên viết gọn ca",
-      "chỉnh sửa mã ca",
-      "cài đặt tên viết tắt ca",
-      "viết tắt cho ca làm"
+      "viết tắt",
+      "tên viết tắt",
+      "mã viết tắt",
+      "kí hiệu viết tắt",
+      "kí hiệu"
     ],
     "status": "generated"
   },
   "shift-form.name": {
     "synonyms": [
-      "tên ca làm việc",
-      "tên của ca",
-      "đặt tên ca",
-      "tên ca trực",
-      "nhập tên ca",
-      "sửa tên ca",
-      "chỉnh tên ca",
-      "đổi tên ca",
-      "tên ca mới",
-      "tên cho ca",
+      "tên ca",
       "tên ca làm",
-      "tên của ca trực",
-      "ca có tên gì",
-      "tên ca trong lịch",
-      "định danh ca",
-      "tên gọi ca",
-      "ghi tên ca",
-      "điền tên ca",
-      "tên ca cần đặt"
+      "tên biểu mẫu ca",
+      "tên mẫu ca"
     ],
     "status": "generated"
   },
   "shift-list": {
     "synonyms": [
       "danh sách ca",
-      "ca làm việc",
-      "xem danh sách ca",
-      "danh sách ca làm",
-      "ca trực",
-      "các ca làm",
-      "vào danh sách ca",
-      "mở danh sách ca",
-      "tổng quan ca",
-      "các ca",
       "danh mục ca",
-      "loại ca",
       "mẫu ca",
-      "chuyển đến ca",
-      "xem các ca",
-      "hiển thị ca",
-      "ca làm",
-      "vào ca",
-      "mở ca"
+      "tổng quan ca"
     ],
     "status": "generated"
   },
   "updates": {
     "synonyms": [
+      "cập nhật",
+      "nâng cấp",
       "cập nhật phần mềm",
-      "xem tin tức mới",
-      "thông báo cập nhật",
-      "kiểm tra bản cập nhật",
-      "xem cập nhật mới nhất",
-      "lịch sử cập nhật",
       "cập nhật hệ thống",
-      "tin tức và cập nhật",
-      "bản cập nhật mới",
-      "xem thông tin cập nhật",
-      "cập nhật ứng dụng",
-      "xem cập nhật gần đây",
-      "thông báo mới",
-      "cập nhật tính năng",
-      "xem nhật ký cập nhật",
-      "có cập nhật mới không",
-      "xem bản tin cập nhật",
-      "cập nhật và tin tức",
-      "kiểm tra cập nhật ứng dụng",
-      "xem cập nhật phiên bản"
+      "quản lý cập nhật",
+      "bản cập nhật"
     ],
     "status": "generated"
   },
   "wizard": {
     "synonyms": [
-      "mở wizard",
-      "vào phần harmonizer",
-      "điều chỉnh lịch làm việc",
-      "mở trợ lý ca",
-      "vào cài đặt lịch",
-      "bật wizard ca",
-      "mở shift wizard",
-      "vào scheduling assistant",
-      "mở harmonizer lịch",
-      "chỉnh ca tự động",
-      "vào phần lịch làm việc",
-      "mở công cụ sắp xếp ca",
-      "vào wizard lịch",
-      "bật hỗ trợ ca",
-      "mở shift assistant",
-      "vào cài đặt ca",
-      "mở holistic harmonizer",
-      "chỉnh lịch bằng wizard",
-      "vào phần sắp xếp ca",
-      "mở trợ lý lịch"
+      "bộ hài hòa llm",
+      "holistic harmonizer",
+      "trình hài hòa llm",
+      "bộ hài hòa mô hình llm",
+      "harmonizer"
     ],
     "status": "generated"
   },
   "work-setting-form": {
     "synonyms": [
-      "mở form cài đặt nơi làm việc",
-      "sửa cài đặt nơi làm việc",
-      "vào trang cài đặt nơi làm việc",
-      "điều chỉnh cài đặt nơi làm việc",
-      "chỉnh sửa thông tin nơi làm việc",
-      "cập nhật cài đặt nơi làm việc",
-      "xem form cài đặt nơi làm việc",
-      "mở cài đặt nơi làm việc",
-      "chỉnh cài đặt nơi làm việc",
-      "sửa thông tin nơi làm việc",
-      "thay đổi cài đặt nơi làm việc",
-      "vào form cài đặt nơi làm việc",
-      "truy cập cài đặt nơi làm việc",
-      "mở form cài đặt",
-      "sửa form cài đặt nơi làm việc",
-      "cập nhật form cài đặt nơi làm việc",
-      "xem cài đặt nơi làm việc",
-      "vào mục cài đặt nơi làm việc",
-      "tới trang cài đặt nơi làm việc",
-      "mở trang cài đặt nơi làm việc"
+      "thiết lập lịch trình"
     ],
     "status": "generated"
   },
   "assistant-learning": {
     "synonyms": [
-      "klacksy học",
-      "học tập của klacksy",
-      "cài đặt học tập",
-      "klacksy đã học gì",
-      "cách diễn đạt đã học",
-      "mong muốn chưa đáp ứng",
-      "đề xuất kỹ năng",
-      "kỹ năng mới",
-      "mở phần học của klacksy",
-      "xem xét kỹ năng"
+      "học hỏi",
+      "tự học",
+      "học hỏi của trợ lý",
+      "quá trình tự học",
+      "khả năng tự học"
     ],
     "status": "generated"
   },
   "active-industries": {
     "synonyms": [
-      "mở ngành đang hoạt động trong cài đặt lịch làm việc",
-      "hiển thị danh sách ngành nghề đang kích hoạt",
-      "tới phần quản lý ngành nghề đang hoạt động",
-      "vào cài đặt lịch biểu để xem ngành nghề",
-      "chọn mục ngành nghề đang hoạt động trong cài đặt",
-      "điều hướng đến các ngành đang bật trong phần lịch",
-      "tìm ngành nghề đang hoạt động ở đâu trong cài đặt",
-      "mở tab ngành nghề hoạt động trong quản lý công việc",
-      "kiểm tra danh mục ngành nghề đang dùng",
-      "xem ngành nào đang bật trong phần lập lịch",
-      "đến trang cấu hình ngành nghề đang hoạt động",
-      "chuyển tới thiết lập các ngành đang kích hoạt",
-      "truy cập mục ngành nghề hiện hành trong cài đặt lịch",
-      "vào danh sách ngành nghề được chọn",
-      "mở phần cài đặt để quản lý ngành nghề",
-      "hiện các ngành nghề đang được sử dụng",
-      "đi đến mục ngành nghề trong cài đặt phân công",
-      "chọn ngành nghề đang hoạt động từ menu cài đặt",
-      "xem cấu hình ngành nghề hiện có",
-      "tới phần ngành nghề trong lịch làm việc"
+      "ngành hoạt động",
+      "ngành đang hoạt động",
+      "danh sách ngành hoạt động",
+      "cài đặt ngành hoạt động"
     ],
     "status": "generated"
   },
   "calendar-selection-form": {
     "synonyms": [
-      "mở biểu mẫu chọn lịch",
-      "vào phần cấu hình lịch làm việc",
-      "hiển thị tùy chọn bộ chọn lịch",
-      "đi đến cài đặt loại lịch",
-      "xem thiết lập lựa chọn lịch",
-      "chuyển đến trang chọn kiểu lịch",
-      "tìm phần cài đặt bộ lọc lịch",
-      "mở trang quản lý lựa chọn lịch",
-      "vào mục chọn ngày trong lịch làm việc",
-      "hiện ra các lựa chọn về lịch",
-      "điều hướng đến phần tùy chỉnh lịch",
-      "mở cài đặt cho bộ chọn ngày",
-      "chọn lịch bằng cách đến trang cấu hình",
-      "vào trang định dạng lịch cho nhân viên",
-      "mở phần chọn loại hiển thị lịch",
-      "đến chỗ chọn lịch trong hệ thống làm việc",
-      "mở trang thiết lập các phương án lịch",
-      "vào biểu mẫu để chọn lịch sử dụng",
-      "hiển thị trang cấu hình bộ chọn lịch làm việc",
-      "mở khu vực chọn lịch biểu"
+      "thiết lập lịch",
+      "biểu mẫu lựa chọn lịch"
     ],
     "status": "generated"
   },
   "compensatory-rest": {
     "synonyms": [
-      "mở cài đặt nghỉ bù",
-      "chỉnh sửa thời gian nghỉ bù",
-      "cấu hình nghỉ bù",
-      "quản lý ngày nghỉ bù",
-      "xem phần nghỉ bù",
-      "vào mục nghỉ bù",
-      "điều chỉnh chế độ nghỉ bù",
-      "thiết lập thời gian nghỉ bù",
-      "tùy chỉnh nghỉ bù",
-      "cài đặt phép bù giờ",
-      "kiểm tra quỹ nghỉ bù",
-      "nghỉ bù ở đâu",
-      "tìm mục nghỉ bù",
-      "đến trang nghỉ bù",
-      "mở trang nghỉ bù",
-      "nơi đặt nghỉ bù",
-      "chọn mục nghỉ bù",
-      "nhấn vào nghỉ bù",
-      "mở tab nghỉ bù",
-      "xem thiết lập nghỉ bù"
+      "nghỉ bù",
+      "cài đặt nghỉ bù",
+      "chế độ nghỉ bù",
+      "quy định nghỉ bù"
     ],
     "status": "generated"
   },
   "compliance-enforcement": {
     "synonyms": [
-      "mở cài đặt chấp hành quy định",
-      "điều hướng đến phần tuân thủ quy tắc",
-      "xem thiết lập thực thi quy định",
-      "chuyển đến quản lý tuân thủ",
-      "vào phần cưỡng chế tuân thủ",
-      "hiển thị cài đặt thi hành quy định",
-      "đưa tôi đến trang thực thi quy tắc",
-      "mở trang quản lý chấp hành",
-      "truy cập cài đặt tuân thủ",
-      "đi tới phần kiểm soát quy định",
-      "xem quy định thực thi",
-      "mở mục thi hành quy định",
-      "chuyển đến trang cưỡng chế quy tắc",
-      "vào cài đặt thi hành chính sách",
-      "hiển thị chính sách tuân thủ",
-      "đi đến cấu hình thực thi",
-      "mở trang cấu hình tuân thủ",
-      "chuyển hướng tới phần quản lý quy định",
-      "truy cập trang thi hành quy định",
-      "điều hướng tới mục chấp hành quy định"
+      "thực thi tuân thủ",
+      "tuân thủ",
+      "xử lý vi phạm quy tắc",
+      "vi phạm thời gian làm việc",
+      "quy tắc thời gian làm việc"
     ],
     "status": "generated"
   },
   "contract-form.percent": {
     "synonyms": [
-      "mở biểu mẫu phần trăm hợp đồng",
-      "hiển thị cài đặt phần trăm hợp đồng",
-      "đi tới trang phần trăm hợp đồng",
-      "chuyển đến biểu mẫu phần trăm hợp đồng",
-      "đưa tôi đến trình soạn thảo phần trăm hợp đồng",
-      "xem chi tiết phần trăm hợp đồng",
-      "vào phần trăm hợp đồng trong cài đặt",
-      "mở cấu hình phần trăm của hợp đồng",
-      "xem thiết lập phần trăm hợp đồng",
-      "điều hướng đến mục phần trăm hợp đồng",
-      "mở trang chỉnh sửa phần trăm hợp đồng",
-      "truy cập biểu mẫu phần trăm hợp đồng",
-      "đến chỗ phần trăm hợp đồng",
-      "mở tỷ lệ phần trăm hợp đồng lao động",
-      "xem tỷ lệ phần trăm trong hợp đồng",
-      "chuyển hướng đến phần trăm hợp đồng",
-      "tìm phần trăm hợp đồng trong cài đặt",
-      "mở biểu mẫu tỷ lệ phần trăm của hợp đồng",
-      "vào cài đặt phần trăm hợp đồng",
-      "hiện biểu mẫu phần trăm hợp đồng"
+      "tỷ lệ làm việc",
+      "phần trăm làm việc",
+      "tỷ lệ phần trăm làm việc",
+      "mức độ làm việc"
     ],
     "status": "generated"
   },
   "counter-rules": {
     "synonyms": [
-      "mở quy tắc bộ đếm trong cài đặt lịch làm việc",
-      "đi đến quy tắc đếm ca trong phần cài đặt nơi làm việc",
-      "xem thiết lập quy tắc đếm ca tại mục lịch",
-      "chỉnh quy tắc tính giờ công ở đâu trong cài đặt",
-      "cấu hình quy tắc cộng dồn thời gian làm việc",
-      "tìm quy tắc đếm số buổi làm trong phần lịch biểu",
-      "đưa tôi đến phần quy định về bộ đếm ca trong cài đặt chung",
-      "quy tắc về số ca và giờ làm nằm ở đâu",
-      "mở mục quy định tính công cho nhân viên trong cài đặt lịch",
-      "vào phần quy tắc theo dõi giờ làm trong cài đặt nơi làm việc",
-      "xem các thiết lập liên quan đến bộ đếm thời gian ca làm",
-      "mở cấu hình quy tắc về bộ đếm trong lịch làm việc",
-      "quy tắc cho việc tính thời gian làm việc đặt ở đâu",
-      "chỉnh sửa quy định về cách đếm ca trong cài đặt lịch",
-      "điều hướng đến quy tắc cộng giờ trong phần cài đặt ca làm",
-      "tìm cài đặt quy tắc về số giờ tăng thêm ở đâu",
-      "mở quy tắc tính số buổi và giờ quy đổi trong lịch",
-      "xem quy định về bộ đếm thời gian trong phần cài đặt công việc",
-      "vào nơi cài đặt quy tắc tính lương theo ca trong lịch",
-      "mở danh mục quy tắc theo dõi số giờ của nhân viên trong cài đặt"
+      "quy tắc đếm",
+      "quy tắc đếm giờ",
+      "quy tắc tính giờ",
+      "cài đặt quy tắc đếm"
     ],
     "status": "generated"
   },
   "erp-drop-points": {
     "synonyms": [
-      "mở điểm giao nhận erp",
-      "đi tới cài đặt điểm erp",
-      "vào mục điểm erp trong tích hợp",
-      "xem phần điểm erp drop",
-      "chỉ tôi nơi cấu hình điểm erp",
-      "điều hướng đến điểm erp",
-      "truy cập điểm nhận erp",
-      "mở trang điểm erp trong cài đặt",
-      "tìm điểm erp trong tích hợp",
-      "hiển thị cấu hình điểm erp",
-      "đưa tôi đến khu vực điểm erp",
-      "mở mục điểm erp ở cài đặt tích hợp",
-      "vào chỗ điểm erp",
-      "tìm tùy chọn điểm erp",
-      "đi đến phần erp drop points",
-      "mở cài đặt erp drop point",
-      "xem điểm erp trong phần tích hợp",
-      "đi tới nơi đặt điểm erp",
-      "cho tôi xem điểm erp drop points",
-      "vào trang erp drop points"
+      "erp drop points",
+      "điểm drop erp",
+      "nơi nhận dữ liệu erp",
+      "thư mục drop erp"
     ],
     "status": "generated"
   },
   "escalation-roster": {
     "synonyms": [
-      "mở danh sách trực tăng cường trong cài đặt",
-      "điều hướng đến lịch trực tăng cường trong phần quản trị",
-      "hiển thị kế hoạch ứng trực ở cài đặt nơi làm việc",
-      "mở bảng phân công trực khẩn trong cài đặt",
-      "đưa tôi đến danh sách trực tăng cường trong cài đặt quản trị",
-      "mở lịch trực tăng cường trong phần cài đặt nơi làm việc",
-      "chuyển đến danh sách trực ứng phó trong cài đặt quản trị",
-      "xem kế hoạch trực tăng cường trong cài đặt",
-      "mở bảng trực tăng cường trong phần quản trị cài đặt",
-      "đến trang trực tăng cường trong cài đặt công sở",
-      "mở danh sách trực khẩn cấp trong phần cài đặt",
-      "hiển thị lịch trực tăng cường trong cài đặt quản trị",
-      "vào mục trực tăng cường trong cài đặt",
-      "mở danh sách ứng trực trong phần quản trị",
-      "chuyển hướng đến lịch trực tăng cường trong cài đặt",
-      "mở kế hoạch trực khẩn trong cài đặt nơi làm việc",
-      "xem danh sách trực tăng cường trong cài đặt quản trị",
-      "mở lịch phân công trực tăng cường trong phần cài đặt",
-      "đi đến danh sách trực tăng cường trong cài đặt quản trị viên",
-      "mở bảng trực tăng cường từ cài đặt"
+      "danh sách trực leo thang",
+      "trực leo thang",
+      "lịch trực leo thang",
+      "bảng trực leo thang"
     ],
     "status": "generated"
   },
   "export-format-overrides": {
     "synonyms": [
-      "mở cài đặt ghi đè định dạng xuất",
-      "hiển thị tùy chọn ghi đè định dạng xuất",
-      "đi đến trang ghi đẻ định dạng xuất",
-      "vào phần ghi đè định dạng xuất trong cài đặt",
-      "mở mục ghi đè định dạng xuất",
-      "chỉnh sửa ghi đè định dạng xuất",
-      "xem các ghi đè định dạng xuất",
-      "điều hướng đến ghi đè định dạng xuất",
-      "truy cập ghi đè định dạng xuất",
-      "đưa tôi đến cài đặt ghi đè định dạng xuất",
-      "mở trang cấu hình ghi đè định dạng xuất",
-      "hiện các quy tắc ghi đè định dạng xuất",
-      "đến phần quản lý ghi đè định dạng xuất",
-      "vào cài đặt để xem ghi đè định dạng xuất",
-      "mở tùy chọn ghi đè định dạng xuất",
-      "xem chi tiết ghi đè định dạng xuất",
-      "chuyển đến màn hình ghi đè định dạng xuất",
-      "tìm ghi đè định dạng xuất trong cài đặt",
-      "mở bảng ghi đè định dạng xuất",
-      "vào trang ghi đè định dạng xuất"
+      "điều chỉnh định dạng xuất",
+      "ghi đè định dạng xuất",
+      "định dạng xuất ghi đè",
+      "bản vá định dạng xuất"
     ],
     "status": "generated"
   },
   "export-formats": {
     "synonyms": [
-      "mở định dạng xuất",
-      "đi đến cài đặt định dạng xuất",
-      "hiện định dạng xuất",
-      "vào mục định dạng xuất",
-      "chuyển đến định dạng xuất",
-      "xem định dạng xuất",
-      "cấu hình định dạng xuất",
-      "định dạng xuất ở đâu",
-      "tìm định dạng xuất",
-      "đưa tôi tới định dạng xuất",
-      "thiết lập định dạng xuất",
-      "mở cài đặt định dạng xuất",
-      "truy cập định dạng xuất",
-      "tới trang định dạng xuất",
-      "tại định dạng xuất",
-      "đến phần định dạng xuất",
-      "chọn định dạng xuất",
-      "điều hướng đến định dạng xuất",
-      "vào cấu hình định dạng xuất",
-      "định dạng để xuất dữ liệu"
+      "định dạng xuất",
+      "định dạng xuất dữ liệu",
+      "tùy chọn định dạng xuất",
+      "cài đặt định dạng xuất"
     ],
     "status": "generated"
   },
   "goal-candidates-panel": {
     "synonyms": [
-      "hiển thị bảng ứng viên mục tiêu",
-      "tìm bảng ứng viên mục tiêu ở đâu",
-      "mở màn hình ứng viên cho mục tiêu",
-      "đưa tôi đến bảng ứng viên mục tiêu",
-      "điều hướng đến danh sách ứng viên mục tiêu",
-      "tôi cần xem bảng ứng viên mục tiêu",
-      "cho tôi xem danh sách ứng viên mục tiêu",
-      "mở trang ứng viên mục tiêu",
-      "vào bảng ứng viên mục tiêu",
-      "xem ứng viên cho các mục tiêu",
-      "hiện bảng ứng viên mục tiêu",
-      "tìm ứng viên mục tiêu",
-      "mở giao diện ứng viên mục tiêu",
-      "chuyển đến bảng ứng viên mục tiêu",
-      "truy cập bảng ứng viên mục tiêu",
-      "nơi nào có ứng viên mục tiêu",
-      "muốn xem bảng ứng viên mục tiêu",
-      "đưa tôi đến trang ứng viên mục tiêu",
-      "mở bảng ứng viên mục tiêu ngay",
-      "tìm mục ứng viên mục tiêu"
+      "đề xuất mục tiêu",
+      "mục tiêu đề xuất",
+      "danh sách mục tiêu đề xuất",
+      "mục tiêu chờ duyệt"
     ],
     "status": "generated"
   },
   "goal-candidates-panel.approve": {
     "synonyms": [
-      "mở trang duyệt ứng viên mục tiêu",
-      "hiển thị danh sách phê duyệt ứng viên",
-      "đi đến trang xác nhận ứng viên",
-      "cho tôi xem bảng duyệt ứng viên",
-      "vào màn hình chấp thuận ứng viên",
-      "mở bảng duyệt hồ sơ ứng viên",
-      "điều hướng đến phần duyệt ứng viên",
-      "mở trang duyệt danh sách ứng viên mục tiêu",
-      "xem danh sách ứng viên cần phê duyệt",
-      "truy cập bảng duyệt ứng viên",
-      "mở màn hình duyệt ứng viên mục tiêu",
-      "đưa tôi đến trang duyệt ứng viên",
-      "hiện bảng xét duyệt ứng viên",
-      "mở phần duyệt ứng viên mục tiêu",
-      "vào trang duyệt hồ sơ ứng viên",
-      "chuyển đến bảng duyệt ứng viên",
-      "mở trang chấp nhận ứng viên",
-      "đi đến bảng duyệt ứng viên mục tiêu",
-      "hiển thị trang duyệt ứng viên",
-      "mở danh sách ứng viên chờ duyệt"
+      "chấp nhận",
+      "đồng ý"
     ],
     "status": "generated"
   },
   "goal-candidates-panel.item": {
     "synonyms": [
-      "hiển thị danh sách ứng viên mục tiêu",
-      "mở mục ứng viên mục tiêu",
-      "đi đến ứng viên mục tiêu",
-      "xem các ứng viên mục tiêu",
-      "vào phần ứng viên mục tiêu",
-      "tìm ứng viên mục tiêu ở đâu",
-      "cho tôi xem ứng viên mục tiêu",
-      "chuyển đến ứng viên mục tiêu",
-      "mở trang ứng viên mục tiêu",
-      "danh sách ứng viên mục tiêu",
-      "di chuyển tới ứng viên mục tiêu",
-      "hiện ứng viên mục tiêu",
-      "truy cập ứng viên mục tiêu",
-      "tôi muốn xem ứng viên mục tiêu",
-      "đưa tôi đến ứng viên mục tiêu",
-      "mở ra ứng viên mục tiêu",
-      "xem danh sách ứng viên mục tiêu",
-      "đi tới mục ứng viên mục tiêu",
-      "kiểm tra ứng viên mục tiêu",
-      "mở ứng viên mục tiêu ra"
+      "ứng viên mục tiêu",
+      "bảng ứng viên mục tiêu",
+      "mục ứng viên mục tiêu",
+      "danh sách ứng viên mục tiêu"
     ],
     "status": "generated"
   },
   "goal-candidates-panel.reject": {
     "synonyms": [
-      "từ chối ứng viên này khỏi danh sách mục tiêu",
-      "không chấp nhận người này cho mục tiêu",
-      "loại ứng viên mục tiêu này ra",
-      "đánh dấu ứng viên mục tiêu này là bị từ chối",
-      "từ chối người nộp đơn cho mục tiêu",
-      "không nhận ứng viên này cho mục tiêu",
-      "loại người này khỏi danh sách ứng viên mục tiêu",
-      "từ chối hồ sơ ứng viên cho mục tiêu",
-      "không đồng ý với ứng viên mục tiêu này",
-      "gạt ứng viên mục tiêu này sang một bên",
-      "từ chối đơn của người này cho mục tiêu",
-      "không để ứng viên này vào mục tiêu",
-      "loại bỏ ứng viên khỏi quy trình mục tiêu",
-      "từ chối ứng viên tiềm năng cho mục tiêu",
-      "không duyệt ứng viên này cho mục tiêu",
-      "bác bỏ ứng viên mục tiêu này",
-      "không chọn người này cho mục tiêu",
-      "từ chối lời đề nghị của ứng viên mục tiêu",
-      "loại ứng viên này khỏi danh sách cuối",
-      "không chấp thuận ứng viên này cho mục tiêu"
+      "từ chối",
+      "nút từ chối",
+      "mục từ chối",
+      "chức năng từ chối"
     ],
     "status": "generated"
   },
   "holiday-work-exemptions": {
     "synonyms": [
-      "mở ngoại lệ làm việc ngày lễ",
-      "đi tới cài đặt ngoại lệ ngày lễ",
-      "xem các trường hợp miễn trừ ngày lễ",
-      "tìm ngoại lệ làm việc trong ngày lễ ở đâu",
-      "chỉnh sửa quy định miễn trừ ngày lễ",
-      "cài đặt miễn trừ làm việc ngày lễ",
-      "mở cấu hình ngoại lệ ngày lễ",
-      "hiển thị quy tắc miễn trừ ngày lễ",
-      "đến phần ngoại lệ của ngày lễ",
-      "vào mục miễn trừ làm việc vào ngày lễ",
-      "mở trang quản lý ngoại lệ ngày lễ",
-      "xem thiết lập miễn trừ ngày lễ",
-      "điều hướng đến ngoại lệ ngày lễ",
-      "truy cập cấu hình miễn trừ làm việc ngày lễ",
-      "tìm cài đặt ngoại lệ cho ngày lễ",
-      "mở danh sách miễn trừ ngày lễ",
-      "đi tới trang ngoại lệ làm việc ngày lễ",
-      "xem các ngoại lệ liên quan đến ngày lễ",
-      "chuyển đến cài đặt miễn trừ làm việc ngày lễ",
-      "mở các quy định ngoại lệ trong ngày lễ"
+      "miễn trừ làm việc ngày lễ",
+      "miễn trừ ngày lễ",
+      "miễn trừ làm việc lễ",
+      "miễn trừ lễ",
+      "miễn trừ"
     ],
     "status": "generated"
   },
   "individual-period-form": {
     "synonyms": [
-      "mở biểu mẫu kỳ cá nhân",
-      "hiển thị màn hình khoảng thời gian tùy chỉnh",
-      "đi tới biểu mẫu khoảng thời gian riêng",
-      "chuyển đến trang nhập kỳ tự chọn",
-      "đưa tôi đến biểu mẫu khoảng thời gian tùy chỉnh",
-      "tôi muốn tạo một khoảng thời gian riêng",
-      "mở biểu mẫu cho kỳ tự định nghĩa",
-      "làm sao để thiết lập khoảng thời gian tùy chỉnh",
-      "cho tôi xem màn hình nhập khoảng thời gian riêng",
-      "điều hướng đến biểu mẫu kỳ riêng lẻ",
-      "tôi cần đặt một khoảng thời gian tùy chỉnh ở đâu",
-      "mở phần tạo khoảng thời gian tự chọn",
-      "hiển thị biểu mẫu cho kỳ cá nhân hóa",
-      "chuyển hướng tới trang khoảng thời gian tự đặt",
-      "đưa tôi đến nơi thiết lập khoảng thời gian tùy chỉnh",
-      "tôi muốn nhập khoảng thời gian tự chọn",
-      "mở màn hình khoảng thời gian tùy chỉnh cho tôi",
-      "tìm biểu mẫu kỳ tùy biến",
-      "đi đến biểu mẫu khoảng thời gian tự quyết định",
-      "cho tôi biểu mẫu để tạo khoảng thời gian riêng"
+      "biểu mẫu kỳ cá nhân",
+      "mẫu kỳ cá nhân",
+      "kỳ riêng"
     ],
     "status": "generated"
   },
   "individual-period-form.name": {
     "synonyms": [
+      "tên biểu mẫu",
       "tên biểu mẫu kỳ cá nhân",
-      "tiêu đề biểu mẫu kỳ riêng",
-      "cách đặt tên biểu mẫu kỳ tùy chỉnh",
-      "nhãn cho biểu mẫu kỳ riêng",
-      "tên gọi của kỳ làm việc riêng",
-      "đặt tên cho khoảng thời gian tùy chỉnh",
-      "cài đặt tên kỳ cá nhân",
-      "trường tên của biểu mẫu kỳ đặc biệt",
-      "nhập tên biểu mẫu cho kỳ riêng",
-      "thiết lập tên cho biểu mẫu kỳ tùy chọn",
-      "tên hiển thị của kỳ linh hoạt",
-      "đổi tên biểu mẫu thời gian riêng",
-      "chỉnh sửa tên kỳ áp dụng riêng",
-      "khai báo tên cho kỳ tự tạo",
-      "tên của biểu mẫu đặt theo kỳ",
-      "gán nhãn cho kỳ riêng lẻ",
-      "định danh biểu mẫu kỳ cá nhân",
-      "tùy chỉnh tên gọi khoảng thời gian",
-      "nhãn tùy biến cho kỳ làm việc",
-      "mục tên trong biểu mẫu kỳ riêng"
+      "tên biểu mẫu cá nhân",
+      "tên kỳ cá nhân"
     ],
     "status": "generated"
   },
   "individual-periods": {
     "synonyms": [
-      "mở cài đặt khoảng thời gian riêng lẻ",
-      "đi tới phần các khoảng thời gian riêng trong cài đặt lịch làm việc",
-      "vào cài đặt nơi làm việc rồi chọn khoảng thời gian riêng",
-      "hiển thị tùy chọn các khoảng thời gian riêng",
-      "tìm cài đặt cho từng khoảng thời gian",
-      "vào phần cài đặt, chọn lịch biểu, rồi đến khoảng thời gian riêng",
-      "mở trang quản lý các khoảng thời gian riêng",
-      "điều hướng đến mục các khoảng thời gian cụ thể",
-      "xem danh sách các khoảng thời gian riêng trong cài đặt",
-      "đưa tôi đến phần khoảng thời gian riêng lẻ",
-      "truy cập cài đặt các khoảng thời gian riêng biệt",
-      "vào phần cấu hình thời gian riêng",
-      "chọn mục các giai đoạn thời gian riêng",
-      "đi đến các khoảng thời gian riêng trong phần thiết lập",
-      "mở tùy chọn khoảng thời gian cá nhân",
-      "tìm kiếm cài đặt khoảng thời gian riêng",
-      "vào cài đặt, sau đó chọn khoảng thời gian riêng",
-      "hiển thị trang các khoảng thời gian riêng",
-      "đi đến phần quản lý khoảng thời gian riêng",
-      "mở cấu hình các khoảng thời gian riêng biệt"
+      "kỳ cá nhân",
+      "chu kỳ cá nhân",
+      "danh sách kỳ cá nhân",
+      "cài đặt kỳ cá nhân"
     ],
     "status": "generated"
   },
   "klacksy-proactive-governance": {
     "synonyms": [
-      "mở cài đặt quản trị chủ động",
-      "vào phần thiết lập điều hành chủ động",
-      "chỉ tôi các điều khiển quản trị",
-      "đưa tôi đến cài đặt quản trị chủ động",
-      "chuyển đến cấu hình quản trị",
-      "hiển thị trang quản trị chủ động",
-      "mở cài đặt kiểm soát chủ động",
-      "điều hướng đến phần quản trị thông minh",
-      "truy cập thiết lập định hướng chủ động",
-      "xem trang kiểm soát và giám sát",
-      "vào mục quản lý chủ động",
-      "mở phần cấu hình giám sát thông minh",
-      "cài đặt điều phối chủ động",
-      "chuyển tới trang quản lý và điều hành",
-      "hiển thị thiết lập kiểm soát hệ thống",
-      "mở trang định hướng và quản trị",
-      "vào cài đặt kiểm soát thông minh",
-      "đưa tôi đến phần điều hành và giám sát",
-      "mở cấu hình quản trị nâng cao",
-      "xem các tùy chọn quản lý chủ động"
+      "phạm vi hành động",
+      "cài đặt tự chủ",
+      "quản trị chủ động"
     ],
     "status": "generated"
   },
   "monthly-target-hours": {
     "synonyms": [
-      "mục tiêu giờ làm hàng tháng",
-      "đặt mục tiêu giờ làm trong tháng",
-      "chỉnh mục tiêu giờ làm mỗi tháng",
-      "cài đặt giờ làm việc mong muốn theo tháng",
-      "thay đổi chỉ tiêu giờ làm tháng",
-      "nơi để cài giờ chuẩn hàng tháng",
-      "điều chỉnh số giờ cần làm trong tháng",
-      "thiết lập mục tiêu thời gian làm việc hàng tháng",
-      "xem mục tiêu giờ làm tháng",
-      "cập nhật chỉ tiêu giờ làm việc tháng",
-      "mục tiêu số giờ làm trong tháng nằm ở đâu",
-      "đổi mục tiêu giờ làm việc theo tháng",
-      "cài đặt số giờ mục tiêu hàng tháng",
-      "chỉnh giờ làm mục tiêu cho tháng",
-      "mở mục tiêu giờ làm hàng tháng",
-      "thiết lập mục tiêu về giờ làm trong tháng",
-      "điều chỉnh mục tiêu giờ làm việc tháng",
-      "cài mục tiêu giờ làm mỗi tháng",
-      "mục tiêu giờ làm việc trong tháng",
-      "sửa mục tiêu giờ làm theo tháng"
+      "giờ mục tiêu hàng tháng",
+      "giờ mục tiêu",
+      "mục tiêu hàng tháng",
+      "giờ mục tiêu theo tháng"
     ],
     "status": "generated"
   },
   "overtime": {
     "synonyms": [
-      "mở cài đặt tăng ca",
-      "đi đến phần tăng ca",
-      "chỉnh quy định tăng ca",
-      "tìm cấu hình tăng ca",
-      "vào mục tăng ca trong lịch làm việc",
-      "tùy chỉnh giờ tăng ca",
-      "mở phần quản lý tăng ca",
-      "xem thiết lập tăng ca",
-      "điều hướng đến tăng ca",
-      "chỗ nào chỉnh tăng ca",
-      "cài đặt chế độ tăng ca",
-      "mở menu tăng ca",
-      "đưa tôi đến phần tăng ca",
-      "thiết lập thêm giờ làm",
-      "cấu hình quy tắc làm thêm giờ",
-      "mở trang tăng ca",
-      "đi đến tùy chọn tăng ca",
-      "tăng ca ở đâu trong cài đặt",
-      "mở tăng ca trong phần lịch",
-      "đi tới cài đặt tăng ca"
+      "tăng ca",
+      "làm thêm",
+      "cài đặt tăng ca",
+      "chế độ tăng ca",
+      "quy định tăng ca",
+      "cấu hình tăng ca"
     ],
     "status": "generated"
   },
   "period-cap-rules": {
     "synonyms": [
-      "mở quy tắc giới hạn chu kỳ",
-      "hiển thị quy tắc về kỳ làm việc",
-      "đi đến cài đặt quy định kỳ",
-      "xem quy tắc cho từng chu kỳ",
-      "truy cập quy định thời kỳ làm việc",
-      "vào phần quy tắc kỳ làm việc",
-      "mở cấu hình quy tắc chu kỳ",
-      "chuyển đến quy định giới hạn chu kỳ",
-      "điều chỉnh quy tắc cho kỳ",
-      "xem cài đặt quy định theo chu kỳ",
-      "mở trang quy tắc về chu kỳ",
-      "truy cập quy định cho từng kỳ",
-      "hiển thị quy tắc giới hạn theo kỳ",
-      "đi đến nơi quản lý quy tắc chu kỳ",
-      "mở cài đặt liên quan đến chu kỳ",
-      "xem quy định về khoảng thời gian làm",
-      "vào cấu hình quy tắc kỳ làm",
-      "điều hướng đến quy tắc chu kỳ",
-      "hiện danh sách quy tắc theo kỳ",
-      "mở phần quản lý quy tắc kỳ"
+      "giới hạn chu kỳ",
+      "quy tắc giới hạn chu kỳ",
+      "hạn mức chu kỳ",
+      "giới hạn theo chu kỳ"
     ],
     "status": "generated"
   },
   "plan-execution-panel.abort": {
     "synonyms": [
-      "dừng thực thi kế hoạch",
-      "hủy chạy kế hoạch",
-      "ngừng kế hoạch đang chạy",
-      "chấm dứt việc thực hiện kế hoạch",
-      "dừng việc chạy kế hoạch hiện tại",
-      "hủy bỏ việc thực thi kế hoạch",
-      "kết thúc quá trình chạy kế hoạch",
-      "ngưng thực hiện kế hoạch",
-      "tạm dừng việc chạy kế hoạch",
-      "thoát khỏi chế độ chạy kế hoạch",
-      "dừng quá trình triển khai kế hoạch",
-      "hủy việc thực thi đang diễn ra",
-      "ngừng triển khai kế hoạch",
-      "dừng kế hoạch đang triển khai",
-      "chấm dứt quá trình thực thi",
-      "hủy chạy chương trình kế hoạch",
-      "ngưng quá trình thực hiện",
-      "dừng việc vận hành kế hoạch",
-      "kết thúc việc chạy kế hoạch",
-      "ngừng ngay việc thực hiện kế hoạch"
+      "hủy kế hoạch",
+      "hủy bỏ kế hoạch",
+      "dừng kế hoạch",
+      "hủy thực hiện kế hoạch"
     ],
     "status": "generated"
   },
   "profile-messengers": {
     "synonyms": [
-      "mở hồ sơ messenger trong trang cá nhân",
-      "xem messenger trong hồ sơ của tôi",
-      "đi đến phần messeger trong trang hồ sơ",
-      "truy cập hồ sơ nhắn tin của tôi",
-      "vào mục trò chuyện trong hồ sơ",
-      "hiện các tài khoản chat trong hồ sơ",
-      "xem các ứng dụng nhắn tin trong hồ sơ",
-      "mở danh sách messenger cá nhân",
-      "tới hồ sơ của các ứng dụng chat",
-      "xem thông tin các kênh nhắn tin trong hồ sơ",
-      "vào phần quản lý tin nhắn trong trang cá nhân",
-      "mở các hồ sơ liên lạc trong hồ sơ của tôi",
-      "tìm phần messengers trong hồ sơ",
-      "mở trang hồ sơ với các ứng dụng nhắn tin",
-      "xem hồ sơ chat của tôi",
-      "điều hướng đến hồ sơ messenger",
-      "hiển thị mục nhắn tin trong hồ sơ",
-      "vào khu vực chat trong hồ sơ cá nhân",
-      "mở phần thông tin các ứng dụng nhắn tin",
-      "xem các mục liên quan đến chat trong hồ sơ"
+      "messenger của tôi",
+      "tin nhắn của tôi",
+      "hồ sơ messenger",
+      "thông tin messenger"
     ],
     "status": "generated"
   },
   "restricted-time-window-rules": {
     "synonyms": [
-      "mở quy tắc giờ chặn trong cài đặt",
-      "vào phần cấu hình thời gian hạn chế",
-      "tìm quy định về khung giờ bị giới hạn",
-      "mở cài đặt quy tắc khoảng thời gian cấm",
-      "chỉnh sửa luật thời gian bị khóa",
-      "xem các quy tắc giới hạn khung giờ để chọn ca",
-      "điều hướng đến danh sách quy tắc thời gian cấm",
-      "mở màn hình quản lý thời gian hạn chế",
-      "vào thiết lập thời gian không được phép",
-      "chỉnh quy định khung giờ hạn chế cho nhân viên",
-      "mở trang quy tắc hạn chế thời gian làm việc",
-      "truy cập cài đặt về khoảng thời gian bị chặn",
-      "tìm luật về giờ bị giới hạn trong lịch làm việc",
-      "mở phần quy định về khung thời gian cấm đặt ca",
-      "vào cấu hình quy tắc thời gian bị giới hạn",
-      "đi tới cài đặt quy tắc về khoảng thời gian hạn chế",
-      "mở quy tắc giới hạn thời gian trong mục cài đặt lịch",
-      "xem thiết lập về các khung giờ bị cấm",
-      "chỉnh sửa quy định về thời gian bị khóa trong ca",
-      "mở quy tắc hạn chế thời gian để làm việc theo ca"
+      "khung giờ hạn chế",
+      "quy tắc khung giờ hạn chế",
+      "giờ hạn chế",
+      "danh sách khung giờ hạn chế"
     ],
     "status": "generated"
   },
   "shift-group": {
     "synonyms": [
-      "mở nhóm ca",
-      "đi đến nhóm ca",
-      "chỉnh sửa nhóm ca",
-      "xem nhóm ca",
-      "nhóm ca ở đâu",
-      "cho tôi xem nhóm ca",
-      "tới trang nhóm ca",
-      "quản lý nhóm ca",
-      "nhóm ca làm sao chỉnh",
-      "hiển thị nhóm ca",
-      "vào nhóm ca",
-      "điều chỉnh nhóm ca",
-      "nhóm ca đâu rồi",
-      "chỉnh nhóm ca giúp tôi",
-      "mở trang nhóm ca",
-      "nhóm ca thiết lập",
-      "tôi cần sửa nhóm ca",
-      "đưa tôi đến nhóm ca",
-      "nhóm ca là gì",
-      "xem phần nhóm ca"
+      "nhóm ca",
+      "nhóm đã chỉ định",
+      "nhóm phân ca"
     ],
     "status": "generated"
   },
   "skill-effectiveness": {
     "synonyms": [
-      "xem hiệu quả kỹ năng trong cài đặt",
-      "mở trang hiệu quả kỹ năng",
-      "điều hướng tới hiệu quả kỹ năng của đội ngũ",
-      "kiểm tra mức độ thành thạo kỹ năng của nhân viên",
-      "hiệu quả sử dụng kỹ năng nằm ở đâu trong cài đặt",
-      "chỉ cho tôi phần đánh giá năng lực",
-      "vào mục cài đặt để xem độ hiệu quả kỹ năng",
-      "xem báo cáo về chất lượng kỹ năng",
-      "đưa tôi đến trang đo lường năng lực",
-      "tìm hiểu về sự hữu ích của các kỹ năng",
-      "mở phần phân tích kỹ năng trong cài đặt",
-      "xem thông tin về khả năng thực hiện công việc",
-      "kiểm tra xem kỹ năng nào đạt hiệu quả cao",
-      "xem đánh giá về mức độ vận dụng kỹ năng",
-      "đi tới nơi xem kết quả đào tạo kỹ năng",
-      "xem chi tiết năng lực làm việc của đội",
-      "truy cập phần hiệu suất kỹ năng",
-      "xem mức độ đáp ứng công việc của kỹ năng",
-      "mở trang tổng quan về năng lực nhân viên",
-      "đến khu vực quản lý hiệu quả kỹ năng"
+      "hiệu quả kỹ năng",
+      "kỹ năng hiệu quả",
+      "dữ liệu hiệu quả kỹ năng",
+      "thống kê hiệu quả kỹ năng"
     ],
     "status": "generated"
   },
   "address-membership": {
     "synonyms": [
-      "thành viên nhóm",
+      "thành viên địa chỉ",
+      "địa chỉ thành viên",
       "tư cách thành viên",
-      "thành viên tổ",
-      "mở thành viên",
-      "quản lý thành viên",
-      "thành viên tổ chức",
-      "tham gia nhóm",
+      "thông tin thành viên địa chỉ"
+    ],
+    "status": "generated"
+  },
+  "address-contracts": {
+    "synonyms": [
+      "hợp đồng địa chỉ",
+      "hợp đồng nơi làm việc"
+    ],
+    "status": "generated"
+  },
+  "address-groups": {
+    "synonyms": [
+      "nhóm địa chỉ",
+      "danh sách nhóm địa chỉ",
+      "các nhóm địa chỉ",
+      "nhóm địa chỉ nơi làm việc"
+    ],
+    "status": "generated"
+  },
+  "address-image": {
+    "synonyms": [
+      "hình ảnh",
+      "hình ảnh địa chỉ",
+      "ảnh địa chỉ",
+      "hình ảnh địa chỉ làm việc"
+    ],
+    "status": "generated"
+  },
+  "address-note": {
+    "synonyms": [
+      "ghi chú",
+      "chú thích",
+      "ghi chú địa chỉ",
+      "ghi chú mới",
+      "trường ghi chú",
+      "ô ghi chú"
+    ],
+    "status": "generated"
+  },
+  "address-qualifications": {
+    "synonyms": [
+      "danh mục trình độ chuyên môn",
+      "quản lý trình độ chuyên môn",
+      "danh sách trình độ chuyên môn"
+    ],
+    "status": "generated"
+  },
+  "address-persona": {
+    "synonyms": [],
+    "status": "generated"
+  },
+  "assistant-skill-relations": {
+    "synonyms": [
+      "mối quan hệ kỹ năng",
+      "quan hệ kỹ năng",
+      "tương quan kỹ năng"
+    ],
+    "status": "generated"
+  },
+  "group-item": {
+    "synonyms": [
+      "cài đặt nhóm"
+    ],
+    "status": "generated"
+  },
+  "group-members": {
+    "synonyms": [
       "danh sách thành viên",
-      "thành viên đội",
-      "cấp thành viên",
-      "thành viên nhóm làm việc",
-      "quyền thành viên",
-      "thành viên hiện tại",
-      "thêm thành viên",
-      "xóa thành viên",
-      "quản lý tư cách thành viên",
-      "thành viên ca",
-      "thành viên hợp đồng",
-      "thành viên vắng mặt",
-      "thông tin thành viên"
+      "thành viên nhóm",
+      "danh sách thành viên nhóm",
+      "thành viên trong nhóm"
+    ],
+    "status": "generated"
+  },
+  "group-parent": {
+    "synonyms": [
+      "nhóm cha",
+      "nhóm gốc",
+      "cấu trúc nhóm",
+      "phân cấp nhóm"
+    ],
+    "status": "generated"
+  },
+  "klacksy-autonomy": {
+    "synonyms": [
+      "mức độ tự chủ",
+      "cấp độ tự chủ",
+      "tự chủ"
+    ],
+    "status": "generated"
+  },
+  "new-plannable-shift": {
+    "synonyms": [
+      "ca trực không khách",
+      "ca làm việc không khách hàng",
+      "ca lập kế hoạch không khách",
+      "ca không có khách"
+    ],
+    "status": "generated"
+  },
+  "period-closing-audit": {
+    "synonyms": [
+      "nhật ký chốt kỳ",
+      "kiểm toán chốt kỳ",
+      "lịch sử chốt kỳ",
+      "sổ nhật ký chốt kỳ",
+      "kiểm toán"
+    ],
+    "status": "generated"
+  },
+  "period-closing-exports": {
+    "synonyms": [
+      "xuất kỳ chốt",
+      "bản xuất kỳ chốt",
+      "xuất dữ liệu kỳ chốt",
+      "xuất giờ làm việc kỳ chốt"
+    ],
+    "status": "generated"
+  },
+  "period-closing-periods": {
+    "synonyms": [
+      "kỳ niêm phong",
+      "kỳ đã niêm phong",
+      "kỳ khóa sổ",
+      "ngày trong kỳ"
+    ],
+    "status": "generated"
+  },
+  "personal-access-token-form": {
+    "synonyms": [
+      "biểu mẫu token"
+    ],
+    "status": "generated"
+  },
+  "personal-access-tokens": {
+    "synonyms": [
+      "token",
+      "mã truy cập cá nhân"
+    ],
+    "status": "generated"
+  },
+  "profile-data": {
+    "synonyms": [
+      "thông tin đăng nhập",
+      "thông tin tài khoản",
+      "thông tin người dùng"
+    ],
+    "status": "generated"
+  },
+  "profile-microphone": {
+    "synonyms": [
+      "micro",
+      "mic",
+      "bài kiểm tra micro",
+      "cài đặt micro",
+      "chẩn đoán micro"
+    ],
+    "status": "generated"
+  },
+  "profile-picture": {
+    "synonyms": [
+      "ảnh đại diện",
+      "hình đại diện",
+      "ảnh hồ sơ",
+      "hình hồ sơ",
+      "avatar"
+    ],
+    "status": "generated"
+  },
+  "qualifications": {
+    "synonyms": [
+      "trình độ chuyên môn",
+      "bằng cấp chuyên môn",
+      "trình độ nghiệp vụ",
+      "chứng chỉ chuyên môn"
+    ],
+    "status": "generated"
+  },
+  "profile-settings": {
+    "synonyms": [
+      "cài đặt tùy chỉnh",
+      "cài đặt hồ sơ",
+      "tùy chỉnh hồ sơ",
+      "cấu hình hồ sơ"
+    ],
+    "status": "generated"
+  },
+  "shift-address": {
+    "synonyms": [
+      "địa chỉ ca làm việc",
+      "địa chỉ làm việc",
+      "địa chỉ nơi làm việc",
+      "địa chỉ chỗ làm"
+    ],
+    "status": "generated"
+  },
+  "shift-expenses": {
+    "synonyms": [
+      "chi phí",
+      "chi phí ca",
+      "chi phí theo ca",
+      "khoản chi phí ca"
+    ],
+    "status": "generated"
+  },
+  "shift-item": {
+    "synonyms": [
+      "mục ca",
+      "mục ca làm việc"
+    ],
+    "status": "generated"
+  },
+  "shift-macro": {
+    "synonyms": [
+      "macro ca",
+      "macro ca làm việc",
+      "danh sách macro ca"
+    ],
+    "status": "generated"
+  },
+  "shift-qualifications": {
+    "synonyms": [
+      "trình độ chuyên môn bắt buộc",
+      "bằng cấp"
+    ],
+    "status": "generated"
+  },
+  "shift-special-feature": {
+    "synonyms": [
+      "đặc điểm đặc biệt",
+      "tính năng đặc biệt",
+      "thiết lập đặc biệt ca",
+      "thuộc tính ca đặc biệt"
+    ],
+    "status": "generated"
+  },
+  "shift-weekday": {
+    "synonyms": [
+      "giờ và thứ trong tuần",
+      "ngày trong tuần",
+      "thứ trong tuần",
+      "ca theo ngày trong tuần"
+    ],
+    "status": "generated"
+  },
+  "surcharge-mode": {
+    "synonyms": [
+      "chế độ phụ cấp",
+      "phụ cấp",
+      "cài đặt phụ cấp",
+      "thiết lập phụ cấp",
+      "cách tính phụ cấp"
+    ],
+    "status": "generated"
+  },
+  "web-search": {
+    "synonyms": [
+      "tìm kiếm web",
+      "tìm kiếm trên web",
+      "tìm kiếm internet",
+      "tra cứu web"
+    ],
+    "status": "generated"
+  },
+  "whisper-plugin": {
+    "synonyms": [
+      "whisper",
+      "dịch vụ whisper",
+      "whisper cục bộ",
+      "nhận dạng giọng nói whisper"
     ],
     "status": "generated"
   }

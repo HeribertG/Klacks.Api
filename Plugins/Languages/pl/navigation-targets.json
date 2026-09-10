@@ -1,351 +1,136 @@
 {
   "absence-detail": {
     "synonyms": [
-      "szczegóły nieobecności",
-      "informacje o nieobecności",
-      "sprawdź szczegóły nieobecności",
-      "ustawienia nieobecności w harmonogramie",
-      "nieobecność - szczegóły",
-      "zobacz szczegóły nieobecności",
-      "szczegóły absencji",
-      "dane o nieobecności",
-      "szczegóły nieobecności w grafiku",
-      "przejdź do szczegółów nieobecności",
-      "nieobecność - informacje",
-      "szczegóły dotyczące nieobecności",
-      "ustawienia nieobecności",
-      "pokaż szczegóły nieobecności",
-      "szczegóły nieobecności w planie",
-      "nieobecność - ustawienia",
-      "informacje o absencji",
-      "szczegóły nieobecności pracownika",
-      "nieobecność - szczegółowe dane",
-      "otwórz szczegóły nieobecności"
+      "szczegóły rozszerzonej nieobecności",
+      "edycja rozszerzonej nieobecności",
+      "rozszerzona absencja"
     ],
     "status": "generated"
   },
   "absence-types": {
     "synonyms": [
-      "ustawienia rodzajów nieobecności",
-      "zarządzaj typami nieobecności",
-      "skonfiguruj rodzaje urlopów",
-      "ustaw typy absencji",
-      "edytuj kategorie nieobecności",
-      "rodzaje urlopów",
-      "typ absencji",
-      "ustawienia nieobecności",
-      "konfiguracja rodzajów urlopów",
-      "rodzaje nieobecności w ustawieniach",
-      "skonfiguruj typy absencji",
-      "ustawienia typów urlopów",
-      "edycja rodzajów nieobecności",
-      "ustawienia absencji",
-      "rodzaje nieobecności w harmonogramie",
-      "typ urlopu w ustawieniach",
-      "ustawienia urlopów",
-      "konfiguracja absencji",
-      "rodzaje nieobecności pracowników",
-      "zarządzaj kategoriami urlopów"
+      "typy nieobecności",
+      "rodzaje nieobecności",
+      "nieobecności",
+      "kategorie nieobecności",
+      "słownik nieobecności"
     ],
     "status": "generated"
   },
   "addresses": {
     "synonyms": [
-      "gdzie są przechowywane adresy pracowników",
-      "pokaż mi dane kontaktowe zespołu",
-      "wyświetl szczegóły adresowe pracownika",
-      "otwórz katalog adresowy personelu",
-      "sprawdź adresy współpracowników",
-      "znajdź informacje adresowe kolegów",
-      "przeglądaj księgę adresową firmy",
-      "pokaż adresy wszystkich pracowników",
-      "gdzie znajdę adresy naszych ludzi",
-      "wyświetl listę adresów zespołu",
-      "otwórz spis adresów kadry",
-      "znajdź adres domowy pracownika",
-      "pokaż mi adresy z działu kadr",
-      "przejdź do danych adresowych pracowników",
-      "sprawdź adres zamieszkania kolegi",
-      "wyświetl bazę adresów personelu",
-      "gdzie są adresy naszych pracowników",
-      "otwórz zakładkę z adresami zespołu",
-      "pokaż szczegóły adresowe zespołu",
-      "znajdź adres w bazie pracowników"
+      "adresy",
+      "wszystkie adresy",
+      "lista adresów",
+      "książka adresowa",
+      "dane adresowe",
+      "adres"
     ],
     "status": "generated"
   },
   "assistant-speech": {
     "synonyms": [
-      "ustawienia głosowe ai",
-      "opcje asystenta głosowego",
-      "preferencje mowy ai",
-      "ustawienia asystenta głosu",
-      "konfiguracja mowy ai",
-      "ustawienia narratora ai",
-      "sterowanie asystentem głosowym",
-      "preferencje głosu ai",
-      "ustawienia asystenta ai",
-      "opcje głosowe asystenta",
-      "ustawienia syntezatora mowy",
-      "asystent głosowy ustawienia",
-      "opcje asystenta ai głos",
-      "ustawienia wypowiedzi asystenta",
-      "preferencje dźwięku asystenta",
-      "konfiguracja asystenta głosowego",
-      "ustawienia głosu asystenta ai",
-      "opcje mowy asystenta",
-      "ustawienia asystenta mówiącego",
-      "preferencje asystenta głosu"
+      "mowa",
+      "głos",
+      "mowa asystenta",
+      "ustawienia mowy",
+      "przetwarzanie mowy"
     ],
     "status": "generated"
   },
   "branches": {
     "synonyms": [
-      "gdzie są ustawienia oddziałów",
-      "jak zarządzać lokalizacjami",
-      "konfiguracja lokalizacji",
-      "edytuj nasze oddziały",
-      "zobacz wszystkie lokalizacje firmy",
-      "ustawienia lokalizacji organizacji",
-      "aktualizuj informacje o oddziałach",
-      "skonfiguruj lokalizacje miejsc pracy",
-      "przejdź do oddziałów",
+      "filie",
+      "oddziały",
       "zarządzanie oddziałami",
-      "ustawienia oddziałów",
-      "lista oddziałów",
-      "modyfikuj oddziały",
-      "dodaj nowy oddział",
-      "usuń oddział",
-      "szczegóły oddziału",
-      "konfiguracja biur",
-      "ustawienia siedzib",
-      "zarządzanie lokalizacjami",
-      "przeglądaj oddziały"
+      "placówki",
+      "lista oddziałów"
     ],
     "status": "generated"
   },
   "calendar-rules": {
     "synonyms": [
-      "reguły kalendarza",
-      "zasady harmonogramu pracy",
-      "reguły zmian",
-      "reguły dostępności",
-      "reguły urlopów",
-      "zasady grafiku",
-      "polityka harmonogramu",
-      "ustawienia reguł kalendarza",
-      "reguły planowania zmian",
-      "zasady dotyczące grafików",
-      "reguły dyżurów",
-      "ustawienia zasad harmonogramu",
-      "reguły rotacji",
-      "zasady przydziału zmian",
-      "reguły nieobecności",
-      "ustawienia reguł zmian",
-      "zasady planowania pracy",
-      "reguły grafików pracowniczych",
-      "ustawienia polityki harmonogramu",
-      "reguły harmonogramowania"
+      "reguły świąteczne",
+      "reguły kalendarzowe",
+      "zasady świąteczne",
+      "święta"
     ],
     "status": "generated"
   },
   "calendar-selection": {
     "synonyms": [
-      "wybierz kalendarz",
-      "wybierz harmonogram",
-      "wybierz grafik",
-      "ustaw kalendarz",
-      "zmień kalendarz",
-      "zmień harmonogram",
-      "zmień grafik",
       "wybór kalendarza",
-      "wybór harmonogramu",
-      "wybór grafiku",
-      "który kalendarz",
-      "który harmonogram",
-      "który grafik",
-      "kalendarz do wyboru",
-      "wybierz plan",
-      "zmień plan",
-      "ustaw harmonogram",
-      "ustaw grafik",
-      "wybór planu",
-      "który plan"
+      "ustawienia wyboru kalendarza"
     ],
     "status": "generated"
   },
   "contracts": {
     "synonyms": [
       "umowy",
-      "moje umowy",
-      "przejdź do umów",
-      "ustawienia umów",
-      "zarządzaj umowami",
+      "umowy pracownicze",
       "umowy o pracę",
-      "kontrakty",
-      "moje kontrakty",
-      "szczegóły umowy",
-      "edytuj umowę",
-      "dodaj umowę",
       "lista umów",
-      "umowy pracowników",
-      "umowy i kontrakty",
-      "zobacz umowy",
-      "moje warunki zatrudnienia",
-      "ustawienia umów o pracę",
-      "harmonogram umów",
-      "umowy zmianowe",
-      "warunki umowy"
+      "ustawienia umów"
     ],
     "status": "generated"
   },
   "countries": {
     "synonyms": [
-      "ustawienia krajów",
-      "lista krajów i regionów",
-      "geografia w ustawieniach",
-      "kraje w systemie",
-      "wszystkie lokalizacje",
+      "kraje",
+      "państwa",
+      "lista krajów",
       "zarządzanie krajami",
-      "konfiguracja geograficzna",
-      "kraje i terytoria",
-      "ustawienia lokalizacji",
-      "moje kraje",
-      "regiony w firmie",
-      "dodaj kraj",
-      "edytuj listę krajów",
-      "przeglądaj kraje",
-      "ustawienia geograficzne",
-      "globalne ustawienia krajów",
-      "lokalizacje międzynarodowe",
-      "kraje w harmonogramie",
-      "lista państw",
-      "ustawienia krajów i regionów"
+      "ustawienia krajów",
+      "konfiguracja krajów"
     ],
     "status": "generated"
   },
   "dashboard": {
     "synonyms": [
-      "mój harmonogram",
-      "przegląd zmian",
-      "podsumowanie grafików",
-      "widok dnia pracy",
-      "tablica zmian",
-      "strona główna grafiku",
-      "przegląd dyżurów",
-      "moje zmiany podsumowanie",
-      "widok ogólny pracy",
-      "dashboard zmian",
-      "harmonogram dzisiaj",
-      "moje nadchodzące zmiany",
-      "przegląd tygodnia pracy",
-      "widok harmonogramu",
-      "streszczenie dyżurów",
-      "moje grafiki",
-      "widok wszystkich zmian",
-      "podgląd dnia pracy",
-      "tablica harmonogramu",
-      "widok dyżurów"
+      "pulpit",
+      "panel główny",
+      "widok ogólny",
+      "strona główna"
     ],
     "status": "generated"
   },
   "data-retention": {
     "synonyms": [
-      "ustawienia przechowywania danych",
-      "czas przechowywania danych",
-      "polityka retencji danych",
-      "okres przechowywania danych",
-      "usuwanie danych po czasie",
-      "konfiguracja retencji danych",
-      "zarządzanie przechowywaniem danych",
-      "ustawienia czyszczenia danych",
-      "reguły przechowywania danych",
-      "jak długo dane są przechowywane",
-      "przechowywanie danych w systemie",
-      "okres ważności danych",
-      "automatyczne usuwanie danych",
       "retencja danych",
-      "ustawienia archiwizacji danych",
-      "przechowywanie starych danych",
-      "kontrola czasu przechowywania danych",
-      "ustawienia okresu retencji",
-      "usuwanie nieaktualnych danych",
-      "zarządzanie okresem przechowywania danych"
+      "okres przechowywania",
+      "ochrona danych",
+      "rodo",
+      "okres retencji"
     ],
     "status": "generated"
   },
   "deepl": {
     "synonyms": [
-      "ustawienia tłumaczenia deepl",
-      "konfiguracja deepl w integracjach",
-      "dodaj deepl do klacsa",
-      "połącz deepl z klacksem",
-      "włącz deepl w ustawieniach",
-      "skonfiguruj deepl w harmonogramie",
-      "integracja deepl z aplikacją",
-      "ustaw deepl w integracjach",
-      "deepl w ustawieniach konta",
-      "aktywuj deepl w systemie",
-      "dodaj tłumaczenie deepl",
-      "deepl w panelu admina",
-      "ustawienia deepl w aplikacji",
-      "konfiguracja api deepl",
-      "deepl w integracjach zewnętrznych",
-      "włącz tłumaczenie deepl",
-      "skonfiguruj deepl w koncie",
-      "deepl w ustawieniach pracownika",
-      "dodaj deepl do systemu",
-      "ustaw deepl w harmonogramie"
+      "deepl",
+      "tłumaczenie",
+      "tłumaczenie deepl",
+      "ustawienia deepl",
+      "automatyczne tłumaczenia",
+      "tłumaczenia deepl"
     ],
     "status": "generated"
   },
   "email-config": {
     "synonyms": [
       "ustawienia e-mail",
-      "konfiguracja e-mail admin",
-      "zarządzanie powiadomieniami e-mail",
-      "preferencje e-mail",
-      "ustawienia powiadomień",
       "konfiguracja e-mail",
-      "opcje powiadomień admin",
-      "konfiguracja alertów e-mail",
-      "ustawienia wiadomości e-mail",
+      "smtp",
       "ustawienia poczty",
-      "konfiguracja poczty e-mail",
-      "ustawienia powiadomień e-mail",
-      "opcje e-mail admin",
-      "zarządzanie e-mailami",
-      "ustawienia e-mail dla admina",
-      "konfiguracja powiadomień e-mail",
-      "ustawienia alertów e-mail",
-      "preferencje powiadomień e-mail",
-      "ustawienia e-mail systemowe",
-      "konfiguracja e-mail dla administratora"
+      "wysyłka e-mail"
     ],
     "status": "generated"
   },
   "feature-plugins": {
     "synonyms": [
-      "ustawienia dodatków",
-      "wtyczki w systemie",
-      "zarządzanie funkcjami",
-      "konfiguracja rozszerzeń",
-      "ustawienia narzędzi administracyjnych",
-      "funkcje dodatkowe",
-      "administracja wtyczkami",
-      "zarządzanie dodatkami",
-      "konfiguracja funkcji",
-      "ustawienia modułów",
-      "dodatki i narzędzia",
-      "ustawienia rozszerzeń",
-      "funkcjonalności systemu",
-      "administracja dodatkami",
-      "konfiguracja wtyczek",
-      "ustawienia funkcji",
-      "dodatki administracyjne",
-      "moduły systemowe",
-      "włącz dodatki",
-      "ustawienia zaawansowane"
+      "wtyczki funkcjonalne",
+      "marketplace wtyczek",
+      "marketplace wtyczek funkcjonalnych",
+      "dodatki"
     ],
     "status": "generated"
   },
@@ -401,1711 +186,1160 @@
   },
   "grid-color": {
     "synonyms": [
-      "zmień kolor siatki",
-      "ustaw kolor siatki",
-      "dostosuj kolor siatki",
-      "kolor siatki ustawienia",
-      "opcje koloru siatki",
-      "preferencje koloru siatki",
-      "konfiguracja koloru siatki",
+      "kolory tabeli",
+      "zarządzanie kolorami tabeli",
       "kolor siatki",
-      "zmiana koloru siatki",
-      "ustawienia kolorów siatki",
-      "wybierz kolor siatki",
-      "edytuj kolor siatki",
-      "kolor siatki w ustawieniach",
-      "ustawienia wyglądu siatki",
-      "kolor tła siatki",
-      "zmień barwę siatki",
-      "dopasuj kolor siatki",
-      "personalizuj kolor siatki",
-      "ustawienia interfejsu kolor siatki",
-      "kolor siatki w pracy"
+      "kolory siatki",
+      "kolorystyka"
     ],
     "status": "generated"
   },
   "group-scope": {
     "synonyms": [
-      "ustawienia grupy",
-      "zakres grupy",
-      "ustawienia zespołu",
-      "zakres zespołu",
-      "kto jest w moim zespole",
-      "widoczność zespołu",
-      "ustawienia działu",
-      "zakres działu",
-      "ustawienia członków zespołu",
-      "zakres mojej grupy",
-      "ustawienia organizacji",
-      "ustawienia zespołu w organizacji",
-      "jaki jest zakres grupy",
-      "ustawienia grupy roboczej",
-      "zakres grupy roboczej",
-      "ustawienia widoczności zespołu",
-      "konfiguracja grupy",
-      "ustawienia zakresu",
-      "ustawienia dla grupy",
-      "zakres organizacji"
+      "widoczność grup",
+      "widoczność grup dla użytkownika",
+      "zakres grup",
+      "zakres widoczności grup"
     ],
     "status": "generated"
   },
   "groups": {
     "synonyms": [
-      "grupy robocze",
-      "zespoły pracowników",
-      "działy",
-      "sekcje",
-      "jednostki organizacyjne",
-      "oddziały",
-      "ekipy zmianowe",
-      "załogi",
-      "listy personelu",
-      "struktury grup",
-      "grupy pracownicze",
-      "pododdziały",
-      "sekcje robocze",
-      "zespoły zadaniowe",
-      "grupy zmianowe",
-      "jednostki personalne",
-      "kadry grupowe",
-      "struktury zespołów",
-      "grupy kontraktowe",
-      "zespoły działowe"
+      "grupy",
+      "wszystkie grupy",
+      "grupa",
+      "struktura grup"
     ],
     "status": "generated"
   },
   "identity-providers": {
     "synonyms": [
+      "dostawca tożsamości",
       "dostawcy tożsamości",
-      "dostawcy logowania",
-      "konfiguracja sso",
-      "ustawienia uwierzytelniania",
-      "dostawcy uwierzytelniania",
-      "logowanie przez zewnętrznych dostawców",
-      "ustawienia identity provider",
-      "dostawcy logowania zewnętrznego",
-      "ustawienia sso",
-      "dostawcy tożsamości zewnętrznej",
-      "konfiguracja providerów logowania",
-      "ustawienia dostawców tożsamości",
-      "dostawcy autoryzacji",
-      "logowanie przez identity provider",
-      "dostawcy logowania sso",
-      "ustawienia providerów tożsamości",
-      "konfiguracja uwierzytelniania zewnętrznego",
-      "dostawcy logowania jednokrotnego",
-      "ustawienia dostawców uwierzytelniania",
-      "dostawcy tożsamości sso"
+      "lista dostawców tożsamości",
+      "ustawienia dostawców tożsamości"
     ],
     "status": "generated"
   },
   "imap-setting": {
     "synonyms": [
+      "imap",
+      "serwer imap",
       "ustawienia imap",
-      "skonfiguruj imap",
-      "integracja imap",
-      "imap ustawienia",
-      "połącz imap",
-      "konfiguracja imap",
-      "imap serwer",
-      "konto imap",
-      "ustaw pocztę imap",
-      "imap email",
-      "dodaj imap",
-      "zarządzaj imap",
-      "ustawienia konta imap",
-      "imap integracja",
-      "skonfiguruj serwer imap",
-      "ustawienia poczty imap",
-      "imap połączenie",
-      "skrzynka imap",
-      "ustaw imap",
-      "konfiguracja serwera imap"
+      "serwer poczty przychodzącej",
+      "konto imap"
     ],
     "status": "generated"
   },
   "inbox": {
     "synonyms": [
-      "pokaż moje powiadomienia",
-      "sprawdź wiadomości",
-      "otwórz skrzynkę odbiorczą",
-      "przejdź do wiadomości",
-      "zobacz alerty",
-      "wyświetl komunikaty",
-      "przeglądaj aktualizacje",
-      "wejdź do skrzynki",
-      "sprawdź alerty",
-      "otwórz powiadomienia",
-      "zobacz wiadomości",
-      "idź do skrzynki odbiorczej",
-      "pokaż komunikaty",
-      "przejdź do powiadomień",
-      "wyświetl alerty",
-      "sprawdź skrzynkę",
-      "otwórz wiadomości",
-      "zobacz aktualizacje",
-      "przejdź do alertów",
-      "wyświetl powiadomienia"
+      "skrzynka odbiorcza",
+      "skrzynka",
+      "maile",
+      "skrzynka pocztowa"
     ],
     "status": "generated"
   },
   "klacksy-training": {
     "synonyms": [
-      "ustawienia tytułu",
-      "asystent ustawienia tytułu",
-      "zmiana tytułu",
-      "edycja tytułu",
-      "aktualizacja tytułu",
-      "modyfikacja tytułu",
-      "zmień nazwę tytułu",
-      "ustaw tytuł",
-      "edytuj tytuł",
-      "zaktualizuj tytuł",
-      "zmodyfikuj tytuł",
-      "przemianuj tytuł",
-      "zmień nazwę",
-      "edytuj ustawienia tytułu",
-      "ustawienia asystenta tytułu",
-      "tytuł ustawienia",
-      "asystent tytułu",
-      "zmiana nazwy tytułu",
-      "aktualizacja nazwy tytułu",
-      "modyfikacja nazwy tytułu"
+      "trening",
+      "zarządzanie treningiem",
+      "panel szkoleniowy",
+      "moduł treningowy"
     ],
     "status": "generated"
   },
   "language-plugins": {
     "synonyms": [
+      "pakiety językowe",
       "wtyczki językowe",
       "dodatki językowe",
-      "rozszerzenia językowe",
-      "narzędzia językowe",
-      "ustawienia językowe",
-      "wtyczki dla języków",
-      "moduły językowe",
-      "pakiety językowe",
-      "języki wtyczek",
-      "konfiguracja wtyczek językowych",
-      "ustawienia wtyczek językowych",
-      "dodatki do języków",
-      "rozszerzenia do języków",
-      "narzędzia dla języków",
-      "moduły do języków",
-      "pakiety do języków",
-      "wtyczki tłumaczeń",
-      "dodatki tłumaczeń",
-      "ustawienia tłumaczeń",
-      "języki i wtyczki"
+      "moduły językowe"
     ],
     "status": "generated"
   },
   "llm-models": {
     "synonyms": [
-      "ustawienia modeli ai",
-      "konfiguracja llm",
-      "zarządzanie modelami ai",
-      "opcje modeli llm",
-      "preferencje modeli ai",
-      "ustawienia llm",
-      "model ai ustawienia",
-      "model llm konfiguracja",
-      "ustawienia modeli językowych",
-      "konfiguracja modeli ai",
-      "zarządzanie llm",
-      "opcje llm",
-      "ustawienia zaawansowane ai",
-      "modele ai ustawienia",
-      "llm preferencje",
-      "ustawienia modeli",
-      "konfiguracja modeli",
-      "zarządzanie modelami",
-      "ustawienia ai",
-      "opcje modeli"
+      "modele llm",
+      "modele językowe",
+      "llm modele",
+      "ustawienia llm"
     ],
     "status": "generated"
   },
   "llm-provider": {
     "synonyms": [
-      "ustawienia dostawcy ai",
-      "konfiguracja modelu językowego",
-      "dostawca modelu ai",
-      "ustawienia integracji ai",
-      "zarządzanie dostawcą llm",
-      "opcje dostawcy ai",
-      "ustawienia modelu ai",
-      "dostawca sztucznej inteligencji",
-      "konfiguracja llm",
-      "ustawienia ai",
-      "dostawca modelu językowego",
-      "ustawienia dostawcy llm",
-      "konfiguracja dostawcy llm",
-      "wybór dostawcy ai",
-      "ustawienia integracji llm",
-      "zarządzanie modelem językowym",
-      "ustawienia dostawcy modelu",
-      "konfiguracja modelu llm",
-      "dostawca llm"
+      "dostawca llm",
+      "dostawcy llm",
+      "dostawca modeli llm"
     ],
     "status": "generated"
   },
   "macros": {
     "synonyms": [
-      "ustawienia automatyzacji",
-      "reguły automatyzacji",
-      "automatyzacje",
-      "skrypty automatyzacji",
-      "reguły harmonogramu",
-      "automatyczne reguły",
-      "gotowe automatyzacje",
-      "szablony automatyzacji",
-      "zadania automatyczne",
-      "akcje automatyczne",
-      "skróty automatyzacji",
-      "procesy zautomatyzowane",
-      "harmonogram automatyzacji",
-      "reguły pracy",
-      "automatyczne procesy",
-      "automatyzacja procesów",
-      "ustawienia reguł",
-      "szablony zadań",
-      "akcje harmonogramu",
-      "automatyczne zadania"
+      "makra",
+      "makro",
+      "lista makr",
+      "definicje makr",
+      "ustawienia makr",
+      "makra automatyzacji"
     ],
     "status": "generated"
   },
   "messaging-providers": {
     "synonyms": [
-      "dostawcy wiadomości tekstowych",
-      "usługi sms",
-      "dostawcy powiadomień sms",
-      "bramki sms",
-      "dostawcy komunikacji",
-      "dostawcy powiadomień",
-      "usługi powiadomień",
       "dostawcy wiadomości",
-      "dostawcy powiadomień tekstowych",
-      "usługi sms-owe",
-      "ustawienia integracji sms",
-      "dostawcy wiadomości sms",
-      "kanały powiadomień sms",
-      "dostawcy powiadomień push",
-      "usługi powiadomień sms",
-      "dostawcy usług sms",
-      "integracje sms",
-      "ustawienia sms"
+      "dostawcy komunikatorów"
     ],
     "status": "generated"
   },
   "openroute": {
     "synonyms": [
-      "przejdź do ustawień trasy",
-      "otwórz konfigurację trasy",
-      "pokaż opcje trasy",
-      "wejdź w zarządzanie trasą",
-      "wyświetl ustawienia trasy",
-      "przejdź do integracji trasy",
-      "otwórz ustawienia trasy",
-      "nawiguj do konfiguracji trasy",
-      "pokaż trasę w ustawieniach",
-      "otwórz trasę w integracjach",
-      "przejdź do opcji trasy",
-      "ustawienia trasy",
-      "konfiguracja trasy",
-      "zarządzanie trasą",
-      "integracje trasy",
-      "otwórz trasę",
-      "pokaż trasę",
-      "wyświetl trasę",
-      "przejdź do trasy",
-      "nawiguj do trasy"
+      "openroute",
+      "openrouteservice",
+      "integracja openroute",
+      "ustawienia openroute",
+      "openroute api",
+      "konfiguracja openroute"
     ],
     "status": "generated"
   },
   "owner-address": {
     "synonyms": [
-      "ustaw adres siedziby",
-      "zmień adres firmy",
-      "edytuj dane adresowe właściciela",
-      "adres kontaktowy właściciela",
-      "ustawienia lokalizacji firmy",
-      "aktualizuj adres pocztowy",
-      "podaj adres biura",
-      "mój adres w ustawieniach",
-      "szczegóły adresu właściciela",
-      "zmień lokalizację firmy",
-      "edytuj adres prowadzenia działalności",
-      "ustaw adres korespondencyjny",
-      "miejsce prowadzenia działalności",
-      "aktualizuj dane adresowe",
-      "ustawienia adresu firmy",
-      "adres właściciela",
-      "edytuj informacje o właścicielu",
-      "modyfikuj adres siedziby",
-      "dane adresowe firmy",
-      "zmień dane kontaktowe firmy"
+      "adres sekretariatu",
+      "dane adresowe sekretariatu",
+      "siedziba sekretariatu",
+      "adres korespondencyjny sekretariatu",
+      "sekretariat"
     ],
     "status": "generated"
   },
   "owner-messengers": {
     "synonyms": [
-      "ustawienia wiadomości dla właściciela",
-      "konfiguracja komunikacji z właścicielem",
-      "zarządzanie wiadomościami właściciela",
-      "preferencje wiadomości właściciela",
-      "ustawienia powiadomień dla właściciela",
-      "ustawienia integracji komunikacji właściciela",
-      "metody kontaktu właściciela",
-      "ustawienia wiadomości właściciela w integracjach",
-      "konfiguracja powiadomień właściciela",
-      "ustawienia komunikacji z właścicielem",
-      "opcje wiadomości właściciela",
-      "ustawienia powiadomień integracji właściciela",
-      "zarządzanie kontaktem z właścicielem",
-      "ustawienia kanałów powiadomień właściciela",
-      "konfiguracja wiadomości właściciela",
-      "ustawienia powiadomień w integracjach dla właściciela",
-      "ustawienia komunikacji właściciela w integracjach",
-      "zarządzanie wiadomościami integracji właściciela",
-      "ustawienia kontaktu właściciela",
-      "konfiguracja kanałów kontaktu właściciela"
+      "komunikatory sekretariatu",
+      "komunikatory właściciela",
+      "komunikatory firmowe",
+      "integracje komunikatorów sekretariatu"
     ],
     "status": "generated"
   },
   "period-closing": {
     "synonyms": [
-      "zamknij okres",
-      "zamknij okres rozliczeniowy",
-      "zakończ okres planowania",
-      "dokończ zamknięcie okresu",
-      "zablokuj okres harmonogramu",
-      "zamknij okres grafików",
-      "dokończ okres",
-      "zakończ cykl planowania",
-      "zamknij okres pracy",
-      "finalizuj okres",
-      "zakończ okres rozliczeniowy",
-      "podsumuj okres",
-      "zamknij okres planowania",
-      "dokończ rozliczenie okresu",
-      "zakończ okres w grafiku",
-      "zamknij miesiąc",
-      "zakończ okres w systemie",
-      "zamknij okres bez zmian",
-      "zakończ zamknięcie okresu",
-      "dokończ okres planistyczny"
+      "zamknięcie",
+      "zamykanie",
+      "zamykanie okresu",
+      "zamknięty okres",
+      "okres zamknięcia"
     ],
     "status": "generated"
   },
   "report-defaults": {
     "synonyms": [
-      "domyślne ustawienia raportów",
-      "ustawienia domyślne raportów",
-      "domyślne opcje raportów",
-      "konfiguracja domyślna raportów",
-      "domyślne parametry raportów",
-      "preferencje domyślne raportów",
-      "domyślne szablony raportów",
-      "raport domyślne ustawienia",
-      "raport ustawienia domyślne",
-      "raport konfiguracja domyślna",
-      "raport opcje domyślne",
-      "raport preferencje domyślne",
-      "raport szablony domyślne",
-      "ustawienia raportu domyślne",
-      "konfiguracja raportu domyślna",
-      "opcje raportu domyślne",
-      "parametry raportu domyślne",
-      "preferencje raportu domyślne",
-      "szablony raportu domyślne",
-      "domyślne ustawienia raportu"
+      "domyślne szablony",
+      "domyślny szablon",
+      "szybki druk",
+      "domyślne szablony raportów"
     ],
     "status": "generated"
   },
   "reports": {
     "synonyms": [
       "raporty",
-      "statystyki",
-      "analityka",
-      "dane o wydajności",
-      "metryki efektywności",
       "raportowanie",
-      "analiza danych",
-      "raporty dotyczące zmian",
-      "podsumowania",
-      "przegląd raportów",
-      "raporty z harmonogramu",
-      "analiza pracy",
-      "raporty kadrowe",
-      "analiza obecności",
-      "raporty dla kierownika",
-      "statystyki zespołu",
-      "wydajność pracowników",
-      "raporty operacyjne",
-      "dane analityczne",
-      "raporty z nieobecności"
+      "sprawozdania",
+      "szablony raportów",
+      "szablon raportu"
     ],
     "status": "generated"
   },
   "scheduling-defaults": {
     "synonyms": [
-      "domyślne ustawienia harmonogramu",
-      "domyślne opcje planowania zmian",
-      "predefiniowane ustawienia grafiku",
-      "standardowe konfiguracje harmonogramu",
-      "ustawienia domyślne planowania",
-      "szablony harmonogramów",
-      "domyślne parametry planowania zmian",
-      "domyślne konfiguracje grafiku",
-      "predefiniowane opcje planowania",
-      "standardowe ustawienia planowania zmian",
-      "domyślne harmonogramy",
-      "ustawienia domyślne dla harmonogramów",
-      "domyślne ustawienia planowania zmian",
-      "predefiniowane harmonogramy zmian",
-      "standardowe opcje harmonogramu",
-      "domyślne konfiguracje planowania",
-      "szablony planowania zmian",
-      "ustawienia standardowe harmonogramu",
-      "domyślne opcje grafiku",
-      "predefiniowane ustawienia harmonogramu"
+      "domyślne zasady planowania",
+      "wartości domyślne planowania"
     ],
     "status": "generated"
   },
   "scheduling-rules": {
     "synonyms": [
-      "zasady harmonogramowania",
-      "reguły ustalania grafików",
-      "polityka planowania zmian",
-      "zasady przydzielania zmian",
-      "regulacje dotyczące obsady",
-      "ustawienia reguł grafików",
-      "zasady planowania pracy",
-      "reguły harmonogramu",
-      "polityka zmianowa",
-      "ustawienia reguł zmian",
-      "zasady tworzenia grafików",
-      "reguły planowania pracowników",
-      "zasady alokacji pracowników",
-      "parametry planowania zmian",
-      "reguły przydziału pracowników",
-      "zasady grafikowania",
-      "polityka harmonogramowania",
-      "reguły obsady zmian",
-      "ustawienia reguł harmonogramu",
-      "zasady planowania etatów"
+      "reguły planowania",
+      "reguły grafiku",
+      "normy planowania"
     ],
     "status": "generated"
   },
   "settings-general": {
     "synonyms": [
+      "ogólne",
       "ustawienia ogólne",
-      "ustawienia podstawowe",
-      "główne ustawienia",
-      "ustawienia ogólne aplikacji",
-      "podstawowe ustawienia konta",
-      "ustawienia główne",
-      "ustawienia bazowe",
-      "ustawienia ogólne systemu",
-      "ustawienia podstawowe profilu",
-      "ustawienia ogólne dla wszystkich",
-      "ustawienia podstawowe aplikacji",
-      "ustawienia ogólne konta",
-      "ustawienia podstawowe systemu",
-      "ustawienia ogólne profilu",
-      "główne ustawienia aplikacji",
-      "ustawienia ogólne dla firmy",
-      "podstawowe ustawienia dla wszystkich",
-      "ustawienia główne systemu",
-      "ustawienia ogólne dla zespołu",
-      "ustawienia podstawowe dla konta"
+      "opcje ogólne",
+      "konfiguracja ogólna",
+      "parametry ogólne"
     ],
     "status": "generated"
   },
   "shifts": {
     "synonyms": [
-      "mój grafik",
-      "harmonogram pracy",
-      "nadchodzące zmiany",
-      "moje godziny pracy",
-      "kalendarz zmian",
-      "grafik zmian",
-      "lista moich zmian",
-      "widok grafiku",
-      "plan pracy",
-      "moje zmiany",
-      "grafik pracownika",
-      "plan zmian",
-      "rozkład jazdy",
-      "terminarz zmian",
-      "moje dyżury",
-      "grafiki",
-      "harmonogram zmian",
-      "przegląd zmian",
-      "bieżący grafik",
-      "plan tygodnia"
+      "dyżury",
+      "wszystkie dyżury",
+      "lista dyżurów",
+      "harmonogram dyżurów",
+      "plan dyżurów"
     ],
     "status": "generated"
   },
   "spam-rules": {
     "synonyms": [
-      "ustaw reguły antyspamowe",
-      "skonfiguruj filtry spamu",
-      "edytuj reguły blokowania spamu",
-      "zarządzaj regułami antyspamowymi",
-      "dodaj regułę antyspamową",
-      "zmień ustawienia wykrywania spamu",
-      "usuń regułę antyspamową",
-      "przejdź do reguł antyspamowych",
-      "ustawienia filtrów antyspamowych",
-      "reguły ochrony przed spamem",
-      "dostosuj reguły blokowania spamu",
-      "zaktualizuj listę antyspamową",
-      "konfiguracja zabezpieczeń antyspamowych",
-      "dodaj wyjątek antyspamowy",
-      "edytuj czarną listę",
-      "zarządzaj wyjątkami antyspamowymi",
-      "ustal reguły odrzucania spamu",
-      "modyfikuj reguły antyspamowe",
-      "otwórz ustawienia antyspamu",
-      "ustaw priorytety reguł antyspamowych"
+      "reguły spamu",
+      "filtry spamu",
+      "zasady spamu",
+      "spam",
+      "antyspam",
+      "reguły antyspamowe"
     ],
     "status": "generated"
   },
   "states": {
     "synonyms": [
-      "gdzie są moi pracownicy",
-      "pokaż wszystkie lokalizacje",
-      "wyświetl rozkład pracowników według regionu",
-      "lista dostępnych stanów",
-      "ustawienia geograficzne",
-      "gdzie znajduje się mój zespół",
-      "przeglądaj lokalizacje według stanu",
-      "sprawdź regionalne dane kadrowe",
-      "mapa lokalizacji pracowników",
-      "podział pracowników na stany",
-      "zobacz wszystkie stany",
-      "ustawienia lokalizacji",
-      "gdzie pracują moi ludzie",
-      "lista regionów",
-      "przeglądaj stany",
-      "wyświetl ustawienia geograficzne",
-      "pokaż strukturę regionalną",
-      "lokalizacje według stanu",
-      "dane geograficzne",
-      "zarządzanie lokalizacjami"
+      "województwa",
+      "prowincje",
+      "stany",
+      "lista województw",
+      "ustawienia województw",
+      "stany i prowincje"
     ],
     "status": "generated"
   },
   "user-management": {
     "synonyms": [
-      "zarządzaj użytkownikami",
-      "ustawienia użytkowników",
-      "administruj użytkownikami",
+      "zarządzanie użytkownikami",
+      "użytkownicy",
+      "użytkownicy i dostęp",
       "konta użytkowników",
-      "zarządzanie personelem",
-      "profile pracowników",
-      "członkowie zespołu",
-      "uprawnienia użytkowników",
-      "lista użytkowników",
-      "edycja użytkowników",
-      "dodaj użytkownika",
-      "usuń użytkownika",
-      "zarządzanie kontami",
-      "ustawienia kont",
-      "zarządzanie pracownikami",
-      "dane użytkowników",
-      "uprawnienia pracowników",
-      "konta pracowników",
-      "administracja użytkownikami",
-      "zarządzanie zespołem"
+      "lista użytkowników"
     ],
     "status": "generated"
   },
   "work-setting": {
     "synonyms": [
-      "ustawienia pracy",
-      "konfiguracja harmonogramu",
-      "ustawienia zmian",
-      "preferencje grafikowe",
-      "ustawienia godzin pracy",
-      "zarządzanie harmonogramem",
-      "opcje organizacji pracy",
-      "ustawienia planowania zmian",
-      "ustawienia grafiku",
-      "konfiguracja czasu pracy",
-      "ustawienia dyżurów",
-      "preferencje dotyczące zmian",
-      "ustawienia tygodnia pracy",
-      "harmonogram pracy ustawienia",
-      "opcje zmian roboczych",
-      "ustawienia elastycznego czasu",
-      "planowanie zmian ustawienia",
-      "ustawienia kalendarza pracy",
-      "konfiguracja dostępności",
-      "ustawienia rotacji zmian"
+      "podstawowe ustawienia planowania",
+      "ustawienia grafiku"
     ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
       "formularz nieobecności",
-      "szczegóły nieobecności",
-      "edytuj nieobecność",
-      "szczegóły absencji",
-      "formularz absencji",
-      "edytuj absencję",
-      "dane nieobecności",
-      "szczegółowy widok nieobecności",
-      "modyfikuj nieobecność",
-      "wyświetl nieobecność",
-      "podgląd nieobecności",
-      "formularz edycji nieobecności",
       "edycja nieobecności",
-      "wypełnij nieobecność",
-      "szczegóły urlopu",
-      "edytuj urlop",
-      "formularz urlopu",
-      "dane absencji",
-      "widok szczegółów nieobecności",
-      "pokaż nieobecność"
+      "szczegóły nieobecności"
     ],
     "status": "generated"
   },
   "absences": {
     "synonyms": [
-      "nieobecności",
       "urlopy",
+      "planowane nieobecności",
       "kalendarz nieobecności",
-      "przegląd nieobecności",
-      "wolne",
-      "dni wolne",
-      "absencja",
-      "lista nieobecności",
-      "planowanie urlopów",
-      "zarządzanie nieobecnościami",
-      "moje urlopy",
-      "wnioski urlopowe",
-      "kalendarz urlopów",
-      "przegląd urlopów",
-      "nieobecności pracowników",
-      "harmonogram urlopów",
-      "urlop",
-      "nieobecność",
-      "dni urlopowe",
-      "zestawienie nieobecności"
+      "lista nieobecności"
     ],
     "status": "generated"
   },
   "assistant-personality": {
     "synonyms": [
-      "ustawienia osobowości asystenta",
-      "personalizuj zachowanie asystenta",
-      "zmień charakter asystenta",
-      "dostosuj osobowość klacks",
-      "ustawienia persony asystenta",
-      "konfiguruj osobowość asystenta",
-      "osobowość asystenta ustawienia",
-      "zmień nastrój asystenta",
-      "ustaw charakter asystenta",
-      "personalizacja asystenta",
-      "ustawienia ai asystenta",
-      "kto to jest asystent",
-      "jaka jest osobowość asystenta",
-      "ustawienia persony ai",
-      "zmień zachowanie asystenta",
-      "osobowość asystenta ai",
-      "ustawienia charakteru asystenta",
-      "dostosuj asystenta",
-      "ustawienia ducha asystenta",
-      "persona asystenta"
+      "osobowość",
+      "charakter",
+      "osobowość asystenta",
+      "charakter asystenta",
+      "usposobienie asystenta",
+      "sposób bycia asystenta"
     ],
     "status": "generated"
   },
   "branch-form": {
     "synonyms": [
-      "edytuj oddział",
-      "szczegóły oddziału",
-      "formularz oddziału",
-      "dane oddziału",
-      "otwórz oddział",
-      "zobacz oddział",
-      "modyfikuj oddział",
-      "oddział edycja",
-      "szczegóły placówki",
-      "formularz placówki",
-      "edycja oddziału",
-      "ustawienia oddziału",
-      "przejdź do oddziału",
-      "oddział szczegóły",
-      "otwórz formularz oddziału",
-      "edytuj dane oddziału",
-      "zobacz szczegóły oddziału",
-      "modyfikuj dane oddziału",
-      "oddział ustawienia",
-      "przejdź do formularza oddziału"
+      "filia",
+      "oddział",
+      "formularz filii",
+      "dane filii",
+      "placówka"
     ],
     "status": "generated"
   },
   "calendar-rule-form": {
     "synonyms": [
-      "formularz reguły kalendarza",
-      "edytuj regułę kalendarza",
-      "szczegóły reguły kalendarza",
-      "ustawienia reguły kalendarza",
-      "reguła kalendarza edycja",
-      "formularz edycji reguły kalendarza",
-      "dane reguły kalendarza",
-      "modyfikuj regułę kalendarza",
-      "widok reguły kalendarza",
-      "reguła kalendarza formularz",
-      "edycja reguły kalendarza",
-      "strona reguły kalendarza",
-      "otwórz regułę kalendarza",
-      "zobacz regułę kalendarza",
-      "konfiguruj regułę kalendarza",
-      "dodaj regułę kalendarza",
-      "reguła kalendarza ustawienia",
-      "reguły kalendarza formularz",
-      "przejdź do reguły kalendarza",
-      "reguła kalendarza edytuj"
+      "reguła kalendarza",
+      "definiowanie reguły",
+      "formularz reguły",
+      "edycja reguły"
     ],
     "status": "generated"
   },
   "client-availability": {
     "synonyms": [
+      "dostępność",
+      "dyspozycyjność",
       "dostępność klienta",
-      "dostępności klientów",
-      "dostępność pracownika",
-      "dostępność personelu",
-      "dostępność kadry",
-      "przegląd dostępności",
-      "plan dostępności",
-      "dostępność pracowników",
-      "lista dostępności",
-      "widok dostępności",
-      "kalendarz dostępności",
-      "ustawienia dostępności",
-      "moja dostępność",
-      "dostępność zespołu",
-      "grafik dostępności",
-      "zarządzanie dostępnością",
-      "sprawdź dostępność",
-      "edycja dostępności",
-      "dostępność dla klienta",
-      "dostępność w pracy"
+      "dyspozycyjność klienta",
+      "godziny dostępności klienta",
+      "okna czasowe klienta"
     ],
     "status": "generated"
   },
   "client-detail": {
     "synonyms": [
-      "szczegóły pracownika",
-      "profil pracownika",
-      "edytuj pracownika",
       "dane osobowe",
-      "profil klienta",
-      "dane adresowe",
-      "edytuj adres",
-      "karta pracownika",
-      "dane kontaktowe",
-      "szczegóły klienta",
-      "edytuj dane",
-      "podgląd pracownika",
-      "informacje o pracowniku",
-      "adres do korespondencji",
-      "dane do umowy",
-      "profil osobisty",
-      "edycja danych osobowych",
-      "szczegóły adresu",
-      "dane adresowe klienta",
-      "edytuj profil"
+      "adres i dane osobowe",
+      "adres klienta",
+      "dane klienta"
     ],
     "status": "generated"
   },
   "client-detail.birthday": {
     "synonyms": [
-      "urodziny pracownika",
-      "data urodzenia pracownika",
       "data urodzenia",
-      "dzień urodzin",
-      "rok urodzenia pracownika",
-      "wiek pracownika",
-      "informacje o dacie urodzenia",
-      "szczegóły urodzin pracownika",
-      "kalendarz urodzin",
-      "ustawienia daty urodzenia",
-      "zmień datę urodzenia",
-      "edytuj datę urodzenia",
-      "pokaż dzień urodzin",
-      "urodziny klienta",
-      "data urodzenia klienta",
-      "dzień urodzin klienta",
-      "rok urodzenia klienta",
-      "wiek klienta",
-      "szczegóły urodzin klienta",
-      "ustawienia urodzin"
+      "urodziny",
+      "dzień urodzenia",
+      "data narodzin",
+      "pełna data urodzenia"
     ],
     "status": "generated"
   },
   "client-detail.firstname": {
     "synonyms": [
-      "imię pracownika",
-      "podaj imię",
-      "pokaż imię",
-      "imię w profilu",
-      "wpisz imię",
-      "imię z edycji adresu",
-      "imię w danych osobowych",
-      "jakie ma imię",
-      "imię na liście",
-      "imię w szczegółach",
-      "ustaw imię",
-      "imię do kontaktu",
-      "imię na grafiku",
+      "imię klienta",
       "pierwsze imię",
-      "imię w systemie",
-      "imię w informacjach",
-      "imię w karcie",
-      "imię na ekranie",
-      "imię w edycji",
-      "imię w widoku"
+      "imię osoby"
     ],
     "status": "generated"
   },
   "client-detail.gender": {
     "synonyms": [
-      "płeć klienta",
-      "seks pracownika",
-      "płeć pracownika",
-      "ustaw płeć",
-      "zmień płeć",
-      "płeć w profilu",
-      "dane płci",
-      "płeć osoby",
-      "określ płeć",
-      "płeć adresata",
-      "płeć przypisana",
-      "płeć użytkownika",
-      "informacja o płci",
-      "wybierz płeć",
-      "płeć w edycji",
-      "edytuj płeć",
-      "płeć kontaktowa",
-      "płeć danej osoby",
-      "płeć w danych",
-      "płeć w systemie"
+      "płeć",
+      "zwrot grzecznościowy",
+      "forma grzecznościowa",
+      "płeć klienta"
     ],
     "status": "generated"
   },
   "client-detail.lastname": {
     "synonyms": [
+      "nazwisko",
       "nazwisko klienta",
-      "nazwisko osoby",
-      "nazwisko pracownika",
-      "nazwisko rodziny",
-      "nazwisko własne",
-      "nazwisko do faktury",
-      "nazwisko klienta do faktury",
-      "nazwisko w profilu",
-      "nazwisko na liście klientów",
-      "nazwisko w danych osobowych",
-      "nazwisko w karcie klienta",
-      "nazwisko osoby kontaktowej",
-      "nazwisko w szczegółach klienta",
-      "nazwisko z adresu",
-      "nazwisko w adresie",
-      "nazwisko w danych kontaktowych",
-      "nazwisko do umowy",
-      "nazwisko w systemie",
-      "nazwisko w bazie",
-      "nazwisko na fakturze"
+      "dane nazwiska"
     ],
     "status": "generated"
   },
   "client-list": {
     "synonyms": [
-      "lista klientów",
-      "klienci",
-      "lista pracowników",
       "pracownicy",
+      "lista pracowników",
       "personel",
       "zespół",
-      "lista zespołu",
       "kadra",
-      "pracownicy firmy",
-      "lista personelu",
-      "lista kadry",
-      "wszyscy pracownicy",
-      "lista wszystkich pracowników",
-      "pracownicy na liście",
-      "lista osób",
-      "osoby",
-      "lista kontrahentów",
-      "klienci firmy",
-      "lista klientów firmy",
-      "lista pracowników firmy"
+      "lista personelu"
     ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "przejdź do szablonu kontenera",
-      "otwórz szablon kontenera",
-      "pokaż szablon kontenera",
       "szablon kontenera",
-      "szablon kontenera zmiany",
       "kontener szablonu",
-      "szablon kontenera dla zmiany",
-      "wyświetl szablon kontenera",
-      "idź do szablonu kontenera",
-      "szablon kontenera w miejscu pracy",
-      "otwórz kontener szablonu",
-      "przejdź do kontenera szablonu",
-      "gdzie jest szablon kontenera",
-      "znajdź szablon kontenera",
-      "ustawienia szablonu kontenera",
-      "edytuj szablon kontenera",
-      "szablon kontenera dla pracowników",
-      "szablon kontenera harmonogramu",
-      "pokaż kontener szablonu w harmonogramie"
+      "szablon kontenera zmian",
+      "wzorzec kontenera zmian"
     ],
     "status": "generated"
   },
   "contract-form": {
     "synonyms": [
-      "formularz umowy",
-      "edytuj umowę",
-      "szczegóły umowy",
-      "otwórz formularz umowy",
-      "umowa o pracę",
-      "formularz zatrudnienia",
-      "dane umowy",
+      "kontrakt",
       "edycja umowy",
-      "nowa umowa",
-      "formularz kontraktu",
-      "przejdź do umowy",
-      "ustawienia umowy",
-      "zmień umowę",
-      "widok umowy",
-      "umowa pracownika",
-      "formularz szczegółów umowy",
-      "edytuj kontrakt",
-      "otwórz umowę",
-      "dodaj umowę",
-      "umowa - edycja"
+      "formularz umowy",
+      "szczegóły umowy",
+      "dane umowy"
     ],
     "status": "generated"
   },
   "contract-form.name": {
     "synonyms": [
-      "przejdź do nazwy umowy",
-      "otwórz formularz nazwy umowy",
-      "pokaż pole nazwa umowy",
-      "ustawienia nazwy umowy",
-      "edytuj nazwę umowy",
-      "formularz nazwy umowy",
-      "nazwa umowy w ustawieniach",
-      "zmień nazwę umowy",
-      "wpisz nazwę umowy",
-      "ustaw nazwę umowy",
-      "nazwa umowy w kontrakcie",
-      "przejdź do pola nazwa umowy",
-      "otwórz zakładkę nazwa umowy",
-      "znajdź nazwę umowy",
-      "nazwa umowy w ustawieniach kontraktu",
-      "wypełnij nazwę umowy",
-      "zaktualizuj nazwę umowy",
-      "ustawienia kontraktu nazwa",
-      "nazwa kontraktu",
-      "pokaż nazwę w umowie"
+      "nazwa formularza umowy",
+      "nazwa szablonu umowy",
+      "nazwa wzoru umowy"
     ],
     "status": "generated"
   },
   "cut-shift": {
     "synonyms": [
-      "przejdź do dzielenia zmiany",
-      "otwórz podział zmiany",
-      "idź do cięcia zmiany",
-      "nawiguj do podziału zmiany",
-      "wejdź w dzielenie zmiany",
-      "przejdź do cięcia zmiany",
-      "otwórz dzielenie zmiany",
-      "idź do podzielenia zmiany",
-      "przejdź do rozdzielania zmiany",
-      "wejdź w cięcie zmiany",
-      "otwórz rozdzielanie zmiany",
-      "nawiguj do dzielenia zmiany",
-      "idź do rozdzielenia zmiany",
-      "przejdź do podziału zmiany",
-      "wejdź w podzielenie zmiany",
-      "otwórz cięcie zmiany",
-      "idź do dzielenia zmiany",
-      "nawiguj do cięcia zmiany",
-      "wejdź w rozdzielanie zmiany"
+      "cięcie zmiany",
+      "podział zmiany",
+      "dzielenie zmiany",
+      "rozcięcie zmiany"
     ],
     "status": "generated"
   },
   "edit-employee": {
     "synonyms": [
-      "edytuj adres",
-      "edytuj dane pracownika",
-      "dodaj nowego pracownika",
-      "utwórz pracownika",
-      "nowy pracownik",
-      "dodaj adres",
-      "edytuj kontakty",
-      "zmień adres",
-      "szczegóły pracownika",
-      "edytuj informacje o pracowniku",
-      "dodaj kontakt",
-      "nowy adres",
-      "edytuj dane osobowe",
-      "aktualizuj adres",
-      "edytuj pracownika",
-      "nowy kontakt",
-      "dane adresowe",
-      "zmień dane kontaktowe",
-      "edytuj miejsce",
-      "adres pracownika"
+      "edycja pracownika",
+      "dane pracownika",
+      "adres pracownika",
+      "karta pracownika",
+      "pracownik"
     ],
     "status": "generated"
   },
   "edit-group": {
     "synonyms": [
-      "edytuj grupę",
-      "zmodyfikuj grupę",
-      "szczegóły grupy",
       "edytor grupy",
-      "otwórz grupę",
-      "przejdź do edycji grupy",
-      "zmień grupę",
-      "grupa edycja",
-      "pokaż grupę do edycji",
-      "edytuj dane grupy",
       "modyfikacja grupy",
-      "ustawienia grupy",
-      "edytuj nazwę grupy",
-      "otwórz do edycji grupę",
-      "przejdź do grupy",
-      "edytuj grupę roboczą",
-      "grupa do edycji",
-      "edytuj szczegóły grupy",
-      "zmień ustawienia grupy",
-      "pokaż edytor grupy"
+      "grupa do edycji"
     ],
     "status": "generated"
   },
   "edit-shift": {
     "synonyms": [
-      "edytuj zmianę",
-      "zmodyfikuj zmianę",
-      "szczegóły zmiany",
+      "edycja zmiany",
       "edytor zmiany",
-      "otwórz zmianę",
-      "przejdź do edycji zmiany",
-      "zmień zmianę",
-      "edytuj szablon zmiany",
-      "przejdź do zmiany",
-      "edytuj tę zmianę",
-      "pokaż zmianę do edycji",
-      "otwórz edycję zmiany",
-      "zmień dane zmiany",
-      "edytuj harmonogram zmiany",
-      "przejdź do edytora zmiany",
-      "edytuj konkretną zmianę",
-      "otwórz do edycji",
-      "edytuj szczegóły zmiany",
-      "zmodyfikuj wybraną zmianę",
-      "wejdź w edycję zmiany"
+      "modyfikacja zmiany"
     ],
     "status": "generated"
   },
   "employee-membership.type": {
     "synonyms": [
-      "typ członkostwa pracownika",
-      "rodzaj członkostwa użytkownika",
-      "zmień typ członkostwa",
-      "edytuj typ członkostwa",
-      "ustaw typ przynależności",
-      "typ członkostwa w systemie",
-      "typ przynależności pracownika",
-      "status członkostwa",
-      "kategoria członkostwa",
-      "wybierz typ członkostwa",
-      "typ członka",
-      "rodzaj członka",
-      "formularz typu członkostwa",
-      "aktualizuj typ członkostwa",
-      "zmień rodzaj przynależności",
-      "ustaw typ członka",
-      "typ członkostwa dla pracownika",
-      "rodzaj członkostwa w firmie",
-      "typ przynależności",
-      "określ typ członkostwa"
+      "rodzaj członkostwa",
+      "typ pracownika",
+      "klasyfikacja pracownika",
+      "status członkostwa"
     ],
     "status": "generated"
   },
   "group-detail": {
     "synonyms": [
-      "szczegóły grupy",
-      "dane grupy",
-      "pokaż grupę",
-      "zobacz grupę",
-      "grupa szczegóły",
-      "edycja grupy",
-      "informacje o grupie",
-      "podgląd grupy",
-      "grupa dane",
-      "wyświetl grupę",
-      "grupa profil",
-      "szczegóły grupy pracowniczej",
-      "grupa pracowników szczegóły",
-      "grupa informacje",
-      "przejdź do grupy",
-      "otwórz grupę",
-      "grupa edycja",
-      "grupa szczegółowe",
-      "grupa widok",
-      "dane szczegółowe grupy"
+      "karta grupy"
     ],
     "status": "generated"
   },
   "group-detail.name": {
     "synonyms": [
       "nazwa grupy",
-      "zmień nazwę grupy",
-      "edytuj grupę nazwę",
-      "nazwa grupy edycja",
-      "grupa nazwa",
-      "ustaw nazwę grupy",
-      "modyfikuj nazwę grupy",
-      "grupa edytuj nazwę",
-      "nazwa dla grupy",
-      "przejdź do nazwy grupy",
-      "pokaż nazwę grupy",
-      "wpisz nazwę grupy",
-      "nazwa grupy zmiana",
-      "grupy nazwa edycja",
-      "daj nazwę grupie",
-      "edytuj nazwę grupy",
-      "nazwa grupy aktualizacja",
-      "zmień grupę nazwę",
-      "nadaj nazwę grupie",
-      "uaktualnij nazwę grupy"
+      "nazwa zespołu",
+      "nazwa grupy roboczej",
+      "nazwa jednostki organizacyjnej"
     ],
     "status": "generated"
   },
   "group-list": {
     "synonyms": [
-      "grupy",
-      "lista grup",
-      "przegląd grup",
-      "zespoły",
-      "lista zespołów",
       "działy",
-      "centra kosztowe",
-      "przejdź do grup",
-      "pokaż grupy",
-      "wyświetl grupy",
-      "grupa",
-      "przegląd zespołów",
-      "wszystkie grupy",
-      "otwórz grupę",
-      "nawiguj do grup",
-      "lista działów",
-      "grupy użytkowników",
-      "widok grup",
-      "ekran grup",
-      "grupy pracowników"
+      "przegląd grup",
+      "centra kosztów"
     ],
     "status": "generated"
   },
   "klacksy-model-check": {
     "synonyms": [
-      "sprawdź model ai",
-      "ustawienia modelu ai",
-      "model ai w ustawieniach",
-      "gdzie jest model ai",
-      "otwórz model ai",
-      "przejdź do modelu ai",
-      "ustawienia sztucznej inteligencji",
-      "model ai w panelu",
-      "jak sprawdzić model ai",
-      "model ai w ustawieniach pracy",
-      "ustawienia ai dla harmonogramu",
-      "model ai w ustawieniach systemu",
-      "przejdź do ustawień modelu ai",
-      "model ai w konfiguracji",
-      "znajdź model ai",
-      "ustawienia zaawansowane ai",
-      "model ai w miejscu pracy",
-      "sprawdź ustawienia modelu ai",
-      "otwórz ustawienia ai",
-      "model ai w sekcji ustawień"
+      "sprawdzanie modeli",
+      "testowanie modeli",
+      "najlepsze modele",
+      "weryfikacja modeli"
     ],
     "status": "generated"
   },
   "llm-sync-log": {
     "synonyms": [
-      "otwórz dziennik synchronizacji modelu",
-      "pokaż log synchronizacji ai",
-      "przejdź do logu synchronizacji",
-      "zobacz historię synchronizacji modelu",
-      "wyświetl dziennik synchronizacji",
-      "gdzie jest log synchronizacji ai",
-      "otwórz log modelu ai",
-      "przejdź do synchronizacji modelu",
-      "pokaż dziennik synchronizacji llm",
-      "znajdź log synchronizacji",
-      "otwórz rejestr synchronizacji",
-      "zobacz logi synchronizacji modelu",
-      "przejdź do dziennika ai",
-      "wyświetl log synchronizacji llm",
-      "pokaż historię synchronizacji",
-      "otwórz synchronizację modelu",
-      "gdzie znajdę log synchronizacji",
-      "przejdź do rejestru synchronizacji",
-      "zobacz dziennik synchronizacji modelu",
-      "otwórz historię synchronizacji llm"
+      "dziennik synchronizacji",
+      "dziennik llm",
+      "log synchronizacji",
+      "rejestr synchronizacji"
     ],
     "status": "generated"
   },
   "messaging": {
     "synonyms": [
-      "wiadomości",
-      "komunikacja",
       "czat",
-      "czaty",
-      "messenger",
-      "centrum wiadomości",
-      "pisz do",
-      "napisz",
-      "rozmowy",
-      "konwersacje",
-      "mejle wewnętrzne",
-      "poczta wewnętrzna",
-      "smsy",
-      "powiadomienia",
-      "dyskusje",
-      "korespondencja",
-      "komunikator",
-      "chat",
-      "wiadomości wewnętrzne",
-      "przekaż wiadomość"
+      "czat zespołowy",
+      "wiadomości prywatne",
+      "konwersacje"
     ],
     "status": "generated"
   },
   "new-employee": {
     "synonyms": [
-      "dodaj nowego pracownika",
-      "stwórz nowego pracownika",
       "nowy pracownik",
-      "dodaj pracownika",
-      "utwórz pracownika",
-      "edytuj adres pracownika",
-      "zmień adres pracownika",
-      "wprowadź dane nowego pracownika",
-      "nowy wpis pracownika",
-      "dodaj osobę do harmonogramu",
-      "rejestracja nowego pracownika",
-      "formularz nowego pracownika",
-      "dodaj kontakt pracownika",
-      "edytuj dane osobowe",
-      "nowy kontrakt pracownika",
-      "dodaj nową osobę",
-      "utwórz profil pracownika",
-      "edytuj adres",
-      "dodaj adres pracownika",
-      "nowy adres pracownika"
+      "nowa pracownica",
+      "nowy członek zespołu",
+      "dodanie pracownika",
+      "nowozatrudniony",
+      "rekrut"
     ],
     "status": "generated"
   },
   "new-group": {
     "synonyms": [
-      "przejdź do nowej grupy",
-      "utwórz nową grupę",
-      "dodaj grupę",
-      "nowy zespół",
-      "dodaj zespół",
-      "otwórz nową grupę",
-      "nawiguj do nowej grupy",
-      "stworzyć grupę",
-      "założyć nowy zespół",
-      "dodaj nową grupę",
-      "przejdź do tworzenia grupy",
       "nowa grupa",
-      "utwórz grupę",
-      "dodaj nowy zespół",
-      "edytuj grupę",
-      "załóż grupę",
-      "stwórz zespół",
-      "nawiguj do grupy",
-      "otwórz grupę",
-      "przejdź do grupy"
+      "nowy zespół",
+      "tworzenie grupy",
+      "dodawanie grupy"
     ],
     "status": "generated"
   },
   "new-shift": {
     "synonyms": [
-      "dodaj zmianę",
-      "utwórz nową zmianę",
       "nowa zmiana",
-      "tworzenie zmiany",
-      "dodaj dyżur",
       "nowy dyżur",
-      "utwórz dyżur",
-      "zarejestruj zmianę",
-      "wprowadź nową zmianę",
-      "dodaj nową zmianę",
-      "stworzyć zmianę",
-      "nowa zmiana w grafiku",
-      "dodaj wpis zmiany",
-      "zaplanuj nową zmianę",
-      "utwórz wpis zmiany",
-      "dodaj zmianę do grafiku",
-      "nowy wpis zmiany",
-      "dodaj dyżur do grafiku",
-      "utwórz nowy dyżur",
-      "stwórz nową zmianę"
+      "dodanie zmiany",
+      "utworzenie dyżuru"
     ],
     "status": "generated"
   },
   "plan-execution-panel": {
     "synonyms": [
-      "panel wykonania planu",
-      "panel realizacji planu",
-      "otwórz panel wykonania",
-      "przejdź do panelu wykonawczego",
-      "wykonanie planu",
-      "panel planu wykonania",
-      "ekran wykonania planu",
+      "zatwierdzanie planu",
       "realizacja planu",
-      "panel wykonawczy",
-      "otwórz realizację planu",
-      "widok wykonania planu",
-      "panel wykonania harmonogramu",
-      "przejdź do wykonania planu",
-      "wykonaj plan",
-      "panel akcji wykonawczych",
-      "otwórz panel realizacji",
-      "plan wykonania",
-      "wykonanie harmonogramu",
-      "panel realizacji harmonogramu",
-      "widok realizacji planu"
+      "panel realizacji planu",
+      "zatwierdzenie kolejnego kroku"
     ],
     "status": "generated"
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "zatwierdź plan wykonania",
-      "potwierdź wykonanie planu",
-      "aprobuj plan działania",
-      "akceptuj harmonogram",
-      "zatwierdź realizację",
-      "potwierdź plan",
-      "aprobuj wykonanie",
-      "zatwierdź planowanie",
-      "akceptuj wykonanie planu",
-      "potwierdź harmonogram",
-      "zatwierdź działania",
-      "aprobuj plan pracy",
-      "akceptuj realizację",
-      "potwierdź plan działania",
-      "zatwierdź harmonogram zmian",
-      "aprobuj wykonanie harmonogramu",
-      "akceptuj plan zadania",
-      "potwierdź zadania",
-      "zatwierdź plan zadań",
-      "aprobuj harmonogram wykonania"
+      "zatwierdzenie i kontynuacja",
+      "akceptacja i kontynuacja",
+      "zatwierdzenie planu"
     ],
     "status": "generated"
   },
   "profile": {
     "synonyms": [
-      "mój profil",
-      "profil użytkownika",
-      "ustawienia profilu",
-      "profil osobisty",
-      "strona profilu",
-      "profil konta",
-      "ustawienia konta",
-      "moje konto",
       "profil",
-      "dane osobowe",
-      "moje dane",
-      "profil pracownika",
-      "profil użytkownika aplikacji",
-      "edycja profilu",
-      "szczegóły profilu",
-      "twój profil",
-      "profil własny",
-      "profil aplikacji",
-      "ustawienia osobiste",
-      "konto użytkownika"
+      "konto",
+      "moje konto",
+      "dane użytkownika",
+      "strona profilu"
     ],
     "status": "generated"
   },
   "schedule": {
     "synonyms": [
-      "harmonogram",
       "grafik",
-      "grafik zmian",
-      "grafik pracy",
-      "plan zmian",
+      "harmonogram",
       "plan pracy",
-      "planowanie zmian",
-      "planowanie",
-      "plan tygodniowy",
-      "plan miesięczny",
-      "rozkład zmian",
-      "rozkład pracy",
-      "zmiany",
-      "harmonogram zmian",
-      "harmonogram pracy",
-      "grafik tygodniowy",
-      "grafik miesięczny",
-      "plan dyżurów",
-      "planowanie harmonogramu",
-      "moje zmiany"
+      "grafik zmian",
+      "terminarz",
+      "harmonogram pracy"
     ],
     "status": "generated"
   },
   "settings": {
     "synonyms": [
-      "ustawienia",
-      "opcje",
       "konfiguracja",
-      "preferencje",
-      "administracja",
-      "ustawienia systemowe",
-      "panel administracyjny",
-      "zarządzanie ustawieniami",
-      "ustawienia konta",
+      "opcje",
       "parametry",
-      "właściwości",
-      "dostosowania",
-      "ustawienia aplikacji",
-      "konfiguracja systemu",
-      "ustawienia osobiste",
-      "opcje konfiguracyjne",
-      "ustawienia domyślne",
-      "zarządzanie konfiguracją",
-      "ustawienia zaawansowane",
-      "ustawienia globalne"
+      "panel ustawień"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "formularz zmiany",
-      "edytuj szablon zmiany",
-      "szablon zmiany",
-      "otwórz formularz zmiany",
-      "zmień szablon zmiany",
-      "formularz edycji zmiany",
-      "szablon zmiany edycja",
-      "edytuj zmianę",
-      "formularz zmiany edytuj",
-      "otwórz szablon zmiany",
-      "zmiana szablon",
-      "edytuj formularz zmiany",
-      "szablon zmiany formularz",
-      "przejdź do formularza zmiany",
-      "otwórz edycję zmiany",
-      "formularz zmiany szablon",
-      "edytuj zmianę szablon",
-      "szablon zmiany otwórz",
-      "formularz zmiany otwórz",
-      "edytuj szablon zmiany formularz"
+      "formularz dyżuru",
+      "dodawanie dyżuru",
+      "tworzenie dyżuru"
     ],
     "status": "generated"
   },
   "shift-form.abbreviation": {
     "synonyms": [
       "skrót zmiany",
-      "kod zmiany",
-      "skrócona nazwa zmiany",
-      "ustaw skrót zmiany",
-      "edytuj skrót zmiany",
-      "zmień skrót zmiany",
-      "wpisz skrót zmiany",
-      "nazwa skrócona zmiany",
-      "kod skrócony zmiany",
-      "podaj skrót zmiany",
-      "skrót dla zmiany",
-      "zmodyfikuj skrót zmiany",
-      "ustaw kod zmiany",
-      "edytuj kod zmiany",
-      "zmień kod zmiany",
-      "wpisz kod zmiany",
-      "podaj kod zmiany",
-      "nazwa skrótowa zmiany",
-      "skrócona etykieta zmiany",
-      "oznaczenie zmiany"
+      "skrót formularza zmiany",
+      "skrót karty zmiany",
+      "skrót formularza"
     ],
     "status": "generated"
   },
   "shift-form.name": {
     "synonyms": [
       "nazwa zmiany",
-      "nazwa dla zmiany",
-      "nazwa tej zmiany",
-      "nazwa w formularzu zmiany",
-      "nazwa w edycji zmiany",
-      "pole nazwa zmiany",
-      "ustaw nazwę zmiany",
-      "zmień nazwę zmiany",
-      "podaj nazwę zmiany",
-      "nazwa zmiany roboczej",
-      "nazwa w formularzu",
-      "nazwa na zmianie",
-      "nazwa zmiany w harmonogramie",
-      "nadaj nazwę zmianie",
-      "wpisz nazwę zmiany",
-      "nazwa dla tej zmiany",
-      "nazwa zmiany w edycji",
-      "nazwa w oknie zmiany",
-      "nazwa w formularzu edycji zmiany",
-      "nazwa zmiany w systemie"
+      "pole nazwy",
+      "nazwa szablonu zmiany"
     ],
     "status": "generated"
   },
   "shift-list": {
     "synonyms": [
-      "lista zmian",
-      "przegląd zmian",
       "zmiany",
-      "szablony zmian",
-      "typy zmian",
+      "lista zmian",
+      "widok zmian",
       "katalog zmian",
-      "przejdź do zmian",
-      "otwórz zmiany",
-      "pokaż zmiany",
-      "wyświetl zmiany",
-      "harmonogram zmian",
-      "zestawienie zmian",
-      "lista dyżurów",
-      "plan zmian",
-      "grafiki zmian",
-      "zmiany w pracy",
-      "wszystkie zmiany",
-      "edycja zmian",
-      "lista grafików",
-      "zmiany pracownicze"
+      "typy zmian"
     ],
     "status": "generated"
   },
   "updates": {
     "synonyms": [
-      "przejdź do aktualizacji",
-      "gdzie są aktualizacje",
-      "otwórz aktualizacje",
-      "pokaż aktualizacje",
-      "ustawienia aktualizacji",
-      "chcę zobaczyć aktualizacje",
-      "znajdź aktualizacje",
-      "idź do sekcji aktualizacji",
-      "wyświetl aktualizacje",
-      "wejdz w aktualizacje",
-      "zobacz nowości",
-      "nowe funkcje",
-      "co nowego",
-      "otwórz stronę aktualizacji",
-      "ustawienia i aktualizacje",
-      "sprawdź aktualizacje",
-      "w zakładce aktualizacje",
-      "przejdź do ustawień aktualizacji",
-      "gdzie znajdę aktualizacje",
-      "nawiguj do aktualizacji"
+      "aktualizacje",
+      "aktualizacja",
+      "aktualizacje oprogramowania",
+      "aktualizacja systemu",
+      "panel aktualizacji",
+      "centrum aktualizacji"
     ],
     "status": "generated"
   },
   "wizard": {
     "synonyms": [
-      "otwórz harmonizer",
-      "przejdź do kreatora zmian",
-      "uruchom harmonizer",
-      "pokaż kreator harmonogramu",
-      "włącz asystenta zmian",
-      "otwórz kreatora zmian",
-      "idź do harmonizera",
-      "nawiguj do kreatora",
-      "otwórz asystenta harmonogramu",
-      "uruchom kreatora harmonogramu",
-      "przejdź do harmonizera",
-      "pokaż harmonizer",
-      "włącz harmonizer",
-      "otwórz kreatora",
-      "idź do kreatora harmonogramu",
-      "nawiguj do harmonizera",
-      "uruchom asystenta harmonogramu",
-      "pokaż kreatora zmian",
-      "włącz kreatora harmonogramu",
-      "przejdź do kreatora harmonogramu"
+      "harmonizer",
+      "harmonizer llm",
+      "llm harmonizer",
+      "kreator harmonizera"
     ],
     "status": "generated"
   },
   "work-setting-form": {
     "synonyms": [
-      "ustawienia miejsca pracy",
-      "formularz ustawień pracy",
-      "edytuj ustawienia miejsca pracy",
-      "otwórz formularz ustawień pracy",
-      "ustawienia dla miejsca pracy",
-      "zmień ustawienia pracy",
-      "ustawienia stanowiska",
-      "formularz ustawień stanowiska",
-      "edytuj ustawienia stanowiska",
-      "otwórz ustawienia pracy",
-      "ustawienia lokalizacji pracy",
-      "formularz ustawień lokalizacji",
-      "edytuj ustawienia lokalizacji pracy",
-      "otwórz formularz ustawień lokalizacji",
-      "ustawienia miejsca zatrudnienia",
-      "formularz ustawień zatrudnienia",
-      "edytuj ustawienia miejsca zatrudnienia",
-      "otwórz ustawienia miejsca zatrudnienia",
-      "ustawienia pracy",
-      "edytuj formularz ustawień pracy"
+      "konfiguracja planowania",
+      "parametry planowania"
     ],
     "status": "generated"
   },
   "assistant-learning": {
     "synonyms": [
-      "klacksy się uczy",
-      "uczenie klacksy",
-      "ustawienia uczenia",
-      "czego nauczył się klacksy",
-      "wyuczone sformułowania",
-      "otwarte życzenia",
-      "propozycje umiejętności",
-      "nowe umiejętności",
-      "otwórz uczenie klacksy",
-      "przegląd umiejętności"
+      "uczenie",
+      "nauka",
+      "samonauka",
+      "uczenie asystenta",
+      "nauka asystenta",
+      "wyuczone sformułowania"
     ],
     "status": "generated"
   },
   "address-membership": {
     "synonyms": [
-      "członkostwo pracownika",
-      "członkostwo w grupie",
-      "przynależność pracownika",
-      "członkostwo w zespole",
-      "otwórz członkostwo",
-      "ustawienia członkostwa",
-      "zarządzaj członkostwem",
-      "członkostwo zespołowe",
-      "przynależność do grupy",
-      "edytuj członkostwo",
-      "członkostwo grupowe",
-      "dodaj do członkostwa",
-      "modyfikuj członkostwo",
-      "ustaw członkostwo",
-      "przeglądaj członkostwo",
-      "szczegóły członkostwa",
-      "członkostwo pracownika w zespole",
-      "zmień członkostwo",
-      "aktywuj członkostwo",
-      "zobacz członkostwo"
+      "członkostwo",
+      "przynależność",
+      "członkostwo adresowe",
+      "rejestracja członkostwa",
+      "dane członkostwa",
+      "okres członkostwa"
+    ],
+    "status": "generated"
+  },
+  "active-industries": {
+    "synonyms": [
+      "aktywne branże",
+      "branże",
+      "aktywne sektory",
+      "sektory",
+      "aktywne branże firmy",
+      "lista aktywnych branż"
+    ],
+    "status": "generated"
+  },
+  "address-contracts": {
+    "synonyms": [
+      "kontrakty",
+      "umowy adresowe",
+      "umowy przypisane do adresu"
+    ],
+    "status": "generated"
+  },
+  "address-groups": {
+    "synonyms": [
+      "grupy adresowe",
+      "grupy adresów",
+      "grupa adresowa"
+    ],
+    "status": "generated"
+  },
+  "address-image": {
+    "synonyms": [
+      "zdjęcie adresu",
+      "obraz adresu",
+      "fotografia adresu"
+    ],
+    "status": "generated"
+  },
+  "address-note": {
+    "synonyms": [
+      "notatka adresowa",
+      "notatki adresowe",
+      "notatka do adresu",
+      "notatki do adresu"
+    ],
+    "status": "generated"
+  },
+  "address-persona": {
+    "synonyms": [
+      "edytor adresu",
+      "adres osoby",
+      "dane adresowe osoby"
+    ],
+    "status": "generated"
+  },
+  "address-qualifications": {
+    "synonyms": [
+      "kwalifikacje pracowników"
+    ],
+    "status": "generated"
+  },
+  "assistant-skill-relations": {
+    "synonyms": [
+      "relacje",
+      "powiązania",
+      "relacje umiejętności",
+      "powiązania umiejętności",
+      "zależności umiejętności",
+      "relacje między umiejętnościami"
+    ],
+    "status": "generated"
+  },
+  "calendar-selection-form": {
+    "synonyms": [
+      "ustawienia kalendarza"
+    ],
+    "status": "generated"
+  },
+  "compensatory-rest": {
+    "synonyms": [
+      "odpoczynek wyrównawczy",
+      "odpoczynek kompensacyjny",
+      "wyrównanie odpoczynku",
+      "wolne wyrównawcze",
+      "odpoczynek"
+    ],
+    "status": "generated"
+  },
+  "compliance-enforcement": {
+    "synonyms": [
+      "egzekwowanie zgodności",
+      "zgodność",
+      "egzekwowanie",
+      "naruszenia reguł czasu pracy",
+      "tryb egzekwowania",
+      "egzekwowanie reguł pracy"
+    ],
+    "status": "generated"
+  },
+  "contract-form.percent": {
+    "synonyms": [
+      "wymiar",
+      "etat",
+      "wymiar etatu",
+      "procent wymiaru etatu",
+      "wymiar procentowy"
+    ],
+    "status": "generated"
+  },
+  "counter-rules": {
+    "synonyms": [
+      "reguły licznika",
+      "reguła licznika",
+      "zasady licznika",
+      "limity licznika"
+    ],
+    "status": "generated"
+  },
+  "erp-drop-points": {
+    "synonyms": [
+      "punkty odbioru erp",
+      "punkt odbioru erp",
+      "punkty erp",
+      "odbiór erp",
+      "erp"
+    ],
+    "status": "generated"
+  },
+  "escalation-roster": {
+    "synonyms": [
+      "lista eskalacyjna",
+      "lista alarmowa",
+      "numery alarmowe",
+      "kontakty alarmowe",
+      "eskalacja"
+    ],
+    "status": "generated"
+  },
+  "export-format-overrides": {
+    "synonyms": [
+      "korekty formatów eksportu",
+      "nadpisania formatów eksportu",
+      "nadpisania eksportu",
+      "nadpisania"
+    ],
+    "status": "generated"
+  },
+  "export-formats": {
+    "synonyms": [
+      "formaty eksportu",
+      "formaty eksportowe",
+      "formaty danych",
+      "ustawienia formatów eksportu"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel": {
+    "synonyms": [
+      "propozycje celów",
+      "proponowane cele",
+      "cele do zatwierdzenia",
+      "zatwierdzanie celów"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.approve": {
+    "synonyms": [
+      "zatwierdzenie kandydatów",
+      "akceptacja kandydatów",
+      "zatwierdzanie kandydatur",
+      "zatwierdzanie kandydatów do celów"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.item": {
+    "synonyms": [
+      "kandydaci do celu",
+      "kandydaci celu",
+      "panel kandydatów celu",
+      "kandydatury do celu",
+      "kandydaci",
+      "kandydatury"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.reject": {
+    "synonyms": [
+      "odrzucenie",
+      "odrzucanie",
+      "odrzucenie kandydata",
+      "odrzucanie kandydata",
+      "odrzucenie kandydatów",
+      "odrzucenie kandydata do celu"
+    ],
+    "status": "generated"
+  },
+  "group-item": {
+    "synonyms": [
+      "informacje o grupie"
+    ],
+    "status": "generated"
+  },
+  "group-members": {
+    "synonyms": [
+      "członkowie grupy",
+      "lista uczestników",
+      "uczestnicy",
+      "członkowie",
+      "osoby w grupie",
+      "skład grupy"
+    ],
+    "status": "generated"
+  },
+  "group-parent": {
+    "synonyms": [
+      "grupa nadrzędna",
+      "grupa macierzysta",
+      "wybór grupy nadrzędnej",
+      "grupa wyższego poziomu"
+    ],
+    "status": "generated"
+  },
+  "holiday-work-exemptions": {
+    "synonyms": [
+      "wyjątki pracy w święta",
+      "wyjątek pracy w święta",
+      "wyjątki świąteczne",
+      "wyjątek świąteczny"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form": {
+    "synonyms": [
+      "edycja indywidualnego okresu",
+      "formularz indywidualnego okresu"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form.name": {
+    "synonyms": [
+      "nazwa formularza okresu",
+      "nazwa formularza indywidualnego"
+    ],
+    "status": "generated"
+  },
+  "individual-periods": {
+    "synonyms": [
+      "indywidualne okresy",
+      "okresy indywidualne"
+    ],
+    "status": "generated"
+  },
+  "klacksy-autonomy": {
+    "synonyms": [
+      "poziom autonomii",
+      "ustawienia autonomii",
+      "autonomia działań"
+    ],
+    "status": "generated"
+  },
+  "klacksy-proactive-governance": {
+    "synonyms": [
+      "zakres działania",
+      "działania autonomiczne",
+      "proaktywne zarządzanie"
+    ],
+    "status": "generated"
+  },
+  "monthly-target-hours": {
+    "synonyms": [
+      "miesięczne godziny docelowe",
+      "docelowe godziny miesięczne",
+      "miesięczna norma godzin",
+      "miesięczny wymiar godzin"
+    ],
+    "status": "generated"
+  },
+  "new-plannable-shift": {
+    "synonyms": [
+      "nowy dyżur planowalny",
+      "nowa zmiana planowalna",
+      "dyżur bez klienta",
+      "zmiana bez klienta"
+    ],
+    "status": "generated"
+  },
+  "overtime": {
+    "synonyms": [
+      "nadgodziny",
+      "nadgodzinówka",
+      "ustawienia nadgodzin",
+      "konfiguracja nadgodzin",
+      "rozliczanie nadgodzin",
+      "zasady nadgodzin"
+    ],
+    "status": "generated"
+  },
+  "period-cap-rules": {
+    "synonyms": [
+      "limity okresu",
+      "limit okresu",
+      "limity okresowe",
+      "okresowe limity"
+    ],
+    "status": "generated"
+  },
+  "period-closing-audit": {
+    "synonyms": [
+      "audyt zamknięcia okresu",
+      "audyt zamknięcia",
+      "historia audytu",
+      "dziennik audytu",
+      "audyt",
+      "audyty"
+    ],
+    "status": "generated"
+  },
+  "period-closing-exports": {
+    "synonyms": [
+      "eksporty okresowe",
+      "eksport okresu",
+      "eksporty zamknięcia okresu",
+      "eksporty za okres"
+    ],
+    "status": "generated"
+  },
+  "period-closing-periods": {
+    "synonyms": [
+      "okresy rozliczeniowe",
+      "zamknięte okresy",
+      "zaksięgowane okresy",
+      "okresy do zamknięcia"
+    ],
+    "status": "generated"
+  },
+  "personal-access-token-form": {
+    "synonyms": [
+      "nowy token"
+    ],
+    "status": "generated"
+  },
+  "personal-access-tokens": {
+    "synonyms": [
+      "tokeny dostępu"
+    ],
+    "status": "generated"
+  },
+  "plan-execution-panel.abort": {
+    "synonyms": [
+      "przerwanie planu",
+      "anulowanie planu",
+      "zatrzymanie planu",
+      "przerwanie realizacji planu"
+    ],
+    "status": "generated"
+  },
+  "profile-data": {
+    "synonyms": [
+      "dane logowania",
+      "zmiana danych logowania",
+      "moje dane logowania",
+      "dane profilu"
+    ],
+    "status": "generated"
+  },
+  "profile-messengers": {
+    "synonyms": [
+      "moje messengery",
+      "moje komunikatory",
+      "profilowe messengery",
+      "powiązane messengery"
+    ],
+    "status": "generated"
+  },
+  "profile-microphone": {
+    "synonyms": [
+      "test mikrofonu",
+      "mikrofon",
+      "test rozpoznawania mowy",
+      "mikrofon i rozpoznawanie mowy"
+    ],
+    "status": "generated"
+  },
+  "profile-picture": {
+    "synonyms": [
+      "zdjęcie profilowe",
+      "avatar",
+      "zdjęcie profilu",
+      "fotografia profilowa",
+      "fotka profilowa"
+    ],
+    "status": "generated"
+  },
+  "profile-settings": {
+    "synonyms": [
+      "ustawienia niestandardowe",
+      "personalizacja",
+      "moje ustawienia"
+    ],
+    "status": "generated"
+  },
+  "qualifications": {
+    "synonyms": [
+      "kwalifikacje",
+      "uprawnienia",
+      "kompetencje",
+      "certyfikaty",
+      "kwalifikacje zawodowe",
+      "uprawnienia pracownicze"
+    ],
+    "status": "generated"
+  },
+  "restricted-time-window-rules": {
+    "synonyms": [
+      "ograniczone okna czasowe",
+      "okna czasowe",
+      "reguły okien czasowych",
+      "zasady ograniczonych okien"
+    ],
+    "status": "generated"
+  },
+  "shift-address": {
+    "synonyms": [
+      "adres zmiany",
+      "adres miejsca pracy",
+      "adres pracy",
+      "lokalizacja zmiany"
+    ],
+    "status": "generated"
+  },
+  "shift-expenses": {
+    "synonyms": [
+      "wydatki zmiany",
+      "koszty zmiany",
+      "wydatki",
+      "koszty",
+      "wydatki na zmianie",
+      "koszty na zmianie"
+    ],
+    "status": "generated"
+  },
+  "shift-group": {
+    "synonyms": [
+      "grupa zmianowa",
+      "grupy zmianowe",
+      "grupy przypisane"
+    ],
+    "status": "generated"
+  },
+  "shift-item": {
+    "synonyms": [
+      "element zmiany",
+      "pozycja zmiany",
+      "karta zmiany"
+    ],
+    "status": "generated"
+  },
+  "shift-macro": {
+    "synonyms": [
+      "makro zmiany",
+      "makro dla zmiany",
+      "makro zmianowe",
+      "makro zmiany roboczej"
+    ],
+    "status": "generated"
+  },
+  "shift-qualifications": {
+    "synonyms": [
+      "kwalifikacje zmiany",
+      "wymagania kwalifikacyjne"
+    ],
+    "status": "generated"
+  },
+  "shift-special-feature": {
+    "synonyms": [
+      "cechy szczególne",
+      "cechy szczególne zmiany",
+      "cechy zmiany",
+      "cechy specjalne"
+    ],
+    "status": "generated"
+  },
+  "shift-weekday": {
+    "synonyms": [
+      "godziny i dni tygodnia",
+      "dni tygodnia",
+      "godziny pracy"
+    ],
+    "status": "generated"
+  },
+  "skill-effectiveness": {
+    "synonyms": [
+      "skuteczność umiejętności",
+      "efektywność umiejętności",
+      "skuteczność kompetencji",
+      "skuteczność kwalifikacji"
+    ],
+    "status": "generated"
+  },
+  "surcharge-mode": {
+    "synonyms": [
+      "tryb dodatku",
+      "tryby dodatków",
+      "ustawienia dodatków",
+      "sposób naliczania dodatków"
+    ],
+    "status": "generated"
+  },
+  "web-search": {
+    "synonyms": [
+      "wyszukiwanie w internecie",
+      "wyszukiwarka internetowa",
+      "szukanie w sieci",
+      "wyszukiwanie online"
+    ],
+    "status": "generated"
+  },
+  "whisper-plugin": {
+    "synonyms": [
+      "whisper",
+      "lokalna usługa mowy",
+      "samodzielnie hostowane whisper",
+      "wtyczka whisper"
     ],
     "status": "generated"
   }

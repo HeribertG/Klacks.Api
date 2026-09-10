@@ -1,349 +1,137 @@
 {
   "absence-detail": {
     "synonyms": [
+      "utvidede fravær",
       "detaljer for fravær",
-      "fraværsinformasjon i planlegging",
-      "se fraværsdetaljer",
-      "vis fraværsdetaljer",
-      "detaljer om fravær",
-      "fraværsdetaljer i planleggingsinnstillinger",
-      "planleggingsdetaljer for fravær",
-      "sjekk fraværsdetaljer",
-      "fraværsdetaljer under innstillinger",
-      "informasjon om fravær i planlegging",
-      "vis informasjon om fravær",
-      "se detaljer for fravær",
-      "detaljert fraværsinformasjon",
-      "fraværsdetaljer i arbeidsplanlegging",
-      "pust innstillinger for fravær",
-      "fraværsdetaljer i planleggingsmodulen",
-      "se detaljer om fravær",
-      "vis fraværsdetaljer i innstillinger"
+      "fraværsdetaljene"
     ],
     "status": "generated"
   },
   "absence-types": {
     "synonyms": [
-      "fravær",
       "fraværstyper",
-      "innstillinger for fravær",
-      "administrere fravær",
-      "fraværskategorier",
-      "type fravær",
-      "fraværsoppsett",
-      "endre fraværstyper",
-      "definer fravær",
-      "fraværsinnstillinger",
-      "still fravær",
-      "fraværsadministrasjon",
-      "fraværskonfigurasjon",
-      "oppsett av fravær",
-      "fravær i timeplan",
-      "fraværstyper i innstillinger",
-      "fraværskategorier i timeplan",
-      "fraværsoppsett i innstillinger",
-      "administrere fraværstyper",
-      "fravær under innstillinger"
+      "fraværsdefinisjoner",
+      "fraværsalternativer",
+      "fraværsmuligheter"
     ],
     "status": "generated"
   },
   "addresses": {
     "synonyms": [
-      "hvor finner jeg kontaktinfo for ansatte",
-      "vis meg teamets adresser",
-      "se ansattes adressedetaljer",
-      "åpne personalregisteret",
-      "finn kollegers adresseinformasjon",
-      "gå til ansattkatalog",
-      "sjekk arbeidstakerprofiler",
-      "vis alle kontaktopplysninger",
-      "hvor lagres ansattadresser",
-      "frem personelliste med adresser",
-      "naviger til adressedata",
-      "se oversikt over ansattes bosteder",
-      "finn fram til medarbeideradresser",
-      "vis personalmapper",
-      "åpne kontaktinformasjon for team",
-      "gå til seksjon med ansattdetaljer",
-      "søk opp ansattes hjemmeadresser",
-      "vis adressebok for ansatte",
-      "frem ansattes kontaktliste",
-      "hvor finner jeg kollegers adresser"
+      "adresser",
+      "adresseoversikt",
+      "adresseliste",
+      "adresseregister",
+      "alle adresser"
     ],
     "status": "generated"
   },
   "assistant-speech": {
     "synonyms": [
-      "innstillinger for ai-stemme",
-      "snakkestyring for assistent",
-      "tale-ai-innstillinger",
-      "stemmeassistent-innstillinger",
-      "ai-taleinnstillinger",
-      "assistentstemme-innstillinger",
-      "konfigurer taleassistent",
-      "snakkefunksjoner for ai",
-      "taleinnstillinger for assistent",
-      "ai-snakkepreferanser",
-      "stemmeassistent-konfigurasjon",
-      "assistent-tale-innstillinger",
-      "ai-stemmekontroll",
-      "taleassistent-innstillinger",
-      "snakkealternativer for assistent",
-      "stemmeassistent-valg",
-      "ai-talevalg",
-      "assistent-snakkekontroll",
-      "tale-ai-valgmuligheter",
-      "stemme-ai-innstillinger"
+      "taleinnstillinger",
+      "stemmeinnstillinger",
+      "taleassistent",
+      "talestyring"
     ],
     "status": "generated"
   },
   "branches": {
     "synonyms": [
-      "hvor finner jeg innstillinger for filialer",
-      "administrere lokasjonene våre",
-      "tilgang til lokasjonskonfigurasjon",
-      "redigere kontorfilialene våre",
-      "se alle bedriftens steder",
-      "oppsett av organisasjonslokasjoner",
-      "oppdatere filialinformasjon",
-      "konfigurere arbeidsplasslokasjoner",
-      "åpne filialinnstillinger",
-      "gå til lokasjonsinnstillinger",
-      "vis alle filialer",
-      "endre filialdetaljer",
-      "administrer avdelingskontorer",
-      "se oversikt over lokasjoner",
-      "rediger organisasjonssteder",
-      "oppsett av arbeidssted",
-      "få tilgang til filialkonfigurasjon",
-      "søk etter lokasjonsinnstillinger",
-      "still inn filialer for organisasjonen",
-      "administrasjon av arbeidsplasser"
+      "filialer",
+      "filialoversikt",
+      "filialstyring",
+      "filialliste"
     ],
     "status": "generated"
   },
   "calendar-rules": {
     "synonyms": [
+      "helligdagsregler",
       "kalenderregler",
-      "regler for timeplan",
-      "skiftregler",
-      "vaktregler",
-      "tilgjengelighetsregler",
-      "fraværsregler",
-      "turnusregler",
-      "timeplanregler",
-      "regler for arbeidsplan",
-      "skiftpolicy",
-      "rulleregler",
-      "planleggingsregler",
-      "arbeidstidsregler",
-      "regler for vakter",
-      "sykefraværsregler",
-      "permisjonsregler",
-      "ansettelsesregler",
-      "kontraktregler",
-      "regler for turnus",
-      "arbeidsplanregler"
+      "regler for helligdager",
+      "helligdagsinnstillinger",
+      "kalenderregelverk",
+      "regler for kalender"
     ],
     "status": "generated"
   },
   "calendar-selection": {
     "synonyms": [
-      "velg kalender",
-      "velg tidsplan",
-      "velg skjema",
-      "velg kalenderoppsett",
-      "velg skiftkalender",
-      "velg tidsplaninnstilling",
       "kalendervalg",
-      "tidsplanvalg",
-      "skjemavalg",
-      "velg ønsket kalender",
-      "velg en tidsplan",
-      "velg en kalender",
-      "kalenderinnstillinger",
-      "tidsplaninnstillinger",
-      "velg skiftplan",
-      "velg en skiftkalender",
-      "kalendervalg for turnus",
-      "velg turnuskalender",
-      "velg arbeidstidskalender",
-      "velg tidsplan for vakter"
+      "kalenderutvalget",
+      "kalendervalget",
+      "utvalg av kalendere"
     ],
     "status": "generated"
   },
   "contracts": {
     "synonyms": [
-      "vis kontraktene mine",
-      "åpne kontrakter",
-      "gå til kontrakter",
-      "se avtalene mine",
-      "endre arbeidskontrakter",
-      "vis arbeidsavtaler",
-      "sjekk kontraktene",
-      "administrer kontrakter",
-      "kontraktsoversikt",
-      "innstillinger for kontrakter",
-      "kontraktsdetaljer",
-      "se skiftavtaler",
-      "rediger kontrakter",
-      "oppdater arbeidsavtaler",
-      "vis ansettelsesvilkår",
-      "kontrakter i innstillinger",
-      "mine kontrakter",
+      "kontraktsinnstillinger",
+      "ansettelseskontrakter",
       "arbeidskontrakter",
-      "se kontraktsbetingelser",
-      "endre skiftforpliktelser"
+      "kontraktsoversikt"
     ],
     "status": "generated"
   },
   "countries": {
     "synonyms": [
       "land",
-      "regioner",
-      "steder",
-      "territorier",
-      "globale innstillinger",
-      "landsliste",
-      "geografiske områder",
-      "internasjonale innstillinger",
-      "landinnstillinger",
-      "lokasjoner",
-      "landkonfigurasjon",
-      "geografiske innstillinger",
-      "alle land",
-      "landsoversikt",
       "landadministrasjon",
-      "regioninnstillinger",
-      "geografi",
-      "landsdata",
-      "landvalg",
-      "stedsinnstillinger"
+      "landinnstillinger",
+      "landliste",
+      "landoversikt"
     ],
     "status": "generated"
   },
   "dashboard": {
     "synonyms": [
-      "åpne dashbordet",
-      "gå til dashbord",
-      "vis dashbordet",
       "dashbord",
-      "åpne oversikten",
-      "gå til arbeidsoversikten",
-      "vis hovedoversikten",
-      "min oversikt",
-      "åpne min oversikt",
-      "gå til hovedsiden",
-      "vis arbeidsdashbordet",
-      "åpne vaktoversikten",
-      "gå til vaktplanen",
-      "vis timesammendrag",
-      "min vaktoversikt",
-      "åpne hovedarbeidsvisning",
-      "gå til arbeidssammendrag",
-      "vis skiftoversikten",
-      "åpne arbeidsoversikten",
-      "gå til min dashbord"
+      "hovedside",
+      "startside",
+      "kontrollpanel",
+      "styringspanel",
+      "instrumentpanel"
     ],
     "status": "generated"
   },
   "data-retention": {
     "synonyms": [
-      "innstillinger for datalagringsperiode",
-      "administrer datalagring",
-      "slettingspolicy for data",
-      "hvor lenge vi lagrer data",
-      "konfigurer datalagring",
-      "innstillinger for datalagring",
-      "datalagringsinnstillinger",
-      "beholdning av data",
-      "retningslinjer for datalagring",
-      "administrer oppbevaring av data",
-      "oppbevaringsperiode for data",
-      "sletting av data automatisk",
-      "databevaringspolicy",
-      "rediger datalagringsinnstillinger",
-      "innstillinger for retensjon",
-      "databevaringsregler",
-      "kontroll over datalagring",
-      "håndter dataoppbevaring",
-      "slett gammel data",
-      "konfigurer oppbevaringstid"
+      "personvern",
+      "gdpr",
+      "dataoppbevaring",
+      "oppbevaring av data",
+      "oppbevaring av poster",
+      "oppbevaringsinnstillinger"
     ],
     "status": "generated"
   },
   "deepl": {
     "synonyms": [
-      "gå til deepl i innstillingene",
-      "åpne deepl under integrasjoner",
-      "finn deepl i innstillinger",
-      "deepl integrasjon i innstillinger",
-      "sett opp deepl i innstillinger",
-      "konfigurer deepl under integrasjoner",
-      "deepl instillinger for vaktplan",
-      "koble deepl til klacks",
-      "deepl oppsett i innstillinger",
-      "aktiver deepl i integrasjoner",
-      "slå på deepl i innstillingene",
-      "deepl innstillinger for oversettelse",
-      "integrer deepl med vaktplan",
-      "deepl i arbeidsplan innstillinger",
-      "legg til deepl integrasjon",
-      "deepl i innstillinger for integrasjoner",
-      "deepl oppsett for vaktplanlegging",
-      "deepl innstillinger under arbeidsplass",
-      "gå til integrasjoner og velg deepl",
-      "deepl i innstillingene for arbeidsplan"
+      "deepl",
+      "deepl-oversettelse",
+      "deepl-integrasjon",
+      "deepl-innstillinger",
+      "automatiske oversettelser",
+      "oversettelsesinnstillinger"
     ],
     "status": "generated"
   },
   "email-config": {
     "synonyms": [
-      "epostinnstillinger",
-      "e-postkonfigurasjon admin",
-      "endre e-postvarsler",
-      "e-postpreferanser",
-      "varslingsinnstillinger",
+      "e-postinnstillinger",
       "e-postoppsett",
-      "admin varslingsalternativer",
-      "e-postvarselkonfigurasjon",
-      "administrer e-post",
-      "e-postinnstillinger admin",
-      "varslingsadministrasjon e-post",
-      "oppsett e-post",
-      "e-postvarsler tilpass",
-      "admin e-post",
-      "e-postvarslingsinnstillinger",
-      "e-postvarsler administrasjon",
       "e-postkonfigurasjon",
-      "varsler e-post admin",
-      "e-postinnstillinger varsler",
-      "administrer e-postvarsler"
+      "innstillinger for e-post",
+      "bedriftens e-postinnstillinger",
+      "e-postinnstillingene"
     ],
     "status": "generated"
   },
   "feature-plugins": {
     "synonyms": [
-      "admin plugins",
-      "admin verktøy",
-      "tilgjengelige funksjoner",
-      "konfigurer plugins",
-      "tilpass funksjoner",
-      "aktiver tillegg",
-      "utvidelser",
       "funksjonstillegg",
-      "plugins innstillinger",
-      "administrasjonsplugins",
-      "aktiver funksjoner",
-      "administrasjonsverktøy",
-      "plugin-instillinger",
-      "funksjonsadministrasjon",
-      "tilleggsprogrammer",
-      "administrer plugins",
-      "funksjoner og tillegg",
-      "klargjør plugins",
-      "installer tillegg",
-      "slå på funksjoner"
+      "utvidelser",
+      "tilleggsmoduler"
     ],
     "status": "generated"
   },
@@ -399,1708 +187,1257 @@
   },
   "grid-color": {
     "synonyms": [
-      "endre farge på rutenett",
-      "juster rutenettfarge",
-      "endre rutenettfargen",
-      "sett rutenettfarge",
-      "innstillinger for rutenettfarge",
-      "tilpass rutenettfarge",
-      "konfigurer rutenettfarge",
-      "rutenettfarge innstillinger",
-      "farge for rutenett",
-      "bytt rutenettfarge",
-      "rutenettfarge preferanser",
-      "oppdater rutenettfarge",
-      "velg rutenettfarge",
-      "rutenettfarge valg",
-      "rutenettfarge konfigurasjon",
-      "endre fargen på rutenettet",
-      "juster farge på rutenett",
-      "sett farge på rutenett",
-      "fargetema for rutenett",
-      "rutenettfarge alternativer"
+      "tabellfarger",
+      "tabellfarge",
+      "farger i tabell",
+      "rutenettfarger",
+      "rutenettfarge",
+      "fargevalg for tabell"
     ],
     "status": "generated"
   },
   "group-scope": {
     "synonyms": [
-      "innstillinger for organisasjonen",
-      "gruppens omfang",
-      "teamets synlighet",
-      "avdelingsinnstillinger",
-      "arbeidsgruppens omfang",
-      "innstillinger for teammedlemmer",
-      "omfanget av gruppen min",
-      "hva er teamets omfang?",
-      "hvem er i teamet mitt?",
-      "organisasjonsinnstillinger",
+      "gruppesynlighet",
       "gruppeomfang",
-      "teaminstillinger",
-      "innstillinger for avdelingen",
-      "synlighet for teamet",
-      "omfang av arbeidsgruppe",
-      "medlemsinnstillinger for gruppen",
-      "teamets omfang",
-      "innstillinger for gruppen",
-      "organisasjonsomfang",
-      "gruppeinnstillinger"
+      "synlighet av grupper",
+      "gruppesynlighet per bruker",
+      "gruppesynlighetsinnstillinger",
+      "synlighetsstyring for grupper"
     ],
     "status": "generated"
   },
   "groups": {
     "synonyms": [
       "grupper",
-      "team",
-      "avdelinger",
-      "seksjoner",
-      "enheter",
-      "mannskaper",
-      "arbeidsgrupper",
-      "lag",
-      "skiftgrupper",
-      "personellgrupper",
-      "gruppeliste",
-      "mine grupper",
+      "gruppe",
       "alle grupper",
-      "ansattgrupper",
-      "organisasjonsgrupper",
-      "grupper i organisasjonen",
-      "arbeidslag",
-      "teamliste",
-      "avdelingsoversikt",
-      "grupper for ansatte"
+      "gruppestruktur",
+      "gruppetre",
+      "gruppehierarki"
     ],
     "status": "generated"
   },
   "identity-providers": {
     "synonyms": [
-      "innstillinger for identitetsleverandører",
-      "idp-innstillinger",
-      "autentiseringsleverandører",
-      "påloggingsleverandører",
-      "sso-oppsett",
-      "enkel pålogging oppsett",
-      "ekstern identitetshåndtering",
-      "tredjeparts påloggingsmuligheter",
-      "administrer identitetsleverandører",
-      "oppsett av innlogging",
+      "identitetsleverandør",
       "identitetsleverandører",
-      "konfigurer idp",
-      "sso-konfigurasjon",
-      "ekstern autentisering",
-      "innloggingsleverandører",
-      "identitetsadministrasjon",
-      "leverandører for pålogging",
-      "tredjeparts autentisering",
-      "oppsett av sso",
-      "autentiseringsinnstillinger"
+      "sso",
+      "identitetsleverandørinnstillinger",
+      "single sign-on"
     ],
     "status": "generated"
   },
   "imap-setting": {
     "synonyms": [
+      "imap",
       "imap-innstillinger",
-      "konfigurer imap",
-      "imap-integrasjon",
-      "sett opp imap",
-      "imap-tilkobling",
-      "imap-konto",
-      "imap-server",
-      "imap e-postoppsett",
-      "endre imap",
-      "imap-innstilling",
-      "administrer imap",
-      "imap for e-post",
-      "imap-konfigurasjon",
-      "legg til imap",
-      "imap-oppsett",
-      "imap-klient",
-      "imap-e-post",
-      "synkroniser imap",
-      "imap-tjeneste"
+      "innkommende e-postserver",
+      "e-postserver imap",
+      "imap-innstilling"
     ],
     "status": "generated"
   },
   "inbox": {
     "synonyms": [
       "innboks",
-      "meldinger",
-      "mine varsler",
-      "se varsler",
-      "åpne innboksen",
-      "gå til meldinger",
-      "vis kommunikasjon",
-      "vis oppdateringer",
-      "vis varsler",
-      "sjekk meldinger",
-      "sjekk innboksen",
-      "les meldinger",
-      "se oppdateringer",
-      "gå til varsler",
-      "åpne meldinger",
-      "vis innboksen",
-      "se meldinger",
-      "sjekk varslene",
-      "vis mine meldinger",
-      "nye meldinger"
+      "innboks for meldinger"
     ],
     "status": "generated"
   },
   "klacksy-training": {
     "synonyms": [
-      "treningsopplæring",
-      "opplæringsplan",
-      "treningstime",
-      "opplæringsøkt",
-      "treningsoppsett",
-      "opplæringskurs",
-      "treningstilbud",
+      "trening",
+      "opplæring",
+      "treningsside",
+      "treningsmodul",
       "opplæringsmodul",
-      "treningstjeneste",
-      "opplæringsprogram",
-      "treningselement",
-      "opplæringspakke",
-      "treningsopplegg",
-      "opplæringsadministrasjon",
-      "treningstid",
-      "opplæringsvindu",
-      "treningstype",
-      "opplæringsliste",
-      "treningstilgang",
-      "opplæringsside"
+      "læringsportal"
     ],
     "status": "generated"
   },
   "language-plugins": {
     "synonyms": [
-      "språkinnstillinger",
-      "språkutvidelser",
-      "språkmoduler",
       "språkpakker",
-      "språktillegg",
-      "tillegg for språk",
-      "innstillinger for språk",
-      "språkpreferanser",
-      "språktilpasninger",
-      "administrer språk",
-      "språkinnstillinger admin",
-      "konfigurer språk",
-      "språkopsjoner",
-      "språkverktøy",
-      "språkstøtte",
-      "språkutvidelser admin",
-      "språkmoduler admin",
-      "språkpakker admin",
-      "språktillegg admin",
-      "innstillinger for språkutvidelser"
+      "språkpakke",
+      "språkplugins",
+      "språkmoduler",
+      "språkutvidelser"
     ],
     "status": "generated"
   },
   "llm-models": {
     "synonyms": [
-      "innstillinger for ai-modeller",
-      "konfigurasjon av llm",
-      "administrasjon av ai-modeller",
-      "llm-modellalternativer",
-      "ai-modellpreferanser",
-      "llm-modellinnstillinger",
-      "ai-modellkonfigurasjon",
-      "llm-modelladministrasjon",
-      "ai-innstillinger",
-      "språkmodellinnstillinger",
-      "konfigurer ai",
+      "llm-modeller",
+      "llm",
+      "språkmodeller",
       "ai-modeller",
-      "llm-konfig",
-      "styr ai-modeller",
-      "ai-modellvalg",
-      "llm-preferanser",
-      "ai-modelloppsett",
-      "språkmodellkonfigurasjon",
-      "ai-modellstyring",
-      "llm-innstillinger"
+      "llm-innstillinger",
+      "llm-oppsett"
     ],
     "status": "generated"
   },
   "llm-provider": {
     "synonyms": [
-      "innstillinger for ai-leverandør",
-      "konfigurer llm-tjeneste",
-      "administrer leverandør av språkmodell",
-      "ai-modellleverandør-innstillinger",
-      "oppsett for ai-integrasjon",
-      "velg ai-leverandør",
-      "tilpass ai-modell",
-      "innstillinger for kunstig intelligens",
-      "leverandør for språkmodell",
-      "ai-leverandørvalg",
-      "konfigurer ai-leverandøren",
-      "administrer ai-integrasjon",
-      "skift ai-leverandør",
-      "oppdater ai-modellinnstillinger",
-      "innstillinger for llm-tjeneste",
-      "ai-leverandørdetaljer",
-      "sett opp ai-modell",
-      "tilgang til ai-leverandør",
-      "leverandørinnstillinger for ai",
-      "konfigurer språkmodell"
+      "llm-leverandører",
+      "llm-leverandør",
+      "leverandørinnstillinger",
+      "llm-leverandørinnstillinger"
     ],
     "status": "generated"
   },
   "macros": {
     "synonyms": [
-      "automatiseringsregler",
-      "planlagte handlinger",
-      "arbeidsflytsnarveier",
-      "oppgavemaler",
-      "automatiserte prosesser",
-      "raske handlinger",
-      "gjenbrukbare arbeidsflyter",
-      "automatiseringsinnstillinger",
       "makroer",
-      "arbeidsflytautomatisering",
-      "forhåndsdefinerte handlinger",
-      "handlingsmaler",
-      "automatiseringsverktøy",
-      "arbeidsflytmaler",
-      "handlingssekvenser",
-      "oppgaveautomatisering",
-      "standard arbeidsflyter",
-      "automatiseringsoppsett",
-      "handlingsbibliotek",
-      "arbeidsflytoppskrifter"
+      "makro",
+      "makroinnstillinger",
+      "makrofunksjoner",
+      "makrooppsett",
+      "makrooversikt"
     ],
     "status": "generated"
   },
   "messaging-providers": {
     "synonyms": [
-      "meldingstjenester",
-      "sms-leverandører",
-      "varslingstjenester",
-      "kommunikasjonskanaler",
-      "sms-integrasjoner",
-      "leverandører av meldingstjenester",
-      "innstillinger for varsling",
-      "sms-tjenester",
-      "varslingsleverandører",
-      "tekstmeldingstjenester",
-      "sms-gatewayer",
-      "meldingsplattformer",
-      "varslingskanaler",
-      "sms-leverandør",
-      "integrasjoner for meldingstjenester",
-      "leverandører av sms",
-      "varslingssystemer",
-      "sms-innstillinger",
       "meldingsleverandører",
-      "varslingsintegrasjoner"
+      "meldingsleverandør",
+      "meldingstjenester",
+      "eksterne meldingstjenester",
+      "meldingstjenesteleverandører"
     ],
     "status": "generated"
   },
   "openroute": {
     "synonyms": [
-      "åpne innstillinger for rute",
-      "gå til ruteoppsett",
-      "vis rutealternativer",
-      "ruteadministrasjon",
-      "ruteintegrasjoner",
-      "konfigurer rute",
-      "innstillinger for rute",
-      "ruteinnstillinger",
-      "administrer rute",
-      "ta meg til ruteoppsett",
-      "vis ruteintegrasjoner",
-      "åpne ruteadministrasjon",
-      "gå til rutealternativer",
-      "ruteoppsett",
-      "vis innstillinger for rute",
-      "åpne rutekonfigurasjon",
-      "rutealternativer",
-      "gå til ruteintegrasjoner",
-      "konfigurer ruteinnstillinger",
-      "administrer ruteintegrasjoner"
+      "openroute",
+      "openrouteservice",
+      "ruteoptimalisering",
+      "reisetider og avstander",
+      "openroute-integrasjon",
+      "integrasjon for ruteoptimalisering"
     ],
     "status": "generated"
   },
   "owner-address": {
     "synonyms": [
-      "adresse for eier",
-      "eierens adresse endre",
-      "forretningsadresse oppdatere",
-      "arbeidsstedets adresse",
-      "eierinformasjon redigere",
-      "firmaadresse endre",
-      "kontaktadresse for eier",
-      "bedriftsadresse innstillinger",
-      "postadresse oppdatere",
-      "eierens kontaktinfo",
-      "adresse for virksomheten",
-      "eiers adresser",
-      "arbeidsplassens adresse",
-      "firmaets beliggenhet",
-      "eierdata endre",
-      "adresseinnstillinger",
-      "bedriftslokasjon",
-      "eierens postadresse",
-      "selskapsadresse redigere",
-      "adresse for eier av firma"
+      "sekretariatsadresse",
+      "eieradresse",
+      "eiers adresse",
+      "kontoradresse",
+      "virksomhetsadresse"
     ],
     "status": "generated"
   },
   "owner-messengers": {
     "synonyms": [
-      "innstillinger for eier-meldinger",
-      "konfigurer eier-meldinger",
-      "administrer eier-meldinger",
-      "oppsett for eierkommunikasjon",
-      "eier-meldingspreferanser",
-      "eier-varslingskanaler",
-      "kontaktmetoder for eiere",
-      "eier-meldingsintegrasjoner",
-      "eier-meldingstjenester",
-      "endre eier-meldinger",
-      "eier-meldinger",
-      "tilpass eier-meldinger",
-      "eier-meldingsinnstillinger",
-      "eier-varsler",
-      "eier-kommunikasjon",
-      "eier-meldingskonfigurasjon",
-      "eier-meldingsadministrasjon",
-      "eier-varslingsinnstillinger"
+      "eiermeldinger",
+      "sekretariatets meldingstjenester",
+      "sekretariatets meldinger",
+      "meldingstjenester for sekretariatet",
+      "eiernes meldingstjenester"
     ],
     "status": "generated"
   },
   "period-closing": {
     "synonyms": [
-      "avslutt periode",
-      "gjør ferdig periode",
-      "lås planleggingsperiode",
-      "fullfør periodeavslutning",
-      "lukk inneværende periode",
-      "avslutt planleggingsperiode",
-      "ferdigstill periode",
-      "lukk planperiode",
-      "gjennomfør periodelukking",
-      "sett strek for periode",
-      "avslutt og lås periode",
-      "fullfør planleggingssykel",
-      "avslutt arbeidsperiode",
-      "lukk og ferdigstill periode",
-      "gjør periodeferdig",
-      "lås inneværende periode",
-      "lukk perioden",
-      "avslutt syklus",
-      "fullfør periode",
-      "steng planperiode"
+      "periodelås",
+      "periodeslutt",
+      "avslutning av periode",
+      "stenging av periode",
+      "lukking av periode"
     ],
     "status": "generated"
   },
   "report-defaults": {
     "synonyms": [
-      "standardinnstillinger for rapporter",
-      "standard rapportoppsett",
-      "rapportinnstillinger som standard",
-      "forhåndsinnstilte rapportvalg",
-      "standard rapportparametere",
+      "standardmaler",
       "standardmaler for rapporter",
-      "rapportpreferanser som standard",
-      "grunninnstillinger for rapporter",
-      "standard rapportkonfigurasjon",
-      "rapportoppsett som standard",
-      "forvalgte rapportinnstillinger",
-      "standard rapportalternativer",
-      "rapportstandarder",
-      "standardinnstillinger i rapporter",
-      "rapportoppsett for standard",
-      "standardiserte rapportinnstillinger",
-      "rapportinnstillinger forhåndsvalgt",
-      "forhåndsinnstilte rapportmaler",
-      "standard rapportkonfigurasjoner"
+      "standardmaler for hurtigutskrift",
+      "standardinnstillinger for rapporter",
+      "standardrapportinnstillinger"
     ],
     "status": "generated"
   },
   "reports": {
     "synonyms": [
       "rapporter",
-      "se rapporter",
-      "vis rapporter",
-      "åpne rapporter",
-      "rapportering",
-      "analyser",
-      "statistikk",
-      "data innsikt",
-      "ytelsesmål",
-      "arbeidsstyrkeanalyse",
-      "rapport oversikt",
-      "vis statistikk",
-      "se analyser",
-      "sjekk rapporter",
-      "rapporteringsverktøy",
-      "dataanalyse",
-      "se data",
-      "arbeidskraftrapporter",
-      "prestasjonsdata",
-      "innsiktsrapporter"
+      "rapportmaler",
+      "rapportmal",
+      "rapportinnstillinger",
+      "rapportoppsett",
+      "maler for rapporter"
     ],
     "status": "generated"
   },
   "scheduling-defaults": {
     "synonyms": [
-      "standard innstillinger for vaktplanlegging",
-      "forvalgte planleggingsinnstillinger",
-      "standard oppsett for vaktplan",
-      "forhåndsvalgte planleggingsvalg",
-      "standard konfigurasjon for vaktplan",
-      "standard innstillinger for planlegging",
-      "forhåndsinnstilte vaktplaninnstillinger",
-      "standard vaktplan innstillinger",
-      "forvalgte vaktplanvalg",
-      "standard planleggingsalternativer",
-      "standard vaktplan konfigurasjon",
-      "forhåndsinnstilte planleggingsvalg",
-      "standard oppsett for planlegging",
-      "forvalgte vaktplan konfigurasjoner",
-      "standardinnstillinger for vaktplaner",
-      "forhåndsvalgte planleggingskonfigurasjoner",
-      "standard vaktplanmeny",
-      "forvalgte innstillinger for vaktplan",
-      "standard planleggingsmeny",
-      "forhåndsinnstilte vaktplanvalg"
+      "standardinnstillinger for planlegging",
+      "standardverdier for planlegging"
     ],
     "status": "generated"
   },
   "scheduling-rules": {
     "synonyms": [
       "planleggingsregler",
-      "regler for skiftplanlegging",
-      "bemanningsregler",
-      "skiftregler",
+      "planleggingsregel",
       "turnusregler",
-      "arbeidsplanregler",
-      "regler for vaktplanlegging",
-      "personalplanleggingsregler",
-      "skiftplanleggingsinnstillinger",
-      "bemanningsplanregler",
-      "turnusplanregler",
-      "regler for skiftfordeling",
-      "arbeidsplaninnstillinger",
-      "vaktregler",
-      "skiftpolicy",
-      "bemanningspolicy",
-      "turnuspolicy",
-      "personalpolicy",
-      "skiftallokeringsregler",
-      "arbeidstidsregler"
+      "regler for turnus",
+      "regler for planlegging",
+      "vaktplanregler"
     ],
     "status": "generated"
   },
   "settings-general": {
     "synonyms": [
-      "generelle innstillinger",
-      "hovedinnstillinger",
-      "grunnleggende innstillinger",
-      "grunninnstillinger",
-      "basisinnstillinger",
       "generelt",
+      "generelle innstillinger",
+      "generelt oppsett",
       "generelle valg",
-      "standardinnstillinger",
-      "innstillinger generelt",
-      "primære innstillinger",
-      "kjerneinnstillinger",
-      "essensielle innstillinger",
-      "fundamentale innstillinger",
-      "hovedvalg",
-      "grunnleggende valg",
-      "basisvalg",
-      "generelle preferanser",
-      "hovedpreferanser",
-      "åpne generelle innstillinger",
-      "gå til generelle innstillinger"
+      "generell konfigurasjon"
     ],
     "status": "generated"
   },
   "shifts": {
     "synonyms": [
-      "min vaktplan",
-      "vaktene mine",
-      "arbeidsplan",
-      "vaktkalender",
-      "se vaktplanen",
-      "planlagte vakter",
-      "timeplanen min",
-      "oversikt over vakter",
-      "vaktliste",
-      "arbeidstiden min",
-      "kommende vakter",
-      "vaktoversikt",
-      "se mine vakter",
-      "skiftplan",
-      "mine vakter i dag",
-      "vaktplanen min",
-      "ukens vakter",
-      "vaktskjema",
-      "åpne vaktplanen",
-      "vis vakter"
+      "vakter",
+      "alle vakter",
+      "planlagte vakter"
     ],
     "status": "generated"
   },
   "spam-rules": {
     "synonyms": [
-      "vis spamregler",
-      "endre spamregler",
-      "konfigurer spamregler",
-      "sett opp spamregler",
-      "juster spamregler",
-      "oppdater spamregler",
-      "administrer spaminnstillinger",
-      "gå til spamregler",
-      "åpne spamregler",
-      "spamregler i innstillinger",
-      "rediger spamfiltre",
-      "tilpass spamregler",
-      "se over spamregler",
-      "slett spamregler",
-      "legg til spamregel",
-      "styr spamregler",
-      "spamkontroll",
-      "spaminnstillinger",
+      "søppelpostregler",
+      "spamregler",
       "regler for søppelpost",
-      "behandle spamregler"
+      "regler mot søppelpost",
+      "regelverk for søppelpost",
+      "retningslinjer for søppelpost"
     ],
     "status": "generated"
   },
   "states": {
     "synonyms": [
-      "vis hvor ansatte er",
-      "vis alle arbeidssteder",
-      "vis ansatte fordelt på region",
-      "liste opp alle stater",
-      "åpne geografiske innstillinger",
-      "se hvor teamet mitt holder til",
-      "bla gjennom lokasjoner etter stat",
-      "sjekk regional arbeidsstyrke data",
-      "gå til stater",
-      "vis stater",
-      "administrer stater",
-      "finn stater",
-      "se stater",
-      "stater oversikt",
-      "stater innstillinger",
-      "regioner og stater",
-      "arbeidslokasjoner",
-      "ansatte per sted",
-      "hvor jobber folk",
-      "geografisk oversikt"
+      "statoversikt",
+      "statliste",
+      "statinnstillinger",
+      "administrering av stater"
     ],
     "status": "generated"
   },
   "user-management": {
     "synonyms": [
       "brukeradministrasjon",
-      "administrer brukere",
-      "brukerinnstillinger",
-      "styr brukere",
-      "brukerkontoer",
-      "personaladministrasjon",
-      "ansattprofiler",
-      "teammedlemmer",
-      "brukertillatelser",
-      "administrer ansatte",
       "brukerstyring",
-      "ansattadministrasjon",
-      "brukerliste",
-      "ansatteinstillinger",
-      "brukerbehandling",
-      "administrer teammedlemmer",
-      "personalinnstillinger",
-      "ansattkontoer",
-      "brukerrettigheter",
-      "styr ansatte"
+      "brukerforvaltning",
+      "brukerhåndtering",
+      "brukeradmin",
+      "administrasjon av brukere"
     ],
     "status": "generated"
   },
   "work-setting": {
     "synonyms": [
+      "grunninnstillinger for planlegging",
       "arbeidsinnstillinger",
-      "innstillinger for vaktplanlegging",
-      "vaktplanleggingsinnstillinger",
-      "arbeidstidsinnstillinger",
-      "skjemainnstillinger",
-      "planleggingspreferanser",
-      "turnusinnstillinger",
-      "arbeidsordningsinnstillinger",
-      "innstillinger for arbeidsplan",
-      "konfigurasjon av vaktplan",
-      "arbeidstidskonfigurasjon",
-      "innstillinger for skiftplanlegging",
-      "vaktplanleggingspreferanser",
-      "arbeidsplassinnstillinger",
-      "innstillinger for arbeidstidsordning",
-      "skjemakonfigurasjon",
-      "planleggingskonfigurasjon",
-      "arbeidstidsplaninnstillinger",
-      "vaktinnstillinger",
-      "innstillinger for vaktplan"
+      "innstillinger for arbeid",
+      "arbeidsplaninnstillinger"
     ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
-      "fraværsdetaljskjema",
-      "rediger fravær",
-      "detaljer om fravær",
-      "fraversdetaljer",
-      "endre fravær",
-      "fravær detaljer skjema",
-      "fraværsdetaljene",
-      "skjema for fraværsdetaljer",
-      "åpne fraværsdetaljer",
-      "vis fraværsdetaljer",
-      "fraversdetaljskjema",
-      "detaljert fraværsskjema",
-      "fraværsdetaljer skjema",
-      "rediger fraværsdetaljer",
-      "fravær detaljer",
-      "endre fraværsdetaljer",
-      "fraværdetaljer",
-      "fraværsdetaljskjemaet",
-      "detaljskjema for fravær"
+      "fraværsskjema",
+      "fraværsregistrering",
+      "fraværsredigering"
     ],
     "status": "generated"
   },
   "absences": {
     "synonyms": [
-      "fravær",
-      "permisjon",
       "fraværsoversikt",
       "fraværskalender",
-      "permisjonskalender",
-      "fraværsregistrering",
-      "se fravær",
-      "gå til fravær",
-      "fraværsskjema",
-      "fraværsbehandling",
-      "fraværshistorikk",
-      "fraværsrapport",
-      "logg fravær",
-      "registrer permisjon",
-      "fraværskontroll",
-      "permisjonsoversikt",
-      "tid borte",
-      "fraværsstatistikk",
-      "fraværsbehov",
-      "fraværsplaner"
+      "planlagt fravær",
+      "ansattes fravær",
+      "fraværsliste"
     ],
     "status": "generated"
   },
   "assistant-personality": {
     "synonyms": [
-      "åpne ki-personlighet",
-      "gå til assistentpersonlighet",
-      "innstillinger for ai-personlighet",
-      "endre assistentens personlighet",
-      "assistentpersonlighet i innstillinger",
-      "personlighet for klacks-assistent",
-      "juster ki-personlighet",
-      "åpne assistentpersonlighet",
-      "innstillinger assistentpersonlighet",
-      "personlighetsinnstillinger for assistent",
-      "gå til assistentens personlighet",
-      "ki-personlighet i innstillinger",
-      "assistentens personlighetsinnstillinger",
-      "åpne personlighet for assistent",
-      "innstillinger for assistentens personlighet",
-      "gå til ki-personlighet",
-      "personlighetsvalg for assistent",
-      "assistentpersonlighet under innstillinger",
-      "rediger assistentpersonlighet",
-      "vis assistentpersonlighet"
+      "personlighet",
+      "assistentpersonlighet",
+      "assistentens personlighet",
+      "personlighetsinnstillinger",
+      "personlighetsprofil",
+      "assistentens væremåte"
     ],
     "status": "generated"
   },
   "branch-form": {
     "synonyms": [
-      "åpne filialskjema",
-      "rediger filial",
+      "filialskjema",
+      "filialoppsett",
       "filialdetaljer",
-      "vis filialinformasjon",
-      "gå til filialskjema",
-      "endre filialoppsett",
-      "filialformularet",
-      "se på filial",
-      "oppdater filial",
-      "filialinnstillinger",
-      "åpne filialdetaljer",
-      "rediger filialinformasjon",
-      "filialskjerm",
-      "vis filialoppsett",
-      "gå til redigering av filial",
-      "filialdata",
-      "åpne redigeringsskjema for filial",
-      "filialkonfigurasjon",
-      "se filialdetaljer",
-      "endre filialinformasjon"
+      "filialinformasjon"
     ],
     "status": "generated"
   },
   "calendar-rule-form": {
     "synonyms": [
-      "rediger kalenderregel",
-      "endre kalenderregel",
-      "kalenderregel skjema",
-      "kalenderregel detaljer",
-      "åpne kalenderregel",
-      "kalenderregel oppsett",
-      "regel for kalender",
-      "kalenderregel form",
-      "redigere kalenderregel",
-      "kalenderregel redigering",
-      "endre kalenderregler",
-      "kalenderregel innstillinger",
-      "skjema for kalenderregel",
-      "kalenderregel detalj",
-      "rediger kalenderregelen",
-      "åpne kalenderregel skjema",
-      "kalenderregel rediger",
-      "redigeringsskjema for kalenderregel",
-      "rediger kalenderregelen min"
+      "kalenderregel",
+      "regeldefinisjon",
+      "regeloppsett",
+      "regelskjema",
+      "regelredigering"
     ],
     "status": "generated"
   },
   "client-availability": {
     "synonyms": [
-      "tilgjengeligheter",
-      "ledige ansatte",
-      "ansattes tilgjengelighet",
-      "personell tilgjengelighet",
-      "tilgjengelighetsplan",
-      "klient tilgjengelighet",
-      "oversikt over tilgjengelighet",
-      "ledig kapasitet",
-      "tilgjengelighetskalender",
-      "ansatte tilgjengelig",
-      "ledighet",
-      "tilgjengelighetsliste",
-      "hvem er tilgjengelig",
-      "planlegg tilgjengelighet",
-      "tilgjengelighetsinformasjon",
-      "tilgjengelighet ansatte",
-      "ledige ressurser",
-      "tilgjengelighet for ansatte",
-      "vis tilgjengelighet",
-      "oppdater tilgjengelighet"
+      "kundetilgjengelighet",
+      "klienttilgjengelighet",
+      "kunders ledige tider",
+      "tilgjengelige tider for kunder",
+      "klientens tilgjengelighet",
+      "ledige tidsrom for klienter"
     ],
     "status": "generated"
   },
   "client-detail": {
     "synonyms": [
-      "åpne ansattprofil",
-      "vis ansattdetaljer",
-      "rediger ansatt",
-      "se kundedetaljer",
-      "kundeprofil",
-      "rediger kunde",
       "personopplysninger",
-      "ansattinformasjon",
-      "åpne kundeprofil",
-      "vis personalia",
-      "rediger personalia",
-      "kundedata",
-      "ansattkort",
-      "detaljer om ansatt",
-      "detaljer om kunde",
-      "rediger opplysninger",
-      "se ansatt",
-      "se kunde",
-      "opplysninger om ansatt",
-      "opplysninger om kunde"
+      "adresse og personopplysninger",
+      "klientdetaljer",
+      "klientopplysninger",
+      "kundeopplysninger"
     ],
     "status": "generated"
   },
   "client-detail.birthday": {
     "synonyms": [
-      "bursdag",
       "fødselsdato",
+      "bursdag",
       "fødselsdag",
-      "klientens bursdag",
-      "ansatt bursdag",
-      "se bursdag",
-      "vis fødselsdato",
-      "rediger fødselsdato",
-      "oppdater bursdag",
-      "finn bursdag",
-      "gå til bursdag",
-      "åpne bursdagsfelt",
-      "sjekk fødselsdato",
-      "legg til bursdag",
-      "endre fødselsdag",
-      "se ansatt fødselsdato",
-      "klient fødselsdag",
-      "ansatt fødselsdato",
-      "bursdagsinformasjon",
-      "fyll inn bursdag"
+      "dato for fødsel",
+      "bursdagsdato",
+      "klientens fødselsdato"
     ],
     "status": "generated"
   },
   "client-detail.firstname": {
     "synonyms": [
-      "fornavn til klient",
+      "fornavn",
+      "fornavnfeltet",
       "klientens fornavn",
-      "oppgi fornavn",
-      "rediger fornavn",
-      "fornavn ansatt",
-      "ansatt fornavn",
-      "fornavn felt",
-      "fyll inn fornavn",
-      "endre fornavn",
-      "fornavn på klient",
-      "klient fornavn",
-      "fornavn klient detaljer",
-      "detaljer fornavn",
-      "se fornavn",
-      "skriv fornavn",
-      "fornavn klientinfo",
-      "klientens fulle fornavn",
-      "fornavn i kundeprofil",
       "kundens fornavn",
-      "fornavn ansattprofil"
+      "klientfornavn",
+      "fornavn på klient"
     ],
     "status": "generated"
   },
   "client-detail.gender": {
     "synonyms": [
-      "kjønn til klient",
-      "kjønn ansatt",
-      "kjønnsinformasjon",
-      "kjønn på ansatt",
-      "vis kjønn",
-      "endring av kjønn",
-      "kjønnsfelt",
-      "kjønn detaljer",
-      "klient kjønn",
-      "kjønn ansatte",
-      "ansatt kjønn",
-      "kjønnsdata",
-      "kjønn på klient",
-      "kjønnsvalg",
-      "kjønnsregistrering",
-      "kjønn person",
-      "kjønnsangivelse",
-      "kjønn for ansatt",
-      "kjønnsinformasjon om klient",
-      "kjønn klient"
+      "kjønn",
+      "kundens kjønn"
     ],
     "status": "generated"
   },
   "client-detail.lastname": {
     "synonyms": [
       "etternavn",
-      "ansatt etternavn",
-      "søk på etternavn",
-      "etternavn for ansatt",
-      "finn ansatt med etternavn",
-      "ansatt sitt etternavn",
-      "etternavn ansatt",
-      "søk etter etternavn",
-      "ansatt etternavn oppdater",
-      "endre ansatt etternavn",
-      "etternavn på ansatt",
-      "se ansatt etternavn",
-      "oppdater ansatt etternavn",
-      "ansatt etternavn rediger",
-      "etternavn endre",
-      "ansatt etternavn søk",
-      "finn etternavn",
-      "etternavn til ansatt",
-      "rediger ansatt etternavn",
-      "ansatt etternavn finn"
+      "slektsnavn",
+      "familienavn",
+      "klientens etternavn"
     ],
     "status": "generated"
   },
   "client-list": {
     "synonyms": [
-      "ansatte",
-      "ansattliste",
-      "personal",
-      "personalliste",
-      "stab",
-      "team",
-      "teamliste",
-      "arbeidsstokk",
-      "medarbeidere",
-      "medarbeiderliste",
-      "ansattoversikt",
-      "personaloversikt",
-      "teamoversikt",
-      "de ansatte",
-      "alle ansatte",
-      "se ansatte",
-      "ansatte side",
-      "personal side",
-      "team side",
-      "vis ansatte"
+      "klienter",
+      "kunder",
+      "klientliste",
+      "kundeliste",
+      "klientoversikt",
+      "kundeoversikt"
     ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "vis skiftkonseptmal",
-      "åpne mal for skiftkonsept",
-      "gå til konseptmal for skift",
-      "vis mal for skiftkonsept",
-      "åpne container-mal",
-      "container-mal for skift",
-      "skiftkonseptcontainer",
-      "vis container-mal",
-      "åpne skiftkonseptmal",
-      "gå til container-mal",
-      "container template",
-      "mal for shift container",
-      "shift container mal",
-      "vis konseptmal",
-      "åpne shift konsept mal",
-      "konseptmal for skiftcontainer",
-      "gå til mal for shift konsept",
-      "åpne container template",
-      "shift template container",
-      "container template for skift"
+      "containermal",
+      "skiftcontainermal",
+      "vaktcontainermal",
+      "mal for container",
+      "mal for skiftcontainer",
+      "mal for vaktcontainer"
     ],
     "status": "generated"
   },
   "contract-form": {
     "synonyms": [
-      "kontraktsskjema",
-      "endre kontrakt",
-      "ansettelsesskjema",
-      "kontraktsdetaljer",
-      "åpne kontraktsskjema",
-      "kontraktskjema for ansatt",
-      "rediger ansettelseskontrakt",
-      "kontraktsinformasjon",
-      "vis kontrakt",
-      "kontraktsskjemaet",
-      "ansettelseskontrakt skjema",
+      "kontraktskjema",
       "kontraktsredigering",
-      "ny kontrakt",
-      "kontraktsdata",
-      "fyll ut kontrakt",
-      "kontraktsmal",
-      "se kontraktsdetaljer",
-      "endre ansettelsesforhold kontrakt",
-      "kontraktsbehandling",
-      "oppdater kontrakt"
+      "redigering av kontrakt",
+      "kontraktsinformasjon",
+      "kontraktsdetaljer",
+      "kontraktsdata"
     ],
     "status": "generated"
   },
   "contract-form.name": {
     "synonyms": [
-      "kontraktens navn",
-      "navn på kontrakt",
-      "kontraktnavn",
-      "hva kontrakten heter",
-      "navnet på ansettelseskontrakten",
-      "kontraktens tittel",
-      "tittel på kontrakt",
-      "navngi kontrakten",
-      "kontraktnavn felt",
-      "kontraktens navnefelt",
-      "navnefelt for kontrakt",
-      "sett navn på kontrakt",
-      "endre kontraktens navn",
-      "rediger kontraktnavn",
-      "navn som kontrakten har",
-      "hva er kontrakten kalt",
-      "kontraktens benevning",
-      "benevning på kontrakt",
-      "kontraktens etikett",
-      "etikett for kontrakt"
+      "kontraktskjemanavn",
+      "kontraktskjemas navn",
+      "navn på kontraktskjema",
+      "kontraktskjemaets navn"
     ],
     "status": "generated"
   },
   "cut-shift": {
     "synonyms": [
-      "åpne kutt vakt",
-      "gå til kutt vakt",
-      "vis kutt vakt",
-      "kutt vakt siden",
-      "del vakt",
-      "splitt vakt",
-      "åpne splitt vakt",
-      "gå til delt vakt",
-      "kutt vakt funksjonen",
-      "naviger til kutt vakt",
-      "vis delt vakt",
-      "åpne del vakt",
-      "gå til splitt vakt",
-      "kutt vakt skjermen",
-      "del vakt siden",
-      "splitt vakt funksjonen",
-      "vis kutt vakt siden",
-      "åpne delt vakt",
-      "gå til del vakt",
-      "naviger til splitt vakt"
+      "skiftdeling",
+      "skiftkutting",
+      "deling av skift",
+      "kutting av skift",
+      "splitt av skift"
     ],
     "status": "generated"
   },
   "edit-employee": {
     "synonyms": [
-      "endre ansatt",
-      "endre ansatte",
-      "rediger ansatt",
-      "rediger ansatte",
-      "ny ansatt",
-      "nye ansatte",
-      "opprett ansatt",
-      "opprett ansatte",
-      "legg til ansatt",
-      "legg til ansatte",
-      "endre kontakt",
-      "rediger kontakt",
-      "ny kontakt",
-      "nye kontakter",
-      "opprett kontakt",
-      "legg til kontakt",
-      "ansatt detaljer",
-      "ansatte detaljer",
-      "se ansatt",
-      "se ansatte"
+      "ansattredigering",
+      "medarbeiderredigering",
+      "ansattprofil",
+      "medarbeiderprofil",
+      "ansattopplysninger",
+      "medarbeideropplysninger"
     ],
     "status": "generated"
   },
   "edit-group": {
     "synonyms": [
-      "rediger gruppe",
-      "endre gruppe",
-      "gruppedetaljer",
-      "grupperedigering",
-      "åpne gruppe",
-      "gå til rediger gruppe",
-      "endre gruppeinnstillinger",
-      "grupperedigeringssiden",
-      "modifiser gruppe",
-      "gruppeadministrasjon",
-      "rediger arbeidsplassgruppe",
-      "gruppekonfigurasjon",
-      "oppdatere gruppe",
-      "gruppeinformasjon",
-      "redigeringsmodus for gruppe",
-      "tilpass gruppe",
-      "gruppeoppsett",
-      "administrer grupper",
-      "gruppens detaljer",
-      "naviger til grupperedigering"
+      "gruppeendring",
+      "gruppejustering",
+      "redigering av gruppe",
+      "endring av gruppe",
+      "justering av gruppe"
     ],
     "status": "generated"
   },
   "edit-shift": {
     "synonyms": [
-      "rediger vakt",
-      "endre vakt",
-      "vaktdetaljer",
-      "vaktredigering",
-      "åpne vakt",
-      "gå til rediger vakt",
-      "endre vaktplan",
-      "rediger vaktmal",
-      "se vaktinformasjon",
-      "oppdater vakt",
-      "modifiser vakt",
-      "rediger vaktdata",
-      "vaktinnstillinger",
-      "endre vaktinformasjon",
-      "rediger en vakt",
-      "vis vakt",
-      "gå til vakteditor",
-      "rediger valgt vakt",
-      "endre vakt i planen",
-      "rediger vaktplanen"
+      "skiftredigering",
+      "skiftendring",
+      "skifteditor",
+      "redigering av skift",
+      "endring av skift"
     ],
     "status": "generated"
   },
   "employee-membership.type": {
     "synonyms": [
-      "medlemstype",
-      "type medlemskap",
-      "ansatt medlemstype",
-      "rediger medlemstype",
-      "medlemskaptype",
-      "type ansattmedlemskap",
-      "medlemskapstype ansatt",
-      "ansattes medlemstype",
-      "medlemskategori",
-      "kategori medlemskap",
-      "endring av medlemstype",
-      "medlemskap kategori",
-      "type medlemskap ansatt",
-      "medlemskapskategori",
-      "ansatt medlemskaptype",
-      "redigere medlemstype",
       "medlemskapstype",
       "ansatttype",
-      "medlemskap ansatt",
-      "medlemskapstype endre"
+      "medlemstype"
     ],
     "status": "generated"
   },
   "group-detail": {
     "synonyms": [
-      "gruppedetaljer",
-      "se gruppe",
-      "gruppedata",
-      "vis gruppe",
-      "rediger gruppe",
-      "åpne gruppe",
       "gruppeside",
-      "gruppeinformasjon",
-      "gå til gruppe",
-      "gruppeprofil",
-      "detaljer om gruppe",
-      "gruppeoversikt",
-      "arbeidsgruppe",
-      "gruppeskjerm",
-      "gruppebilde",
-      "gruppesammendrag",
-      "arbeidsplassgruppe",
-      "konfigurer gruppe",
-      "gruppemanager"
+      "gruppevisning",
+      "informasjon om gruppe"
     ],
     "status": "generated"
   },
   "group-detail.name": {
     "synonyms": [
       "gruppenavn",
-      "navn på gruppe",
-      "endre gruppenavn",
-      "gruppenavn endre",
-      "navn på gruppen",
+      "gruppenavnet",
+      "navnet på gruppen",
       "gruppens navn",
-      "rediger gruppenavn",
-      "gruppenavn rediger",
-      "sett gruppenavn",
-      "navn for gruppen",
-      "gruppenavn sett",
-      "endring av gruppenavn",
-      "navn på gruppa",
-      "gruppenavn felt",
-      "skriv inn gruppenavn",
-      "gruppenavn skriv inn",
-      "gruppenavn i redigering",
-      "navn gruppe",
-      "redigering gruppenavn",
-      "gruppe navn endre"
+      "navn på gruppen"
     ],
     "status": "generated"
   },
   "group-list": {
     "synonyms": [
-      "gruppelisten",
-      "grupper",
-      "gruppoversikt",
+      "gruppeliste",
+      "gruppeoversikt",
       "team",
-      "teamlisten",
-      "teamoversikt",
       "avdelinger",
-      "avdelingslisten",
-      "kostnadssteder",
-      "kostnadsstedliste",
-      "naviger til grupper",
-      "vis gruppeliste",
-      "åpne grupper",
-      "gå til grupper",
-      "se grupper",
-      "gruppeside",
-      "alle grupper",
-      "gruppeadministrasjon",
-      "gruppelist",
-      "teamliste"
+      "kostnadssteder"
     ],
     "status": "generated"
   },
   "klacksy-model-check": {
     "synonyms": [
+      "modellsjekk",
+      "modelltest",
+      "beste modeller",
+      "modellvurdering",
       "modellkontroll",
-      "sjekk modellen",
-      "åpne modellinnstillinger",
-      "hvor er modellkontroll?",
-      "gå til modell",
-      "modellinnstillinger",
-      "vis modellkonfigurasjon",
-      "still inn modell",
-      "modelloversikt",
-      "modellvalg",
-      "konfigurer modell",
-      "modellparametre",
-      "modellinnstillinger ai",
-      "ai modell",
-      "sjekk ai modell",
-      "åpne ai modellinnstillinger",
-      "ai innstillinger modell",
-      "gå til modellvalg",
-      "modelljustering",
-      "modellkontrollpanel"
+      "modellanalyse"
     ],
     "status": "generated"
   },
   "llm-sync-log": {
     "synonyms": [
-      "åpne llm-sync-log",
-      "gå til modellsynkroniseringslogg",
-      "vis ai-synkroniseringslogg",
-      "åpne synkroniseringslogg",
-      "gå til llm-synk-log",
-      "se synkroniseringslogg for ai",
-      "åpne model sync logg",
-      "gå til ai-synkroniseringsloggen",
-      "vis llm synklogg",
-      "åpne synkloggen for llm",
-      "gå til synkroniseringsloggen",
-      "se llm-synkroniseringslogg",
-      "åpne ai synk logg",
-      "gå til model sync loggen",
-      "vis synkroniseringslogg",
-      "åpne synkloggen",
-      "gå til llm-synkroniseringslogg",
-      "se ai-synkroniseringsloggen",
-      "åpne modellsynkroniseringsloggen",
-      "gå til synkroniseringsloggen for ai"
+      "synkroniseringslogg",
+      "synklogg",
+      "llm-synkroniseringslogg",
+      "ai-synkroniseringslogg",
+      "logg for llm",
+      "llm-logg"
     ],
     "status": "generated"
   },
   "messaging": {
     "synonyms": [
-      "meldinger",
-      "meldingssenter",
-      "chatt",
       "chat",
-      "beskjeder",
-      "kommunikasjon",
-      "meldingsboksen",
-      "sendt melding",
-      "diskusjon",
-      "samtale",
-      "meldingslogg",
-      "kontakt",
-      "meldingsfunksjon",
-      "chatte",
-      "meldingssystem",
-      "meldingsplattform",
-      "direktemelding",
-      "meldingsvisning",
-      "meldingshistorikk",
-      "meldingsmodul"
+      "meldingssenter",
+      "teamchat",
+      "direktemeldinger",
+      "private meldinger"
     ],
     "status": "generated"
   },
   "new-employee": {
     "synonyms": [
-      "ny ansatt",
-      "opprett ny ansatt",
-      "legg til ny ansatt",
-      "ny ansatt registrere",
+      "nyansatt",
+      "nyansettelse",
       "ny medarbeider",
-      "opprett medarbeider",
-      "legg til medarbeider",
-      "ny kontakt",
-      "opprett kontakt",
-      "legg til kontakt",
-      "rediger adresse",
-      "endre adresse",
-      "ansatt detaljer",
-      "se ansatt",
-      "ny ansatt side",
-      "gå til ny ansatt",
-      "åpne ny ansatt",
       "ny arbeidstaker",
-      "registrer ny ansatt",
-      "opprett ny medarbeider"
+      "ny kollega"
     ],
     "status": "generated"
   },
   "new-group": {
     "synonyms": [
       "ny gruppe",
-      "opprett gruppe",
-      "legg til gruppe",
+      "gruppeopprettelse",
       "nytt team",
-      "legg til team",
-      "gå til ny gruppe",
-      "åpne ny gruppe",
-      "lag ny gruppe",
-      "opprett nytt team",
-      "legg til nytt team",
-      "naviger til ny gruppe",
-      "åpne gruppeoppretting",
-      "start ny gruppe",
-      "ny teamgruppe",
-      "opprett en ny gruppe",
-      "legg til en ny gruppe",
-      "gå til gruppeoppretting",
-      "åpne for å lage gruppe",
-      "lag et nytt team",
-      "naviger til å opprette gruppe"
+      "teamopprettelse",
+      "opprettelse av ny gruppe"
     ],
     "status": "generated"
   },
   "new-shift": {
     "synonyms": [
       "ny vakt",
-      "opprett vakt",
-      "legg til vakt",
-      "ny vaktpost",
-      "opprett ny vakt",
-      "legg til en vakt",
       "nytt skift",
-      "nytt arbeidsskift",
-      "opprett et skift",
-      "registrer ny vakt",
-      "legg inn vakt",
-      "ny turnus",
-      "ny vaktperiode",
-      "nytt vaktintervall",
-      "opprett nytt skift",
-      "legg til ny vakt",
-      "ny vaktinnføring",
-      "nytt oppdrag",
-      "ny vaktplan",
-      "nytt vaktarbeid"
+      "vaktregistrering",
+      "vaktopprettelse",
+      "skiftregistrering",
+      "ny arbeidsvakt"
     ],
     "status": "generated"
   },
   "plan-execution-panel": {
     "synonyms": [
-      "åpne utførelsespanelet",
-      "gå til utførelsespanelet",
-      "vis utførelsespanelet",
-      "utførelsespanel",
       "planutførelse",
-      "utførelsen av planen",
-      "panelet for planutførelse",
-      "åpne planutførelse",
-      "gå til planutførelse",
-      "utførelsespanelet for plan",
-      "åpne utførelse",
-      "vis utførelse",
-      "utførelsesmodus",
-      "planutførelsespanelet",
-      "til utførelsespanelet",
-      "åpne planens utførelse",
-      "gå til utførelse",
-      "utførelsesvisning",
-      "utførelse av plan",
-      "panelet utførelse"
+      "plangodkjenning",
+      "godkjenning av plan",
+      "godkjenning av neste steg",
+      "utførelse av plan"
     ],
     "status": "generated"
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "godkjenn plan",
-      "bekreft utførelse",
-      "godkjenn handlingplan",
-      "godkjenn utført plan",
-      "bekreft plan",
-      "godkjenn gjennomføring",
-      "godkjenn planutførelse",
-      "bekreft planutførelse",
-      "godkjenn utført handling",
-      "godkjenn handling",
-      "bekreft handlingplan",
-      "godkjenn gjennomført plan",
-      "bekreft gjennomføring",
-      "godkjenn",
-      "bekreft",
-      "godkjenn planen",
-      "bekreft planen",
-      "godkjenn utførelsen",
-      "bekreft utførelsen",
-      "godkjenn gjennomføringen"
+      "godkjenningsknapp",
+      "godkjenning og fortsettelse",
+      "godkjenningshandling",
+      "fortsettelsesgodkjenning"
     ],
     "status": "generated"
   },
   "profile": {
     "synonyms": [
-      "profilen min",
+      "profil",
+      "profilside",
       "min profil",
       "brukerprofil",
-      "profilinnstillinger",
-      "profilside",
-      "min profilside",
-      "personlig profil",
-      "profilkonto",
-      "kontoinnstillinger",
-      "min konto",
-      "profilinformasjon",
-      "vis profilen",
-      "åpne profilen",
-      "gå til profilen",
-      "brukerkonto",
-      "personlige innstillinger",
-      "kontoen min",
-      "profil",
-      "se profilen"
+      "profilen min"
     ],
     "status": "generated"
   },
   "schedule": {
     "synonyms": [
-      "planlegging",
-      "skiftplan",
       "vaktplan",
-      "arbeidsplan",
-      "ukeplan",
-      "månedsplan",
-      "skjema",
-      "plan",
-      "ruteplan",
-      "vaktliste",
-      "skiftliste",
       "turnusplan",
-      "personellplan",
-      "bemanning",
-      "skiftordre",
-      "skiftarbeid",
-      "vaktarbeid",
-      "skiftplanlegging",
-      "vaktplanlegging",
-      "dagplan"
+      "arbeidsplan",
+      "vaktkalender"
     ],
     "status": "generated"
   },
   "settings": {
     "synonyms": [
-      "innstillinger",
-      "konfigurasjon",
-      "alternativer",
-      "preferanser",
-      "systeminnstillinger",
-      "admin",
-      "administrasjon",
-      "oppsett",
-      "innstillingssiden",
-      "åpne innstillinger",
-      "gå til innstillinger",
-      "vis innstillinger",
-      "rediger innstillinger",
-      "administratorinnstillinger",
-      "bedriftsinnstillinger",
-      "kontoinnstillinger",
-      "generelle innstillinger",
-      "avanserte innstillinger",
-      "brukerinnstillinger",
-      "sikkerhetsinnstillinger"
+      "appinnstillinger",
+      "arbeidsplassinnstillinger",
+      "innstillinger for arbeidsplass",
+      "arbeidsplassens innstillinger",
+      "innstillinger på arbeidsplassen"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "åpne skjema for vakt",
-      "rediger vaktskjema",
-      "vis vaktformular",
-      "gå til skjema for vakt",
-      "endre vaktmal",
-      "åpne vaktredigering",
-      "skjema for vaktbytte",
-      "vaktformular",
-      "rediger vakt",
-      "åpne rediger vakt",
-      "vis vakt redigering",
-      "gå til vaktmal",
-      "endre vaktformular",
-      "åpne vaktformular",
-      "skjema for vaktredigering",
-      "redigering av vakt",
-      "vakt redigering skjema",
-      "vis vaktmal",
-      "gå til vakt redigering",
-      "åpne mal for vakt"
+      "vaktskjema",
+      "skjema for vakt"
     ],
     "status": "generated"
   },
   "shift-form.abbreviation": {
     "synonyms": [
+      "skiftforkortelse",
+      "forkortelse for skift",
       "forkortelse av skift",
-      "skiftkode",
-      "kortnavn for skift",
-      "hva er skiftforkortelsen",
-      "endre skiftforkortelse",
-      "skift forkortelse rediger",
-      "skiftkodenavn",
-      "forkortelse på skift",
-      "skift kortform",
-      "skiftkode endre",
-      "sett skiftforkortelse",
-      "skift forkortelse oppdater",
-      "skiftkortnavn",
-      "skift forkortelse ny",
-      "skiftnavn forkortet",
-      "skiftkode ny",
-      "skift forkortelse sett",
-      "skift kortnavn endre",
-      "skiftkode oppdater",
-      "skift forkortelse angi"
+      "skiftets forkortelse",
+      "forkortelse på skift"
     ],
     "status": "generated"
   },
   "shift-form.name": {
     "synonyms": [
-      "navnet på vakt",
-      "vaktnavn",
       "skiftnavn",
+      "vaktnavn",
       "navn på skift",
-      "endre vaktnavn",
-      "rediger skiftnavn",
-      "skift navn",
-      "navnet på skiftet",
-      "angiv vaktnavn",
-      "sett skiftnavn",
-      "navn på vaktetype",
-      "vaktens navn",
-      "skiftets navn",
-      "navn på arbeidsvakt",
-      "vaktnavn endre",
-      "skiftnavn endre",
-      "navngi vakt",
-      "navngi skift",
-      "navnefelt vakt",
-      "skift navnefelt"
+      "navn på vakt",
+      "skiftets navn"
     ],
     "status": "generated"
   },
   "shift-list": {
     "synonyms": [
-      "åpne skiftoversikten",
-      "gå til skift",
-      "vis skiftlisten",
-      "skiftoversikt",
-      "alle skift",
       "skiftliste",
-      "skift",
-      "naviger til skift",
-      "se skift",
-      "skiftkatalog",
-      "skifttyper",
-      "skiftmaler",
-      "åpne skift",
-      "gå til skiftlisten",
-      "vis skift",
-      "skiftoversikten",
-      "skiftlisten",
-      "frem skift",
-      "åpne skiftmaler",
-      "skifttypeoversikt"
+      "skiftoversikt"
     ],
     "status": "generated"
   },
   "updates": {
     "synonyms": [
       "oppdateringer",
-      "siste nytt",
-      "hva er nytt",
-      "nyheter",
-      "se oppdateringer",
-      "gå til oppdateringer",
-      "vis oppdateringer",
-      "nye funksjoner",
-      "endringslogg",
-      "siste endringer",
-      "versjonshistorikk",
-      "hva har endret seg",
-      "oppdateringslogg",
-      "nytt innhold",
-      "siste oppdateringer",
-      "se hva som er nytt",
-      "åpne oppdateringer",
-      "finn oppdateringer",
-      "nyheter og oppdateringer",
-      "oppdateringssiden"
+      "programvareoppdateringer",
+      "systemoppdateringer",
+      "oppdateringsinnstillinger",
+      "programvareoppdatering",
+      "oppdateringsside"
     ],
     "status": "generated"
   },
   "wizard": {
     "synonyms": [
-      "åpne harmonisatoren",
-      "gå til veiviseren",
-      "harmonisator for vakter",
-      "skiftveiviseren",
-      "veiviseren i innstillinger",
-      "planleggingsassistenten",
-      "åpne veiviseren",
-      "gå til harmonisatoren",
-      "sett opp vakter med veiviseren",
-      "skiftassistenten",
-      "naviger til veiviseren",
-      "harmonisator for turnus",
-      "åpne skiftveiviseren",
-      "gå til planleggingsassistenten",
-      "veiviser for bemanning",
-      "åpne turnusassistenten",
-      "skiftplanlegger",
-      "harmonisator for arbeidstid",
-      "gå til skiftassistenten",
-      "veiviser for vaktplan"
+      "llm-harmonisering",
+      "harmoniseringsveiviser",
+      "holistic harmonizer",
+      "holistisk harmonisering",
+      "veiviser for harmonisering",
+      "harmoniseringsinnstillinger"
     ],
     "status": "generated"
   },
   "work-setting-form": {
     "synonyms": [
-      "åpne innstillinger for arbeidssted",
-      "rediger arbeidsstedsinnstillinger",
-      "gå til arbeidsstedskjema",
-      "vis arbeidsstedsinnstillinger",
-      "endre innstillinger for arbeidssted",
-      "arbeidsstedskjema",
-      "sett arbeidssted",
-      "konfigurer arbeidssted",
-      "innstillinger for arbeidssted",
-      "rediger arbeidssted",
-      "arbeidsstedsinnstillinger",
-      "åpne arbeidsstedskjema",
-      "gå til innstillinger for arbeidssted",
-      "vis arbeidsstedskjema",
-      "endre arbeidssted",
-      "oppdater arbeidsstedsinnstillinger",
-      "arbeidssted innstillinger skjema",
-      "åpne redigeringsskjema for arbeidssted",
-      "gå til redigeringsskjema for arbeidssted",
-      "arbeidssted konfigurasjonskjema"
+      "arbeidsplassens grunninnstillinger"
     ],
     "status": "generated"
   },
   "assistant-learning": {
     "synonyms": [
-      "klacksy lærer",
-      "klacksy læring",
-      "læringsinnstillinger",
-      "hva klacksy har lært",
+      "assistentlæring",
       "lærte formuleringer",
-      "åpne ønsker",
-      "ferdighetsforslag",
-      "nye ferdigheter",
-      "åpne klacksy læring",
-      "gjennomgang av ferdigheter"
+      "lærte evner",
+      "innlærte formuleringer",
+      "innlærte evner"
     ],
     "status": "generated"
   },
   "address-membership": {
     "synonyms": [
       "medlemskap",
-      "ansattmedlemskap",
-      "gruppemedlemskap",
-      "teamtilhørighet",
-      "åpne medlemskap",
-      "medlemskapsinnstillinger",
-      "medlemskapsinformasjon",
-      "medlemskapsoversikt",
-      "endre medlemskap",
-      "vis medlemskap",
-      "administrer medlemskap",
-      "medlemskapsdetaljer",
-      "medlemskapsstatus",
-      "medlemskapsliste",
-      "medlemskapstyper",
-      "medlemskapsredigering",
-      "medlemskapsdata",
-      "medlemskapsmeny",
-      "medlemskapsvalg",
-      "medlemskapsoppsett"
+      "medlemsregistrering",
+      "adressemedlemskap",
+      "medlemskapsregistrering",
+      "registrering av medlemskap"
+    ],
+    "status": "generated"
+  },
+  "active-industries": {
+    "synonyms": [
+      "aktive bransjer",
+      "bransjer",
+      "bransjeinnstillinger",
+      "aktive bransjeinnstillinger",
+      "bransjeaktivering",
+      "aktivering av bransjer"
+    ],
+    "status": "generated"
+  },
+  "address-contracts": {
+    "synonyms": [
+      "adressekontrakter",
+      "adressekontrakt",
+      "kontrakter for adresse",
+      "kontrakter på adressen"
+    ],
+    "status": "generated"
+  },
+  "address-groups": {
+    "synonyms": [
+      "adressegrupper",
+      "gruppetildelinger",
+      "adressegruppering",
+      "gruppekoblinger"
+    ],
+    "status": "generated"
+  },
+  "address-image": {
+    "synonyms": [
+      "adressebilde",
+      "bilde for adresse",
+      "bilde av adresse",
+      "bilde for adressen",
+      "adressebildet"
+    ],
+    "status": "generated"
+  },
+  "address-note": {
+    "synonyms": [
+      "adressenotat",
+      "adressenotater",
+      "merknad om adresse"
+    ],
+    "status": "generated"
+  },
+  "address-persona": {
+    "synonyms": [
+      "adressekort",
+      "adresseprofil",
+      "adresseoppføring",
+      "adressedetaljer"
+    ],
+    "status": "generated"
+  },
+  "address-qualifications": {
+    "synonyms": [
+      "kompetansekrav",
+      "kvalifikasjoner for arbeidssted",
+      "adressekvalifikasjoner",
+      "krav til kvalifikasjoner"
+    ],
+    "status": "generated"
+  },
+  "assistant-skill-relations": {
+    "synonyms": [
+      "ferdighetsrelasjoner",
+      "kompetanserelasjoner",
+      "relasjoner mellom ferdigheter"
+    ],
+    "status": "generated"
+  },
+  "calendar-selection-form": {
+    "synonyms": [
+      "kalenderinnstillinger",
+      "valg av kalendere",
+      "redigering av kalenderutvalg"
+    ],
+    "status": "generated"
+  },
+  "compensatory-rest": {
+    "synonyms": [
+      "erstatningshvile",
+      "avspasering",
+      "innstillinger for erstatningshvile",
+      "kompensasjonshvile"
+    ],
+    "status": "generated"
+  },
+  "compliance-enforcement": {
+    "synonyms": [
+      "compliance-håndheving",
+      "regelhåndheving",
+      "bruddhåndtering",
+      "håndheving av arbeidstidsregler",
+      "håndheving av regler"
+    ],
+    "status": "generated"
+  },
+  "contract-form.percent": {
+    "synonyms": [
+      "stillingsprosent",
+      "stillingsgrad",
+      "stillingsandel",
+      "ansettelsesprosent",
+      "stillingsbrøk",
+      "stillingsstørrelse"
+    ],
+    "status": "generated"
+  },
+  "counter-rules": {
+    "synonyms": [
+      "tellerregler",
+      "tellerregel",
+      "regler for tellere",
+      "innstillinger for tellerregler",
+      "oppsett av tellerregler",
+      "oversikt over tellerregler"
+    ],
+    "status": "generated"
+  },
+  "erp-drop-points": {
+    "synonyms": [
+      "erp-mottakspunkter",
+      "mottakspunkter",
+      "erp-mottakspunkt",
+      "mottakspunkt for erp",
+      "erp-mottak"
+    ],
+    "status": "generated"
+  },
+  "escalation-roster": {
+    "synonyms": [
+      "eskaleringsliste",
+      "eskaleringsliste per gruppe",
+      "eskaleringsplan",
+      "eskaleringskjede",
+      "eskaleringsoversikt"
+    ],
+    "status": "generated"
+  },
+  "export-format-overrides": {
+    "synonyms": [
+      "eksportformat-korrigeringer",
+      "eksportformat-overstyringer",
+      "overstyring av eksportformat",
+      "korrigering av eksportformat"
+    ],
+    "status": "generated"
+  },
+  "export-formats": {
+    "synonyms": [
+      "eksportformater",
+      "eksportformat",
+      "eksportinnstillinger",
+      "formater for eksport",
+      "innstillinger for eksportformater"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel": {
+    "synonyms": [
+      "målforslag",
+      "målkandidater",
+      "panel for målforslag",
+      "panel for målkandidater",
+      "målforslagsoversikt",
+      "oversikt over målforslag"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.approve": {
+    "synonyms": [
+      "målkandidatgodkjenning",
+      "godkjenning av målkandidater",
+      "godkjenningspanel for målkandidater",
+      "målkandidatgodkjenningspanel"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.item": {
+    "synonyms": [
+      "målkandidat",
+      "kandidatkort",
+      "ventende mål",
+      "mål til godkjenning",
+      "beslutningspunkt",
+      "godkjenningssak"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.reject": {
+    "synonyms": [
+      "forkasting",
+      "avvisning",
+      "avslag",
+      "vraking",
+      "forkasting av målkandidat",
+      "avvisning av målkandidat"
+    ],
+    "status": "generated"
+  },
+  "group-item": {
+    "synonyms": [
+      "gruppeinformasjon",
+      "gruppeoppsett",
+      "gruppeinnstillinger"
+    ],
+    "status": "generated"
+  },
+  "group-members": {
+    "synonyms": [
+      "gruppemedlemmer",
+      "medlemmer",
+      "deltakere",
+      "deltakerliste",
+      "medlemsliste",
+      "medlemmer i gruppen"
+    ],
+    "status": "generated"
+  },
+  "group-parent": {
+    "synonyms": [
+      "overordnet gruppe",
+      "overgruppe",
+      "foreldregruppe",
+      "gruppeforelder",
+      "overordnet gruppevalg",
+      "overordnet gruppeinnstilling"
+    ],
+    "status": "generated"
+  },
+  "holiday-work-exemptions": {
+    "synonyms": [
+      "helligdagsunntak",
+      "helligdagsfritak",
+      "unntak for helligdagsarbeid",
+      "fritak for helligdagsarbeid",
+      "unntak fra helligdagsarbeid",
+      "fritak fra helligdagsarbeid"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form": {
+    "synonyms": [
+      "redigering av individuell periode",
+      "individuell perioderedigering",
+      "periodeskjema",
+      "skjema for individuell periode"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form.name": {
+    "synonyms": [
+      "periodeskjemanavn",
+      "navn på periodeskjema",
+      "navn på individuelt periodeskjema",
+      "individuelt periodeskjemanavn",
+      "skjemanavn for individuelt periodeskjema"
+    ],
+    "status": "generated"
+  },
+  "individual-periods": {
+    "synonyms": [
+      "individuelle perioder",
+      "individuelle tidsperioder",
+      "individuelle arbeidsperioder"
+    ],
+    "status": "generated"
+  },
+  "klacksy-autonomy": {
+    "synonyms": [
+      "selvstendighet",
+      "selvstendighetsgrad",
+      "autonomigrad",
+      "innstillinger for autonomi"
+    ],
+    "status": "generated"
+  },
+  "klacksy-proactive-governance": {
+    "synonyms": [
+      "handlingsrom",
+      "handlingsrominnstillinger",
+      "handlingsrom per funntype",
+      "innstillinger for handlingsrom"
+    ],
+    "status": "generated"
+  },
+  "monthly-target-hours": {
+    "synonyms": [
+      "månedlige normtimer",
+      "månedsnormtimer",
+      "månedlig normtid",
+      "månedsnorm",
+      "normtimer per måned",
+      "månedens normtimer"
+    ],
+    "status": "generated"
+  },
+  "new-plannable-shift": {
+    "synonyms": [
+      "kundeløs vakt",
+      "vakt uten kunde",
+      "kundefri vakt"
+    ],
+    "status": "generated"
+  },
+  "overtime": {
+    "synonyms": [
+      "overtid",
+      "overtidsinnstillinger",
+      "overtidsregler",
+      "overtidsberegning",
+      "overtidsstyring",
+      "overtidskonfigurasjon"
+    ],
+    "status": "generated"
+  },
+  "period-cap-rules": {
+    "synonyms": [
+      "periodegrenser",
+      "periodebegrensninger",
+      "grenser for perioder",
+      "regler for periodegrenser",
+      "innstillinger for periodegrenser",
+      "periodegrenseregler"
+    ],
+    "status": "generated"
+  },
+  "period-closing-audit": {
+    "synonyms": [
+      "periodestengingsrevisjon",
+      "avslutningsrevisjon",
+      "periodestengingskontroll",
+      "kontroll av periodestenging"
+    ],
+    "status": "generated"
+  },
+  "period-closing-exports": {
+    "synonyms": [
+      "periodeavslutningseksport",
+      "eksport for periodeavslutning",
+      "periodeeksport",
+      "lønnseksport",
+      "eksport av perioder"
+    ],
+    "status": "generated"
+  },
+  "period-closing-periods": {
+    "synonyms": [
+      "forseglede perioder",
+      "periodeliste",
+      "periodeoversikt",
+      "avslutningsperioder"
+    ],
+    "status": "generated"
+  },
+  "personal-access-token-form": {
+    "synonyms": [
+      "nytt personlig tilgangstoken",
+      "personlig token",
+      "nytt tilgangstoken"
+    ],
+    "status": "generated"
+  },
+  "personal-access-tokens": {
+    "synonyms": [
+      "personlige tilgangstokener",
+      "tilgangstokener",
+      "egne tilgangstokener",
+      "tilgangstokenliste"
+    ],
+    "status": "generated"
+  },
+  "plan-execution-panel.abort": {
+    "synonyms": [
+      "avbrytelse av plan",
+      "planavbrytelse",
+      "planavbrudd",
+      "stans av plan",
+      "planstans",
+      "kansellering av plan"
+    ],
+    "status": "generated"
+  },
+  "profile-data": {
+    "synonyms": [
+      "innloggingsdata",
+      "mine innloggingsdata",
+      "kontoopplysninger",
+      "påloggingsdetaljer"
+    ],
+    "status": "generated"
+  },
+  "profile-messengers": {
+    "synonyms": [
+      "mine meldingstjenester",
+      "meldingsapper",
+      "meldingskanaler",
+      "meldingsintegrasjoner",
+      "profilens meldingstjenester"
+    ],
+    "status": "generated"
+  },
+  "profile-microphone": {
+    "synonyms": [
+      "mikrofon",
+      "talegjenkjenning",
+      "mikrofontest",
+      "talegjenkjenningstest",
+      "mikrofoninnstillinger",
+      "mikrofon- og talegjenkjenningstest"
+    ],
+    "status": "generated"
+  },
+  "profile-picture": {
+    "synonyms": [
+      "profilbilde",
+      "profilfoto",
+      "brukerbilde",
+      "profilbildet mitt",
+      "bilde på profilen",
+      "avatar"
+    ],
+    "status": "generated"
+  },
+  "profile-settings": {
+    "synonyms": [
+      "egendefinerte innstillinger",
+      "personlige innstillinger",
+      "brukerinnstillinger",
+      "kontoinnstillinger"
+    ],
+    "status": "generated"
+  },
+  "qualifications": {
+    "synonyms": [
+      "kvalifikasjoner",
+      "kvalifikasjon",
+      "kompetanse",
+      "autorisasjoner",
+      "sertifiseringer"
+    ],
+    "status": "generated"
+  },
+  "restricted-time-window-rules": {
+    "synonyms": [
+      "begrensede tidsvinduer",
+      "begrenset tidsvindu",
+      "tidsvinduer",
+      "tidsvindusregler",
+      "begrensede tidsvindusregler",
+      "tidsvindu"
+    ],
+    "status": "generated"
+  },
+  "shift-address": {
+    "synonyms": [
+      "skiftadresse",
+      "vaktadresse",
+      "adresse for skift",
+      "adresse for vakt",
+      "vaktens adresse"
+    ],
+    "status": "generated"
+  },
+  "shift-expenses": {
+    "synonyms": [
+      "utgifter",
+      "skiftutgifter",
+      "utgift",
+      "kostnader",
+      "skiftkostnader",
+      "utgifter for skift"
+    ],
+    "status": "generated"
+  },
+  "shift-group": {
+    "synonyms": [
+      "skiftgruppe",
+      "vaktgruppe",
+      "gruppetildeling",
+      "tilordnede grupper",
+      "grupper for skift"
+    ],
+    "status": "generated"
+  },
+  "shift-item": {
+    "synonyms": [
+      "oppdrag",
+      "skiftobjekt",
+      "oppdragselement",
+      "oppdragskort"
+    ],
+    "status": "generated"
+  },
+  "shift-macro": {
+    "synonyms": [
+      "makroliste",
+      "skiftmakro",
+      "makro for skift",
+      "skiftmakroer"
+    ],
+    "status": "generated"
+  },
+  "shift-qualifications": {
+    "synonyms": [
+      "påkrevde kvalifikasjoner",
+      "skiftkvalifikasjoner",
+      "kvalifikasjonskrav"
+    ],
+    "status": "generated"
+  },
+  "shift-special-feature": {
+    "synonyms": [
+      "spesielle egenskaper",
+      "spesialegenskaper",
+      "spesialfunksjoner",
+      "skiftets spesialegenskaper",
+      "særskilte egenskaper",
+      "spesialfunksjon for skift"
+    ],
+    "status": "generated"
+  },
+  "shift-weekday": {
+    "synonyms": [
+      "timer og ukedager",
+      "ukedager",
+      "vaktens ukedager",
+      "ukedager for vakt",
+      "vaktens timer og ukedager"
+    ],
+    "status": "generated"
+  },
+  "skill-effectiveness": {
+    "synonyms": [
+      "ferdighetseffektivitet",
+      "ferdighetseffektiviteten",
+      "ferdighetseffektivitetsinnstillinger",
+      "innstillinger for ferdighetseffektivitet",
+      "oversikt over ferdighetseffektivitet",
+      "side for ferdighetseffektivitet"
+    ],
+    "status": "generated"
+  },
+  "surcharge-mode": {
+    "synonyms": [
+      "tilleggsmodus",
+      "tilleggsmodi",
+      "tilleggsinnstillinger",
+      "tilleggsberegning",
+      "innstillinger for tillegg"
+    ],
+    "status": "generated"
+  },
+  "web-search": {
+    "synonyms": [
+      "nettsøk",
+      "websøk",
+      "internettsøk",
+      "søk på nettet",
+      "søk på internett",
+      "nettbasert søk"
+    ],
+    "status": "generated"
+  },
+  "whisper-plugin": {
+    "synonyms": [
+      "whisper",
+      "selvhostet talegjenkjenning",
+      "whisper-plugin",
+      "lokal talegjenkjenning",
+      "selvhostet whisper"
     ],
     "status": "generated"
   }

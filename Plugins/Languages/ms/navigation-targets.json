@@ -1,350 +1,134 @@
 {
   "absence-detail": {
     "synonyms": [
-      "butiran ketidakhadiran",
-      "maklumat ketidakhadiran penjadualan",
-      "lihat butiran ketidakhadiran",
-      "tetapan ketidakhadiran penjadualan",
-      "semak butiran ketidakhadiran",
-      "maklumat ketidakhadiran dalam penjadualan",
-      "butiran untuk ketidakhadiran",
-      "butiran penjadualan ketidakhadiran",
-      "tetapan ketidakhadiran",
-      "lihat maklumat ketidakhadiran",
-      "perincian ketidakhadiran",
-      "maklumat ketidakhadiran kerja",
-      "butiran cuti",
-      "jadual ketidakhadiran",
-      "tetapan jadual ketidakhadiran",
-      "buka butiran ketidakhadiran",
-      "paparkan butiran ketidakhadiran",
-      "pergi ke butiran ketidakhadiran",
-      "cari butiran ketidakhadiran",
-      "butiran ketidakhadiran dalam tetapan"
+      "ketidakhadiran lanjutan"
     ],
     "status": "generated"
   },
   "absence-types": {
     "synonyms": [
-      "pergi ke jenis ketidakhadiran",
-      "buka tetapan ketidakhadiran",
-      "jenis cuti dan ketidakhadiran",
-      "pengaturan jenis ketidakhadiran",
-      "konfigurasi ketidakhadiran",
-      "tetapan ketidakhadiran pekerja",
-      "jenis-jenis cuti",
-      "modul ketidakhadiran",
-      "panel ketidakhadiran",
-      "tetapan cuti dan rehat",
-      "pengurusan jenis ketidakhadiran",
-      "paparan ketidakhadiran",
-      "tetapan jenis cuti",
-      "menu ketidakhadiran",
-      "konfigurasi cuti",
-      "jenis ketidakhadiran dalam tetapan",
-      "buka tetapan cuti",
-      "pengaturan ketidakhadiran",
-      "jenis cuti dan waktu rehat",
-      "tetapan modul ketidakhadiran"
+      "ketidakhadiran",
+      "jenis ketidakhadiran",
+      "kategori ketidakhadiran"
     ],
     "status": "generated"
   },
   "addresses": {
     "synonyms": [
-      "tunjukkan senarai alamat kakitangan",
-      "mana alamat pekerja saya",
-      "cari maklumat alamat pasukan",
-      "pergi ke direktori alamat pekerja",
-      "lihat alamat kontraktor",
-      "buka profil alamat kakitangan",
-      "semak alamat pekerja shift",
-      "akses rekod alamat pasukan",
-      "cari alamat rakan sekerja",
-      "paparkan butiran alamat pekerja",
-      "pergi ke alamat staf",
-      "mana alamat kontak saya",
-      "tunjukkan maklumat alamat pasukan",
-      "cari dalam senarai alamat pekerja",
-      "lihat alamat kakitangan operasi",
-      "buka direktori alamat pekerja",
-      "semak alamat pekerja sementara",
-      "akses alamat pekerja tetap",
-      "cari alamat pengurus shift",
-      "paparkan senarai alamat kontraktor"
+      "alamat",
+      "alamat-alamat",
+      "semua alamat",
+      "senarai alamat",
+      "daftar alamat",
+      "senarai semua alamat"
     ],
     "status": "generated"
   },
   "assistant-speech": {
     "synonyms": [
-      "tetapan suara ai",
-      "pilihan suara pembantu",
-      "keutamaan suara ai",
-      "tetapan suara pembantu",
-      "konfigurasi suara ai",
-      "tetapan juru bicara ai",
-      "kawalan suara pembantu",
-      "tetapan pertuturan ai",
-      "pilihan suara ai",
-      "konfigurasi pembantu suara",
-      "tetapan ai suara",
-      "pilihan pertuturan ai",
-      "tetapan narrator ai",
-      "kawalan suara ai",
-      "keutamaan pertuturan ai",
-      "tetapan pembantu suara",
-      "konfigurasi suara pembantu",
-      "pilihan narrator ai",
-      "kawalan pertuturan ai"
+      "suara",
+      "pertuturan",
+      "tetapan suara",
+      "suara pembantu",
+      "konfigurasi suara",
+      "suara pertuturan"
     ],
     "status": "generated"
   },
   "branches": {
     "synonyms": [
-      "cawangan",
-      "tetapan cawangan",
       "pengurusan cawangan",
-      "lokasi pejabat",
       "senarai cawangan",
-      "tetapan organisasi",
-      "konfigurasi lokasi",
-      "kemaskini cawangan",
-      "cawangan syarikat",
-      "tetapan tempat kerja",
-      "lokasi cawangan",
-      "senarai lokasi",
-      "pengaturan cawangan",
-      "edit cawangan",
-      "pengurusan lokasi",
-      "tetapan lokasi organisasi",
-      "lihat cawangan",
-      "kemaskini maklumat cawangan",
-      "konfigurasi cawangan",
-      "tapak syarikat"
+      "cawangan syarikat"
     ],
     "status": "generated"
   },
   "calendar-rules": {
     "synonyms": [
-      "peraturan kalendar",
-      "peraturan penjadualan",
-      "peraturan jadual kerja",
-      "peraturan syif",
-      "peraturan ketersediaan",
+      "peraturan hari kelepasan",
       "peraturan cuti",
-      "peraturan roster",
-      "dasar jadual",
-      "tetapan peraturan kalendar",
-      "peraturan penjadualan syif",
-      "peraturan jadual pekerja",
-      "peraturan waktu kerja",
-      "peraturan kehadiran",
-      "konfigurasi peraturan kalendar",
-      "peraturan penggiliran",
-      "peraturan jadual shift",
-      "peraturan masa rehat",
-      "peraturan tempoh kerja",
-      "peraturan perancangan",
-      "peraturan operasi syif"
+      "peraturan takwim",
+      "kelepasan"
     ],
     "status": "generated"
   },
   "calendar-selection": {
     "synonyms": [
-      "pilih kalendar",
-      "pilih jadual",
-      "pilih kalendar kerja",
-      "set kalendar",
-      "pilih kalendar syif",
-      "pilih jadual kerja",
-      "kalendar pilihan",
-      "pilih jadual syif",
-      "pilih kalendar pekerja",
-      "pilih jadual tugas",
-      "pilih kalendar syif kerja",
-      "pilih kalendar lokasi",
-      "pilih jadual syif kerja",
-      "pilih kalendar atau jadual",
-      "pilih jadual kerja syif",
-      "pilih kalendar untuk syif",
-      "pilih jadual kalendar",
-      "pilih kalendar yang dikehendaki",
-      "pilih jadual harian",
-      "pilih kalendar tugas"
+      "pemilihan kalendar",
+      "konfigurasi pilihan kalendar"
     ],
     "status": "generated"
   },
   "contracts": {
     "synonyms": [
-      "pergi ke kontrak",
-      "buka kontrak kerja",
-      "lihat kontrak saya",
-      "ke bahagian kontrak",
-      "urus kontrak pekerja",
-      "cari kontrak perjanjian",
-      "tunjukkan kontrak saya",
-      "masuk ke kontrak",
-      "paparkan kontrak",
-      "ke menu kontrak",
-      "semak kontrak pekerjaan",
-      "buka perjanjian kerja",
-      "ke tetapan kontrak",
-      "lihat perjanjian kontrak",
-      "urus perjanjian kerja",
-      "ke bahagian perjanjian",
-      "cari kontrak kerja",
-      "buka senarai kontrak",
-      "tunjukkan perjanjian kontrak",
-      "ke kontrak pekerja"
+      "kontrak",
+      "perjanjian",
+      "kontrak kerja",
+      "tetapan kontrak",
+      "kontrak syif"
     ],
     "status": "generated"
   },
   "countries": {
     "synonyms": [
       "negara",
+      "negara-negara",
       "senarai negara",
       "tetapan negara",
-      "lokasi",
-      "rantau",
-      "wilayah",
-      "geografi",
-      "global",
-      "antarabangsa",
-      "negara-negara",
-      "pilihan negara",
-      "kawasan",
-      "geografi tetapan",
-      "negara tetapan",
-      "semua negara",
-      "lokasi antarabangsa",
-      "tetapan geografi",
-      "negara pilihan",
-      "lokasi global",
-      "senarai wilayah"
+      "pengurusan negara",
+      "senarai negara organisasi"
     ],
     "status": "generated"
   },
   "dashboard": {
     "synonyms": [
-      "pergi ke dashboard",
-      "buka dashboard kerja",
-      "papar ringkasan kerja",
-      "lihat jadual kerja saya",
-      "dashboard syif saya",
-      "pandangan utama kerja",
-      "halaman ringkasan kerja",
-      "ke halaman dashboard",
-      "dashboard syif keseluruhan",
-      "buka ringkasan syif",
-      "lihat gambaran jadual",
-      "ke paparan kerja utama",
-      "dashboard jadual saya",
-      "papar halaman dashboard",
-      "pergi ke ringkasan kerja",
-      "buka gambaran syif saya",
-      "lihat halaman utama kerja",
-      "ke dashboard jadual",
-      "papar dashboard kerja",
-      "buka pandangan kerja"
+      "papan pemuka",
+      "papan pemuka utama",
+      "papan kawalan",
+      "papan utama",
+      "ringkasan",
+      "papan"
     ],
     "status": "generated"
   },
   "data-retention": {
     "synonyms": [
-      "tetapan dasar penyimpanan data",
-      "pengurusan tempoh simpanan data",
-      "konfigurasi pengekalan data",
-      "jadual pemadaman data",
-      "tempoh simpanan data",
-      "dasar penyimpanan data",
-      "urus tetapan penyimpanan data",
-      "tetapan penahanan data",
-      "konfigurasi tempoh simpanan data",
-      "penetapan pengekalan data",
-      "berapa lama data disimpan",
-      "tetapan pengekalan data",
-      "pengurusan penahanan data",
-      "dasar pengekalan data",
-      "tempoh penahanan data",
-      "penjadualan pemadaman data",
-      "konfigurasi penahanan data",
-      "tetapan jangka masa simpanan data",
-      "pengurusan penyimpanan data",
-      "tetapan pemadaman data"
+      "pengekalan data",
+      "tempoh pengekalan",
+      "pengekalan",
+      "retensi data",
+      "retensi",
+      "pengekalan rekod"
     ],
     "status": "generated"
   },
   "deepl": {
     "synonyms": [
-      "pergi ke tetapan deepl",
-      "buka deepl dalam integrasi",
-      "tetapan deepl di bawah integrasi",
-      "konfigurasi deepl dalam tetapan",
-      "cari deepl di integrasi tetapan",
-      "masuk ke deepl dalam integrasi",
-      "sambung deepl dengan klacks",
-      "aktifkan terjemahan deepl",
-      "set deepl untuk integrasi",
-      "deepl di bahagian tetapan integrasi",
-      "buka integrasi deepl",
-      "pergi ke integrasi deepl dalam tetapan",
-      "tetapan deepl untuk jadual kerja",
-      "gabung deepl dengan apl kerja",
-      "konfigurasi deepl dalam tetapan integrasi",
-      "deepl dalam tetapan integrasi",
-      "cari deepl di halaman tetapan",
-      "tetapan penyepaduan deepl",
-      "pergi ke penyepaduan deepl",
-      "buka tetapan deepl dalam integrasi"
+      "deepl",
+      "terjemahan",
+      "tetapan deepl",
+      "integrasi deepl",
+      "terjemahan deepl",
+      "terjemahan automatik"
     ],
     "status": "generated"
   },
   "email-config": {
     "synonyms": [
-      "tetapan emel pentadbir",
-      "konfigurasi emel pentadbiran",
-      "urus pemberitahuan emel",
-      "keutamaan emel",
-      "tetapan pemberitahuan",
-      "persediaan emel",
-      "pilihan pemberitahuan pentadbir",
-      "konfigurasi amaran emel",
-      "tetapan emel pentadbiran",
-      "pengurusan emel admin",
-      "atur cara emel",
-      "tetapan pemberitahuan admin",
-      "konfigurasi emel untuk admin",
-      "pengaturan emel admin",
-      "pengurusan pemberitahuan emel",
-      "tetapan sistem emel admin",
-      "konfigurasi pemberitahuan admin",
-      "pilihan emel pentadbiran",
-      "susunan emel admin",
-      "tetapan emel pengurusan"
+      "tetapan e-mel",
+      "konfigurasi e-mel",
+      "tetapan mel",
+      "konfigurasi mel",
+      "smtp"
     ],
     "status": "generated"
   },
   "feature-plugins": {
     "synonyms": [
-      "pergi ke tetapan admin plugin",
-      "buka ciri tambahan dalam tetapan",
-      "panel admin alat tambahan",
-      "buka tetapan plugin ciri",
-      "pergi ke pengurusan sambungan",
-      "buka tetapan ciri khas",
-      "pergi ke bahagian plugin admin",
-      "buka alat tambahan dalam tetapan",
-      "pergi ke konfigurasi plugin",
-      "buka ciri sambungan",
-      "tetapan admin plugin ciri",
-      "buka pengurusan sambungan",
-      "pergi ke sambungan dalam tetapan",
-      "buka alat pentadbir plugin",
-      "pergi ke tetapan ciri tambahan",
-      "buka plugin dalam tetapan admin",
-      "pergi ke tetapan sambungan",
-      "buka konfigurasi ciri",
-      "pergi ke pengurusan plugin admin",
-      "buka tetapan alat tambahan"
+      "pemalam ciri",
+      "plugin ciri",
+      "ciri pemalam",
+      "marketplace pemalam ciri"
     ],
     "status": "generated"
   },
@@ -400,919 +184,342 @@
   },
   "grid-color": {
     "synonyms": [
-      "tukar warna grid",
-      "ubah warna grid",
-      "set warna grid",
       "warna grid",
+      "warna jadual",
       "tetapan warna grid",
-      "pilihan warna grid",
-      "konfigurasi warna grid",
-      "gaya warna grid",
-      "laraskan warna grid",
-      "kemaskini warna grid",
-      "warna latar grid",
-      "warna grid sistem",
-      "warna grid jadual",
-      "warna grid untuk tetapan",
-      "pilih warna grid",
-      "warna grid baharu",
-      "warna grid pilihan",
-      "warna grid peribadi",
-      "warna grid dalam tetapan",
-      "warna grid paparan"
+      "pilihan warna jadual"
     ],
     "status": "generated"
   },
   "group-scope": {
     "synonyms": [
-      "tetapan kumpulan",
+      "keterlihatan kumpulan setiap pengguna",
       "skop kumpulan",
-      "tetapan jabatan",
-      "skop jabatan",
-      "tetapan pasukan",
-      "skop pasukan",
-      "tetapan organisasi",
-      "skop organisasi",
-      "ahli dalam kumpulan saya",
-      "siapa dalam kumpulan saya",
-      "keterlihatan pasukan",
-      "tetapan ahli kumpulan",
-      "tetapan ahli pasukan",
-      "skop kerja kumpulan",
-      "tetapan jabatan organisasi",
-      "tetapan skop kumpulan",
-      "tetapan pasukan saya",
-      "tetapan kumpulan saya",
-      "skop kerja pasukan",
-      "tetapan bahagian"
+      "tetapan keterlihatan kumpulan",
+      "keterlihatan kumpulan",
+      "skop",
+      "keterlihatan"
     ],
     "status": "generated"
   },
   "groups": {
     "synonyms": [
-      "pasukan",
       "kumpulan",
-      "jabatan",
-      "unit",
-      "skuad",
-      "syif",
-      "senarai kakitangan",
-      "pasukan kerja",
-      "krew",
-      "seksyen",
-      "divisyen",
-      "kumpulan pekerja",
-      "kategori",
-      "kelas",
-      "golongan",
-      "kumpulan syif",
-      "kumpulan tugas",
-      "pasukan operasi",
-      "kumpulan staf",
-      "kumpulan kontrak"
+      "semua kumpulan",
+      "kumpulan organisasi",
+      "kumpulan kerja"
     ],
     "status": "generated"
   },
   "identity-providers": {
     "synonyms": [
-      "buka tetapan pembekal identiti",
-      "pergi ke pembekal identiti",
-      "konfigurasi pembekal identiti",
-      "tetapan idp",
+      "pembekal identiti",
+      "identiti",
       "pengurusan pembekal identiti",
-      "sso tetapan",
-      "pembekal identiti sistem",
-      "pengaturan pembekal identiti",
-      "pembekal log masuk",
-      "pembekal autentikasi",
-      "pembekal sso",
-      "senarai pembekal identiti",
-      "pembekal pengesahan",
-      "pembekal identiti pentadbir",
-      "pembekal identiti pengguna",
-      "pembekal identiti akaun",
-      "pembekal identiti organisasi",
-      "pembekal identiti keselamatan",
-      "pembekal identiti luaran",
-      "pembekal identiti rangkaian"
+      "konfigurasi pembekal identiti",
+      "tetapan pembekal identiti"
     ],
     "status": "generated"
   },
   "imap-setting": {
     "synonyms": [
-      "pergi ke tetapan imap",
-      "buka integrasi imap",
-      "konfigurasi imap",
-      "tetapan sambungan imap",
-      "penyediaan imap",
-      "pengurusan akaun imap",
-      "buka tetapan imap",
-      "imap dalam tetapan integrasi",
-      "pergi ke tetapan pelayan imap",
-      "konfigurasi emel imap",
-      "tetapan akaun imap",
-      "buka penyediaan imap",
-      "integrasi emel imap",
-      "pergi ke tetapan sambungan imap",
-      "tetapan integrasi imap",
-      "buka konfigurasi imap",
-      "urusan imap",
-      "pergi ke imap",
-      "tetapan imap dalam integrasi",
-      "buka tetapan akaun imap"
+      "imap",
+      "tetapan imap",
+      "pelayan mel masuk",
+      "konfigurasi imap"
     ],
     "status": "generated"
   },
   "inbox": {
     "synonyms": [
-      "buka peti masuk saya",
-      "lihat mesej saya",
-      "semak pemberitahuan saya",
-      "pergi ke peti masuk",
-      "tunjukkan mesej saya",
-      "akses peti masuk",
-      "lihat pemberitahuan",
-      "buka mesej saya",
-      "periksa mesej masuk",
-      "lihat mesej baru",
-      "paparkan pemberitahuan",
-      "pergi ke mesej saya",
-      "buka pemberitahuan",
-      "lihat kemas kini",
-      "semak mesej",
-      "tunjukkan pemberitahuan",
-      "akses mesej saya",
-      "lihat peti masuk",
-      "pergi ke pemberitahuan",
-      "semak peti masuk"
+      "peti masuk",
+      "kotak masuk",
+      "peti mel",
+      "inbox"
     ],
     "status": "generated"
   },
   "klacksy-training": {
     "synonyms": [
-      "pergi ke halaman latihan",
-      "buka latihan",
-      "edit latihan",
-      "ubah tajuk latihan",
-      "tetapkan tajuk latihan",
-      "tukar tajuk latihan",
-      "kemas kini latihan",
-      "ubahsuai latihan",
-      "nama semula latihan",
-      "set latihan",
-      "pilih latihan",
-      "paparkan latihan",
-      "lihat latihan",
-      "pergi ke latihan",
-      "masuk ke halaman latihan",
-      "akses latihan",
-      "buka halaman latihan",
-      "latihan sekarang",
-      "ke latihan",
-      "tajuk latihan"
+      "latihan",
+      "kursus",
+      "pengurusan latihan",
+      "halaman latihan",
+      "modul latihan",
+      "latihan pekerja"
     ],
     "status": "generated"
   },
   "language-plugins": {
     "synonyms": [
-      "pemalam bahasa",
-      "sambungan bahasa",
-      "tambahan bahasa",
-      "alat bahasa",
-      "tetapan bahasa",
-      "pemalam untuk bahasa",
-      "modul bahasa",
-      "peket bahasa",
-      "pilihan bahasa",
-      "perkakas bahasa",
-      "tambahan untuk bahasa",
-      "sambungan untuk bahasa",
-      "alat tambahan bahasa",
-      "pemalam bahasa tambahan",
-      "modul tambahan bahasa",
-      "set bahasa",
       "pakej bahasa",
-      "pemalam tambahan",
-      "sambungan tambahan bahasa",
-      "alat bantuan bahasa"
+      "pemalam bahasa",
+      "senarai pakej bahasa",
+      "pakej bahasa tersedia"
     ],
     "status": "generated"
   },
   "llm-models": {
     "synonyms": [
-      "tetapan model ai",
-      "konfigurasi llm",
-      "pengurusan model ai",
-      "pilihan model llm",
-      "keutamaan model ai",
-      "tetapan model llm",
-      "konfigurasi model ai",
-      "pengurusan model llm",
-      "tetapan ai",
-      "konfigurasi ai",
-      "pengurusan ai",
-      "pilihan ai",
-      "tetapan llm",
-      "konfigurasi llm dalam tetapan",
-      "model ai dalam tetapan",
-      "model llm dalam tetapan",
-      "tetapan lanjutan ai",
-      "tetapan pintar ai",
-      "konfigurasi pintar",
-      "model bahasa ai"
+      "model llm",
+      "model bahasa besar",
+      "model ai",
+      "tetapan model llm"
     ],
     "status": "generated"
   },
   "llm-provider": {
     "synonyms": [
-      "tetapan pembekal ai",
-      "konfigurasi perkhidmatan llm",
-      "sedia pembekal model ai",
-      "pembekal kecerdasan buatan",
-      "tetapan integrasi ai",
-      "sedia pembekal model bahasa",
-      "pilihan pembekal model ai",
-      "urus pembekal llm",
-      "tetapan pembekal model ai",
-      "konfigurasi pembekal ai",
-      "sedia pembekal llm",
-      "pembekal perkhidmatan ai",
-      "tetapan ai",
-      "urus pembekal ai",
-      "pengurusan pembekal ai",
-      "pilih pembekal model",
-      "sambungan ai",
-      "tetapan model bahasa",
-      "konfigurasi pembekal llm",
-      "pembekal ai"
+      "pembekal llm"
     ],
     "status": "generated"
   },
   "macros": {
     "synonyms": [
-      "aturan automasi",
-      "tindakan berjadual",
-      "pintasan aliran kerja",
-      "templat tugas",
-      "proses automatik",
-      "tindakan pantas",
-      "aliran kerja boleh guna semula",
-      "tetapan automasi",
-      "peraturan automasi",
-      "tindakan dijadualkan",
-      "pintasan tugas",
-      "automasi aliran kerja",
-      "tetapan peraturan",
-      "atur cara automasi",
-      "tindakan ringkas",
-      "automasi tugas",
-      "proses ulang guna",
-      "pintasan automasi",
-      "aliran kerja automatik",
-      "tindakan tetap"
+      "makro",
+      "senarai makro",
+      "tetapan makro",
+      "konfigurasi makro",
+      "pengurusan makro"
     ],
     "status": "generated"
   },
   "messaging-providers": {
     "synonyms": [
-      "pembekal perkhidmatan mesej",
-      "pembekal sms",
-      "pembekal pemberitahuan",
-      "saluran komunikasi",
-      "pembekal mesej teks",
-      "pembekal notifikasi",
-      "integrasi sms",
-      "perkhidmatan mesej",
-      "pembekal platform mesej",
-      "pembekal pemberitahuan segera",
-      "pembekal teks",
-      "pembekal perkhidmatan pemberitahuan",
-      "pembekal saluran mesej",
-      "pembekal komunikasi",
-      "pembekal mesej whastapp",
-      "pembekal pemberitahuan sistem",
-      "perkhidmatan pemberitahuan teks",
-      "pembekal integrasi mesej",
-      "pembekal mesej automatik",
-      "pembekal sms gateway"
+      "pembekal pemesejan",
+      "perkhidmatan pemesejan"
     ],
     "status": "generated"
   },
   "openroute": {
     "synonyms": [
-      "buka tetapan laluan",
-      "pergi ke tetapan laluan",
-      "akses konfigurasi laluan",
-      "navigasi ke pilihan laluan",
-      "buka pengurusan laluan",
-      "tunjukkan tetapan laluan",
-      "lihat integrasi laluan",
-      "bawa saya ke persediaan laluan",
-      "paparkan konfigurasi laluan",
-      "tetapan laluan integrasi",
-      "cari tetapan laluan",
-      "buka halaman laluan",
-      "pergi ke pilihan laluan",
-      "urus tetapan laluan",
-      "konfigurasi laluan sistem",
-      "paparkan halaman laluan",
-      "lihat tetapan laluan",
-      "buka menu laluan",
-      "akses pengurusan laluan",
-      "navigasi ke tetapan laluan"
+      "openroute",
+      "openrouteservice",
+      "perkhidmatan openroute",
+      "integrasi openroute",
+      "sambungan openroute",
+      "pengoptimuman laluan openroute"
     ],
     "status": "generated"
   },
   "owner-address": {
     "synonyms": [
+      "alamat sekretariat",
       "alamat pemilik",
-      "kemaskini alamat perniagaan",
-      "tukar alamat syarikat",
-      "lokasi perniagaan",
-      "alamat surat-menyurat",
-      "maklumat alamat pemilik",
-      "edit alamat pemilik",
-      "alamat syarikat",
-      "tetapan alamat perniagaan",
-      "alamat pemilik perniagaan",
-      "maklumat lokasi pemilik",
-      "alamat surat-menyurat pemilik",
-      "sunting alamat perniagaan",
-      "alamat utama syarikat",
-      "lokasi syarikat",
-      "kemaskini maklumat pemilik",
-      "papar alamat pemilik",
-      "alamat pengurusan perniagaan",
-      "alamat perniagaan terkini",
-      "perubahan alamat perniagaan"
+      "alamat pejabat",
+      "alamat syarikat"
     ],
     "status": "generated"
   },
   "owner-messengers": {
     "synonyms": [
-      "pengaturan messenger pemilik",
-      "konfigurasi messenger pemilik",
-      "urus messenger pemilik",
-      "tetapan messenger pemilik",
-      "pilihan messenger pemilik",
-      "saluran pemberitahuan pemilik",
-      "kaedah hubungan pemilik",
-      "integrasi messenger pemilik",
-      "pengaturan komunikasi pemilik",
-      "mengurus messenger pemilik",
-      "pengaturan pemberitahuan pemilik",
-      "tetapan komunikasi pemilik",
-      "pilihan komunikasi pemilik",
-      "pengaturan integrasi messenger",
-      "mengurus komunikasi pemilik",
-      "tetapan kaedah hubungan pemilik",
-      "pilihan pemberitahuan pemilik",
-      "pengaturan saluran pemilik",
-      "mengurus integrasi messenger pemilik",
-      "tetapan pemberitahuan messenger pemilik"
+      "pemesejan sekretariat",
+      "mesej sekretariat",
+      "integrasi pemesejan"
     ],
     "status": "generated"
   },
   "period-closing": {
     "synonyms": [
-      "tutup tempoh",
-      "tutup tempoh jadual",
-      "selesaikan tempoh jadual",
-      "tamatkan kitaran jadual",
-      "lengkapkan penutupan tempoh",
-      "kunci tempoh jadual",
-      "selesai penutupan tempoh",
-      "tutup kitaran jadual",
-      "tamatkan tempoh jadual",
-      "penutupan tempoh",
-      "tamatkan tempoh",
-      "kunci tempoh",
-      "selesai tempoh",
-      "tutup tempoh jadual kerja",
-      "selesaikan tempoh penjadualan",
-      "habiskan tempoh jadual",
-      "tutup kitaran penjadualan",
-      "selesai penutupan tempoh jadual",
-      "tamatkan tempoh jadual kerja",
-      "lengkapkan tempoh jadual"
+      "tutupan",
+      "tempoh penutupan",
+      "penutupan tempoh ini",
+      "tutupan tempoh"
     ],
     "status": "generated"
   },
   "report-defaults": {
     "synonyms": [
-      "tetapan laporan asal",
-      "tetapan laporan lalai",
-      "tetapan asas laporan",
-      "pilihan laporan lalai",
-      "tetapan konfigurasi laporan",
-      "tetapan piawai laporan",
-      "lalai laporan",
-      "tetapan laporan piawai",
-      "tetapan laporan ditetapkan",
-      "pilihan laporan asal",
-      "konfigurasi laporan lalai",
-      "tetapan laporan tetap",
-      "tetapan pilihan laporan",
-      "lalai tetapan laporan",
-      "tetapan laporan sedia ada",
-      "tetapan laporan awal",
-      "tetapan laporan kebiasaan",
-      "tetapan laporan utama",
-      "tetapan laporan stok"
+      "templat lalai",
+      "templat laporan lalai",
+      "tetapan templat laporan"
     ],
     "status": "generated"
   },
   "reports": {
     "synonyms": [
-      "laporan",
-      "laporan prestasi",
-      "analitik data pekerja",
-      "statistik kehadiran",
-      "metrik prestasi kerja",
+      "laporan pekerja",
       "laporan syif",
-      "data prestasi pekerja",
-      "laporan ketidakhadiran",
-      "cerapan data pekerja",
-      "laporan analitik tenaga kerja",
-      "statistik prestasi pasukan",
-      "laporan jadual kerja",
-      "analitik pekerja",
-      "laporan prestasi syif",
-      "metrik kehadiran pekerja",
-      "laporan data pasukan",
-      "statistik pekerja",
-      "cerapan prestasi tenaga kerja",
-      "laporan analisis syif",
-      "papar laporan"
+      "laporan kehadiran",
+      "laporan jadual"
     ],
     "status": "generated"
   },
   "scheduling-defaults": {
     "synonyms": [
-      "tetapan jadual lalai",
-      "konfigurasi penjadualan lalai",
-      "preset penjadualan",
-      "pilihan jadual lalai",
-      "tetapan lalai jadual kerja",
-      "menu tetapan jadual lalai",
-      "tetapan jadual asas",
-      "konfigurasi jadual standard",
-      "tetapan lalai penjadualan",
-      "preset jadual kerja",
-      "pilihan penjadualan piawai",
-      "tetapan jadual tetap",
-      "konfigurasi lalai jadual",
-      "tetapan asas penjadualan",
-      "tetapan lalai untuk jadual",
-      "pilihan jadual tetap",
-      "konfigurasi jadual piawai",
-      "tetapan jadual lalai sistem",
-      "preset penjadualan lalai",
-      "tetapan jadual kerja lalai"
+      "tetapan penjadualan",
+      "nilai lalai penjadualan",
+      "jadual lalai"
     ],
     "status": "generated"
   },
   "scheduling-rules": {
     "synonyms": [
-      "pergi ke peraturan penjadualan",
-      "buka peraturan jadual kerja",
-      "tetapan peraturan jadual",
-      "aturan penjadualan syif",
-      "peraturan perancangan syif",
-      "peraturan jadual pekerja",
-      "buka peraturan perancangan",
-      "tetapan peraturan jadual kerja",
-      "peraturan penjadualan kakitangan",
-      "peraturan jadual syif",
-      "buka peraturan penjadualan pekerja",
-      "tetapan peraturan perancangan syif",
-      "peraturan perancangan jadual",
-      "peraturan jadual perancangan",
-      "buka peraturan jadual kakitangan",
-      "tetapan peraturan jadual syif",
-      "peraturan penjadualan kerja",
-      "buka peraturan perancangan jadual",
-      "tetapan peraturan perancangan pekerja",
-      "peraturan perancangan kakitangan"
+      "peraturan perancangan",
+      "peraturan jadual",
+      "peraturan syif"
     ],
     "status": "generated"
   },
   "settings-general": {
     "synonyms": [
+      "umum",
+      "am",
       "tetapan umum",
-      "tetapan asas",
-      "tetapan utama",
-      "tetapan asal",
-      "tetapan asasi",
-      "tetapan penting",
-      "tetapan fundamental",
-      "tetapan umum sistem",
-      "tetapan asas aplikasi",
-      "tetapan utama akaun",
-      "tetapan umum akaun",
-      "tetapan asas perkhidmatan",
-      "tetapan umum pengguna",
-      "tetapan asas pengguna",
-      "tetapan utama pengguna",
-      "tetapan umum syarikat",
-      "tetapan asas syarikat",
-      "tetapan utama syarikat",
-      "tetapan umum pekerja",
-      "tetapan asas pekerja"
+      "tetapan am",
+      "seting umum",
+      "seting am"
     ],
     "status": "generated"
   },
   "shifts": {
     "synonyms": [
-      "jadual kerja saya",
-      "jadual syif",
-      "syif saya",
-      "syif yang akan datang",
-      "waktu kerja saya",
-      "kalendar syif",
-      "senarai tugas",
-      "jadual pekerjaan",
-      "jadual mingguan",
-      "pandangan jadual",
-      "jadual pekerja",
-      "syif harian",
-      "senarai syif",
-      "jadual tugasan",
-      "waktu bertugas",
-      "jadual lokasi kerja",
-      "roster kerja",
-      "roster syif",
-      "jadual peribadi",
-      "giliran kerja"
+      "syif",
+      "syif-syif",
+      "semua syif",
+      "senarai semua syif"
     ],
     "status": "generated"
   },
   "spam-rules": {
     "synonyms": [
-      "pergi ke tetapan spam",
-      "buka peraturan spam",
-      "masuk ke spam rules",
-      "lihat tetapan spam",
-      "urus peraturan spam",
-      "konfigurasi spam rules",
-      "kemaskini spam rules",
-      "edit peraturan spam",
-      "tetapkan spam rules",
-      "ubah spam rules",
-      "pergi ke spam rules",
-      "buka spam rules dalam tetapan",
-      "masuk ke tetapan spam",
-      "cari spam rules",
-      "papar spam rules",
-      "ubah tetapan spam",
-      "perbaharui spam rules",
-      "laras spam rules",
-      "modifikasi spam rules",
-      "tetapan spam rules"
+      "peraturan spam",
+      "spam",
+      "anti-spam",
+      "tetapan spam",
+      "penapisan spam",
+      "peraturan penapisan spam"
     ],
     "status": "generated"
   },
   "states": {
     "synonyms": [
-      "pergi ke tetapan geografi",
-      "buka senarai negeri",
-      "lihat lokasi pekerja mengikut negeri",
-      "papar taburan pekerja",
-      "ke bahagian geografi",
-      "semua negeri yang ada",
-      "lokasi kerja mengikut negeri",
-      "data tenaga kerja serantau",
-      "tetapan negeri pekerja",
-      "cari negeri pekerja",
-      "mana pekerja saya berada",
-      "senarai alamat pekerja",
-      "lokasi pasukan saya",
-      "kawasan pekerja berdasarkan negeri",
-      "semak data negeri",
-      "buka tetapan geografi",
-      "negeri-negeri dalam sistem",
-      "lihat kedudukan pekerja",
-      "ke menu geografi",
-      "papar semua lokasi kerja"
+      "negeri",
+      "negeri-negeri",
+      "senarai negeri",
+      "tetapan negeri",
+      "konfigurasi negeri",
+      "pengurusan negeri"
     ],
     "status": "generated"
   },
   "user-management": {
     "synonyms": [
       "pengurusan pengguna",
-      "tetapan pengguna",
-      "urus pengguna",
-      "akaun pengguna",
-      "pengurusan staf",
-      "profil pekerja",
-      "ahli pasukan",
-      "kebenaran pengguna",
-      "pengurusan kakitangan",
-      "tetapan akaun",
+      "pengurusan akaun pengguna",
+      "pengguna",
       "senarai pengguna",
-      "urus kakitangan",
-      "pengurusan akses",
-      "profil staf",
-      "pengurusan pasukan",
-      "tetapan pekerja",
-      "pengurusan id pengguna",
-      "urus akaun",
-      "pengurusan peranan",
-      "senarai staf"
+      "tetapan pengguna"
     ],
     "status": "generated"
   },
   "work-setting": {
     "synonyms": [
-      "pengaturan kerja",
-      "pengaturan jadwal kerja",
-      "konfigurasi shift",
-      "pengaturan jam kerja",
-      "pengelolaan jadwal",
-      "ubah pengaturan kerja",
-      "pengaturan penjadwalan",
-      "ubah jadwal kerja",
-      "atur shift",
-      "pengaturan di tempat kerja",
-      "atur jam kerja",
-      "konfigurasi jadwal",
-      "pengaturan shift",
-      "ubah jadwal shift",
-      "atur jadwal kerja",
-      "pengaturan waktu kerja",
-      "pengelolaan shift",
-      "pengaturan penjadwalan shift",
-      "atur waktu kerja",
-      "pengaturan kerja shift"
+      "tetapan asas perancangan",
+      "tetapan jadual",
+      "tetapan jadual kerja"
     ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
-      "borang ketidakhadiran",
-      "butiran ketidakhadiran",
-      "edit ketidakhadiran",
-      "maklumat ketidakhadiran",
-      "halaman butiran ketidakhadiran",
-      "form ketidakhadiran",
-      "detail ketidakhadiran",
-      "paparan ketidakhadiran",
-      "kemaskini ketidakhadiran",
-      "lihat ketidakhadiran",
-      "ubah ketidakhadiran",
-      "perincian ketidakhadiran",
-      "borang butiran ketidakhadiran",
-      "halaman edit ketidakhadiran",
-      "maklumat lanjut ketidakhadiran",
-      "rekod ketidakhadiran",
-      "lihat butiran ketidakhadiran",
-      "edit butiran ketidakhadiran",
-      "kemaskini butiran ketidakhadiran",
-      "borang kemaskini ketidakhadiran"
+      "borang ketidakhadiran lanjutan",
+      "maklumat ketidakhadiran lanjutan"
     ],
     "status": "generated"
   },
   "absences": {
     "synonyms": [
-      "ketidakhadiran",
-      "cuti",
-      "cuti kehadiran",
-      "waktu rehat",
-      "kalendar ketidakhadiran",
-      "kalendar cuti",
-      "ringkasan ketidakhadiran",
-      "permohonan cuti",
-      "senarai ketidakhadiran",
-      "pengurusan cuti",
-      "liat ketidakhadiran",
-      "pergi ke ketidakhadiran",
-      "lihat cuti",
-      "carian ketidakhadiran",
-      "butiran cuti",
-      "status ketidakhadiran",
-      "rekod cuti",
-      "sejarah ketidakhadiran",
-      "pandangan cuti",
-      "halaman ketidakhadiran"
+      "jadual cuti",
+      "kalendar cuti"
     ],
     "status": "generated"
   },
   "assistant-personality": {
     "synonyms": [
-      "pergi ke personaliti pembantu",
-      "buka personaliti ai",
-      "tetapan personaliti pembantu",
-      "ubah personaliti klacksy",
-      "personaliti pembantu dalam tetapan",
-      "pergi ke personaliti ai",
-      "buka personaliti pembantu",
-      "tetapan ai personaliti",
-      "ubah personaliti ai",
-      "personaliti pembantu tetapan",
-      "pergi ke seksyen personaliti",
-      "buka tetapan personaliti pembantu",
-      "personaliti ai dalam tetapan",
-      "ubah personaliti pembantu",
-      "pergi ke personaliti pembantu ai",
-      "buka personaliti ai tetapan",
-      "tetapan personaliti ai",
-      "personaliti pembantu klacksy",
-      "buka personaliti dalam tetapan"
+      "personaliti",
+      "keperibadian",
+      "perwatakan pembantu",
+      "personaliti pembantu",
+      "tingkah laku pembantu",
+      "gaya bercakap pembantu"
     ],
     "status": "generated"
   },
   "branch-form": {
     "synonyms": [
-      "buka borang cawangan",
-      "edit cawangan",
-      "butiran cawangan",
-      "pergi ke borang cawangan",
-      "paparan cawangan",
-      "maklumat cawangan",
+      "pejabat",
       "borang cawangan",
-      "kemaskini cawangan",
-      "lihat cawangan",
-      "ubah cawangan",
-      "cawangan",
-      "form cawangan",
-      "halaman cawangan",
-      "tetapan cawangan",
-      "borang edit cawangan",
-      "perincian cawangan",
-      "cari cawangan",
-      "buka edit cawangan",
-      "ke borang cawangan"
+      "butiran cawangan",
+      "profil cawangan"
     ],
     "status": "generated"
   },
   "calendar-rule-form": {
     "synonyms": [
-      "buka borang peraturan kalendar",
-      "edit peraturan kalendar",
-      "perincian peraturan kalendar",
-      "pergi ke borang peraturan kalendar",
-      "lihat borang peraturan kalendar",
-      "kemas kini peraturan kalendar",
-      "ubah peraturan kalendar",
-      "paparkan borang peraturan kalendar",
-      "masukkan borang peraturan kalendar",
-      "kembali ke borang peraturan kalendar",
-      "pilih peraturan kalendar",
-      "tetapan peraturan kalendar",
-      "borang peraturan kalendar baru",
-      "borang peraturan kalendar sedia ada",
-      "akses borang peraturan kalendar",
-      "buka halaman peraturan kalendar",
-      "edit tetapan peraturan kalendar",
-      "lihat maklumat peraturan kalendar",
-      "tukar peraturan kalendar",
-      "buka borang untuk peraturan kalendar"
+      "takrif",
+      "borang peraturan kalendar",
+      "definisi peraturan",
+      "takrif peraturan"
     ],
     "status": "generated"
   },
   "client-availability": {
     "synonyms": [
-      "ketersediaan klien",
-      "ketersediaan pekerja",
-      "ketersediaan staf",
-      "ketersediaan kakitangan",
-      "gambaran ketersediaan",
-      "jadual ketersediaan",
-      "lihat ketersediaan",
-      "semak ketersediaan klien",
-      "buka ketersediaan",
-      "halaman ketersediaan",
       "ketersediaan",
-      "paparan ketersediaan",
-      "pergi ke ketersediaan",
-      "buka halaman ketersediaan",
-      "lihat jadual ketersediaan",
-      "semak ketersediaan"
+      "kekosongan",
+      "ketersediaan pelanggan",
+      "waktu lapang pelanggan",
+      "masa tersedia pelanggan",
+      "jadual kekosongan pelanggan"
     ],
     "status": "generated"
   },
   "client-detail": {
     "synonyms": [
-      "butiran pelanggan",
-      "maklumat pelanggan",
-      "profil pelanggan",
-      "edit pelanggan",
-      "lihat pelanggan",
-      "halaman pelanggan",
-      "data pelanggan",
-      "kemaskini pelanggan",
-      "rekod pelanggan",
-      "butiran pekerja",
-      "profil pekerja",
-      "edit pekerja",
-      "maklumat pekerja",
-      "lihat pekerja",
-      "halaman pekerja",
-      "rekod pekerja",
-      "buka profil pelanggan",
-      "buka butiran pelanggan",
-      "pergi ke pelanggan",
-      "ke halaman pelanggan"
+      "data peribadi",
+      "maklumat peribadi",
+      "alamat dan data peribadi"
     ],
     "status": "generated"
   },
   "client-detail.birthday": {
     "synonyms": [
-      "hari lahir klien",
-      "tarikh lahir pekerja",
       "tarikh lahir",
-      "tarikh lahir kakitangan",
-      "butir hari lahir",
-      "hari lahir staf",
-      "register hari lahir",
-      "edit tarikh lahir",
-      "kemaskini tarikh lahir",
-      "paparan hari lahir pekerja",
-      "tarikh lahir pelanggan",
-      "maklumat tarikh lahir",
-      "kemasukan tarikh lahir",
-      "tarikh lahir pekerja baru",
-      "semak tarikh lahir",
-      "isi tarikh lahir",
-      "hari lahir kontraktor",
-      "tetapkan tarikh lahir",
-      "ubah tarikh lahir",
-      "tarikh lahir staf sedia ada"
+      "hari lahir",
+      "hari jadi",
+      "tarikh kelahiran",
+      "lahir",
+      "kelahiran"
     ],
     "status": "generated"
   },
   "client-detail.firstname": {
     "synonyms": [
-      "nama pertama klien",
-      "nama given klien",
-      "nama depan pekerja",
-      "nama pertama pekerja",
-      "nama given pekerja",
-      "nama depan klien",
       "nama pertama",
-      "nama given",
       "nama depan",
-      "edit nama pertama klien",
-      "edit nama given klien",
-      "edit nama depan pekerja",
-      "nama pertama dalam kontrak",
-      "nama given dalam kontrak",
-      "nama depan dalam kontrak",
-      "lihat nama pertama klien",
-      "lihat nama given klien",
-      "lihat nama depan pekerja",
-      "pergi ke nama pertama klien",
-      "buka nama pertama klien"
+      "nama diberi",
+      "nama pertama pelanggan"
     ],
     "status": "generated"
   },
   "client-detail.gender": {
     "synonyms": [
-      "jantina klien",
-      "jantina pekerja",
+      "sapaan",
       "jantina",
-      "seks pekerja",
-      "seks klien",
-      "maklumat gender",
-      "sunting gender",
-      "ubah jantina",
-      "pilih jantina",
-      "tetapkan jantina",
-      "perincian jantina",
-      "jantina dalam kontrak",
-      "jantina dalam profil",
-      "jantina dalam alamat",
-      "jantina dalam edit alamat",
-      "jantina pekerja baru",
-      "jantina klien baru",
-      "jantina untuk pekerja",
-      "jantina untuk klien",
-      "jantina dalam suntingan"
+      "gelaran",
+      "sapaan klien",
+      "jantina klien",
+      "data sapaan"
     ],
     "status": "generated"
   },
   "client-detail.lastname": {
     "synonyms": [
-      "nama keluarga klien",
-      "nama belakang klien",
-      "nama keluarga pelanggan",
-      "nama belakang pelanggan",
-      "surname klien",
-      "family name klien",
-      "nama akhir klien",
-      "nama akhir pelanggan",
-      "nama keluarga customer",
-      "nama belakang customer",
-      "surname pelanggan",
-      "family name pelanggan",
-      "nama akhir customer",
-      "klien nama belakang",
-      "pelanggan nama keluarga",
-      "customer nama belakang",
-      "nama belakang pada klien",
-      "nama keluarga pada pelanggan",
-      "surname pada customer",
-      "family name pada klien"
+      "nama keluarga",
+      "nama akhir",
+      "nama belakang",
+      "nama keturunan"
     ],
     "status": "generated"
   },
@@ -1320,499 +527,181 @@
     "synonyms": [
       "senarai pekerja",
       "senarai kakitangan",
-      "pekerja",
-      "kakitangan",
-      "staf",
-      "senarai staf",
-      "pasukan",
-      "senarai pasukan",
       "tenaga kerja",
-      "senarai tenaga kerja",
-      "pekerja saya",
-      "kakitangan saya",
-      "staf saya",
-      "anggota",
-      "senarai anggota",
-      "personel",
-      "senarai personel",
-      "senarai pekerja syif",
-      "senarai staf syif",
-      "pekerja syif"
+      "staf"
     ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "buka templat kontena",
-      "tunjukkan templat kontena shift",
-      "pergi ke templat kontena",
-      "paparan templat kontena",
-      "shift templat kontena",
-      "templat kontena shift",
-      "buka halaman templat kontena",
-      "navigasi ke templat kontena",
-      "templat kontena untuk shift",
-      "lihat templat kontena",
-      "cari templat kontena",
-      "akses templat kontena",
-      "templat kontena pekerjaan",
+      "templat kontena",
+      "templat bekas syif",
       "templat kontena syif",
-      "ke templat kontena",
-      "pilih templat kontena",
-      "templat kontena sedia ada",
-      "urus templat kontena",
-      "masuk ke templat kontena",
-      "templat kontena jadual"
+      "templat bekas"
     ],
     "status": "generated"
   },
   "contract-form": {
     "synonyms": [
-      "buka borang kontrak",
-      "edit kontrak pekerja",
-      "borang perjanjian kerja",
-      "lihat butiran kontrak",
-      "masuk ke borang kontrak",
-      "kemaskini kontrak",
-      "buka borang pekerjaan",
-      "borang kontrak kerja",
-      "edit perjanjian kerja",
-      "buka kontrak pekerja",
-      "lihat borang kontrak",
-      "pergi ke borang kontrak",
-      "buka butiran kontrak",
-      "edit borang perjanjian",
-      "masukkan kontrak baru",
-      "borang maklumat kontrak",
-      "buka perjanjian pekerja",
-      "edit butiran kontrak",
-      "lihat kontrak pekerja",
-      "buka borang perjanjian kerja"
+      "borang kontrak",
+      "kontrak pekerja",
+      "perincian kontrak"
     ],
     "status": "generated"
   },
   "contract-form.name": {
     "synonyms": [
-      "nama kontrak",
-      "nama perjanjian",
-      "nama kontrak kerja",
-      "nama perjanjian kerja",
-      "nama contract",
-      "nama perjanjian kontrak",
-      "nama kontrak karyawan",
-      "nama perjanjian kontrak kerja",
-      "nama kontrak pekerja",
-      "nama perjanjian pekerja",
-      "nama kontrak pegawai",
-      "nama perjanjian pegawai",
-      "nama kontrak staff",
-      "nama perjanjian staff",
-      "nama kontrak pekerjaan",
-      "nama perjanjian pekerjaan",
-      "nama kontrak form",
-      "nama form kontrak",
-      "nama kontrak dalam sistem",
-      "nama perjanjian dalam sistem"
+      "nama kontrak"
     ],
     "status": "generated"
   },
   "cut-shift": {
     "synonyms": [
-      "potong syif",
-      "bahagi syif",
-      "pisahkan syif",
-      "ke potong syif",
-      "buka potong syif",
-      "navigasi ke potong syif",
-      "syif potong",
-      "syif dibahagi",
-      "trim syif",
-      "potongkan syif",
-      "membahagi syif",
-      "potong syif kerja",
-      "ke halaman potong syif",
-      "buka bahagian potong syif",
-      "pergi ke potong syif",
-      "cari potong syif",
-      "tunjuk potong syif",
-      "pilih potong syif",
-      "guna potong syif",
-      "aksés potong syif"
+      "pemotongan syif",
+      "pembahagian syif",
+      "pemisahan syif",
+      "pembelahan syif",
+      "pemotongan",
+      "pembelahan"
     ],
     "status": "generated"
   },
   "edit-employee": {
     "synonyms": [
-      "edit alamat pekerja",
-      "kemaskini alamat pekerja",
-      "ubah alamat pekerja",
-      "edit maklumat pekerja",
-      "kemaskini pekerja",
-      "edit pekerja",
-      "ubah pekerja",
-      "pekerja baru",
-      "tambah pekerja",
-      "pekerja baharu",
-      "cipta pekerja",
-      "tambah pekerja baru",
-      "edit kontak",
-      "kemaskini kontak",
-      "ubah kontak",
-      "kontak baru",
-      "tambah kontak",
-      "butiran pekerja",
       "maklumat pekerja",
-      "lihat pekerja"
+      "butiran kakitangan",
+      "profil kakitangan"
     ],
     "status": "generated"
   },
   "edit-group": {
     "synonyms": [
-      "buka kumpulan",
-      "edit kumpulan",
-      "kumpulan ubah",
-      "pergi ke edit kumpulan",
-      "edit group",
-      "masuk ke edit kumpulan",
-      "kumpulan details",
-      "edit kumpulan sini",
-      "group editor buka",
-      "ubah kumpulan",
-      "kumpulan edit",
-      "buka group editor",
-      "navigasi ke edit kumpulan",
-      "group details",
-      "kumpulan ubah sini",
-      "edit group buka",
-      "pergi ke kumpulan",
-      "kumpulan editor",
-      "buka edit group",
-      "group ubah"
+      "pengeditan",
+      "suntingan kumpulan",
+      "pengeditan kumpulan",
+      "penyunting kumpulan",
+      "pengubahsuaian kumpulan"
     ],
     "status": "generated"
   },
   "edit-shift": {
     "synonyms": [
-      "edit shift",
-      "modify shift",
-      "shift details",
-      "shift editor",
-      "open shift",
-      "navigate to edit shift",
-      "change shift",
-      "edit shift template",
-      "buka edit shift",
-      "pergi ke edit shift",
-      "edit jadual kerja",
-      "ubah shift",
-      "kemaskini shift",
-      "lihat perincian shift",
-      "editor shift",
-      "shift edit",
-      "pindah shift",
-      "edit templat shift",
-      "masuk ke edit shift",
-      "edit shift pekerja"
+      "suntingan syif",
+      "butiran syif",
+      "pengeditan syif",
+      "perubahan syif"
     ],
     "status": "generated"
   },
   "employee-membership.type": {
     "synonyms": [
       "jenis keahlian pekerja",
-      "jenis keanggotaan pekerja",
-      "jenis keanggotaan staf",
-      "jenis keanggotaan karyawan",
-      "jenis keahlian staf",
-      "jenis keahlian karyawan",
-      "jenis keahlian kakitangan",
-      "jenis keanggotaan kakitangan",
-      "jenis keahlian pasukan",
-      "jenis keanggotaan pasukan",
-      "jenis keahlian pekerja harian",
-      "jenis keanggotaan pekerja harian",
-      "jenis keahlian pekerja kontrak",
-      "jenis keanggotaan pekerja kontrak",
-      "jenis keahlian pekerja tetap",
-      "jenis keanggotaan pekerja tetap",
-      "jenis keahlian pekerja sambilan",
-      "jenis keanggotaan pekerja sambilan",
-      "jenis keahlian pekerja sementara",
-      "jenis keanggotaan pekerja sementara"
+      "keanggotaan pekerja",
+      "kategori keahlian",
+      "jenis keanggotaan"
     ],
     "status": "generated"
   },
   "group-detail": {
     "synonyms": [
-      "butiran kumpulan",
-      "lihat kumpulan",
-      "data kumpulan",
-      "maklumat kumpulan",
-      "perincian kumpulan",
-      "kumpulan detail",
-      "buka kumpulan",
-      "papar kumpulan",
-      "kumpulan",
-      "edit kumpulan",
-      "kemaskini kumpulan",
-      "group detail",
-      "detail kumpulan",
-      "keterangan kumpulan",
-      "info kumpulan",
-      "pergi ke kumpulan",
-      "halaman kumpulan",
-      "group details",
-      "view group",
-      "group data"
+      "halaman kumpulan"
     ],
     "status": "generated"
   },
   "group-detail.name": {
     "synonyms": [
       "nama kumpulan",
-      "nama group",
-      "nama grup",
-      "nama kumpulan kerja",
-      "nama kumpulan pekerja",
-      "nama kumpulan syif",
-      "nama kumpulan staf",
-      "nama kumpulan kakitangan",
-      "nama kumpulan pekerjaan",
-      "nama kumpulan peralihan",
-      "nama kumpulan kerja shift",
-      "nama kumpulan kerja pekerja",
-      "nama kumpulan kerja staf",
-      "nama kumpulan kerja kakitangan",
-      "nama kumpulan kerja syif",
-      "nama kumpulan kerja peralihan",
-      "nama kumpulan kerja pekerjaan",
-      "nama kumpulan kerja group",
-      "nama kumpulan kerja grup",
-      "nama kumpulan kerja nama"
+      "nama butiran kumpulan",
+      "nama perincian kumpulan",
+      "butiran nama kumpulan"
     ],
     "status": "generated"
   },
   "group-list": {
     "synonyms": [
-      "kumpulan kumpulan",
-      "senarai kumpulan",
-      "gambaran keseluruhan kumpulan",
-      "pasukan pasukan",
-      "senarai pasukan",
+      "pasukan",
       "jabatan",
-      "pusat kos",
-      "navigasi ke kumpulan",
-      "paparan kumpulan",
-      "semua kumpulan",
-      "kumpulan kerja",
-      "senarai jabatan",
-      "kumpulan saya",
-      "kumpulan aktif",
-      "kumpulan tersedia",
-      "pergi ke kumpulan",
-      "buka kumpulan",
-      "lihat kumpulan",
-      "kumpulan mengikut jabatan",
-      "kumpulan operasi"
+      "senarai pasukan",
+      "unit organisasi"
     ],
     "status": "generated"
   },
   "klacksy-model-check": {
     "synonyms": [
-      "pergi ke model ai",
-      "buka tetapan model ai",
-      "paparan model ai",
-      "lihat model ai",
-      "model ai dalam tetapan",
-      "tetapan ai model",
-      "buka bahagian model ai",
-      "pergi ke tetapan model ai",
-      "model ai di tetapan",
-      "lihat tetapan model ai",
-      "buka model ai",
-      "pergi ke bahagian model ai",
-      "model ai di bahagian tetapan",
-      "tetapan ai model di tempat kerja",
-      "buka tetapan ai",
-      "pergi ke model ai dalam tetapan",
-      "lihat model ai dalam tetapan",
-      "buka tetapan model",
-      "pergi ke tetapan ai model",
-      "model ai dalam tetapan tempat kerja"
+      "semakan",
+      "pemeriksaan model",
+      "pengujian model",
+      "penilaian model"
     ],
     "status": "generated"
   },
   "llm-sync-log": {
     "synonyms": [
-      "buka log segerakan ai",
-      "log sinkronisasi model ai",
-      "lihat log segerakan ai",
-      "log segerakan model pintar",
-      "buka log sinkronisasi ai",
-      "log segerakan sistem ai",
-      "tunjuk log segerakan ai",
-      "log sinkronisasi pintar",
-      "buka log segerakan model",
-      "log segerakan ai baru",
-      "lihat log sinkronisasi model",
-      "log segerakan ai terkini",
-      "buka log segerakan sistem",
-      "log sinkronisasi ai model",
-      "lihat log segerakan pintar",
-      "log segerakan ai sistem",
-      "buka log sinkronisasi pintar",
-      "log segerakan model baru",
-      "lihat log segerakan terkini",
-      "buka log segerakan model ai"
+      "penyegerakan",
+      "log penyegerakan",
+      "log penyegerakan llm",
+      "log penyegerakan ai",
+      "sejarah penyegerakan"
     ],
     "status": "generated"
   },
   "messaging": {
     "synonyms": [
-      "mesej",
-      "pesanan",
-      "mesej kerja",
-      "chat",
-      "komunikasi",
-      "pesanan masuk",
-      "pusat mesej",
-      "mesej pasukan",
-      "pesanan syif",
-      "pesanan pekerja",
-      "pesanan segera",
-      "pesanan terkini",
-      "pesanan baru",
-      "mesej sistem",
-      "pesanan penting",
-      "pesanan peribadi",
-      "pesanan kumpulan",
-      "pesanan daripada bos",
-      "pesanan kepada pekerja",
-      "pesanan perbualan"
+      "perbualan",
+      "sembang",
+      "ruang sembang",
+      "mesej pekerja",
+      "sembang pasukan"
     ],
     "status": "generated"
   },
   "new-employee": {
     "synonyms": [
-      "buka halaman alamat pekerja baru",
-      "pergi ke edit alamat pekerja",
-      "masukkan pekerja baru",
-      "buat pekerja baru",
-      "tambah alamat pekerja",
-      "edit alamat pekerja sedia ada",
-      "buka pekerja baru",
-      "ke halaman alamat pekerja",
-      "daftar pekerja baru",
-      "kemaskini alamat pekerja",
-      "lihat alamat pekerja",
-      "buka alamat pekerja baru",
-      "tambah maklumat alamat pekerja",
-      "ke halaman pekerja baru",
-      "edit pekerja baru",
-      "masukkan alamat pekerja",
-      "buka halaman edit alamat",
-      "pergi ke pekerja baru",
-      "buat alamat pekerja",
-      "akses halaman alamat pekerja"
+      "pekerja baharu",
+      "kakitangan baharu",
+      "staf baharu",
+      "pengambilan",
+      "orientasi",
+      "pendaftaran kakitangan baharu"
     ],
     "status": "generated"
   },
   "new-group": {
     "synonyms": [
-      "pergi ke kumpulan baru",
-      "buka kumpulan baru",
-      "tambah kumpulan",
-      "cipta kumpulan baru",
-      "tambah pasukan baru",
-      "cipta pasukan",
-      "buka kumpulan baharu",
-      "tambah kumpulan baharu",
-      "pergi ke pasukan baru",
-      "buka pasukan baru",
+      "kumpulan baharu",
       "kumpulan baru",
-      "pasukan baru",
-      "tambah kumpulan kerja",
-      "cipta pasukan kerja",
-      "pergi ke halaman kumpulan baru",
-      "buka halaman kumpulan baru",
-      "tambah kumpulan baru sekarang",
-      "cipta kumpulan kerja baru",
-      "nav ke kumpulan baru",
-      "arah ke kumpulan baru"
+      "pasukan baharu",
+      "kumpulan pekerja baharu"
     ],
     "status": "generated"
   },
   "new-shift": {
     "synonyms": [
-      "shift baru",
-      "buat shift",
-      "tambah shift",
-      "cipta shift baru",
-      "tambah satu shift",
-      "duty baru",
-      "buat duty",
-      "tambah duty",
-      "shift baharu",
-      "cipta shift",
-      "masukkan shift baru",
-      "buat jadual baru",
-      "tambah jadual",
-      "jadual baru",
-      "shift entry baru",
-      "buat masuk shift",
-      "rekod shift baru",
-      "tambah rekod shift",
-      "shift tugas baru",
-      "buat tugas baru"
+      "tugasan",
+      "syif baharu",
+      "borang syif",
+      "penambahan syif",
+      "entri syif"
     ],
     "status": "generated"
   },
   "plan-execution-panel": {
     "synonyms": [
+      "kelulusan pelan",
+      "pelan menunggu kelulusan",
       "panel pelaksanaan pelan",
-      "buka panel pelaksanaan",
-      "panel pelaksanaan rancangan",
-      "pergi ke panel pelaksanaan",
-      "panel eksekusi pelan",
-      "panel tindakan pelaksanaan",
-      "paparan pelaksanaan pelan",
-      "panel laksana pelan",
-      "buka panel eksekusi",
-      "panel pelaksanaan plan",
-      "panel pelaksanaan jadual",
-      "panel kawalan pelaksanaan",
-      "panel pelaksanaan tugas",
-      "panel pelaksanaan kerja",
-      "panel pelaksanaan syif",
-      "panel pelaksanaan operasi",
-      "panel tindakan eksekusi",
-      "paparan eksekusi pelan",
-      "pelan tindakan panel",
-      "panel laksana rancangan"
+      "pelaksanaan pelan",
+      "pelan"
     ],
     "status": "generated"
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "luluskan pelan",
-      "sahkan pelaksanaan",
-      "sahkan pelan tindakan",
-      "luluskan pelan pelaksanaan",
-      "sahkan pelan eksekusi",
-      "terima pelan",
-      "setujui pelan",
-      "sahkan pelan",
-      "luluskan pelan tindakan",
-      "sahkan pelan kerja",
-      "luluskan eksekusi",
-      "sahkan perlaksanaan",
-      "terima pelan pelaksanaan",
-      "setujui pelan tindakan",
-      "luluskan pelaksanaan",
-      "sahkan tindakan",
-      "setujui pelan eksekusi",
-      "terima pelan tindakan",
-      "luluskan pelan kerja",
-      "sahkan pelan perlaksanaan"
+      "pelulusan",
+      "pengesahan",
+      "penerusan",
+      "kelulusan dan penerusan",
+      "kelulusan pelan pelaksanaan"
     ],
     "status": "generated"
   },
@@ -1820,288 +709,664 @@
     "synonyms": [
       "profil",
       "profil saya",
-      "profil pengguna",
-      "profil akaun",
-      "profil peribadi",
       "halaman profil",
-      "tetapan profil",
-      "halaman akaun",
-      "lihat profil",
-      "buka profil",
-      "pergi ke profil",
-      "masuk ke profil",
-      "ke profil saya",
-      "paparkan profil",
-      "profil saya sendiri",
-      "maklumat profil",
-      "profil akaun saya",
-      "edit profil",
-      "profil pengguna saya",
-      "profil peribadi saya"
+      "profil pengguna"
     ],
     "status": "generated"
   },
   "schedule": {
     "synonyms": [
       "jadual kerja",
-      "jadual syif",
-      "penjadualan",
-      "jadual mingguan",
-      "jadual harian",
-      "jadual bulanan",
-      "perancangan jadual",
-      "lihat jadual",
-      "jadual pekerja",
       "jadual tugasan",
-      "waktu kerja",
-      "susunan syif",
-      "jadual perancangan",
-      "jadual bertugas",
-      "jadual operasi",
-      "paparan jadual",
-      "kemaskini jadual",
-      "jadual kakitangan",
-      "pengurusan jadual",
-      "jadual waktu"
+      "jadual giliran"
     ],
     "status": "generated"
   },
   "settings": {
     "synonyms": [
-      "tetapan",
+      "seting",
       "konfigurasi",
-      "pilihan",
-      "keutamaan",
-      "tetapan sistem",
-      "admin",
-      "pentadbiran",
-      "persediaan",
-      "pengaturan",
-      "tetapan akaun",
-      "tetapan pengguna",
-      "pengurusan",
-      "tetapan aplikasi",
-      "tetapan peribadi",
-      "tetapan keselamatan",
-      "tetapan pemberitahuan",
-      "tetapan bahasa",
-      "tetapan waktu",
-      "tetapan peranan",
-      "tetapan syif"
+      "menu tetapan",
+      "halaman tetapan",
+      "tetapan aplikasi"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "buka borang syif",
-      "edit templat syif",
-      "halaman ubah syif",
-      "buka halaman edit syif",
-      "form syif baru",
-      "pergi ke borang syif",
-      "tukar templat syif",
-      "paparkan borang syif",
-      "masuk ke form syif",
-      "edit syif kerja",
-      "buka templat syif untuk edit",
-      "ke halaman edit syif",
-      "buka form ubah syif",
-      "lihat borang syif",
-      "edit jadual syif",
-      "buka borang kemaskini syif",
-      "pergi ke form edit syif",
-      "tukar borang syif",
-      "buka halaman syif kerja",
-      "edit templat masa syif"
+      "borang syif baharu",
+      "syif baru"
     ],
     "status": "generated"
   },
   "shift-form.abbreviation": {
     "synonyms": [
-      "singkatan shift",
-      "code shift",
-      "nama pendek shift",
-      "abbreviation shift",
-      "singkatan untuk shift",
-      "code ringkas shift",
-      "short form shift",
-      "nama singkat shift",
-      "akronim shift",
-      "label pendek shift",
-      "ringkasan shift",
-      "kod shift",
-      "nama panggilan shift",
-      "abbreviasi shift",
-      "simbol shift",
-      "pendek shift",
-      "nama code shift",
-      "singkatan kerja shift",
-      "inisial shift",
-      "nama alternatif shift"
+      "singkatan",
+      "kependekan",
+      "singkatan syif",
+      "singkatan borang syif",
+      "singkatan borang",
+      "kependekan syif"
     ],
     "status": "generated"
   },
   "shift-form.name": {
     "synonyms": [
       "nama syif",
-      "nama shift",
-      "tukar nama syif",
-      "ubah nama shift",
-      "isi nama syif",
-      "masukkan nama shift",
-      "nama bagi syif",
-      "nama untuk shift",
-      "ganti nama syif",
-      "set nama shift",
-      "nama syif kerja",
-      "nama shift kerja",
-      "kemaskini nama syif",
-      "kemas kini nama shift",
-      "nyatakan nama syif",
-      "taip nama shift",
-      "pilih nama syif",
-      "tentukan nama shift",
-      "nama syif baru",
-      "nama shift baru"
+      "medan nama",
+      "ruangan nama",
+      "kotak nama",
+      "penamaan"
     ],
     "status": "generated"
   },
   "shift-list": {
     "synonyms": [
-      "senarai syif",
-      "jadual syif",
-      "semua syif",
-      "paparan syif",
-      "senarai kerja syif",
-      "templat syif",
-      "jenis syif",
+      "senarai giliran kerja",
       "katalog syif",
-      "lihiat syif",
-      "buka senarai syif",
-      "pergi ke syif",
-      "cari syif",
-      "senarai peralihan",
-      "tugasan syif",
-      "masa syif",
-      "susun syif",
-      "kemaskini syif",
-      "kelola syif",
-      "semak syif",
-      "senarai tugas"
+      "giliran"
     ],
     "status": "generated"
   },
   "updates": {
     "synonyms": [
       "kemas kini",
-      "update terkini",
-      "lihat kemas kini",
-      "semak kemas kini",
-      "kemaskini sistem",
+      "kemaskini",
       "kemas kini perisian",
-      "versi terkini",
-      "nota kemas kini",
-      "maklumat kemas kini",
-      "kemas kini terbaru",
-      "perubahan terkini",
-      "kemaskini aplikasi",
-      "semak versi",
-      "kemaskini terkini",
-      "kemas kini baru",
-      "lihat perubahan",
-      "kemas kini peranan",
-      "kemaskini tetapan",
-      "kemas kini admin",
-      "kemaskini pengurusan"
+      "kemas kini sistem",
+      "terkini",
+      "pengemaskinian"
     ],
     "status": "generated"
   },
   "wizard": {
     "synonyms": [
-      "buka wizard",
-      "pergi ke wizard",
-      "wizard caruman",
-      "buka harmonizer",
-      "pergi ke harmonizer",
-      "wizard syif",
-      "harmonizer syif",
-      "pembantu syif",
-      "buka wizard syif",
-      "navigasi ke wizard",
-      "wizard penjadualan",
-      "harmonizer penjadualan",
-      "bantuan penjadualan",
-      "buka wizard penjadualan",
-      "pergi ke wizard syif",
-      "harmonizer holistik",
-      "buka harmonizer holistik",
-      "navigasi ke harmonizer",
-      "wizard jadual",
-      "buka wizard jadual"
+      "holistic harmonizer",
+      "penyelaras llm",
+      "harmonizer",
+      "penyelaras",
+      "wizard"
     ],
     "status": "generated"
   },
   "work-setting-form": {
     "synonyms": [
-      "buka tetapan tempat kerja",
-      "pergi ke borang tetapan kerja",
-      "edit tetapan tempat kerja",
-      "paparkan borang tetapan kerja",
-      "buka halaman tetapan tempat kerja",
-      "pergi ke tetapan kerja",
-      "tunjukkan tetapan tempat kerja",
-      "edit borang tetapan kerja",
-      "lihat borang tetapan kerja",
-      "pergi ke tetapan tempat kerja",
-      "buka borang tetapan kerja",
-      "edit tetapan kerja",
-      "paparkan tetapan kerja",
-      "buka halaman tetapan kerja",
-      "pergi ke borang kerja",
-      "lihat tetapan tempat kerja",
-      "edit tetapan tempat kerja saya",
-      "buka tetapan kerja saya",
-      "pergi ke tetapan kerja saya"
+      "konfigurasi perancangan",
+      "pilihan perancangan"
     ],
     "status": "generated"
   },
   "assistant-learning": {
     "synonyms": [
-      "klacksy belajar",
-      "pembelajaran klacksy",
-      "tetapan pembelajaran",
-      "apa yang klacksy pelajari",
-      "ungkapan yang dipelajari",
-      "hasrat terbuka",
-      "cadangan kemahiran",
-      "kemahiran baharu",
-      "buka pembelajaran klacksy",
-      "semakan kemahiran"
+      "pembelajaran pembantu",
+      "pembelajaran ai",
+      "pembelajaran kendiri",
+      "pembelajaran",
+      "belajar"
     ],
     "status": "generated"
   },
   "address-membership": {
     "synonyms": [
-      "keahlian ahli",
-      "keanggotaan kakitangan",
+      "keahlian alamat",
+      "keanggotaan alamat",
+      "pendaftaran keahlian",
+      "butiran keahlian alamat"
+    ],
+    "status": "generated"
+  },
+  "active-industries": {
+    "synonyms": [
+      "sektor aktif",
+      "industri aktif",
+      "senarai sektor aktif",
+      "sektor diaktifkan"
+    ],
+    "status": "generated"
+  },
+  "address-contracts": {
+    "synonyms": [
+      "kontrak alamat",
+      "senarai kontrak alamat",
+      "kontrak tempat kerja",
+      "senarai kontrak"
+    ],
+    "status": "generated"
+  },
+  "address-groups": {
+    "synonyms": [
+      "kumpulan alamat",
+      "kumpulan alamat tersimpan",
+      "senarai kumpulan alamat",
+      "kumpulan alamat kerja"
+    ],
+    "status": "generated"
+  },
+  "address-image": {
+    "synonyms": [
+      "imej",
+      "gambar alamat",
+      "imej alamat",
+      "foto alamat",
+      "gambar premis"
+    ],
+    "status": "generated"
+  },
+  "address-note": {
+    "synonyms": [
+      "nota alamat",
+      "catatan alamat",
+      "nota",
+      "nota untuk alamat",
+      "catatan tentang alamat"
+    ],
+    "status": "generated"
+  },
+  "address-persona": {
+    "synonyms": [
+      "alamat pekerja",
+      "butiran alamat",
+      "maklumat alamat"
+    ],
+    "status": "generated"
+  },
+  "address-qualifications": {
+    "synonyms": [
+      "maklumat kelayakan",
+      "butiran kelayakan"
+    ],
+    "status": "generated"
+  },
+  "assistant-skill-relations": {
+    "synonyms": [
+      "hubungan kemahiran",
+      "hubungan antara kemahiran",
+      "perkaitan kemahiran",
+      "kaitan kemahiran",
+      "hubungan",
+      "perkaitan"
+    ],
+    "status": "generated"
+  },
+  "calendar-selection-form": {
+    "synonyms": [
+      "borang pilihan kalendar"
+    ],
+    "status": "generated"
+  },
+  "compliance-enforcement": {
+    "synonyms": [
+      "pematuhan",
+      "penguatkuasaan",
+      "penguatkuasaan pematuhan",
+      "penguatkuasaan peraturan waktu bekerja",
+      "pengendalian pelanggaran peraturan",
+      "tetapan penguatkuasaan pematuhan"
+    ],
+    "status": "generated"
+  },
+  "compensatory-rest": {
+    "synonyms": [
+      "rehat ganti",
+      "rehat gantian",
+      "rehat pengganti",
+      "cuti rehat ganti",
+      "crg",
+      "gantian"
+    ],
+    "status": "generated"
+  },
+  "contract-form.percent": {
+    "synonyms": [
+      "peratus kontrak",
+      "peratus kerja",
+      "peratus bentuk kontrak"
+    ],
+    "status": "generated"
+  },
+  "counter-rules": {
+    "synonyms": [
+      "peraturan pembilang",
+      "pembilang",
+      "peraturan pencacah",
+      "pencacah",
+      "peraturan kiraan",
+      "peraturan pengiraan"
+    ],
+    "status": "generated"
+  },
+  "erp-drop-points": {
+    "synonyms": [
+      "erp drop points",
+      "drop point erp",
+      "erp drop point",
+      "drop point",
+      "drop-point",
+      "drop-points"
+    ],
+    "status": "generated"
+  },
+  "escalation-roster": {
+    "synonyms": [
+      "senarai panggilan eskalasi",
+      "panggilan eskalasi",
+      "eskalasi",
+      "senarai eskalasi",
+      "roster eskalasi"
+    ],
+    "status": "generated"
+  },
+  "export-format-overrides": {
+    "synonyms": [
+      "pembetulan format eksport",
+      "format eksport override",
+      "pembetulan format eksport override",
+      "override sokongan",
+      "override",
+      "pembetulan"
+    ],
+    "status": "generated"
+  },
+  "export-formats": {
+    "synonyms": [
+      "format eksport",
+      "tetapan format eksport",
+      "pilihan format eksport",
+      "format data eksport"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel": {
+    "synonyms": [
+      "cadangan matlamat",
+      "senarai cadangan matlamat",
+      "panel cadangan matlamat",
+      "matlamat dicadangkan"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.approve": {
+    "synonyms": [
+      "kelulusan calon",
+      "panel kelulusan calon",
+      "calon untuk diluluskan",
+      "senarai kelulusan",
+      "lulus"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.item": {
+    "synonyms": [
+      "calon matlamat",
+      "senarai calon matlamat",
+      "panel calon matlamat",
+      "kelulusan calon matlamat",
+      "calon"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.reject": {
+    "synonyms": [
+      "tolak",
+      "penolakan",
+      "butang tolak",
+      "pilihan tolak",
+      "tindakan tolak",
+      "penolakan calon"
+    ],
+    "status": "generated"
+  },
+  "group-item": {
+    "synonyms": [
+      "info kumpulan"
+    ],
+    "status": "generated"
+  },
+  "group-members": {
+    "synonyms": [
+      "ahli",
+      "peserta",
       "ahli kumpulan",
-      "pasukan ahli",
-      "keahlian dalam kumpulan",
-      "buka keahlian",
-      "sertai pasukan",
-      "senarai ahli kumpulan",
-      "urus keahlian",
-      "tetapkan ahli pasukan",
-      "pilih ahli kumpulan",
-      "masuk ke keahlian",
-      "keahlian pekerja",
-      "status ahli",
-      "ahli pasukan kerja",
-      "perbarui keahlian",
-      "paparan keahlian",
-      "keahlian kakitangan",
-      "halaman keahlian",
-      "tetapan keahlian"
+      "senarai ahli",
+      "senarai peserta",
+      "peserta kumpulan"
+    ],
+    "status": "generated"
+  },
+  "group-parent": {
+    "synonyms": [
+      "induk",
+      "atasan",
+      "kumpulan induk",
+      "kumpulan atasan",
+      "kumpulan utama",
+      "kumpulan asal"
+    ],
+    "status": "generated"
+  },
+  "holiday-work-exemptions": {
+    "synonyms": [
+      "pengecualian kerja cuti umum",
+      "pengecualian cuti umum",
+      "pengecualian",
+      "pengecualian kerja cuti",
+      "pengecualian hari cuti umum"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form": {
+    "synonyms": [
+      "borang tempoh individu",
+      "tetapan tempoh individu",
+      "tempoh individu borang"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form.name": {
+    "synonyms": [
+      "nama tempoh individu",
+      "nama borang tempoh individu",
+      "nama tempoh"
+    ],
+    "status": "generated"
+  },
+  "individual-periods": {
+    "synonyms": [
+      "tempoh individu",
+      "tempoh perseorangan",
+      "tempoh kerja individu",
+      "senarai tempoh individu"
+    ],
+    "status": "generated"
+  },
+  "klacksy-autonomy": {
+    "synonyms": [
+      "autonomi",
+      "berdikari",
+      "tetapan autonomi",
+      "tahap autonomi",
+      "tindakan autonomi",
+      "kawalan autonomi"
+    ],
+    "status": "generated"
+  },
+  "klacksy-proactive-governance": {
+    "synonyms": [
+      "ruang tindakan",
+      "tindakan proaktif",
+      "ruang tindakan proaktif",
+      "tindakan sendiri"
+    ],
+    "status": "generated"
+  },
+  "monthly-target-hours": {
+    "synonyms": [
+      "jam sasaran bulanan",
+      "jam sasaran",
+      "sasaran jam",
+      "sasaran bulanan"
+    ],
+    "status": "generated"
+  },
+  "new-plannable-shift": {
+    "synonyms": [
+      "syif tanpa pelanggan",
+      "tugas tanpa pelanggan",
+      "syif boleh dirancang",
+      "tugas boleh dirancang",
+      "tugas"
+    ],
+    "status": "generated"
+  },
+  "overtime": {
+    "synonyms": [
+      "kerja lebih masa",
+      "tetapan kerja lebih masa",
+      "konfigurasi kerja lebih masa",
+      "lebih masa",
+      "overtime",
+      "ot"
+    ],
+    "status": "generated"
+  },
+  "period-cap-rules": {
+    "synonyms": [
+      "had tempoh",
+      "peraturan had tempoh",
+      "tetapan had tempoh",
+      "syarat had tempoh"
+    ],
+    "status": "generated"
+  },
+  "period-closing-audit": {
+    "synonyms": [
+      "entri log",
+      "audit penutupan tempoh",
+      "log audit penutupan",
+      "audit",
+      "sejarah penutupan"
+    ],
+    "status": "generated"
+  },
+  "period-closing-exports": {
+    "synonyms": [
+      "eksport",
+      "pengeksportan",
+      "eksport penutupan tempoh",
+      "eksport tempoh",
+      "eksport data tempoh",
+      "eksport semua pekerja"
+    ],
+    "status": "generated"
+  },
+  "period-closing-periods": {
+    "synonyms": [
+      "tempoh tutup",
+      "senarai tempoh tutup",
+      "tempoh ditutup"
+    ],
+    "status": "generated"
+  },
+  "personal-access-token-form": {
+    "synonyms": [
+      "borang token akses peribadi",
+      "token baharu",
+      "penjanaan token"
+    ],
+    "status": "generated"
+  },
+  "personal-access-tokens": {
+    "synonyms": [
+      "token-token",
+      "token akses",
+      "token akses peribadi",
+      "token peribadi"
+    ],
+    "status": "generated"
+  },
+  "plan-execution-panel.abort": {
+    "synonyms": [
+      "pembatalan pelan",
+      "pembatalan pelaksanaan pelan",
+      "tindakan pembatalan pelan",
+      "pembatalan pelaksanaan",
+      "pembatalan",
+      "batal"
+    ],
+    "status": "generated"
+  },
+  "profile-data": {
+    "synonyms": [
+      "data profil",
+      "data log masuk",
+      "maklumat log masuk",
+      "butiran akaun"
+    ],
+    "status": "generated"
+  },
+  "profile-messengers": {
+    "synonyms": [
+      "pemesejan saya",
+      "mesej saya",
+      "mesej peribadi",
+      "pemesejan peribadi"
+    ],
+    "status": "generated"
+  },
+  "profile-microphone": {
+    "synonyms": [
+      "mikrofon",
+      "diagnostik",
+      "ujian mikrofon",
+      "pengecaman pertuturan",
+      "ujian pengecaman pertuturan",
+      "tetapan mikrofon"
+    ],
+    "status": "generated"
+  },
+  "profile-picture": {
+    "synonyms": [
+      "gambar profil",
+      "foto profil",
+      "imej profil",
+      "avatar"
+    ],
+    "status": "generated"
+  },
+  "profile-settings": {
+    "synonyms": [
+      "tetapan tersuai",
+      "tetapan akaun",
+      "tetapan peribadi"
+    ],
+    "status": "generated"
+  },
+  "qualifications": {
+    "synonyms": [
+      "kelayakan",
+      "pensijilan",
+      "tetapan kelayakan"
+    ],
+    "status": "generated"
+  },
+  "restricted-time-window-rules": {
+    "synonyms": [
+      "tetingkap masa terhad",
+      "peraturan tetingkap masa terhad",
+      "tetapan tetingkap masa terhad",
+      "tetingkap masa terhad baharu",
+      "tetingkap",
+      "sekatan"
+    ],
+    "status": "generated"
+  },
+  "shift-address": {
+    "synonyms": [
+      "alamat kerja"
+    ],
+    "status": "generated"
+  },
+  "shift-expenses": {
+    "synonyms": [
+      "perbelanjaan syif",
+      "kos syif",
+      "belanja syif",
+      "perbelanjaan",
+      "kos",
+      "belanja"
+    ],
+    "status": "generated"
+  },
+  "shift-group": {
+    "synonyms": [
+      "kelompok",
+      "kumpulan syif",
+      "kumpulan ditetapkan",
+      "kelompok syif",
+      "kumpulan giliran"
+    ],
+    "status": "generated"
+  },
+  "shift-item": {
+    "synonyms": [],
+    "status": "generated"
+  },
+  "shift-macro": {
+    "synonyms": [
+      "makrosyif",
+      "makro syif",
+      "senarai makro syif",
+      "senarai makro giliran"
+    ],
+    "status": "generated"
+  },
+  "shift-qualifications": {
+    "synonyms": [
+      "kelayakan syif",
+      "kelayakan diperlukan",
+      "keperluan kelayakan"
+    ],
+    "status": "generated"
+  },
+  "shift-special-feature": {
+    "synonyms": [
+      "ciri khas",
+      "ciri khas syif",
+      "ciri istimewa syif",
+      "keistimewaan syif",
+      "keistimewaan",
+      "kekhususan"
+    ],
+    "status": "generated"
+  },
+  "shift-weekday": {
+    "synonyms": [
+      "jam dan hari minggu",
+      "hari minggu",
+      "hari syif",
+      "waktu syif"
+    ],
+    "status": "generated"
+  },
+  "skill-effectiveness": {
+    "synonyms": [
+      "keberkesanan kemahiran",
+      "keberkesanan",
+      "kemahiran",
+      "tetapan keberkesanan kemahiran",
+      "kecekapan kemahiran",
+      "prestasi kemahiran"
+    ],
+    "status": "generated"
+  },
+  "surcharge-mode": {
+    "synonyms": [
+      "mod caj tambahan",
+      "caj tambahan",
+      "tetapan caj tambahan",
+      "pengiraan caj tambahan",
+      "surcaj"
+    ],
+    "status": "generated"
+  },
+  "web-search": {
+    "synonyms": [
+      "carian",
+      "gelintar",
+      "carian web",
+      "carian internet",
+      "gelintar web",
+      "pencarian web"
+    ],
+    "status": "generated"
+  },
+  "whisper-plugin": {
+    "synonyms": [
+      "whisper",
+      "pengecaman suara whisper",
+      "perkhidmatan suara whisper",
+      "pengecaman suara dihoskan sendiri",
+      "suara whisper"
     ],
     "status": "generated"
   }

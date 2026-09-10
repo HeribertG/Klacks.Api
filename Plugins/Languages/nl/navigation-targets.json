@@ -1,351 +1,142 @@
 {
   "absence-detail": {
     "synonyms": [
-      "afwezigheidsdetails bekijken",
-      "informatie over afwezigheid",
-      "details van afwezigheid opvragen",
-      "afwezigheid instellingen in planning",
-      "afwezigheid details inroosteren",
-      "specifieke afwezigheid bekijken",
-      "afwezigheidsinformatie in rooster",
-      "details voor afwezigheid",
-      "afwezigheid details planning",
-      "afwezigheid informatie opzoeken",
-      "bekijk afwezigheidsdetails",
-      "afwezigheid detailscherm",
-      "naar afwezigheidsdetails gaan",
-      "afwezigheid details weergeven",
-      "afwezigheid in rooster details",
-      "details over afwezigheid",
-      "afwezigheid details inzien",
-      "afwezigheid informatie in planning",
-      "afwezigheid details openen",
-      "bekijk specifieke afwezigheid"
+      "uitgebreide afwezigheden",
+      "afwezigheidsgegevens"
     ],
     "status": "generated"
   },
   "absence-types": {
     "synonyms": [
-      "verlofaanvragen beheren",
-      "verlof instellen",
-      "verlof aanvragen",
-      "uit de running",
-      "afwezigheid plannen",
-      "afwezigheid aanvragen",
-      "verlof plannen",
-      "verlof opnemen",
-      "verlof type beheren",
-      "vrije dagen indienen",
-      "afwezigheidstypen wijzigen",
-      "ziekte melden",
-      "verlof registreren",
-      "niet beschikbaar instellen",
-      "afwezigheid scherm openen",
-      "verlofinstellingen bekijken",
-      "vrije tijd aanvragen",
-      "afwezigheidstypen instellen",
-      "verlofkalender beheren",
-      "afwezigheidstypen"
+      "afwezigheidstypes",
+      "afwezigheidstypen",
+      "soorten afwezigheid",
+      "afwezigheidssoorten",
+      "verlofsoorten"
     ],
     "status": "generated"
   },
   "addresses": {
     "synonyms": [
-      "waar kan ik adressen vinden van medewerkers",
-      "toon mij de adresgegevens van mijn team",
-      "ik wil de contactgegevens van personeel bekijken",
-      "waar staan de adressen van collega's",
-      "laat de adreslijst van werknemers zien",
-      "zoek het adres van een medewerker op",
-      "ik moet de adressen van mijn teamleden checken",
-      "waar kan ik de woonplaatsen van personeel vinden",
-      "geef mij de adresinformatie van de medewerkers",
-      "ik wil de adressen van mijn collega's inzien",
-      "toon de adresgegevens van de werknemers",
-      "waar kan ik de contactadressen van het team vinden",
-      "laat mij de adreslijst zien van ons personeel",
-      "ik zoek de adressen van de medewerkers",
-      "waar zijn de adressen van mijn team opgeslagen",
-      "toon de adresinformatie van de collega's",
-      "ik wil de woonadressen van het personeel bekijken",
-      "waar kan ik de adressen van de werknemers raadplegen",
-      "laat de adresgegevens van de teamleden zien",
-      "zoek de adressen van mijn medewerkers op"
+      "adressen",
+      "alle adressen",
+      "adreslijst",
+      "adressenoverzicht",
+      "adresboek"
     ],
     "status": "generated"
   },
   "assistant-speech": {
     "synonyms": [
-      "instellingen voor ai-spraak",
-      "spraakassistent instellingen",
-      "stemassistent opties",
-      "ai stem voorkeuren",
-      "spraak ai configuratie",
-      "ai voorleesstem instellingen",
-      "assistent stemopties",
-      "spraakherkenning instellingen",
-      "ai spraakbediening",
-      "stemassistent aanpassen",
-      "ai spraakinstellingen",
-      "spraakassistent configureren",
-      "ai verteller instellingen",
-      "spraakgestuurde assistent",
-      "ai stemopties bekijken",
-      "spraakassistent aanpassen",
-      "ai spraakvoorkeuren",
-      "stemassistent instellen",
-      "spraakopties wijzigen",
-      "ai assistent steminstellingen"
+      "spraak",
+      "spraakinstellingen",
+      "spraakopties",
+      "spraakconfiguratie",
+      "assistentspraak",
+      "assistentspraakinstellingen"
     ],
     "status": "generated"
   },
   "branches": {
     "synonyms": [
-      "waar vind ik de vestigingen",
-      "vestigingen beheren",
-      "locatie-instellingen openen",
-      "onze locaties bekijken",
-      "kantoorvestigingen aanpassen",
-      "bedrijfslocaties overzicht",
-      "organisatielocaties instellen",
-      "vestigingsgegevens bijwerken",
-      "werkpleklocaties configureren",
-      "naar vestigingen gaan",
-      "locatiebeheer openen",
-      "alle locaties weergeven",
-      "vestigingsinstellingen wijzigen",
-      "locatie-instellingen aanpassen",
-      "vestigingen overzicht",
-      "locaties beheren",
-      "bedrijfslocaties instellen",
-      "vestigingsinformatie updaten",
-      "locatie configuratie openen",
-      "organisatie instellingen locaties"
+      "filialen",
+      "filiaal",
+      "vestigingen",
+      "filiaalbeheer",
+      "vestigingenbeheer",
+      "filiaalinstellingen"
     ],
     "status": "generated"
   },
   "calendar-rules": {
     "synonyms": [
-      "instellingen roosterregels",
-      "regels voor roosters",
-      "planning regels beheren",
-      "rooster instellingen",
-      "beschikbaarheid regels",
-      "shift regels",
-      "verlof regels",
-      "kalender regels",
-      "rooster beleid",
-      "diensten regels",
-      "werkrooster regels",
-      "afwezigheid regels",
-      "planningsbeleid",
-      "regels voor diensten",
-      "roosteropties",
-      "scheduling regels",
-      "werktijden regels",
-      "rooster configuratie",
-      "planner instellingen",
-      "regels voor planning"
+      "feestdagregels",
+      "kalenderregels",
+      "feestdagenregels",
+      "regels feestdagen",
+      "feestdag instellingen",
+      "regels voor feestdagen"
     ],
     "status": "generated"
   },
   "calendar-selection": {
     "synonyms": [
-      "kalender kiezen",
-      "selecteer kalender",
-      "kies een kalender",
-      "kalender selecteren",
-      "kies de juiste kalender",
-      "welke kalender",
-      "kalender instellen",
-      "kies schema",
-      "selecteer schema",
-      "schema kiezen",
-      "schema selecteren",
-      "kies een schema",
-      "planning kiezen",
-      "planning selecteren",
-      "kies planning",
-      "selecteer planning",
-      "naar kalenderkeuze",
-      "kalenderkeuze openen",
-      "ga naar kalender selectie",
-      "kalender selectie"
+      "kalenderselectie",
+      "kalenderselecties",
+      "kalenderkeuzes",
+      "kalenderselectie instellingen",
+      "kalenderselectie overzicht"
     ],
     "status": "generated"
   },
   "contracts": {
     "synonyms": [
-      "mijn contracten bekijken",
-      "arbeidscontracten beheren",
-      "contractdetails wijzigen",
-      "mijn roosterafspraken aanpassen",
-      "werkafspraken controleren",
-      "contractinstellingen openen",
-      "mijn dienstcontracten inzien",
-      "overeenkomsten bewerken",
-      "arbeidsvoorwaarden updaten",
-      "contracten beheren",
-      "mijn contractgeschiedenis raadplegen",
-      "contracten beheren in instellingen",
-      "mijn contractvoorwaarden wijzigen",
-      "contractinstellingen beheren",
-      "mijn werkcontracten aanpassen",
-      "contractoverzicht openen",
-      "contracten beheren in roosterinstellingen",
-      "mijn planningsovereenkomsten bekijken",
-      "contractgegevens updaten",
-      "mijn contracten en afspraken"
+      "arbeidscontracten",
+      "contractvoorwaarden",
+      "contractbeheer"
     ],
     "status": "generated"
   },
   "countries": {
     "synonyms": [
-      "landen",
+      "landenbeheer",
+      "landeninstellingen",
       "landenlijst",
-      "alle landen",
-      "landen beheren",
-      "landen instellingen",
-      "landen overzicht",
-      "geografische instellingen",
-      "landen configuratie",
-      "landen beheer",
-      "landen toevoegen",
-      "landen bewerken",
-      "landen verwijderen",
-      "landen instellen",
-      "landen aanpassen",
-      "landen selecteren",
-      "landen kiezen",
-      "landen weergeven",
-      "landen tonen",
-      "landen openen",
-      "landen bekijken"
+      "landenconfiguratie",
+      "landenoverzicht"
     ],
     "status": "generated"
   },
   "dashboard": {
     "synonyms": [
-      "mijn overzicht",
-      "mijn werkoverzicht",
-      "rooster overzicht",
-      "shift overzicht",
       "dashboard",
-      "werk dashboard",
-      "mijn rooster",
-      "overzicht van mijn shifts",
-      "werkoverzicht pagina",
-      "dashboard werk",
-      "mijn diensten overzicht",
-      "shifts overzicht",
-      "hoofdoverzicht",
-      "werk scherm",
-      "mijn werk dashboard",
-      "rooster dashboard",
-      "shift samenvatting",
-      "werk overzicht pagina",
-      "overzicht shifts",
-      "mijn werk scherm"
+      "startpagina",
+      "mijn dashboard",
+      "werkplek overzicht"
     ],
     "status": "generated"
   },
   "data-retention": {
     "synonyms": [
-      "instellingen voor gegevensbewaring",
-      "hoe lang bewaren we gegevens",
-      "retentiebeleid gegevens",
-      "bewaartermijn instellen",
-      "gegevensopslagduur",
-      "gegevensretentie configureren",
-      "retentieperiode instellingen",
-      "schema voor gegevensverwijdering",
-      "bewaarinstellingen aanpassen",
-      "gegevens bewaarbeleid",
-      "retentie instellingen",
-      "hoe lang gegevens bewaren",
-      "gegevens bewaarduur",
-      "retentie policy",
-      "gegevensretentie beheren",
-      "retentieperiode aanpassen",
-      "gegevensretentie instellen",
-      "bewaartermijn gegevens",
-      "retentie schema",
-      "gegevens verwijderingsbeleid"
+      "bewaartermijn",
+      "gegevensbewaring",
+      "dataretentie",
+      "bewaarperiode",
+      "gegevensbescherming",
+      "avg"
     ],
     "status": "generated"
   },
   "deepl": {
     "synonyms": [
-      "deepl instellen in integraties",
-      "deepl koppelen met klacks",
-      "deepl toevoegen aan integraties",
-      "deepl vertaling inschakelen",
-      "deepl configureren in instellingen",
-      "deepl gebruiken in de app",
-      "deepl activeren in integraties",
-      "deepl verbinden met roosters",
-      "deepl aansluiten op de workflow",
-      "deepl instellen voor planning",
-      "naar deepl in integraties gaan",
-      "deepl opties in instellingen",
-      "deepl koppeling aanpassen",
-      "deepl instellingen openen",
-      "deepl integratie beheren",
-      "deepl toevoegen in de app",
-      "deepl integratie inschakelen",
-      "deepl configureren in integraties",
-      "deepl koppelen met het systeem",
-      "deepl instellen in het systeem"
+      "deepl",
+      "vertaling",
+      "deepl vertaling",
+      "automatische vertalingen",
+      "deepl instellingen",
+      "vertaaldienst"
     ],
     "status": "generated"
   },
   "email-config": {
     "synonyms": [
-      "e-mailinstellingen bekijken",
-      "beheer e-mailnotificaties",
-      "e-mailconfiguratie voor beheerders",
-      "e-mailvoorkeuren wijzigen",
-      "instellingen voor e-mailmeldingen",
-      "e-mail setup beheren",
-      "admin e-mailopties aanpassen",
-      "e-mailwaarschuwingen configureren",
-      "ga naar e-mailinstellingen",
-      "notificatie-instellingen e-mail",
-      "beheer e-mailconfiguratie",
-      "e-mailvoorkeuren instellen",
-      "wijzig e-mailnotificaties",
-      "e-mailmeldingen beheren",
-      "instellingen voor e-mail alerts",
-      "e-mailconfiguratie openen",
-      "beheerder e-mailinstellingen",
-      "e-mailopties voor beheerders",
-      "e-mailinstellingen aanpassen",
-      "notificatievoorkeuren e-mail"
+      "e-mailinstellingen",
+      "mailinstellingen",
+      "e-mailconfiguratie",
+      "mailconfiguratie",
+      "e-mailserverinstellingen",
+      "mailserverinstellingen"
     ],
     "status": "generated"
   },
   "feature-plugins": {
     "synonyms": [
-      "admin instellingen",
-      "functionaliteiten beheren",
-      "add-ons inschakelen",
-      "beschikbare functies",
-      "plugins configureren",
-      "extensies beheren",
-      "tools van de admin",
-      "functies aanpassen",
-      "instellingen voor functionaliteiten",
-      "add-ons beheren",
-      "plugins activeren",
-      "werkplek extensies",
-      "beheer van features",
-      "plugins van de admin",
-      "admin tools",
-      "features aanpassen",
-      "plugins inschakelen",
-      "extensies aanpassen",
-      "functionaliteiten configureren",
-      "beschikbare plugins"
+      "feature-plugins",
+      "feature plugins",
+      "plugins",
+      "plug-ins",
+      "functieplug-ins",
+      "featureplugins"
     ],
     "status": "generated"
   },
@@ -401,825 +192,328 @@
   },
   "grid-color": {
     "synonyms": [
-      "kleur van het raster wijzigen",
-      "rasterkleur aanpassen",
-      "gridkleur veranderen",
-      "rasterkleur instellen",
-      "gridkleur instellingen",
-      "gridkleur opties",
-      "rasterkleur voorkeuren",
-      "gridkleur configuratie",
-      "kleur van het grid wijzigen",
-      "gridkleur aanpassen",
-      "raster kleur wijzigen",
-      "grid kleur instellen",
-      "instellingen voor rasterkleur",
-      "opties voor gridkleur",
-      "voorkeuren voor gridkleur",
-      "configuratie van gridkleur",
-      "kleur van grid aanpassen",
-      "gridkleur instellingen wijzigen"
+      "tabelkleur",
+      "gridkleur",
+      "rasterkleur",
+      "tabelkleuren",
+      "rasterkleuren",
+      "kleur van tabel"
     ],
     "status": "generated"
   },
   "group-scope": {
     "synonyms": [
-      "instellingen van mijn team",
-      "team zichtbaarheid",
-      "wie zit er in mijn team?",
-      "organisatie-instellingen",
-      "teamleden bekijken",
-      "afdelingsinstellingen",
-      "groepsbereik aanpassen",
-      "mijn groepsinstellingen",
-      "team samenstelling",
-      "groep zichtbaarheid",
-      "team scope wijzigen",
-      "groepsinstellingen",
-      "team configuratie",
-      "organisatie structuur",
-      "team beheer",
-      "groepsleden overzicht",
-      "afdeling beheren",
-      "team scope instellen",
-      "mijn team instellingen",
-      "groepsbereik"
+      "groepszichtbaarheid",
+      "groepenzichtbaarheid",
+      "zichtbaarheid groepen",
+      "zichtbaarheid groepen per gebruiker",
+      "zichtbaarheid van groepen",
+      "groepszichtbaarheid per gebruiker"
     ],
     "status": "generated"
   },
   "groups": {
     "synonyms": [
-      "groepen weergeven",
-      "naar groepsoverzicht",
-      "groepen openen",
-      "team indeling bekijken",
-      "afdelingen beheren",
-      "overzicht teams",
-      "groep configuratie",
-      "groepen instellen",
-      "mijn teams",
-      "afdelingsoverzicht",
-      "groepslijst tonen",
-      "ploegen beheren",
-      "groepen organiseren",
-      "team overzicht openen",
-      "naar afdelingen",
+      "groepen",
       "groepsbeheer",
-      "afdelingen lijst",
-      "groepen overzicht",
-      "team structuur",
-      "groep instellingen"
+      "groepenoverzicht",
+      "alle groepen",
+      "groepsstructuur"
     ],
     "status": "generated"
   },
   "identity-providers": {
     "synonyms": [
-      "instellingen voor identiteitsaanbieders",
-      "idp-instellingen",
-      "authenticatieproviders beheren",
-      "loginproviders",
-      "sso-configuratie",
-      "single sign-on instellen",
-      "externe identiteitsbeheer",
-      "inlogopties van derden",
-      "hoe stel ik identity providers in",
-      "identiteitsproviders wijzigen",
-      "authenticatie-instellingen",
-      "sso instellingen",
-      "identiteitsbeheer",
-      "login met externe accounts",
-      "identity providers configureren",
-      "wie kan inloggen via sso",
-      "beheer identity providers",
-      "inloggen via derden instellen",
-      "authenticatie via externe partijen",
-      "waar zijn de idp opties"
+      "identiteitsprovider",
+      "identity provider",
+      "idp",
+      "sso provider",
+      "inlogprovider",
+      "authenticatieprovider"
     ],
     "status": "generated"
   },
   "imap-setting": {
     "synonyms": [
-      "imap instellingen openen",
-      "naar imap configuratie gaan",
-      "imap integratie instellen",
-      "imap koppeling beheren",
-      "imap account toevoegen",
-      "imap server instellen",
-      "e-mail instellingen imap",
-      "imap verbinding testen",
-      "imap synchronisatie aanpassen",
-      "imap inloggegevens wijzigen",
-      "imap aanpassen in instellingen",
-      "imap e-mail setup openen",
-      "imap opties bekijken",
-      "imap configuratie wijzigen",
-      "imap instellingen voor e-mail",
-      "imap verbinding opzetten",
-      "imap server configureren",
-      "imap account beheren",
-      "imap integratie aanzetten",
-      "imap e-mail instellingen"
+      "imap",
+      "imap instellingen",
+      "inkomende mailserver",
+      "imap configuratie",
+      "imap koppeling"
     ],
     "status": "generated"
   },
   "inbox": {
     "synonyms": [
-      "ga naar mijn inbox",
-      "bekijk mijn berichten",
-      "toon meldingen",
-      "open inbox",
-      "check mijn alerts",
-      "zie mijn notificaties",
-      "open mijn berichten",
-      "ga naar meldingen",
-      "bekijk updates",
-      "toon berichten",
-      "open meldingen",
-      "ga naar notificaties",
-      "bekijk alerts",
-      "zie mijn berichten",
-      "open mijn inbox",
-      "ga naar mijn meldingen",
-      "bekijk communicatie",
-      "toon mijn alerts",
-      "zie updates",
-      "open mijn notificaties"
+      "postvak in",
+      "postvak",
+      "inbox",
+      "mailbox",
+      "postvak overzicht",
+      "inboxpagina"
     ],
     "status": "generated"
   },
   "klacksy-training": {
     "synonyms": [
+      "training",
+      "trainingsbeheer",
       "trainingen",
-      "naar trainingen",
-      "open trainingen",
-      "trainingen pagina",
-      "trainingen bekijken",
-      "trainingen overzicht",
-      "trainingsmodule",
-      "trainingssectie",
-      "trainingsinstellingen",
-      "trainingen beheren",
-      "trainingen wijzigen",
-      "trainingen aanpassen",
-      "trainingen instellen",
-      "trainingen configureren",
-      "trainingen openen",
-      "trainingen tonen",
-      "trainingen weergeven",
-      "trainingspagina openen",
-      "trainingen lijst",
-      "trainingen bewerken"
+      "trainingspagina"
     ],
     "status": "generated"
   },
   "language-plugins": {
     "synonyms": [
-      "taal uitbreidingen",
-      "taal toevoegingen",
-      "taal extensies",
-      "taal hulpmiddelen",
-      "taal instellingen",
-      "uitbreidingen voor talen",
-      "taal modules",
-      "taal pakketten",
-      "taal plug-ins",
-      "taal instellingen beheren",
-      "taal add-ons",
-      "taal extra's",
-      "taal aanvullingen",
-      "taal ondersteuning",
-      "taal vertalingen",
-      "taal tools",
-      "taal configuratie",
-      "taal addon beheer",
-      "taal plugins beheer",
-      "taal extensie beheer"
+      "taalpakketten",
+      "taalpakket",
+      "taalpakketten overzicht",
+      "beschikbare taalpakketten",
+      "taalpakket lijst"
     ],
     "status": "generated"
   },
   "llm-models": {
     "synonyms": [
-      "ai model instellingen",
-      "llm configuratie",
-      "ai model beheer",
-      "llm model opties",
-      "ai model voorkeuren",
-      "llm model instellingen",
-      "ai model configuratie",
-      "llm model beheer",
-      "slimme model instellingen",
-      "taalmodel opties",
-      "ai voorkeuren",
-      "llm voorkeuren",
-      "model configuratie",
-      "ai model aanpassen",
-      "llm model aanpassen",
-      "instellingen voor ai modellen",
-      "instellingen voor llm",
-      "ai model selectie",
-      "llm model selectie",
-      "beheer van ai modellen"
+      "llm-modellen",
+      "llm model",
+      "ai-modellen",
+      "taalmodellen"
     ],
     "status": "generated"
   },
   "llm-provider": {
     "synonyms": [
-      "instellingen voor ai-provider",
-      "ai-modelprovider configureren",
-      "llm-service instellingen",
-      "ai-integratie beheren",
-      "taalmodelprovider instellen",
-      "ai-provider opties",
-      "kunstmatige intelligentie provider",
-      "llm-provider aanpassen",
-      "ai-model provider wijzigen",
-      "provider voor ai-modellen",
-      "ai-provider configuratie",
-      "taalmodel service beheren",
-      "ai-instellingen voor provider",
-      "llm-configuratie openen",
-      "ai-provider kiezen",
-      "modelprovider voor ai",
-      "ai-integratie instellen",
-      "llm-provider beheren",
-      "ai-provider instellen",
-      "provider voor taalmodel"
+      "llmprovider",
+      "llm-provider",
+      "llm-aanbieder",
+      "ai-provider",
+      "llm aanbieder",
+      "llm providers"
     ],
     "status": "generated"
   },
   "macros": {
     "synonyms": [
-      "ga naar macro-instellingen",
-      "open macro's in instellingen",
-      "toon geautomatiseerde workflows",
-      "macro's beheren in instellingen",
-      "instellingen voor automatisering openen",
-      "ga naar workflow sjablonen",
-      "snelkoppelingen voor taken instellen",
-      "automatische processen configureren",
-      "macro's bekijken in werkplek instellingen",
-      "beheer geplande acties",
-      "ga naar sjablonen voor herhalende taken",
-      "automatiseringsregels openen",
-      "macro instellingen wijzigen",
-      "open de macro's pagina",
-      "ga naar taak automatisering",
-      "workflow snelkoppelingen beheren",
-      "instellingen voor macro's",
-      "automatische workflows aanpassen",
-      "ga naar herbruikbare workflows",
-      "open geautomatiseerde processen in instellingen"
+      "macro",
+      "macro's",
+      "macro instellingen",
+      "macro's bewerken",
+      "macrobeheer",
+      "instellingen voor macro's"
     ],
     "status": "generated"
   },
   "messaging-providers": {
     "synonyms": [
-      "sms-aanbieders beheren",
-      "instellingen voor sms-berichten",
-      "messaging providers instellen",
-      "communicatieproviders wijzigen",
-      "sms-gateways configureren",
-      "notificatiediensten instellen",
-      "integraties voor berichten",
-      "sms-dienstverleners beheren",
-      "meldingen via sms instellen",
-      "provider voor sms kiezen",
-      "berichtenplatforms beheren",
-      "alert providers aanpassen",
-      "messaging services instellen",
-      "sms-koppelingen beheren",
-      "communicatiekanalen instellen",
-      "berichtendienst instellingen",
-      "sms-integratie beheren",
-      "notificatieproviders wijzigen",
-      "instellingen voor meldingen",
-      "berichtenproviders configureren"
+      "berichtenproviders",
+      "berichtendiensten",
+      "berichtenintegraties",
+      "berichtenkoppelingen",
+      "berichtenservices"
     ],
     "status": "generated"
   },
   "openroute": {
     "synonyms": [
-      "ga naar route-instellingen",
-      "open route configuratie",
-      "route-opties weergeven",
-      "routebeheer openen",
-      "route-instellingen tonen",
-      "route integraties bekijken",
-      "naar route instellingen",
-      "route instellingen openen",
-      "route configuratie tonen",
-      "instellingen voor routes",
-      "route opties bekijken",
-      "route beheer weergeven",
-      "route setup openen",
-      "toon route integraties",
-      "ga naar route opties",
-      "route configuratie openen",
-      "route instellingen weergeven",
-      "naar route beheer",
-      "route integraties openen",
-      "route setup weergeven"
+      "openroute",
+      "openrouteservice",
+      "route-optimalisatie",
+      "reistijden en afstanden",
+      "reistijdberekening",
+      "afstandsberekening"
     ],
     "status": "generated"
   },
   "owner-address": {
     "synonyms": [
-      "mijn adresgegevens bekijken",
-      "bedrijfsadres aanpassen",
-      "eigenaar informatie wijzigen",
-      "vestigingsadres instellen",
-      "adres van de eigenaar updaten",
-      "contactadres eigenaar beheren",
-      "locatiegegevens bedrijf wijzigen",
-      "mijn vestigingsadres bekijken",
-      "eigenaar adres bewerken",
-      "adres instellingen aanpassen",
-      "bedrijfslocatie wijzigen",
-      "eigenaargegevens actualiseren",
-      "adres van het bedrijf veranderen",
-      "postadres bijwerken",
-      "eigenaar locatie beheren",
-      "adresgegevens van eigenaar",
-      "naar adresinstellingen gaan",
-      "bedrijfsadres wijzigen",
-      "eigenaar adres instellen",
-      "locatie van eigenaar aanpassen"
+      "adres secretariaat",
+      "adres eigenaar",
+      "eigenaarsadres",
+      "secretariaatsadres",
+      "vestigingsadres"
     ],
     "status": "generated"
   },
   "owner-messengers": {
     "synonyms": [
-      "berichten eigenaren instellen",
-      "eigenaar berichten beheren",
-      "eigenaar communicatie instellen",
-      "eigenaar berichtenvoorkeuren",
-      "eigenaar notificatiekanalen",
-      "eigenaar contactmethoden",
-      "eigenaar berichten integraties",
-      "berichten naar eigenaren configureren",
-      "eigenaar meldingen beheren",
-      "eigenaar berichtgeving instellen",
-      "eigenaar berichtopties",
-      "eigenaar communicatiekanalen",
-      "eigenaar berichten aanpassen",
-      "eigenaar notificatie-instellingen",
-      "eigenaar berichtintegraties",
-      "eigenaar berichtvoorkeuren wijzigen",
-      "eigenaar contactinstellingen",
-      "eigenaar meldingskanalen",
-      "eigenaar berichtconfiguratie",
-      "eigenaar berichtgeving beheren"
+      "messenger secretariaat",
+      "messenger secretariaat instellingen",
+      "eigenaar messenger",
+      "messenger eigenaar instellingen"
     ],
     "status": "generated"
   },
   "period-closing": {
     "synonyms": [
-      "periode afsluiten",
-      "planperiode afronden",
-      "roosterperiode sluiten",
-      "afsluiten van de periode",
-      "periodebeeindiging",
-      "sluit de planningperiode",
-      "periode afronden",
-      "afsluiting van de planningsperiode",
-      "periodebeeindigen",
-      "roosterperiode afsluiten",
-      "einde planningperiode",
-      "periode finaliseren",
-      "sluit periode",
-      "planperiode sluiten",
-      "afronden van de periode",
-      "periodebeeindigen in rooster",
-      "afsluiten planning",
-      "sluit de roosterperiode",
-      "periodebeeindiging starten",
-      "einde van de planningsperiode"
+      "periode afsluiting",
+      "periodeafsluitingen",
+      "afsluiting periode",
+      "periodeafsluiting overzicht"
     ],
     "status": "generated"
   },
   "report-defaults": {
     "synonyms": [
-      "standaard rapportinstellingen",
-      "rapportvoorkeuren standaard",
-      "standaard rapportconfiguratie",
-      "rapportstandaardwaarden",
-      "standaard rapportopties",
-      "rapport instellingen standaard",
-      "standaard rapportparameters",
-      "rapportage standaarden",
-      "standaard rapport lay-out",
-      "rapport template standaard",
-      "standaard rapport weergave",
-      "rapport standaardopties",
-      "standaard rapportage instellingen",
-      "rapport configuratie standaard",
-      "standaard rapport sjabloon",
-      "rapportage standaardinstellingen",
-      "standaard rapport voorkeuren",
-      "rapport parameters standaard",
-      "standaard rapportage opties",
-      "rapport standaard sjablonen"
+      "standaardsjablonen",
+      "snel afdrukken",
+      "standaardrapporten",
+      "standaard rapportinstellingen"
     ],
     "status": "generated"
   },
   "reports": {
     "synonyms": [
+      "rapportsjablonen",
       "rapportages",
-      "rapporten",
-      "analytics",
-      "statistieken",
-      "data inzichten",
-      "prestatiecijfers",
-      "medewerkers analytics",
-      "rooster rapporten",
-      "overzichten",
-      "cijfers",
-      "rapportage overzicht",
-      "prestatierapportages",
-      "analyserapportages",
-      "data rapportages",
-      "managementinformatie",
-      "kpi's bekijken",
-      "rapportages inzien",
-      "statistieken bekijken",
-      "analytics rapporten",
-      "overzichtsrapportages"
+      "rapportinstellingen",
+      "sjablonen voor rapporten"
     ],
     "status": "generated"
   },
   "scheduling-defaults": {
     "synonyms": [
-      "standaard rooster instellingen",
-      "planning standaardwaarden",
-      "standaard planning opties",
-      "rooster standaarden",
-      "planning standaard menu",
-      "standaard planningsconfiguraties",
-      "planning standaard instellingen",
-      "standaard rooster configuraties",
-      "standaard instellingen voor planning",
-      "planningspresets",
-      "standaard roosteropties",
-      "standaard planning voorkeuren",
-      "rooster standaardwaarden",
-      "planning standaard configuratie",
-      "standaard planningsopties",
-      "default planning instellingen",
-      "standaard roosterwaarden",
-      "planning standaard presets",
-      "rooster standaard instellingen",
-      "standaard planningsconfiguratie"
+      "planningsstandaarden",
+      "standaard planningsregels",
+      "standaardwaarden planning",
+      "roosterstandaarden"
     ],
     "status": "generated"
   },
   "scheduling-rules": {
     "synonyms": [
-      "rooster instellingen",
+      "planningsregels",
+      "planningsregel",
       "planning regels",
-      "rooster regels",
-      "shift regels",
-      "personeelsplanning instellingen",
-      "rooster beleid",
-      "inrooster regels",
-      "shift toewijzing regels",
-      "rooster richtlijnen",
-      "planning instellingen",
-      "werkrooster regels",
-      "rooster instellingen wijzigen",
-      "shift planning regels",
-      "personeel inrooster regels",
-      "rooster instellingen beheren",
-      "planning regels instellen",
-      "rooster regels aanpassen",
-      "shift planning instellingen",
-      "rooster instellingen overzicht",
-      "planning regels wijzigen"
+      "roosterregels",
+      "werktijdregels",
+      "dienstenregels"
     ],
     "status": "generated"
   },
   "settings-general": {
     "synonyms": [
+      "algemeen",
       "algemene instellingen",
-      "basisinstellingen",
-      "hoofdinstellingen",
-      "primaire instellingen",
-      "kerninstellingen",
-      "essentiële instellingen",
-      "fundamentele instellingen",
-      "standaardinstellingen",
-      "instellingen algemeen",
-      "instellingen overzicht",
-      "instellingen basis",
-      "algemene voorkeuren",
-      "algemene opties",
-      "algemene configuratie",
-      "algemene parameters",
-      "algemene instellingen bekijken",
-      "ga naar algemene instellingen",
-      "instellingen algemeen gedeelte",
-      "algemene instellingen openen",
-      "naar algemene instellingen"
+      "bedrijfsinstellingen",
+      "huisstijl",
+      "huisstijl instellingen",
+      "bedrijfsconfiguratie"
     ],
     "status": "generated"
   },
   "shifts": {
     "synonyms": [
-      "mijn rooster",
-      "mijn diensten",
-      "werkschema",
-      "dienstrooster",
-      "mijn werkrooster",
-      "komende diensten",
-      "mijn werktijden",
-      "dienstkalender",
-      "werkrooster",
-      "mijn shifts",
-      "roosteroverzicht",
-      "mijn planning",
-      "dienstoverzicht",
-      "mijn werkplanning",
-      "shifts bekijken",
-      "mijn uren",
-      "rooster weergeven",
-      "werkrooster bekijken",
-      "mijn werkrooster bekijken",
-      "diensten vandaag"
+      "diensten",
+      "alle diensten"
     ],
     "status": "generated"
   },
   "spam-rules": {
     "synonyms": [
-      "instellingen spamregels beheren",
-      "spamregels configureren",
-      "spamregels aanpassen",
-      "spamregels wijzigen",
-      "spamregels instellen",
-      "spamregels updaten",
-      "spamregels veranderen",
-      "spamregels bewerken",
-      "spamregels optimaliseren",
-      "spamregels controleren",
-      "spamregels bekijken",
-      "spamregels beheren in werkplekinstellingen",
-      "navigeer naar spamregels in instellingen",
-      "werkplekinstellingen spamregels",
-      "instellingen beheren spamregels",
-      "spamregels aanpassen in werkplek",
-      "spamregels configureren in instellingen",
-      "spamregels bijwerken",
-      "spamregels opnieuw instellen",
-      "spamregels verwijderen of toevoegen",
-      "spamregels herzien"
+      "spamregels",
+      "spamregel",
+      "spamfilterregels",
+      "spamregelinstellingen",
+      "anti-spamregels",
+      "regels voor spam"
     ],
     "status": "generated"
   },
   "states": {
     "synonyms": [
-      "waar zijn mijn medewerkers gevestigd",
-      "toon alle werkplekken",
-      "bekijk medewerkers per regio",
-      "selecteer een staat",
-      "ga naar geografische instellingen",
-      "waar is mijn team gebaseerd",
-      "blader door locaties per staat",
-      "controleer regionale medewerkersdata",
-      "toon staten",
-      "open staten beheren",
-      "ga naar staten",
-      "instellingen locaties",
-      "beheer staten",
-      "alle staten weergeven",
-      "locaties per staat",
-      "regionale instellingen",
-      "kaart met staten",
-      "staten overzicht",
-      "staat toevoegen",
-      "staten configureren"
+      "staten",
+      "statenbeheer",
+      "statenoverzicht",
+      "statenlijst",
+      "staten instellingen",
+      "staten configuratie"
     ],
     "status": "generated"
   },
   "user-management": {
     "synonyms": [
-      "ga naar gebruikersbeheer",
-      "beheer medewerkers",
-      "open gebruikersinstellingen",
-      "naar accountbeheer",
-      "personeel beheren",
-      "gebruikersaccounts",
-      "medewerkerprofielen bekijken",
-      "teamleden beheren",
-      "machtigingen instellen",
-      "ga naar personeelsbeheer",
-      "gebruikerslijst openen",
-      "instellingen voor gebruikers",
-      "admin van gebruikers",
-      "accounts beheren",
-      "medewerkers overzicht",
-      "rollen en rechten",
-      "gebruikers aanpassen",
-      "personeelsgegevens",
-      "naar medewerkerbeheer",
-      "beheer teamleden"
+      "gebruikersbeheer",
+      "gebruikers",
+      "gebruikers & toegang",
+      "gebruikersadministratie",
+      "beheer van gebruikers",
+      "gebruikersbeheer instellingen"
     ],
     "status": "generated"
   },
   "work-setting": {
     "synonyms": [
-      "werkinstellingen voor roosters",
-      "roosterinstellingen bekijken",
-      "instellingen voor werkuren",
-      "planningsvoorkeuren aanpassen",
-      "werkrooster configureren",
-      "shift instellingen wijzigen",
-      "werktijd instellingen",
-      "roosterbeheer opties",
-      "werkschema instellingen",
-      "planningsinstellingen openen",
-      "werkplek instellingen",
-      "roosteropties bekijken",
-      "instellingen voor diensten",
-      "werkrooster voorkeuren",
-      "shiftplanning instellingen",
-      "roosterconfiguratie wijzigen",
-      "werkschema aanpassen",
-      "planningsvoorkeuren instellen",
-      "roosterbeheer instellingen",
-      "werkplaats instellingen"
+      "basisinstellingen planning",
+      "planning instellingen",
+      "roosterinstellingen"
     ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
-      "formulier afwezigheid bewerken",
-      "details van afwezigheid wijzigen",
-      "afwezigheid aanpassen",
-      "afwezigheidsformulier openen",
-      "naar afwezigheidsdetails",
-      "afwezigheid bewerken formulier",
-      "details van afwezigheid bekijken",
-      "afwezigheid detailformulier",
-      "afwezigheid wijzigen",
-      "formulier voor afwezigheid",
-      "afwezigheidsdetails aanpassen",
-      "afwezigheid bewerken",
-      "details afwezigheid formulier",
-      "afwezigheid detail formulier openen",
-      "naar afwezigheid formulier",
-      "afwezigheidsformulier wijzigen",
-      "afwezigheid details",
-      "afwezigheid formulier bewerken",
-      "details van afwezigheid formulier",
-      "afwezigheid aanpassen formulier"
+      "afwezigheidsdetailformulier",
+      "afwezigheidsbewerking"
     ],
     "status": "generated"
   },
   "absences": {
     "synonyms": [
-      "afwezigheid",
-      "verlof",
-      "verlofdagen",
-      "ziekteverzuim",
-      "vrije dagen",
       "afwezigheidsoverzicht",
-      "verlofkalender",
       "afwezigheidskalender",
-      "ziekte melden",
-      "verlof aanvragen",
-      "afwezigheden bekijken",
-      "verlofoverzicht",
-      "ziekteverlof",
-      "afwezigheid registreren",
-      "verlof saldo",
-      "afwezigheid inplannen",
-      "verlof inzien",
-      "afwezigheidsoverzicht bekijken",
-      "verlof geschiedenis",
-      "afwezigheid melden"
+      "geplande afwezigheden",
+      "afwezigheidsplanning",
+      "verlofkalender"
     ],
     "status": "generated"
   },
   "assistant-personality": {
     "synonyms": [
-      "open instellingen ai persoonlijkheid",
-      "ga naar ai persoonlijkheid",
-      "persoonlijkheid van de assistent wijzigen",
-      "instellingen assistent persoonlijkheid",
-      "naar persoonlijkheidsinstellingen assistent",
-      "ai assistent persoonlijkheid aanpassen",
-      "open persoonlijkheid assistent",
-      "persoonlijkheidsopties assistent bekijken",
-      "instellingen voor ai karakter",
-      "karakterinstellingen assistent openen",
-      "ga naar persoonlijkheid van klacksy",
-      "assistent persoonlijkheid instellen",
-      "persoonlijkheid van de ai beheren",
-      "open de instellingen voor assistent persoonlijkheid",
-      "naar karakter van assistent",
-      "assistent karakter aanpassen",
-      "instellingen voor ai assistent persoonlijkheid",
-      "persoonlijkheid assistent openen",
-      "bekijk persoonlijkheid assistent",
-      "ga naar assistent persoonlijkheid"
+      "persoonlijkheid",
+      "assistent persoonlijkheid",
+      "persoonlijkheid van assistent",
+      "persoonlijkheidsinstellingen",
+      "gedrag en spreekstijl",
+      "reactiegedrag"
     ],
     "status": "generated"
   },
   "branch-form": {
     "synonyms": [
-      "tak open ik de vestigingsgegevens",
-      "ga naar vestigingsformulier",
-      "ik wil de vestiging bewerken",
-      "toon vestigingsdetails",
-      "naar instellingen van de vestiging",
-      "vestigingsformulier openen",
-      "edit vestiging",
-      "vestiging aanpassen",
-      "bekijk vestigingsinfo",
-      "ga naar vestigingsopties",
-      "vestigingsgegevens wijzigen",
-      "open vestigingsinstellingen",
-      "vestiging details tonen",
-      "naar het vestigingsformulier",
-      "vestigingspagina openen",
-      "vestiging bewerken formulier",
-      "ga naar vestigingsbewerking",
-      "vestigingsformulier weergeven",
-      "open vestigingsconfiguratie",
-      "vestigingsinformatie bekijken"
+      "filiaal bewerken",
+      "filiaal wijzigen",
+      "filiaal aanpassen",
+      "filiaalgegevens"
     ],
     "status": "generated"
   },
   "calendar-rule-form": {
     "synonyms": [
-      "regels voor kalender bewerken",
-      "kalenderregel aanpassen",
-      "formulier kalenderregel openen",
-      "naar kalenderregel formulier",
-      "kalenderregel details wijzigen",
-      "instellingen kalenderregel",
-      "kalenderregel bewerken",
-      "regel voor rooster aanpassen",
-      "kalenderregel formulier tonen",
-      "ga naar kalenderregel formulier",
-      "kalenderregel instellen",
-      "wijzig kalenderregel",
-      "details van kalenderregel",
-      "regel voor werkrooster beheren",
-      "kalenderregel instellingen openen",
-      "formulier voor kalenderregel",
-      "kalenderregel aanmaken of bewerken",
-      "kalenderregel details bekijken",
-      "regel voor planning aanpassen",
-      "kalenderregel formulier laden"
+      "regeldefinitie",
+      "kalenderregelformulier",
+      "regelformulier",
+      "kalenderregel definitie",
+      "regel formulier",
+      "formulier voor kalenderregel"
     ],
     "status": "generated"
   },
   "client-availability": {
     "synonyms": [
-      "beschikbaarheid van medewerkers",
-      "client beschikbaarheid",
-      "beschikbaarheid overzicht",
-      "beschikbaarheid personeel",
-      "beschikbaarheid plannen",
-      "beschikbaarheid bekijken",
-      "beschikbaarheid werknemers",
-      "beschikbaarheid van personeel",
-      "beschikbaarheid van klanten",
-      "beschikbaarheid invoeren",
-      "beschikbaarheid wijzigen",
-      "naar beschikbaarheid",
-      "beschikbaarheid van medewerker",
-      "beschikbaarheid van werknemer",
-      "beschikbaarheid van personeelsleden",
-      "beschikbaarheid van de medewerkers",
-      "beschikbaarheid van de werknemers",
-      "beschikbaarheid van de klant",
-      "beschikbaarheid van de personeel",
-      "beschikbaarheid van de medewerker"
+      "klantbeschikbaarheid",
+      "cliëntbeschikbaarheid",
+      "beschikbaarheid klanten",
+      "beschikbare tijden klanten",
+      "klant open vensters",
+      "beschikbaarheid van klanten"
     ],
     "status": "generated"
   },
   "client-detail": {
     "synonyms": [
-      "naar klantdetails gaan",
-      "klant bewerken",
-      "klantprofiel openen",
-      "klantgegevens bekijken",
-      "bewerk adres van klant",
-      "klantdetailscherm openen",
-      "klantinformatie tonen",
-      "naar klantprofiel navigeren",
-      "edit klant",
-      "klantdetails weergeven",
-      "open klantdetail",
-      "klantgegevens aanpassen",
-      "bekijk klant",
-      "naar de klantpagina gaan",
-      "klantdetailpagina openen",
-      "klant bewerken in adres",
-      "klantprofiel bekijken",
-      "adres van klant wijzigen",
-      "naar klantdetail navigeren",
-      "klantinformatie wijzigen"
+      "klantgegevens",
+      "klantadres",
+      "adres en persoonlijke gegevens"
     ],
     "status": "generated"
   },
@@ -1227,885 +521,936 @@
     "synonyms": [
       "geboortedatum",
       "verjaardag",
-      "geboortedatum van werknemer",
-      "datum van geboorte",
-      "personeelslid geboortedatum",
-      "geboorte",
-      "geboortedatum medewerker",
-      "verjaardag werknemer",
-      "geboortedatum van het personeel",
-      "geboorte datum",
-      "verjaardag van de werknemer",
-      "geboortedatum personeel",
-      "medewerker geboortedatum",
-      "geboortedatum van de medewerker",
-      "verjaardag van het personeel",
-      "personeel geboortedatum",
-      "datum geboorte",
-      "geboortedatum van een medewerker",
-      "verjaardag medewerker",
-      "geboortedatum van een werknemer"
+      "geboortedag",
+      "geboortejaar",
+      "geboortedatum klant",
+      "geboortedatum cliënt"
     ],
     "status": "generated"
   },
   "client-detail.firstname": {
     "synonyms": [
-      "voornaam van klant aanpassen",
-      "klant voornaam wijzigen",
-      "ga naar voornaam klant",
-      "naar klant voornaam",
-      "klant zijn voornaam bewerken",
-      "voornaam klant invoeren",
-      "klant voornaam instellen",
-      "wijzig voornaam van klant",
-      "voornaam van klant veranderen",
-      "klant voornaam tonen",
-      "bekijk voornaam klant",
-      "klant voornaam editie",
-      "naar voornaam klant gaan",
-      "klant voornaam bijwerken",
-      "voornaam klant opgeven",
-      "pas voornaam van klant aan",
-      "klant voornaam aanpassen",
-      "voornaam klant wijzigen",
-      "klant voornaam bewerken",
-      "ga naar klant voornaam"
+      "voornaam",
+      "roepnaam",
+      "klant voornaam",
+      "cliënt voornaam",
+      "voornaam klant",
+      "voornaam cliënt"
     ],
     "status": "generated"
   },
   "client-detail.gender": {
     "synonyms": [
-      "geslacht van cliënt",
-      "geslacht klant",
-      "sekse werknemer",
-      "geslacht medewerker",
-      "sekse van persoon",
-      "geslacht wijzigen",
-      "sekse invoeren",
-      "m/v/onbekend",
-      "geslacht aanpassen",
-      "sekse cliënt",
-      "geslacht persoon",
-      "vrouw/man/onbekend",
-      "geslacht opgeven",
-      "sekse van cliënt",
-      "geslacht van werknemer",
-      "sekse van medewerker",
-      "geslacht invullen",
-      "sekse wijzigen",
-      "geslacht kiezen",
-      "sekse aanpassen"
+      "aanhef",
+      "geslacht",
+      "aanspreekvorm",
+      "klantaanhef",
+      "klantgeslacht",
+      "aanhef klant"
     ],
     "status": "generated"
   },
   "client-detail.lastname": {
     "synonyms": [
-      "achternaam van klant wijzigen",
-      "klant achternaam invoeren",
-      "klant achternaam bewerken",
-      "klant achternaam opzoeken",
-      "klant achternaam aanpassen",
-      "klant achternaam controleren",
-      "klant achternaam invullen",
-      "naar achternaam klant gaan",
-      "klant achternaam instellen",
-      "klant achternaam bekijken",
-      "klant achternaam toevoegen",
-      "klant achternaam wijzigen",
-      "klant achternaam veranderen",
-      "klant achternaam selecteren",
-      "klant achternaam zoeken",
-      "klant achternaam updaten",
-      "klant achternaam aanmaken",
-      "klant achternaam noteren",
-      "klant achternaam vastleggen",
-      "klant achternaam corrigeren"
+      "achternaam",
+      "familienaam",
+      "geslachtsnaam",
+      "achternaam veld",
+      "achternaam gegevens",
+      "achternaam van de klant"
     ],
     "status": "generated"
   },
   "client-list": {
     "synonyms": [
-      "ga naar medewerkers",
-      "open het personeelsbestand",
-      "toon teamleden",
-      "medewerkeroverzicht",
-      "personeelslijst bekijken",
-      "naar de werknemerslijst",
-      "teamoverzicht",
-      "medewerkerslijst openen",
-      "toon alle medewerkers",
-      "personeelsoverzicht",
-      "ga naar teamlijst",
-      "open personeelslijst",
-      "medewerkers bekijken",
-      "naar teamleden",
-      "toon personeel",
-      "werknemers overzicht",
-      "ga naar medewerkeroverzicht",
-      "personeelsbestand openen",
-      "teamleden lijst",
-      "medewerkers overzicht"
+      "klantenlijst",
+      "klantenoverzicht",
+      "klantenbestand",
+      "klantenadministratie"
     ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "template voor shiftcontainer",
-      "shiftcontainer template openen",
-      "naar container template",
-      "toon container template",
-      "open shift container template",
-      "container template bekijken",
-      "ga naar container template",
-      "werkplek container template",
-      "shift template container weergeven",
-      "container template pagina",
-      "open container template voor shift",
-      "container template tonen",
-      "shift container template openen",
-      "naar shift template container",
-      "container template weergeven",
-      "shiftcontainer sjabloon bekijken",
-      "template container shifts",
-      "container template voor werkplek",
-      "ga naar shift container template",
-      "toon shift container template"
+      "containersjabloon",
+      "dienstcontainersjabloon",
+      "sjabloon voor dienstcontainers",
+      "roostercontainersjabloon",
+      "sjabloon voor roostercontainers",
+      "containersjabloon voor diensten"
     ],
     "status": "generated"
   },
   "contract-form": {
     "synonyms": [
-      "contract formulier openen",
-      "naar contract bewerken",
-      "contract details bekijken",
-      "nieuw contract aanmaken",
-      "contract wijzigen",
-      "ga naar contractformulier",
-      "contractformulier tonen",
-      "werkgeverscontract bekijken",
-      "contract bewerken scherm",
-      "open contractgegevens",
-      "naar contract instellingen",
-      "contractformulier weergeven",
-      "bewerk bestaand contract",
-      "contract aanpassen",
-      "contract details formulier",
-      "naar het contract",
-      "contract formulier laden",
-      "contract pagina openen",
-      "contract bewerken formulier",
-      "ga naar contract details"
+      "contractformulier",
+      "contractbewerking",
+      "contractgegevens",
+      "contractwijziging"
     ],
     "status": "generated"
   },
   "contract-form.name": {
     "synonyms": [
-      "contractnaam invullen",
-      "naam van contract",
-      "contract formulier naam",
-      "contract naam wijzigen",
-      "naam van het contract",
-      "contract form naam",
-      "contractnaam opgeven",
-      "contract naam instellen",
-      "naam contract",
-      "contract formulier naam aanpassen",
-      "contractnaam bewerken",
-      "contract naam formulier",
-      "naam van contract invoeren",
-      "contract formulier naam invullen",
-      "contract naam specificeren",
-      "contractnaam formulier",
-      "naam contract instellen",
-      "contract formulier naam instellen",
-      "contractnaam aanpassen"
+      "contractformuliernaam",
+      "naam contractformulier",
+      "naam van contractformulier",
+      "naam van het contractformulier",
+      "contractformulier naam"
     ],
     "status": "generated"
   },
   "cut-shift": {
     "synonyms": [
-      "ga naar dienst knippen",
-      "open dienst splitsen",
-      "naar dienst knippen",
-      "dienst splitsen openen",
-      "split dienst",
-      "knip dienst",
-      "dienst trimmen",
-      "naar split dienst",
-      "naar knip dienst",
-      "split dienst openen",
-      "ga naar dienst splitsen",
-      "dienst knippen openen",
-      "knippen dienst",
-      "naar trim dienst",
-      "open knip dienst",
-      "splits dienst",
-      "ga naar knip dienst",
-      "open split dienst",
-      "dienst knippen",
-      "ga naar trim dienst"
+      "dienstsplitsing",
+      "dienst splitsen",
+      "shift knippen",
+      "gesplitste dienst",
+      "ploegsplitsing",
+      "dienst opdelen"
     ],
     "status": "generated"
   },
   "edit-employee": {
     "synonyms": [
-      "medewerker bewerken",
-      "werknemer aanpassen",
-      "nieuw personeelslid toevoegen",
-      "medewerkergegevens wijzigen",
-      "adres van medewerker bewerken",
-      "personeelslid bewerken",
-      "nieuwe werknemer aanmaken",
-      "medewerkerinformatie updaten",
-      "contactgegevens wijzigen",
-      "medewerker toevoegen",
-      "werknemerprofiel bewerken",
-      "nieuw contact aanmaken",
-      "medewerkerdetails bekijken en bewerken",
-      "medewerkeradres wijzigen",
-      "nieuw personeelslid aanmaken",
-      "werknemerinformatie bewerken",
-      "medewerker bijwerken",
-      "personeelslid toevoegen",
-      "contactgegevens bewerken"
+      "medewerkerbewerking",
+      "personeelsdossier",
+      "medewerkerprofiel",
+      "medewerker gegevens",
+      "teamlid gegevens",
+      "gegevens van medewerker"
     ],
     "status": "generated"
   },
   "edit-group": {
     "synonyms": [
+      "groepsbewerking",
+      "groepswijziging",
+      "groepsaanpassing",
+      "groepseditor",
       "groep bewerken",
-      "groep aanpassen",
-      "wijzig groep",
-      "detail van groep",
-      "groep details",
-      "groep editor openen",
-      "groep openen",
-      "naar groep gaan",
-      "groep wijzigen",
-      "groepgegevens bekijken",
-      "open groep",
-      "groep bewerken pagina",
-      "groep wijzigingen",
-      "groep instellen",
-      "groep aanpassen scherm",
-      "ga naar groep bewerken",
-      "groep informatie wijzigen",
-      "groep bewerken formulier",
-      "groep bewerken scherm",
-      "groep bewerken openen"
+      "groep wijzigen"
     ],
     "status": "generated"
   },
   "edit-shift": {
     "synonyms": [
-      "bewerk dienst",
-      "wijzig dienst",
       "dienst bewerken",
-      "naar dienst bewerken",
-      "open dienst",
-      "pas dienst aan",
+      "dienst wijzigen",
       "dienst aanpassen",
-      "ga naar dienst bewerken",
-      "dienst bewerken scherm",
-      "pas dienst aan scherm",
-      "navigeer naar dienst bewerken",
-      "bewerk deze dienst",
-      "dienstdetails",
-      "sla dienst over bewerken",
-      "bewerk dienst sjabloon",
-      "ga naar dienst bewerken pagina",
-      "wijzig deze dienst",
-      "diensten bewerken",
-      "pas shift aan",
-      "shift bewerken"
+      "dienstbewerking",
+      "dienstwijziging",
+      "dienstdetails"
     ],
     "status": "generated"
   },
   "employee-membership.type": {
     "synonyms": [
-      "type lidmaatschap instellen",
-      "lidmaatschap type aanpassen",
-      "soort lidmaatschap wijzigen",
-      "lidmaatschapstype kiezen",
-      "type van lidmaatschap instellen",
-      "lidmaatschap type beheren",
-      "welk type lidmaatschap",
-      "lidmaatschap categorie instellen",
-      "lidmaatschap type selecteren",
-      "lidmaatschapstype wijzigen",
-      "type lidmaatschap bewerken",
-      "lidmaatschap type instellen",
-      "soort lidmaatschap selecteren",
-      "lidmaatschap type updaten",
-      "type lidmaatschap aanpassen",
-      "lidmaatschap type veranderen",
-      "lidmaatschapstype instellen",
-      "soort lidmaatschap aanpassen",
-      "lidmaatschap type specificeren"
+      "medewerkertype",
+      "type medewerker",
+      "personeelstype",
+      "medewerkersoort",
+      "soort medewerker",
+      "medewerkerscategorie"
     ],
     "status": "generated"
   },
   "group-detail": {
     "synonyms": [
-      "groep bekijken",
-      "groep details",
-      "groep gegevens",
-      "groep wijzigen",
-      "groep bewerken",
-      "groep weergeven",
-      "details van groep",
-      "naar groep",
-      "groep info",
-      "groep openen",
-      "groep tonen",
-      "groep aanpassen",
-      "groep details opvragen",
-      "groep informatie",
-      "groep instellingen",
-      "groep overzicht",
-      "groep data",
-      "groep details tonen",
-      "groep details bekijken"
+      "groepsprofiel",
+      "groepspagina",
+      "groepsdetail"
     ],
     "status": "generated"
   },
   "group-detail.name": {
     "synonyms": [
-      "naam van de groep",
       "groepsnaam",
-      "naam van de groep wijzigen",
-      "bewerk groepsnaam",
-      "groep naam",
-      "naam van groep",
-      "groepsnaam aanpassen",
-      "groep hernoemen",
-      "de naam van de groep",
-      "wijzig groepsnaam",
-      "groep naam wijzigen",
-      "naam groep",
-      "groeps naam",
-      "bewerk naam van groep",
-      "pas groepsnaam aan",
-      "naam van groep wijzigen",
-      "groep naam aanpassen",
-      "naam van de groep bewerken",
-      "groepsnaam veranderen",
-      "wijzig naam van groep"
+      "naam van de groep",
+      "groepnaam",
+      "groepsbenaming",
+      "naam groep"
     ],
     "status": "generated"
   },
   "group-list": {
     "synonyms": [
-      "naar groepen",
-      "groepenlijst openen",
-      "groepsoverzicht weergeven",
-      "ga naar groepen",
-      "teams bekijken",
-      "teamoverzicht openen",
-      "naar teams",
-      "afdelingen lijst",
-      "kostenplaatsen overzicht",
-      "groepsweergave",
-      "toon groepen",
-      "groepenpagina",
-      "groepenscherm",
-      "ga naar teamlijst",
-      "open groepen",
-      "groepslijst tonen",
-      "naar afdelingen",
-      "teamweergave",
-      "groepen sectie",
-      "overzicht groepen"
+      "groepenlijst",
+      "groepsoverzicht",
+      "teams",
+      "afdelingen",
+      "kostenplaatsen"
     ],
     "status": "generated"
   },
   "klacksy-model-check": {
     "synonyms": [
-      "controleer het model in instellingen",
-      "model check in ai instellingen",
-      "naar de model verificatie gaan",
-      "model controleren in werkplek instellingen",
-      "open model check onder ai",
-      "model validatie in instellingen",
-      "ga naar model check bij ai",
-      "model inspectie in werkplek instellingen",
-      "model check openen in ai sectie",
-      "model controleren via werkplek instellingen",
-      "model verifiëren in instellingen",
-      "naar model check onder ai instellingen",
-      "model check in de werkplek openen",
-      "model evaluatie in instellingen",
-      "model check in ai menu",
-      "model testen in werkplek instellingen",
-      "model check in instellingen ai",
-      "model verificatie in werkplek openen",
-      "controleer model in ai instellingen",
-      "model check in werkplek instellingen"
+      "modelcontrole",
+      "modelcheck",
+      "modelvalidatie",
+      "modeltest",
+      "controle van modellen",
+      "llm-modelcontrole"
     ],
     "status": "generated"
   },
   "llm-sync-log": {
     "synonyms": [
-      "sync log van de ai openen",
-      "logboek ai synchronisatie bekijken",
-      "naar de ai sync log gaan",
-      "llm synchronisatielogboek tonen",
-      "model sync log openen",
-      "synchronisatielog van de ai weergeven",
-      "ai logboek sync openen",
-      "ga naar de llm sync log",
-      "logboek van model sync bekijken",
-      "open het sync log van de ai",
-      "synchronisatielogboek van de ai openen",
-      "llm sync log weergeven",
-      "bekijk het ai synchronisatielogboek",
-      "ga naar het logboek van llm sync",
-      "open het logboek voor ai synchronisatie",
-      "sync log van het model openen",
-      "naar de synchronisatielog van ai navigeren",
-      "toon het llm sync logboek",
-      "ai synchronisatielogboek openen",
-      "bekijk de sync log van de ai"
+      "synchronisatielogboek",
+      "synchronisatielog",
+      "llm synchronisatielogboek",
+      "ai synchronisatielogboek",
+      "llm sync log",
+      "synchronisatie logboek"
     ],
     "status": "generated"
   },
   "messaging": {
     "synonyms": [
-      "berichten",
-      "mijn berichten",
-      "chat",
-      "chats",
-      "berichtencentrum",
-      "messenger",
-      "communicatie",
-      "chatberichten",
+      "teamchat",
       "privéberichten",
-      "directe berichten",
-      "berichtenbox",
-      "chatbox",
-      "message center",
-      "berichtenoverzicht",
-      "gesprekken",
-      "chatgeschiedenis",
-      "nieuwe berichten",
-      "berichtenscherm",
-      "chatten",
-      "berichtjes"
+      "interne berichten",
+      "berichtenbox"
     ],
     "status": "generated"
   },
   "new-employee": {
     "synonyms": [
-      "nieuw personeelslid aanmaken",
-      "nieuwe medewerker toevoegen",
-      "werkgever adres bewerken",
-      "medewerker aanpassen",
-      "contactgegevens wijzigen",
-      "nieuw contact toevoegen",
-      "werknemer detail bekijken",
-      "adres van werkplek bewerken",
-      "medewerker informatie bewerken",
-      "nieuwe werknemer creëren",
-      "contact bewerken",
-      "adres bewerken voor werknemer",
-      "nieuwe medewerker aanmaken",
-      "medewerker adres bewerken",
-      "werknemer toevoegen",
-      "contactgegevens aanpassen",
-      "nieuw personeelslid toevoegen",
-      "medewerker detail weergeven",
-      "werkgever adres aanpassen",
-      "werknemer gegevens bewerken"
+      "nieuwe medewerker",
+      "nieuw personeelslid",
+      "nieuwe werknemer",
+      "nieuw teamlid",
+      "nieuweling",
+      "nieuwkomer"
     ],
     "status": "generated"
   },
   "new-group": {
     "synonyms": [
-      "nieuwe groep aanmaken",
-      "groep toevoegen",
-      "nieuw team aanmaken",
-      "team toevoegen",
-      "naar nieuwe groep gaan",
-      "nieuwe groep openen",
-      "groep creëren",
-      "nieuwe groep starten",
-      "groep aanmaken",
-      "team creëren",
-      "nieuw team toevoegen",
-      "nieuwe groep maken",
-      "team aanmaken",
-      "naar nieuwe team navigeren",
-      "nieuw team openen",
-      "groep toevoegen in planner",
-      "nieuwe groep aanmaken in rooster",
-      "team toevoegen in planning",
-      "nieuwe groep bewerken",
-      "groep aanmaken in werkplek"
+      "nieuwe groep",
+      "nieuw team",
+      "nieuwe afdeling"
     ],
     "status": "generated"
   },
   "new-shift": {
     "synonyms": [
-      "nieuwe dienst",
-      "dienst toevoegen",
-      "shift aanmaken",
-      "nieuwe shift",
-      "shift toevoegen",
-      "maak een nieuwe dienst",
-      "dienst aanmaken",
-      "voeg een dienst toe",
-      "nieuwe shift aanmaken",
-      "shift creëren",
-      "nieuwe dienst invoeren",
-      "dienst creëren",
-      "een shift toevoegen",
-      "nieuwe werkplek dienst",
-      "voeg nieuwe dienst toe",
-      "maak shift aan",
-      "nieuwe bezetting",
-      "bezetting toevoegen",
-      "nieuwe dienst toevoegen aan rooster",
-      "shift aanmaken voor werkplek"
+      "nieuwe ploeg",
+      "nieuwe werkdienst",
+      "dienstformulier",
+      "shiftformulier",
+      "aanmaak nieuwe ploeg",
+      "invoer nieuwe werkdienst"
     ],
     "status": "generated"
   },
   "plan-execution-panel": {
     "synonyms": [
-      "open uitvoeringspaneel",
-      "ga naar plan uitvoering",
-      "uitvoeringspaneel openen",
-      "naar uitvoeringspaneel",
-      "uitvoeringsscherm tonen",
-      "open uitvoeringsdashboard",
-      "ga naar uitvoering",
-      "uitvoeringspaneel weergeven",
-      "naar plan uitvoeringspaneel",
-      "uitvoeringspaneel starten",
-      "open uitvoeringsmodule",
-      "ga naar uitvoeringspaneel",
-      "uitvoeringspaneel bekijken",
-      "toon uitvoeringspaneel",
-      "open het uitvoeringspaneel",
-      "ga naar uitvoeringsdashboard",
-      "uitvoeringspaneel open",
-      "naar uitvoeringsdashboard",
-      "open uitvoeringsweergave",
-      "ga naar uitvoeringsmodule"
+      "planuitvoering",
+      "planuitvoeringspaneel",
+      "uitvoeringspaneel",
+      "planuitvoeringsscherm",
+      "planuitvoeringsoverzicht",
+      "planuitvoeringsgoedkeuring"
     ],
     "status": "generated"
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "plan uitvoering goedkeuren",
-      "bevestig uitvoering",
-      "actieplan goedkeuren",
-      "keur plan uitvoering goed",
-      "plan uitvoering bevestigen",
-      "uitvoering plan goedkeuren",
-      "keur actieplan goed",
-      "bevestig plan uitvoering",
-      "plan uitvoering akkoord",
-      "actieplan bevestigen",
-      "keur uitvoering goed",
-      "uitvoering akkoord",
-      "plan uitvoering accorderen",
-      "accordeer actieplan",
-      "bevestig actieplan",
-      "plan uitvoering okay",
-      "keur plan goed",
-      "uitvoering plan bevestigen",
-      "plan uitvoering flinkkeuren",
-      "actieplan accorderen"
+      "planuitvoering goedkeuren",
+      "planuitvoering goedkeuring",
+      "goedkeuren planuitvoering",
+      "goedkeuring planuitvoering"
     ],
     "status": "generated"
   },
   "profile": {
     "synonyms": [
       "profiel",
-      "mijn profiel",
-      "mijn account",
       "profielpagina",
-      "accountpagina",
-      "persoonlijk profiel",
-      "gegevens",
-      "mijn gegevens",
-      "account instellingen",
-      "profiel instellingen",
-      "naar mijn profiel",
-      "ga naar profiel",
-      "persoonlijke pagina",
-      "mijn account bekijken",
-      "profiel bekijken",
-      "account",
-      "mijn profielpagina",
+      "mijn profiel",
       "gebruikersprofiel",
-      "open profiel",
-      "profiel openen"
+      "profielinstellingen",
+      "eigen profiel"
     ],
     "status": "generated"
   },
   "schedule": {
     "synonyms": [
       "rooster",
-      "planning",
       "dienstrooster",
       "werkrooster",
-      "shiftplanning",
-      "rooster bekijken",
-      "naar rooster",
-      "roosterpagina",
-      "weekrooster",
-      "maandrooster",
-      "dienstenplanning",
-      "planning bekijken",
-      "rooster openen",
-      "naar planning",
-      "shiftrooster",
-      "werkplanning",
-      "roosteroverzicht",
-      "planningsoverzicht",
-      "dienstenrooster",
-      "rooster weergeven"
+      "personeelsplanning",
+      "roosterschema"
     ],
     "status": "generated"
   },
   "settings": {
     "synonyms": [
-      "instellingen",
-      "configuratie",
-      "voorkeuren",
-      "systeeminstellingen",
-      "beheer",
-      "administratie",
-      "instellingen openen",
-      "ga naar instellingen",
-      "naar de instellingen",
       "instellingenpagina",
-      "werkplek instellingen",
-      "instellingen beheren",
-      "optie",
-      "instellingen aanpassen",
-      "ga naar beheer",
-      "instellingen wijzigen",
-      "voorkeuren wijzigen",
-      "instellingen overzicht",
-      "open instellingen",
-      "configuratie instellingen"
+      "instellingenmenu",
+      "app-instellingen",
+      "werkplekinstellingen",
+      "configuratie"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "ga naar het shiftformulier",
-      "open het shiftformulier",
-      "bewerk diensttemplate",
-      "shiftformulier wijzigen",
-      "naar shiftformulier",
-      "shift template bewerken",
-      "open shift template",
-      "shiftformulier openen",
-      "ga naar shift template",
-      "bewerk shift template",
-      "shiftformulier tonen",
-      "template dienst bewerken",
-      "shiftformulier bekijken",
-      "ga naar diensttemplate",
-      "shift template formulier",
-      "diensten sjabloon bewerken",
-      "open diensttemplate",
-      "shiftformulier aanpassen",
-      "selecteer shift template",
-      "toon shiftformulier"
+      "nieuwe dienst",
+      "nieuwe shift"
     ],
     "status": "generated"
   },
   "shift-form.abbreviation": {
     "synonyms": [
-      "afkorting van dienst invoeren",
-      "korte naam voor dienst instellen",
-      "shiftcode aanpassen",
-      "afkorting voor dienst wijzigen",
-      "korte omschrijving shift bewerken",
-      "dienst afkorting aanpassen",
-      "shift afkorting invoeren",
-      "code voor dienst instellen",
-      "korte naam dienst wijzigen",
-      "afkorting shift bewerken",
-      "dienstcode aanpassen",
-      "short name voor dienst instellen",
-      "shift afkorting bewerken",
-      "korte naam voor shift invoeren",
-      "afkorting van shift wijzigen",
-      "dienst afkorting invoeren",
-      "code voor shift instellen",
-      "shiftcode invoeren",
-      "korte omschrijving dienst aanpassen",
-      "dienstcode bewerken"
+      "afkorting",
+      "afkortingen",
+      "shift afkorting",
+      "afkorting shift",
+      "dienst afkorting",
+      "afkorting dienst"
     ],
     "status": "generated"
   },
   "shift-form.name": {
     "synonyms": [
-      "naam van de dienst wijzigen",
-      "shift naam aanpassen",
-      "naam van shift veranderen",
-      "shift naam invoeren",
-      "dienst naam bewerken",
-      "shift naam instellen",
-      "naam voor de dienst opgeven",
-      "shift naam definiëren",
-      "dienst naam wijzigen",
-      "shift naam bepalen",
-      "naam van de shift ingeven",
-      "dienst naam aanpassen",
-      "shift naam specificeren",
-      "naam van dienst veranderen",
-      "shift naam toevoegen",
-      "dienst naam invoeren",
-      "shift naam opgeven",
-      "naam van de shift bewerken",
-      "shift naam invullen",
-      "dienst naam instellen"
+      "dienstnaam",
+      "shiftnaam",
+      "ploegnaam",
+      "naam dienst",
+      "naam shift"
     ],
     "status": "generated"
   },
   "shift-list": {
     "synonyms": [
-      "ga naar de dienstoverzicht",
-      "toon diensten",
-      "open dienstlijst",
-      "naar dienstenoverzicht",
-      "bekijk diensten",
-      "diensten weergeven",
-      "naar de dienstenpagina",
-      "diensten overzicht tonen",
-      "ga naar diensten",
-      "dienstenlijst openen",
-      "toon het dienstenoverzicht",
-      "naar shift lijst",
-      "diensten overzicht bekijken",
-      "open dienstenoverzicht",
-      "ga naar shifts",
-      "diensten lijst weergeven",
-      "naar de shiftlijst",
-      "shifts tonen",
-      "dienstenpagina openen",
-      "bekijk het dienstenoverzicht"
+      "ploegenrooster"
     ],
     "status": "generated"
   },
   "updates": {
     "synonyms": [
-      "laatste updates bekijken",
-      "ga naar updates",
-      "updates openen",
-      "nieuwe functies bekijken",
-      "wat is er nieuw",
-      "changelog bekijken",
-      "update-overzicht",
-      "ga naar nieuwigheden",
-      "release notes bekijken",
-      "nieuwe updates",
-      "open changelog",
-      "updates pagina",
-      "bekijk wat er veranderd is",
-      "nieuwe functionaliteiten",
-      "updategeschiedenis",
-      "ga naar release notes",
-      "bekijk de laatste wijzigingen",
-      "updates van het systeem",
-      "wat is er veranderd",
-      "nieuwtjes in de app"
+      "updates",
+      "software-updates",
+      "systeemupdates",
+      "updatebeheer",
+      "update-instellingen",
+      "software-updatebeheer"
     ],
     "status": "generated"
   },
   "wizard": {
     "synonyms": [
-      "ga naar de wizard",
-      "open de shift wizard",
-      "start de planningsassistent",
-      "naar de wizard",
-      "toon de wizard",
-      "shift wizard openen",
-      "planningswizard starten",
-      "route naar wizard",
-      "ga naar shift wizard",
-      "open harmonizer",
-      "naar de harmonizer",
-      "ga naar harmonizer",
-      "start de harmonizer",
-      "open de planningsassistent",
-      "naar de planningsassistent",
-      "ga naar shift assistent",
-      "open shift assistent",
-      "navigeer naar wizard",
-      "wizard openen",
-      "ga naar de shift wizard"
+      "harmonizer",
+      "llm-harmonizer",
+      "holistic harmonizer",
+      "wizard 3"
     ],
     "status": "generated"
   },
   "work-setting-form": {
     "synonyms": [
-      "werkplekinstellingen bewerken",
-      "instellingen voor werkplek openen",
-      "werkinstellingen wijzigen",
-      "formulier werkplekinstellingen",
-      "werkplek aanpassen",
-      "instellingen van werkplek bekijken",
-      "werkplek configureren",
-      "werkplek instellen",
-      "werkplekformulier openen",
-      "werkplekinstellingen aanpassen",
-      "naar werkplekinstellingen",
-      "werkplek bewerken",
-      "instellingen werkplek wijzigen",
-      "werkplekformulier bewerken",
-      "werkplekinstellingen formulier",
-      "werkplekinstellingen tonen",
-      "werkplek configuratie",
-      "werkplek instellingen aanpassen",
-      "werkplek formulier openen",
-      "werkplekinstellingen pagina"
+      "werkinstellingen",
+      "arbeidsvoorwaarden"
     ],
     "status": "generated"
   },
   "assistant-learning": {
     "synonyms": [
-      "klacksy leert",
-      "klacksy leren",
-      "leerinstellingen",
-      "wat klacksy heeft geleerd",
       "geleerde formuleringen",
-      "open wensen",
-      "vaardigheidsvoorstellen",
-      "nieuwe vaardigheden",
-      "open klacksy leren",
-      "vaardigheden beoordelen"
+      "geleerde vaardigheden",
+      "aangeleerde workflows"
     ],
     "status": "generated"
   },
   "address-membership": {
     "synonyms": [
-      "lidmaatschap van medewerker",
-      "medewerker lidmaatschap",
-      "groepslidmaatschap bekijken",
-      "teamlidmaatschap openen",
-      "lidmaatschap bewerken",
-      "naar lidmaatschap medewerker",
-      "open lidmaatschap",
-      "lidmaatschap groep",
-      "lidmaatschap team",
-      "medewerker groepslidmaatschap",
-      "teamlidmaatschap medewerker",
-      "groepslidmaatschap aanpassen",
-      "lidmaatschap instellingen",
-      "bekijk lidmaatschap",
-      "ga naar lidmaatschap",
-      "medewerker lidmaatschap wijzigen",
-      "lidmaatschap overzicht",
-      "groepslidmaatschap medewerker",
-      "teamlidmaatschap aanpassen",
-      "lidmaatschap van team"
+      "adreslidmaatschap",
+      "adresregistratie",
+      "adrestoewijzing",
+      "adreskoppeling",
+      "adresrelatie",
+      "adresbinding"
+    ],
+    "status": "generated"
+  },
+  "active-industries": {
+    "synonyms": [
+      "actieve sectoren",
+      "sectoren",
+      "actieve branches",
+      "branches",
+      "actieve bedrijfstakken",
+      "bedrijfstakken"
+    ],
+    "status": "generated"
+  },
+  "address-contracts": {
+    "synonyms": [
+      "adrescontracten",
+      "adrescontract"
+    ],
+    "status": "generated"
+  },
+  "address-groups": {
+    "synonyms": [
+      "adresgroepen",
+      "adresgroep",
+      "toegewezen adresgroepen",
+      "adresgroepenoverzicht",
+      "adresgroepenbeheer"
+    ],
+    "status": "generated"
+  },
+  "address-image": {
+    "synonyms": [
+      "adresafbeelding",
+      "adresfoto",
+      "adres afbeelding",
+      "afbeelding van het adres"
+    ],
+    "status": "generated"
+  },
+  "address-note": {
+    "synonyms": [
+      "adresnotitie",
+      "adresnotities",
+      "notitie bij adres",
+      "notities bij adres"
+    ],
+    "status": "generated"
+  },
+  "address-persona": {
+    "synonyms": [
+      "adrespersoon",
+      "adreskaart",
+      "adres persona"
+    ],
+    "status": "generated"
+  },
+  "address-qualifications": {
+    "synonyms": [
+      "adreskwalificaties",
+      "kwalificaties adres",
+      "locatiekwalificaties"
+    ],
+    "status": "generated"
+  },
+  "assistant-skill-relations": {
+    "synonyms": [
+      "skillrelaties",
+      "skill-relaties",
+      "skill relaties",
+      "relaties tussen skills",
+      "relaties tussen vaardigheden",
+      "vaardigheidsrelaties"
+    ],
+    "status": "generated"
+  },
+  "calendar-selection-form": {
+    "synonyms": [
+      "feestdagenkalender",
+      "feestdagenkalenderselectie",
+      "selectie feestdagenkalenders",
+      "kalenderselectie formulier"
+    ],
+    "status": "generated"
+  },
+  "compensatory-rest": {
+    "synonyms": [
+      "compensatierust",
+      "inhaalrust",
+      "rustcompensatie",
+      "compensatieverlof",
+      "compensatie rust",
+      "compensatierust instellingen"
+    ],
+    "status": "generated"
+  },
+  "compliance-enforcement": {
+    "synonyms": [
+      "nalevingshandhaving",
+      "naleving arbeidstijdregels",
+      "overtredingen arbeidstijdregels",
+      "handhaving arbeidstijdregels"
+    ],
+    "status": "generated"
+  },
+  "contract-form.percent": {
+    "synonyms": [
+      "werkpercentage",
+      "arbeidspercentage",
+      "contractpercentage",
+      "aanstellingspercentage",
+      "deeltijdpercentage"
+    ],
+    "status": "generated"
+  },
+  "counter-rules": {
+    "synonyms": [
+      "tellerregel",
+      "tellerregels",
+      "tellerregelinstellingen",
+      "tellerregelbeheer",
+      "tellerregelconfiguratie",
+      "tellerregelopties"
+    ],
+    "status": "generated"
+  },
+  "escalation-roster": {
+    "synonyms": [
+      "escalatielijst",
+      "escalatierooster",
+      "escalatievolgorde",
+      "escalatielijst per groep",
+      "escalatierooster per groep",
+      "escalatieoverzicht"
+    ],
+    "status": "generated"
+  },
+  "erp-drop-points": {
+    "synonyms": [
+      "erp drop points",
+      "erp drop point",
+      "drop points",
+      "drop point",
+      "dropzone"
+    ],
+    "status": "generated"
+  },
+  "export-format-overrides": {
+    "synonyms": [
+      "exportformaat-correcties",
+      "exportformaatcorrecties",
+      "exportformaat overrides",
+      "exportformaat override",
+      "support-overrides",
+      "exportformaat correctie"
+    ],
+    "status": "generated"
+  },
+  "export-formats": {
+    "synonyms": [
+      "exportformaten",
+      "exportopties",
+      "exportinstellingen",
+      "beschikbare exportformaten",
+      "extra exportformaten",
+      "export- en loonlandformaten"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel": {
+    "synonyms": [
+      "doelvoorstellen",
+      "doelkandidaten",
+      "doelvoorstellen overzicht",
+      "doelvoorstellen lijst",
+      "doelvoorstellen scherm",
+      "doelvoorstellen sectie"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.approve": {
+    "synonyms": [
+      "kandidatengoedkeuring",
+      "kandidaten goedkeuring"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.item": {
+    "synonyms": [
+      "doelkandidaat",
+      "kandidaten ter goedkeuring",
+      "kandidaten voor doelen"
+    ],
+    "status": "generated"
+  },
+  "goal-candidates-panel.reject": {
+    "synonyms": [
+      "afwijzing",
+      "weigering",
+      "afkeuring",
+      "verwerping",
+      "afwijzing van kandidaat",
+      "weigering van kandidaat"
+    ],
+    "status": "generated"
+  },
+  "group-item": {
+    "synonyms": [
+      "groepsinformatie",
+      "groepitem"
+    ],
+    "status": "generated"
+  },
+  "group-members": {
+    "synonyms": [
+      "deelnemerslijst",
+      "groepsleden",
+      "ledenlijst",
+      "groepsdeelnemers"
+    ],
+    "status": "generated"
+  },
+  "group-parent": {
+    "synonyms": [
+      "bovenliggende groep",
+      "moedergroep",
+      "oudergroep",
+      "bovenliggende eenheid",
+      "bovenliggend niveau",
+      "bovenliggende groepering"
+    ],
+    "status": "generated"
+  },
+  "holiday-work-exemptions": {
+    "synonyms": [
+      "uitzondering feestdagenwerk",
+      "uitzonderingen feestdagenwerk",
+      "feestdagenwerk uitzondering",
+      "feestdagenwerk uitzonderingen",
+      "feestdagenwerkuitzondering",
+      "feestdagenuitzondering"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form": {
+    "synonyms": [
+      "periodeformulier",
+      "formulier individuele periode",
+      "periode bewerking",
+      "individuele periode bewerking"
+    ],
+    "status": "generated"
+  },
+  "individual-period-form.name": {
+    "synonyms": [
+      "individuele periodenaam",
+      "naam individuele periode",
+      "naam van individuele periode",
+      "individuele periode formulier naam"
+    ],
+    "status": "generated"
+  },
+  "individual-periods": {
+    "synonyms": [
+      "individuele perioden",
+      "individuele periodes",
+      "individuele periode",
+      "individuele perioden instellingen"
+    ],
+    "status": "generated"
+  },
+  "klacksy-autonomy": {
+    "synonyms": [
+      "autonomie",
+      "zelfstandigheid",
+      "autonomie-instellingen",
+      "mate van autonomie",
+      "autonoom handelen",
+      "zelfstandig handelen"
+    ],
+    "status": "generated"
+  },
+  "klacksy-proactive-governance": {
+    "synonyms": [
+      "handelingsruimte",
+      "proactief handelen",
+      "actieruimte",
+      "beslissingsruimte"
+    ],
+    "status": "generated"
+  },
+  "monthly-target-hours": {
+    "synonyms": [
+      "maandelijkse streefuren",
+      "streefuren",
+      "maandstreefuren",
+      "doeluren per maand",
+      "maandelijkse doeluren",
+      "doeluren"
+    ],
+    "status": "generated"
+  },
+  "new-plannable-shift": {
+    "synonyms": [
+      "nieuwe planbare dienst",
+      "planbare dienst zonder klant",
+      "dienst zonder klant",
+      "klantloze dienst",
+      "klantlozedienst"
+    ],
+    "status": "generated"
+  },
+  "overtime": {
+    "synonyms": [
+      "overuren",
+      "overwerk",
+      "overuren instellingen",
+      "overwerk instellingen",
+      "overwerk berekening",
+      "overwerkregels"
+    ],
+    "status": "generated"
+  },
+  "period-cap-rules": {
+    "synonyms": [
+      "periodegrenzen",
+      "periodegrens",
+      "periodelimieten",
+      "perioderegels",
+      "periodegrens instellingen",
+      "periodegrenzen configuratie"
+    ],
+    "status": "generated"
+  },
+  "period-closing-audit": {
+    "synonyms": [
+      "periodeafsluiting audit",
+      "audit periodeafsluiting",
+      "afsluitingsaudit",
+      "periodeafsluitingscontrole",
+      "auditlog periodeafsluiting",
+      "controle periodeafsluiting"
+    ],
+    "status": "generated"
+  },
+  "period-closing-exports": {
+    "synonyms": [
+      "periode-export",
+      "periodieke export",
+      "export periodes",
+      "afsluitingsexport",
+      "periodeafsluiting export"
+    ],
+    "status": "generated"
+  },
+  "period-closing-periods": {
+    "synonyms": [
+      "afgesloten perioden",
+      "geboekte periodes",
+      "periodeoverzicht"
+    ],
+    "status": "generated"
+  },
+  "personal-access-token-form": {
+    "synonyms": [
+      "nieuw persoonlijk toegangstoken",
+      "persoonlijk token",
+      "nieuw token"
+    ],
+    "status": "generated"
+  },
+  "personal-access-tokens": {
+    "synonyms": [
+      "persoonlijke toegangstokens",
+      "persoonlijk toegangstoken",
+      "toegangstokens",
+      "toegangstoken",
+      "tokens",
+      "token"
+    ],
+    "status": "generated"
+  },
+  "plan-execution-panel.abort": {
+    "synonyms": [
+      "planafbreking",
+      "afbreking",
+      "planannulering",
+      "annulering",
+      "planstopzetting",
+      "stopzetting"
+    ],
+    "status": "generated"
+  },
+  "profile-data": {
+    "synonyms": [
+      "inloggegevens",
+      "profielgegevens",
+      "accountgegevens",
+      "mijn inloggegevens",
+      "mijn profielgegevens"
+    ],
+    "status": "generated"
+  },
+  "profile-messengers": {
+    "synonyms": [
+      "mijn messengers",
+      "messengeraccounts",
+      "profiel messengers",
+      "messengerkoppelingen",
+      "messengerprofiel"
+    ],
+    "status": "generated"
+  },
+  "profile-microphone": {
+    "synonyms": [
+      "microfoon",
+      "microfoon test",
+      "spraakherkenning test",
+      "microfoon en spraakherkenning",
+      "microfoon diagnose"
+    ],
+    "status": "generated"
+  },
+  "profile-picture": {
+    "synonyms": [
+      "profielfoto",
+      "profielafbeelding",
+      "avatar",
+      "profielplaatje",
+      "accountfoto",
+      "gebruikersafbeelding"
+    ],
+    "status": "generated"
+  },
+  "profile-settings": {
+    "synonyms": [
+      "aangepaste instellingen",
+      "mijn instellingen"
+    ],
+    "status": "generated"
+  },
+  "qualifications": {
+    "synonyms": [
+      "kwalificatiebeheer",
+      "kwalificatie instellingen",
+      "kwalificatie overzicht",
+      "personeelskwalificaties"
+    ],
+    "status": "generated"
+  },
+  "restricted-time-window-rules": {
+    "synonyms": [
+      "beperkt tijdvenster",
+      "beperkte tijdvensters",
+      "tijdvensterbeperkingen",
+      "tijdvensterregels",
+      "beperkte tijdvensterregels",
+      "tijdvensterbeperking"
+    ],
+    "status": "generated"
+  },
+  "shift-address": {
+    "synonyms": [
+      "werkadres",
+      "geselecteerd adres",
+      "adres van dienst",
+      "werkplek adres"
+    ],
+    "status": "generated"
+  },
+  "shift-expenses": {
+    "synonyms": [
+      "kostenposten",
+      "standaardkosten",
+      "dienstkosten",
+      "ploegkosten",
+      "kostenpost"
+    ],
+    "status": "generated"
+  },
+  "shift-group": {
+    "synonyms": [
+      "dienstgroep",
+      "ploegengroep",
+      "dienstengroep",
+      "groepsindeling",
+      "ploegenindeling"
+    ],
+    "status": "generated"
+  },
+  "shift-item": {
+    "synonyms": [
+      "dienstitem",
+      "dienstonderdeel",
+      "planningsitem",
+      "roosteritem"
+    ],
+    "status": "generated"
+  },
+  "shift-macro": {
+    "synonyms": [
+      "macrolijst",
+      "dienstmacro",
+      "roostermacro",
+      "shiftmacro"
+    ],
+    "status": "generated"
+  },
+  "shift-qualifications": {
+    "synonyms": [
+      "dienstkwalificaties",
+      "vereiste kwalificaties",
+      "benodigde kwalificaties",
+      "kwalificatie-eisen",
+      "shiftkwalificaties"
+    ],
+    "status": "generated"
+  },
+  "shift-special-feature": {
+    "synonyms": [
+      "speciale kenmerken",
+      "bijzondere kenmerken",
+      "shiftkenmerken",
+      "dienstkenmerken",
+      "shiftbijzonderheden",
+      "bijzonderheden"
+    ],
+    "status": "generated"
+  },
+  "shift-weekday": {
+    "synonyms": [
+      "weekdagen",
+      "uren en weekdagen",
+      "dagen van de week",
+      "weekdaginstellingen",
+      "dagen en uren"
+    ],
+    "status": "generated"
+  },
+  "skill-effectiveness": {
+    "synonyms": [
+      "skill-effectiviteit",
+      "effectiviteit",
+      "skill effectiviteit",
+      "effectiviteit vaardigheden",
+      "vaardigheden effectiviteit",
+      "effectiviteit van vaardigheden"
+    ],
+    "status": "generated"
+  },
+  "surcharge-mode": {
+    "synonyms": [
+      "toeslagmodus",
+      "toeslagmodi",
+      "toeslaginstellingen",
+      "toeslagberekening",
+      "toeslagregels",
+      "toeslagbeleid"
+    ],
+    "status": "generated"
+  },
+  "web-search": {
+    "synonyms": [
+      "webzoekopdracht",
+      "internetzoekopdracht",
+      "webzoekfunctie",
+      "internetzoekfunctie",
+      "online zoekopdracht",
+      "online zoekfunctie"
+    ],
+    "status": "generated"
+  },
+  "whisper-plugin": {
+    "synonyms": [
+      "whisper",
+      "whisper plugin",
+      "lokale spraakherkenning",
+      "whisper spraakdienst",
+      "zelf-gehoste spraakherkenning"
     ],
     "status": "generated"
   }
