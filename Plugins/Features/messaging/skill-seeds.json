@@ -97,12 +97,12 @@
     "alwaysOn": false,
     "triggerKeywords": ["nachrichten", "messages", "lesen", "read", "inbox", "eingehend", "posteingang"],
     "synonyms": {
-      "de": ["nachrichten lesen", "posteingang anzeigen", "eingegangene nachrichten"],
-      "en": ["read messages", "show inbox"],
+      "de": ["nachrichten lesen", "nachrichten anzeigen", "eingegangene nachrichten", "chatnachrichten lesen"],
+      "en": ["read messages", "show messages", "received messages", "read chat messages"],
       "fr": ["lire les messages", "messages reçus", "afficher les messages reçus", "derniers messages"],
       "it": ["leggere i messaggi", "messaggi ricevuti", "mostrare i messaggi ricevuti", "ultimi messaggi"]
     },
-    "version": 9
+    "version": 10
   },
   {
     "name": "list_messaging_providers",
