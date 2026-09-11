@@ -174,6 +174,23 @@ public class SkillSeedLoader
     }
 
     /// <summary>
+    /// Returns the names of the skills a feature plugin contributes, read from its skill-seeds.json.
+    /// </summary>
+    /// <param name="pluginName">Directory name of the plugin under the plugin root</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The skill names; empty when the plugin ships no skill seeds</returns>
+    public virtual async Task<IReadOnlyList<string>> GetPluginSkillNamesAsync(
+        string pluginName, CancellationToken cancellationToken = default)
+    {
+        var definitions = await ReadPluginDefinitionsAsync(pluginName, cancellationToken);
+
+        return definitions
+            .Where(definition => !string.IsNullOrWhiteSpace(definition.Name))
+            .Select(definition => definition.Name)
+            .ToList();
+    }
+
+    /// <summary>
     /// Flips the enabled flag of every skill a plugin contributes. Uninstalling or disabling a plugin
     /// has to leave its skills behind (soft-delete convention, and the plugin may come back), but they
     /// must stop reaching the assistant. Re-enabling cannot go through the seed: its version gate

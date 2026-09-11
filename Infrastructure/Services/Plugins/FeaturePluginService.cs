@@ -14,6 +14,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Plugins;
+using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -550,6 +551,7 @@ public class FeaturePluginService : IFeaturePluginService
             var seedLoader = scope.ServiceProvider.GetRequiredService<SkillSeedLoader>();
             await seedLoader.SeedPluginSkillsAsync(name);
             await seedLoader.SetPluginSkillsEnabledAsync(name, isEnabled: true);
+            await ApplyLanguagePackSynonymsAsync(scope, seedLoader, name);
             await RefreshSkillCatalogAsync(scope, reason);
         }
         catch (Exception ex)
@@ -579,6 +581,32 @@ public class FeaturePluginService : IFeaturePluginService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to disable skills for feature plugin '{Name}'", name.ForLog());
+        }
+    }
+
+    /// <summary>
+    /// Gives the plugin's skills the synonyms of every installed language pack. A pack installed while
+    /// the plugin was off skipped these skills (it only reaches enabled skills), so without this step
+    /// the plugin-language synonyms only arrived after the pack was installed again. Runs before the
+    /// catalogue refresh so the knowledge index embeds the new phrases, and never blocks that refresh.
+    /// </summary>
+    /// <param name="scope">The scope whose database work has already been committed</param>
+    /// <param name="seedLoader">Seed loader that knows the plugin's skill names</param>
+    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
+    private async Task ApplyLanguagePackSynonymsAsync(IServiceScope scope, SkillSeedLoader seedLoader, string name)
+    {
+        try
+        {
+            var skillNames = await seedLoader.GetPluginSkillNamesAsync(name);
+            if (skillNames.Count == 0)
+                return;
+
+            await scope.ServiceProvider.GetRequiredService<ILanguagePluginService>()
+                .ApplyInstalledSkillSynonymsAsync(skillNames);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to apply language pack synonyms to feature plugin '{Name}'", name.ForLog());
         }
     }
 

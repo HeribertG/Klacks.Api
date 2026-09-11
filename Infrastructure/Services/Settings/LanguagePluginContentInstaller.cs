@@ -89,7 +89,14 @@ public class LanguagePluginContentInstaller
         _logger.LogInformation("Uninstalled {Count} doc(s) for language plugin '{Code}'", docs.Count, code.ForLog());
     }
 
-    public async Task InstallSkillSynonymsAsync(IServiceScope scope, string code)
+    /// <summary>
+    /// Writes the pack's skill synonyms into the enabled skills it names.
+    /// </summary>
+    /// <param name="scope">Scope providing the skill and phrase repositories</param>
+    /// <param name="code">Language code of the pack</param>
+    /// <param name="onlySkillNames">When set, only these skills are updated; null updates every enabled skill</param>
+    public async Task InstallSkillSynonymsAsync(
+        IServiceScope scope, string code, IReadOnlyCollection<string>? onlySkillNames = null)
     {
         var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
         if (!File.Exists(synonymsPath))
@@ -102,6 +109,10 @@ public class LanguagePluginContentInstaller
             if (synonymMap == null || synonymMap.Count == 0)
                 return;
 
+            var skillFilter = onlySkillNames == null
+                ? null
+                : new HashSet<string>(onlySkillNames, StringComparer.OrdinalIgnoreCase);
+
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
             var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
             var allSkills = await skillRepo.GetAllEnabledAsync();
@@ -109,6 +120,9 @@ public class LanguagePluginContentInstaller
 
             foreach (var skill in allSkills)
             {
+                if (skillFilter != null && !skillFilter.Contains(skill.Name))
+                    continue;
+
                 if (!synonymMap.TryGetValue(skill.Name, out var keywords))
                     continue;
 

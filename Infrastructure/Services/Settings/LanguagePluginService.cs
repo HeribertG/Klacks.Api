@@ -409,6 +409,25 @@ public class LanguagePluginService : ILanguagePluginService
         await InitializeAsync();
     }
 
+    public async Task ApplyInstalledSkillSynonymsAsync(IReadOnlyCollection<string> skillNames)
+    {
+        if (skillNames.Count == 0)
+            return;
+
+        await InitializeAsync();
+
+        var codes = GetInstalledPluginCodes();
+        if (codes.Count == 0)
+            return;
+
+        using var scope = _scopeFactory.CreateScope();
+
+        foreach (var code in codes)
+        {
+            await _contentInstaller.InstallSkillSynonymsAsync(scope, code, skillNames);
+        }
+    }
+
     private static bool IsVersionCompatible(string minVersion)
     {
         if (string.IsNullOrWhiteSpace(minVersion))
