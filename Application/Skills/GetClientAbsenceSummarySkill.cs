@@ -11,6 +11,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -23,17 +24,20 @@ public class GetClientAbsenceSummarySkill : BaseSkillImplementation
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly IBreakRepository _breakRepository;
     private readonly IAbsenceRepository _absenceRepository;
+    private readonly ICompanyClock _companyClock;
 
     public GetClientAbsenceSummarySkill(
         IClientRepository clientRepository,
         IBreakPlaceholderRepository breakPlaceholderRepository,
         IBreakRepository breakRepository,
-        IAbsenceRepository absenceRepository)
+        IAbsenceRepository absenceRepository,
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _breakPlaceholderRepository = breakPlaceholderRepository;
         _breakRepository = breakRepository;
         _absenceRepository = absenceRepository;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -42,7 +46,7 @@ public class GetClientAbsenceSummarySkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var clientId = GetRequiredGuid(parameters, "clientId");
-        var year = GetParameter<int?>(parameters, "year") ?? DateTime.UtcNow.Year;
+        var year = GetParameter<int?>(parameters, "year") ?? (await _companyClock.GetTodayDateAsync(cancellationToken)).Year;
 
         var client = await _clientRepository.Get(clientId);
         if (client is null)

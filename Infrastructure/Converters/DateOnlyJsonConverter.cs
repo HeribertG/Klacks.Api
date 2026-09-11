@@ -1,26 +1,35 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-﻿using System.Text.Json;
+/// <summary>
+/// Reads a required DateOnly from the wire and writes it back as yyyy-MM-dd. Parsing is delegated to
+/// DateOnlyStringParser so this converter and DateOnlyNullableJsonConverter never disagree about which
+/// strings are valid or which calendar day a date/time with a UTC offset resolves to.
+/// </summary>
+
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Infrastructure.Converters;
 
 public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
-    private const string Format = "yyyy-MM-ddTHH:mm:ss.fffZ";
-
     public override DateOnly Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options)
     {
-        var s = reader.GetString();
-        if (DateTime.TryParse(s, out var dateTime))
+        if (reader.TokenType != JsonTokenType.String)
         {
-            return DateOnly.FromDateTime(dateTime);
+            throw new JsonException(DateOnlyStringParser.InvalidFormatMessage);
         }
 
-        return DateOnly.ParseExact(s!, Format, null);
+        var s = reader.GetString();
+        if (string.IsNullOrEmpty(s))
+        {
+            throw new JsonException(DateOnlyStringParser.InvalidFormatMessage);
+        }
+
+        return DateOnlyStringParser.Parse(ref reader, s);
     }
 
     public override void Write(

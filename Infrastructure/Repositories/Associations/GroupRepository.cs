@@ -4,6 +4,7 @@ using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Groups;
 using Klacks.Api.Infrastructure.Persistence;
@@ -20,16 +21,19 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
 
     private readonly IGroupServiceFacade groupServices;
     private readonly IGroupCacheService _groupCacheService;
+    private readonly ICompanyClock _companyClock;
 
     public GroupRepository(
         DataBaseContext context,
         IGroupServiceFacade groupServices,
         IGroupCacheService groupCacheService,
-        ILogger<Group> logger)
+        ILogger<Group> logger,
+        ICompanyClock companyClock)
        : base(context, logger)
     {
         this.groupServices = groupServices;
         _groupCacheService = groupCacheService;
+        _companyClock = companyClock;
     }
 
     public new async Task Add(Group model)
@@ -94,21 +98,6 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             Logger.LogError(ex, "An unexpected error occurred while deleting group with ID: {GroupId}.", id);
             throw;
         }
-    }
-
-    public IQueryable<Group> FilterGroup(GroupFilter filter)
-    {
-        Logger.LogInformation("Filtering groups using domain services");
-        
-        // Repository creates the base query with includes
-        var baseQuery = context.Group
-            .Include(gr => gr.GroupItems)
-            .ThenInclude(gi => gi.Client)
-            .AsNoTracking()
-            .OrderBy(g => g.Root);
-        
-        // Domain services apply filters to the query
-        return groupServices.SearchService.ApplyFilters(baseQuery, filter);
     }
 
     public new async Task<Group?> Get(Guid id)
@@ -309,6 +298,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     {
         Logger.LogInformation("Getting paginated groups using search service");
 
+        var today = await _companyClock.GetTodayDateAsync();
+
         // Repository creates the base query
         var baseQuery = context.Group
             .Include(gr => gr.GroupItems)
@@ -317,7 +308,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             .OrderBy(g => g.Root);
 
         // Apply filters first
-        var filteredQuery = groupServices.SearchService.ApplyFilters(baseQuery, filter);
+        var filteredQuery = groupServices.SearchService.ApplyFilters(baseQuery, filter, today);
 
         // Then apply pagination
         var result = await groupServices.SearchService.ApplyPaginationAsync(filteredQuery, filter);
@@ -326,7 +317,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         // fuzzily against the groups that pass every other filter instead of showing nothing.
         if (result.MaxItems == 0 && filter.RequiredPage <= 0 && !string.IsNullOrWhiteSpace(filter.SearchString))
         {
-            var fuzzy = await TryFuzzySearchFallbackAsync(filter);
+            var fuzzy = await TryFuzzySearchFallbackAsync(filter, today);
             if (fuzzy != null)
             {
                 return fuzzy;
@@ -336,7 +327,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         return result;
     }
 
-    private async Task<TruncatedGroup?> TryFuzzySearchFallbackAsync(GroupFilter filter)
+    private async Task<TruncatedGroup?> TryFuzzySearchFallbackAsync(GroupFilter filter, DateOnly today)
     {
         var originalSearch = filter.SearchString;
         filter.SearchString = string.Empty;
@@ -347,7 +338,7 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
                 .ThenInclude(gi => gi.Client)
                 .AsNoTracking()
                 .OrderBy(g => g.Root);
-            var candidates = await groupServices.SearchService.ApplyFilters(baseQuery, filter)
+            var candidates = await groupServices.SearchService.ApplyFilters(baseQuery, filter, today)
                 .Take(FuzzySearchCandidateCap)
                 .ToListAsync();
 

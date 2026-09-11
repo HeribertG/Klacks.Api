@@ -525,7 +525,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IShiftSortingService, ShiftSortingService>();
         services.AddScoped<IScheduleDateRangeService, ScheduleDateRangeService>();
         services.AddScoped<IShiftStatusFilterService, ShiftStatusFilterService>();
-        services.AddScoped<IShiftFilterService, ShiftFilterService>();
         services.AddScoped<IShiftPaginationService, ShiftPaginationService>();
         services.AddScoped<IShiftQueryPipelineService, ShiftQueryPipelineService>();
         services.AddScoped<IShiftValidator, ShiftValidator>();
@@ -902,6 +901,8 @@ public static class ServiceCollectionExtensions
             Klacks.Api.Infrastructure.Services.CompanyLocationProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyClock,
             Klacks.Api.Infrastructure.Services.CompanyClock>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEffectiveTimeZoneResolver,
+            Klacks.Api.Domain.Services.Assistant.Skills.EffectiveTimeZoneResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IWeekConfiguration,
             Klacks.Api.Infrastructure.Services.WeekConfiguration>();
 
@@ -976,10 +977,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 
         services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetSystemInfoSkill>();
-        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
-        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
+        services.AddScoped<Domain.Services.Assistant.Skills.Implementations.GetCurrentTimeSkill>();
+        services.AddScoped<Domain.Services.Assistant.Skills.Implementations.GetUserContextSkill>();
         services.AddScoped<Domain.Services.Assistant.Skills.Implementations.NavigateToSkill>();
-        services.AddSingleton<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
+        services.AddScoped<Domain.Services.Assistant.Skills.Implementations.ValidateCalendarRuleSkill>();
 
         services.AddScoped<Application.Skills.CreateEmployeeSkill>();
         services.AddScoped<Application.Skills.AddClientPhoneSkill>();

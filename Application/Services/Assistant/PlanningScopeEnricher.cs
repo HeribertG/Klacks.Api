@@ -8,10 +8,12 @@
 /// </summary>
 /// <param name="ruleContextProvider">Decides whether the turn is a scheduling context (curated skill set)</param>
 /// <param name="policyResolver">Resolves a client's effective scheduling policy (settings -> contract -> rule)</param>
+/// <param name="companyClock">Resolves the company's current calendar date when no period is selected</param>
 
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant;
@@ -20,13 +22,16 @@ public class PlanningScopeEnricher : IPlanningScopeEnricher
 {
     private readonly IRuleContextProvider _ruleContextProvider;
     private readonly ISchedulingPolicyResolver _policyResolver;
+    private readonly ICompanyClock _companyClock;
 
     public PlanningScopeEnricher(
         IRuleContextProvider ruleContextProvider,
-        ISchedulingPolicyResolver policyResolver)
+        ISchedulingPolicyResolver policyResolver,
+        ICompanyClock companyClock)
     {
         _ruleContextProvider = ruleContextProvider;
         _policyResolver = policyResolver;
+        _companyClock = companyClock;
     }
 
     public async Task EnrichAsync(LLMContext context, CancellationToken cancellationToken = default)
@@ -43,12 +48,12 @@ public class PlanningScopeEnricher : IPlanningScopeEnricher
             return;
         }
 
-        var date = ParsePeriodFromOrToday(context.PageContext?.SelectedPeriodFrom);
+        var date = await ParsePeriodFromOrTodayAsync(context.PageContext?.SelectedPeriodFrom, cancellationToken);
         context.ScopedClientPolicy = await _policyResolver.GetForClientAsync(clientId, date);
     }
 
-    private static DateOnly ParsePeriodFromOrToday(string? periodFrom)
+    private async Task<DateOnly> ParsePeriodFromOrTodayAsync(string? periodFrom, CancellationToken cancellationToken)
         => DateOnly.TryParse(periodFrom, out var parsed)
             ? parsed
-            : DateOnly.FromDateTime(DateTime.UtcNow);
+            : await _companyClock.GetTodayDateAsync(cancellationToken);
 }

@@ -17,12 +17,14 @@
 /// </summary>
 /// <param name="shiftRepository">Read-only Shift query source.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
@@ -35,15 +37,18 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<OpenOrderDetector> _logger;
 
     public OpenOrderDetector(
         IShiftRepository shiftRepository,
         IShiftGroupScopeReader groupScopeReader,
+        ICompanyClock companyClock,
         ILogger<OpenOrderDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _groupScopeReader = groupScopeReader;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -51,7 +56,7 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = Today();
+        var today = await TodayAsync(cancellationToken);
 
         var openOrders = await BuildCandidateQuery(today)
             .OrderBy(s => s.FromDate)
@@ -90,7 +95,7 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
 
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var keys = await BuildCandidateQuery(Today())
+        var keys = await BuildCandidateQuery(await TodayAsync(cancellationToken))
             .Select(s => new { s.Id, s.FromDate })
             .ToListAsync(cancellationToken);
 
@@ -101,7 +106,7 @@ public class OpenOrderDetector : IAgentTriggerDetector, IAgentConditionFingerpri
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    private static DateOnly Today() => DateOnly.FromDateTime(DateTime.UtcNow);
+    private Task<DateOnly> TodayAsync(CancellationToken cancellationToken) => _companyClock.GetTodayDateAsync(cancellationToken);
 
     private IQueryable<Shift> BuildCandidateQuery(DateOnly today) =>
         _shiftRepository.GetQuery()

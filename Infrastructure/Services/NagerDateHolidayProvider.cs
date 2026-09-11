@@ -4,7 +4,9 @@
 /// Resolves today's/tomorrow's public holiday from the free Nager.Date API (no API key required).
 /// The yearly holiday list per country is cached in-memory because it is effectively static for the
 /// year, so concurrent welcomes don't spam the upstream API. Any failure yields null — the holiday
-/// note is always optional for the greeting.
+/// note is always optional for the greeting. Registered as a Singleton, so "today" is never resolved
+/// internally (that would capture the Scoped ICompanyClock/DbContext into a Singleton) — callers
+/// resolve it via ICompanyClock and pass it in.
 /// </summary>
 
 namespace Klacks.Api.Infrastructure.Services;
@@ -37,14 +39,13 @@ public sealed class NagerDateHolidayProvider : IPublicHolidayProvider
     }
 
     public async Task<UpcomingHoliday?> GetUpcomingHolidayAsync(
-        string countryCode, CancellationToken cancellationToken = default)
+        string countryCode, DateOnly today, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(countryCode))
         {
             return null;
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var tomorrow = today.AddDays(1);
 
         var holidays = await GetHolidaysAsync(countryCode, today.Year, cancellationToken);

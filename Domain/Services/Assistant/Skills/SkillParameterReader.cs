@@ -67,7 +67,12 @@ public static class SkillParameterReader
 
             if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
             {
-                return (T)(object)DateTime.Parse(unwrapped.ToString()!);
+                if (!SkillUtcDateTimeParser.TryParse(unwrapped.ToString(), out var dateTimeValue))
+                {
+                    return defaultValue;
+                }
+
+                return (T)(object)dateTimeValue;
             }
 
             if (typeof(T) == typeof(decimal) || typeof(T) == typeof(decimal?))

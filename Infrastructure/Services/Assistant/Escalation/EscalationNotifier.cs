@@ -10,6 +10,7 @@
 /// <param name="offlineMessengerNotifier">The loud channel; tried unconditionally per Owner decision A1.</param>
 /// <param name="messengerTextComposer">Renders the wake-up sentence in the installation language.</param>
 /// <param name="settingsReader">Reads DEFAULT_LANGUAGE for the two handoff sentences, mirroring ProactiveMessengerTextComposer.</param>
+/// <param name="companyClock">Resolves the company's configured time zone for rendering shift/due times.</param>
 /// <param name="logger">Logs a delivery failure without ever aborting the caller's sweep.</param>
 
 using System.Globalization;
@@ -31,6 +32,7 @@ public class EscalationNotifier : IEscalationNotifier
     private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
     private readonly IProactiveMessengerTextComposer _messengerTextComposer;
     private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<EscalationNotifier> _logger;
 
     public EscalationNotifier(
@@ -39,6 +41,7 @@ public class EscalationNotifier : IEscalationNotifier
         IOfflineMessengerNotifier offlineMessengerNotifier,
         IProactiveMessengerTextComposer messengerTextComposer,
         ISettingsReader settingsReader,
+        ICompanyClock companyClock,
         ILogger<EscalationNotifier> logger)
     {
         _dispatchRepository = dispatchRepository;
@@ -46,14 +49,16 @@ public class EscalationNotifier : IEscalationNotifier
         _offlineMessengerNotifier = offlineMessengerNotifier;
         _messengerTextComposer = messengerTextComposer;
         _settingsReader = settingsReader;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
     public async Task<EscalationNotificationResult> NotifyStageAsync(
         EscalationChain chain, EscalationStage stage, DateTime dueAtUtc, CancellationToken cancellationToken = default)
     {
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var triggerEvent = new EscalationStageAlertTriggerEvent(
-            stage.Id, stage.UserId, chain.AbsentClientName, chain.ShiftStartUtc, dueAtUtc);
+            stage.Id, stage.UserId, chain.AbsentClientName, chain.ShiftStartUtc, dueAtUtc, companyTimeZone);
 
         var messengerText = await ComposeSafelyAsync(triggerEvent, cancellationToken);
         var dispatchRowId = Guid.NewGuid();
@@ -85,7 +90,9 @@ public class EscalationNotifier : IEscalationNotifier
         CancellationToken cancellationToken = default)
     {
         var language = await ResolveLanguageAsync(cancellationToken);
-        var dateText = chain.ShiftStartUtc.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture);
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var dateText = TimeZoneInfo.ConvertTimeFromUtc(chain.ShiftStartUtc, companyTimeZone)
+            .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture);
 
         if (EscalationHandoffTexts.TryGetText(EscalationHandoffTexts.AcknowledgedConfirmation, language, out var confirmTemplate))
         {

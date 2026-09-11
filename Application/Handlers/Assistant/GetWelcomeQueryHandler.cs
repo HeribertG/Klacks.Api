@@ -52,6 +52,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private readonly IGreetingComposer _greetingComposer;
     private readonly IConfiguration _configuration;
     private readonly IWelcomeFocusResolver _welcomeFocusResolver;
+    private readonly ICompanyClock _companyClock;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
@@ -61,7 +62,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         IPublicHolidayProvider holidayProvider,
         IGreetingComposer greetingComposer,
         IConfiguration configuration,
-        IWelcomeFocusResolver welcomeFocusResolver)
+        IWelcomeFocusResolver welcomeFocusResolver,
+        ICompanyClock companyClock)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
@@ -71,6 +73,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         _greetingComposer = greetingComposer;
         _configuration = configuration;
         _welcomeFocusResolver = welcomeFocusResolver;
+        _companyClock = companyClock;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -183,7 +186,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         }
 
         var countryCode = _configuration.GetValue(AmbientCountryConfigKey, DefaultCountryCode) ?? DefaultCountryCode;
-        var holiday = await _holidayProvider.GetUpcomingHolidayAsync(countryCode, cancellationToken);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+        var holiday = await _holidayProvider.GetUpcomingHolidayAsync(countryCode, today, cancellationToken);
         if (holiday is not null)
         {
             var key = holiday.IsToday

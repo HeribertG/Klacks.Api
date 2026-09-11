@@ -18,11 +18,11 @@ public class GroupSearchService : IGroupSearchService
         _validityService = validityService;
     }
 
-    public IQueryable<Group> ApplyFilters(IQueryable<Group> query, GroupFilter filter)
+    public IQueryable<Group> ApplyFilters(IQueryable<Group> query, GroupFilter filter, DateOnly today)
     {
         _logger.LogInformation("Applying search filters to query");
 
-        query = _validityService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
+        query = _validityService.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
         query = ApplySearchFilter(query, filter.SearchString);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder);
 

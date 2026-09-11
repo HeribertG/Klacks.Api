@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 using Klacks.Api.Application.DTOs.Associations;
@@ -97,7 +98,7 @@ public class UpdateGroupSkill : BaseSkillImplementation
         }
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
-        if (!string.IsNullOrEmpty(validFromStr) && DateTime.TryParse(validFromStr, out var parsedValidFrom))
+        if (!string.IsNullOrEmpty(validFromStr) && SkillUtcDateTimeParser.TryParse(validFromStr, out var parsedValidFrom))
         {
             if (group.ValidFrom != parsedValidFrom)
             {
@@ -111,7 +112,7 @@ public class UpdateGroupSkill : BaseSkillImplementation
         if (validUntilStr != null)
         {
             DateTime? newValidUntil = null;
-            if (validUntilStr.Length > 0 && DateTime.TryParse(validUntilStr, out var parsedValidUntil))
+            if (validUntilStr.Length > 0 && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedValidUntil))
             {
                 newValidUntil = parsedValidUntil;
             }

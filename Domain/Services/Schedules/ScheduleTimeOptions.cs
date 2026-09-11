@@ -19,7 +19,10 @@ public class ScheduleTimeOptions
     public bool DstAware { get; set; }
 
     /// <summary>
-    /// IANA or Windows time zone id used when <see cref="DstAware"/> is true.
+    /// IANA or Windows time zone id used when <see cref="DstAware"/> is true. No default: an
+    /// installation opting into DstAware must configure its own zone explicitly - never a hard-coded
+    /// regional default such as Europe/Zurich. An empty id with DstAware true is logged as an error and
+    /// treated as DstAware off (see <see cref="TimelineCalculationService"/>).
     /// </summary>
-    public string TimeZoneId { get; set; } = "Europe/Zurich";
+    public string TimeZoneId { get; set; } = string.Empty;
 }

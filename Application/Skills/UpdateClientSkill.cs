@@ -27,6 +27,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.Extensions.Logging;
 
@@ -118,7 +119,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         }
 
         var birthdate = GetParameter<string>(parameters, "birthdate");
-        if (!string.IsNullOrEmpty(birthdate) && DateTime.TryParse(birthdate, out var parsedBirthdate))
+        if (!string.IsNullOrEmpty(birthdate) && SkillUtcDateTimeParser.TryParse(birthdate, out var parsedBirthdate))
         {
             if (client.Birthdate != parsedBirthdate)
             {

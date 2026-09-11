@@ -26,15 +26,18 @@ public class ListGroupsSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly ICountryResolver _countryResolver;
+    private readonly ICompanyClock _companyClock;
 
     public ListGroupsSkill(
         IGroupRepository groupRepository,
         ICalendarSelectionRepository calendarSelectionRepository,
-        ICountryResolver countryResolver)
+        ICountryResolver countryResolver,
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _calendarSelectionRepository = calendarSelectionRepository;
         _countryResolver = countryResolver;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -57,7 +60,7 @@ public class ListGroupsSkill : BaseSkillImplementation
         var includeNoValidity = validitySpecified && !activeDateRange && !formerDateRange && !futureDateRange;
 
         var allGroups = await _groupRepository.List();
-        var today = DateTime.UtcNow.Date;
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
 
         var filteredGroups = allGroups
             .Where(g => !g.IsDeleted)

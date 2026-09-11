@@ -12,6 +12,7 @@
 /// </summary>
 /// <param name="shiftScheduleRepository">Returns ShiftDayAssignment rows with SumEmployees vs Quantity.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -19,6 +20,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Schedules;
@@ -33,15 +35,18 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
 
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<UnstaffedShift7dDetector> _logger;
 
     public UnstaffedShift7dDetector(
         IShiftScheduleRepository shiftScheduleRepository,
         IShiftGroupScopeReader groupScopeReader,
+        ICompanyClock companyClock,
         ILogger<UnstaffedShift7dDetector> logger)
     {
         _shiftScheduleRepository = shiftScheduleRepository;
         _groupScopeReader = groupScopeReader;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -49,7 +54,7 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = Today();
+        var today = await TodayAsync(cancellationToken);
 
         var (assignments, _) = await _shiftScheduleRepository.GetShiftScheduleAsync(
             BuildFilter(today, FilterRowCount), cancellationToken);
@@ -88,7 +93,7 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
     /// </summary>
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var today = Today();
+        var today = await TodayAsync(cancellationToken);
 
         var (assignments, _) = await _shiftScheduleRepository.GetShiftScheduleAsync(
             BuildFilter(today, UncappedRowCount), cancellationToken);
@@ -100,7 +105,7 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector, IAgentConditionFi
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    private static DateOnly Today() => DateOnly.FromDateTime(DateTime.UtcNow);
+    private Task<DateOnly> TodayAsync(CancellationToken cancellationToken) => _companyClock.GetTodayDateAsync(cancellationToken);
 
     private static ShiftScheduleFilter BuildFilter(DateOnly today, int rowCount) => new()
     {

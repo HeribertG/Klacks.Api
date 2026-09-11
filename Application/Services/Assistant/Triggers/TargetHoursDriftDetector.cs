@@ -14,13 +14,14 @@
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
 /// <param name="activityProbe">Answers whether the scanned period was ever planned at all.</param>
 /// <param name="logger">Structured log per tick.</param>
-/// <param name="timeProvider">Clock used to derive the last completed month.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
@@ -35,27 +36,27 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
     private readonly IWorkRepository _workRepository;
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<TargetHoursDriftDetector> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
 
     public TargetHoursDriftDetector(
         IClientRepository clientRepository,
         IWorkRepository workRepository,
         IScheduleActivityProbe activityProbe,
         ILogger<TargetHoursDriftDetector> logger,
-        TimeProvider timeProvider)
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _workRepository = workRepository;
         _activityProbe = activityProbe;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
     }
 
     public string Kind => AgentTriggerKinds.TargetHoursDrift;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var (periodStart, periodEnd, periodLabel) = ComputePeriod();
+        var (periodStart, periodEnd, periodLabel) = await ComputePeriodAsync(cancellationToken);
 
         if (!await WasPeriodPlannedAsync(periodStart, periodEnd, periodLabel, cancellationToken))
         {
@@ -96,7 +97,7 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
 
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var (periodStart, periodEnd, periodLabel) = ComputePeriod();
+        var (periodStart, periodEnd, periodLabel) = await ComputePeriodAsync(cancellationToken);
 
         if (!await WasPeriodPlannedAsync(periodStart, periodEnd, periodLabel, cancellationToken))
         {
@@ -158,9 +159,9 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
     // The running month is always short on hours simply because it has not happened yet, so
     // scanning it reports a deficit for everyone. Only the last completed month is a period
     // for which time entry is actually expected.
-    private (DateOnly PeriodStart, DateOnly PeriodEnd, string PeriodLabel) ComputePeriod()
+    private async Task<(DateOnly PeriodStart, DateOnly PeriodEnd, string PeriodLabel)> ComputePeriodAsync(CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var periodEnd = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
         var periodStart = new DateOnly(periodEnd.Year, periodEnd.Month, 1);
         var periodLabel = $"{periodEnd.Year:0000}-{periodEnd.Month:00}";

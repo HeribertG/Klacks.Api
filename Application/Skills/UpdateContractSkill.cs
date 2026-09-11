@@ -27,6 +27,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -37,10 +38,12 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateContractSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
-    public UpdateContractSkill(IMediator mediator)
+    public UpdateContractSkill(IMediator mediator, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -130,7 +133,15 @@ public class UpdateContractSkill : BaseSkillImplementation
             changed.Add(field.Key);
         }
 
-        var validFrom = GetParameter<DateTime?>(parameters, "validFrom");
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        if (invalidValidFrom)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
         if (validFrom.HasValue && validFrom.Value != contract.ValidFrom)
         {
             contract.ValidFrom = validFrom.Value;
@@ -162,7 +173,13 @@ public class UpdateContractSkill : BaseSkillImplementation
         }
         else
         {
-            var validUntil = GetParameter<DateTime?>(parameters, "validUntil");
+            var validUntilStr = GetParameter<string>(parameters, "validUntil");
+            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today);
+            if (invalidValidUntil)
+            {
+                return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            }
+
             if (validUntil.HasValue && validUntil.Value != contract.ValidUntil)
             {
                 contract.ValidUntil = validUntil.Value;

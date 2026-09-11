@@ -9,6 +9,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Queries.ErpDropPoints;
+using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Imports;
@@ -26,15 +27,18 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IObjectStorageService _objectStorageService;
     private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyClock _companyClock;
 
     public GetErpDropPointSettingsSkill(
         IMediator mediator,
         IObjectStorageService objectStorageService,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        ICompanyClock companyClock)
     {
         _mediator = mediator;
         _objectStorageService = objectStorageService;
         _settingsReader = settingsReader;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -54,8 +58,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value
-            ?? ErpImportSettingsTypes.DefaultTimeZoneId;
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, cancellationToken);
 
         var data = new
         {

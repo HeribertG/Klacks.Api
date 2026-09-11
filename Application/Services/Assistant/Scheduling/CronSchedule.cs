@@ -7,6 +7,7 @@
 /// </summary>
 
 using Cronos;
+using Klacks.Api.Domain.Services.Settings;
 
 namespace Klacks.Api.Application.Services.Assistant.Scheduling;
 
@@ -22,6 +23,18 @@ public static class CronSchedule
     public static bool IsValidTimeZone(string? timeZoneId)
     {
         return TryGetTimeZone(timeZoneId, out _);
+    }
+
+    /// <summary>
+    /// Validates the id and returns its IANA form, even when the given id is a Windows time zone id
+    /// (e.g. from an unvalidated setting or an LLM-supplied skill parameter) - so no scheduling skill
+    /// ever persists or echoes back an id a browser's Intl.DateTimeFormat cannot parse. Delegates to the
+    /// feature-agnostic Domain helper; kept here too since every scheduling skill already depends on
+    /// CronSchedule for cron/time-zone validation.
+    /// </summary>
+    public static bool TryNormalizeTimeZoneId(string? timeZoneId, out string? ianaId)
+    {
+        return IanaTimeZoneId.TryFrom(timeZoneId, out ianaId);
     }
 
     /// <summary>

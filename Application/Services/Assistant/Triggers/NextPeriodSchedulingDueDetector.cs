@@ -36,7 +36,7 @@
 /// <param name="settingsReader">Reads the EMAIL_ANALYSIS_ENABLED setting.</param>
 /// <param name="receivedEmailRepository">Probes for unprocessed inbox mail.</param>
 /// <param name="logger">Structured log per tick.</param>
-/// <param name="timeProvider">Clock used to derive today.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Exceptions;
@@ -75,7 +75,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private readonly ISettingsReader _settingsReader;
     private readonly IReceivedEmailRepository _receivedEmailRepository;
     private readonly ILogger<NextPeriodSchedulingDueDetector> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
 
     public NextPeriodSchedulingDueDetector(
         IGroupRepository groupRepository,
@@ -92,7 +92,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         ISettingsReader settingsReader,
         IReceivedEmailRepository receivedEmailRepository,
         ILogger<NextPeriodSchedulingDueDetector> logger,
-        TimeProvider timeProvider)
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _weekConfiguration = weekConfiguration;
@@ -108,14 +108,14 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         _settingsReader = settingsReader;
         _receivedEmailRepository = receivedEmailRepository;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
     }
 
     public string Kind => AgentTriggerKinds.NextPeriodSchedulingDue;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var groups = await _groupRepository.List();
         if (groups.Count == 0)
         {

@@ -18,6 +18,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 using Klacks.Api.Application.DTOs.Associations;
@@ -116,9 +117,9 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         }
 
         DateTime? validUntil = null;
-        if (!string.IsNullOrEmpty(validUntilStr) && DateTime.TryParse(validUntilStr, out var parsedUntil))
+        if (!string.IsNullOrEmpty(validUntilStr) && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedUntil))
         {
-            validUntil = DateTime.SpecifyKind(parsedUntil, DateTimeKind.Utc);
+            validUntil = parsedUntil;
         }
 
         var groupItem = new GroupItem

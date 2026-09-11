@@ -53,6 +53,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly IErpImportExceptionRepository _exceptionRepository;
     private readonly IAgentTriggerService _triggerService;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly ICompanyClock _companyClock;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ErpImportRunState _runState;
     private readonly ILogger<ErpOrderImportRunner> _logger;
@@ -68,6 +69,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         IErpImportExceptionRepository exceptionRepository,
         IAgentTriggerService triggerService,
         ISettingsRepository settingsRepository,
+        ICompanyClock companyClock,
         IUnitOfWork unitOfWork,
         ErpImportRunState runState,
         ILogger<ErpOrderImportRunner> logger)
@@ -82,6 +84,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _exceptionRepository = exceptionRepository;
         _triggerService = triggerService;
         _settingsRepository = settingsRepository;
+        _companyClock = companyClock;
         _unitOfWork = unitOfWork;
         _runState = runState;
         _logger = logger;
@@ -89,7 +92,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
-        if (!await IsDueAsync())
+        if (!await IsDueAsync(cancellationToken))
         {
             return;
         }
@@ -111,12 +114,11 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         }
     }
 
-    private async Task<bool> IsDueAsync()
+    private async Task<bool> IsDueAsync(CancellationToken cancellationToken)
     {
         var cronExpression = (await _settingsRepository.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = (await _settingsRepository.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value
-            ?? ErpImportSettingsTypes.DefaultTimeZoneId;
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, cancellationToken);
         // Read untracked on purpose: the occurrence is claimed through a conditional update that
         // bypasses the change tracker, so a tracked instance would keep the pre-claim value and any
         // later save in the same scope would silently roll the claim back.

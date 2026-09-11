@@ -8,6 +8,7 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
@@ -32,6 +33,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="softeningRepository">Repository persisting per-cell softening escalations</param>
 /// <param name="captureRepository">Repository persisting the run-protocol capture for the preference-learner</param>
 /// <param name="partitionService">Shared accept/block compliance partition incl. the K1 supervisor override</param>
+/// <param name="companyClock">Resolves the company's current calendar date when the cached scenario has no tokens</param>
 /// <param name="logger">Logger used for best-effort capture warnings</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
@@ -45,6 +47,7 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly ICompliancePartitionService _partitionService;
     private readonly DataBaseContext _context;
     private readonly IScheduleTimelineService _timelineService;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
@@ -58,6 +61,7 @@ public sealed class WizardApplyService : IWizardApplyService
         ICompliancePartitionService partitionService,
         DataBaseContext context,
         IScheduleTimelineService timelineService,
+        ICompanyClock companyClock,
         ILogger<WizardApplyService> logger)
     {
         _resultCache = resultCache;
@@ -70,6 +74,7 @@ public sealed class WizardApplyService : IWizardApplyService
         _partitionService = partitionService;
         _context = context;
         _timelineService = timelineService;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -186,7 +191,7 @@ public sealed class WizardApplyService : IWizardApplyService
 
             var periodFrom = items.Count > 0
                 ? items.Min(t => t.Date)
-                : DateOnly.FromDateTime(DateTime.UtcNow);
+                : await _companyClock.GetTodayDateAsync(ct);
             var periodUntil = items.Count > 0
                 ? items.Max(t => t.Date)
                 : periodFrom;

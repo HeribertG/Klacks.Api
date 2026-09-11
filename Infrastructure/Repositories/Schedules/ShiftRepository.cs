@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
@@ -23,13 +24,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IShiftValidator _shiftValidator;
     private readonly ScheduleMapper _scheduleMapper;
+    private readonly ICompanyClock _companyClock;
 
     public ShiftRepository(DataBaseContext context, ILogger<Shift> logger,
         IShiftQueryPipelineService queryPipeline,
         IShiftGroupManagementService groupManagementService,
         EntityCollectionUpdateService collectionUpdateService,
         IShiftValidator shiftValidator,
-        ScheduleMapper scheduleMapper)
+        ScheduleMapper scheduleMapper,
+        ICompanyClock companyClock)
         : base(context, logger)
     {
         _queryPipeline = queryPipeline;
@@ -37,6 +40,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         _collectionUpdateService = collectionUpdateService;
         _shiftValidator = shiftValidator;
         _scheduleMapper = scheduleMapper;
+        _companyClock = companyClock;
     }
 
     public new async Task Add(Shift shift)
@@ -347,7 +351,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync();
     }
 
-    public IQueryable<Shift> FilterShifts(ShiftFilter filter)
+    public IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today)
     {
         Logger.LogInformation("Applying filters to shifts query");
 
@@ -372,7 +376,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var query = _queryPipeline.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder, filter.IsTimeRange, filter.IsSporadic);
         query = isUnsealedDraftView
             ? query
-            : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
+            : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange, today);
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
 
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
@@ -392,7 +396,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     public async Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter)
     {
         Logger.LogInformation("Getting filtered and paginated shifts");
-        var filteredQuery = FilterShifts(filter);
+        var today = await _companyClock.GetTodayDateAsync();
+        var filteredQuery = FilterShifts(filter, today);
         return await _queryPipeline.ApplyPaginationAsync(filteredQuery, filter);
     }
 

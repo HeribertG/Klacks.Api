@@ -47,9 +47,11 @@
 /// <param name="activityProbe">Installation-wide setup snapshot along the order -> shift -> assignment chain.</param>
 /// <param name="objectStorageService">Resolves the drop point's bucket prefix to an absolute on-disk path.</param>
 /// <param name="settingsReader">Reads the import poll schedule and its time zone.</param>
+/// <param name="companyClock">Resolves the installation's configured time zone when no cron time zone setting is configured.</param>
 
 using Klacks.Api.Application.Queries.ErpDropPoints;
 using Klacks.Api.Application.Queries.ErpImportTokens;
+using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -77,17 +79,20 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly IObjectStorageService _objectStorageService;
     private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyClock _companyClock;
 
     public GetSetupGuidanceSkill(
         IMediator mediator,
         IScheduleActivityProbe activityProbe,
         IObjectStorageService objectStorageService,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        ICompanyClock companyClock)
     {
         _mediator = mediator;
         _activityProbe = activityProbe;
         _objectStorageService = objectStorageService;
         _settingsReader = settingsReader;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -233,8 +238,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value
-            ?? ErpImportSettingsTypes.DefaultTimeZoneId;
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, cancellationToken);
 
         var tokens = await _mediator.Send(new GetErpImportTokensQuery(dropPoint.Id), cancellationToken);
 

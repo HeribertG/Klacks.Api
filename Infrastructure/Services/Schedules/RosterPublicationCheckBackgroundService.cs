@@ -84,8 +84,9 @@ public class RosterPublicationCheckBackgroundService : BackgroundService
         var countWorkdaysOnly = await ReadBoolAsync(settingsReader, SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly);
         var weekConfiguration = scope.ServiceProvider.GetRequiredService<IWeekConfiguration>();
         var context = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var companyClock = scope.ServiceProvider.GetRequiredService<ICompanyClock>();
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = await companyClock.GetTodayDateAsync(cancellationToken);
         var horizon = today.AddDays(MaxLookaheadDays);
 
         var candidates = await context.Work

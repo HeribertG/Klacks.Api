@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 using Klacks.Api.Application.DTOs.Staffs;
@@ -41,6 +42,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
     private readonly ISelfApiRouteResolver _routes;
     private readonly ICountryResolver _countryResolver;
     private readonly IPendingConfirmationStore _confirmationStore;
+    private readonly ICompanyClock _companyClock;
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
@@ -49,7 +51,8 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
         ICountryResolver countryResolver,
-        IPendingConfirmationStore confirmationStore)
+        IPendingConfirmationStore confirmationStore,
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
@@ -58,6 +61,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
         _routes = routes;
         _countryResolver = countryResolver;
         _confirmationStore = confirmationStore;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -104,7 +108,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 "\"morgen\"/\"tomorrow\" → tomorrow's date; \"1. Juli\"/\"July 1st\" → the matching YYYY-MM-DD.");
         }
 
-        if (!DateTime.TryParse(memberSince, out var memberSinceDate))
+        if (!SkillUtcDateTimeParser.TryParse(memberSince, out var memberSinceDate))
         {
             return SkillResult.Error(
                 $"Invalid memberSince value: {memberSince}. Expected format YYYY-MM-DD (e.g. 2026-06-01).");
@@ -177,7 +181,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        if (!string.IsNullOrEmpty(birthdate) && DateTime.TryParse(birthdate, out var birthdateValue))
+        if (!string.IsNullOrEmpty(birthdate) && SkillUtcDateTimeParser.TryParse(birthdate, out var birthdateValue))
         {
             client.Birthdate = birthdateValue;
         }
@@ -272,8 +276,9 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             parameters, MembershipPlausibilityDefaults.ValidFromConfirmedParameter, false);
         if (!validFromConfirmed)
         {
+            var today = await _companyClock.GetTodayAsync(cancellationToken);
             var reason = MembershipValidFromPlausibility.Evaluate(
-                client.Membership.ValidFrom, client.Birthdate, DateTime.Today);
+                client.Membership.ValidFrom, client.Birthdate, today);
             if (reason != null)
             {
                 return ValidFromConfirmationFactory.RequireConfirmation(

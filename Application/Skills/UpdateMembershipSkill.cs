@@ -20,6 +20,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -34,11 +35,14 @@ public class UpdateMembershipSkill : BaseSkillImplementation
 
     private readonly IMediator _mediator;
     private readonly IPendingConfirmationStore _confirmationStore;
+    private readonly ICompanyClock _companyClock;
 
-    public UpdateMembershipSkill(IMediator mediator, IPendingConfirmationStore confirmationStore)
+    public UpdateMembershipSkill(
+        IMediator mediator, IPendingConfirmationStore confirmationStore, ICompanyClock companyClock)
     {
         _mediator = mediator;
         _confirmationStore = confirmationStore;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -60,7 +64,15 @@ public class UpdateMembershipSkill : BaseSkillImplementation
 
         var changed = new List<string>();
 
-        var validFrom = GetParameter<DateTime?>(parameters, "validFrom");
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        if (invalidValidFrom)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
         if (validFrom.HasValue && validFrom.Value != membership.ValidFrom)
         {
             membership.ValidFrom = validFrom.Value;
@@ -78,7 +90,13 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         }
         else
         {
-            var validUntil = GetParameter<DateTime?>(parameters, "validUntil");
+            var validUntilStr = GetParameter<string>(parameters, "validUntil");
+            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today);
+            if (invalidValidUntil)
+            {
+                return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            }
+
             if (validUntil.HasValue && validUntil.Value != membership.ValidUntil)
             {
                 membership.ValidUntil = validUntil.Value;
@@ -120,7 +138,7 @@ public class UpdateMembershipSkill : BaseSkillImplementation
             {
             }
 
-            var reason = MembershipValidFromPlausibility.Evaluate(membership.ValidFrom, birthdate, DateTime.Today);
+            var reason = MembershipValidFromPlausibility.Evaluate(membership.ValidFrom, birthdate, today);
             if (reason != null)
             {
                 return ValidFromConfirmationFactory.RequireConfirmation(

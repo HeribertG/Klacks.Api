@@ -83,10 +83,10 @@ public sealed record EmptyContainerTriggerEvent(
         [EmptyContainerPayloadKeys.IsWeekdayAndHoliday] = Schedule.IsWeekdayAndHoliday
     };
 
-    /// <summary>Read once by EmptyContainerDetector at detection time and frozen into IsPeriodActive.</summary>
-    public static bool ComputeIsPeriodActive(DateOnly fromDate, DateOnly? untilDate, TimeProvider timeProvider)
+    /// <summary>Read once by EmptyContainerDetector at detection time (company day, via ICompanyClock)
+    /// and frozen into IsPeriodActive.</summary>
+    public static bool ComputeIsPeriodActive(DateOnly fromDate, DateOnly? untilDate, DateOnly today)
     {
-        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
         return fromDate <= today && (!untilDate.HasValue || today <= untilDate.Value);
     }
 }

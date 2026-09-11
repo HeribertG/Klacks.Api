@@ -14,6 +14,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -26,11 +27,14 @@ public class ImportCalendarRulesSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
-    public ImportCalendarRulesSkill(ISettingsRepository settingsRepository, IUnitOfWork unitOfWork)
+    public ImportCalendarRulesSkill(
+        ISettingsRepository settingsRepository, IUnitOfWork unitOfWork, ICompanyClock companyClock)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -58,7 +62,7 @@ public class ImportCalendarRulesSkill : BaseSkillImplementation
             return SkillResult.Error("rulesJson contained no rules.");
         }
 
-        var year = DateTime.UtcNow.Year;
+        var year = (await _companyClock.GetTodayDateAsync(cancellationToken)).Year;
         for (var index = 0; index < inputs.Count; index++)
         {
             var input = inputs[index];

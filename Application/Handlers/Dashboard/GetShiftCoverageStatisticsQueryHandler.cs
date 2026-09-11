@@ -6,6 +6,7 @@
 /// <param name="readRepository">Read-side repository for shift/group assignments, group names and work-lock entries</param>
 /// <param name="shiftScheduleService">Service for shift schedule queries</param>
 /// <param name="groupVisibilityService">Service for determining the user's group visibility scope</param>
+/// <param name="companyClock">Resolves the company's current calendar date for the statistics month</param>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Interfaces;
@@ -13,6 +14,7 @@ using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,24 +26,27 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
     private readonly IShiftCoverageReadRepository _readRepository;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IGroupVisibilityService _groupVisibilityService;
+    private readonly ICompanyClock _companyClock;
 
     public GetShiftCoverageStatisticsQueryHandler(
         IShiftCoverageReadRepository readRepository,
         IShiftScheduleService shiftScheduleService,
         IGroupVisibilityService groupVisibilityService,
+        ICompanyClock companyClock,
         ILogger<GetShiftCoverageStatisticsQueryHandler> logger)
         : base(logger)
     {
         _readRepository = readRepository;
         _shiftScheduleService = shiftScheduleService;
         _groupVisibilityService = groupVisibilityService;
+        _companyClock = companyClock;
     }
 
     public async Task<IEnumerable<ShiftCoverageStatisticsResource>> Handle(GetShiftCoverageStatisticsQuery request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var today = await _companyClock.GetTodayDateAsync(cancellationToken);
             var startDate = new DateOnly(today.Year, today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 

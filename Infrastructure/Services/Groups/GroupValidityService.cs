@@ -18,7 +18,7 @@ public class GroupValidityService : IGroupValidityService
         _logger = logger;
     }
 
-    public IQueryable<Group> ApplyDateRangeFilter(IQueryable<Group> query, bool activeDateRange, bool formerDateRange, bool futureDateRange)
+    public IQueryable<Group> ApplyDateRangeFilter(IQueryable<Group> query, bool activeDateRange, bool formerDateRange, bool futureDateRange, DateOnly today)
     {
         _logger.LogDebug("Filtering by date range: active={Active}, former={Former}, future={Future}",
             activeDateRange, formerDateRange, futureDateRange);
@@ -35,10 +35,12 @@ public class GroupValidityService : IGroupValidityService
             return Enumerable.Empty<Group>().AsQueryable();
         }
 
-        // Must be UtcNow, not Now: this value goes into an EF predicate against timestamptz columns,
-        // and Npgsql rejects a Kind=Local parameter outright. ValidFrom/ValidUntil are stored as
-        // UTC-midnight calendar markers, so comparing against UTC is also the semantically correct side.
-        var nowDate = DateTime.UtcNow;
+        // Must be Kind=Utc, not Local: this value goes into an EF predicate against timestamptz
+        // columns, and Npgsql rejects a Kind=Local parameter outright. ValidFrom/ValidUntil are stored
+        // as UTC-midnight calendar markers, so comparing against the company's own local day (the
+        // caller's ICompanyClock.GetTodayDateAsync), converted here to a UTC-midnight marker, is also
+        // the semantically correct side.
+        var nowDate = DateTime.SpecifyKind(today.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
         _logger.LogDebug("Using reference date: {ReferenceDate}", nowDate);
 
         var predicates = new List<System.Linq.Expressions.Expression<Func<Group, bool>>>();
@@ -69,40 +71,6 @@ public class GroupValidityService : IGroupValidityService
         });
 
         return query.Where(combinedPredicate);
-    }
-
-    public bool IsGroupActive(Group group, DateTime? referenceDate = null)
-    {
-        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
-        _logger.LogDebug("Checking if group {GroupId} is active on {Date}", group.Id, refDate);
-
-        var isActive = group.ValidFrom.Date <= refDate &&
-                      (!group.ValidUntil.HasValue || group.ValidUntil.Value.Date >= refDate);
-
-        _logger.LogDebug("Group {GroupId} active status: {IsActive}", group.Id, isActive);
-        return isActive;
-    }
-
-    public bool IsGroupFormer(Group group, DateTime? referenceDate = null)
-    {
-        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
-        _logger.LogDebug("Checking if group {GroupId} is former on {Date}", group.Id, refDate);
-
-        var isFormer = group.ValidUntil.HasValue && group.ValidUntil.Value.Date < refDate;
-
-        _logger.LogDebug("Group {GroupId} former status: {IsFormer}", group.Id, isFormer);
-        return isFormer;
-    }
-
-    public bool IsGroupFuture(Group group, DateTime? referenceDate = null)
-    {
-        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
-        _logger.LogDebug("Checking if group {GroupId} is future on {Date}", group.Id, refDate);
-
-        var isFuture = group.ValidFrom.Date > refDate;
-
-        _logger.LogDebug("Group {GroupId} future status: {IsFuture}", group.Id, isFuture);
-        return isFuture;
     }
 
     public async Task<IEnumerable<Group>> GetGroupsValidOnDateAsync(DateTime date, Guid? rootId = null)
@@ -185,31 +153,5 @@ public class GroupValidityService : IGroupValidityService
             groupId, effectiveValidFrom, effectiveValidUntil?.ToString() ?? "∞");
 
         return (effectiveValidFrom, effectiveValidUntil);
-    }
-
-    public async Task<IEnumerable<Group>> GetGroupsExpiringWithinAsync(int withinDays, Guid? rootId = null)
-    {
-        _logger.LogInformation("Finding groups expiring within {Days} days for root {RootId}",
-            withinDays, rootId?.ToString() ?? "all");
-
-        var cutoffDate = DateTime.UtcNow.Date.AddDays(withinDays);
-
-        var query = _context.Group.AsQueryable();
-
-        if (rootId.HasValue)
-        {
-            query = query.Where(g => g.Root == rootId || g.Id == rootId);
-        }
-
-        var expiringGroups = await query
-            .Where(g => g.ValidUntil.HasValue &&
-                       g.ValidUntil.Value.Date <= cutoffDate &&
-                       g.ValidUntil.Value.Date >= DateTime.UtcNow.Date)
-            .OrderBy(g => g.ValidUntil)
-            .ThenBy(g => g.Name)
-            .ToListAsync();
-
-        _logger.LogInformation("Found {Count} groups expiring within {Days} days", expiringGroups.Count, withinDays);
-        return expiringGroups;
     }
 }

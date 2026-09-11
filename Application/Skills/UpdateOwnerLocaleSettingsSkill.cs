@@ -7,7 +7,9 @@
 /// </summary>
 /// <param name="country">Country abbreviation (e.g. CH, DE, AT)</param>
 /// <param name="state">State or canton abbreviation (e.g. BE, ZH)</param>
-/// <param name="timeZone">IANA time zone identifier the company operates in (e.g. Europe/Zurich)</param>
+/// <param name="timeZone">Time zone identifier the company operates in; validated and normalized to its
+/// IANA form before being persisted (e.g. 'Continent/City' or an OS-native id resolving to one), and
+/// rejected with an error when it does not resolve to any known time zone at all</param>
 /// <param name="calendarId">ID of the global holiday calendar to apply for scheduling</param>
 
 using Klacks.Api.Application.Constants;
@@ -18,6 +20,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Settings;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -25,6 +28,8 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateOwnerLocaleSettingsSkill : BaseSkillImplementation
 {
     private const string SkillName = "update_owner_locale_settings";
+    private const string InvalidTimeZoneMessageFormat =
+        "Invalid time zone '{0}'. Use a valid IANA time zone id (e.g. 'Continent/City').";
 
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -64,7 +69,12 @@ public class UpdateOwnerLocaleSettingsSkill : BaseSkillImplementation
         var timeZone = GetParameter<string>(parameters, "timeZone");
         if (!string.IsNullOrWhiteSpace(timeZone))
         {
-            plannedWrites.Add((Settings.APP_ADDRESS_TIMEZONE, timeZone!));
+            if (!IanaTimeZoneId.TryFrom(timeZone, out var normalizedTimeZone))
+            {
+                return SkillResult.Error(string.Format(InvalidTimeZoneMessageFormat, timeZone));
+            }
+
+            plannedWrites.Add((Settings.APP_ADDRESS_TIMEZONE, normalizedTimeZone!));
             updatedFields.Add("timeZone");
         }
 

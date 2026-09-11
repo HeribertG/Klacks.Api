@@ -15,5 +15,7 @@ public interface IPublicHolidayProvider
     /// holiday or the lookup fails.
     /// </summary>
     /// <param name="countryCode">ISO 3166-1 alpha-2 country code, e.g. "CH".</param>
-    Task<UpcomingHoliday?> GetUpcomingHolidayAsync(string countryCode, CancellationToken cancellationToken = default);
+    /// <param name="today">The company's own local day (per ICompanyClock), resolved by the caller -
+    /// this provider is a Singleton and must not resolve the scoped clock itself.</param>
+    Task<UpcomingHoliday?> GetUpcomingHolidayAsync(string countryCode, DateOnly today, CancellationToken cancellationToken = default);
 }

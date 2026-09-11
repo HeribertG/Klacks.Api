@@ -13,10 +13,10 @@
 /// <param name="scopeResolver">Resolves one user's GroupVisibility scope for the ledger.</param>
 /// <param name="planningAudienceResolver">Enumerates every planner (Admin + Authorised) to iterate over.</param>
 /// <param name="triggerService">Persists and delivers one event per planner through the ordinary proactive pipeline.</param>
-/// <param name="settingsRepository">Reads/advances the persisted "last digest date" watermark and the installation time zone settings.</param>
+/// <param name="settingsRepository">Reads/advances the persisted "last digest date" watermark.</param>
 /// <param name="unitOfWork">Commits the watermark row the first time it is seeded on a fresh installation.</param>
 /// <param name="options">Carries the configurable local time of day the digest fires.</param>
-/// <param name="timeProvider">Clock, injected for deterministic testing.</param>
+/// <param name="companyClock">Resolves "now" in the installation's configured time zone.</param>
 /// <param name="logger">Structured log per run.</param>
 
 using System.Globalization;
@@ -27,6 +27,7 @@ using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -48,7 +49,7 @@ public class AgentConditionDigestService : IAgentConditionDigestService
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly BackgroundServiceOptions _options;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<AgentConditionDigestService> _logger;
 
     public AgentConditionDigestService(
@@ -59,7 +60,7 @@ public class AgentConditionDigestService : IAgentConditionDigestService
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         IOptions<BackgroundServiceOptions> options,
-        TimeProvider timeProvider,
+        ICompanyClock companyClock,
         ILogger<AgentConditionDigestService> logger)
     {
         _conditionRepository = conditionRepository;
@@ -69,15 +70,15 @@ public class AgentConditionDigestService : IAgentConditionDigestService
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _options = options.Value;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
     public async Task<AgentConditionDigestRunResult> RunIfDueAsync(CancellationToken cancellationToken = default)
     {
-        var timeZone = await ResolveTimeZoneAsync();
-        var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
-        var nowLocal = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, timeZone);
+        var localNow = await _companyClock.GetNowAsync(cancellationToken);
+        var nowUtc = localNow.UtcDateTime;
+        var nowLocal = localNow.DateTime;
         var todayKey = nowLocal.ToString(DateKeyFormat, CultureInfo.InvariantCulture);
 
         var lastRunValue = await ReadOrSeedLastRunMarkerAsync(cancellationToken);
@@ -151,42 +152,6 @@ public class AgentConditionDigestService : IAgentConditionDigestService
             configured, AgentConditionDigestDefaults.DefaultTimeOfDayLocal);
 
         return nowLocalTimeOfDay >= FallbackTimeOfDay;
-    }
-
-    private async Task<TimeZoneInfo> ResolveTimeZoneAsync()
-    {
-        var explicitSetting = await _settingsRepository.GetSetting(Settings.APP_ADDRESS_TIMEZONE);
-        if (TryGetTimeZone(explicitSetting?.Value, out var explicitZone))
-        {
-            return explicitZone!;
-        }
-
-        var countrySetting = await _settingsRepository.GetSetting(Settings.APP_ADDRESS_COUNTRY);
-        if (TryGetTimeZone(CountryTimeZones.Resolve(countrySetting?.Value), out var countryZone))
-        {
-            return countryZone!;
-        }
-
-        return TimeZoneInfo.Utc;
-    }
-
-    private static bool TryGetTimeZone(string? timeZoneId, out TimeZoneInfo? zone)
-    {
-        zone = null;
-        if (string.IsNullOrWhiteSpace(timeZoneId))
-        {
-            return false;
-        }
-
-        try
-        {
-            zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId.Trim());
-            return true;
-        }
-        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            return false;
-        }
     }
 
     private async Task<int> BuildAndDispatchDigestsAsync(DateOnly localDigestDate, DateTime nowUtc, CancellationToken cancellationToken)

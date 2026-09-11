@@ -28,6 +28,8 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Constants;
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -41,19 +43,22 @@ public class CreateGroupSkill : BaseSkillImplementation
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly GroupMapper _groupMapper;
     private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ICompanyClock _companyClock;
 
     public CreateGroupSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         ICalendarSelectionRepository calendarSelectionRepository,
         GroupMapper groupMapper,
-        IKlacksSelfApiClient selfApi)
+        IKlacksSelfApiClient selfApi,
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _calendarSelectionRepository = calendarSelectionRepository;
         _groupMapper = groupMapper;
         _selfApi = selfApi;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -120,14 +125,14 @@ public class CreateGroupSkill : BaseSkillImplementation
             }
         }
 
-        var validFrom = DateTime.UtcNow.Date;
-        if (!string.IsNullOrEmpty(validFromStr) && DateTime.TryParse(validFromStr, out var parsedValidFrom))
+        var validFrom = await _companyClock.GetTodayAsync(cancellationToken);
+        if (!string.IsNullOrEmpty(validFromStr) && SkillUtcDateTimeParser.TryParse(validFromStr, out var parsedValidFrom))
         {
             validFrom = parsedValidFrom;
         }
 
         DateTime? validUntil = null;
-        if (!string.IsNullOrEmpty(validUntilStr) && DateTime.TryParse(validUntilStr, out var parsedValidUntil))
+        if (!string.IsNullOrEmpty(validUntilStr) && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedValidUntil))
         {
             validUntil = parsedValidUntil;
         }

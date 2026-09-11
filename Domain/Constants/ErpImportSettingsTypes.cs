@@ -12,5 +12,4 @@ public static class ErpImportSettingsTypes
     public const string NextRunUtc = "ERP_IMPORT_NEXT_RUN_UTC";
 
     public const string DefaultCronExpression = "0 * * * *";
-    public const string DefaultTimeZoneId = "Europe/Zurich";
 }
