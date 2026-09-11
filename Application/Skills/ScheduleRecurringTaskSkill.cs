@@ -30,6 +30,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Settings;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -84,7 +85,7 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
 
         var resolvedTimeZone = await ResolveTimeZoneAsync(timeZoneId, context, cancellationToken);
 
-        if (!CronSchedule.TryNormalizeTimeZoneId(resolvedTimeZone, out var normalizedTimeZone))
+        if (!IanaTimeZoneId.TryFrom(resolvedTimeZone, out var normalizedTimeZone))
         {
             return SkillResult.Error(
                 $"Unknown time zone '{resolvedTimeZone}'. Use a valid IANA time zone id (e.g. 'Continent/City').");

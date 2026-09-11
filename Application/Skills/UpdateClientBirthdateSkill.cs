@@ -15,9 +15,9 @@ using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
-using System.Globalization;
 using Klacks.Api.Application.DTOs.Staffs;
 
 using Klacks.Api.Application.Mappers;
@@ -60,13 +60,7 @@ public class UpdateClientBirthdateSkill : BaseSkillImplementation
         var lastName = GetRequiredString(parameters, "lastName");
         var birthdateStr = GetRequiredString(parameters, "birthdate");
 
-        // AssumeUniversal, because the column is 'timestamp with time zone': a DateTime parsed with
-        // Kind=Unspecified is rejected outright by Npgsql, which made every call fail at the database.
-        if (!DateTime.TryParse(
-                birthdateStr,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                out var birthdate))
+        if (!SkillUtcDateTimeParser.TryParse(birthdateStr, out var birthdate))
         {
             return SkillResult.Error($"Invalid birthdate format: '{birthdateStr}'. Expected YYYY-MM-DD.");
         }

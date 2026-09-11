@@ -35,7 +35,7 @@ public class ScheduleCommandKeywordProvider : IScheduleCommandKeywordProvider
             AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE,
             AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT,
             AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT,
-        ]);
+        ], cancellationToken);
         string Resolve(string settingType, string defaultValue) =>
             resolved.TryGetValue(settingType, out var value) && !string.IsNullOrWhiteSpace(value) ? value : defaultValue;
 

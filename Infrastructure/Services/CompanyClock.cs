@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Services.Settings;
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
 
 namespace Klacks.Api.Infrastructure.Services;
@@ -73,7 +74,7 @@ public class CompanyClock : ICompanyClock
             return _cachedResolution;
         }
 
-        var resolution = await ResolveTimeZoneAsync();
+        var resolution = await ResolveTimeZoneAsync(cancellationToken);
         _cachedResolution = resolution;
         _cachedZoneVersion = versionAtRead;
         return resolution;
@@ -86,47 +87,28 @@ public class CompanyClock : ICompanyClock
         SettingKeys.GlobalCalendarCountry
     ];
 
-    private async Task<CompanyTimeZoneResolution> ResolveTimeZoneAsync()
+    private async Task<CompanyTimeZoneResolution> ResolveTimeZoneAsync(CancellationToken cancellationToken)
     {
-        var settings = await _settingsReader.GetSettingsByTypesAsync(ZoneSettingTypes);
+        var settings = await _settingsReader.GetSettingsByTypesAsync(ZoneSettingTypes, cancellationToken);
 
         if (settings.TryGetValue(SettingsConstants.APP_ADDRESS_TIMEZONE, out var explicitId)
-            && TryGetTimeZone(explicitId, out var explicitZone))
+            && TimeZoneLookup.TryResolve(explicitId, out var explicitZone))
         {
-            return new CompanyTimeZoneResolution(explicitZone!, CompanyTimeZoneSource.Setting);
+            return new CompanyTimeZoneResolution(explicitZone, CompanyTimeZoneSource.Setting);
         }
 
         if (settings.TryGetValue(SettingsConstants.APP_ADDRESS_COUNTRY, out var country)
-            && TryGetTimeZone(CountryTimeZones.Resolve(country), out var countryZone))
+            && TimeZoneLookup.TryResolve(CountryTimeZones.Resolve(country), out var countryZone))
         {
-            return new CompanyTimeZoneResolution(countryZone!, CompanyTimeZoneSource.AddressCountry);
+            return new CompanyTimeZoneResolution(countryZone, CompanyTimeZoneSource.AddressCountry);
         }
 
         if (settings.TryGetValue(SettingKeys.GlobalCalendarCountry, out var calendarCountry)
-            && TryGetTimeZone(CountryTimeZones.Resolve(calendarCountry), out var calendarCountryZone))
+            && TimeZoneLookup.TryResolve(CountryTimeZones.Resolve(calendarCountry), out var calendarCountryZone))
         {
-            return new CompanyTimeZoneResolution(calendarCountryZone!, CompanyTimeZoneSource.CalendarCountry);
+            return new CompanyTimeZoneResolution(calendarCountryZone, CompanyTimeZoneSource.CalendarCountry);
         }
 
         return new CompanyTimeZoneResolution(TimeZoneInfo.Utc, CompanyTimeZoneSource.Utc);
-    }
-
-    private static bool TryGetTimeZone(string? timeZoneId, out TimeZoneInfo? zone)
-    {
-        zone = null;
-        if (string.IsNullOrWhiteSpace(timeZoneId))
-        {
-            return false;
-        }
-
-        try
-        {
-            zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId.Trim());
-            return true;
-        }
-        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            return false;
-        }
     }
 }

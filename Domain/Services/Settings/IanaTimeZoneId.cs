@@ -28,20 +28,13 @@ public static class IanaTimeZoneId
     /// </summary>
     public static bool TryFrom(string? timeZoneId, out string? ianaId)
     {
-        ianaId = null;
-        if (string.IsNullOrWhiteSpace(timeZoneId))
+        if (!TimeZoneLookup.TryResolve(timeZoneId, out var zone))
         {
+            ianaId = null;
             return false;
         }
 
-        try
-        {
-            ianaId = From(TimeZoneInfo.FindSystemTimeZoneById(timeZoneId.Trim()));
-            return true;
-        }
-        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            return false;
-        }
+        ianaId = From(zone);
+        return true;
     }
 }

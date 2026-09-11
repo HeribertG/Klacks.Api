@@ -11,6 +11,7 @@
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Services.Settings;
 
 namespace Klacks.Api.Application.Services.Assistant.Escalation;
 
@@ -40,7 +41,7 @@ public sealed record EscalationStageAlertTriggerEvent(
         ["date"] = TimeZoneInfo.ConvertTimeFromUtc(ShiftStartUtc, CompanyTimeZone)
             .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
         ["dueTime"] = TimeZoneInfo.ConvertTimeFromUtc(DueAtUtc, CompanyTimeZone)
-            .ToString("HH:mm", CultureInfo.InvariantCulture) + " " + CompanyTimeZone.Id
+            .ToString("HH:mm", CultureInfo.InvariantCulture) + " " + IanaTimeZoneId.From(CompanyTimeZone)
     };
 
     public string DedupKey => $"{StageId}:escalation-stage-alert";

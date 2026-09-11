@@ -118,7 +118,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     {
         var cronExpression = (await _settingsRepository.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, cancellationToken);
         // Read untracked on purpose: the occurrence is claimed through a conditional update that
         // bypasses the change tracker, so a tracked instance would keep the pre-claim value and any
         // later save in the same scope would silently roll the claim back.
