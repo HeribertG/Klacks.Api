@@ -1437,7 +1437,12 @@
     "status": "generated"
   },
   "shift-macro": {
-    "synonyms": [],
+    "synonyms": [
+      "班次巨集",
+      "班表巨集",
+      "排班巨集",
+      "輪班巨集"
+    ],
     "status": "generated"
   },
   "shift-qualifications": {

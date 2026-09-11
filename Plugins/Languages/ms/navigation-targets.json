@@ -1,7 +1,9 @@
 {
   "absence-detail": {
     "synonyms": [
-      "ketidakhadiran lanjutan"
+      "ketidakhadiran lanjutan",
+      "butiran ketidakhadiran",
+      "butiran ketidakhadiran lanjutan"
     ],
     "status": "generated"
   },
@@ -270,7 +272,9 @@
   },
   "llm-provider": {
     "synonyms": [
-      "pembekal llm"
+      "pembekal llm",
+      "penyedia llm",
+      "pembekal model bahasa"
     ],
     "status": "generated"
   },
@@ -551,7 +555,8 @@
   },
   "contract-form.name": {
     "synonyms": [
-      "nama kontrak"
+      "nama kontrak",
+      "nama borang kontrak"
     ],
     "status": "generated"
   },
@@ -604,7 +609,9 @@
   },
   "group-detail": {
     "synonyms": [
-      "halaman kumpulan"
+      "halaman kumpulan",
+      "butiran kumpulan",
+      "profil kumpulan"
     ],
     "status": "generated"
   },
@@ -890,7 +897,8 @@
   },
   "calendar-selection-form": {
     "synonyms": [
-      "borang pilihan kalendar"
+      "borang pilihan kalendar",
+      "tetapan pilihan kalendar"
     ],
     "status": "generated"
   },
@@ -1018,7 +1026,9 @@
   },
   "group-item": {
     "synonyms": [
-      "info kumpulan"
+      "info kumpulan",
+      "maklumat kumpulan",
+      "tetapan kumpulan"
     ],
     "status": "generated"
   },
@@ -1262,7 +1272,9 @@
   },
   "shift-address": {
     "synonyms": [
-      "alamat kerja"
+      "alamat kerja",
+      "alamat syif",
+      "alamat tempat kerja"
     ],
     "status": "generated"
   },
@@ -1288,7 +1300,10 @@
     "status": "generated"
   },
   "shift-item": {
-    "synonyms": [],
+    "synonyms": [
+      "kad syif",
+      "maklumat syif"
+    ],
     "status": "generated"
   },
   "shift-macro": {

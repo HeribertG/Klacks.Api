@@ -517,7 +517,14 @@
     "status": "generated"
   },
   "client-list": {
-    "synonyms": [],
+    "synonyms": [
+      "empleados",
+      "personal",
+      "plantilla",
+      "equipo",
+      "trabajadores",
+      "lista de empleados"
+    ],
     "status": "generated"
   },
   "container-template": {
@@ -987,13 +994,17 @@
   },
   "plan-execution-panel.abort": {
     "synonyms": [
-      "cancelación de plan"
+      "cancelación de plan",
+      "cancelación del plan",
+      "anulación del plan",
+      "interrupción del plan"
     ],
     "status": "generated"
   },
   "profile-messengers": {
     "synonyms": [
-      "mi mensajería"
+      "mi mensajería",
+      "mensajería del perfil"
     ],
     "status": "generated"
   },

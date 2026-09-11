@@ -351,7 +351,8 @@
   },
   "scheduling-defaults": {
     "synonyms": [
-      "προεπιλογές προγραμματισμού"
+      "προεπιλογές προγραμματισμού",
+      "προεπιλεγμένες ρυθμίσεις προγραμματισμού"
     ],
     "status": "generated"
   },
@@ -527,12 +528,21 @@
     "status": "generated"
   },
   "client-list": {
-    "synonyms": [],
+    "synonyms": [
+      "εργαζόμενοι",
+      "προσωπικό",
+      "υπάλληλοι",
+      "λίστα εργαζομένων",
+      "κατάλογος προσωπικού",
+      "συνεργάτες"
+    ],
     "status": "generated"
   },
   "container-template": {
     "synonyms": [
-      "πρότυπο περιέκτη"
+      "πρότυπο περιέκτη",
+      "πρότυπο περιέκτη βαρδιών",
+      "πρότυπο ομάδας βαρδιών"
     ],
     "status": "generated"
   },
@@ -721,7 +731,8 @@
   },
   "shift-form": {
     "synonyms": [
-      "νέα βάρδια"
+      "νέα βάρδια",
+      "επεξεργασία βάρδιας"
     ],
     "status": "generated"
   },
@@ -773,7 +784,9 @@
     "status": "generated"
   },
   "work-setting-form": {
-    "synonyms": [],
+    "synonyms": [
+      "ρυθμίσεις εργασίας"
+    ],
     "status": "generated"
   },
   "assistant-learning": {
@@ -895,13 +908,17 @@
   },
   "goal-candidates-panel.item": {
     "synonyms": [
-      "πάνελ υποψηφίων"
+      "πάνελ υποψηφίων",
+      "έγκριση υποψήφιων στόχων",
+      "κάρτα υποψήφιου στόχου"
     ],
     "status": "generated"
   },
   "goal-candidates-panel.reject": {
     "synonyms": [
-      "απορριφθέντες υποψήφιοι"
+      "απορριφθέντες υποψήφιοι",
+      "απόρριψη υποψηφίων",
+      "απορρίψεις υποψηφίων"
     ],
     "status": "generated"
   },
@@ -916,7 +933,10 @@
   },
   "individual-period-form": {
     "synonyms": [
-      "διαχείριση ατομικής περιόδου"
+      "διαχείριση ατομικής περιόδου",
+      "ατομική περίοδος",
+      "επεξεργασία ατομικής περιόδου",
+      "φόρμα ατομικής περιόδου"
     ],
     "status": "generated"
   },
@@ -1164,7 +1184,11 @@
     "status": "generated"
   },
   "personal-access-token-form": {
-    "synonyms": [],
+    "synonyms": [
+      "νέο token",
+      "προσωπικό token",
+      "προσωπικό token πρόσβασης"
+    ],
     "status": "generated"
   },
   "personal-access-tokens": {

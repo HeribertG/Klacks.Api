@@ -405,7 +405,10 @@
     "status": "generated"
   },
   "states": {
-    "synonyms": [],
+    "synonyms": [
+      "správa států",
+      "nastavení států"
+    ],
     "status": "generated"
   },
   "user-management": {
@@ -535,10 +538,12 @@
   },
   "client-list": {
     "synonyms": [
-      "klienti",
-      "seznam klientů",
-      "klientela",
-      "přehled klientů"
+      "zaměstnanci",
+      "seznam zaměstnanců",
+      "pracovníci",
+      "personál",
+      "přehled zaměstnanců",
+      "zaměstnanecký seznam"
     ],
     "status": "generated"
   },
@@ -797,7 +802,7 @@
   },
   "work-setting-form": {
     "synonyms": [
-      "nastavení pracoviště"
+      "nastavení plánování"
     ],
     "status": "generated"
   },

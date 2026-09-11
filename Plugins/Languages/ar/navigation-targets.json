@@ -417,12 +417,17 @@
     "status": "generated"
   },
   "work-setting": {
-    "synonyms": [],
+    "synonyms": [
+      "إعدادات العمل",
+      "إعدادات التخطيط"
+    ],
     "status": "generated"
   },
   "absence-detail-form": {
     "synonyms": [
-      "نموذج تعديل الغياب"
+      "نموذج تعديل الغياب",
+      "تعديل غياب",
+      "نموذج الغياب"
     ],
     "status": "generated"
   },
@@ -515,12 +520,21 @@
   },
   "client-detail.lastname": {
     "synonyms": [
-      "اسم العائلة"
+      "اسم العائلة",
+      "الاسم الأخير",
+      "اسم الأسرة"
     ],
     "status": "generated"
   },
   "client-list": {
-    "synonyms": [],
+    "synonyms": [
+      "موظفين",
+      "قائمة الموظفين",
+      "فريق العمل",
+      "كادر",
+      "طاقم العمل",
+      "سجل الموظفين"
+    ],
     "status": "generated"
   },
   "container-template": {
@@ -785,7 +799,9 @@
     "status": "generated"
   },
   "work-setting-form": {
-    "synonyms": [],
+    "synonyms": [
+      "نموذج إعدادات العمل"
+    ],
     "status": "generated"
   },
   "assistant-learning": {

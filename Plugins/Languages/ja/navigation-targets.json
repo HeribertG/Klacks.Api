@@ -451,7 +451,10 @@
   },
   "work-setting": {
     "synonyms": [
-      "プランニング基本設定"
+      "プランニング基本設定",
+      "プランニング設定",
+      "勤務プランニング設定",
+      "勤務設定"
     ],
     "status": "generated"
   },
@@ -578,10 +581,12 @@
   },
   "client-list": {
     "synonyms": [
-      "顧客一覧",
-      "クライアント一覧",
-      "取引先一覧",
-      "顧客リスト"
+      "従業員",
+      "スタッフ",
+      "従業員一覧",
+      "スタッフ一覧",
+      "社員一覧",
+      "社員名簿"
     ],
     "status": "generated"
   },
@@ -659,7 +664,10 @@
   },
   "group-detail": {
     "synonyms": [
-      "グループの詳細"
+      "グループの詳細",
+      "グループ詳細",
+      "グループ編集",
+      "グループ設定"
     ],
     "status": "generated"
   },
@@ -860,7 +868,10 @@
     "status": "generated"
   },
   "assistant-learning": {
-    "synonyms": [],
+    "synonyms": [
+      "アシスタントの学習",
+      "学習済みの項目"
+    ],
     "status": "generated"
   },
   "active-industries": {
@@ -1220,7 +1231,10 @@
     "status": "generated"
   },
   "group-item": {
-    "synonyms": [],
+    "synonyms": [
+      "グループ情報",
+      "グループデータ"
+    ],
     "status": "generated"
   },
   "group-members": {

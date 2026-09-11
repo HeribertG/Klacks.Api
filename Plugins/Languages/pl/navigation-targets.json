@@ -612,7 +612,10 @@
   },
   "group-detail": {
     "synonyms": [
-      "karta grupy"
+      "karta grupy",
+      "edycja grupy",
+      "szczegóły grupy",
+      "dane grupy"
     ],
     "status": "generated"
   },
@@ -891,7 +894,9 @@
   },
   "calendar-selection-form": {
     "synonyms": [
-      "ustawienia kalendarza"
+      "ustawienia kalendarza",
+      "edycja wyboru kalendarza",
+      "wybór kalendarzy świąt"
     ],
     "status": "generated"
   },
@@ -1015,7 +1020,8 @@
   },
   "group-item": {
     "synonyms": [
-      "informacje o grupie"
+      "informacje o grupie",
+      "ustawienia grupy"
     ],
     "status": "generated"
   },
@@ -1154,13 +1160,18 @@
   },
   "personal-access-token-form": {
     "synonyms": [
-      "nowy token"
+      "nowy token",
+      "nowy personal access token",
+      "generowanie tokena",
+      "formularz tokena"
     ],
     "status": "generated"
   },
   "personal-access-tokens": {
     "synonyms": [
-      "tokeny dostępu"
+      "tokeny dostępu",
+      "tokeny osobiste",
+      "personal access tokens"
     ],
     "status": "generated"
   },

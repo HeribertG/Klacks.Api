@@ -567,12 +567,11 @@
   },
   "client-list": {
     "synonyms": [
-      "kundlista",
-      "klientlista",
-      "kunder",
-      "klienter",
-      "kundregister",
-      "klientregister"
+      "anställda",
+      "medarbetare",
+      "personal",
+      "medarbetarlista",
+      "personallista"
     ],
     "status": "generated"
   },
@@ -854,7 +853,10 @@
   },
   "work-setting-form": {
     "synonyms": [
-      "planeringens grundinställningar"
+      "planeringens grundinställningar",
+      "planeringsinställningar",
+      "inställningar för planering",
+      "grundinställningar för planering"
     ],
     "status": "generated"
   },
@@ -1171,7 +1173,9 @@
     "status": "generated"
   },
   "address-persona": {
-    "synonyms": [],
+    "synonyms": [
+      "adressprofil"
+    ],
     "status": "generated"
   },
   "address-qualifications": {

@@ -1258,7 +1258,10 @@
     "status": "generated"
   },
   "group-item": {
-    "synonyms": [],
+    "synonyms": [
+      "ข้อมูลกลุ่ม",
+      "การตั้งค่ากลุ่ม"
+    ],
     "status": "generated"
   },
   "group-members": {

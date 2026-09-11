@@ -417,7 +417,11 @@
   },
   "states": {
     "synonyms": [
-      "geografiske indstillinger"
+      "geografiske indstillinger",
+      "stater",
+      "statsliste",
+      "statsopsætning",
+      "statskonfiguration"
     ],
     "status": "generated"
   },
@@ -434,7 +438,12 @@
   },
   "work-setting": {
     "synonyms": [
-      "arbejdstidsindstillinger"
+      "arbejdstidsindstillinger",
+      "planlægning grundindstillinger",
+      "planlægningsindstillinger",
+      "planlægningsopsætning",
+      "opsætning af planlægning",
+      "indstillinger for planlægning"
     ],
     "status": "generated"
   },
@@ -876,7 +885,9 @@
   },
   "compensatory-rest": {
     "synonyms": [
-      "afspadsering"
+      "afspadsering",
+      "kompenserende hvile",
+      "erstatningshvile"
     ],
     "status": "generated"
   },

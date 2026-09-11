@@ -556,7 +556,14 @@
     "status": "generated"
   },
   "client-list": {
-    "synonyms": [],
+    "synonyms": [
+      "työntekijät",
+      "henkilöstö",
+      "henkilökunta",
+      "työntekijälista",
+      "henkilöstölista",
+      "tiimi"
+    ],
     "status": "generated"
   },
   "container-template": {
@@ -736,7 +743,11 @@
   },
   "plan-execution-panel.approve": {
     "synonyms": [
-      "hyväksynnän vahvistus"
+      "hyväksynnän vahvistus",
+      "hyväksyntävaihe",
+      "hyväksymisnäkymä",
+      "suunnitelman toteutuksen hyväksyntä",
+      "hyväksyntä ja jatko"
     ],
     "status": "generated"
   },
@@ -799,7 +810,11 @@
   },
   "shift-list": {
     "synonyms": [
-      "vuoroluettelo"
+      "vuoroluettelo",
+      "työvuorot",
+      "vuorolista",
+      "työvuorolista",
+      "vuorotaulukko"
     ],
     "status": "generated"
   },

@@ -1,7 +1,9 @@
 {
   "absence-detail": {
     "synonyms": [
-      "ketidakhadiran lanjutan"
+      "ketidakhadiran lanjutan",
+      "detail ketidakhadiran",
+      "rincian ketidakhadiran"
     ],
     "status": "generated"
   },
@@ -431,7 +433,8 @@
   },
   "absence-detail-form": {
     "synonyms": [
-      "formulir ketidakhadiran"
+      "formulir ketidakhadiran",
+      "formulir ketidakhadiran lanjutan"
     ],
     "status": "generated"
   },
@@ -801,7 +804,9 @@
   },
   "work-setting-form": {
     "synonyms": [
-      "perencanaan dasar"
+      "perencanaan dasar",
+      "pengaturan perencanaan",
+      "pengaturan kerja"
     ],
     "status": "generated"
   },
@@ -826,7 +831,9 @@
   },
   "calendar-selection-form": {
     "synonyms": [
-      "kalender libur"
+      "kalender libur",
+      "pengaturan kalender",
+      "kalender hari libur"
     ],
     "status": "generated"
   },

@@ -424,7 +424,9 @@
   },
   "work-setting": {
     "synonyms": [
-      "setări de lucru"
+      "setări de lucru",
+      "setări planificare",
+      "configurare planificare"
     ],
     "status": "generated"
   },
@@ -746,13 +748,19 @@
   },
   "settings": {
     "synonyms": [
-      "setările aplicației"
+      "setările aplicației",
+      "configurare",
+      "preferințe",
+      "setări aplicație"
     ],
     "status": "generated"
   },
   "shift-form": {
     "synonyms": [
-      "formular de tură nouă"
+      "formular de tură nouă",
+      "formular tură",
+      "adăugare tură",
+      "creare tură"
     ],
     "status": "generated"
   },
@@ -1150,7 +1158,9 @@
   },
   "group-item": {
     "synonyms": [
-      "date grup"
+      "date grup",
+      "informații grup",
+      "setări grup"
     ],
     "status": "generated"
   },

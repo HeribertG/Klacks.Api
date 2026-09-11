@@ -554,12 +554,12 @@
   },
   "client-list": {
     "synonyms": [
-      "klienter",
-      "kunder",
-      "klientliste",
-      "kundeliste",
-      "klientoversikt",
-      "kundeoversikt"
+      "ansatte",
+      "medarbeidere",
+      "personal",
+      "ansattliste",
+      "medarbeiderliste",
+      "ansattoversikt"
     ],
     "status": "generated"
   },
@@ -840,7 +840,9 @@
   },
   "work-setting-form": {
     "synonyms": [
-      "arbeidsplassens grunninnstillinger"
+      "planleggingsinnstillinger",
+      "innstillinger for arbeidsplan",
+      "innstillinger for planlegging"
     ],
     "status": "generated"
   },

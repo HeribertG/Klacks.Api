@@ -563,10 +563,12 @@
   },
   "client-list": {
     "synonyms": [
-      "klantenlijst",
-      "klantenoverzicht",
-      "klantenbestand",
-      "klantenadministratie"
+      "medewerkers",
+      "personeel",
+      "team",
+      "medewerkerslijst",
+      "personeelslijst",
+      "medewerkersoverzicht"
     ],
     "status": "generated"
   },
@@ -825,7 +827,8 @@
   },
   "shift-list": {
     "synonyms": [
-      "ploegenrooster"
+      "ploegenrooster",
+      "dienstoverzicht"
     ],
     "status": "generated"
   },

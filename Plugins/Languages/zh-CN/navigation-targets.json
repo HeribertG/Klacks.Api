@@ -840,7 +840,10 @@
     "status": "generated"
   },
   "shift-list": {
-    "synonyms": [],
+    "synonyms": [
+      "班次列表",
+      "班次总览"
+    ],
     "status": "generated"
   },
   "updates": {
@@ -1011,7 +1014,10 @@
     "status": "generated"
   },
   "goal-candidates-panel.item": {
-    "synonyms": [],
+    "synonyms": [
+      "目标审批",
+      "目标候选审批"
+    ],
     "status": "generated"
   },
   "goal-candidates-panel.reject": {
@@ -1230,7 +1236,10 @@
     "status": "generated"
   },
   "group-item": {
-    "synonyms": [],
+    "synonyms": [
+      "分组信息",
+      "分组设置"
+    ],
     "status": "generated"
   },
   "group-members": {

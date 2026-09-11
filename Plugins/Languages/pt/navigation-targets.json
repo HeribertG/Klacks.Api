@@ -238,7 +238,8 @@
   },
   "klacksy-training": {
     "synonyms": [
-      "treinamento"
+      "treinamento",
+      "gestão de formação"
     ],
     "status": "generated"
   },
@@ -513,7 +514,14 @@
     "status": "generated"
   },
   "client-list": {
-    "synonyms": [],
+    "synonyms": [
+      "funcionários",
+      "lista de funcionários",
+      "colaboradores",
+      "equipe",
+      "pessoal",
+      "quadro de funcionários"
+    ],
     "status": "generated"
   },
   "container-template": {
@@ -730,7 +738,12 @@
     "status": "generated"
   },
   "shift-list": {
-    "synonyms": [],
+    "synonyms": [
+      "lista de turnos",
+      "visão geral de turnos",
+      "tipos de turnos",
+      "modelos de turnos"
+    ],
     "status": "generated"
   },
   "updates": {

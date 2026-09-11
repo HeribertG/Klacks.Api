@@ -596,7 +596,8 @@
   },
   "group-detail": {
     "synonyms": [
-      "trang nhóm"
+      "trang nhóm",
+      "chi tiết nhóm"
     ],
     "status": "generated"
   },
@@ -772,7 +773,10 @@
   },
   "work-setting-form": {
     "synonyms": [
-      "thiết lập lịch trình"
+      "thiết lập lịch trình",
+      "cài đặt lập kế hoạch",
+      "cấu hình lập kế hoạch",
+      "cài đặt công việc"
     ],
     "status": "generated"
   },
@@ -1080,7 +1084,10 @@
     "status": "generated"
   },
   "address-persona": {
-    "synonyms": [],
+    "synonyms": [
+      "hồ sơ địa chỉ",
+      "thông tin địa chỉ"
+    ],
     "status": "generated"
   },
   "assistant-skill-relations": {
@@ -1093,7 +1100,8 @@
   },
   "group-item": {
     "synonyms": [
-      "cài đặt nhóm"
+      "cài đặt nhóm",
+      "thông tin nhóm"
     ],
     "status": "generated"
   },
@@ -1162,7 +1170,8 @@
   },
   "personal-access-token-form": {
     "synonyms": [
-      "biểu mẫu token"
+      "biểu mẫu token",
+      "personal access token mới"
     ],
     "status": "generated"
   },
