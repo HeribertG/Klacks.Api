@@ -168,15 +168,15 @@ services:
 
   # Out-of-process auto-update executor. Must outlive klacks-api (it recreates that container), so it
   # runs separately with the Docker socket + compose project dir mounted. Reads/writes the shared
-  # update_history table. Phase 0.3 switches build: -> image: ghcr.io/heribertg/klacks-updater.
+  # update_history table. Phase 0.3 (done): runs from the public multi-arch image that
+  # HeribertG/Klacks.Updater's own build-push.yml pushes to ghcr.io/heribertg/klacks-updater on every
+  # push to main (:latest) and on v* tags — the server never builds it anymore. Pin a specific version
+  # by setting KLACKS_UPDATER_TAG in .env (defaults to :latest).
   klacks-updater:
     # Started explicitly via the "updater" profile (docker compose --profile updater up -d) so a plain
-    # `docker compose up` never touches it. Built from the cloned HeribertG/Klacks.Updater repo at
-    # /root/apps/Klacks.Updater (repo root holds the Klacks.Updater/ project subdir).
+    # `docker compose up` never touches it.
     profiles: ["updater"]
-    build:
-      context: ./Klacks.Updater
-      dockerfile: Klacks.Updater/Dockerfile
+    image: ghcr.io/heribertg/klacks-updater:${KLACKS_UPDATER_TAG:-latest}
     container_name: klacks-updater
     restart: unless-stopped
     environment:

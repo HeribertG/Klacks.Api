@@ -457,48 +457,33 @@ jobs:
           $COMPOSE_CMD up -d klacks-api
           $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
 
-          # Auto-update sidecar (out-of-process executor). Non-fatal: a build/start hiccup must never
+          # Auto-update sidecar (out-of-process executor). Non-fatal: a pull/start hiccup must never
           # fail the main deploy — api/ui keep running. Idles safely when there are no pending rows.
-          # Rebuilt only when the Klacks.Updater commit differs from the last successful build, and the
-          # build runs under its own timeout: on v1.0.30 (2026-09-11) an uncached build spent 2033 s in
-          # the apt layer and the whole SSH step hit its 30 min command_timeout although api/ui were
-          # already deployed. A skipped, failed or timed-out build keeps the existing updater image.
-          # `up --no-build` is essential: the service has only a build: stanza, so a plain `up -d`
-          # would silently start the same unbounded build whenever the image is missing.
-          UPDATER_BUILD_TIMEOUT_SECONDS=900
+          # Pulled from the public ghcr image (HeribertG/Klacks.Updater's own build-push.yml builds and
+          # pushes it) instead of building it on the server: on v1.0.30 (2026-09-11) an uncached server
+          # build spent 2033 s in the apt layer and the whole SSH step hit its 30 min command_timeout
+          # although api/ui were already deployed. A failed pull keeps the existing updater image.
+          # `--no-build` is kept as a guard: the service has no build: stanza anymore, so compose can
+          # only pull — the flag ensures a future build: stanza could never silently reintroduce the
+          # 2033 s server build.
+          UPDATER_PULL_TIMEOUT_SECONDS=300
           UPDATER_START_TIMEOUT_SECONDS=120
-          UPDATER_REPO_DIR=/root/apps/Klacks.Updater
-          UPDATER_IMAGE=apps-klacks-updater
-          UPDATER_STAMP_FILE=/root/apps/.klacks-updater-built-commit
-          UPDATER_BUILD_LOG=/tmp/klacks-updater-build.log
-          UPDATER_HEAD=$(git -C "$UPDATER_REPO_DIR" rev-parse HEAD 2>/dev/null || echo "")
-          UPDATER_BUILT=$(cat "$UPDATER_STAMP_FILE" 2>/dev/null || echo "")
-          if [ -n "$UPDATER_HEAD" ] && [ "$UPDATER_HEAD" = "$UPDATER_BUILT" ] && docker image inspect "$UPDATER_IMAGE" >/dev/null 2>&1; then
-            echo "⏭️  klacks-updater image is current (Klacks.Updater ${UPDATER_HEAD}), skipping rebuild"
+          UPDATER_PULL_LOG=/tmp/klacks-updater-pull.log
+          echo "📥 Pulling klacks-updater image (timeout ${UPDATER_PULL_TIMEOUT_SECONDS}s)..."
+          if timeout -k 10 "$UPDATER_PULL_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater pull klacks-updater >"$UPDATER_PULL_LOG" 2>&1; then
+            tail -3 "$UPDATER_PULL_LOG" || true
+            echo "✅ klacks-updater image pulled"
           else
-            echo "🔄 Rebuilding klacks-updater sidecar (Klacks.Updater ${UPDATER_HEAD:-unknown}, last built ${UPDATER_BUILT:-never}, timeout ${UPDATER_BUILD_TIMEOUT_SECONDS}s)..."
-            if timeout -k 30 "$UPDATER_BUILD_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater build klacks-updater >"$UPDATER_BUILD_LOG" 2>&1; then
-              tail -3 "$UPDATER_BUILD_LOG" || true
-              if [ -n "$UPDATER_HEAD" ]; then
-                echo "$UPDATER_HEAD" > "$UPDATER_STAMP_FILE"
-              fi
-              echo "✅ klacks-updater image rebuilt"
-            else
-              UPDATER_BUILD_RC=$?
-              tail -3 "$UPDATER_BUILD_LOG" || true
-              if [ "$UPDATER_BUILD_RC" -eq 124 ] || [ "$UPDATER_BUILD_RC" -eq 137 ]; then
-                echo "⚠️  updater build timed out after ${UPDATER_BUILD_TIMEOUT_SECONDS}s (exit $UPDATER_BUILD_RC, non-fatal) — keeping the existing updater, rebuild retried on the next deploy"
-              else
-                echo "⚠️  updater build failed (exit $UPDATER_BUILD_RC, non-fatal) — keeping the existing updater, rebuild retried on the next deploy"
-              fi
-            fi
+            UPDATER_PULL_RC=$?
+            tail -3 "$UPDATER_PULL_LOG" || true
+            echo "⚠️  updater pull failed (exit $UPDATER_PULL_RC, non-fatal) — keeping the existing updater, retried on the next deploy"
           fi
           echo "🔄 Ensuring klacks-updater sidecar is up (profile: updater)..."
-          if timeout -k 10 "$UPDATER_START_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater up -d --no-build klacks-updater >"$UPDATER_BUILD_LOG" 2>&1; then
-            tail -3 "$UPDATER_BUILD_LOG" || true
+          if timeout -k 10 "$UPDATER_START_TIMEOUT_SECONDS" $COMPOSE_CMD --profile updater up -d --no-build klacks-updater >"$UPDATER_PULL_LOG" 2>&1; then
+            tail -3 "$UPDATER_PULL_LOG" || true
           else
             UPDATER_START_RC=$?
-            tail -3 "$UPDATER_BUILD_LOG" || true
+            tail -3 "$UPDATER_PULL_LOG" || true
             echo "⚠️  updater start failed (exit $UPDATER_START_RC, non-fatal)"
           fi
 
