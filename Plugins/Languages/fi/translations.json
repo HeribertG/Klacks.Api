@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Kieli",
   "settings.language-plugins.header.status": "Tila",
   "settings.language-plugins.header.version": "Versio",
+  "settings.language-plugins.index-rebuild-hint": "Klacksyn hakuindeksiä rakennetaan uudelleen taustalla (tämä voi kestää jopa 20 minuuttia).",
+  "settings.language-plugins.index-rebuild-running": "Hakuindeksiä rakennetaan uudelleen...",
   "settings.language-plugins.marketplace.author": "Tekijä",
   "settings.language-plugins.marketplace.coverage": "Kattavuus",
   "settings.language-plugins.marketplace.downloads": "Lataukset",

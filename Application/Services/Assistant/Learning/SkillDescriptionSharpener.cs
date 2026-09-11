@@ -136,7 +136,7 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         skill.Description = proposal.ValueAfter;
         skill.Version += 1;
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
-        await _catalogRefresher.RefreshAsync($"applying description proposal {proposal.Id}", cancellationToken);
+        await _catalogRefresher.RefreshAndWaitForIndexAsync($"applying description proposal {proposal.Id}", cancellationToken);
 
         // The gate can only be measured on the live description, so until the verdict stands the
         // description is put back in the finally - on a red gate exactly as on a probe that throws.
@@ -208,7 +208,7 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         skill.Description = original;
         skill.Version += 1;
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
-        await _catalogRefresher.RefreshAsync($"reverting description proposal {proposalId}", cancellationToken);
+        await _catalogRefresher.RefreshAndWaitForIndexAsync($"reverting description proposal {proposalId}", cancellationToken);
     }
 
     private async Task MarkAsync(ProposedSkillChange proposal, string status, CancellationToken cancellationToken)

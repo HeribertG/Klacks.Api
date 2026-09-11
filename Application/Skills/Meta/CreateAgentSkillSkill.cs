@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Meta-skill that creates a new UiAction skill at runtime, persists it to the database,
-/// and reloads the skill registry so the new skill is immediately available.
+/// and reloads the skill registry so the new skill is immediately available to keyword matching;
+/// the knowledge index used by semantic retrieval is rebuilt in the background.
 /// </summary>
 /// <param name="name">Skill name in snake_case (required)</param>
 /// <param name="description">LLM-facing description (required)</param>
@@ -124,7 +125,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             new { SkillName = name },
-            $"Skill '{name}' created and immediately available.");
+            $"Skill '{name}' created. Its trigger keywords work immediately; semantic search finds it once the background index rebuild has finished.");
     }
 
     /// <summary>

@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "שפה",
   "settings.language-plugins.header.status": "סטטוס",
   "settings.language-plugins.header.version": "גרסה",
+  "settings.language-plugins.index-rebuild-hint": "אינדקס החיפוש של Klacksy נבנה מחדש ברקע (הפעולה עשויה להימשך עד 20 דקות).",
+  "settings.language-plugins.index-rebuild-running": "אינדקס החיפוש נבנה מחדש...",
   "settings.language-plugins.marketplace.author": "מחבר",
   "settings.language-plugins.marketplace.coverage": "כיסוי",
   "settings.language-plugins.marketplace.downloads": "הורדות",

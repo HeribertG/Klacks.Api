@@ -218,7 +218,7 @@ public class CapabilityLearner : ICapabilityLearner
         {
             await _recipeRepository.AddAsync(recipe, cancellationToken);
             await WriteTriggerPhrasesAsync(recipe.Name, verdict.Trigger!, cancellationToken);
-            await _catalogRefresher.RefreshAsync(ActivationReason, cancellationToken);
+            await _catalogRefresher.RefreshAndWaitForIndexAsync(ActivationReason, cancellationToken);
 
             // The one question that needs the row to exist: the engine walks every enabled recipe in
             // sort order, so only it can say whether this wish now reaches this recipe rather than an
@@ -322,7 +322,7 @@ public class CapabilityLearner : ICapabilityLearner
                 [],
                 cancellationToken: cancellationToken);
 
-            await _catalogRefresher.RefreshAsync(RollbackReason, cancellationToken);
+            await _catalogRefresher.RefreshAndWaitForIndexAsync(RollbackReason, cancellationToken);
         }
         catch (Exception exception)
         {

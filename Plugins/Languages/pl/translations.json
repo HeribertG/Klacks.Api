@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Język",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Wersja",
+  "settings.language-plugins.index-rebuild-hint": "Indeks wyszukiwania Klacksy jest odbudowywany w tle (może to potrwać do 20 minut).",
+  "settings.language-plugins.index-rebuild-running": "Trwa odbudowa indeksu wyszukiwania...",
   "settings.language-plugins.marketplace.author": "Autor",
   "settings.language-plugins.marketplace.coverage": "Pokrycie",
   "settings.language-plugins.marketplace.downloads": "Pobrania",

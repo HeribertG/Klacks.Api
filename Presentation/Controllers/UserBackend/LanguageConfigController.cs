@@ -8,6 +8,8 @@ using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,7 @@ public class LanguageConfigController : ControllerBase
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IMarketplaceClientService _marketplaceClient;
     private readonly ISettingsReader _settingsReader;
+    private readonly IKnowledgeIndexSyncScheduler _knowledgeIndexSyncScheduler;
     private readonly ILogger<LanguageConfigController> _logger;
 
     public LanguageConfigController(
@@ -37,6 +40,7 @@ public class LanguageConfigController : ControllerBase
         IFeaturePluginService featurePluginService,
         IMarketplaceClientService marketplaceClient,
         ISettingsReader settingsReader,
+        IKnowledgeIndexSyncScheduler knowledgeIndexSyncScheduler,
         ILogger<LanguageConfigController> logger)
     {
         _configuration = configuration;
@@ -44,6 +48,7 @@ public class LanguageConfigController : ControllerBase
         _featurePluginService = featurePluginService;
         _marketplaceClient = marketplaceClient;
         _settingsReader = settingsReader;
+        _knowledgeIndexSyncScheduler = knowledgeIndexSyncScheduler;
         _logger = logger;
     }
 
@@ -187,6 +192,13 @@ public class LanguageConfigController : ControllerBase
             return BadRequest("Language plugin not found or is a core language");
 
         return Ok();
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
+    [HttpGet("knowledge-index/sync-status")]
+    public ActionResult<KnowledgeIndexSyncStatus> GetKnowledgeIndexSyncStatus()
+    {
+        return Ok(_knowledgeIndexSyncScheduler.Status);
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

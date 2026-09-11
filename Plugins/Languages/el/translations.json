@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Γλώσσα",
   "settings.language-plugins.header.status": "Κατάσταση",
   "settings.language-plugins.header.version": "Έκδοση",
+  "settings.language-plugins.index-rebuild-hint": "Το ευρετήριο αναζήτησης του Klacksy αναδημιουργείται στο παρασκήνιο (αυτό μπορεί να διαρκέσει έως και 20 λεπτά).",
+  "settings.language-plugins.index-rebuild-running": "Αναδημιουργία ευρετηρίου αναζήτησης...",
   "settings.language-plugins.marketplace.author": "Συγγραφέας",
   "settings.language-plugins.marketplace.coverage": "Κάλυψη",
   "settings.language-plugins.marketplace.downloads": "Λήψεις",

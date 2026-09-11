@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "语言",
   "settings.language-plugins.header.status": "状态",
   "settings.language-plugins.header.version": "版本",
+  "settings.language-plugins.index-rebuild-hint": "Klacksy 的搜索索引正在后台重建（最多可能需要 20 分钟）。",
+  "settings.language-plugins.index-rebuild-running": "正在重建搜索索引...",
   "settings.language-plugins.marketplace.author": "作者",
   "settings.language-plugins.marketplace.coverage": "覆盖率",
   "settings.language-plugins.marketplace.downloads": "下载量",

@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "ภาษา",
   "settings.language-plugins.header.status": "สถานะ",
   "settings.language-plugins.header.version": "เวอร์ชัน",
+  "settings.language-plugins.index-rebuild-hint": "กำลังสร้างดัชนีการค้นหาของ Klacksy ใหม่ในเบื้องหลัง (อาจใช้เวลานานถึง 20 นาที)",
+  "settings.language-plugins.index-rebuild-running": "กำลังสร้างดัชนีการค้นหาใหม่...",
   "settings.language-plugins.marketplace.author": "ผู้เขียน",
   "settings.language-plugins.marketplace.coverage": "ครอบคลุม",
   "settings.language-plugins.marketplace.downloads": "ดาวน์โหลด",

@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "言語",
   "settings.language-plugins.header.status": "状態",
   "settings.language-plugins.header.version": "バージョン",
+  "settings.language-plugins.index-rebuild-hint": "Klacksyの検索インデックスをバックグラウンドで再構築しています（最大20分かかる場合があります）。",
+  "settings.language-plugins.index-rebuild-running": "検索インデックスを再構築中...",
   "settings.language-plugins.marketplace.author": "作成者",
   "settings.language-plugins.marketplace.coverage": "カバー率",
   "settings.language-plugins.marketplace.downloads": "ダウンロード",

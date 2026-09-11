@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Sprog",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Version",
+  "settings.language-plugins.index-rebuild-hint": "Søgeindekset for Klacksy genopbygges i baggrunden (det kan tage op til 20 minutter).",
+  "settings.language-plugins.index-rebuild-running": "Søgeindekset genopbygges...",
   "settings.language-plugins.marketplace.author": "Forfatter",
   "settings.language-plugins.marketplace.coverage": "Dækning",
   "settings.language-plugins.marketplace.downloads": "Downloads",

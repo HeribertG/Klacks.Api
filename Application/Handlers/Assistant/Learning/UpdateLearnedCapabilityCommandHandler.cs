@@ -7,7 +7,7 @@
 /// recipe is retrieved through.
 /// </summary>
 /// <param name="recipeRepository">Recipe store</param>
-/// <param name="catalogRefresher">Rebuilds the skill catalogue and the knowledge index</param>
+/// <param name="catalogRefresher">Rebuilds the skill catalogue and schedules the background knowledge index sync</param>
 
 using Klacks.Api.Application.Commands.Assistant.Learning;
 using Klacks.Api.Application.Services.Assistant;

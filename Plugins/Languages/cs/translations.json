@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Jazyk",
   "settings.language-plugins.header.status": "Stav",
   "settings.language-plugins.header.version": "Verze",
+  "settings.language-plugins.index-rebuild-hint": "Vyhledávací index Klacksy se na pozadí znovu sestavuje (může to trvat až 20 minut).",
+  "settings.language-plugins.index-rebuild-running": "Vyhledávací index se znovu sestavuje...",
   "settings.language-plugins.marketplace.author": "Autor",
   "settings.language-plugins.marketplace.coverage": "Pokrytí",
   "settings.language-plugins.marketplace.downloads": "Stažení",

@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Bahasa",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Versi",
+  "settings.language-plugins.index-rebuild-hint": "Indeks carian Klacksy sedang dibina semula di latar belakang (ini mungkin mengambil masa sehingga 20 minit).",
+  "settings.language-plugins.index-rebuild-running": "Indeks carian sedang dibina semula...",
   "settings.language-plugins.marketplace.author": "Pengarang",
   "settings.language-plugins.marketplace.coverage": "Liputan",
   "settings.language-plugins.marketplace.downloads": "Muat turun",

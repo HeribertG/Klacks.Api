@@ -157,10 +157,12 @@ public class PhraseLearner : IPhraseLearner
             return PhraseLearningOutcome.Failure(duplicate);
         }
 
-        // The refresher swallows a failing index sync by design, so a probe can run against an index that
-        // does not contain the new phrase yet. That error is one-directional: the phrase looks useless and
-        // is withdrawn, never useful when it is not, and the cluster comes back for another round.
-        await _catalogRefresher.RefreshAsync(ActivationReason, cancellationToken);
+        // The probes below read the knowledge index, so the refresh waits for a sync that started after
+        // the insert. The sync scheduler swallows a failing sync by design, so a probe can still run
+        // against an index that does not contain the new phrase yet. That error is one-directional: the
+        // phrase looks useless and is withdrawn, never useful when it is not, and the cluster comes back
+        // for another round.
+        await _catalogRefresher.RefreshAndWaitForIndexAsync(ActivationReason, cancellationToken);
 
         var excerptProbe = await _routingOracle.ProbeAsync(
             cluster.IntentExcerpt, cluster.Locale, skillName, cancellationToken);
@@ -189,7 +191,7 @@ public class PhraseLearner : IPhraseLearner
         }
 
         await _phraseRepository.SetStatusAsync(phraseId.Value, SkillPhraseStatuses.Rejected, cancellationToken);
-        await _catalogRefresher.RefreshAsync(RollbackReason, cancellationToken);
+        await _catalogRefresher.RefreshAndWaitForIndexAsync(RollbackReason, cancellationToken);
 
         await _candidateRepository.UpdateVerdictAsync(
             candidate.Id, SkillLearningCandidateStatuses.RoutingFailed, routingJson, null, failure, null,

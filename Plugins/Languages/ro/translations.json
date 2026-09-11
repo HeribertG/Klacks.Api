@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Limbă",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Versiune",
+  "settings.language-plugins.index-rebuild-hint": "Indexul de căutare al lui Klacksy este reconstruit în fundal (poate dura până la 20 de minute).",
+  "settings.language-plugins.index-rebuild-running": "Se reconstruiește indexul de căutare...",
   "settings.language-plugins.marketplace.author": "Autor",
   "settings.language-plugins.marketplace.coverage": "Acoperire",
   "settings.language-plugins.marketplace.downloads": "Descărcări",

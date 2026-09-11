@@ -8,21 +8,27 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
-/// Runs the knowledge index synchronization after application startup and reports which retrieval
-/// stack the process actually resolved. Failures are logged but do not block startup.
+/// Runs the knowledge index synchronization during application startup and reports which retrieval
+/// stack the process actually resolved. The sync goes through the scheduler, so it can never run in
+/// parallel with one requested by a catalogue change; host start still waits for it. Failures are
+/// logged but do not block startup.
 /// </summary>
-/// <param name="serviceProvider">Root provider used to resolve the scoped index services.</param>
+/// <param name="serviceProvider">Root provider used to resolve the scoped retrieval providers for the stack report.</param>
+/// <param name="syncScheduler">Single-flight scheduler that executes the sync.</param>
 /// <param name="logger">Logger for startup diagnostics and error reporting.</param>
 public sealed class KnowledgeIndexStartupService : IHostedService
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly IKnowledgeIndexSyncScheduler _syncScheduler;
     private readonly ILogger<KnowledgeIndexStartupService> _logger;
 
     public KnowledgeIndexStartupService(
         IServiceProvider serviceProvider,
+        IKnowledgeIndexSyncScheduler syncScheduler,
         ILogger<KnowledgeIndexStartupService> logger)
     {
         _serviceProvider = serviceProvider;
+        _syncScheduler = syncScheduler;
         _logger = logger;
     }
 
@@ -30,11 +36,24 @@ public sealed class KnowledgeIndexStartupService : IHostedService
     {
         try
         {
-            using var scope = _serviceProvider.CreateScope();
-            LogActiveRetrievalStack(scope.ServiceProvider);
-            var synchronizer = scope.ServiceProvider.GetRequiredService<IKnowledgeIndexSynchronizer>();
-            await synchronizer.SyncAsync(ct);
-            _logger.LogInformation("Knowledge index sync completed at startup.");
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                LogActiveRetrievalStack(scope.ServiceProvider);
+            }
+
+            await _syncScheduler.RunNowAsync(KnowledgeIndexSyncConstants.StartupReason, ct);
+
+            var status = _syncScheduler.Status;
+            if (status.LastCompletedUtc.HasValue
+                && (!status.LastFailedUtc.HasValue || status.LastCompletedUtc >= status.LastFailedUtc))
+            {
+                _logger.LogInformation("Knowledge index sync completed at startup.");
+                return;
+            }
+
+            _logger.LogWarning(
+                "Knowledge index sync did not complete at startup (last error: {Error}). Skill retrieval is degraded.",
+                status.LastError);
         }
         catch (Exception ex)
         {

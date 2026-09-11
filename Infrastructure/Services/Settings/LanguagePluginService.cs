@@ -291,7 +291,9 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallCountryAsync(scope, code);
 
         // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
-        // keeps matching on the pre-install keywords until the next application start.
+        // keeps matching on the pre-install keywords until the next application start. The index sync
+        // only gets scheduled here: a new language re-embeds several hundred entries (~20 min), far
+        // beyond the proxy timeout, so semantic retrieval catches up in the background.
         await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>()
             .RefreshAsync($"installing language plugin '{code}'");
 

@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Språk",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Version",
+  "settings.language-plugins.index-rebuild-hint": "Sökindexet för Klacksy byggs om i bakgrunden (det kan ta upp till 20 minuter).",
+  "settings.language-plugins.index-rebuild-running": "Sökindexet byggs om...",
   "settings.language-plugins.marketplace.author": "Författare",
   "settings.language-plugins.marketplace.coverage": "Täckning",
   "settings.language-plugins.marketplace.downloads": "Nedladdningar",

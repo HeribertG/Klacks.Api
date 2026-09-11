@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Idioma",
   "settings.language-plugins.header.status": "Estado",
   "settings.language-plugins.header.version": "Versão",
+  "settings.language-plugins.index-rebuild-hint": "O índice de pesquisa do Klacksy está a ser reconstruído em segundo plano (pode demorar até 20 minutos).",
+  "settings.language-plugins.index-rebuild-running": "A reconstruir o índice de pesquisa...",
   "settings.language-plugins.marketplace.author": "Autor",
   "settings.language-plugins.marketplace.coverage": "Cobertura",
   "settings.language-plugins.marketplace.downloads": "Downloads",

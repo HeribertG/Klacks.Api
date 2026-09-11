@@ -11,7 +11,7 @@
 /// </summary>
 /// <param name="phraseRepository">Learned trigger phrases</param>
 /// <param name="proposalRepository">Proposed description changes</param>
-/// <param name="catalogRefresher">Rebuilds the skill catalogue and the knowledge index after a phrase change</param>
+/// <param name="catalogRefresher">Rebuilds the skill catalogue and schedules the background knowledge index sync after a phrase change</param>
 
 using Klacks.Api.Application.Commands.Assistant.Learning;
 using Klacks.Api.Application.Services.Assistant;

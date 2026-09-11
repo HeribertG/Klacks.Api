@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "언어",
   "settings.language-plugins.header.status": "상태",
   "settings.language-plugins.header.version": "버전",
+  "settings.language-plugins.index-rebuild-hint": "Klacksy의 검색 인덱스를 백그라운드에서 재구축하고 있습니다(최대 20분 정도 걸릴 수 있습니다).",
+  "settings.language-plugins.index-rebuild-running": "검색 인덱스 재구축 중...",
   "settings.language-plugins.marketplace.author": "작성자",
   "settings.language-plugins.marketplace.coverage": "커버리지",
   "settings.language-plugins.marketplace.downloads": "다운로드",

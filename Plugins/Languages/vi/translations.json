@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Ngôn ngữ",
   "settings.language-plugins.header.status": "Trạng thái",
   "settings.language-plugins.header.version": "Phiên bản",
+  "settings.language-plugins.index-rebuild-hint": "Chỉ mục tìm kiếm của Klacksy đang được xây dựng lại trong nền (quá trình này có thể mất đến 20 phút).",
+  "settings.language-plugins.index-rebuild-running": "Đang xây dựng lại chỉ mục tìm kiếm...",
   "settings.language-plugins.marketplace.author": "Tác giả",
   "settings.language-plugins.marketplace.coverage": "Phạm vi",
   "settings.language-plugins.marketplace.downloads": "Lượt tải",

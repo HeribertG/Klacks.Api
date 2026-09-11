@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "اللغة",
   "settings.language-plugins.header.status": "الحالة",
   "settings.language-plugins.header.version": "الإصدار",
+  "settings.language-plugins.index-rebuild-hint": "يُعاد بناء فهرس البحث الخاص بـ Klacksy في الخلفية (قد يستغرق ذلك حتى 20 دقيقة).",
+  "settings.language-plugins.index-rebuild-running": "جارٍ إعادة بناء فهرس البحث...",
   "settings.language-plugins.marketplace.author": "المؤلف",
   "settings.language-plugins.marketplace.coverage": "التغطية",
   "settings.language-plugins.marketplace.downloads": "التنزيلات",

@@ -85,6 +85,7 @@ using Klacks.Api.KnowledgeIndex.Application.Services;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Api;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Persistence;
+using Klacks.Api.KnowledgeIndex.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -1140,6 +1141,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeEmbeddingSnapshotExporter, KnowledgeEmbeddingSnapshotExporter>();
 
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
+
+        // Singleton, because the single-flight gate and the coalescing flag only mean something
+        // process-wide. It resolves the scoped synchronizer from a fresh scope per run.
+        services.AddSingleton<IKnowledgeIndexSyncScheduler, KnowledgeIndexSyncScheduler>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
         // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn. Note the

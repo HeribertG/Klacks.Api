@@ -3451,6 +3451,8 @@
   "settings.language-plugins.header.language": "Taal",
   "settings.language-plugins.header.status": "Status",
   "settings.language-plugins.header.version": "Versie",
+  "settings.language-plugins.index-rebuild-hint": "De zoekindex van Klacksy wordt op de achtergrond opnieuw opgebouwd (dit kan tot 20 minuten duren).",
+  "settings.language-plugins.index-rebuild-running": "Zoekindex wordt opnieuw opgebouwd...",
   "settings.language-plugins.marketplace.author": "Auteur",
   "settings.language-plugins.marketplace.coverage": "Dekking",
   "settings.language-plugins.marketplace.downloads": "Downloads",
