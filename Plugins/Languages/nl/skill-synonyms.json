@@ -2019,6 +2019,12 @@
     "zoek macro op naam",
     "toon alle macro's"
   ],
+  "list_messaging_providers": [
+    "welke berichtenkanalen zijn actief",
+    "lijst van messaging-providers",
+    "welke chat-apps zijn gekoppeld",
+    "status van telegram en whatsapp"
+  ],
   "list_monthly_target_hours": [
     "welke maanden hebben een doelstelling",
     "toon de doeluren per maand",
@@ -2275,6 +2281,12 @@
     "toon de inhoud van het bericht",
     "lees de e-mail van afzender"
   ],
+  "read_messages": [
+    "lees berichten op telegram",
+    "bekijk whatsapp berichten",
+    "toon ontvangen sms",
+    "laatste chatberichten weergeven"
+  ],
   "read_schedule_state": [
     "toon het huidige plan",
     "wie is ingepland op deze dag",
@@ -2452,6 +2464,13 @@
     "laat alle groepen zien",
     "selecteer afdeling...",
     "groep... weergeven"
+  ],
+  "send_message": [
+    "stuur bericht via telegram",
+    "stuur bericht via whatsapp",
+    "stuur sms naar medewerker",
+    "stuur bericht naar klant",
+    "chat met iemand"
   ],
   "set_autonomy_level": [
     "zet mijn autonomieniveau op 2",

@@ -1988,6 +1988,12 @@
     "hitta makro-id för att ta bort",
     "list alla sparade formler"
   ],
+  "list_messaging_providers": [
+    "lista meddelandekanaler",
+    "vilka meddelandekanaler är konfigurerade",
+    "visa konfigurerade meddelandetjänster",
+    "vilka meddelandeleverantörer finns"
+  ],
   "list_monthly_target_hours": [
     "visa månatliga måltimmar",
     "vilka månader har timmar inlagda",
@@ -2240,6 +2246,12 @@
     "visa mailinnehåll",
     "läs meddelandet"
   ],
+  "read_messages": [
+    "läs meddelanden",
+    "visa mottagna meddelanden",
+    "se meddelanden på whatsapp",
+    "kontrollera senaste meddelandena"
+  ],
   "read_schedule_state": [
     "visa schemat",
     "vem är schemalagd",
@@ -2413,6 +2425,13 @@
     "byt till gruppen",
     "visa alla grupper",
     "välj grupp"
+  ],
+  "send_message": [
+    "skicka meddelande till",
+    "skicka ett sms till",
+    "skicka meddelande på whatsapp",
+    "skriv ett meddelande till",
+    "skicka ett meddelande till någon"
   ],
   "set_autonomy_level": [
     "arbeta autonomt",

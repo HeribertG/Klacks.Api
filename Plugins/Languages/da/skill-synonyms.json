@@ -1992,6 +1992,13 @@
     "liste over formler",
     "søg efter makro"
   ],
+  "list_messaging_providers": [
+    "hvilke messengere er sat op",
+    "liste over beskedkanaler",
+    "hvilke chatkanaler er aktive",
+    "tilgængelige messengere",
+    "oversigt over beskedudbydere"
+  ],
   "list_monthly_target_hours": [
     "vis månedlige måltimer",
     "hvad er måltimerne for hver måned",
@@ -2244,6 +2251,13 @@
     "vis indholdet af mail 17",
     "hvad står der i mailen fra kunden?"
   ],
+  "read_messages": [
+    "læs beskeder",
+    "vis seneste beskeder",
+    "hvad har jeg fået af beskeder",
+    "læs sms'er",
+    "vis telegram-beskeder"
+  ],
   "read_schedule_state": [
     "vis vagtplan for gruppe",
     "hvem er på vagt i perioden",
@@ -2420,6 +2434,13 @@
     "vis alle grupper",
     "vælg gruppen københavn",
     "vis vagter for team b"
+  ],
+  "send_message": [
+    "send en besked",
+    "skriv til nogen",
+    "send sms",
+    "send besked på whatsapp",
+    "send telegram-besked"
   ],
   "set_autonomy_level": [
     "arbejd frit",

@@ -2008,6 +2008,13 @@
     "filtra los macros de cálculo por nombre",
     "qué cálculos automáticos están creados"
   ],
+  "list_messaging_providers": [
+    "qué mensajerías están configuradas",
+    "lista de canales de mensajería",
+    "qué apps de chat están activas",
+    "proveedores de mensajería disponibles",
+    "canales de chat configurados"
+  ],
   "list_monthly_target_hours": [
     "¿qué meses tienen horas objetivo definidas?",
     "muéstrame las horas objetivo mensuales",
@@ -2267,6 +2274,13 @@
     "qué dice el email",
     "mostrar el texto del correo"
   ],
+  "read_messages": [
+    "leer mensajes",
+    "ver los últimos mensajes",
+    "qué me han escrito",
+    "mensajes de whatsapp recientes",
+    "leer los sms"
+  ],
   "read_schedule_state": [
     "ver el plan de turnos",
     "mostrar horario actual",
@@ -2445,6 +2459,13 @@
     "selecciona el grupo de logística",
     "enséñame todos los grupos otra vez",
     "pon el filtro de grupo en 'todos'"
+  ],
+  "send_message": [
+    "enviar un mensaje",
+    "escribir a alguien",
+    "enviar un sms",
+    "enviar mensaje de whatsapp",
+    "mandar mensaje por telegram"
   ],
   "set_autonomy_level": [
     "trabaja de forma más autónoma",

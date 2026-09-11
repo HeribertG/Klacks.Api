@@ -2015,6 +2015,13 @@
     "jaká mám makra?",
     "filtruj makra podle názvu"
   ],
+  "list_messaging_providers": [
+    "jaké messengery jsou nastavené",
+    "seznam komunikačních kanálů",
+    "které aplikace pro zprávy jsou aktivní",
+    "dostupné messengery",
+    "přehled kanálů pro zprávy"
+  ],
   "list_monthly_target_hours": [
     "jaké máme měsíční cílové hodiny",
     "ukaž přehled cílových hodin pro rok",
@@ -2280,6 +2287,13 @@
     "přečti mi ten e-mail",
     "ukaž text e-mailu"
   ],
+  "read_messages": [
+    "přečíst zprávy",
+    "zobrazit poslední zprávy",
+    "co mi psali",
+    "zprávy z telegramu",
+    "přečti si sms"
+  ],
   "read_schedule_state": [
     "zobraz rozpis směn",
     "kdo je na směně daný den",
@@ -2456,6 +2470,13 @@
     "ukaž jen oddělení a",
     "zruš skupinový filtr",
     "zobraz všechny skupiny"
+  ],
+  "send_message": [
+    "poslat zprávu",
+    "napsat zprávu někomu",
+    "poslat sms",
+    "poslat zprávu na whatsapp",
+    "odeslat zprávu na telegram"
   ],
   "set_autonomy_level": [
     "nastav úroveň autonomie na 0",

@@ -2024,6 +2024,12 @@
     "pokaż skrypty",
     "wymień wszystkie makra"
   ],
+  "list_messaging_providers": [
+    "jakie kanały wiadomości są aktywne",
+    "lista dostawców wiadomości",
+    "które aplikacje czatu są podłączone",
+    "status telegrama i whatsapp"
+  ],
   "list_monthly_target_hours": [
     "pokaż miesięczne cele godzinowe",
     "ile godzin przypada na miesiąc",
@@ -2292,6 +2298,12 @@
     "wyświetl zawartość wiadomości",
     "odczytaj konkretny email"
   ],
+  "read_messages": [
+    "przeczytaj wiadomości z telegrama",
+    "sprawdź wiadomości whatsapp",
+    "pokaż odebrane sms",
+    "ostatnie wiadomości z czatu"
+  ],
   "read_schedule_state": [
     "pokaż harmonogram dla grupy",
     "kto jest przypisany na jakie zmiany",
@@ -2471,6 +2483,13 @@
     "wybierz grupę",
     "pokaż wszystkie grupy",
     "nieobecności grupy"
+  ],
+  "send_message": [
+    "wyślij wiadomość na telegramie",
+    "wyślij wiadomość na whatsapp",
+    "wyślij sms do pracownika",
+    "wyślij wiadomość do klienta",
+    "napisz na czacie do kogoś"
   ],
   "set_autonomy_level": [
     "pracuj bardziej samodzielnie",

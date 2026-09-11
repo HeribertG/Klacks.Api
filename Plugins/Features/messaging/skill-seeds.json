@@ -50,10 +50,10 @@
     "synonyms": {
       "de": ["nachricht senden", "schick eine nachricht", "sende eine nachricht", "sms senden", "whatsapp senden"],
       "en": ["send a message", "send message", "text someone", "write a message"],
-      "fr": ["envoyer un message"],
-      "it": ["inviare un messaggio"]
+      "fr": ["envoyer un message", "envoyer un sms", "envoyer un texto", "écrire un message"],
+      "it": ["inviare un messaggio", "mandare un messaggio", "inviare un sms", "scrivere un messaggio"]
     },
-    "version": 15
+    "version": 16
   },
   {
     "name": "read_messages",
@@ -99,10 +99,10 @@
     "synonyms": {
       "de": ["nachrichten lesen", "posteingang anzeigen", "eingegangene nachrichten"],
       "en": ["read messages", "show inbox"],
-      "fr": ["lire les messages"],
-      "it": ["leggere i messaggi"]
+      "fr": ["lire les messages", "messages reçus", "afficher les messages reçus", "derniers messages"],
+      "it": ["leggere i messaggi", "messaggi ricevuti", "mostrare i messaggi ricevuti", "ultimi messaggi"]
     },
-    "version": 8
+    "version": 9
   },
   {
     "name": "list_messaging_providers",
@@ -120,9 +120,9 @@
     "synonyms": {
       "de": ["messaging-dienste auflisten", "verfügbare kanäle"],
       "en": ["list messaging providers", "which channels are configured"],
-      "fr": ["lister les fournisseurs de messagerie"],
-      "it": ["elencare i provider di messaggistica"]
+      "fr": ["lister les fournisseurs de messagerie", "canaux de messagerie configurés", "quelles messageries sont configurées"],
+      "it": ["elencare i provider di messaggistica", "canali di messaggistica configurati", "quali messenger sono configurati"]
     },
-    "version": 9
+    "version": 10
   }
 ]

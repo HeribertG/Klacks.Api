@@ -1967,6 +1967,12 @@
     "hvilke skript er definert?",
     "vis formler og makroer"
   ],
+  "list_messaging_providers": [
+    "hvilke meldingskanaler er aktive",
+    "liste over meldingsleverandører",
+    "hvilke chat-apper er koblet til",
+    "status for telegram og whatsapp"
+  ],
   "list_monthly_target_hours": [
     "vis månedlige mål timer",
     "hva er mål timene per måned",
@@ -2218,6 +2224,12 @@
     "vis innholdet i e-posten",
     "les den nyeste e-posten"
   ],
+  "read_messages": [
+    "les meldinger på telegram",
+    "sjekk meldinger på whatsapp",
+    "se mottatte sms",
+    "vis siste chat-meldinger"
+  ],
   "read_schedule_state": [
     "vis vaktplan for gruppen",
     "hvem jobber når i mai",
@@ -2392,6 +2404,13 @@
     "sett gruppefilter til 'team alfa'",
     "vis alle grupper igjen",
     "velg gruppe trondheim"
+  ],
+  "send_message": [
+    "send melding på telegram",
+    "send melding på whatsapp",
+    "send sms til ansatt",
+    "send melding til kunde",
+    "chat med noen"
   ],
   "set_autonomy_level": [
     "sett meg på autonomi-nivå 2",

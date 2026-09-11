@@ -1970,6 +1970,12 @@
     "danh sách các công thức",
     "cho tôi xem tất cả macro"
   ],
+  "list_messaging_providers": [
+    "liệt kê kênh nhắn tin",
+    "kênh nhắn tin nào đã cấu hình",
+    "xem nhà cung cấp nhắn tin đã thiết lập",
+    "những kênh tin nhắn nào đang bật"
+  ],
   "list_monthly_target_hours": [
     "xem giờ mục tiêu hàng tháng",
     "bảng giờ chuẩn theo tháng",
@@ -2225,6 +2231,12 @@
     "thư này nói gì",
     "hiển thị nội dung mail"
   ],
+  "read_messages": [
+    "đọc tin nhắn",
+    "xem tin nhắn đã nhận",
+    "kiểm tra tin nhắn gần đây",
+    "hiển thị tin nhắn mới"
+  ],
   "read_schedule_state": [
     "xem lịch làm việc",
     "xem ai trực ca nào",
@@ -2401,6 +2413,13 @@
     "hiển thị tất cả nhóm",
     "lọc nhóm cho trang vắng mặt",
     "đặt bộ lọc nhóm thành 'team a'"
+  ],
+  "send_message": [
+    "gửi tin nhắn cho",
+    "nhắn tin cho",
+    "gửi sms cho",
+    "gửi tin nhắn qua whatsapp",
+    "soạn tin nhắn gửi cho"
   ],
   "set_autonomy_level": [
     "làm việc tự động hơn",

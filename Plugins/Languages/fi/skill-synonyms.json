@@ -1996,6 +1996,13 @@
     "mitä makroja on määritetty?",
     "näytä makron tiedot ja id"
   ],
+  "list_messaging_providers": [
+    "mitkä viestipalvelut on otettu käyttöön",
+    "luettelo viestikanavista",
+    "mitkä chat-sovellukset ovat aktiivisia",
+    "saatavilla olevat viestipalvelut",
+    "käytössä olevat viestikanavat"
+  ],
   "list_monthly_target_hours": [
     "näytä kuukausittaiset tavoitetunnit",
     "mitkä kuukaudet ovat tavoitetuntien osalta asetettu",
@@ -2255,6 +2262,13 @@
     "mitä sähköpostissa lukee",
     "näytä viestin teksti"
   ],
+  "read_messages": [
+    "lue viestit",
+    "näytä viimeisimmät viestit",
+    "mitä minulle on kirjoitettu",
+    "lue tekstiviestit",
+    "telegram-viestit"
+  ],
   "read_schedule_state": [
     "näytä työvuorosuunnitelma",
     "lue aikataulu",
@@ -2430,6 +2444,13 @@
     "vaihda näkymäksi koko yritys",
     "valitse ryhmä helsinki",
     "näytä kaikki ryhmät"
+  ],
+  "send_message": [
+    "lähetä viesti",
+    "kirjoita jollekulle",
+    "lähetä tekstiviesti",
+    "lähetä whatsapp-viesti",
+    "lähetä telegram-viesti"
   ],
   "set_autonomy_level": [
     "toimi itsenäisemmin",

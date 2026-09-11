@@ -1963,6 +1963,12 @@
     "daftar formula yang ada",
     "tunjukkan semua makro"
   ],
+  "list_messaging_providers": [
+    "saluran pesan apa saja yang aktif",
+    "daftar penyedia pesan",
+    "kanal whatsapp dan telegram apa yang tersedia",
+    "aplikasi pesan mana yang terhubung"
+  ],
   "list_monthly_target_hours": [
     "berapa jam target bulan ini",
     "tampilkan jam target per bulan",
@@ -2215,6 +2221,13 @@
     "buka email tertentu",
     "detail email"
   ],
+  "read_messages": [
+    "baca pesan telegram",
+    "baca pesan whatsapp",
+    "lihat sms masuk",
+    "tampilkan pesan chat terbaru",
+    "riwayat pesan whatsapp"
+  ],
   "read_schedule_state": [
     "tampilkan jadwal grup",
     "siapa yang shift hari ini",
@@ -2386,6 +2399,13 @@
     "filter berdasarkan grup",
     "tampilkan hanya grup ini",
     "ganti grup ke"
+  ],
+  "send_message": [
+    "kirim pesan telegram",
+    "kirim pesan whatsapp",
+    "kirim sms ke karyawan",
+    "kirim pesan ke klien",
+    "kirim chat ke nomor telepon"
   ],
   "set_autonomy_level": [
     "bekerja secara mandiri",

@@ -1972,6 +1972,12 @@
     "tunjukkan senarai formula dalam sistem",
     "list semua peraturan yang telah disimpan"
   ],
+  "list_messaging_providers": [
+    "saluran pemesejan apa yang aktif",
+    "senarai penyedia pemesejan",
+    "aplikasi mesej yang disambungkan",
+    "kanal whatsapp dan telegram tersedia"
+  ],
   "list_monthly_target_hours": [
     "tunjuk sasaran jam bulanan",
     "berapa jam sasaran untuk bulan ini?",
@@ -2224,6 +2230,12 @@
     "buka mesej emel",
     "baca emel dengan id"
   ],
+  "read_messages": [
+    "baca mesej telegram",
+    "semak mesej whatsapp",
+    "lihat sms yang diterima",
+    "papar mesej chat terkini"
+  ],
   "read_schedule_state": [
     "tunjuk jadual semasa",
     "siapa yang bertugas pada hari ini",
@@ -2398,6 +2410,13 @@
     "pilih kumpulan 'bern' dalam penapis",
     "setkan penapis kumpulan kepada semua",
     "tunjukkan ketidakhadiran untuk pasukan a"
+  ],
+  "send_message": [
+    "hantar mesej telegram",
+    "hantar mesej whatsapp",
+    "hantar sms kepada pekerja",
+    "hantar mesej kepada klien",
+    "hantar chat kepada nombor telefon"
   ],
   "set_autonomy_level": [
     "tukar tahap autonomi",

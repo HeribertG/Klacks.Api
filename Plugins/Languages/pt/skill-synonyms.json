@@ -2006,6 +2006,12 @@
     "procura macro por nome",
     "lista todas as fórmulas"
   ],
+  "list_messaging_providers": [
+    "listar canais de mensagens",
+    "quais canais de mensagens estão configurados",
+    "ver serviços de mensagens configurados",
+    "mostrar canais de mensagens disponíveis"
+  ],
   "list_monthly_target_hours": [
     "quais são as horas alvo do mês?",
     "mostrar as horas padrão por mês",
@@ -2264,6 +2270,12 @@
     "mostrar conteúdo do email",
     "ler a mensagem"
   ],
+  "read_messages": [
+    "ler mensagens",
+    "mostrar mensagens recebidas",
+    "ver mensagens do whatsapp",
+    "consultar mensagens recentes"
+  ],
   "read_schedule_state": [
     "mostrar escala",
     "ver quem está escalado",
@@ -2444,6 +2456,13 @@
     "mostra todos os grupos",
     "muda para o grupo",
     "exibe ausências do grupo"
+  ],
+  "send_message": [
+    "enviar mensagem para",
+    "manda uma mensagem",
+    "enviar sms para",
+    "enviar mensagem pelo whatsapp",
+    "escrever uma mensagem a"
   ],
   "set_autonomy_level": [
     "trabalhe sem pedir confirmação",

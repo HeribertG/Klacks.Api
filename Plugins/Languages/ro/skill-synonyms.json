@@ -1998,6 +1998,12 @@
     "găsește toate formulele de calcul",
     "arată-mi macro-urile de tip calcul"
   ],
+  "list_messaging_providers": [
+    "listează canalele de mesagerie",
+    "ce canale de mesagerie sunt configurate",
+    "arată furnizorii de mesagerie configurați",
+    "ce servicii de mesagerie sunt active"
+  ],
   "list_monthly_target_hours": [
     "arată-mi orele lunare țintă",
     "care sunt orele standard pe luni?",
@@ -2252,6 +2258,12 @@
     "arată-mi conținutul emailului",
     "citește-mi mesajul"
   ],
+  "read_messages": [
+    "citește mesajele",
+    "arată mesajele primite",
+    "vezi mesajele de pe whatsapp",
+    "verifică mesajele recente"
+  ],
   "read_schedule_state": [
     "arată planul de muncă",
     "cine e programat când",
@@ -2429,6 +2441,13 @@
     "arată toate grupurile",
     "comută la grupul productie",
     "afișează absențele pentru grupul suport"
+  ],
+  "send_message": [
+    "trimite un mesaj către",
+    "trimite-i un mesaj",
+    "trimite un sms către",
+    "trimite un mesaj pe whatsapp",
+    "scrie un mesaj cuiva"
   ],
   "set_autonomy_level": [
     "lucrează autonom",
