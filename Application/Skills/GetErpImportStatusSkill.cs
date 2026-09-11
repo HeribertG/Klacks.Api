@@ -16,6 +16,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -25,12 +26,18 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
+    private readonly ILogger<GetErpImportStatusSkill> _logger;
 
-    public GetErpImportStatusSkill(IMediator mediator, ISettingsReader settingsReader, ICompanyClock companyClock)
+    public GetErpImportStatusSkill(
+        IMediator mediator,
+        ISettingsReader settingsReader,
+        ICompanyClock companyClock,
+        ILogger<GetErpImportStatusSkill> logger)
     {
         _mediator = mediator;
         _settingsReader = settingsReader;
         _companyClock = companyClock;
+        _logger = logger;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -43,7 +50,7 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, cancellationToken);
         var nextRunSetting = await _settingsReader.GetSetting(ErpImportSettingsTypes.NextRunUtc);
 
         string? nextRunLocal = null;

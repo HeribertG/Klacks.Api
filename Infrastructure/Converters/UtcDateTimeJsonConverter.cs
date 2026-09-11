@@ -24,11 +24,6 @@ namespace Klacks.Api.Infrastructure.Converters;
 
 public class UtcDateTimeJsonConverter : JsonConverter<DateTime>
 {
-    public const string OffsetNotSupportedMessage =
-        "Date/time values must be sent in UTC, e.g. '2026-09-10T00:00:00Z'. A value with a non-zero UTC "
-        + "offset is rejected because a calendar date sent as local midnight would otherwise be stored "
-        + "as the previous day.";
-
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return UtcDateTimeReader.ReadUtc(ref reader);

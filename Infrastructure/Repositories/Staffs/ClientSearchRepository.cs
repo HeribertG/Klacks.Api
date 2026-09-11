@@ -265,7 +265,7 @@ public class ClientSearchRepository : IClientSearchRepository
             .ToList();
     }
 
-    private async Task<DateOnly> ResolveQualificationValidityDateAsync(
+    private async Task<DateOnly?> ResolveQualificationValidityDateAsync(
         Guid? qualificationId, DateOnly? qualificationValidityDate, CancellationToken cancellationToken)
     {
         // ApplyStructuredFilters only reads this value when qualificationId is set, so the company
@@ -273,7 +273,7 @@ public class ClientSearchRepository : IClientSearchRepository
         // qualification - the overwhelming majority of calls.
         if (!qualificationId.HasValue)
         {
-            return default;
+            return null;
         }
 
         return qualificationValidityDate ?? await _companyClock.GetTodayDateAsync(cancellationToken);
@@ -287,7 +287,7 @@ public class ClientSearchRepository : IClientSearchRepository
         string? city,
         string? zipPrefix,
         Guid? qualificationId,
-        DateOnly qualificationValidityDate)
+        DateOnly? qualificationValidityDate)
     {
         if (!string.IsNullOrWhiteSpace(canton))
         {
@@ -320,14 +320,15 @@ public class ClientSearchRepository : IClientSearchRepository
                 c.ClientContracts.Any(cc => !cc.IsDeleted && cc.IsActive && cc.ContractId == contractId.Value));
         }
 
-        if (qualificationId.HasValue)
+        if (qualificationId.HasValue && qualificationValidityDate.HasValue)
         {
+            var validityDate = qualificationValidityDate.Value;
             query = query.Where(c =>
                 c.Qualifications.Any(q =>
                     !q.IsDeleted &&
                     q.QualificationId == qualificationId.Value &&
-                    (q.ValidFrom == null || q.ValidFrom <= qualificationValidityDate) &&
-                    (q.ValidUntil == null || q.ValidUntil >= qualificationValidityDate)));
+                    (q.ValidFrom == null || q.ValidFrom <= validityDate) &&
+                    (q.ValidUntil == null || q.ValidUntil >= validityDate)));
         }
 
         return query;

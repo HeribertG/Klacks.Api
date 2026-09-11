@@ -19,24 +19,6 @@ public static class CronSchedule
         return TryParse(expression, out _);
     }
 
-    /// <summary>Returns true when the id resolves to a system time zone.</summary>
-    public static bool IsValidTimeZone(string? timeZoneId)
-    {
-        return TryGetTimeZone(timeZoneId, out _);
-    }
-
-    /// <summary>
-    /// Validates the id and returns its IANA form, even when the given id is a Windows time zone id
-    /// (e.g. from an unvalidated setting or an LLM-supplied skill parameter) - so no scheduling skill
-    /// ever persists or echoes back an id a browser's Intl.DateTimeFormat cannot parse. Delegates to the
-    /// feature-agnostic Domain helper; kept here too since every scheduling skill already depends on
-    /// CronSchedule for cron/time-zone validation.
-    /// </summary>
-    public static bool TryNormalizeTimeZoneId(string? timeZoneId, out string? ianaId)
-    {
-        return IanaTimeZoneId.TryFrom(timeZoneId, out ianaId);
-    }
-
     /// <summary>
     /// Computes the next run strictly after <paramref name="fromUtc"/> in the given time zone, or null
     /// when the expression/zone is invalid or has no upcoming occurrence.
@@ -48,7 +30,7 @@ public static class CronSchedule
             return null;
         }
 
-        if (!TryGetTimeZone(timeZoneId, out var zone) || zone is null)
+        if (!TimeZoneLookup.TryResolve(timeZoneId, out var zone))
         {
             return null;
         }
@@ -60,7 +42,7 @@ public static class CronSchedule
     /// <summary>Renders a UTC instant as the owner's local wall-clock time for confirmation text.</summary>
     public static string FormatLocal(DateTime utc, string? timeZoneId)
     {
-        if (!TryGetTimeZone(timeZoneId, out var zone) || zone is null)
+        if (!TimeZoneLookup.TryResolve(timeZoneId, out var zone))
         {
             return $"{DateTime.SpecifyKind(utc, DateTimeKind.Utc):yyyy-MM-dd HH:mm} UTC";
         }
@@ -88,22 +70,4 @@ public static class CronSchedule
         }
     }
 
-    private static bool TryGetTimeZone(string? timeZoneId, out TimeZoneInfo? zone)
-    {
-        zone = null;
-        if (string.IsNullOrWhiteSpace(timeZoneId))
-        {
-            return false;
-        }
-
-        try
-        {
-            zone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId.Trim());
-            return true;
-        }
-        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            return false;
-        }
-    }
 }

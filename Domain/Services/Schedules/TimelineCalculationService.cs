@@ -12,6 +12,7 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -227,23 +228,14 @@ public class TimelineCalculationService : ITimelineCalculationService
 
     private TimeZoneInfo ResolveTimeZone(string timeZoneId)
     {
-        try
+        if (TimeZoneLookup.TryResolve(timeZoneId, out var zone))
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            return zone;
         }
-        catch (TimeZoneNotFoundException)
-        {
-            _logger.LogError(
-                LogPrefix + "Configured TimeZoneId '{TimeZoneId}' was not found - falling back to UTC",
-                timeZoneId);
-            return TimeZoneInfo.Utc;
-        }
-        catch (InvalidTimeZoneException ex)
-        {
-            _logger.LogError(ex,
-                LogPrefix + "Configured TimeZoneId '{TimeZoneId}' is invalid - falling back to UTC",
-                timeZoneId);
-            return TimeZoneInfo.Utc;
-        }
+
+        _logger.LogError(
+            LogPrefix + "Configured TimeZoneId '{TimeZoneId}' could not be resolved - falling back to UTC",
+            timeZoneId);
+        return TimeZoneInfo.Utc;
     }
 }

@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
@@ -38,7 +39,6 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private const string AmbientEnabledConfigKey = "Assistant:Ambient:Enabled";
     private const string AmbientCountryConfigKey = "Assistant:Ambient:CountryCode";
     private const string GreetingLlmEnabledConfigKey = "Assistant:Greeting:LlmEnabled";
-    private const string DefaultCountryCode = "CH";
 
     // US Air Quality Index (worldwide scale): 101-150 = unhealthy for sensitive groups, 151+ =
     // unhealthy. Only mention from "unhealthy for sensitive groups" upward.
@@ -53,6 +53,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private readonly IConfiguration _configuration;
     private readonly IWelcomeFocusResolver _welcomeFocusResolver;
     private readonly ICompanyClock _companyClock;
+    private readonly ICountryResolver _countryResolver;
+    private readonly ILogger<GetWelcomeQueryHandler> _logger;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
@@ -63,7 +65,9 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         IGreetingComposer greetingComposer,
         IConfiguration configuration,
         IWelcomeFocusResolver welcomeFocusResolver,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ICountryResolver countryResolver,
+        ILogger<GetWelcomeQueryHandler> logger)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
@@ -74,6 +78,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         _configuration = configuration;
         _welcomeFocusResolver = welcomeFocusResolver;
         _companyClock = companyClock;
+        _countryResolver = countryResolver;
+        _logger = logger;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -185,7 +191,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             return (string.Empty, string.Empty);
         }
 
-        var countryCode = _configuration.GetValue(AmbientCountryConfigKey, DefaultCountryCode) ?? DefaultCountryCode;
+        var countryCode = await ResolveCountryCodeAsync(cancellationToken);
         var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var holiday = await _holidayProvider.GetUpcomingHolidayAsync(countryCode, today, cancellationToken);
         if (holiday is not null)
@@ -211,6 +217,44 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         return (string.Empty, string.Empty);
     }
 
+    /// <summary>
+    /// The country for the ambient holiday note and the greeting composer's local context: an explicit
+    /// Assistant:Ambient:CountryCode override wins, otherwise the installation's own configured country
+    /// (ICountryResolver.GetDefaultAsync - APP_ADDRESS_COUNTRY) is used, never a hard-coded literal. An
+    /// installation with neither configured resolves to an empty code, which both consumers already treat
+    /// as "no country available" and degrade gracefully. The override path logs (Information) precisely
+    /// when a configured override does not resolve to a known country - not when nothing was configured
+    /// at all, which is the normal state of a fresh installation. The APP_ADDRESS_COUNTRY fallback path
+    /// only logs (Debug) that no default resolved, without being able to tell "unset" apart from
+    /// "configured but unresolvable" - ICountryResolver.GetDefaultAsync collapses both to null.
+    /// </summary>
+    private async Task<string> ResolveCountryCodeAsync(CancellationToken cancellationToken)
+    {
+        var configured = _configuration.GetValue<string?>(AmbientCountryConfigKey);
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            if (await _countryResolver.ResolveAsync(configured, cancellationToken) is null)
+            {
+                _logger.LogInformation(
+                    "Configured ambient country code '{Configured}' (Assistant:Ambient:CountryCode) does "
+                    + "not resolve to a known country - using it verbatim anyway.",
+                    configured);
+            }
+
+            return configured;
+        }
+
+        var country = await _countryResolver.GetDefaultAsync(cancellationToken);
+        if (country is null)
+        {
+            _logger.LogDebug(
+                "No default country resolved for the ambient welcome context - APP_ADDRESS_COUNTRY is "
+                + "either unset or does not match a known country.");
+        }
+
+        return country?.Abbreviation ?? string.Empty;
+    }
+
     private async Task<(double Latitude, double Longitude)?> ResolveCoordinatesAsync(
         GetWelcomeQuery request, CancellationToken cancellationToken)
     {
@@ -230,7 +274,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             return null;
         }
 
-        var countryCode = _configuration.GetValue(AmbientCountryConfigKey, DefaultCountryCode) ?? DefaultCountryCode;
+        var countryCode = await ResolveCountryCodeAsync(cancellationToken);
         var context = new GreetingContext(
             request.UserId ?? string.Empty,
             request.Lang,

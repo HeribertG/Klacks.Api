@@ -35,7 +35,8 @@
 /// <param name="identityProvider">Borrows the responsible owner's rights under Klacksy's own name (Etappe 4d).</param>
 /// <param name="skillExecutor">Runs the remediation skill.</param>
 /// <param name="reporter">Mandatory post-action report, never subject to the notification rate limit.</param>
-/// <param name="timeProvider">Clock, injected so the budget day and the stale-claim window are testable.</param>
+/// <param name="timeProvider">Clock, injected so the stale-claim window is testable.</param>
+/// <param name="companyClock">Resolves the company's time zone, so the daily action budget resets at the company's midnight rather than the UTC calendar day's.</param>
 /// <param name="logger">Structured log per kind and per skipped row - the counterpart of "no silent caps".</param>
 
 using System.Globalization;
@@ -43,7 +44,9 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Assistant.Conditions;
 
@@ -107,6 +110,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private readonly ISkillExecutor _skillExecutor;
     private readonly IProactiveActionReporter _reporter;
     private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<AgentConditionActionService> _logger;
 
     public AgentConditionActionService(
@@ -119,6 +123,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         ISkillExecutor skillExecutor,
         IProactiveActionReporter reporter,
         TimeProvider timeProvider,
+        ICompanyClock companyClock,
         ILogger<AgentConditionActionService> logger)
     {
         _repository = repository;
@@ -130,6 +135,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         _skillExecutor = skillExecutor;
         _reporter = reporter;
         _timeProvider = timeProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -142,6 +148,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         }
 
         var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+        var companyDayStartUtc = await ResolveCompanyDayStartUtcAsync(nowUtc, cancellationToken);
         var tally = new ActionTally();
         var recentExecutions = await _repository.GetExecutedSinceAsync(
             nowUtc.AddMinutes(-AgentConditionActionDefaults.CascadeWindowMinutes), cancellationToken);
@@ -150,7 +157,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         {
             try
             {
-                await RunKindAsync(triggerKind, nowUtc, recentExecutions, tally, cancellationToken);
+                await RunKindAsync(triggerKind, nowUtc, companyDayStartUtc, recentExecutions, tally, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -175,9 +182,27 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         return result;
     }
 
+    /// <summary>
+    /// The UTC instant the company's own calendar day began "today" - NOT the UTC calendar day's own
+    /// midnight. The daily action budget is counted against this, because CountActionClaimsAsync compares
+    /// it to the audit events' real UTC instants: for a positive-offset zone (e.g. Pacific/Auckland,
+    /// UTC+12/+13) the UTC calendar day starts many hours before the company's day does, so using it
+    /// would count part of the company's PREVIOUS day's claims as "today", exhausting the budget early.
+    /// Derives "today" from the same <paramref name="nowUtc"/> snapshot the rest of the tick uses -
+    /// ICompanyClock is consulted only for the time zone - so a single tick can never straddle two
+    /// different "now" reads across the DST/UTC-offset conversion and the rest of its own logic.
+    /// </summary>
+    private async Task<DateTime> ResolveCompanyDayStartUtcAsync(DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        var zone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var localToday = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(nowUtc, zone));
+        return CompanyWallClockToUtcConverter.ConvertToUtc(localToday.ToDateTime(TimeOnly.MinValue), zone);
+    }
+
     private async Task RunKindAsync(
         string triggerKind,
         DateTime nowUtc,
+        DateTime companyDayStartUtc,
         IReadOnlyList<AgentCondition> recentExecutions,
         ActionTally tally,
         CancellationToken cancellationToken)
@@ -194,7 +219,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return;
         }
 
-        var budget = new ActionBudget(_repository, triggerKind, nowUtc);
+        var budget = new ActionBudget(_repository, triggerKind, nowUtc, companyDayStartUtc);
         var governanceCache = new GovernanceCache();
         var actionsThisTick = 0;
 
@@ -844,14 +869,17 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         private readonly IAgentConditionRepository _repository;
         private readonly string _triggerKind;
         private readonly DateTime _nowUtc;
+        private readonly DateTime _companyDayStartUtc;
         private readonly Dictionary<Guid, GroupBudget> _byGroup = new();
         private readonly GroupBudget _installationWide = new();
 
-        public ActionBudget(IAgentConditionRepository repository, string triggerKind, DateTime nowUtc)
+        public ActionBudget(
+            IAgentConditionRepository repository, string triggerKind, DateTime nowUtc, DateTime companyDayStartUtc)
         {
             _repository = repository;
             _triggerKind = triggerKind;
             _nowUtc = nowUtc;
+            _companyDayStartUtc = companyDayStartUtc;
         }
 
         public void RecordClaim(Guid? groupId) => BudgetFor(groupId).ClaimsThisTick++;
@@ -863,7 +891,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             var budget = BudgetFor(groupId);
 
             budget.TodayCount ??= await _repository.CountActionClaimsAsync(
-                _triggerKind, groupId, _nowUtc.Date, cancellationToken);
+                _triggerKind, groupId, _companyDayStartUtc, cancellationToken);
 
             if (budget.TodayCount.Value + budget.ClaimsThisTick >= governance.DailyActionBudget)
             {

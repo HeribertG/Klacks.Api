@@ -574,6 +574,7 @@ public static class ServiceCollectionExtensions
     private static void AddScheduleServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<ScheduleTimeOptions>(configuration.GetSection(ScheduleTimeOptions.SectionName));
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.ScheduleTimeZoneStartupCheckService>();
         services.AddScoped<IScheduleEntriesService, ScheduleEntriesService>();
         services.AddScoped<IClientAvailabilityScheduleService, ClientAvailabilityScheduleService>();
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();

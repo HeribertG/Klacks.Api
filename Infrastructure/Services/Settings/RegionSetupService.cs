@@ -62,6 +62,7 @@ using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Settings;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -1046,11 +1047,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
     private static void ValidateTimeZone(string timeZone)
     {
-        try
-        {
-            TimeZoneInfo.FindSystemTimeZoneById(timeZone);
-        }
-        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
+        if (!TimeZoneLookup.TryResolve(timeZone, out _))
         {
             throw new InvalidRequestException($"Region setup: invalid time zone '{timeZone}'.");
         }

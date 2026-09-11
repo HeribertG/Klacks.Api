@@ -18,7 +18,7 @@ public class HolidaysListCalculator : IHolidaysListCalculator
     #endregion
 
     #region Properties
-    public int CurrentYear { get; set; } = DateTime.Now.Year;
+    public int CurrentYear { get; set; }
 
     public List<CalendarRule> Rules { get; private set; } = new List<CalendarRule>();
 

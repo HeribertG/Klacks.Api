@@ -11,5 +11,5 @@ public interface ISettingsReader
 {
     Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSetting(string type);
 
-    Task<IReadOnlyDictionary<string, string>> GetSettingsByTypesAsync(IEnumerable<string> types);
+    Task<IReadOnlyDictionary<string, string>> GetSettingsByTypesAsync(IEnumerable<string> types, CancellationToken cancellationToken = default);
 }

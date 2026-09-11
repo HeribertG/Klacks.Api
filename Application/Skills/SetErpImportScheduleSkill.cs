@@ -19,6 +19,8 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Settings;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -28,13 +30,18 @@ public class SetErpImportScheduleSkill : BaseSkillImplementation
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICompanyClock _companyClock;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<SetErpImportScheduleSkill> _logger;
 
     public SetErpImportScheduleSkill(
-        ISettingsRepository settingsRepository, ICompanyClock companyClock, IUnitOfWork unitOfWork)
+        ISettingsRepository settingsRepository,
+        ICompanyClock companyClock,
+        IUnitOfWork unitOfWork,
+        ILogger<SetErpImportScheduleSkill> logger)
     {
         _settingsRepository = settingsRepository;
         _companyClock = companyClock;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -54,9 +61,9 @@ public class SetErpImportScheduleSkill : BaseSkillImplementation
         var explicitTimeZoneGiven = !string.IsNullOrWhiteSpace(timeZoneId);
         var resolvedTimeZone = explicitTimeZoneGiven
             ? timeZoneId!
-            : await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, cancellationToken);
+            : await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, cancellationToken);
 
-        if (!CronSchedule.TryNormalizeTimeZoneId(resolvedTimeZone, out var normalizedTimeZone))
+        if (!IanaTimeZoneId.TryFrom(resolvedTimeZone, out var normalizedTimeZone))
         {
             return SkillResult.Error(
                 $"Unknown time zone '{resolvedTimeZone}'. Use a valid IANA time zone id (e.g. 'Continent/City').");

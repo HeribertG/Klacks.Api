@@ -15,6 +15,11 @@ internal static class UtcDateTimeReader
 {
     internal const string InvalidFormatMessage = "The value is not a valid ISO 8601 date/time.";
 
+    internal const string OffsetNotSupportedMessage =
+        "Date/time values must be sent in UTC, e.g. '2026-09-10T00:00:00Z'. A value with a non-zero UTC "
+        + "offset is rejected because a calendar date sent as local midnight would otherwise be stored "
+        + "as the previous day.";
+
     public static DateTime ReadUtc(ref Utf8JsonReader reader)
     {
         if (reader.TokenType != JsonTokenType.String || !reader.TryGetDateTime(out var value))
@@ -37,6 +42,6 @@ internal static class UtcDateTimeReader
             return withOffset.UtcDateTime;
         }
 
-        throw new JsonException(UtcDateTimeJsonConverter.OffsetNotSupportedMessage);
+        throw new JsonException(OffsetNotSupportedMessage);
     }
 }

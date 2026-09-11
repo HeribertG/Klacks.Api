@@ -18,6 +18,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Imports;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -28,16 +29,19 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
     private readonly IObjectStorageService _objectStorageService;
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
+    private readonly ILogger<GetErpDropPointSettingsSkill> _logger;
 
     public GetErpDropPointSettingsSkill(
         IMediator mediator,
         IObjectStorageService objectStorageService,
         ISettingsReader settingsReader,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ILogger<GetErpDropPointSettingsSkill> logger)
     {
         _mediator = mediator;
         _objectStorageService = objectStorageService;
         _settingsReader = settingsReader;
+        _logger = logger;
         _companyClock = companyClock;
     }
 
@@ -58,7 +62,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, cancellationToken);
 
         var data = new
         {
