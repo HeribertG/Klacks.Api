@@ -1208,7 +1208,11 @@
     "status": "generated"
   },
   "address-persona": {
-    "synonyms": [],
+    "synonyms": [
+      "住所・個人情報",
+      "個人情報",
+      "個人情報と住所"
+    ],
     "status": "generated"
   },
   "address-qualifications": {

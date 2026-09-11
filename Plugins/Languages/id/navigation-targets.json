@@ -1123,11 +1123,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "alamat persona",
-      "persona",
       "alamat pribadi",
-      "data alamat persona",
-      "halaman alamat persona"
+      "data diri",
+      "informasi pribadi"
     ],
     "status": "generated"
   },

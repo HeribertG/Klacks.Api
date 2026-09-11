@@ -1084,10 +1084,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "dirección de la persona",
-      "domicilio personal",
-      "dirección del empleado",
-      "ficha de dirección"
+      "domicilio",
+      "dirección personal",
+      "información personal"
     ],
     "status": "generated"
   },

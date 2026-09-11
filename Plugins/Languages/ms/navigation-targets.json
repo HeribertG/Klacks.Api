@@ -871,9 +871,8 @@
   },
   "address-persona": {
     "synonyms": [
-      "alamat pekerja",
-      "butiran alamat",
-      "maklumat alamat"
+      "alamat peribadi",
+      "biodata"
     ],
     "status": "generated"
   },

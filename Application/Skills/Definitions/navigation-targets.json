@@ -451,7 +451,7 @@
   {
     "targetId": "address-persona",
     "route": "/workplace/edit-address",
-    "labelKey": "address.persona",
+    "labelKey": "",
     "category": "address",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component.html",
     "lastScannedAt": "2026-07-23T21:26:23.055Z",

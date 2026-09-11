@@ -915,10 +915,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "adressekort",
-      "adresseprofil",
-      "adresseoppføring",
-      "adressedetaljer"
+      "adresseopplysninger",
+      "adresseinformasjon",
+      "personalia"
     ],
     "status": "generated"
   },

@@ -1174,7 +1174,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "adressprofil"
+      "adressuppgifter",
+      "adressdata",
+      "adressinformation"
     ],
     "status": "generated"
   },

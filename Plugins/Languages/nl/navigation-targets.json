@@ -926,9 +926,10 @@
   },
   "address-persona": {
     "synonyms": [
-      "adrespersoon",
-      "adreskaart",
-      "adres persona"
+      "adresgegevens",
+      "persoonsgegevens",
+      "persoonlijke adresgegevens",
+      "adres- en persoonsgegevens"
     ],
     "status": "generated"
   },

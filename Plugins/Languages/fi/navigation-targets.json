@@ -1173,9 +1173,10 @@
   },
   "address-persona": {
     "synonyms": [
-      "osoitteen muokkaus",
-      "osoitelomake",
-      "osoitehallinta"
+      "henkilötiedot",
+      "osoitetiedot",
+      "yhteystiedot",
+      "henkilön osoitetiedot"
     ],
     "status": "generated"
   },

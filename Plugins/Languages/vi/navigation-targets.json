@@ -1085,8 +1085,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "hồ sơ địa chỉ",
-      "thông tin địa chỉ"
+      "nhân thân",
+      "thông tin địa chỉ",
+      "địa chỉ cá nhân"
     ],
     "status": "generated"
   },

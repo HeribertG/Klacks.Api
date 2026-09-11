@@ -1059,8 +1059,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "endereço do colaborador",
-      "dados de endereço"
+      "dados pessoais",
+      "endereço pessoal",
+      "dados de morada"
     ],
     "status": "generated"
   },

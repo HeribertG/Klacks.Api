@@ -869,9 +869,8 @@
   },
   "address-persona": {
     "synonyms": [
-      "edytor adresu",
-      "adres osoby",
-      "dane adresowe osoby"
+      "adres i dane",
+      "dane adresowe i osobowe"
     ],
     "status": "generated"
   },

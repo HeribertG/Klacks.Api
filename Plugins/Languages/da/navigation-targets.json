@@ -1197,11 +1197,9 @@
   },
   "address-persona": {
     "synonyms": [
-      "adresseperson",
-      "adressepersona",
-      "adresseprofil",
-      "adresseidentitet",
-      "adressekort"
+      "adresse og personlige oplysninger",
+      "personoplysninger",
+      "adresse og personoplysninger"
     ],
     "status": "generated"
   },
