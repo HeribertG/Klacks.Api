@@ -7,8 +7,8 @@
 /// date or "today" word, and present-but-unparseable (the caller should ask the user for a concrete date).
 /// </summary>
 
-using System.Globalization;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -16,19 +16,19 @@ internal static class SkillDateParser
 {
     private static readonly string[] TodayWords = SkillDateParsingDefaults.TodayWords;
 
-    private static readonly CultureInfo[] Cultures = SkillDateParsingDefaults.Cultures;
-
     /// <summary>
     /// Clarification a membership skill returns when a non-blank start date was supplied but could not
     /// be understood, so the caller asks the user for a concrete date instead of defaulting to today.
     /// </summary>
     public const string InvalidDateMessage =
-        "I couldn't read the start date for the membership. Please give a concrete date " +
+        "I couldn't read that date. Please give a concrete date " +
         "(for example 2026-05-01) or say 'today'.";
 
     /// <summary>
     /// Parses an optional date to a UTC midnight value. Returns Invalid=true when a non-blank value
     /// was given that could not be understood, so the caller can reject it instead of defaulting.
+    /// Delegates the actual date/time reading to <see cref="SkillUtcDateTimeParser"/> (then takes just
+    /// the calendar day) so this never disagrees with it about what an offset or "Z" value resolves to.
     /// </summary>
     /// <param name="raw">The user-supplied date string (may be null/blank, a date, or a "today" word).</param>
     /// <param name="today">
@@ -48,12 +48,9 @@ internal static class SkillDateParser
             return (today, false);
         }
 
-        foreach (var culture in Cultures)
+        if (SkillUtcDateTimeParser.TryParse(trimmed, out var parsed))
         {
-            if (DateTime.TryParse(trimmed, culture, DateTimeStyles.None, out var parsed))
-            {
-                return (DateTime.SpecifyKind(parsed.Date, DateTimeKind.Utc), false);
-            }
+            return (parsed.Date, false);
         }
 
         return (null, true);

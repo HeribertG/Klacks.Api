@@ -29,31 +29,9 @@ public class UtcDateTimeJsonConverter : JsonConverter<DateTime>
         + "offset is rejected because a calendar date sent as local midnight would otherwise be stored "
         + "as the previous day.";
 
-    private const string InvalidFormatMessage = "The value is not a valid ISO 8601 date/time.";
-
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType != JsonTokenType.String || !reader.TryGetDateTime(out var value))
-        {
-            throw new JsonException(InvalidFormatMessage);
-        }
-
-        if (value.Kind == DateTimeKind.Utc)
-        {
-            return value;
-        }
-
-        if (value.Kind == DateTimeKind.Unspecified)
-        {
-            return DateTime.SpecifyKind(value, DateTimeKind.Utc);
-        }
-
-        if (reader.TryGetDateTimeOffset(out var withOffset) && withOffset.Offset == TimeSpan.Zero)
-        {
-            return withOffset.UtcDateTime;
-        }
-
-        throw new JsonException(OffsetNotSupportedMessage);
+        return UtcDateTimeReader.ReadUtc(ref reader);
     }
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)

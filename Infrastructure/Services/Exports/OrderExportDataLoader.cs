@@ -10,6 +10,7 @@
 /// </summary>
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
@@ -22,11 +23,14 @@ public class OrderExportDataLoader : IOrderExportDataLoader
 {
     private readonly DataBaseContext _context;
     private readonly IShiftDescendantResolver _descendantResolver;
+    private readonly ICompanyClock _companyClock;
 
-    public OrderExportDataLoader(DataBaseContext context, IShiftDescendantResolver descendantResolver)
+    public OrderExportDataLoader(
+        DataBaseContext context, IShiftDescendantResolver descendantResolver, ICompanyClock companyClock)
     {
         _context = context;
         _descendantResolver = descendantResolver;
+        _companyClock = companyClock;
     }
 
     public async Task<OrderExportData> LoadAsync(
@@ -58,9 +62,11 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         var descendantMap = await _descendantResolver.ResolveAsync(sealedOrderIds, includeRoot: true, cancellationToken);
 
         var allShiftIds = descendantMap.Values.SelectMany(ids => ids).Distinct().ToList();
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+
         if (allShiftIds.Count == 0)
         {
-            return BuildEmptyExport(sealedOrders);
+            return BuildEmptyExport(sealedOrders, today);
         }
 
         var worksQuery = _context.Work
@@ -91,7 +97,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
 
         if (works.Count == 0)
         {
-            return BuildEmptyExport(sealedOrders);
+            return BuildEmptyExport(sealedOrders, today);
         }
 
         var workIds = works.Select(w => w.Id).ToList();
@@ -126,7 +132,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         }
 
         var sortedGroups = orderGroups.OrderBy(g => g.OrderName).ToList();
-        var (start, end) = ComputeExportPeriod(sortedGroups);
+        var (start, end) = ComputeExportPeriod(sortedGroups, today);
 
         return new OrderExportData
         {
@@ -136,11 +142,11 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         };
     }
 
-    private static OrderExportData BuildEmptyExport(List<Shift> sealedOrders)
+    private static OrderExportData BuildEmptyExport(List<Shift> sealedOrders, DateOnly today)
     {
         var lookups = new WorkSubEntryLookups([], [], []);
         var emptyGroups = sealedOrders.Select(s => BuildOrderGroup(s, [], lookups)).ToList();
-        var (start, end) = ComputeExportPeriod(emptyGroups);
+        var (start, end) = ComputeExportPeriod(emptyGroups, today);
 
         return new OrderExportData
         {
@@ -173,7 +179,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         };
     }
 
-    private static (DateOnly Start, DateOnly End) ComputeExportPeriod(List<OrderGroup> groups)
+    private static (DateOnly Start, DateOnly End) ComputeExportPeriod(List<OrderGroup> groups, DateOnly today)
     {
         var dates = new List<DateOnly>();
         foreach (var g in groups)
@@ -185,7 +191,6 @@ public class OrderExportDataLoader : IOrderExportDataLoader
 
         if (dates.Count == 0)
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
             return (today, today);
         }
 

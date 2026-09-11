@@ -6,11 +6,9 @@ namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 public interface IDateRangeFilterService
 {
-    IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange);
-   
-    bool IsActiveShift(DateOnly fromDate, DateOnly? untilDate);
-    
-    bool IsFormerShift(DateOnly fromDate, DateOnly? untilDate);
-    
-    bool IsFutureShift(DateOnly fromDate, DateOnly? untilDate);
+    /// <summary>
+    /// Filters shifts by date range relative to <paramref name="today"/> (the company's own local day,
+    /// per ICompanyClock - never the server's UTC day).
+    /// </summary>
+    IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange, DateOnly today);
 }

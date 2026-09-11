@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -14,12 +15,18 @@ public class GroupHierarchyService : IGroupHierarchyService
     private readonly DataBaseContext _context;
     private readonly ILogger<GroupHierarchyService> _logger;
     private readonly IGroupVisibilityService _groupVisibilityService;
+    private readonly ICompanyClock _companyClock;
 
-    public GroupHierarchyService(DataBaseContext context, ILogger<GroupHierarchyService> logger, IGroupVisibilityService groupVisibilityService)
+    public GroupHierarchyService(
+        DataBaseContext context,
+        ILogger<GroupHierarchyService> logger,
+        IGroupVisibilityService groupVisibilityService,
+        ICompanyClock companyClock)
     {
         _context = context;
         _logger = logger;
         _groupVisibilityService = groupVisibilityService;
+        _companyClock = companyClock;
     }
 
     public async Task<IEnumerable<Group>> GetChildrenAsync(Guid parentId)
@@ -101,7 +108,7 @@ public class GroupHierarchyService : IGroupHierarchyService
     {
         _logger.LogInformation("Getting tree structure for root {RootId}", rootId?.ToString() ?? "all roots");
 
-        var today = DateTime.UtcNow.Date;
+        var today = await _companyClock.GetTodayAsync();
         var isAdmin = await _groupVisibilityService.IsAdmin();
         var visibleRootIds = new List<Guid>();
 

@@ -21,15 +21,18 @@ public class ListContractsSkill : BaseSkillImplementation
     private readonly IContractRepository _contractRepository;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly ICountryResolver _countryResolver;
+    private readonly ICompanyClock _companyClock;
 
     public ListContractsSkill(
         IContractRepository contractRepository,
         ICalendarSelectionRepository calendarSelectionRepository,
-        ICountryResolver countryResolver)
+        ICountryResolver countryResolver,
+        ICompanyClock companyClock)
     {
         _contractRepository = contractRepository;
         _calendarSelectionRepository = calendarSelectionRepository;
         _countryResolver = countryResolver;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -41,7 +44,7 @@ public class ListContractsSkill : BaseSkillImplementation
         var canton = GetParameter<string>(parameters, "canton");
 
         var allContracts = await _contractRepository.List();
-        var today = DateTime.UtcNow.Date;
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
 
         var filteredContracts = allContracts
             .Where(c => !c.IsDeleted)

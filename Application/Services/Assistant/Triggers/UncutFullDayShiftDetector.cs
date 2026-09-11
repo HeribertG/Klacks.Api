@@ -26,12 +26,14 @@
 /// </summary>
 /// <param name="shiftRepository">Read-only shift scans via GetQuery().</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.EntityFrameworkCore;
@@ -45,15 +47,18 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<UncutFullDayShiftDetector> _logger;
 
     public UncutFullDayShiftDetector(
         IShiftRepository shiftRepository,
         IShiftGroupScopeReader groupScopeReader,
+        ICompanyClock companyClock,
         ILogger<UncutFullDayShiftDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _groupScopeReader = groupScopeReader;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -61,7 +66,7 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = Today();
+        var today = await TodayAsync(cancellationToken);
 
         var candidates = await BuildCandidateQuery(today)
             .OrderBy(s => s.FromDate)
@@ -110,7 +115,7 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
     /// </summary>
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var shiftIds = await BuildCandidateQuery(Today())
+        var shiftIds = await BuildCandidateQuery(await TodayAsync(cancellationToken))
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
 
@@ -121,7 +126,7 @@ public class UncutFullDayShiftDetector : IAgentTriggerDetector, IAgentConditionF
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    private static DateOnly Today() => DateOnly.FromDateTime(DateTime.UtcNow);
+    private Task<DateOnly> TodayAsync(CancellationToken cancellationToken) => _companyClock.GetTodayDateAsync(cancellationToken);
 
     private IQueryable<Shift> BuildCandidateQuery(DateOnly today) =>
         _shiftRepository.GetQuery()

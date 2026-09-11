@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
@@ -31,6 +32,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IShiftRepository _shiftRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
     public CreateTestEnvironmentSkill(
         IClientRepository clientRepository,
@@ -39,7 +41,8 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
         IShiftRepository shiftRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _addressRepository = addressRepository;
@@ -48,6 +51,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         _groupItemRepository = groupItemRepository;
         _shiftRepository = shiftRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -61,13 +65,14 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
         var contractType = GetParameter<string>(parameters, "contractType") ?? "Vollzeit 180";
         var canton = GetParameter<string>(parameters, "canton") ?? "BE";
         var guaranteedHours = GetParameter<decimal>(parameters, "guaranteedHours", 172.2m);
-        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? DateTime.Today.ToString("yyyy-MM-dd");
+        var companyToday = await _companyClock.GetTodayDateAsync(cancellationToken);
+        var shiftStartDate = GetParameter<string>(parameters, "shiftStartDate") ?? companyToday.ToString("yyyy-MM-dd");
         var createShifts = GetParameter<bool>(parameters, "createShifts", true);
         var sumEmployees = GetParameter<int>(parameters, "sumEmployees", 1);
 
         if (!DateOnly.TryParse(shiftStartDate, out var fromDate))
         {
-            fromDate = DateOnly.FromDateTime(DateTime.Today);
+            fromDate = companyToday;
         }
 
         var group = await FindGroupByName(groupName);

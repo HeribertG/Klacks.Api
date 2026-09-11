@@ -15,7 +15,7 @@ public interface IShiftQueryPipelineService
 {
     IQueryable<Shift> ApplyStatusFilter(IQueryable<Shift> query, ShiftFilterType filterType, bool isSealedOrder = false, bool isTimeRange = true, bool isSporadic = true);
 
-    IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange);
+    IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange, DateOnly today);
 
     IQueryable<Shift> ApplySearchFilter(IQueryable<Shift> query, string searchString, bool includeClient);
 

@@ -6,10 +6,12 @@
 /// Emits one ContractExpiringSoonTriggerEvent per expiring contract.
 /// </summary>
 /// <param name="contractRepository">Read-only client-contract scans.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -18,13 +20,16 @@ public class ContractExpiringSoonDetector : IAgentTriggerDetector
     private const int HorizonDays = 30;
 
     private readonly IClientContractReadRepository _contractRepository;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<ContractExpiringSoonDetector> _logger;
 
     public ContractExpiringSoonDetector(
         IClientContractReadRepository contractRepository,
+        ICompanyClock companyClock,
         ILogger<ContractExpiringSoonDetector> logger)
     {
         _contractRepository = contractRepository;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -32,7 +37,7 @@ public class ContractExpiringSoonDetector : IAgentTriggerDetector
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var horizon = today.AddDays(HorizonDays);
         var expiring = await _contractRepository.GetExpiringBetweenAsync(today, horizon, cancellationToken);
         if (expiring.Count == 0)

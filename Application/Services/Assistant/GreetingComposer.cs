@@ -61,6 +61,7 @@ public class GreetingComposer : IGreetingComposer
     private readonly IAgentRepository _agentRepository;
     private readonly ICompanyLocationProvider _companyLocationProvider;
     private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyClock _companyClock;
     private readonly IMemoryCache _cache;
     private readonly ILogger<GreetingComposer> _logger;
 
@@ -74,6 +75,7 @@ public class GreetingComposer : IGreetingComposer
         IAgentRepository agentRepository,
         ICompanyLocationProvider companyLocationProvider,
         ISettingsReader settingsReader,
+        ICompanyClock companyClock,
         IMemoryCache cache,
         ILogger<GreetingComposer> logger)
     {
@@ -86,6 +88,7 @@ public class GreetingComposer : IGreetingComposer
         _agentRepository = agentRepository;
         _companyLocationProvider = companyLocationProvider;
         _settingsReader = settingsReader;
+        _companyClock = companyClock;
         _cache = cache;
         _logger = logger;
     }
@@ -95,14 +98,19 @@ public class GreetingComposer : IGreetingComposer
         // The cached greeting embeds the user's display name, so it must never be shared across
         // users. Only cache when we have a real user id; otherwise compose fresh and skip caching.
         var canCache = !string.IsNullOrWhiteSpace(context.UserId);
-        var cacheKey = $"greeting_{context.UserId}_{context.Daypart}_{DateTime.UtcNow:yyyyMMdd}";
-        if (canCache && _cache.TryGetValue<string>(cacheKey, out var cached) && !string.IsNullOrWhiteSpace(cached))
-        {
-            return cached;
-        }
 
         try
         {
+            // Resolved once, up front, and passed into the parallel fan-out below instead of being
+            // re-resolved inside it - ICompanyClock reads through the scoped DbContext, and awaiting
+            // several calls into the same DbContext concurrently (Task.WhenAll) throws.
+            var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+            var cacheKey = $"greeting_{context.UserId}_{context.Daypart}_{today:yyyyMMdd}";
+            if (canCache && _cache.TryGetValue<string>(cacheKey, out var cached) && !string.IsNullOrWhiteSpace(cached))
+            {
+                return cached;
+            }
+
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             if (agent == null)
             {
@@ -114,7 +122,7 @@ public class GreetingComposer : IGreetingComposer
             var weatherTask = latitude is not null && longitude is not null
                 ? SafeAsync(() => _weatherClient.GetCurrentWeatherAsync(latitude.Value, longitude.Value, 1, cancellationToken))
                 : Task.FromResult<WeatherSnapshot?>(null);
-            var holidayTask = SafeAsync(() => _holidayProvider.GetUpcomingHolidayAsync(context.CountryCode, cancellationToken));
+            var holidayTask = SafeAsync(() => _holidayProvider.GetUpcomingHolidayAsync(context.CountryCode, today, cancellationToken));
             var localTask = GetLocalNoteAsync(cancellationToken);
             var airTask = latitude is not null && longitude is not null
                 ? _weatherClient.GetAirQualityAsync(latitude.Value, longitude.Value, cancellationToken)

@@ -16,6 +16,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -27,16 +28,19 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
 {
     private readonly IClientBreakPlaceholderRepository _breakRepository;
     private readonly IAbsenceRepository _absenceRepository;
+    private readonly ICompanyClock _companyClock;
 
     private const int MaxLimit = 50;
     private const int DefaultLimit = 10;
 
     public SearchClientAbsencesSkill(
         IClientBreakPlaceholderRepository breakRepository,
-        IAbsenceRepository absenceRepository)
+        IAbsenceRepository absenceRepository,
+        ICompanyClock companyClock)
     {
         _breakRepository = breakRepository;
         _absenceRepository = absenceRepository;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -45,7 +49,7 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var searchTerm = GetParameter<string>(parameters, "searchTerm");
-        var year = GetParameter<int?>(parameters, "year") ?? DateTime.UtcNow.Year;
+        var year = GetParameter<int?>(parameters, "year") ?? (await _companyClock.GetTodayDateAsync(cancellationToken)).Year;
         var startDateParam = GetParameter<string>(parameters, "startDate");
         var endDateParam = GetParameter<string>(parameters, "endDate");
         var absenceTypeName = GetParameter<string>(parameters, "absenceType");

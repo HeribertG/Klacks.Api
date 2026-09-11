@@ -8,11 +8,12 @@
 /// </summary>
 /// <param name="coreDataReadRepository">Read-only core-data quality scans.</param>
 /// <param name="logger">Structured log per tick.</param>
-/// <param name="timeProvider">Clock used to derive the reference date.</param>
+/// <param name="companyClock">Resolves the reference date as the company's own local day.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -25,16 +26,16 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector, IAgentCondit
 
     private readonly IClientCoreDataReadRepository _coreDataReadRepository;
     private readonly ILogger<ClientMissingCoreDataDetector> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
 
     public ClientMissingCoreDataDetector(
         IClientCoreDataReadRepository coreDataReadRepository,
         ILogger<ClientMissingCoreDataDetector> logger,
-        TimeProvider timeProvider)
+        ICompanyClock companyClock)
     {
         _coreDataReadRepository = coreDataReadRepository;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
     }
 
     public string Kind => AgentTriggerKinds.ClientMissingCoreData;
@@ -42,7 +43,7 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector, IAgentCondit
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
         var statuses = await _coreDataReadRepository.GetActiveClientsWithMissingCoreDataAsync(
-            Today(), MaxFindingsPerTick, cancellationToken);
+            await TodayAsync(cancellationToken), MaxFindingsPerTick, cancellationToken);
         if (statuses.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
@@ -76,7 +77,7 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector, IAgentCondit
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
         var statuses = await _coreDataReadRepository.GetActiveClientsWithMissingCoreDataAsync(
-            Today(), UncappedResultCount, cancellationToken);
+            await TodayAsync(cancellationToken), UncappedResultCount, cancellationToken);
 
         return statuses
             .SelectMany(status => MissingFields(status)
@@ -106,5 +107,5 @@ public class ClientMissingCoreDataDetector : IAgentTriggerDetector, IAgentCondit
         return string.IsNullOrEmpty(clientName) ? status.ClientId.ToString() : clientName;
     }
 
-    private DateOnly Today() => DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+    private Task<DateOnly> TodayAsync(CancellationToken cancellationToken) => _companyClock.GetTodayDateAsync(cancellationToken);
 }

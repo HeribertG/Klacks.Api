@@ -10,6 +10,7 @@
 
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,10 +23,12 @@ public class ListRecentExportsSkill : BaseSkillImplementation
     private const int DefaultLookbackDays = 365;
 
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
-    public ListRecentExportsSkill(IMediator mediator)
+    public ListRecentExportsSkill(IMediator mediator, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -36,7 +39,7 @@ public class ListRecentExportsSkill : BaseSkillImplementation
         var fromDate = GetParameter<DateOnly?>(parameters, "fromDate");
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
 
-        var to = untilDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var to = untilDate ?? await _companyClock.GetTodayDateAsync(cancellationToken);
         var from = fromDate ?? to.AddDays(-DefaultLookbackDays);
 
         if (from > to)

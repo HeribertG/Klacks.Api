@@ -9,6 +9,7 @@
 using System.Globalization;
 using Klacks.Api.Application.Queries.ErpDropPoints;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
+using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -23,11 +24,13 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
     private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyClock _companyClock;
 
-    public GetErpImportStatusSkill(IMediator mediator, ISettingsReader settingsReader)
+    public GetErpImportStatusSkill(IMediator mediator, ISettingsReader settingsReader, ICompanyClock companyClock)
     {
         _mediator = mediator;
         _settingsReader = settingsReader;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -40,8 +43,7 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value
-            ?? ErpImportSettingsTypes.DefaultTimeZoneId;
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, cancellationToken);
         var nextRunSetting = await _settingsReader.GetSetting(ErpImportSettingsTypes.NextRunUtc);
 
         string? nextRunLocal = null;

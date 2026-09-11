@@ -20,6 +20,7 @@
 /// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
 /// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision</param>
+/// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
@@ -34,7 +35,9 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.ScheduleRecovery.Engine;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +68,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEscalationChainService _escalationChainService;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -77,6 +81,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IMediator mediator,
         IUnitOfWork unitOfWork,
         IEscalationChainService escalationChainService,
+        ICompanyClock companyClock,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -88,6 +93,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _escalationChainService = escalationChainService;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -181,7 +187,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         var hours = slots.Sum(s => WorkHours(TimeOnly.FromTimeSpan(s.StartTime), TimeOnly.FromTimeSpan(s.EndTime)));
         var earliest = slots[0];
-        var shiftStartUtc = date.ToDateTime(TimeOnly.FromTimeSpan(earliest.StartTime));
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var shiftStartWallClock = date.ToDateTime(TimeOnly.FromTimeSpan(earliest.StartTime));
+        var shiftStartUtc = CompanyWallClockToUtcConverter.ConvertToUtc(shiftStartWallClock, companyTimeZone);
         return (hours, earliest.SourceId, shiftStartUtc);
     }
 

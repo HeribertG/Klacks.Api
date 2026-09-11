@@ -34,7 +34,15 @@ public class TimelineCalculationService : ITimelineCalculationService
 
         if (_options.DstAware)
         {
-            _timeZone = ResolveTimeZone(_options.TimeZoneId);
+            if (string.IsNullOrWhiteSpace(_options.TimeZoneId))
+            {
+                _logger.LogError(
+                    LogPrefix + "DstAware is enabled but no TimeZoneId is configured - treating DstAware as off (legacy wall-clock semantics)");
+            }
+            else
+            {
+                _timeZone = ResolveTimeZone(_options.TimeZoneId);
+            }
         }
     }
 

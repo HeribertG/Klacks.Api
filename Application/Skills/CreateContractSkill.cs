@@ -34,6 +34,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -44,10 +45,12 @@ namespace Klacks.Api.Application.Skills;
 public class CreateContractSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
-    public CreateContractSkill(IMediator mediator)
+    public CreateContractSkill(IMediator mediator, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -63,10 +66,17 @@ public class CreateContractSkill : BaseSkillImplementation
 
         var guaranteedHours = GetParameter<decimal?>(parameters, "guaranteedHours");
 
-        var validFrom = GetParameter<DateTime?>(parameters, "validFrom");
-        if (!validFrom.HasValue)
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
+        if (string.IsNullOrWhiteSpace(validFromStr))
         {
             return SkillResult.Error("Missing required parameter 'validFrom' (YYYY-MM-DD).");
+        }
+
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        if (invalidValidFrom)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
         }
 
         var minimumHours = GetParameter<decimal?>(parameters, "minimumHours")
@@ -81,7 +91,12 @@ public class CreateContractSkill : BaseSkillImplementation
         var saRate = GetParameter<decimal?>(parameters, "saRate") ?? decimal.Zero;
         var soRate = GetParameter<decimal?>(parameters, "soRate") ?? decimal.Zero;
         var percent = GetParameter<decimal?>(parameters, "percent");
-        var validUntil = GetParameter<DateTime?>(parameters, "validUntil");
+        var validUntilStr = GetParameter<string>(parameters, "validUntil");
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today);
+        if (invalidValidUntil)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
 
         var negativeNullable = new (string Key, decimal? Value)[]
         {

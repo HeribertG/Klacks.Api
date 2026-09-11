@@ -19,7 +19,8 @@ public sealed record EscalationStageAlertTriggerEvent(
     string UserId,
     string EmployeeName,
     DateTime ShiftStartUtc,
-    DateTime DueAtUtc) : IAgentTriggerEvent
+    DateTime DueAtUtc,
+    TimeZoneInfo CompanyTimeZone) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.EscalationStageAlert;
     public string Severity => AgentTriggerSeverity.High;
@@ -28,16 +29,18 @@ public sealed record EscalationStageAlertTriggerEvent(
     public Guid? TargetUserId => Guid.TryParse(UserId, out var id) ? id : null;
 
     /// <summary>
-    /// dueTime is rendered in UTC, not the installation's configured timezone: no reusable UTC-to-local
-    /// conversion exists outside ICompanyClock, which only resolves a date, not a clock time. Same
-    /// simplification as E64 (docs/PLAN-messenger-ausfallmeldung-eskalation-2026-08-15.md) - the
-    /// assumption is marked here rather than silently guessed at.
+    /// date and dueTime are rendered in the company's configured time zone (via ICompanyClock, resolved
+    /// once by EscalationNotifier.NotifyStageAsync) instead of raw UTC, so a shift starting near midnight
+    /// in a positive-offset zone reports the correct local calendar day. The zone id is appended to
+    /// dueTime so the recipient is never left guessing which zone the clock time is in.
     /// </summary>
     public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
     {
         ["employee"] = EmployeeName,
-        ["date"] = ShiftStartUtc.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
-        ["dueTime"] = DueAtUtc.ToString("HH:mm", CultureInfo.InvariantCulture) + " UTC"
+        ["date"] = TimeZoneInfo.ConvertTimeFromUtc(ShiftStartUtc, CompanyTimeZone)
+            .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
+        ["dueTime"] = TimeZoneInfo.ConvertTimeFromUtc(DueAtUtc, CompanyTimeZone)
+            .ToString("HH:mm", CultureInfo.InvariantCulture) + " " + CompanyTimeZone.Id
     };
 
     public string DedupKey => $"{StageId}:escalation-stage-alert";

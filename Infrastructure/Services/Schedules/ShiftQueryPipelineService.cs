@@ -43,9 +43,9 @@ public class ShiftQueryPipelineService : IShiftQueryPipelineService
         return _statusFilterService.ApplyStatusFilter(query, filterType, isSealedOrder, isTimeRange, isSporadic);
     }
 
-    public IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange)
+    public IQueryable<Shift> ApplyDateRangeFilter(IQueryable<Shift> query, bool activeDateRange, bool formerDateRange, bool futureDateRange, DateOnly today)
     {
-        return _dateRangeFilterService.ApplyDateRangeFilter(query, activeDateRange, formerDateRange, futureDateRange);
+        return _dateRangeFilterService.ApplyDateRangeFilter(query, activeDateRange, formerDateRange, futureDateRange, today);
     }
 
     public IQueryable<Shift> ApplySearchFilter(IQueryable<Shift> query, string searchString, bool includeClient)

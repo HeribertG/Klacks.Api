@@ -17,19 +17,17 @@
 /// <param name="messageText">The reminder text (required when actionType is "reminder").</param>
 /// <param name="skillName">The skill to run (required when actionType is "skill").</param>
 /// <param name="skillParameters">JSON object of parameters for the skill (optional).</param>
-/// <param name="timeZoneId">IANA time zone for the schedule; defaults to the app owner's address country time zone.</param>
+/// <param name="timeZoneId">IANA time zone for the schedule; defaults to the user's timezone, else the company's configured time zone.</param>
 /// <param name="maxRuns">Optional cap on the number of runs; null means unlimited.</param>
 /// <param name="allowIrreversibleUnattended">Per-task opt-in letting an irreversible skill run unattended; off for a new task, unchanged when omitted on an existing one.</param>
 /// <param name="apply">When true the task is saved; when false (default) only a preview is returned.</param>
 
 using System.Text.Json;
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -48,18 +46,18 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillRegistry _skillRegistry;
     private readonly ISkillRiskClassifier _riskClassifier;
-    private readonly ISettingsReader _settingsReader;
+    private readonly IEffectiveTimeZoneResolver _timeZoneResolver;
 
     public ScheduleRecurringTaskSkill(
         IScheduledTaskRepository repository,
         ISkillRegistry skillRegistry,
         ISkillRiskClassifier riskClassifier,
-        ISettingsReader settingsReader)
+        IEffectiveTimeZoneResolver timeZoneResolver)
     {
         _repository = repository;
         _skillRegistry = skillRegistry;
         _riskClassifier = riskClassifier;
-        _settingsReader = settingsReader;
+        _timeZoneResolver = timeZoneResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -84,13 +82,15 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 $"Unknown actionType '{actionType}'. Use '{ScheduledTaskActionTypes.Reminder}' or '{ScheduledTaskActionTypes.Skill}'.");
         }
 
-        var resolvedTimeZone = await ResolveTimeZoneAsync(timeZoneId, context);
+        var resolvedTimeZone = await ResolveTimeZoneAsync(timeZoneId, context, cancellationToken);
 
-        if (!CronSchedule.IsValidTimeZone(resolvedTimeZone))
+        if (!CronSchedule.TryNormalizeTimeZoneId(resolvedTimeZone, out var normalizedTimeZone))
         {
             return SkillResult.Error(
-                $"Unknown time zone '{resolvedTimeZone}'. Use an IANA id such as 'Europe/Zurich'.");
+                $"Unknown time zone '{resolvedTimeZone}'. Use a valid IANA time zone id (e.g. 'Continent/City').");
         }
+
+        resolvedTimeZone = normalizedTimeZone!;
 
         if (!CronSchedule.IsValidExpression(cronExpression))
         {
@@ -247,26 +247,16 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
             $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.{resumedHint}");
     }
 
-    private async Task<string> ResolveTimeZoneAsync(string? explicitTimeZoneId, SkillExecutionContext context)
+    private async Task<string> ResolveTimeZoneAsync(
+        string? explicitTimeZoneId, SkillExecutionContext context, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(explicitTimeZoneId))
         {
             return explicitTimeZoneId.Trim();
         }
 
-        var countrySetting = await _settingsReader.GetSetting(SettingKeys.GlobalCalendarCountry);
-        var ownerTimeZone = CountryTimeZones.Resolve(countrySetting?.Value);
-        if (!string.IsNullOrWhiteSpace(ownerTimeZone))
-        {
-            return ownerTimeZone!;
-        }
-
-        if (!string.IsNullOrWhiteSpace(context.UserTimezone))
-        {
-            return context.UserTimezone!;
-        }
-
-        return TimeZoneDefaults.DefaultTimezone;
+        var (_, id) = await _timeZoneResolver.ResolveAsync(context.UserTimezone, cancellationToken);
+        return id;
     }
 
     private static bool TryNormalizeJsonObject(string json, out string normalized)

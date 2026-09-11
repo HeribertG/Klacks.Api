@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Reads an optional DateOnly from the wire and writes it back as yyyy-MM-dd. Null and a blank string
+/// are read as no value; a non-blank string that cannot be understood throws instead of silently
+/// becoming null. Parsing itself is delegated to DateOnlyStringParser so this converter and
+/// DateOnlyJsonConverter never disagree about which strings are valid.
+/// </summary>
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -17,23 +24,18 @@ public class DateOnlyNullableJsonConverter : JsonConverter<DateOnly?>
             return null;
         }
 
+        if (reader.TokenType != JsonTokenType.String)
+        {
+            throw new JsonException(DateOnlyStringParser.InvalidFormatMessage);
+        }
+
         var s = reader.GetString();
-        if (string.IsNullOrEmpty(s))
+        if (string.IsNullOrWhiteSpace(s))
         {
             return null;
         }
 
-        if (DateTime.TryParse(s, out var dateTime))
-        {
-            return DateOnly.FromDateTime(dateTime);
-        }
-
-        if (DateOnly.TryParse(s, out var dateOnly))
-        {
-            return dateOnly;
-        }
-
-        return null;
+        return DateOnlyStringParser.Parse(ref reader, s);
     }
 
     public override void Write(

@@ -15,8 +15,10 @@ public interface IGroupSearchService
     /// </summary>
     /// <param name="query">Base query from repository</param>
     /// <param name="filter">Filter criteria including search string, date ranges, sorting</param>
+    /// <param name="today">The company's own local day (per ICompanyClock.GetTodayDateAsync), resolved
+    /// by the caller for the date-range filter.</param>
     /// <returns>Filtered and sorted queryable of groups</returns>
-    IQueryable<Group> ApplyFilters(IQueryable<Group> query, GroupFilter filter);
+    IQueryable<Group> ApplyFilters(IQueryable<Group> query, GroupFilter filter, DateOnly today);
 
     /// <summary>
     /// Filters groups by search string using various search strategies

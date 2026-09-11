@@ -17,13 +17,14 @@
 /// separate repository exists for any of these read/write shapes.</param>
 /// <param name="groupRepository">Resolves a group to its Nested Set root.</param>
 /// <param name="userManager">Resolves display names and the global admin role membership.</param>
-/// <param name="timeProvider">Injected clock so a test can control "today" for absence filtering.</param>
+/// <param name="companyClock">Resolves "today" (company local day) for absence filtering, so a test can control it via FixedCompanyClock.</param>
 /// <param name="logger">Reserved for future diagnostics; no warning path currently needs it.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Persistence;
@@ -37,20 +38,20 @@ public class EscalationRosterService : IEscalationRosterService
     private readonly DataBaseContext _context;
     private readonly IGroupRepository _groupRepository;
     private readonly UserManager<AppUser> _userManager;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<EscalationRosterService> _logger;
 
     public EscalationRosterService(
         DataBaseContext context,
         IGroupRepository groupRepository,
         UserManager<AppUser> userManager,
-        TimeProvider timeProvider,
+        ICompanyClock companyClock,
         ILogger<EscalationRosterService> logger)
     {
         _context = context;
         _groupRepository = groupRepository;
         _userManager = userManager;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -180,7 +181,7 @@ public class EscalationRosterService : IEscalationRosterService
 
     private async Task<HashSet<string>> GetCurrentlyAbsentUserIdsAsync(CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
 
         var ids = await _context.UserAbsencePeriod
             .Where(a => a.StartDate <= today && a.EndDate >= today)

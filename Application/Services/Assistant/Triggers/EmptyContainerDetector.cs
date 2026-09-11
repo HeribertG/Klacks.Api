@@ -48,13 +48,14 @@
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
 /// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, so the second slice can exclude them.</param>
-/// <param name="timeProvider">Clock forwarded into each emitted event so its period-active severity check is testable.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day for the period-active severity check.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant;
@@ -92,7 +93,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly IContainerTemplateRepository _containerTemplateRepository;
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IAgentConditionRepository _agentConditionRepository;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<EmptyContainerDetector> _logger;
 
     public EmptyContainerDetector(
@@ -100,14 +101,14 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
         IContainerTemplateRepository containerTemplateRepository,
         IShiftGroupScopeReader groupScopeReader,
         IAgentConditionRepository agentConditionRepository,
-        TimeProvider timeProvider,
+        ICompanyClock companyClock,
         ILogger<EmptyContainerDetector> logger)
     {
         _shiftRepository = shiftRepository;
         _containerTemplateRepository = containerTemplateRepository;
         _groupScopeReader = groupScopeReader;
         _agentConditionRepository = agentConditionRepository;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -134,6 +135,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
 
         var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
             emptyContainers.Select(container => container.Id).ToList(), cancellationToken);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
 
         var events = emptyContainers
             .Select(container => (IAgentTriggerEvent)new EmptyContainerTriggerEvent(
@@ -143,7 +145,7 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
                 container.UntilDate,
                 ShiftGroupScope.For(groupsByShift, container.Id),
                 ScheduleSnapshotOf(container),
-                EmptyContainerTriggerEvent.ComputeIsPeriodActive(container.FromDate, container.UntilDate, _timeProvider)))
+                EmptyContainerTriggerEvent.ComputeIsPeriodActive(container.FromDate, container.UntilDate, today)))
             .ToList();
 
         _logger.LogInformation(

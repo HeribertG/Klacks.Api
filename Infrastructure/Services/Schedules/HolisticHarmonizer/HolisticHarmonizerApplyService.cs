@@ -7,6 +7,7 @@ using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
@@ -36,8 +37,9 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
         IScenarioComplianceService scenarioComplianceService,
         IScheduleTimelineService timelineService,
         IScheduleSnapshotMarkerService snapshotMarkerService,
+        ICompanyClock companyClock,
         ILogger<HarmonizerApplyService> logger)
-        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, logger)
+        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, companyClock, logger)
     {
     }
 }

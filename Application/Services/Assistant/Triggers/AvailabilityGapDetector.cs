@@ -8,10 +8,11 @@
 /// </summary>
 /// <param name="availabilityReadRepository">Read-only availability-gap scans.</param>
 /// <param name="logger">Structured log per tick.</param>
-/// <param name="timeProvider">Clock used to derive today and the next-month window.</param>
+/// <param name="companyClock">Resolves today and the next-month window in the company's own local day.</param>
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -24,23 +25,23 @@ public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFin
 
     private readonly IClientAvailabilityReadRepository _availabilityReadRepository;
     private readonly ILogger<AvailabilityGapDetector> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
 
     public AvailabilityGapDetector(
         IClientAvailabilityReadRepository availabilityReadRepository,
         ILogger<AvailabilityGapDetector> logger,
-        TimeProvider timeProvider)
+        ICompanyClock companyClock)
     {
         _availabilityReadRepository = availabilityReadRepository;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
     }
 
     public string Kind => AgentTriggerKinds.AvailabilityGap;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var window = BuildWindow();
+        var window = await BuildWindowAsync(cancellationToken);
 
         if (!await _availabilityReadRepository.AnyAvailabilityEntriesExistAsync(cancellationToken))
         {
@@ -83,7 +84,7 @@ public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFin
     /// </summary>
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
-        var window = BuildWindow();
+        var window = await BuildWindowAsync(cancellationToken);
 
         if (!await _availabilityReadRepository.AnyAvailabilityEntriesExistAsync(cancellationToken))
         {
@@ -100,9 +101,9 @@ public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFin
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    private (DateOnly Today, DateOnly MonthStart, DateOnly MonthEnd) BuildWindow()
+    private async Task<(DateOnly Today, DateOnly MonthStart, DateOnly MonthEnd)> BuildWindowAsync(CancellationToken cancellationToken)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var monthStart = new DateOnly(today.Year, today.Month, 1).AddMonths(1);
 
         return (today, monthStart, monthStart.AddMonths(1).AddDays(-1));

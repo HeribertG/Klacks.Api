@@ -21,6 +21,7 @@ using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -58,7 +59,7 @@ public class CreateAddressSkill : BaseSkillImplementation
         var validFromRaw = GetParameter<string>(parameters, "validFrom");
         if (!string.IsNullOrWhiteSpace(validFromRaw))
         {
-            if (!DateTime.TryParse(validFromRaw, out var validFrom))
+            if (!SkillUtcDateTimeParser.TryParse(validFromRaw, out var validFrom))
             {
                 return SkillResult.Error($"Invalid validFrom value: {validFromRaw}. Expected format yyyy-MM-dd.");
             }

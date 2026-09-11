@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Riok.Mapperly.Abstractions;
@@ -94,8 +93,7 @@ public partial class SkillMapper
             TenantId = tenantId,
             UserName = userName,
             UserPermissions = userPermissions,
-            AccessToken = accessToken,
-            UserTimezone = TimeZoneDefaults.DefaultTimezone
+            AccessToken = accessToken
         };
     }
 

@@ -26,6 +26,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
@@ -42,15 +43,18 @@ public class ClientSearchRepository : IClientSearchRepository
     private readonly DataBaseContext context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientFuzzySearchService _fuzzySearchService;
+    private readonly ICompanyClock _companyClock;
 
     public ClientSearchRepository(
         DataBaseContext context,
         IClientGroupFilterService groupFilterService,
-        IClientFuzzySearchService fuzzySearchService)
+        IClientFuzzySearchService fuzzySearchService,
+        ICompanyClock companyClock)
     {
         this.context = context;
         _groupFilterService = groupFilterService;
         _fuzzySearchService = fuzzySearchService;
+        _companyClock = companyClock;
     }
 
     public async Task<Client?> FindByMail(string mail)
@@ -177,8 +181,10 @@ public class ClientSearchRepository : IClientSearchRepository
             }
         }
 
+        var effectiveQualificationValidityDate = await ResolveQualificationValidityDateAsync(
+            qualificationId, qualificationValidityDate, cancellationToken);
         query = ApplyStructuredFilters(
-            query, canton, entityType, contractId, city, zipPrefix, qualificationId, qualificationValidityDate);
+            query, canton, entityType, contractId, city, zipPrefix, qualificationId, effectiveQualificationValidityDate);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -246,8 +252,10 @@ public class ClientSearchRepository : IClientSearchRepository
         // subset is established here, exactly as the other fuzzy fallbacks do it.
         query = await _groupFilterService.FilterClientsByGroupId(null, query);
 
+        var effectiveQualificationValidityDate = await ResolveQualificationValidityDateAsync(
+            qualificationId, qualificationValidityDate, cancellationToken);
         query = ApplyStructuredFilters(
-            query, canton, entityType, contractId, city, zipPrefix, qualificationId, qualificationValidityDate);
+            query, canton, entityType, contractId, city, zipPrefix, qualificationId, effectiveQualificationValidityDate);
 
         var items = await ProjectToItems(query).ToListAsync(cancellationToken);
 
@@ -255,6 +263,20 @@ public class ClientSearchRepository : IClientSearchRepository
             .OrderBy(item => rankById[item.Id])
             .Take(limit)
             .ToList();
+    }
+
+    private async Task<DateOnly> ResolveQualificationValidityDateAsync(
+        Guid? qualificationId, DateOnly? qualificationValidityDate, CancellationToken cancellationToken)
+    {
+        // ApplyStructuredFilters only reads this value when qualificationId is set, so the company
+        // clock (a settings read) is skipped entirely for every search that does not filter by
+        // qualification - the overwhelming majority of calls.
+        if (!qualificationId.HasValue)
+        {
+            return default;
+        }
+
+        return qualificationValidityDate ?? await _companyClock.GetTodayDateAsync(cancellationToken);
     }
 
     private static IQueryable<Client> ApplyStructuredFilters(
@@ -265,7 +287,7 @@ public class ClientSearchRepository : IClientSearchRepository
         string? city,
         string? zipPrefix,
         Guid? qualificationId,
-        DateOnly? qualificationValidityDate)
+        DateOnly qualificationValidityDate)
     {
         if (!string.IsNullOrWhiteSpace(canton))
         {
@@ -300,13 +322,12 @@ public class ClientSearchRepository : IClientSearchRepository
 
         if (qualificationId.HasValue)
         {
-            var validityDate = qualificationValidityDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
             query = query.Where(c =>
                 c.Qualifications.Any(q =>
                     !q.IsDeleted &&
                     q.QualificationId == qualificationId.Value &&
-                    (q.ValidFrom == null || q.ValidFrom <= validityDate) &&
-                    (q.ValidUntil == null || q.ValidUntil >= validityDate)));
+                    (q.ValidFrom == null || q.ValidFrom <= qualificationValidityDate) &&
+                    (q.ValidUntil == null || q.ValidUntil >= qualificationValidityDate)));
         }
 
         return query;

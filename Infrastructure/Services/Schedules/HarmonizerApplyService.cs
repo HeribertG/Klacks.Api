@@ -8,6 +8,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
@@ -33,6 +34,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="context">EF Core database context for loading original Work metadata</param>
 /// <param name="scenarioComplianceService">End-state compliance diff of the new scenario versus the real plan</param>
 /// <param name="timelineService">Queues the scenario error-list refresh on the repoint branch (bulk-add refreshes itself)</param>
+/// <param name="companyClock">Resolves the company's current calendar date when the best bitmap has no days</param>
 public class HarmonizerApplyService : IHarmonizerApplyService
 {
     /// <summary>
@@ -57,6 +59,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IScenarioComplianceService _scenarioComplianceService;
     private readonly IScheduleTimelineService _timelineService;
     private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -70,6 +73,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IScenarioComplianceService scenarioComplianceService,
         IScheduleTimelineService timelineService,
         IScheduleSnapshotMarkerService snapshotMarkerService,
+        ICompanyClock companyClock,
         ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
@@ -82,6 +86,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         _scenarioComplianceService = scenarioComplianceService;
         _timelineService = timelineService;
         _snapshotMarkerService = snapshotMarkerService;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -160,7 +165,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             var workIds = CollectWorkIds(bestBitmap);
             var originalWorks = await LoadWorksAsync(workIds, ct);
 
-            var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : DateOnly.FromDateTime(DateTime.UtcNow);
+            var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : await _companyClock.GetTodayDateAsync(ct);
             var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
 
             var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);

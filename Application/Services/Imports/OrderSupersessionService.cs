@@ -14,6 +14,7 @@
 /// <param name="triggerService">Delivers one proactive cancellation notice per dropped Work.</param>
 /// <param name="groupScopeReader">Resolves the groups of the dropped Work's Shift, which scope that notice's audience.</param>
 /// <param name="unitOfWork">Wraps close, cancel and re-open in one transaction.</param>
+/// <param name="companyClock">Resolves the company's current calendar date for the closed order's UntilDate.</param>
 /// <param name="logger">Structured log per superseded order.</param>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -21,6 +22,7 @@ using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Application.Services.Imports;
@@ -33,6 +35,7 @@ public class OrderSupersessionService
     private readonly IAgentTriggerService _triggerService;
     private readonly IShiftGroupScopeReader _groupScopeReader;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<OrderSupersessionService> _logger;
 
     public OrderSupersessionService(
@@ -42,6 +45,7 @@ public class OrderSupersessionService
         IAgentTriggerService triggerService,
         IShiftGroupScopeReader groupScopeReader,
         IUnitOfWork unitOfWork,
+        ICompanyClock companyClock,
         ILogger<OrderSupersessionService> logger)
     {
         _shiftRepository = shiftRepository;
@@ -50,6 +54,7 @@ public class OrderSupersessionService
         _triggerService = triggerService;
         _groupScopeReader = groupScopeReader;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -60,7 +65,7 @@ public class OrderSupersessionService
             return;
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var droppedWork = new List<Work>();
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>

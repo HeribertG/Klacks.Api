@@ -18,7 +18,11 @@ public interface IShiftRepository : IBaseRepository<Shift>
    
     IQueryable<Shift> GetQueryWithClient();
 
-    IQueryable<Shift> FilterShifts(ShiftFilter filter);
+    /// <summary>
+    /// Filters shifts by the given criteria. <paramref name="today"/> is the company's own local day
+    /// (per ICompanyClock), resolved by the caller since this method itself is synchronous.
+    /// </summary>
+    IQueryable<Shift> FilterShifts(ShiftFilter filter, DateOnly today);
 
     Task<TruncatedShift> GetFilteredAndPaginatedShifts(ShiftFilter filter);
 

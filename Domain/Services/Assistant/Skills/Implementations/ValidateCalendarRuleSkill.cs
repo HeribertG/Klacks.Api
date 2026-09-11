@@ -1,6 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Skill that dry-runs a calendar rule grammar against a given (or the company's current) year and
+/// reports the resulting date without persisting anything.
+/// </summary>
+/// <param name="companyClock">Resolves the company's current calendar year when no year is supplied.</param>
+
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Holidays;
@@ -10,18 +17,25 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 [SkillImplementation("validate_calendar_rule")]
 public class ValidateCalendarRuleSkill : BaseSkillImplementation
 {
-    public override Task<SkillResult> ExecuteAsync(
+    private readonly ICompanyClock _companyClock;
+
+    public ValidateCalendarRuleSkill(ICompanyClock companyClock)
+    {
+        _companyClock = companyClock;
+    }
+
+    public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
         var rule = GetParameter<string>(parameters, "rule");
         var subRule = GetParameter<string>(parameters, "subRule");
-        var year = GetParameter<int?>(parameters, "year") ?? DateTime.Now.Year;
+        var year = GetParameter<int?>(parameters, "year") ?? (await _companyClock.GetTodayDateAsync(cancellationToken)).Year;
 
         if (string.IsNullOrWhiteSpace(rule))
         {
-            return Task.FromResult(SkillResult.Error("Rule cannot be empty"));
+            return SkillResult.Error("Rule cannot be empty");
         }
 
         try
@@ -53,15 +67,15 @@ public class ValidateCalendarRuleSkill : BaseSkillImplementation
                     DayOfWeek = holiday.CurrentDate.DayOfWeek.ToString()
                 };
 
-                return Task.FromResult(SkillResult.SuccessResult(result,
-                    $"Rule '{rule}' is valid. Calculated date: {holiday.FormatDate} ({holiday.CurrentDate.DayOfWeek})"));
+                return SkillResult.SuccessResult(result,
+                    $"Rule '{rule}' is valid. Calculated date: {holiday.FormatDate} ({holiday.CurrentDate.DayOfWeek})");
             }
 
-            return Task.FromResult(SkillResult.Error("Rule did not produce a valid date"));
+            return SkillResult.Error("Rule did not produce a valid date");
         }
         catch (Exception ex)
         {
-            return Task.FromResult(SkillResult.Error($"Invalid rule format: {ex.Message}"));
+            return SkillResult.Error($"Invalid rule format: {ex.Message}");
         }
     }
 }

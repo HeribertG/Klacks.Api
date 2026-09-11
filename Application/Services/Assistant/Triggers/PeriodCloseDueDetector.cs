@@ -18,6 +18,7 @@
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period ends.</param>
 /// <param name="activityProbe">Answers whether the period holds any real work assignment at all.</param>
 /// <param name="logger">Structured log per tick.</param>
+/// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -38,7 +39,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
     private readonly IWeekConfiguration _weekConfiguration;
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<PeriodCloseDueDetector> _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ICompanyClock _companyClock;
 
     public PeriodCloseDueDetector(
         IGroupRepository groupRepository,
@@ -46,21 +47,21 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
         IWeekConfiguration weekConfiguration,
         IScheduleActivityProbe activityProbe,
         ILogger<PeriodCloseDueDetector> logger,
-        TimeProvider timeProvider)
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
         _weekConfiguration = weekConfiguration;
         _activityProbe = activityProbe;
         _logger = logger;
-        _timeProvider = timeProvider;
+        _companyClock = companyClock;
     }
 
     public string Kind => AgentTriggerKinds.PeriodCloseDue;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var groups = await _groupRepository.List();
         if (groups.Count == 0)
         {
