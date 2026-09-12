@@ -34,7 +34,7 @@ public class DeepSeekProvider : BaseHttpProvider
 
     // DeepSeek passes tool_choice through to its OpenAI-style API; thinking models can reject
     // "required", and the one-shot fallback then retries with "auto".
-    public bool SupportsToolChoice => true;
+    public override bool SupportsToolChoice => true;
 
     // DeepSeek bills a context-cache hit at roughly a tenth of the miss rate, well below the 0.5
     // default that covers OpenAI-style caching.

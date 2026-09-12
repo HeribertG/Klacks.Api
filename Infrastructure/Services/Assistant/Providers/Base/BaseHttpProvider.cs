@@ -113,6 +113,12 @@ public abstract class BaseHttpProvider : ILLMProvider
 
     public virtual bool SupportsStreaming => false;
 
+    // Declared here even though ILLMProvider carries a default implementation: a subclass that only
+    // re-declares the member (without this virtual to override) does NOT re-map the interface, so a
+    // caller holding an ILLMProvider silently keeps reading the interface default instead of the
+    // subclass value. DeepSeek's tool_choice support was invisible that way.
+    public virtual bool SupportsToolChoice => false;
+
     public virtual IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
         CancellationToken cancellationToken = default)

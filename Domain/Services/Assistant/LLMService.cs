@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -57,6 +58,12 @@ public class LLMService : ILLMService
 
     // Never starve history below this, even if overhead estimates are pessimistic.
     internal const int MinHistoryBudgetTokens = 4_000;
+
+    // Deliberately carries no counts. It is inserted at position 0, i.e. into the prompt prefix every
+    // provider with automatic prefix caching (DeepSeek among them) hashes: message counts change from
+    // turn to turn and from tool iteration to tool iteration, so a counted notice invalidated the cache
+    // on every single call. Internal so tests assert against this exact text instead of copying it.
+    internal const string TruncationNotice = "[Earlier messages truncated.]";
 
     // Per function-result cap fed back into the loop, so one huge tool payload cannot blow the budget.
     private const int MaxToolResultChars = 8_000;
@@ -227,6 +234,8 @@ public class LLMService : ILLMService
     {
         var stopwatch = Stopwatch.StartNew();
 
+        yield return SseChunk.Status(SseStatusStages.PreparingContext, ElapsedMsFor(context));
+
         string? preparationError = null;
         (LLMModel? model, ILLMProvider? provider, string? error,
             LLMConversation? conversation, string? systemPrompt, string? volatilePrompt,
@@ -275,6 +284,12 @@ public class LLMService : ILLMService
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
+
+        // Emitted unconditionally, not only when a recipe turns out to be active: the resolve itself
+        // runs on every turn (recipe table read, trigger matching, semantic fallback and slot
+        // extraction — the last of which is a model call), so the wait is real regardless of outcome.
+        yield return SseChunk.Status(SseStatusStages.ResolvingRecipe, ElapsedMsFor(context));
+
         var enginePlan = await ResolveOrResumeRecipeAsync(
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
@@ -304,6 +319,7 @@ public class LLMService : ILLMService
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
                 var confirmInstruction = enginePlan.ConfirmationInstruction;
+                yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
                 var confirmResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
@@ -342,6 +358,7 @@ public class LLMService : ILLMService
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
                     RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
+                yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
                 var askResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
@@ -434,6 +451,8 @@ public class LLMService : ILLMService
             var accumulator = new StreamAccumulator();
             var hasToolEnd = false;
 
+            yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
+
             if (provider!.SupportsStreaming)
             {
                 // Transient provider failures (rate limit, overload) typically kill the stream before
@@ -491,7 +510,7 @@ public class LLMService : ILLMService
                             if (!firstTokenLogged)
                             {
                                 ttftMs = stopwatch.ElapsedMilliseconds;
-                                _logger.LogInformation("LLM TTFT: {Ms}ms", ttftMs);
+                                _logger.LogInformation("LLM TTFT: {Ms}ms turn={Turn}", ttftMs, TurnCorrelationFor(context));
                                 firstTokenLogged = true;
                             }
                             accumulator.AppendContent(token);
@@ -569,6 +588,8 @@ public class LLMService : ILLMService
                 calledFunctionNames.Add(call.FunctionName);
                 yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
             }
+
+            yield return SseChunk.Status(SseStatusStages.ExecutingTool, ElapsedMsFor(context), toolIterationsRun);
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
             recipePlan?.Observe(functionCalls);
@@ -839,6 +860,19 @@ public class LLMService : ILLMService
 
         return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile);
     }
+
+    // Milliseconds since the turn clock started, i.e. before the toolset assembly the caller already
+    // paid for. Null when no clock was handed in, which keeps elapsedMs off the wire instead of
+    // reporting an age measured from an unrelated zero point.
+    private static long? ElapsedMsFor(LLMContext context) =>
+        context.TurnStartTimestamp is { } start
+            ? (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds
+            : null;
+
+    // The turn's short correlation id: the same value the ambient TurnCorrelation carries into the
+    // retrieval log, so both sides of a turn can be joined without threading an id through the layers.
+    private static string TurnCorrelationFor(LLMContext context) =>
+        context.TurnId is { } turnId ? TurnCorrelation.Format(turnId) : TurnCorrelation.CurrentOrNone;
 
     // Effective per-turn budget for conversation history, derived from the provider's real input limit
     // for this model. Shared by the initial truncation and the in-loop re-truncation so both use the
@@ -1567,7 +1601,7 @@ public class LLMService : ILLMService
             truncated.Insert(0, new Providers.LLMMessage
             {
                 Role = "system",
-                Content = $"[Earlier messages truncated. Showing last {truncated.Count} of {history.Count} messages.]"
+                Content = TruncationNotice
             });
         }
 

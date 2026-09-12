@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -222,6 +223,7 @@ public class ChatController : ControllerBase
             return;
         }
 
+        var turnStartTimestamp = Stopwatch.GetTimestamp();
         var userId = GetCurrentUserId();
         _activityTracker.MarkActive(userId);
         var userRights = GetCurrentUserRights();
@@ -237,21 +239,21 @@ public class ChatController : ControllerBase
 
         await Response.StartAsync(cancellationToken);
 
-        var jsonOptions = new System.Text.Json.JsonSerializerOptions
-        {
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        };
+        // Sent here rather than where the assembly is actually started: everything between this line
+        // and the orchestrator - the navigation match and its feedback log, which is a DB write - runs
+        // before the browser would otherwise learn that anything is happening. The event is advisory,
+        // so every path below stays free to continue with its own events; the fast path just sends
+        // metadata, content and done on top of it.
+        await WriteSseEventAsync(
+            SseChunk.Status(SseStatusStages.AssemblingToolset, ElapsedMsSince(turnStartTimestamp)),
+            cancellationToken);
 
         if (normalized.IsEmptyAfterNormalization)
         {
             await _navLogger.LogAsync(request.Message, locale, null, 0, null, currentUserGuid, cancellationToken);
-            var greetingContent = SseChunk.Content(NavigationResponseKeys.EmptyUtteranceGreeting);
-            var greetingData = System.Text.Json.JsonSerializer.Serialize(greetingContent, jsonOptions);
-            await Response.WriteAsync($"event: content\ndata: {greetingData}\n\n", cancellationToken);
-            var doneSse = System.Text.Json.JsonSerializer.Serialize(SseChunk.Done(), jsonOptions);
-            await Response.WriteAsync($"event: done\ndata: {doneSse}\n\n", cancellationToken);
-            await Response.Body.FlushAsync(cancellationToken);
+            await WriteSseEventAsync(
+                SseChunk.Content(NavigationResponseKeys.EmptyUtteranceGreeting), cancellationToken);
+            await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
             return;
         }
 
@@ -260,31 +262,32 @@ public class ChatController : ControllerBase
 
         if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId, userId))
         {
-            var navMetadata = new SseChunk
-            {
-                Type = SseChunkType.Metadata,
-                NavigateTo = navMatch.Route,
-                Target = ResolveInPageTarget(navMatch),
-                ActionPerformed = true
-            };
-            var navData = System.Text.Json.JsonSerializer.Serialize(navMetadata, jsonOptions);
-            await Response.WriteAsync($"event: metadata\ndata: {navData}\n\n", cancellationToken);
-            await Response.Body.FlushAsync(cancellationToken);
-
-            var ackChunk = SseChunk.Content(NavigationResponseKeys.FastPathAck);
-            var ackData = System.Text.Json.JsonSerializer.Serialize(ackChunk, jsonOptions);
-            await Response.WriteAsync($"event: content\ndata: {ackData}\n\n", cancellationToken);
-
-            var fastDone = System.Text.Json.JsonSerializer.Serialize(SseChunk.Done(), jsonOptions);
-            await Response.WriteAsync($"event: done\ndata: {fastDone}\n\n", cancellationToken);
-            await Response.Body.FlushAsync(cancellationToken);
+            await WriteSseEventAsync(
+                new SseChunk
+                {
+                    Type = SseChunkType.Metadata,
+                    NavigateTo = navMatch.Route,
+                    Target = ResolveInPageTarget(navMatch),
+                    ActionPerformed = true
+                },
+                cancellationToken);
+            await WriteSseEventAsync(SseChunk.Content(NavigationResponseKeys.FastPathAck), cancellationToken);
+            await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
             return;
         }
 
         _logger.LogInformation("Processing streaming assistant request for user {UserId}", userId);
 
+        // Published from the controller's own async flow, not from inside the orchestrator's iterator:
+        // an AsyncLocal written between two yields is restored to the consumer's value when the
+        // consumer resumes, so the id would be gone for every pass after the first.
+        var turnId = Guid.NewGuid();
+        TurnCorrelation.Set(turnId);
+
         var streamRequest = new LLMStreamRequest
         {
+            TurnId = turnId,
+            TurnStartTimestamp = turnStartTimestamp,
             Message = request.Message,
             UserId = userId,
             ConversationId = request.ConversationId,
@@ -307,21 +310,7 @@ public class ChatController : ControllerBase
                         currentUserGuid, cancellationToken);
                 }
 
-                var eventName = chunk.Type switch
-                {
-                    SseChunkType.StreamStart => "stream_start",
-                    SseChunkType.Content => "content",
-                    SseChunkType.FunctionCall => "function_call",
-                    SseChunkType.FunctionResult => "function_result",
-                    SseChunkType.Metadata => "metadata",
-                    SseChunkType.Done => "done",
-                    SseChunkType.Error => "error",
-                    _ => "unknown"
-                };
-
-                var data = System.Text.Json.JsonSerializer.Serialize(chunk, jsonOptions);
-                await Response.WriteAsync($"event: {eventName}\ndata: {data}\n\n", cancellationToken);
-                await Response.Body.FlushAsync(cancellationToken);
+                await WriteSseEventAsync(chunk, cancellationToken);
             }
         }
         catch (Exception) when (cancellationToken.IsCancellationRequested)
@@ -333,10 +322,8 @@ public class ChatController : ControllerBase
             _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
             try
             {
-                var errorChunk = SseChunk.Error(AssistantStreamErrorMessages.UnexpectedFailure);
-                var errorData = System.Text.Json.JsonSerializer.Serialize(errorChunk, jsonOptions);
-                await Response.WriteAsync($"event: error\ndata: {errorData}\n\n", cancellationToken);
-                await Response.Body.FlushAsync(cancellationToken);
+                await WriteSseEventAsync(
+                    SseChunk.Error(AssistantStreamErrorMessages.UnexpectedFailure), cancellationToken);
             }
             catch (Exception writeEx)
             {
@@ -344,6 +331,20 @@ public class ChatController : ControllerBase
             }
         }
     }
+
+    /// <param name="chunk">Chunk to serialize; its type picks the SSE event name</param>
+    /// <param name="cancellationToken">Aborts the write when the client disconnects</param>
+    private async Task WriteSseEventAsync(SseChunk chunk, CancellationToken cancellationToken)
+    {
+        var data = System.Text.Json.JsonSerializer.Serialize(chunk, SseChunkJson.Options);
+        await Response.WriteAsync(
+            $"event: {SseEventNames.For(chunk.Type)}\ndata: {data}\n\n", cancellationToken);
+        await Response.Body.FlushAsync(cancellationToken);
+    }
+
+    /// <param name="startTimestamp">Stopwatch timestamp the turn started at</param>
+    private static long ElapsedMsSince(long startTimestamp) =>
+        (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
 
     [HttpGet("functions")]
     public async Task<ActionResult<object>> GetAvailableFunctions()

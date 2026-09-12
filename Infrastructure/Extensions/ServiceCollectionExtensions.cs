@@ -1098,9 +1098,11 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingProvider>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
             services.AddSingleton<IUnloadableInferenceSession>(sp => sp.GetRequiredService<OnnxEmbeddingProvider>());
 
+            var allowIntraOpSpinning = ResolveOnnxAllowIntraOpSpinning(configuration);
             services.AddSingleton<OnnxRerankerProvider>(sp => new OnnxRerankerProvider(
                 sp.GetRequiredService<ModelLoader>(),
-                Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName)));
+                Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName),
+                profile: OnnxRerankerRuntimeProfile.ForIntraOpSpinning(allowIntraOpSpinning)));
             services.AddSingleton<IRerankerProvider>(sp => sp.GetRequiredService<OnnxRerankerProvider>());
             services.AddSingleton<IUnloadableInferenceSession>(sp => sp.GetRequiredService<OnnxRerankerProvider>());
         }
@@ -1190,13 +1192,19 @@ public static class ServiceCollectionExtensions
 
         // ONNX Runtime 1.20.1's bundled cpuinfo could not detect the Snapdragon X SoC on Windows ARM64
         // and faulted the process when an InferenceSession was created, so ONNX used to be disabled
-        // there. That no longer reproduces on the 1.27.1 runtime this project ships: opening a session
+        // there. That no longer reproduces on the 1.29.0 runtime this project ships: opening a session
         // AND running a forward pass both succeed on Windows ARM64 (see
         // OnnxRuntimePlatformProbeTests in Klacks.IntegrationTest, which is the way to re-check this on
         // any new platform). Keeping the block would silently downgrade every ARM host to a remote
         // embedding API, and ARM servers are becoming ordinary deployment targets.
         return true;
     }
+
+    // Internal so the unit tests can pin the default and the parsing without building the container.
+    internal static bool ResolveOnnxAllowIntraOpSpinning(IConfiguration configuration) =>
+        bool.TryParse(configuration[KnowledgeIndexConstants.OnnxAllowIntraOpSpinningConfigKey], out var allow)
+            ? allow
+            : KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning;
 
     private static string ResolveSnapshotFile(IConfiguration configuration, IHostEnvironment environment)
     {
