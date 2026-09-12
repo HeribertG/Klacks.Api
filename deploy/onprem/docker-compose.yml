@@ -96,6 +96,9 @@ services:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
+      # Without it every recreate (auto-update) re-downloads embedder + reranker (~800 MB) from
+      # Hugging Face.
+      - api-models:/app/Cache/Models
       - api-erp-import:/app/ErpImport
       - ./regions:/app/regions:ro
     depends_on:
@@ -234,6 +237,8 @@ volumes:
   api-documents:
     driver: local
   api-dataprotection:
+    driver: local
+  api-models:
     driver: local
   api-erp-import:
     driver: local
