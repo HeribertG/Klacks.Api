@@ -85,6 +85,13 @@ services:
       # Switching it on also means sticky sessions in the proxy - the nginx template carries a
       # commented ip_hash upstream for exactly that.
       - SignalR__Backplane__ConnectionString=${SIGNALR_BACKPLANE_CONNECTIONSTRING:-}
+      # Minutes an idle ONNX inference session may live before it is disposed. 0 disables idle
+      # unloading (KnowledgeIndexConstants.IdleUnloadDisabled), which is the right default at the
+      # 3584M limit below: both sessions fit permanently, and releasing them makes the next
+      # question pay the reload (embedding ~2.2-2.9 s, reranking ~1.1 s, plus ~1.3 GB of
+      # allocation churn). Set this to 30 only together with a reduced memory limit - see
+      # KLACKS_API_IDLE_UNLOAD_MINUTES in .env.example. Values between 1 and 5 are raised to 5.
+      - KnowledgeIndex__IdleUnloadMinutes=${KLACKS_API_IDLE_UNLOAD_MINUTES:-0}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
@@ -105,8 +112,21 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
-          cpus: '1.5'
+          # Sized for the local ONNX retrieval pair (embedder + reranker), which stays resident for
+          # the lifetime of the process. Measured on the vendor's production host 2026-09-12: a cold
+          # load of both sessions settles on a 2304 MB plateau (1017 MB base + 1171 MB embedder +
+          # 116 MB reranker) and the kernel OOM-killed the container at 2471 MB anon-rss under a
+          # 2560M cap. 2G, the value shipped before this, could not run local retrieval at all.
+          # 3584M keeps real headroom above that plateau, which is why the host needs 8 GB of RAM.
+          # Smaller hosts: see KLACKS_API_MEMORY_LIMIT in .env.example - never lower this alone.
+          memory: ${KLACKS_API_MEMORY_LIMIT:-3584M}
+          # 3.0 assumes a 4 vCPU host. Same measurement: under cpus 1.5 the reranker pinned the
+          # quota (docker stats 151%, 144 throttled periods / 7.15 s throttled in two minutes,
+          # 4339-4860 ms per 25 pairs); at 3.0 throttling dropped to zero and the pass fell to
+          # 2994-3163 ms, with time-to-first-token down by up to a third. A quota is a ceiling,
+          # not a reservation. Note that Environment.ProcessorCount follows the quota at start-up
+          # (3.0 -> 3 ONNX intra-op threads), so this also sizes the thread pools.
+          cpus: '${KLACKS_API_CPU_LIMIT:-3.0}'
 
   klacks-ui:
     image: ghcr.io/heribertg/klacks-ui:${KLACKS_UI_TAG:-latest}

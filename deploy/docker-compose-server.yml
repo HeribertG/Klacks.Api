@@ -173,9 +173,10 @@ services:
           # 2560M was not enough. A cold reload of both ONNX sessions settles on a 2304 MB plateau
           # (1017 MB base + 1171 MB embedder + 116 MB reranker, production log 2026-09-12), and the
           # kernel OOM-killed the container at 2471 MB anon-rss. 3584M keeps real headroom above that
-          # plateau. 4096M does not fit: the 8 GB host also budgets 4G for the Whisper STT container
-          # (klacks-whisper-stt, started separately under the "whisper" profile), next to the
-          # database and the small web containers below.
+          # plateau. 4096M does not fit into the 8 GB host budget, which also carries postgres (2G),
+          # the Whisper STT container (2560M, see whisper-stt below — an earlier version of this
+          # comment claimed 4G and a "whisper" profile; neither was true, the service simply had no
+          # definition in this file at all) and the small web containers below.
           memory: 3584M
           # Measured on production 2026-09-12 after v1.0.32: under cpus 1.5 the reranker pinned the
           # quota (docker stats 151%, 144 throttled periods / 7.15s throttled in two minutes, rerank
@@ -412,6 +413,80 @@ services:
           memory: 256M
           cpus: '0.25'
 
+  # Static documentation site, served under /docs by the proxy from the build output in
+  # ./klacks-docs-site. Restored into this file on 2026-09-12: the container has been running since
+  # the 2026-07-11 revision (still on the server as docker-compose.yml.bak-whisper-threads) while its
+  # service definition was dropped from a later edit, so it survived as an orphan — a
+  # `docker compose up -d --remove-orphans` would have deleted it. Definition below matches the
+  # running container (image, bind, network, healthcheck, limits) byte for byte.
+  klacks-docs:
+    image: nginx:alpine
+    container_name: klacks-docs
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - ./klacks-docs-site:/usr/share/nginx/html:ro
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/docs/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          # Unchanged, and it is the right size: nginx itself holds a few MB (docker stats 4.8 MiB
+          # on 2026-09-12), the cgroup memory.peak of 110.8 MiB is almost entirely page cache for
+          # the bind-mounted site, which the kernel reclaims under the cap instead of OOM-killing.
+          memory: 128M
+          cpus: '0.25'
+
+  # Speech-to-text for the assistant's voice input (OpenAI-compatible /v1/audio/transcriptions).
+  # Same orphan story as klacks-docs above, restored from the same 2026-07-11 revision. No profile:
+  # that revision had none either, and the voice input depends on this service being up.
+  whisper-stt:
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    container_name: klacks-whisper-stt
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      # int8 on CPU. The two thread variables are NOT in the 2026-07-11 revision — they were added
+      # to the live container afterwards and are read back from it here, so that a recreate does not
+      # silently let a transcription take every core away from klacks-api on this 4 vCPU host.
+      - WHISPER__COMPUTE_TYPE=int8
+      - WHISPER__CPU_THREADS=2
+      - OMP_NUM_THREADS=2
+    volumes:
+      # Resolves to apps_whisper_models in this project — the existing volume that already holds the
+      # downloaded Systran/faster-whisper-small weights. Renaming it would silently mount an empty
+      # volume and re-download the model from HuggingFace on the next transcription.
+      - whisper_models:/home/ubuntu/.cache/huggingface/hub
+    networks:
+      - klacks_network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8000' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          # Lowered 4G -> 2560M on 2026-09-12 so the 8 GB host budget is honest next to the 3584M
+          # of klacks-api above. What runs here is Systran/faster-whisper-small in int8 (~250 MB of
+          # weights), one worker, and the model is unloaded again after 300 s idle. Measured on
+          # production: 156 MiB resident (docker stats), cgroup memory.peak 307.9 MiB.
+          # 🔴 That peak does NOT include a model load: this container has served no transcription
+          # since its 2026-08-26 restart. 2560M is ~8x the measured peak and comfortably above a
+          # plausible load-plus-inference peak, but the real peak is unmeasured. It is a ceiling,
+          # not a reservation — the container idles at ~156 MiB.
+          memory: 2560M
+          cpus: '2.0'
+
   # Renews the Let's Encrypt certificate every 12h. Renewal only runs when
   # the cert is within 30 days of expiry; otherwise certbot exits as a no-op.
   # After a successful renewal, sends SIGHUP to klacks-proxy via the Docker
@@ -515,4 +590,7 @@ volumes:
   letsencrypt:
     driver: local
   certbot-webroot:
+    driver: local
+  # Existing volume on the server (apps_whisper_models); holds the downloaded Whisper weights.
+  whisper_models:
     driver: local
