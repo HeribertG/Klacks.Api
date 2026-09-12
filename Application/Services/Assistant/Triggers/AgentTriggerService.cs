@@ -98,11 +98,17 @@ public class AgentTriggerService : IAgentTriggerService
 
         var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
+        // Capped once for the whole event, never per recipient: the dedup probe below must ask for
+        // exactly the key that gets stored, or a capped row would never be recognised again and the
+        // same alert would be re-sent on every scan.
+        var contentKey = ProactiveTextTruncator.Cap(triggerEvent.Summary, ProactiveTriggerDispatchLimits.ContentKeyMaxLength);
+        var dedupKey = ProactiveTextTruncator.Cap(triggerEvent.DedupKey, ProactiveTriggerDispatchLimits.DedupKeyMaxLength) ?? string.Empty;
         var conditionId = await ResolveConditionIdAsync(triggerEvent, cancellationToken);
         // Stamped once per event from the injected clock - never from the row's CreateTime, which
         // DataBaseContext.OnBeforeSaving fills from the system clock at save time instead.
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var persisted = 0;
+        var failed = 0;
         var livePushed = 0;
         var inboxSignaled = 0;
         var messengerSent = 0;
@@ -118,7 +124,7 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, conditionId, cancellationToken))
+            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, dedupKey, conditionId, cancellationToken))
             {
                 deduped++;
                 continue;
@@ -140,8 +146,8 @@ public class AgentTriggerService : IAgentTriggerService
                     Id = messageId,
                     UserId = userId,
                     TriggerKind = triggerEvent.Kind,
-                    DedupKey = triggerEvent.DedupKey,
-                    ContentKey = triggerEvent.Summary,
+                    DedupKey = dedupKey,
+                    ContentKey = contentKey,
                     ContentParamsJson = contentParamsJson,
                     Severity = triggerEvent.Severity,
                     ActionRoute = triggerEvent.ActionRoute,
@@ -156,7 +162,12 @@ public class AgentTriggerService : IAgentTriggerService
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Trigger {Kind} persistence failed for user {UserId}", triggerEvent.Kind, userId);
+                // Error, not warning: a failed live push or messenger send still leaves the message
+                // readable in the inbox, but a failed row means this recipient never learns of the
+                // event at all. The loop still continues so one bad row cannot cost the remaining
+                // recipients theirs.
+                failed++;
+                _logger.LogError(ex, "Trigger {Kind} persistence failed for user {UserId}; the notification is lost for this recipient", triggerEvent.Kind, userId);
                 continue;
             }
 
@@ -184,8 +195,8 @@ public class AgentTriggerService : IAgentTriggerService
         }
 
         _logger.LogInformation(
-            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
-            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, triggerEvent.Summary);
+            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Failed} failed. Summary: {Summary}",
+            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, failed, triggerEvent.Summary);
     }
 
     /// <summary>
@@ -429,15 +440,7 @@ public class AgentTriggerService : IAgentTriggerService
     }
 
     private static string TruncateParamValue(string value)
-    {
-        if (value.Length <= ProactiveTriggerDispatchLimits.ContentParamValueMaxLength)
-        {
-            return value;
-        }
-
-        var keepLength = ProactiveTriggerDispatchLimits.ContentParamValueMaxLength - ProactiveTriggerDispatchLimits.TruncationSuffix.Length;
-        return value[..keepLength] + ProactiveTriggerDispatchLimits.TruncationSuffix;
-    }
+        => ProactiveTextTruncator.Cap(value, ProactiveTriggerDispatchLimits.ContentParamValueMaxLength) ?? string.Empty;
 
     /// <summary>
     /// Renders the messenger sentence once per event. A composer failure must not cost the
