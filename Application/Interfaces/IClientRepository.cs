@@ -34,4 +34,15 @@ public interface IClientRepository : IBaseRepository<Client>
     /// without reloading it from the database.
     /// </summary>
     Task<Client?> Put(Client client, Client existingClient);
+
+    /// <summary>
+    /// Synchronises the notes of one client against the incoming list and touches nothing else on the
+    /// client: a note with a known id is updated, a note without one is added, and a stored note absent
+    /// from the list is soft-deleted. Stage-only, like every other write on this repository — the caller
+    /// commits through IUnitOfWork.
+    /// </summary>
+    /// <param name="clientId">Client whose notes are written</param>
+    /// <param name="annotations">Complete note list as it should be afterwards</param>
+    /// <returns>The tracked client, or null when no client carries that id</returns>
+    Task<Client?> PutAnnotations(Guid clientId, ICollection<Annotation> annotations);
 }

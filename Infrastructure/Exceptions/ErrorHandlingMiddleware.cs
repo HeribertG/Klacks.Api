@@ -184,6 +184,21 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (ForbiddenException ex)
+        {
+            _logger.LogWarning(ex, "ForbiddenException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Forbidden",
+                Status = StatusCodes.Status403Forbidden,
+                Detail = ex.Message
+            };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (UnauthorizedException ex)
         {
             _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);

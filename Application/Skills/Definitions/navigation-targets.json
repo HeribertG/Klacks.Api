@@ -2093,9 +2093,9 @@
     "route": "/workplace/edit-address",
     "labelKey": "nav.edit-employee",
     "category": "page",
-    "requiredPermission": "CanViewClients",
+    "requiredPermission": "CanEditClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "mitarbeiterbearbeitung",
@@ -2883,9 +2883,9 @@
     "targetId": "group-detail",
     "route": "/workplace/edit-group",
     "labelKey": "",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "gruppendetails",
@@ -2916,9 +2916,9 @@
     "targetId": "group-detail.name",
     "route": "/workplace/edit-group",
     "labelKey": "",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-item/edit-group-item.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "gruppenname",
@@ -2944,9 +2944,9 @@
     "route": "/workplace/edit-group",
     "labelKey": "group.item",
     "category": "group",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "gruppe information",
@@ -3031,9 +3031,9 @@
     "route": "/workplace/edit-group",
     "labelKey": "group.members",
     "category": "group",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "teilnehmerliste",
@@ -3068,9 +3068,9 @@
     "route": "/workplace/edit-group",
     "labelKey": "group.parent",
     "category": "group",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "übergeordnete gruppe",
@@ -4014,9 +4014,9 @@
     "route": "/workplace/edit-address",
     "labelKey": "nav.new-employee",
     "category": "page",
-    "requiredPermission": "CanViewClients",
+    "requiredPermission": "CanCreateClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "neuer mitarbeiter",
@@ -4056,9 +4056,9 @@
     "route": "/workplace/edit-group",
     "labelKey": "nav.new-group",
     "category": "page",
-    "requiredPermission": "CanEditGroups",
+    "requiredPermission": "CanCreateGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "neue gruppe",
@@ -4102,8 +4102,9 @@
     "route": "/workplace/shift?create=plannable",
     "labelKey": "nav.new-plannable-shift",
     "category": "page",
+    "requiredPermission": "CanCreateShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T05:49:46.873Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "kundenloser dienst",
@@ -5227,9 +5228,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.address",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtadresse",
@@ -5263,9 +5264,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.expenses",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtspesen",
@@ -5298,9 +5299,9 @@
     "targetId": "shift-form",
     "route": "/workplace/edit-shift",
     "labelKey": "",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtformular",
@@ -5328,9 +5329,9 @@
     "targetId": "shift-form.abbreviation",
     "route": "/workplace/edit-shift",
     "labelKey": "",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtkürzel",
@@ -5359,9 +5360,9 @@
     "targetId": "shift-form.name",
     "route": "/workplace/edit-shift",
     "labelKey": "",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtname",
@@ -5386,9 +5387,9 @@
     "targetId": "shift-group",
     "route": "/workplace/edit-shift",
     "labelKey": "",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [],
       "en": [
@@ -5415,9 +5416,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.item",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtauftrag"
@@ -5500,9 +5501,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.macro",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtmakro",
@@ -5535,9 +5536,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.qualifications",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "schichtqualifikationen",
@@ -5574,9 +5575,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.specialFeature",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "spezielle merkmale",
@@ -5612,9 +5613,9 @@
     "route": "/workplace/edit-shift",
     "labelKey": "shift.weekday",
     "category": "shift",
-    "requiredPermission": "CanEditShifts",
+    "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "lastScannedAt": "2026-09-12T12:16:44.358Z",
     "synonyms": {
       "de": [
         "stunden und wochentage",

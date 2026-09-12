@@ -141,12 +141,24 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         authenticatedResult.FirstName = user.FirstName;
         authenticatedResult.Name = user.LastName;
         authenticatedResult.Id = user.Id;
-        authenticatedResult.IsAdmin = await _userManagementService.IsUserInRoleAsync(user, Roles.Admin);
-        authenticatedResult.IsAuthorised = await _userManagementService.IsUserInRoleAsync(user, Roles.Authorised);
-        authenticatedResult.Permissions = Permissions.ExpandRoles(await _userManagementService.GetUserRolesAsync(user));
+        var roles = await _userManagementService.GetUserRolesAsync(user);
+        authenticatedResult.IsAdmin = HasRole(roles, Roles.Admin);
+        authenticatedResult.IsAuthorised = HasRole(roles, Roles.Authorised);
+        authenticatedResult.Permissions = Permissions.ExpandRoles(roles);
 
         return authenticatedResult;
     }
+
+    /// <summary>
+    /// The three role-derived fields of the result are built from one role list instead of one store
+    /// round-trip each. Compared case-insensitively because that is what UserManager.IsInRoleAsync does
+    /// — it resolves through the normalised role name — so the flags keep the meaning they had when they
+    /// were read one by one.
+    /// </summary>
+    /// <param name="roles">The caller's role names as the user store returned them</param>
+    /// <param name="role">The role to look for</param>
+    private static bool HasRole(IEnumerable<string> roles, string role)
+        => roles.Contains(role, StringComparer.OrdinalIgnoreCase);
 
     public async Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken)
     {

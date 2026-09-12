@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T11:33:05.360Z",
+  "generatedAt": "2026-09-12T12:16:44.358Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -19,6 +19,7 @@
       "pageKey": "new-employee",
       "route": "/workplace/edit-address",
       "requiredPermission": "CanViewClients",
+      "actionPermission": "CanCreateClients",
       "hasEntityParam": false,
       "llmHint": "create employee form"
     },
@@ -26,6 +27,7 @@
       "pageKey": "edit-employee",
       "route": "/workplace/edit-address",
       "requiredPermission": "CanViewClients",
+      "actionPermission": "CanEditClients",
       "hasEntityParam": true,
       "llmHint": "edit existing employee"
     },
@@ -69,14 +71,16 @@
     {
       "pageKey": "new-group",
       "route": "/workplace/edit-group",
-      "requiredPermission": "CanEditGroups",
+      "requiredPermission": "CanViewGroups",
+      "actionPermission": "CanCreateGroups",
       "hasEntityParam": false,
       "llmHint": "create group form"
     },
     {
       "pageKey": "edit-group",
       "route": "/workplace/edit-group",
-      "requiredPermission": "CanEditGroups",
+      "requiredPermission": "CanViewGroups",
+      "actionPermission": "CanEditGroups",
       "hasEntityParam": true,
       "llmHint": "edit existing group"
     },
@@ -97,13 +101,15 @@
       "pageKey": "new-plannable-shift",
       "route": "/workplace/shift?create=plannable",
       "requiredPermission": null,
+      "actionPermission": "CanCreateShifts",
       "hasEntityParam": false,
       "llmHint": "create a plannable duty without a customer"
     },
     {
       "pageKey": "edit-shift",
       "route": "/workplace/edit-shift",
-      "requiredPermission": "CanEditShifts",
+      "requiredPermission": "CanViewShifts",
+      "actionPermission": "CanEditShifts",
       "hasEntityParam": true,
       "llmHint": "edit shift template"
     },

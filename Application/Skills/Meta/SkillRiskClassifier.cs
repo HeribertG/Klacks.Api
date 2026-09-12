@@ -233,6 +233,18 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // bulk, no-restore one that put delete_container_template above: set_client_availability only
         // rebuilds it day by day and hour by hour, from information the employee supplied.
         "clear_client_availability",
+        // stash_pending_note can address a note at a named user or at every user of the installation, and
+        // such a note is read back and relayed by Klacksy on the recipient's next turn - text placed in
+        // front of somebody else by an assistant reads as the assistant's own word. The skill body now
+        // refuses a foreign recipient to anyone but an administrator, which closes the Planer-floor hole;
+        // this entry closes the two paths a body gate cannot reach. Sensitive is the only class
+        // UnattendedSkillPolicy refuses on every background path regardless of level or opt-in, and the
+        // only one McpSkillExposurePolicy hides - and /mcp accepts personal-access-token authentication at
+        // the role-less floor. The proactive report path is unaffected: ProactiveActionReporter writes
+        // through IPendingUserNoteRepository directly and never calls this skill. Price, stated plainly:
+        // an ordinary self-note now costs a chat confirmation at every autonomy level, the same friction
+        // that got apply_grouping removed from this list.
+        "stash_pending_note",
         // send_message hands a message to Telegram, WhatsApp, Signal or SMS. It leaves the installation
         // and cannot be recalled - the outward-facing, irrevocable shape that put create_donation_checkout
         // above, and the reason is the same: an assistant that can reach a client's phone unattended must
@@ -475,7 +487,6 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "add_personal_memory",
         "update_ai_memory",
         "delete_ai_memory",
-        "stash_pending_note",
         "manage_pending_notes",
         "create_agent_skill",
         "update_agent_skill",

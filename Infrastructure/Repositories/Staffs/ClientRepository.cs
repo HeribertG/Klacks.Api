@@ -15,6 +15,23 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class ClientRepository : IClientRepository
 {
+    /// <summary>
+    /// Client columns that <c>ClientResource</c> has no counterpart for: the LDAP identity link,
+    /// the identity-provider link and the ERP customer reference pair. A client mapped from that resource
+    /// leaves every one of them at null, and <c>entry.CurrentValues.SetValues(...)</c> would write those
+    /// nulls over the stored values on any ordinary client save — an unlink from LDAP or from the ERP
+    /// that no caller asked for. <see cref="PreserveColumnsWithoutResourceSource"/> restores them from the
+    /// stored client before the copy; the names are exposed so an architecture test can prove the list is
+    /// complete instead of it drifting the next time the entity grows a column.
+    /// </summary>
+    public static readonly IReadOnlyList<string> ColumnsPreservedFromStoredClient =
+    [
+        nameof(Client.LdapExternalId),
+        nameof(Client.IdentityProviderId),
+        nameof(Client.SourceSystemId),
+        nameof(Client.ExternalCustomerReference)
+    ];
+
     private readonly DataBaseContext context;
     private readonly IMacroEngine macroEngine;
     private readonly IClientChangeTrackingService _changeTrackingService;
@@ -187,6 +204,8 @@ public class ClientRepository : IClientRepository
         client.ClientImage = null;
         client.Membership = null;
 
+        PreserveColumnsWithoutResourceSource(client, existingClient);
+
         var entry = this.context.Entry(existingClient);
         entry.CurrentValues.SetValues(client);
         entry.State = EntityState.Modified;
@@ -199,6 +218,51 @@ public class ClientRepository : IClientRepository
         UpdateNestedEntitiesManually(existingClient, client, existingClientImage);
 
         return Task.FromResult<Client?>(existingClient);
+    }
+
+    /// <summary>
+    /// Carries the columns listed in <see cref="ColumnsPreservedFromStoredClient"/> over from the stored
+    /// client whenever the incoming one leaves them empty. Only an empty incoming value is replaced, so
+    /// the LDAP sync and the ERP import — which both write these columns on an entity that already
+    /// carries them — keep writing them unchanged.
+    /// </summary>
+    private static void PreserveColumnsWithoutResourceSource(Client incoming, Client stored)
+    {
+        incoming.LdapExternalId ??= stored.LdapExternalId;
+        incoming.IdentityProviderId ??= stored.IdentityProviderId;
+        incoming.SourceSystemId ??= stored.SourceSystemId;
+        incoming.ExternalCustomerReference ??= stored.ExternalCustomerReference;
+    }
+
+    public async Task<Client?> PutAnnotations(Guid clientId, ICollection<Annotation> annotations)
+    {
+        var existingClient = await this.context.Client
+            .Include(c => c.Annotations)
+            .FirstOrDefaultAsync(c => c.Id == clientId);
+
+        if (existingClient == null)
+        {
+            return null;
+        }
+
+        SynchroniseAnnotations(existingClient, annotations);
+
+        return existingClient;
+    }
+
+    /// <summary>
+    /// The single place client notes are matched against the stored ones: an incoming note with a known
+    /// id updates it, one without is added, a stored one that is absent is soft-deleted, and every note
+    /// is forced onto this client. Both the full client update and the note-only update go through here,
+    /// so the two can never diverge.
+    /// </summary>
+    private void SynchroniseAnnotations(Client existingClient, ICollection<Annotation> annotations)
+    {
+        _collectionUpdateService.UpdateCollection(
+            existingClient.Annotations,
+            annotations,
+            existingClient.Id,
+            (annotation, clientId) => annotation.ClientId = clientId);
     }
 
     private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient, ClientImage? existingClientImage)
@@ -215,11 +279,7 @@ public class ClientRepository : IClientRepository
             existingClient.Id,
             (communication, clientId) => communication.ClientId = clientId);
 
-        _collectionUpdateService.UpdateCollection(
-            existingClient.Annotations,
-            updatedClient.Annotations,
-            existingClient.Id,
-            (annotation, clientId) => annotation.ClientId = clientId);
+        SynchroniseAnnotations(existingClient, updatedClient.Annotations);
 
         _collectionUpdateService.UpdateCollection(
             existingClient.ClientContracts,

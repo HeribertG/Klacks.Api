@@ -35,6 +35,15 @@ public abstract class BaseHandler
                 operationName, contextData);
             throw;
         }
+        // Rethrown rather than wrapped: the catch-all below turns anything unlisted into an
+        // InvalidRequestException, which the middleware answers with 400 — a rights problem reported as
+        // a malformed request.
+        catch (ForbiddenException ex)
+        {
+            _logger.LogWarning(ex, "Forbidden during {OperationName}. Context: {@ContextData}",
+                operationName, contextData);
+            throw;
+        }
         catch (KeyNotFoundException ex)
         {
             _logger.LogWarning(ex, "Resource not found during {OperationName}. Context: {@ContextData}",

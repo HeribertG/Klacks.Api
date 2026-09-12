@@ -12,6 +12,11 @@
 /// they may not enter, and the same helper refuses an in-page target the user may not
 /// reach — a refused target opens the page without scrolling instead of failing the
 /// navigation, since the page-level check has already allowed the page itself.
+/// A page key standing for an action (new-employee, edit-group, …) carries a second permission on top of
+/// the route permission: requiredPermission belongs to the route, is shared by every page key on it and
+/// is inherited by its in-page targets, so it can only carry the right to look, while actionPermission
+/// is the right to save what that one form produces. Both are checked, and a refusal of either is worded
+/// identically — naming which of the two was missing would hand the model an internal identifier.
 /// A page whose manifest entry names a required feature is refused on installations that do not have
 /// that feature - a plugin that is not installed and enabled, or an inbox without an incoming mail
 /// server - because its router guard refuses it there too; that refusal is about the feature, not
@@ -136,6 +141,11 @@ public partial class NavigateToSkill : BaseSkillImplementation
         }
 
         if (!Permissions.HasAllRequiredPermissions(context.UserPermissions, entry.RequiredPermission))
+        {
+            return SkillResult.Error(BuildPermissionDeniedText(context.UserName, PageScope));
+        }
+
+        if (!Permissions.HasAllRequiredPermissions(context.UserPermissions, entry.ActionPermission))
         {
             return SkillResult.Error(BuildPermissionDeniedText(context.UserName, PageScope));
         }

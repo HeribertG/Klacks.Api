@@ -6,21 +6,26 @@
 /// caller without any role (Planer), and an attribute on an override is AND-combined with the base
 /// method's rather than replacing it — the restriction could not be lifted by overriding. Post and
 /// Delete keep the Admin/Authorised restriction; Put is open to every authenticated caller and gated
-/// in the body: CanEditClients passes straight through, CanEditClientNotes only when the incoming
-/// resource differs from the stored client in nothing but its annotations.
+/// in the body: CanEditClients writes the whole client, CanEditClientNotes alone writes the notes out
+/// of the sent resource and nothing else. A note-only caller cannot be refused for a field they never
+/// touched, and cannot reach one either.
+///
+/// What the CanEditClientNotes check does today, stated honestly: the right is part of
+/// Permissions.PlannerFloor, so every authenticated caller holds it and that check refuses nobody. What
+/// actually protects the client here is the branch it guards — the note-only command can write nothing
+/// but the notes, whoever reaches it. The permission check starts separating callers the moment the
+/// right leaves the floor; it is the written decision, not today's barrier.
 /// </summary>
 /// <param name="mediator">Dispatches the client queries and commands</param>
-/// <param name="changeScopeEvaluator">Decides whether an update reaches beyond the annotations</param>
 
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Commands.Clients;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
-using Klacks.Api.Application.Interfaces.Staffs;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.Clients;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,12 +39,10 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
 public class ClientsController : BaseController, ICrudResourceController<ClientResource>
 {
     private readonly IMediator _mediator;
-    private readonly IClientChangeScopeEvaluator _changeScopeEvaluator;
 
-    public ClientsController(IMediator mediator, IClientChangeScopeEvaluator changeScopeEvaluator)
+    public ClientsController(IMediator mediator)
     {
         _mediator = mediator;
-        _changeScopeEvaluator = changeScopeEvaluator;
     }
 
     [HttpGet("{id}")]
@@ -71,21 +74,27 @@ public class ClientsController : BaseController, ICrudResourceController<ClientR
 
         if (!Permissions.HasPermission(rights, Permissions.CanEditClients))
         {
+            // CanEditClientNotes is today part of the Planer floor, so this branch is what every
+            // authenticated caller without CanEditClients takes. The gate is therefore carried by the
+            // command it dispatches, which can write nothing but the notes — not by the permission
+            // check, which separates nobody until the right is taken out of the floor.
             if (!Permissions.HasPermission(rights, Permissions.CanEditClientNotes))
             {
                 return Forbid(JwtBearerDefaults.AuthenticationScheme);
             }
 
-            var scope = await _changeScopeEvaluator.EvaluateAsync(resource, cancellationToken);
-            if (scope == ClientChangeScope.NotFound)
+            // A body with "annotations": null deserialises to a null collection — System.Text.Json
+            // overwrites the constructor default — and must save no notes rather than fail with a 500.
+            var withNotes = await _mediator.Send(
+                new UpdateClientAnnotationsCommand(resource.Id, resource.Annotations?.ToList() ?? []),
+                cancellationToken);
+
+            if (withNotes == null)
             {
                 return NotFound();
             }
 
-            if (scope != ClientChangeScope.AnnotationsOnly)
-            {
-                return Forbid(JwtBearerDefaults.AuthenticationScheme);
-            }
+            return Ok(withNotes);
         }
 
         var model = await _mediator.Send(new PutCommand<ClientResource>(resource));

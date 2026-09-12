@@ -6,6 +6,12 @@
 /// without any role (Planer) must be able to perform. Attributes on an override are AND-combined
 /// with the base method's, so the restriction cannot be widened by overriding — the controller has
 /// to declare its own verbs. Every write is gated on CanEditClientNotes in the body instead.
+///
+/// What that gate does today, stated honestly: CanEditClientNotes is part of Permissions.PlannerFloor,
+/// so every authenticated caller holds it and the check refuses nobody. It is not decoration — it is
+/// the single place the decision is written down, and it starts separating callers the moment the right
+/// leaves the floor. Until then these endpoints are, in effect, open to every signed-in user, and that
+/// is the state to reason about when judging what a compromised account can reach.
 /// </summary>
 /// <param name="mediator">Dispatches the annotation queries and commands</param>
 

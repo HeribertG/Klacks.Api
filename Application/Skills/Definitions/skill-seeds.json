@@ -27487,7 +27487,7 @@
     {
       "name": "stash_pending_note",
       "area": "klacksy",
-      "description": "Stash a piece of information into a persistent note to relay later (a reminder/outbox). Use whenever you learn or prepare something a user should be told but that cannot be delivered in this exact moment. Defaults to the current user; set forEveryone=true to broadcast the note to all users. Notiz für später merken, Information zwischenspeichern, dem Benutzer später mitteilen, Ankündigung an alle Benutzer, Info für alle, note pour plus tard, nota per dopo.",
+      "description": "Stash a piece of information into a persistent note to relay later (a reminder/outbox). Use whenever you learn or prepare something a user should be told but that cannot be delivered in this exact moment. The note belongs to the signed-in user; addressing it at somebody else is reserved for administrators. Notiz für später merken, Information zwischenspeichern, dem Benutzer später mitteilen, note pour plus tard, nota per dopo.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -27510,7 +27510,7 @@
         },
         {
           "name": "userId",
-          "description": "Optional target user id (UUID); defaults to the current user when omitted. Ignored when forEveryone is true.",
+          "description": "Optional target user id (UUID); defaults to the current user when omitted. Only an administrator may name somebody other than the signed-in user; for anyone else the call is refused. Ignored when forEveryone is true.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -27518,7 +27518,7 @@
         },
         {
           "name": "forEveryone",
-          "description": "Set to true to make this a broadcast note addressed to every user instead of a single user. A broadcast is shown to all users for one day and then archived.",
+          "description": "Reserved for administrators: set to true to address the note at every user of the installation instead of the signed-in user; for anyone else the call is refused. A note addressed at everyone is shown to all users for one day and then archived.",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -27547,7 +27547,7 @@
           "accantonare la nota"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "manage_pending_notes",
@@ -27856,7 +27856,9 @@
       "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by it. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria. Use when the user wants to cancel a running process. Do NOT use when they only want to see, list, or check existing data",
       "category": "Action",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": [
+        "CanManageAutomation"
+      ],
       "parameters": [
         {
           "name": "taskId",
@@ -27914,7 +27916,7 @@
           "elimina attivita pianificata"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_erp_import_status",

@@ -9,6 +9,7 @@
 /// <param name="RequiredPermission">Permissions.cs constant required; null = any user.</param>
 /// <param name="HasEntityParam">true when the destination expects an entity id appended.</param>
 /// <param name="RequiredFeature">Optional feature the installation must provide for the page to exist at all, mirroring the Angular featurePluginGuard/InboxGuard; null = the page exists everywhere.</param>
+/// <param name="ActionPermission">Permissions.cs constant the action behind this page key needs on top of RequiredPermission; null = the page key is a plain destination. RequiredPermission stays the route permission so the router guard and the in-page targets keep one shared value, while a key such as new-employee additionally demands the right to save what the form creates — the assistant must not walk a caller into a form they cannot submit.</param>
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record KlacksyPageKeyEntry(
@@ -16,4 +17,5 @@ public sealed record KlacksyPageKeyEntry(
     string Route,
     string? RequiredPermission,
     bool HasEntityParam,
-    string? RequiredFeature = null);
+    string? RequiredFeature = null,
+    string? ActionPermission = null);

@@ -1,12 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Maps a resource type to the route of the controller that serves it, by reflecting over the
-/// controllers marked with ICrudResourceController once at startup. Skills calling the own API therefore never carry a hand-typed route
-/// that can drift from the controller: renaming a controller moves the route here too, and a resource
-/// without a controller fails loudly at the call site instead of producing a 404 the model has to
-/// interpret. Routes are read from the [Route] attribute — inherited from BaseController for most
-/// controllers — with the [controller] token expanded the same way ASP.NET does.
+/// Maps a resource type to the route of the controller that serves it, by reflecting once at startup
+/// over the controllers marked with ICrudResourceController&lt;TResource&gt;. Skills calling the own API
+/// therefore never carry a hand-typed route that can drift from the controller: renaming a controller
+/// moves the route here too, and a resource whose controller does not carry the marker fails loudly at
+/// the call site instead of producing a 404 the model has to interpret. Routes are read from the
+/// [Route] attribute — inherited from BaseController for most controllers — with the [controller] token
+/// expanded the same way ASP.NET does.
 /// </summary>
 
 using System.Reflection;
@@ -20,6 +21,7 @@ public sealed class SelfApiRouteResolver : ISelfApiRouteResolver
 {
     private const string ControllerSuffix = "Controller";
     private const string ControllerToken = "[controller]";
+    private const string MarkerInterfaceName = "ICrudResourceController";
 
     private readonly IReadOnlyDictionary<Type, IReadOnlyList<string>> _routesByResource;
 
@@ -44,8 +46,9 @@ public sealed class SelfApiRouteResolver : ISelfApiRouteResolver
         }
 
         throw new InvalidOperationException(
-            $"No generic CRUD controller serves '{resourceType.Name}'. A skill cannot mutate it over the " +
-            "REST API until one exists — see the rights-unification plan, phase 2.1.");
+            $"No controller marked with {MarkerInterfaceName}<{resourceType.Name}> was found. " +
+            "A skill cannot mutate that resource over the REST API until a controller serving it carries " +
+            "the marker interface.");
     }
 
     /// <summary>

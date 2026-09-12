@@ -5,10 +5,12 @@
 /// reaches the own REST API under a real identity instead of a permission list frozen at authoring
 /// time. Reading the owner's roles fresh on every mint is the point: revoking a role takes effect on the
 /// next run rather than whenever someone remembers to re-create the schedule. Refuses when the owner is
-/// gone, locked out, deactivated or holds no role at all — the role-less case matters because a role-less
-/// token would be rejected by the assistant policy at the endpoint anyway, and a readable refusal beats a
-/// bare 403; the deactivated case matters because otherwise a deactivated account could no longer sign in
-/// but would keep lending its permissions here.
+/// gone, locked out, deactivated or holds no role at all. The role-less refusal is a decision taken here
+/// and nowhere else: a role-less caller is no longer turned away at the endpoint — the assistant policy
+/// lets them through on the Planer floor, which carries write rights — so without this check background
+/// work would silently run with those rights on behalf of an account nobody granted a role to. The
+/// deactivated case matters because otherwise a deactivated account could no longer sign in but would
+/// keep lending its permissions here.
 /// </summary>
 /// <param name="userManager">Resolves the owner and their current roles, lockout and deactivation state</param>
 /// <param name="tokenService">Signs the token with the same key and settings as a login token</param>
@@ -67,6 +69,9 @@ public sealed class InternalTokenIssuer : IInternalTokenIssuer
             return Refuse(ownerUserId, "the owner account is deactivated");
         }
 
+        // Not a restatement of an endpoint check: a role-less bearer is accepted there and falls through
+        // to the Planer floor, which includes schedule and note writes. Background work must not inherit
+        // those rights from an account that was never given a role.
         var roles = await _userManager.GetRolesAsync(user);
         if (roles.Count == 0)
         {

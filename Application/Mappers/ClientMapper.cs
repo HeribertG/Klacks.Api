@@ -80,6 +80,17 @@ public partial class ClientMapper
     }
 
     public partial AnnotationResource ToAnnotationResource(Annotation annotation);
+
+    [MapperIgnoreTarget(nameof(Annotation.CreateTime))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(Annotation.UpdateTime))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(Annotation.DeletedTime))]
+    [MapperIgnoreTarget(nameof(Annotation.IsDeleted))]
+    [MapperIgnoreTarget(nameof(Annotation.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Annotation.Client))]
+    public partial Annotation ToAnnotationEntity(AnnotationResource resource);
+
     public partial AddressResource ToAddressResource(Address address);
     public partial CommunicationResource ToCommunicationResource(Communication communication);
     public partial WorkResource ToWorkResource(Work work);

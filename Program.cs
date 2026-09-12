@@ -175,10 +175,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(AuthorizationPolicies.RequireAssistant, policy => policy.RequireAssistantAccess());
-});
+builder.Services.AddAuthorization(options => options.AddKlacksPolicies());
 
 builder.Services.AddEndpointsApiExplorer();
 
