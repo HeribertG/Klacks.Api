@@ -26,7 +26,7 @@ public sealed record OnnxRerankerRuntimeProfile(
     // so one burst raises resident memory for the lifetime of the process.
     // Concurrency only buys wall-clock time while cores are free; a run beyond the core count waits
     // for a core anyway but already holds its activation buffers. The gate therefore follows the
-    // core count: 2 in the production container (cpus: 1.5 rounds up to ProcessorCount 2) and it
+    // core count: 3 in the production container (cpus: 3.0 sets ProcessorCount 3) and it
     // grows with the CPU limit. Owner decision 2026-09-05; see
     // docs/knowledge/onnx-reranker-memory-probe-2026-09-05.md.
     public static int DefaultMaxConcurrentRuns => Environment.ProcessorCount;

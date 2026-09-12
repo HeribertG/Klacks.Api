@@ -177,7 +177,13 @@ services:
           # (klacks-whisper-stt, started separately under the "whisper" profile), next to the
           # database and the small web containers below.
           memory: 3584M
-          cpus: '1.5'
+          # Measured on production 2026-09-12 after v1.0.32: under cpus 1.5 the reranker pinned the
+          # quota (docker stats 151%, 144 throttled periods / 7.15s throttled in two minutes, rerank
+          # 4339-4860ms per 25 pairs); with cpus 3.0 throttling dropped to zero and rerank fell to
+          # 2994-3163ms, assembly -30-35%, TTFT up to -33%. The host has 4 vCPUs; 3.0 is a ceiling,
+          # not a reservation. Note that Environment.ProcessorCount follows the quota at start-up
+          # (3 -> 3 ONNX intra-op threads).
+          cpus: '3.0'
 
   # Out-of-process auto-update executor. Must outlive klacks-api (it recreates that container), so it
   # runs separately with the Docker socket + compose project dir mounted. Reads/writes the shared
