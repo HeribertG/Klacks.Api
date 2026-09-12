@@ -9,10 +9,12 @@
 /// <param name="ModelId">Optional specific LLM model to use.</param>
 /// <param name="Language">User's UI language (de, en, fr, it).</param>
 
+using System.Diagnostics;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
@@ -67,6 +69,10 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
     {
+        var turnStartTimestamp = Stopwatch.GetTimestamp();
+        var turnId = Guid.NewGuid();
+        TurnCorrelation.Set(turnId);
+
         var agent = request.AgentId.HasValue
             ? await _agentRepository.GetByIdAsync(request.AgentId.Value, cancellationToken)
             : await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
@@ -91,7 +97,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             Message = request.Message,
             UserId = request.UserId,
             ConversationId = request.ConversationId,
-            TurnId = Guid.NewGuid(),
+            TurnId = turnId,
+            TurnStartTimestamp = turnStartTimestamp,
             ModelId = effectiveModelId,
             ProviderId = LLMCapabilityService.MapProvider(earlyModel?.ProviderId),
             Language = request.Language,

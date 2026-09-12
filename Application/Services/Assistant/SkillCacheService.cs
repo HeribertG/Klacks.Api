@@ -19,6 +19,15 @@ public interface ISkillCacheService
 {
     Task<Agent?> GetDefaultAgentAsync(CancellationToken ct = default);
     Task<IReadOnlyList<AgentSkill>> GetEnabledSkillsAsync(Guid agentId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Every enabled, non-deleted skill of every agent — the exact result of
+    /// IAgentSkillRepository.GetAllEnabledAsync, cached. Deliberately not expressed through
+    /// GetEnabledSkillsAsync: that one is scoped to a single agent and does not filter soft-deleted
+    /// rows, so the two are not interchangeable.
+    /// </summary>
+    Task<IReadOnlyList<AgentSkill>> GetAllEnabledSkillsAsync(CancellationToken ct = default);
+
     void InvalidateCache();
     Task WarmupAsync(CancellationToken ct = default);
 }
@@ -31,6 +40,7 @@ public class SkillCacheService : ISkillCacheService
 
     private const string AgentCacheKey = "skill_cache_default_agent";
     private const string SkillsCacheKeyPrefix = "skill_cache_skills_";
+    private const string AllSkillsCacheKeyPrefix = "skill_cache_all_enabled_skills_v";
     private const int CacheMinutes = 5;
 
     private int _cacheVersion;
@@ -85,6 +95,25 @@ public class SkillCacheService : ISkillCacheService
         return skillList;
     }
 
+    public async Task<IReadOnlyList<AgentSkill>> GetAllEnabledSkillsAsync(CancellationToken ct = default)
+    {
+        var cacheKey = GetAllSkillsCacheKey();
+
+        if (_cache.TryGetValue(cacheKey, out IReadOnlyList<AgentSkill>? cached) && cached != null)
+            return cached;
+
+        using var scope = _scopeFactory.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+        var skills = await repo.GetAllEnabledAsync(ct);
+
+        _cache.Set(cacheKey, (IReadOnlyList<AgentSkill>)skills, new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes))
+            .SetSize(1));
+
+        _logger.LogDebug("Cached {Count} enabled skills across all agents", skills.Count);
+        return skills;
+    }
+
     public void InvalidateCache()
     {
         Interlocked.Increment(ref _cacheVersion);
@@ -103,4 +132,6 @@ public class SkillCacheService : ISkillCacheService
     }
 
     private string GetSkillsCacheKey(Guid agentId) => $"{SkillsCacheKeyPrefix}{agentId}_v{_cacheVersion}";
+
+    private string GetAllSkillsCacheKey() => $"{AllSkillsCacheKeyPrefix}{_cacheVersion}";
 }

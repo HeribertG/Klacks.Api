@@ -205,8 +205,13 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // LLMService.PrepareContextAsync, where that measurement lives. Neither the duration of a pass nor
     // how many passes a turn triggered was readable from any log.
     //
-    // "call" is the pass ordinal inside the turn — a turn can trigger more than one, and since the
-    // cross-encoder dominates the cost, two passes cost roughly twice as much as one.
+    // "turn" is the ambient chat-turn id, the join key: count the lines carrying the same turn to see
+    // how many passes that turn paid for, and match them against the "LLM TTFT ... turn=" line of the
+    // same turn. Work outside a chat turn (warmup, background services) logs "-".
+    //
+    // "call" is the pass ordinal inside the DI scope, NOT inside the turn: the recipe engine resolves
+    // in a child scope of its own and therefore starts counting at 1 again. Count "turn" lines, not
+    // this ordinal, when asking how many passes a turn triggered.
     //
     // "chars" is the total candidate text handed to the cross-encoder. It is the closest proxy for its
     // real workload that is available here without a tokenizer, and it is the number the language
@@ -216,7 +221,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // "query"/"perms" are hashes, never the text: the raw query is already logged at Debug elsewhere,
     // and this line is meant to be safe at Information. The pair also answers whether a cross-request
     // cache would ever hit — count repeated (query, perms) pairs in the logs before building one.
-    // NOTE: production log level is Warning, so this stays invisible there until it is raised.
+    // Production raises this namespace to Information (appsettings.Production.json), so the line is
+    // live there — keep it free of raw query text.
     // Never throws: the preload is only ever a head start. Whatever went wrong here happens again in
     // ScoreAsync a moment later, where it surfaces with the call that actually needs the session - and
     // a request that ends early for lack of candidates must not fail on a task nobody awaited.
@@ -250,8 +256,9 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         }
 
         _logger.LogInformation(
-            "[retrieval] call={Call} query={QueryHash} perms={PermHash} kind={Kind} " +
+            "[retrieval] turn={Turn} call={Call} query={QueryHash} perms={PermHash} kind={Kind} " +
             "embed={EmbedMs}ms knn={KnnMs}ms rerank={RerankMs}ms cands={Candidates} chars={Chars} topK={TopK} returned={Returned}",
+            TurnCorrelation.CurrentOrNone,
             call,
             ShortHash(userQuery),
             ShortHash(string.Join(",", userPermissions.OrderBy(p => p, StringComparer.Ordinal))),

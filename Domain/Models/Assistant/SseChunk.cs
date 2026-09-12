@@ -28,6 +28,9 @@ public class SseChunk
     public bool ActionPerformed { get; set; }
     public List<object>? FunctionCalls { get; set; }
     public string? ErrorMessage { get; set; }
+    public string? Stage { get; set; }
+    public long? ElapsedMs { get; set; }
+    public int? Iteration { get; set; }
 
     public static SseChunk StreamStart(string conversationId) => new()
     {
@@ -81,6 +84,21 @@ public class SseChunk
         Type = SseChunkType.Error,
         ErrorMessage = message
     };
+
+    /// <summary>
+    /// Progress event emitted while the turn is still working on the answer. Advisory only: it carries
+    /// no answer content, and a client that ignores it loses nothing but the progress display.
+    /// </summary>
+    /// <param name="stage">One of the SseStatusStages keys; never display text, the client localizes it</param>
+    /// <param name="elapsedMs">Milliseconds since the turn started, omitted when no turn clock is available</param>
+    /// <param name="iteration">1-based tool-loop iteration, set only on stages that repeat per iteration</param>
+    public static SseChunk Status(string stage, long? elapsedMs = null, int? iteration = null) => new()
+    {
+        Type = SseChunkType.Status,
+        Stage = stage,
+        ElapsedMs = elapsedMs,
+        Iteration = iteration
+    };
 }
 
 public enum SseChunkType
@@ -91,5 +109,6 @@ public enum SseChunkType
     FunctionResult,
     Metadata,
     Done,
-    Error
+    Error,
+    Status
 }

@@ -69,11 +69,13 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             var llmUsage = await TryGetLlmUsageAsync(context.TurnId);
             var latencyKnowledge = llmUsage?.ToolsetAssemblyMs
                 ?? ToIntMs(context.ToolsetAssemblyMs);
-            var latencyLlm = llmUsage?.TtftMs
-                ?? (llmUsage != null
-                    ? Math.Max(0, llmUsage.ResponseTimeMs - (llmUsage.ToolsetAssemblyMs ?? 0))
-                    : 0);
-            var latencyTotal = llmUsage?.ResponseTimeMs ?? 0;
+            // Total is the sum, not one of the parts: ResponseTimeMs is measured inside LLMService and
+            // only starts once the toolset assembly is done, so assembly and response are disjoint
+            // intervals and the wait the user actually sits through is both of them. Reporting
+            // ResponseTimeMs alone made the total smaller than its own knowledge component. For the
+            // same reason nothing is subtracted from the model latency, which stays ResponseTimeMs.
+            var latencyLlm = llmUsage?.TtftMs ?? llmUsage?.ResponseTimeMs ?? 0;
+            var latencyTotal = latencyKnowledge + (llmUsage?.ResponseTimeMs ?? 0);
 
             var record = new SkillSelectionTrajectory
             {

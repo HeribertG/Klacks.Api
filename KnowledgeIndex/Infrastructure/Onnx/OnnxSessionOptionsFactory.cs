@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Microsoft.ML.OnnxRuntime;
 using SessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions;
 
@@ -79,10 +80,27 @@ public static class OnnxSessionOptionsFactory
     /// the embedder moved to fp16 that is no longer merely risky but fatal - see the note above.
     /// Nor is the reverse a way out for the reranker: measured 2026-08-20, fp32 under the frugal
     /// profile collapses to 0.07 pairs/s (456 s for 32 pairs), so this model has no sparing option.
+    ///
+    /// Intra-op spinning is OFF by default. Measured 2026-09-12 on win-arm64 (10 cores, 25 real
+    /// candidates, raw data in docs/knowledge/data/reranker-platform-bench-2026-09-12/): with
+    /// IntraOpNumThreads = ProcessorCount the ORT spin-wait, not the model, dominated the pass -
+    /// p50 6168 ms with spinning against 1140 ms without, and 9076 ms against 1310 ms while the host
+    /// was busy. Scores are bit-identical (delta exactly 0), so this is latency only, no quality trade.
+    /// The one case where spinning still won was two threads (2155 vs 2329 ms, 8%), which is the
+    /// production container's shape (cpus 1.5) - but that run had no cgroup quota applied, so it does
+    /// not settle the production case. Hence the switch rather than a hard-coded value: production can
+    /// flip KnowledgeIndex:OnnxAllowIntraOpSpinning to true after measuring on its own host. That
+    /// setting reaches this profile only, and only through the composition root: the embedder keeps
+    /// CreateEmbedding untouched, and OnnxRerankerRuntimeProfile.Default - the fallback whenever no
+    /// profile is injected - binds the parameterless overload below and therefore the measured default.
     /// </summary>
-    public static SessionOptions CreateThroughput()
+    public static SessionOptions CreateThroughput() =>
+        CreateThroughput(KnowledgeIndexConstants.DefaultOnnxAllowIntraOpSpinning);
+
+    /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between nodes</param>
+    public static SessionOptions CreateThroughput(bool allowIntraOpSpinning)
     {
-        return new SessionOptions
+        var options = new SessionOptions
         {
             EnableCpuMemArena = true,
             EnableMemoryPattern = true,
@@ -91,5 +109,14 @@ public static class OnnxSessionOptionsFactory
             InterOpNumThreads = 1,
             IntraOpNumThreads = Environment.ProcessorCount,
         };
+
+        options.AddSessionConfigEntry(
+            OnnxRuntimeConfigKeys.AllowIntraOpSpinning, IntraOpSpinningValue(allowIntraOpSpinning));
+
+        return options;
     }
+
+    /// <param name="allowIntraOpSpinning">Flag to translate into the runtime's "1"/"0" wire value</param>
+    internal static string IntraOpSpinningValue(bool allowIntraOpSpinning) =>
+        allowIntraOpSpinning ? OnnxRuntimeConfigKeys.Enabled : OnnxRuntimeConfigKeys.Disabled;
 }

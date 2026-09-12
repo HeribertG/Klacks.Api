@@ -25,7 +25,7 @@ public class LLMContext
     /// <summary>
     /// Unique id of this chat turn, generated once at turn start and carried on the context so every
     /// consumer (trajectory capture, skill usage tracking, LLM usage row) writes the same key.
-    /// This is the join key "Turn → gewählter Skill → Ausführungsergebnis" (W1.1).
+    /// This is the join key "turn -> chosen skill -> execution result" (W1.1).
     /// </summary>
     public Guid? TurnId { get; set; }
 
@@ -97,6 +97,14 @@ public class LLMContext
     /// usage row; null only on paths that never assign it (e.g. background one-shot calls).
     /// </summary>
     public long? ToolsetAssemblyMs { get; set; }
+
+    /// <summary>
+    /// Stopwatch timestamp taken when the turn started, i.e. before the toolset assembly. Used as the
+    /// single clock behind the elapsedMs of every status event, so the browser sees one monotonic
+    /// progress timeline across the layers instead of per-stage clocks starting at zero. Null on paths
+    /// that never start a turn clock (background one-shot calls); elapsedMs is then omitted.
+    /// </summary>
+    public long? TurnStartTimestamp { get; set; }
 
     /// <summary>
     /// Name of the recipe forcing this turn's skill selection, null when none was resolved. Carried on
