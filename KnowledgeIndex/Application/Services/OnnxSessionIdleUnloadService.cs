@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.Diagnostics;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +24,6 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <param name="logger">Reports each release with the resident memory measured on both sides of it.</param>
 public sealed class OnnxSessionIdleUnloadService : BackgroundService
 {
-    private const double BytesPerMegabyte = 1024d * 1024d;
-
     private readonly IReadOnlyList<IUnloadableInferenceSession> _sessions;
     private readonly TimeSpan _idleFor;
     private readonly IProcessHeapTrimmer _heapTrimmer;
@@ -127,13 +124,13 @@ public sealed class OnnxSessionIdleUnloadService : BackgroundService
 
             try
             {
-                var before = ReadResidentMegabytes();
+                var before = ProcessMemorySnapshot.Capture();
                 if (!await session.TryUnloadIfIdleAsync(_idleFor, cancellationToken))
                 {
                     continue;
                 }
 
-                var afterUnload = ReadResidentMegabytes();
+                var afterUnload = ProcessMemorySnapshot.Capture();
 
                 // Disposing the session only hands its buffers back to the allocator, which keeps most
                 // of them. Measured on Linux/glibc 2026-09-05: the dispose alone returned 35-50% of the
@@ -141,20 +138,33 @@ public sealed class OnnxSessionIdleUnloadService : BackgroundService
                 // in total; the reranker went from 31% to 40%. That gap is the reason this call exists,
                 // and it is why the log carries all three numbers rather than only the dispose delta.
                 var released = _heapTrimmer.TryTrim();
-                var afterTrim = ReadResidentMegabytes();
+                var afterTrim = ProcessMemorySnapshot.Capture();
 
+                // The managed numbers are here to keep this line interpretable on its own: a release
+                // that shows up in the resident total but not in the managed heap is the native model
+                // weights going away, which is what the unload is supposed to achieve. Managed churn
+                // moving instead means the measurement caught a collection, not the unload.
                 _logger.LogInformation(
                     "ONNX idle unload: {Session} released after {IdleMinutes} min without a call; " +
                     "resident memory {BeforeMb:F0} -> {AfterUnloadMb:F0} -> {AfterTrimMb:F0} MB " +
                     "(freed {FreedMb:F0} MB, heap trim released pages: {HeapTrimReleased}), " +
+                    "managed heap {BeforeHeapMb:F0} -> {AfterTrimHeapMb:F0} MB, " +
+                    "managed allocated {BeforeAllocatedMb:F0} -> {AfterTrimAllocatedMb:F0} MB, " +
+                    "native share {BeforeNativeMb:F0} -> {AfterTrimNativeMb:F0} MB, " +
                     "load count {LoadCount}.",
                     session.SessionName,
                     _idleFor.TotalMinutes,
-                    before,
-                    afterUnload,
-                    afterTrim,
-                    before - afterTrim,
+                    before.ResidentMegabytes,
+                    afterUnload.ResidentMegabytes,
+                    afterTrim.ResidentMegabytes,
+                    before.ResidentMegabytes - afterTrim.ResidentMegabytes,
                     released,
+                    before.ManagedHeapMegabytes,
+                    afterTrim.ManagedHeapMegabytes,
+                    before.AllocatedManagedMegabytes,
+                    afterTrim.AllocatedManagedMegabytes,
+                    before.NativeMegabytes,
+                    afterTrim.NativeMegabytes,
                     session.LoadCount);
             }
             catch (OperationCanceledException)
@@ -168,12 +178,5 @@ public sealed class OnnxSessionIdleUnloadService : BackgroundService
                 _logger.LogWarning(ex, "ONNX idle unload failed for {Session}.", session.SessionName);
             }
         }
-    }
-
-    private static double ReadResidentMegabytes()
-    {
-        using var process = Process.GetCurrentProcess();
-        process.Refresh();
-        return process.WorkingSet64 / BytesPerMegabyte;
     }
 }
