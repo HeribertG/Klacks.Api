@@ -22,7 +22,7 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// </summary>
 /// <param name="serviceProvider">Root provider used to resolve the singleton ONNX providers.</param>
 /// <param name="configuration">Holds the opt-out flag for memory-constrained hosts.</param>
-/// <param name="logger">Reports how long each session took, which is the only place these numbers surface.</param>
+/// <param name="logger">Reports how long each session took and what the process holds afterwards, split into managed and native; this is the only place those numbers surface, and the only way to tell a rising base RSS apart from rising model weights.</param>
 public sealed class OnnxWarmupService : BackgroundService
 {
     // Short and language-neutral: this text is thrown away, it only has to make the graph run.
@@ -82,10 +82,17 @@ public sealed class OnnxWarmupService : BackgroundService
 
         var watch = Stopwatch.StartNew();
         await embedding.EmbedQueryAsync(WarmupQuery, ct);
+        var memory = ProcessMemorySnapshot.Capture();
         _logger.LogInformation(
-            "ONNX warm-up: embedding session ready in {Ms}ms ({EmbeddingSpace}).",
+            "ONNX warm-up: embedding session ready in {Ms}ms ({EmbeddingSpace}); " +
+            "resident memory {ResidentMb:F0} MB = managed heap {ManagedHeapMb:F0} MB " +
+            "(allocated {AllocatedMb:F0} MB) + native {NativeMb:F0} MB.",
             watch.ElapsedMilliseconds,
-            embedding.EmbeddingSpaceId);
+            embedding.EmbeddingSpaceId,
+            memory.ResidentMegabytes,
+            memory.ManagedHeapMegabytes,
+            memory.AllocatedManagedMegabytes,
+            memory.NativeMegabytes);
     }
 
     private async Task WarmRerankerAsync(IServiceProvider scoped, CancellationToken ct)
@@ -98,9 +105,16 @@ public sealed class OnnxWarmupService : BackgroundService
 
         var watch = Stopwatch.StartNew();
         await reranker.ScoreAsync(WarmupQuery, [WarmupCandidate], ct);
+        var memory = ProcessMemorySnapshot.Capture();
         _logger.LogInformation(
-            "ONNX warm-up: reranker session ready in {Ms}ms ({Reranker}).",
+            "ONNX warm-up: reranker session ready in {Ms}ms ({Reranker}); " +
+            "resident memory {ResidentMb:F0} MB = managed heap {ManagedHeapMb:F0} MB " +
+            "(allocated {AllocatedMb:F0} MB) + native {NativeMb:F0} MB.",
             watch.ElapsedMilliseconds,
-            reranker.GetType().Name);
+            reranker.GetType().Name,
+            memory.ResidentMegabytes,
+            memory.ManagedHeapMegabytes,
+            memory.AllocatedManagedMegabytes,
+            memory.NativeMegabytes);
     }
 }

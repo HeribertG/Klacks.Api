@@ -142,6 +142,13 @@ services:
       # The ONNX warm-up deliberately has NO flag: the inference sessions are per-process state, so
       # every instance wants its own warm pair and pinning would only leave the others cold. Its
       # opt-out for memory-capped hosts is KnowledgeIndex__WarmupEnabled=false.
+      # Idle unloading of those sessions is switched off here. It only pays off below 3 GB: with the
+      # 3584M limit further down both sessions fit permanently, while releasing them makes the next
+      # question pay the reload (embedding 1949 ms, reranking 4315 ms, +1.3 GB of allocation churn).
+      # The container is recreated nightly anyway, so nothing accumulates that an unload would clean
+      # up. Zero is the documented off switch (KnowledgeIndexConstants.IdleUnloadDisabled); the
+      # five-minute lower bound applies only to values above zero.
+      - KnowledgeIndex__IdleUnloadMinutes=0
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
@@ -163,7 +170,13 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2560M
+          # 2560M was not enough. A cold reload of both ONNX sessions settles on a 2304 MB plateau
+          # (1017 MB base + 1171 MB embedder + 116 MB reranker, production log 2026-09-12), and the
+          # kernel OOM-killed the container at 2471 MB anon-rss. 3584M keeps real headroom above that
+          # plateau. 4096M does not fit: the 8 GB host also budgets 4G for the Whisper STT container
+          # (klacks-whisper-stt, started separately under the "whisper" profile), next to the
+          # database and the small web containers below.
+          memory: 3584M
           cpus: '1.5'
 
   # Out-of-process auto-update executor. Must outlive klacks-api (it recreates that container), so it
