@@ -6,9 +6,10 @@
 /// size is requested directly instead of truncating a larger vector; the result is still truncated and
 /// L2-re-normalized defensively, which is also what OpenAI recommends for reduced dimensions.
 /// Reuses the "openai" LLM provider's API key already configured for chat (via
-/// ILlmProviderCredentialReader) instead of a separate app-config secret. Used as a local-development
-/// alternative to OnnxEmbeddingProvider on platforms where the ONNX Runtime native library cannot run
-/// (Windows ARM64) — production (Hetzner, x64) always uses the ONNX provider and never reaches this.
+/// ILlmProviderCredentialReader) instead of a separate app-config secret. Fallback for hosts that run
+/// without ONNX, which today means only an explicit KnowledgeIndex:OnnxEnabled=false — the automatic
+/// Windows ARM64 exclusion is gone, since the shipped runtime works there. Production (Hetzner, x64)
+/// always uses the ONNX provider and never reaches this.
 /// </summary>
 
 using System.Net.Http.Headers;

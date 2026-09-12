@@ -19,7 +19,13 @@ public static class OnnxRuntimeConfigKeys
     // extend strategy, since SessionOptions exposes neither.
     public const string SessionUseEnvAllocators = "session.use_env_allocators";
 
+    // Session option: whether intra-op worker threads busy-wait for the next node instead of parking.
+    // Spinning trades CPU for wake-up latency and only pays off when the cores are otherwise idle.
+    public const string AllowIntraOpSpinning = "session.intra_op.allow_spinning";
+
     public const string Enabled = "1";
+
+    public const string Disabled = "0";
 
     // OrtArenaCfg.arenaExtendStrategy values (onnxruntime ArenaExtendStrategy enum).
     public const int ArenaExtendNextPowerOfTwo = 0;

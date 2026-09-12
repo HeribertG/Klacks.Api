@@ -10,7 +10,7 @@
 /// recipe fired on incidental vocabulary elsewhere in the message and must not hijack the turn
 /// silently. Recipe step skills never compete: the recipe is their guided flow.
 /// </summary>
-/// <param name="skillRepository">Source of the enabled skills whose trigger phrases are scanned.</param>
+/// <param name="skillCache">Source of the enabled skills whose trigger phrases are scanned.</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -21,11 +21,11 @@ namespace Klacks.Api.Application.Services.Assistant;
 
 public class CompetingSkillIntentDetector : ICompetingSkillIntentDetector
 {
-    private readonly IAgentSkillRepository _skillRepository;
+    private readonly ISkillCacheService _skillCache;
 
-    public CompetingSkillIntentDetector(IAgentSkillRepository skillRepository)
+    public CompetingSkillIntentDetector(ISkillCacheService skillCache)
     {
-        _skillRepository = skillRepository;
+        _skillCache = skillCache;
     }
 
     public async Task<IReadOnlyList<string>> FindCompetingSkillNamesAsync(
@@ -41,7 +41,7 @@ public class CompetingSkillIntentDetector : ICompetingSkillIntentDetector
             return [];
         }
 
-        var skills = await _skillRepository.GetAllEnabledAsync(cancellationToken);
+        var skills = await _skillCache.GetAllEnabledSkillsAsync(cancellationToken);
         return FindCompetingSkillNames(skills, message, language, matchedTrigger, matchedRecipeSynonyms, servedSkillNames);
     }
 

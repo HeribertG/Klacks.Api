@@ -31,6 +31,20 @@ public sealed record OnnxRerankerRuntimeProfile(
     // docs/knowledge/onnx-reranker-memory-probe-2026-09-05.md.
     public static int DefaultMaxConcurrentRuns => Environment.ProcessorCount;
 
+    /// <summary>
+    /// Used wherever no profile is injected (profile == null). It does not know the configured value of
+    /// KnowledgeIndex:OnnxAllowIntraOpSpinning and always builds the measured default - only the
+    /// composition root passes the configured one through, via ForIntraOpSpinning below.
+    /// </summary>
     public static OnnxRerankerRuntimeProfile Default { get; } =
         new(OnnxSessionOptionsFactory.CreateThroughput, ShrinkArenaAfterRun: false, MaxConcurrentRuns: DefaultMaxConcurrentRuns);
+
+    /// <summary>
+    /// The default profile with the intra-op spin-wait explicitly set. Used by the composition root so
+    /// the deployment can override the measured default without a code change; every other knob stays
+    /// exactly as in Default, and neither setting changes a score.
+    /// </summary>
+    /// <param name="allowIntraOpSpinning">True lets intra-op workers busy-wait between graph nodes</param>
+    public static OnnxRerankerRuntimeProfile ForIntraOpSpinning(bool allowIntraOpSpinning) =>
+        Default with { CreateSessionOptions = () => OnnxSessionOptionsFactory.CreateThroughput(allowIntraOpSpinning) };
 }

@@ -166,10 +166,18 @@ public static class KnowledgeIndexConstants
 
     public const string ModelsRootConfigKey = "KnowledgeIndex:ModelsRoot";
 
-    // Optional override for ONNX-backed embedding/reranking. When unset, the platform is probed and
-    // ONNX is disabled on Windows ARM64 (Snapdragon X), where the runtime's bundled cpuinfo cannot
-    // detect the SoC and crashes the process. Set to "true"/"false" to force the behaviour.
+    // Optional override for ONNX-backed embedding/reranking. Unset means enabled: the historical
+    // Windows ARM64 block was removed once opening a session and running a forward pass both proved
+    // to work on the shipped runtime (see IsOnnxRuntimeSupported). Set to "true"/"false" to force it.
     public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
+
+    // Whether the reranker's intra-op threads busy-wait between graph nodes. Off by default: measured
+    // 2026-09-12 the spin-wait cost 5-8 seconds per rerank pass on a many-core host at zero score
+    // difference (see OnnxSessionOptionsFactory.CreateThroughput). Exists so a host that measures the
+    // opposite - few cores, otherwise idle - can switch it back on without a code change.
+    public const string OnnxAllowIntraOpSpinningConfigKey = "KnowledgeIndex:OnnxAllowIntraOpSpinning";
+
+    public const bool DefaultOnnxAllowIntraOpSpinning = false;
 
     // Builds both inference sessions right after startup rather than inside the first chat request.
     // Defaults to true. The opt-out exists for memory-capped hosts: the sessions are resident for the
