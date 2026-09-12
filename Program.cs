@@ -295,6 +295,7 @@ builder.Services.AddSingleton<IKlacksyPageKeyCatalog>(sp =>
     return new KlacksyPageKeyCatalog(manifest);
 });
 builder.Services.AddSingleton<INavigationTargetCatalog, NavigationTargetCatalog>();
+builder.Services.AddSingleton<IPluginNavigationRouteCatalog, PluginNavigationRouteCatalog>();
 builder.Services.AddSingleton<INavigationEntityRouteGuard, NavigationEntityRouteGuard>();
 builder.Services.AddScoped<INavigationTargetMatcher, NavigationTargetMatcher>();
 builder.Services.AddScoped<IKlacksyNavigationFeedbackRepository, KlacksyNavigationFeedbackRepository>();
@@ -725,6 +726,11 @@ static async Task InitializeFeaturePluginsThenLoadSkillSeedsAsync(WebApplication
 {
     await application.InitializeFeaturePluginsAsync();
     await application.LoadSkillSeedsAsync();
+
+    // Strictly after the seed load: a reseed rewrites the navigate_to skill this heals, so the reverse
+    // order lets the seed drop the page of every installed plugin again. Still before
+    // InitializeSkillRegistryAsync below, which is where PluginNavigationRouteCatalog reads the routes.
+    await application.SyncFeaturePluginNavigationAsync();
 }
 
 static async Task WriteDeepHealthResponse(HttpContext httpContext, HealthReport report)

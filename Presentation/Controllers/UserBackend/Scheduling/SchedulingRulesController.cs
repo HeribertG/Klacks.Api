@@ -4,7 +4,9 @@ using Klacks.Api.Application.Commands.SchedulingRules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Queries.SchedulingRules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Scheduling;
@@ -50,6 +52,7 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
     }
 
     [HttpPost("HolidayWorkExemptions")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<HolidayWorkExemptionResource>> CreateHolidayWorkExemption(
         [FromBody] HolidayWorkExemptionResource resource)
     {
@@ -57,6 +60,7 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
     }
 
     [HttpDelete("HolidayWorkExemptions/{id}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult> DeleteHolidayWorkExemption(Guid id)
     {
         return await Mediator.Send(new DeleteHolidayWorkExemptionCommand(id)) ? Ok() : NotFound();
@@ -66,6 +70,7 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
     /// Applies the migration decisions the admin made on that list.
     /// </summary>
     [HttpPut("IndustryMigration")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<int>> MigrateContracts([FromBody] List<ContractSchedulingRuleAssignment> assignments)
     {
         if (assignments == null || assignments.Count == 0)

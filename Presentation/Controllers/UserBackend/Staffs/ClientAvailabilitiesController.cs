@@ -5,7 +5,9 @@ using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
@@ -29,6 +31,7 @@ public class ClientAvailabilitiesController : BaseController
     }
 
     [HttpPost("Bulk")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<int>> BulkUpdate([FromBody] ClientAvailabilityBulkRequest request)
     {
         var result = await _mediator.Send(new BulkUpdateClientAvailabilityCommand(request));

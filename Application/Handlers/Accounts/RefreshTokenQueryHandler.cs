@@ -44,6 +44,7 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Token
                     ExpTime = result.Expires,
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
+                    Permissions = result.Permissions,
                     RefreshToken = result.RefreshToken,
                     Version = MyVersion.Get()
                 };

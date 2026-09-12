@@ -42,7 +42,9 @@ public class GlobalAgentRuleSeedService
             GlobalAgentRuleNames.UiElementMap,
             "UI MAP — element IDs for NAVIGATION and highlighting only.\n" +
             "CRITICAL: To create or change CLIENT/employee/customer data (name, address, phone, email, contract, group membership) you MUST use the data skills (create_employee, update_client, assign_contract_to_client, add_client_to_group). NEVER navigate to a client form and ask the user to fill it, and never fill client data fields via the UI. The Edit-Client IDs below are only for navigating to or highlighting a field, never for entering client data.\n" +
-            "ROUTES: /workplace/dashboard|client|edit-address/:id|schedule|absence|shift|edit-shift/:id|cut-shift/:id|container-template/:id|group|edit-group/:id|settings|profile|floor-plan|inbox\n" +
+            "PAGES: never guess or memorise a route. The pages you may open are exactly the allowed values " +
+            "of the navigate_to 'page' parameter — pick one of those, and let navigate_to resolve the route. " +
+            "If no allowed value fits what the user asked for, say plainly that you cannot open it.\n" +
             "IDs: Client List: new-address-button,myAddressTable,filter-reset-button | " +
             "Edit Client: firstname,profile-name,company,gender,street,zip,city,state,country,client-type,add-contract-button,add-group-button | " +
             "Schedule: schedule-prev-btn,schedule-next-btn,schedule-wizard-btn,schedule-pdf-export-btn,schedule-recalculate-btn | " +
@@ -50,7 +52,7 @@ public class GlobalAgentRuleSeedService
             "Cut: cut-date-btn,cut-time-btn,cut-weekdays-btn,cut-staff-btn,reset-cuts-btn | " +
             "Groups: all-group-list-new-button,all-group-list-tree-toggle,edit-group-item-name | " +
             "Settings: setting-general-name,setting-owner-address-name,setting-email-test-btn,setting-imap-test-btn,contractName,absence-modal-name,deepl-apikey\n" +
-            "These routes and element ids are internal routing/DOM identifiers, not display names — never state one to the user, not even in parentheses next to a translated label; refer to pages and controls only by their visible, translated labels.",
+            "These page keys and element ids are internal routing/DOM identifiers, not display names — never state one to the user, not even in parentheses next to a translated label; refer to pages and controls only by their visible, translated labels.",
             4
         ),
         (

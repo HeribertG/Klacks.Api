@@ -30,5 +30,7 @@ public sealed class NavigationTargetCatalog : INavigationTargetCatalog
             target.TargetId,
             target.Synonyms.ToDictionary(
                 kv => kv.Key,
-                kv => (IReadOnlyList<string>)kv.Value));
+                kv => (IReadOnlyList<string>)kv.Value),
+            target.RequiredPermission,
+            target.RequiredFeature);
 }

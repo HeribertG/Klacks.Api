@@ -81,6 +81,7 @@ public class GroupsController : InputBaseController<GroupResource>
     /// Moves a group to a new parent
     /// </summary>
     [HttpPost("move/{id}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<GroupResource>> MoveGroup(Guid id, [FromQuery] Guid newParentId)
     {
         var movedGroup = await Mediator.Send(new MoveGroupNodeCommand(id, newParentId));

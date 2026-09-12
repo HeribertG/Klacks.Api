@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Extension method for initializing feature plugins during application startup.
+/// Extension methods for initializing feature plugins during application startup and for healing the
+/// navigation routes they registered.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces.Plugins;
@@ -14,6 +15,14 @@ public static class FeaturePluginExtensions
     {
         var service = app.ApplicationServices.GetRequiredService<IFeaturePluginService>();
         await service.InitializeAsync();
+
+        return app;
+    }
+
+    public static async Task<IApplicationBuilder> SyncFeaturePluginNavigationAsync(this IApplicationBuilder app)
+    {
+        var service = app.ApplicationServices.GetRequiredService<IFeaturePluginService>();
+        await service.SyncNavigationRoutesAsync();
 
         return app;
     }

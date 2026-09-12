@@ -6,8 +6,20 @@
 /// requirements come from the auto-generated klacksy-page-keys.generated.json
 /// which the Klacks.Ui scanner produces from a single TypeScript source file —
 /// so Angular routes, UI fallback map, and this skill cannot drift apart.
+/// Pages contributed by installed feature plugins are not in that manifest and are
+/// resolved from the plugin route catalog as a second lookup step.
 /// Permission filtering uses the executing user's claim list to refuse pages
-/// they may not enter; the UI router guards remain a second line of defence.
+/// they may not enter, and the same helper refuses an in-page target the user may not
+/// reach — a refused target opens the page without scrolling instead of failing the
+/// navigation, since the page-level check has already allowed the page itself.
+/// A page whose manifest entry names a required feature is refused on installations that do not have
+/// that feature - a plugin that is not installed and enabled, or an inbox without an incoming mail
+/// server - because its router guard refuses it there too; that refusal is about the feature, not
+/// about rights, and is worded as such.
+/// Target validation is fail-closed: a route the target catalog holds no entry for drops the target
+/// instead of forwarding the caller's raw string to the frontend. Plugin pages are the likely case,
+/// because only their sidebar nav button is scanned, never their page content.
+/// The UI router guards remain a second line of defence.
 /// For searching a person or entity by name, use search_and_navigate instead.
 /// Entity-aware pages may carry an extra guidance note (e.g. sealed-shift lock state)
 /// contributed by the first matching guidance provider; a guidance failure never
@@ -15,8 +27,10 @@
 /// </summary>
 /// <param name="pageKeyCatalog">Singleton catalog loaded once from the generated JSON</param>
 /// <param name="navigationTargetCatalog">Route-scoped view of the in-page navigation target catalog, used to validate the optional 'target' parameter</param>
+/// <param name="pluginRouteCatalog">Routes installed feature plugins registered for themselves, consulted when the page key is unknown to the generated manifest</param>
+/// <param name="featureAvailability">Tells whether an optional feature exists on this installation, mirroring the feature route guards</param>
 /// <param name="guidanceProviders">Optional per-page guidance sources consulted for entity navigations (first match wins)</param>
-/// <param name="logger">Logger for non-fatal guidance lookup failures and skipped target validation</param>
+/// <param name="logger">Logger for non-fatal guidance lookup failures and discarded in-page targets</param>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Attributes;
@@ -31,20 +45,45 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 public partial class NavigateToSkill : BaseSkillImplementation
 {
     private const int MaxTargetCandidatesInMessage = 20;
+    private const string PageScope = "this page";
+    private const string SectionScope = "this section";
+
+    private const string NoInternalIdentifiersGuidance =
+        " Tell the user, in plain business language, that this is not available to them — never say it " +
+        "could not be found, and do not name internal identifiers such as page keys, target ids or " +
+        "permission names.";
+
+    private const string FeatureNotEnabledText =
+        "That part of Klacks is not enabled on this installation, so there is no page to open. Tell the " +
+        "user, in plain business language, that this installation does not have that feature set up — not " +
+        "that they lack a right and not that anything could not be found — and do not name internal " +
+        "identifiers such as page keys, feature names, setting names or server details.";
+
+    private const string UnknownRouteTargetNote =
+        "No in-page section is known for this page, so it was opened without scrolling to one. Do not " +
+        "repeat the requested section name, and do not name internal identifiers such as target ids, " +
+        "page keys or permission names — tell the user, in plain business language, that the page is " +
+        "open and they may have to look for that part of it themselves.";
 
     private readonly IKlacksyPageKeyCatalog _pageKeyCatalog;
     private readonly INavigationTargetCatalog _navigationTargetCatalog;
+    private readonly IPluginNavigationRouteCatalog _pluginRouteCatalog;
+    private readonly IFeatureAvailabilityService _featureAvailability;
     private readonly IEnumerable<INavigationGuidanceProvider> _guidanceProviders;
     private readonly ILogger<NavigateToSkill> _logger;
 
     public NavigateToSkill(
         IKlacksyPageKeyCatalog pageKeyCatalog,
         INavigationTargetCatalog navigationTargetCatalog,
+        IPluginNavigationRouteCatalog pluginRouteCatalog,
+        IFeatureAvailabilityService featureAvailability,
         IEnumerable<INavigationGuidanceProvider> guidanceProviders,
         ILogger<NavigateToSkill> logger)
     {
         _pageKeyCatalog = pageKeyCatalog;
         _navigationTargetCatalog = navigationTargetCatalog;
+        _pluginRouteCatalog = pluginRouteCatalog;
+        _featureAvailability = featureAvailability;
         _guidanceProviders = guidanceProviders;
         _logger = logger;
     }
@@ -71,7 +110,7 @@ public partial class NavigateToSkill : BaseSkillImplementation
                 "To create a new client, call create_employee; only navigate here afterwards with the entityId of the created client.");
         }
 
-        var entry = _pageKeyCatalog.GetByPageKey(page);
+        var entry = _pageKeyCatalog.GetByPageKey(page) ?? ResolvePluginPage(page);
         if (entry == null)
         {
             return SkillResult.Error(
@@ -96,22 +135,34 @@ public partial class NavigateToSkill : BaseSkillImplementation
                 "any other value shown to the user. Call search_and_navigate to resolve the correct id first.");
         }
 
-        if (!string.IsNullOrEmpty(entry.RequiredPermission)
-            && !Permissions.HasPermission(context.UserPermissions, entry.RequiredPermission))
+        if (!Permissions.HasAllRequiredPermissions(context.UserPermissions, entry.RequiredPermission))
         {
-            return SkillResult.Error(
-                $"User '{context.UserName}' is not allowed to open page '{page}' (requires permission '{entry.RequiredPermission}').");
+            return SkillResult.Error(BuildPermissionDeniedText(context.UserName, PageScope));
         }
 
+        if (entry.RequiredFeature != null
+            && !await _featureAvailability.IsAvailableAsync(entry.RequiredFeature, cancellationToken))
+        {
+            return SkillResult.Error(FeatureNotEnabledText);
+        }
+
+        string? targetDeniedNote = null;
         if (!string.IsNullOrEmpty(target))
         {
-            var resolvedTarget = ResolveTarget(target, page, entry.Route);
+            var resolvedTarget = ResolveTarget(target, page, entry.Route, context);
             if (resolvedTarget.Error != null)
             {
                 return SkillResult.Error(resolvedTarget.Error);
             }
 
+            if (resolvedTarget.TargetId != null
+                && !await IsTargetFeatureAvailableAsync(resolvedTarget, entry, cancellationToken))
+            {
+                return SkillResult.Error(FeatureNotEnabledText);
+            }
+
             target = resolvedTarget.TargetId;
+            targetDeniedNote = resolvedTarget.DeniedNote;
         }
 
         var route = entry.Route;
@@ -137,7 +188,54 @@ public partial class NavigateToSkill : BaseSkillImplementation
         };
 
         var message = await AppendGuidanceAsync($"Navigate to {page}", entry, page, entityId, cancellationToken);
+        if (targetDeniedNote != null)
+        {
+            message += " " + targetDeniedNote;
+        }
+
         return SkillResult.Navigation(navigationData, message);
+    }
+
+    private static string BuildPermissionDeniedText(string userName, string scope)
+        => $"User '{userName}' is not allowed to open {scope}." + NoInternalIdentifiersGuidance;
+
+    /// <summary>
+    /// Second feature gate, for the in-page target. In every case reachable today it is a no-op: a
+    /// target inherits the feature of the page-key of its own route, so the page check above has
+    /// already asked the same question, and the fast-path cache drops targets of unavailable features
+    /// from its snapshot entirely. It is not dead in general — a page resolved through the plugin route
+    /// fallback carries no feature of its own, and that fallback reads a best-effort catalogue that can
+    /// lag a disable — so a target naming a different feature is asked about rather than trusted.
+    /// </summary>
+    /// <param name="resolvedTarget">The target already resolved and allowed by permission</param>
+    /// <param name="entry">The page entry whose feature was checked before</param>
+    /// <param name="cancellationToken">Cancels the availability lookup</param>
+    private async Task<bool> IsTargetFeatureAvailableAsync(
+        TargetResolution resolvedTarget,
+        KlacksyPageKeyEntry entry,
+        CancellationToken cancellationToken)
+    {
+        if (resolvedTarget.RequiredFeature == null
+            || string.Equals(resolvedTarget.RequiredFeature, entry.RequiredFeature, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return await _featureAvailability.IsAvailableAsync(resolvedTarget.RequiredFeature, cancellationToken);
+    }
+
+    /// <summary>
+    /// Second lookup step for pages an installed feature plugin brought with it. Those routes live in
+    /// the navigate_to skill's HandlerConfig, not in the scanner-generated page-key manifest, so the
+    /// catalog above cannot know them. No permission is attached: a plugin page is reachable by every
+    /// logged-in user once the feature is installed, which is exactly how the messaging plugin behaves
+    /// today. Entity ids are not supported — a plugin registers one flat route.
+    /// </summary>
+    /// <param name="page">Page key the caller passed, already rejected by the page-key catalog</param>
+    private KlacksyPageKeyEntry? ResolvePluginPage(string page)
+    {
+        var route = _pluginRouteCatalog.GetRoute(page);
+        return route == null ? null : new KlacksyPageKeyEntry(page, route, null, false);
     }
 
     private async Task<string> AppendGuidanceAsync(
@@ -174,23 +272,23 @@ public partial class NavigateToSkill : BaseSkillImplementation
         return message;
     }
 
-    private TargetResolution ResolveTarget(string target, string page, string route)
+    private TargetResolution ResolveTarget(string target, string page, string route, SkillExecutionContext context)
     {
         var routeTargets = _navigationTargetCatalog.GetByRoute(route);
         if (routeTargets == null || routeTargets.Count == 0)
         {
             _logger.LogWarning(
-                "Navigation target validation skipped for page {Page} (route {Route}) — no targets are known for this route",
+                "Navigation target discarded for page {Page} (route {Route}) — no targets are known for this route",
                 page,
                 route);
-            return new TargetResolution(target, null);
+            return new TargetResolution(null, null, UnknownRouteTargetNote);
         }
 
         var exactMatch = routeTargets.FirstOrDefault(
             t => string.Equals(t.TargetId, target, StringComparison.OrdinalIgnoreCase));
         if (exactMatch != null)
         {
-            return new TargetResolution(exactMatch.TargetId, null);
+            return ResolveAllowedTarget(exactMatch, context);
         }
 
         var normalizedTarget = NormalizeForComparison(target);
@@ -201,10 +299,34 @@ public partial class NavigateToSkill : BaseSkillImplementation
 
         if (synonymMatches.Count == 1)
         {
-            return new TargetResolution(synonymMatches[0].TargetId, null);
+            return ResolveAllowedTarget(synonymMatches[0], context);
         }
 
         return new TargetResolution(null, BuildInvalidTargetMessage(target, page, routeTargets));
+    }
+
+    /// <summary>
+    /// Applies the same permission helper the chat fast-path uses (NavigationTargetMatcher.IsAllowed).
+    /// A refused target does NOT refuse the navigation: the page-level check above already passed, so
+    /// the page itself is open to this user and blocking it here would make the assistant stricter than
+    /// a mouse click. The page is opened without an in-page target and the caller is told, plainly, that
+    /// the section is out of reach — never that it does not exist. The note names no target id, page key
+    /// or permission, so the model cannot leak an internal identifier it was handed here.
+    /// </summary>
+    /// <param name="entry">The target the user asked for, already resolved by id or synonym</param>
+    /// <param name="context">Execution context supplying the caller's rights and name</param>
+    private static TargetResolution ResolveAllowedTarget(
+        NavigationTargetEntry entry, SkillExecutionContext context)
+    {
+        if (Permissions.HasAllRequiredPermissions(context.UserPermissions, entry.RequiredPermission))
+        {
+            return new TargetResolution(entry.TargetId, null, RequiredFeature: entry.RequiredFeature);
+        }
+
+        var note = BuildPermissionDeniedText(context.UserName, SectionScope) +
+                   " The page itself was opened, without scrolling to that section.";
+
+        return new TargetResolution(null, null, note);
     }
 
     private static string BuildInvalidTargetMessage(
@@ -230,5 +352,6 @@ public partial class NavigateToSkill : BaseSkillImplementation
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
 
-    private readonly record struct TargetResolution(string? TargetId, string? Error);
+    private readonly record struct TargetResolution(
+        string? TargetId, string? Error, string? DeniedNote = null, string? RequiredFeature = null);
 }

@@ -7,7 +7,9 @@
 using Klacks.Api.Application.Commands.ClientShiftPreferences;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.Queries.ClientShiftPreferences;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Associations;
@@ -36,6 +38,7 @@ public class ClientShiftPreferencesController : BaseController
     }
 
     [HttpPost("bulk")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<List<ClientShiftPreferenceResource>>> SaveAll(
         [FromBody] SaveClientShiftPreferencesCommand command)
     {

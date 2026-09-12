@@ -5,8 +5,10 @@ using Klacks.Api.Application.Queries.ContainerTemplates;
 using Klacks.Api.Application.Commands.ContainerShiftOverrides;
 using Klacks.Api.Application.Queries.ContainerShiftOverrides;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -66,6 +68,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpPost("{containerId}/templates")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<IEnumerable<ContainerTemplateResource>>> PostTemplates(
         [FromRoute] Guid containerId,
         [FromBody] List<ContainerTemplateResource> resources)
@@ -75,6 +78,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpPut("{containerId}/templates")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<IEnumerable<ContainerTemplateResource>>> PutTemplates(
         [FromRoute] Guid containerId,
         [FromBody] List<ContainerTemplateResource> resources)
@@ -84,6 +88,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpDelete("{containerId}/templates")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<IEnumerable<ContainerTemplateResource>>> DeleteTemplates([FromRoute] Guid containerId)
     {
         var templates = await Mediator.Send(new DeleteContainerTemplatesCommand(containerId));
@@ -111,6 +116,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpPost("{containerId}/overrides")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<ContainerShiftOverrideResource>> PostOverride(
         [FromRoute] Guid containerId,
         [FromBody] ContainerShiftOverrideResource resource)
@@ -120,6 +126,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpPut("{containerId}/overrides/{overrideId}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<ContainerShiftOverrideResource>> PutOverride(
         [FromRoute] Guid containerId,
         [FromRoute] Guid overrideId,
@@ -130,6 +137,7 @@ public class ContainersController : InputBaseController<ContainerTemplateResourc
     }
 
     [HttpDelete("{containerId}/overrides/{overrideId}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult> DeleteOverride(
         [FromRoute] Guid containerId,
         [FromRoute] Guid overrideId)

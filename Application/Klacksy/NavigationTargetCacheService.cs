@@ -13,6 +13,8 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 /// TTL 5 min analogous to SkillCacheService. Lookup by targetId or synonym+locale.
 /// Lookups refresh fire-and-forget and serve the current snapshot, so WarmUpAsync must be awaited at
 /// startup — otherwise the first request after a restart sees an empty snapshot.
+/// Obsolete targets and targets of a feature this installation does not have are dropped while the
+/// snapshot is built, so the matcher never offers a destination the router would bounce.
 /// </summary>
 /// <param name="coreManifestPath">Absolute path to the navigation-targets.json file</param>
 /// <param name="scopeFactory">Factory for creating DI scopes when querying the scoped synonym repository</param>
@@ -140,6 +142,7 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
         using var scope = _scopeFactory.CreateScope();
         var synonymRepo = scope.ServiceProvider.GetRequiredService<INavigationTargetSynonymRepository>();
         var allSynonyms = await synonymRepo.GetAllAsync();
+        var unavailableFeatures = await ResolveUnavailableFeaturesAsync(scope, targets);
 
         foreach (var target in targets)
         {
@@ -156,13 +159,53 @@ public sealed class NavigationTargetCacheService : INavigationTargetCacheService
             target.Synonyms[group.Key.Language] = group.Select(s => s.Keyword).ToArray();
         }
 
-        var filtered = targets.Where(t => !t.Obsolete).ToList();
+        var filtered = targets
+            .Where(t => !t.Obsolete)
+            .Where(t => t.RequiredFeature == null || !unavailableFeatures.Contains(t.RequiredFeature))
+            .ToList();
         _snapshot = new(
             filtered,
             filtered.ToDictionary(t => t.TargetId),
             filtered.GroupBy(t => t.Route).ToDictionary(g => g.Key, g => g.ToList()),
             BuildSynonymIndex(filtered),
             DateTime.UtcNow);
+    }
+
+    /// <summary>
+    /// Feature-gated destinations leave the snapshot exactly like obsolete ones: the matcher is the chat
+    /// fast-path and does not ask a second time, so a target kept here on an installation without its
+    /// feature is a navigation the router then bounces to /no-access. Each distinct feature is asked
+    /// about once per reload. The answer is only as fresh as the snapshot - the TTL bounds the staleness,
+    /// and the plugin lifecycle and the incoming-server settings write call Invalidate() to shorten it.
+    /// </summary>
+    /// <param name="scope">The reload scope, also used for the synonym repository</param>
+    /// <param name="targets">All targets read from the manifest, before filtering</param>
+    private static async Task<HashSet<string>> ResolveUnavailableFeaturesAsync(
+        IServiceScope scope, List<NavigationTarget> targets)
+    {
+        var features = targets
+            .Select(t => t.RequiredFeature)
+            .Where(f => !string.IsNullOrWhiteSpace(f))
+            .Select(f => f!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var unavailable = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (features.Count == 0)
+        {
+            return unavailable;
+        }
+
+        var availability = scope.ServiceProvider.GetRequiredService<IFeatureAvailabilityService>();
+        foreach (var feature in features)
+        {
+            if (!await availability.IsAvailableAsync(feature))
+            {
+                unavailable.Add(feature);
+            }
+        }
+
+        return unavailable;
     }
 
     private static Dictionary<string, Dictionary<string, List<NavigationTarget>>> BuildSynonymIndex(List<NavigationTarget> targets)

@@ -13,7 +13,9 @@ using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -143,6 +145,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost("ApproveDay")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<int>> ApproveDay([FromBody] ApproveDayCommand command)
     {
         var count = await _mediator.Send(command);
@@ -150,6 +153,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost("RevokeDayApproval")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<ActionResult<int>> RevokeDayApproval([FromBody] RevokeDayApprovalCommand command)
     {
         var count = await _mediator.Send(command);
@@ -157,6 +161,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost("ClosePeriod")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<int>> ClosePeriod([FromBody] ClosePeriodCommand command)
     {
         var count = await _mediator.Send(command);
@@ -164,6 +169,7 @@ public class WorksController : BaseController
     }
 
     [HttpPost("ReopenPeriod")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<int>> ReopenPeriod([FromBody] ReopenPeriodCommand command)
     {
         var count = await _mediator.Send(command);

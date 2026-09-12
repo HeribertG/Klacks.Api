@@ -242,7 +242,7 @@
       "parameters": [
         {
           "name": "page",
-          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; new-plannable-shift for create a plannable duty without a customer; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); klacksy-training for admin training review.",
+          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); escalations for open escalation interventions list; new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; new-plannable-shift for create a plannable duty without a customer; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); messaging for send and read messages to employees; floor-plan for site floor plans with markers; klacksy-training for admin training review.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -255,6 +255,7 @@
             "absences",
             "client-availability",
             "settings",
+            "escalations",
             "group-list",
             "new-group",
             "edit-group",
@@ -266,6 +267,7 @@
             "container-template",
             "inbox",
             "messaging",
+            "floor-plan",
             "profile",
             "period-closing",
             "klacksy-training"
@@ -289,7 +291,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; period-closing: period-{closing-audit,closing-exports,closing-periods}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,skill-effectiveness,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets}; period-closing: period-{closing-audit,closing-exports,closing-periods}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,skill-effectiveness,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -329,7 +331,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 23
+      "version": 25
     },
     {
       "name": "get_page_controls",
@@ -2671,7 +2673,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAccessTokens"
       ],
       "parameters": [],
       "handlerConfig": null,
@@ -2733,7 +2735,7 @@
           "token per app esterna"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_personal_access_tokens",
@@ -2787,7 +2789,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAccessTokens"
       ],
       "parameters": [
         {
@@ -2834,7 +2836,7 @@
           "invalidare il token api"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_my_account",
@@ -11188,7 +11190,13 @@
           "congés éligibles",
           "vacances"
         ],
-        "it": ["tipi di assenza", "tipologie di assenza", "categorie di assenza", "tipi di congedo", "quali assenze"]
+        "it": [
+          "tipi di assenza",
+          "tipologie di assenza",
+          "categorie di assenza",
+          "tipi di congedo",
+          "quali assenze"
+        ]
       },
       "version": 7
     },
@@ -11637,7 +11645,15 @@
           "périodes de disponibilité pour congés",
           "vacances"
         ],
-        "it": ["chi è assente", "chi è in ferie", "chi è malato", "chi manca", "cerca assenze", "ricerca assenze", "chi non c'è"]
+        "it": [
+          "chi è assente",
+          "chi è in ferie",
+          "chi è malato",
+          "chi manca",
+          "cerca assenze",
+          "ricerca assenze",
+          "chi non c'è"
+        ]
       },
       "version": 8
     },
@@ -18025,8 +18041,18 @@
           "mail",
           "add email"
         ],
-        "fr": ["e-mail", "courriel", "adresse e-mail", "ajouter e-mail"],
-        "it": ["e-mail", "indirizzo e-mail", "aggiungi e-mail", "posta elettronica"]
+        "fr": [
+          "e-mail",
+          "courriel",
+          "adresse e-mail",
+          "ajouter e-mail"
+        ],
+        "it": [
+          "e-mail",
+          "indirizzo e-mail",
+          "aggiungi e-mail",
+          "posta elettronica"
+        ]
       },
       "version": 8
     },
@@ -18093,8 +18119,18 @@
           "remark",
           "comment"
         ],
-        "fr": ["note client", "ajouter une note", "remarque", "commentaire"],
-        "it": ["nota cliente", "aggiungi nota", "osservazione", "commento"]
+        "fr": [
+          "note client",
+          "ajouter une note",
+          "remarque",
+          "commentaire"
+        ],
+        "it": [
+          "nota cliente",
+          "aggiungi nota",
+          "osservazione",
+          "commento"
+        ]
       },
       "version": 8
     },
@@ -18172,8 +18208,16 @@
           "add to group",
           "assign group"
         ],
-        "fr": ["ajouter au groupe", "affecter au groupe", "assigner un groupe"],
-        "it": ["aggiungi al gruppo", "assegna al gruppo", "assegnare gruppo"]
+        "fr": [
+          "ajouter au groupe",
+          "affecter au groupe",
+          "assigner un groupe"
+        ],
+        "it": [
+          "aggiungi al gruppo",
+          "assegna al gruppo",
+          "assegnare gruppo"
+        ]
       },
       "version": 11
     },
@@ -18241,8 +18285,16 @@
           "add ticked clients to group",
           "add marked rows to group"
         ],
-        "fr": ["ajouter les employés sélectionnés au groupe", "ajouter les lignes cochées au groupe", "employés marqués vers le groupe"],
-        "it": ["aggiungi i dipendenti selezionati al gruppo", "aggiungi le righe spuntate al gruppo", "dipendenti selezionati nel gruppo"]
+        "fr": [
+          "ajouter les employés sélectionnés au groupe",
+          "ajouter les lignes cochées au groupe",
+          "employés marqués vers le groupe"
+        ],
+        "it": [
+          "aggiungi i dipendenti selezionati al gruppo",
+          "aggiungi le righe spuntate al gruppo",
+          "dipendenti selezionati nel gruppo"
+        ]
       },
       "version": 7
     },
@@ -18369,8 +18421,16 @@
           "populate group",
           "add employees to group"
         ],
-        "fr": ["remplir le groupe", "peupler le groupe", "ajouter des employés au groupe"],
-        "it": ["riempi il gruppo", "popola il gruppo", "aggiungi dipendenti al gruppo"]
+        "fr": [
+          "remplir le groupe",
+          "peupler le groupe",
+          "ajouter des employés au groupe"
+        ],
+        "it": [
+          "riempi il gruppo",
+          "popola il gruppo",
+          "aggiungi dipendenti al gruppo"
+        ]
       },
       "version": 8
     },
@@ -18504,8 +18564,16 @@
           "group employees without a group by town name",
           "assign by matching address city to group name"
         ],
-        "fr": ["classer les employés sans groupe par ville", "regrouper les employés sans groupe par commune", "affecter selon la ville de l'adresse"],
-        "it": ["classifica i dipendenti senza gruppo per città", "raggruppa i dipendenti senza gruppo per comune", "assegna in base alla città dell'indirizzo"]
+        "fr": [
+          "classer les employés sans groupe par ville",
+          "regrouper les employés sans groupe par commune",
+          "affecter selon la ville de l'adresse"
+        ],
+        "it": [
+          "classifica i dipendenti senza gruppo per città",
+          "raggruppa i dipendenti senza gruppo per comune",
+          "assegna in base alla città dell'indirizzo"
+        ]
       },
       "version": 4
     },
@@ -18913,8 +18981,16 @@
           "remove from group",
           "leave group"
         ],
-        "fr": ["retirer du groupe", "supprimer du groupe", "quitter le groupe"],
-        "it": ["rimuovi dipendente dal gruppo", "togli dal gruppo", "esci dal gruppo"]
+        "fr": [
+          "retirer du groupe",
+          "supprimer du groupe",
+          "quitter le groupe"
+        ],
+        "it": [
+          "rimuovi dipendente dal gruppo",
+          "togli dal gruppo",
+          "esci dal gruppo"
+        ]
       },
       "version": 8
     },
@@ -21254,7 +21330,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -21321,7 +21397,7 @@
           "cambiare il livello di autonomia"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_proactive_governance",
@@ -21382,7 +21458,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -21541,7 +21617,7 @@
           "attiva l'interruttore di arresto"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "evaluate_autonomy_level_change",
@@ -27560,7 +27636,7 @@
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -27717,7 +27793,7 @@
           "pianifica un promemoria"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_recurring_tasks",
@@ -31188,7 +31264,7 @@
       "category": "System",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanPlan"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -31218,7 +31294,7 @@
           "several tasks at once"
         ]
       },
-      "version": 5,
+      "version": 6,
       "synonyms": {
         "de": [
           "plan erstellen",

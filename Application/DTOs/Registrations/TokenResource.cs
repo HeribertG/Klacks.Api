@@ -28,5 +28,7 @@ public class TokenResource
 
     public bool IsAuthorised { get; set; }
 
+    public List<string> Permissions { get; set; } = new();
+
     public string Version { get; set; } = string.Empty;
 }

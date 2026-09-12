@@ -6,7 +6,9 @@
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Queries.Email;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Email;
@@ -30,6 +32,7 @@ public class SpamRulesController : BaseController
     }
 
     [HttpPost("SpamRules")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<SpamRuleResource>> CreateSpamRule([FromBody] CreateSpamRuleCommand command)
     {
         var result = await _mediator.Send(command);
@@ -37,6 +40,7 @@ public class SpamRulesController : BaseController
     }
 
     [HttpPut("SpamRules/{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<SpamRuleResource>> UpdateSpamRule(Guid id, [FromBody] UpdateSpamRuleCommand command)
     {
         var result = await _mediator.Send(command);
@@ -44,6 +48,7 @@ public class SpamRulesController : BaseController
     }
 
     [HttpDelete("SpamRules/{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<bool>> DeleteSpamRule(Guid id)
     {
         var result = await _mediator.Send(new DeleteSpamRuleCommand(id));

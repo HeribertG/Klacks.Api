@@ -3,7 +3,7 @@
 /// <summary>
 /// Validates and persists a browser-reported navigation outcome as a second
 /// klacksy_navigation_feedback row for the turn. An unknown outcome is rejected as a bad request,
-/// because that is a client programming error rather than telemetry noise. Only the three
+/// because that is a client programming error rather than telemetry noise. Only the four
 /// browser-observable outcomes are accepted here - suspected-miss is logged directly by
 /// ChatController, never reported by the client.
 /// </summary>
@@ -24,6 +24,7 @@ public class ReportNavigationOutcomeCommandHandler
         NavigationOutcomeKinds.Scrolled,
         NavigationOutcomeKinds.TargetMiss,
         NavigationOutcomeKinds.PermissionDenied,
+        NavigationOutcomeKinds.FeatureDisabled,
     };
 
     private readonly INavigationFeedbackLogger _logger;

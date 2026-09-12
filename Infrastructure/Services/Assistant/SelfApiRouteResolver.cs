@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Maps a resource type to the route of the controller that serves it, by reflecting over the generic
-/// CRUD controllers once at startup. Skills calling the own API therefore never carry a hand-typed route
+/// Maps a resource type to the route of the controller that serves it, by reflecting over the
+/// controllers marked with ICrudResourceController once at startup. Skills calling the own API therefore never carry a hand-typed route
 /// that can drift from the controller: renaming a controller moves the route here too, and a resource
 /// without a controller fails loudly at the call site instead of producing a 404 the model has to
 /// interpret. Routes are read from the [Route] attribute — inherited from BaseController for most
@@ -105,15 +105,10 @@ public sealed class SelfApiRouteResolver : ISelfApiRouteResolver
 
     private static Type? ResolveResourceType(Type type)
     {
-        for (var current = type.BaseType; current is not null; current = current.BaseType)
-        {
-            if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(InputBaseController<>))
-            {
-                return current.GetGenericArguments()[0];
-            }
-        }
+        var marker = type.GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICrudResourceController<>));
 
-        return null;
+        return marker?.GetGenericArguments()[0];
     }
 
     /// <summary>

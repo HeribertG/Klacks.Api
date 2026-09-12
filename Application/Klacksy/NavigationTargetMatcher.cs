@@ -4,6 +4,7 @@ namespace Klacks.Api.Application.Klacksy;
 
 using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Klacksy.Models;
+using Klacks.Api.Domain.Constants;
 
 /// <summary>
 /// Three-tier matcher used by the chat fast-path:
@@ -31,11 +32,13 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         if (string.IsNullOrWhiteSpace(normalizedUtterance))
             return Empty();
 
-        var localeMatches = FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, locale), userPermissions);
+        var permissions = userPermissions as IReadOnlyList<string> ?? userPermissions.ToList();
+
+        var localeMatches = FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, locale), permissions);
         var exactMatches = localeMatches.Count > 0
             ? localeMatches
             : locale != NavigationLocaleConstants.English
-                ? FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, NavigationLocaleConstants.English), userPermissions)
+                ? FindAllAllowed(_cache.FindBySynonym(normalizedUtterance, NavigationLocaleConstants.English), permissions)
                 : Array.Empty<NavigationTarget>();
 
         if (exactMatches.Count > 0)
@@ -54,18 +57,18 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
             };
         }
 
-        var tokenResult = TokenOverlap(normalizedUtterance, locale, userPermissions);
+        var tokenResult = TokenOverlap(normalizedUtterance, locale, permissions);
         if (tokenResult.Score >= NavigationMatchThresholds.MinScoreForMatch)
             return tokenResult;
 
-        var fuzzyResult = Fuzzy(normalizedUtterance, locale, userPermissions);
+        var fuzzyResult = Fuzzy(normalizedUtterance, locale, permissions);
         if (fuzzyResult.Score >= FuzzyMinScore)
             return fuzzyResult;
 
         return tokenResult.Candidates.Count > 0 ? tokenResult : fuzzyResult;
     }
 
-    private NavigationMatchResult TokenOverlap(string utterance, string locale, IReadOnlyCollection<string> userPermissions)
+    private NavigationMatchResult TokenOverlap(string utterance, string locale, IReadOnlyList<string> userPermissions)
     {
         var tokens = utterance.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var scored = new Dictionary<string, (NavigationTarget Target, double Score)>();
@@ -101,7 +104,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         };
     }
 
-    private NavigationMatchResult Fuzzy(string utterance, string locale, IReadOnlyCollection<string> userPermissions)
+    private NavigationMatchResult Fuzzy(string utterance, string locale, IReadOnlyList<string> userPermissions)
     {
         var inputTrigrams = Trigrams(utterance);
         if (inputTrigrams.Count == 0)
@@ -183,7 +186,7 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         return union == 0 ? 0 : (double)intersect / union;
     }
 
-    private static IReadOnlyList<NavigationTarget> FindAllAllowed(IReadOnlyList<NavigationTarget> targets, IReadOnlyCollection<string> userPermissions)
+    private static IReadOnlyList<NavigationTarget> FindAllAllowed(IReadOnlyList<NavigationTarget> targets, IReadOnlyList<string> userPermissions)
     {
         var allowed = new List<NavigationTarget>();
         var seenTargetIds = new HashSet<string>();
@@ -196,8 +199,8 @@ public sealed class NavigationTargetMatcher : INavigationTargetMatcher
         return allowed;
     }
 
-    private static bool IsAllowed(NavigationTarget t, IReadOnlyCollection<string> perms)
-        => string.IsNullOrEmpty(t.RequiredPermission) || perms.Contains(t.RequiredPermission);
+    private static bool IsAllowed(NavigationTarget t, IReadOnlyList<string> perms)
+        => Permissions.HasAllRequiredPermissions(perms, t.RequiredPermission);
 
     private static NavigationMatchResult Empty() => new()
     {

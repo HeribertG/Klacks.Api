@@ -45,6 +45,7 @@ public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, TokenResour
                     ExpTime = result.Expires,
                     IsAdmin = result.IsAdmin,
                     IsAuthorised = result.IsAuthorised,
+                    Permissions = result.Permissions,
                     RefreshToken = result.RefreshToken,
                     Version = MyVersion.Get(),
                     Subject = request.Email

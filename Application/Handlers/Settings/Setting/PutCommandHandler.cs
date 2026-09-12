@@ -8,11 +8,16 @@
 /// SurchargeRelevantSettingKeys) and the stored value actually changed, so persisted work
 /// surcharges are recalculated. The dispatch is post-commit and defensive: a failure is logged
 /// and never affects the committed settings update.
+/// Writing one of the incoming-server keys can make the inbox page appear or disappear, so the
+/// navigation target snapshot is marked stale afterwards — without it the chat fast-path would keep
+/// the old answer for up to its TTL.
 /// </summary>
 /// <param name="request">Contains the setting with its key (Type) and the new value</param>
 
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Klacksy;
+using InboxSettingKeys = Klacks.Api.Application.Constants.InboxAvailabilitySettingKeys;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Interfaces;
@@ -28,6 +33,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDomainEventDispatcher _eventDispatcher;
         private readonly ISettingValueValidator _settingValueValidator;
+        private readonly INavigationTargetCacheService _navigationTargetCache;
 
         public PutCommandHandler(
             ISettingsRepository settingsRepository,
@@ -35,6 +41,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             IUnitOfWork unitOfWork,
             IDomainEventDispatcher eventDispatcher,
             ISettingValueValidator settingValueValidator,
+            INavigationTargetCacheService navigationTargetCache,
             ILogger<PutCommandHandler> logger)
             : base(logger)
         {
@@ -43,6 +50,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             _unitOfWork = unitOfWork;
             _eventDispatcher = eventDispatcher;
             _settingValueValidator = settingValueValidator;
+            _navigationTargetCache = navigationTargetCache;
         }
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
@@ -78,7 +86,29 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                 await DispatchActiveIndustriesChangedAsync(previousValue, request.model.Value);
             }
 
+            InvalidateNavigationTargetCacheIfInboxRelevant(request.model.Type);
+
             return res;
+        }
+
+        private void InvalidateNavigationTargetCacheIfInboxRelevant(string settingKey)
+        {
+            if (!InboxSettingKeys.All.Contains(settingKey))
+            {
+                return;
+            }
+
+            try
+            {
+                _navigationTargetCache.Invalidate();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Post-commit invalidation of the navigation target cache failed for setting {SettingKey}; the settings update is persisted and remains unaffected.",
+                    settingKey);
+            }
         }
 
         private async Task DispatchSurchargeSettingsChangedAsync(string settingKey)

@@ -28,6 +28,8 @@ public class AuthenticatedResult
 
     public string PasswordResetToken { get; set; } = string.Empty;
 
+    public List<string> Permissions { get; set; } = new();
+
     public string RefreshToken { get; set; } = string.Empty;
 
     public bool Success { get; set; }

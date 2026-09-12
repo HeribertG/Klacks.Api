@@ -26,6 +26,7 @@ public class GroupItemsController(IMediator mediator, ILogger<GroupItemsControll
     }
 
     [HttpDelete("remove")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
     public async Task<IActionResult> RemoveByClientAndGroup([FromQuery] Guid clientId, [FromQuery] Guid groupId)
     {
         var found = await Mediator.Send(new RemoveGroupItemByClientAndGroupCommand

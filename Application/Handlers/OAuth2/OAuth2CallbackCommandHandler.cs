@@ -118,6 +118,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             ExpTime = result.Expires,
             IsAdmin = result.IsAdmin,
             IsAuthorised = result.IsAuthorised,
+            Permissions = result.Permissions,
             Version = MyVersion.Get()
         };
     }
@@ -155,6 +156,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             ExpTime = result.Expires,
             IsAdmin = result.IsAdmin,
             IsAuthorised = result.IsAuthorised,
+            Permissions = result.Permissions,
             Version = MyVersion.Get()
         };
     }

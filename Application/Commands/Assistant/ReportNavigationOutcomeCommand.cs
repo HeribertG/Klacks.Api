@@ -2,13 +2,14 @@
 
 /// <summary>
 /// The frontend reporting the real browser-side outcome of a Klacksy navigation it executed
-/// (scrolled to the target, target-not-found, or the router refused the navigation). Makes the
-/// navigation miss rate measurable server-side, which the console.warn it replaces never was.
+/// (scrolled to the target, target-not-found, or the router refused the navigation for a missing
+/// right or a feature that is not activated). Makes the navigation miss rate measurable
+/// server-side, which the console.warn it replaces never was.
 /// </summary>
 /// <param name="UserId">Identity of the caller, taken from the token, never from the body</param>
 /// <param name="Route">Route the browser was sent to</param>
 /// <param name="Target">data-klacksy-target id that was requested, if any</param>
-/// <param name="Outcome">One of NavigationOutcomeKinds.Scrolled/TargetMiss/PermissionDenied</param>
+/// <param name="Outcome">One of NavigationOutcomeKinds.Scrolled/TargetMiss/PermissionDenied/FeatureDisabled</param>
 /// <param name="Locale">Locale of the turn that triggered the navigation</param>
 /// <param name="Utterance">Optional raw user utterance, truncated before persisting</param>
 

@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Application.Services.Assistant;
@@ -38,6 +39,7 @@ public class FeaturePluginService : IFeaturePluginService
     private bool _initialized;
 
     private const string LanguageCodePattern = "^[A-Za-z0-9_-]+$";
+    private const string NavigateToSkillName = Domain.Constants.SkillNames.NavigateTo;
 
     private static readonly Regex LanguageCodeRegex = new(LanguageCodePattern, RegexOptions.Compiled);
 
@@ -203,6 +205,7 @@ public class FeaturePluginService : IFeaturePluginService
         }
 
         await RegisterPluginNavigationAsync(scope, manifest);
+        InvalidateNavigationTargetCache(scope);
 
         // The membership sets above are what the seed loader reads to decide which plugins to seed,
         // so this call has to come after them - and after CompleteAsync, or the catalogue refresh
@@ -254,6 +257,8 @@ public class FeaturePluginService : IFeaturePluginService
             await UnregisterPluginNavigationAsync(scope, uninstallManifest);
         }
 
+        InvalidateNavigationTargetCache(scope);
+
         // Disabled, never deleted: the rows follow the soft-delete convention and the plugin may be
         // installed again. Without this the skills stayed in the catalogue and in the knowledge index
         // until the next application start, so the assistant kept offering tools it could not run.
@@ -296,6 +301,13 @@ public class FeaturePluginService : IFeaturePluginService
             _enabledNames.Add(name);
         }
 
+        if (_manifests.TryGetValue(name, out var enableManifest))
+        {
+            await RegisterPluginNavigationAsync(scope, enableManifest);
+        }
+
+        InvalidateNavigationTargetCache(scope);
+
         await SeedPluginSkillsAsync(scope, name, $"enabling feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' enabled", name.ForLog());
@@ -325,6 +337,13 @@ public class FeaturePluginService : IFeaturePluginService
         {
             _enabledNames.Remove(name);
         }
+
+        if (_manifests.TryGetValue(name, out var disableManifest))
+        {
+            await UnregisterPluginNavigationAsync(scope, disableManifest);
+        }
+
+        InvalidateNavigationTargetCache(scope);
 
         await DisablePluginSkillsAsync(scope, name, $"disabling feature plugin '{name}'");
 
@@ -426,13 +445,15 @@ public class FeaturePluginService : IFeaturePluginService
         return currentVersion >= requiredVersion;
     }
 
-    private bool IsInstalled(string name)
+    public bool IsInstalled(string name)
     {
         lock (_installedLock)
         {
             return _installedNames.Contains(name);
         }
     }
+
+    public bool IsDiscovered(string name) => _manifests.ContainsKey(name);
 
     private void DiscoverPlugins()
     {
@@ -614,11 +635,38 @@ public class FeaturePluginService : IFeaturePluginService
         await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>().RefreshAsync(reason);
 
     /// <summary>
-    /// Adds the plugin's route to the navigate_to skill. Called from InstallAsync only, which follows
-    /// up with a catalogue refresh - that is what makes the changed route visible, since the skill
-    /// cache would otherwise serve the old handler config for up to its five-minute lifetime. The
-    /// knowledge index is not affected: routes live in HandlerConfig, which is not part of the
-    /// embedded text.
+    /// Re-registers the navigation route of every installed and enabled plugin. Registration used to
+    /// happen only at the moment of installing or enabling, so an installation whose plugin was
+    /// installed before that code existed - or whose HandlerConfig a skill seed version bump wiped -
+    /// kept an enabled plugin page unreachable for the assistant forever. Must run after the skill
+    /// seeds are loaded, because a reseed rewrites the very skill this writes to, and before the skill
+    /// registry is built, which is the read path of PluginNavigationRouteCatalog. Registration itself
+    /// only writes when something actually changed, so a healthy installation is read-only here.
+    /// </summary>
+    public async Task SyncNavigationRoutesAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        foreach (var manifest in _manifests.Values)
+        {
+            if (!IsInstalled(manifest.Name) || !IsEnabled(manifest.Name))
+            {
+                continue;
+            }
+
+            await RegisterPluginNavigationAsync(scope, manifest);
+        }
+    }
+
+    /// <summary>
+    /// Adds the plugin's route to the navigate_to skill. Called from InstallAsync and EnableAsync, both
+    /// of which follow up with a catalogue refresh - that is what makes the changed route visible, since
+    /// the skill cache would otherwise serve the old handler config for up to its five-minute lifetime.
+    /// Enabling has to register too: a disabled plugin is unregistered, and the frontend route guard
+    /// refuses a disabled plugin's page, so leaving the route out kept an enabled plugin unreachable
+    /// until the next install. The knowledge index is not affected: routes live in HandlerConfig, which
+    /// is not part of the embedded text. The write is skipped when neither the route map nor the page
+    /// enum came out different, so the startup sync above costs one read per plugin and no update.
     /// </summary>
     /// <param name="scope">Scope providing the skill and agent repositories</param>
     /// <param name="manifest">Manifest carrying the navigation route to register</param>
@@ -627,6 +675,17 @@ public class FeaturePluginService : IFeaturePluginService
         if (manifest.Navigation == null || string.IsNullOrEmpty(manifest.Navigation.Route))
             return;
 
+        if (!NavigatePageEnumSynchronizer.IsValidPluginRoute(manifest.Navigation.Route))
+        {
+            _logger.LogWarning(
+                "Rejected navigation route '{Route}' of plugin '{Name}' — a plugin route must be a single "
+                + "lowercase segment under '{Prefix}'",
+                manifest.Navigation.Route.ForLog(),
+                manifest.Name.ForLog(),
+                NavigatePageEnumSynchronizer.PluginRoutePrefix);
+            return;
+        }
+
         try
         {
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
@@ -634,14 +693,24 @@ public class FeaturePluginService : IFeaturePluginService
             var agent = await agentRepo.GetDefaultAgentAsync();
             if (agent == null) return;
 
-            var skill = await skillRepo.GetByNameAsync(agent.Id, "navigate_to");
+            var skill = await skillRepo.GetByNameAsync(agent.Id, NavigateToSkillName);
             if (skill == null) return;
 
-            var routes = ParseRoutes(skill.HandlerConfig);
-            routes[manifest.Name] = manifest.Navigation.Route;
-            skill.HandlerConfig = SerializeRoutes(routes);
+            var storedHandlerConfig = skill.HandlerConfig;
+            var storedParameters = skill.ParametersJson;
 
-            UpdateEnumValues(skill, routes.Keys.ToList());
+            var routes = NavigatePageEnumSynchronizer.ParseRoutes(skill.HandlerConfig);
+            routes[manifest.Name] = manifest.Navigation.Route;
+            skill.HandlerConfig = NavigatePageEnumSynchronizer.SerializeRoutes(routes);
+
+            NavigatePageEnumSynchronizer.AddPageKey(skill, manifest.Name);
+
+            if (string.Equals(storedHandlerConfig, skill.HandlerConfig, StringComparison.Ordinal)
+                && string.Equals(storedParameters, skill.ParametersJson, StringComparison.Ordinal))
+            {
+                return;
+            }
+
             await skillRepo.UpdateAsync(skill);
 
             _logger.LogInformation("Registered navigation route '{Name}' -> '{Route}' for plugin '{Plugin}'",
@@ -665,14 +734,14 @@ public class FeaturePluginService : IFeaturePluginService
             var agent = await agentRepo.GetDefaultAgentAsync();
             if (agent == null) return;
 
-            var skill = await skillRepo.GetByNameAsync(agent.Id, "navigate_to");
+            var skill = await skillRepo.GetByNameAsync(agent.Id, NavigateToSkillName);
             if (skill == null) return;
 
-            var routes = ParseRoutes(skill.HandlerConfig);
+            var routes = NavigatePageEnumSynchronizer.ParseRoutes(skill.HandlerConfig);
             routes.Remove(manifest.Name);
-            skill.HandlerConfig = SerializeRoutes(routes);
+            skill.HandlerConfig = NavigatePageEnumSynchronizer.SerializeRoutes(routes);
 
-            UpdateEnumValues(skill, routes.Keys.ToList());
+            NavigatePageEnumSynchronizer.RemovePageKey(skill, manifest.Name);
             await skillRepo.UpdateAsync(skill);
 
             _logger.LogInformation("Unregistered navigation route for plugin '{Name}'", manifest.Name);
@@ -683,75 +752,25 @@ public class FeaturePluginService : IFeaturePluginService
         }
     }
 
-    private static Dictionary<string, string> ParseRoutes(string? handlerConfig)
-    {
-        if (string.IsNullOrEmpty(handlerConfig) || handlerConfig == "{}")
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        try
-        {
-            using var doc = JsonDocument.Parse(handlerConfig);
-            if (doc.RootElement.TryGetProperty("routes", out var routesElement))
-            {
-                var routes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var prop in routesElement.EnumerateObject())
-                {
-                    routes[prop.Name] = prop.Value.GetString() ?? string.Empty;
-                }
-                return routes;
-            }
-        }
-        catch (JsonException) { }
-
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static string SerializeRoutes(Dictionary<string, string> routes)
-    {
-        return JsonSerializer.Serialize(new { routes }, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = false
-        });
-    }
-
-    private static void UpdateEnumValues(Domain.Models.Assistant.AgentSkill skill, List<string> pageKeys)
+    /// <summary>
+    /// Marks the navigation target snapshot stale after an install, uninstall, enable or disable. The
+    /// snapshot filters out the targets of features this installation does not have, so without this the
+    /// chat fast-path would keep offering a just-disabled plugin page (or keep hiding a just-enabled one)
+    /// until the 5-minute TTL runs out. Invalidation only marks: the next lookup still serves the old
+    /// snapshot and reloads in the background, so the switch-over is prompt rather than immediate.
+    /// Resolved optionally — a host that never registered the cache must not fail a plugin lifecycle call.
+    /// </summary>
+    /// <param name="scope">The lifecycle scope; the cache itself is a singleton and resolves through it</param>
+    private void InvalidateNavigationTargetCache(IServiceScope scope)
     {
         try
         {
-            var parameters = JsonSerializer.Deserialize<List<JsonElement>>(skill.ParametersJson);
-            if (parameters == null || parameters.Count == 0) return;
-
-            var updatedParams = new List<Dictionary<string, object?>>();
-            foreach (var param in parameters)
-            {
-                var dict = new Dictionary<string, object?>
-                {
-                    ["name"] = param.GetProperty("name").GetString(),
-                    ["description"] = param.GetProperty("description").GetString(),
-                    ["type"] = param.GetProperty("type").GetString(),
-                    ["required"] = param.GetProperty("required").GetBoolean(),
-                    ["defaultValue"] = param.TryGetProperty("defaultValue", out var dv) && dv.ValueKind != JsonValueKind.Null ? dv.GetString() : null,
-                    ["enumValues"] = param.TryGetProperty("enumValues", out var ev) && ev.ValueKind != JsonValueKind.Null
-                        ? ev.EnumerateArray().Select(e => e.GetString()).ToList()
-                        : null
-                };
-
-                if (dict["name"]?.ToString() == "page")
-                {
-                    dict["enumValues"] = pageKeys;
-                }
-
-                updatedParams.Add(dict);
-            }
-
-            skill.ParametersJson = JsonSerializer.Serialize(updatedParams, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            });
+            scope.ServiceProvider.GetService<INavigationTargetCacheService>()?.Invalidate();
         }
-        catch (JsonException) { }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to invalidate the navigation target cache after a plugin lifecycle change");
+        }
     }
 
     private async Task<Dictionary<string, bool>> GetOperationalChecksAsync()

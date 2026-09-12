@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed.Models;
+using Klacks.Api.Infrastructure.Services.Plugins;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -410,7 +411,13 @@ public class SkillSeedLoader
             ? string.Join(",", definition.RequiredPermissions)
             : null;
         skill.ParametersJson = SerializeParameters(definition.Parameters);
-        skill.HandlerConfig = SerializeHandlerConfig(definition.HandlerConfig);
+        if (DefinesHandlerConfig(definition.HandlerConfig))
+        {
+            skill.HandlerConfig = SerializeHandlerConfig(definition.HandlerConfig);
+        }
+
+        RestorePluginPageKeys(skill);
+
         skill.HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType;
         skill.TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords);
         skill.Synonyms = MergeSynonyms(skill.Synonyms, definition.Synonyms);
@@ -419,6 +426,24 @@ public class SkillSeedLoader
         skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
         skill.Effect = ParseEffect(definition.Effect);
         skill.Version = definition.Version;
+    }
+
+    /// <summary>
+    /// Unions the page keys of the still-registered plugin routes back into the navigate_to 'page' enum
+    /// after the seed rewrote ParametersJson. The seed file knows only the built-in pages, while a
+    /// plugin page lives solely in the stored HandlerConfig routes and their projection into the enum —
+    /// and that enum is validated hard before a navigation runs, so a version bump used to make every
+    /// installed plugin page unreachable until it was installed again.
+    /// </summary>
+    /// <param name="skill">The skill just written from its seed definition</param>
+    private static void RestorePluginPageKeys(AgentSkill skill)
+    {
+        if (!string.Equals(skill.Name, SkillNames.NavigateTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        NavigatePageEnumSynchronizer.UnionRegisteredRoutes(skill);
     }
 
     private static SkillEffect ParseEffect(string? effect)
@@ -476,6 +501,25 @@ public class SkillSeedLoader
             return "[]";
 
         return JsonSerializer.Serialize(parameters, JsonWriteOptions);
+    }
+
+    /// <summary>
+    /// Tells whether the seed definition carries a handler config of its own. A definition without one
+    /// must leave the stored config untouched on a version bump instead of overwriting it with "{}":
+    /// navigate_to ships with a null handlerConfig, yet its stored config holds the routes every
+    /// installed feature plugin registered for itself, and the scanner bumps the version on every
+    /// description change. Clearing a stored handler config from the seed file is not supported — no
+    /// seed has ever relied on it.
+    /// </summary>
+    /// <param name="handlerConfig">Raw handler config as deserialized from the seed file</param>
+    private static bool DefinesHandlerConfig(object? handlerConfig)
+    {
+        if (handlerConfig == null)
+        {
+            return false;
+        }
+
+        return handlerConfig is not JsonElement element || element.ValueKind != JsonValueKind.Null;
     }
 
     private static string SerializeHandlerConfig(object? handlerConfig)

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend;
 
 [ApiController]
-public abstract class InputBaseController<TModel> : BaseController
+public abstract class InputBaseController<TModel> : BaseController, ICrudResourceController<TModel>
 {
     protected readonly IMediator Mediator;
 

@@ -12,6 +12,7 @@ public sealed class NavigationTarget
     public required string LabelKey { get; init; }
     public string? Category { get; init; }
     public string? RequiredPermission { get; init; }
+    public string? RequiredFeature { get; init; }
     public string? SourceFile { get; init; }
     public DateTime LastScannedAt { get; init; }
     public Dictionary<string, string[]> Synonyms { get; set; } = new();

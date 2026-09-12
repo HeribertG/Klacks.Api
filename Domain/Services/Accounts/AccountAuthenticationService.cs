@@ -143,6 +143,7 @@ public class AccountAuthenticationService : IAccountAuthenticationService
         authenticatedResult.Id = user.Id;
         authenticatedResult.IsAdmin = await _userManagementService.IsUserInRoleAsync(user, Roles.Admin);
         authenticatedResult.IsAuthorised = await _userManagementService.IsUserInRoleAsync(user, Roles.Authorised);
+        authenticatedResult.Permissions = Permissions.ExpandRoles(await _userManagementService.GetUserRolesAsync(user));
 
         return authenticatedResult;
     }
