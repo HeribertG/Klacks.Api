@@ -3,6 +3,11 @@
 Run Klacks on your own Windows or Linux machine with Docker. Updates apply automatically.
 
 ## Requirements
+- **A host with at least 8 GB RAM and 4 vCPU.** Klacks runs its retrieval models
+  (embedder + reranker) locally inside `klacks-api`; both sessions stay resident and
+  need a 3584M container limit. On a smaller host, see `KLACKS_API_MEMORY_LIMIT` in
+  `.env.example` — it must always be lowered together with
+  `KLACKS_API_IDLE_UNLOAD_MINUTES`.
 - Docker Desktop (Windows/Mac) or Docker Engine + Compose plugin (Linux)
 - Outbound internet to `ghcr.io` and `github.com` (for images + auto-update)
 - Open ports 80 + 443 (configurable)
