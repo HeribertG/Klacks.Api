@@ -21,8 +21,6 @@ public class ProactiveTriggerDispatchRowConfiguration : IEntityTypeConfiguration
 {
     private const int UserIdMaxLength = 64;
     private const int TriggerKindMaxLength = 64;
-    private const int DedupKeyMaxLength = 512;
-    private const int ContentKeyMaxLength = 512;
     private const int SeverityMaxLength = 16;
 
     public void Configure(EntityTypeBuilder<ProactiveTriggerDispatchRow> builder)
@@ -31,8 +29,8 @@ public class ProactiveTriggerDispatchRowConfiguration : IEntityTypeConfiguration
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.Property(p => p.UserId).HasMaxLength(UserIdMaxLength);
         builder.Property(p => p.TriggerKind).HasMaxLength(TriggerKindMaxLength);
-        builder.Property(p => p.DedupKey).HasMaxLength(DedupKeyMaxLength);
-        builder.Property(p => p.ContentKey).HasMaxLength(ContentKeyMaxLength);
+        builder.Property(p => p.DedupKey).HasMaxLength(ProactiveTriggerDispatchLimits.DedupKeyMaxLength);
+        builder.Property(p => p.ContentKey).HasMaxLength(ProactiveTriggerDispatchLimits.ContentKeyMaxLength);
         builder.Property(p => p.ContentParamsJson).HasMaxLength(ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         builder.Property(p => p.Severity).HasMaxLength(SeverityMaxLength);
         builder.Property(p => p.ActionRoute).HasMaxLength(ProactiveTriggerDispatchLimits.ActionRouteMaxLength);
