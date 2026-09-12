@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler that moves the ERP import schedule's next-run marker to the current UTC time so the
-/// next background tick fires the import immediately. Writes the setting exactly like the
-/// runner's own SaveNextRunAsync: round-trip ("O") format, update when the row exists,
-/// insert otherwise, then persist via the unit of work.
+/// Handler that moves the ERP import schedule's next-run marker to the current UTC time plus the
+/// storage write-stability window, so the next background tick fires the import as soon as a file
+/// uploaded right before the trigger is visible to the runner. Firing earlier would claim the
+/// occurrence while the listing still hides the fresh file, and the upload would wait for the next
+/// cron slot. Writes the setting exactly like the runner's own SaveNextRunAsync: round-trip ("O")
+/// format, update when the row exists, insert otherwise, then persist via the unit of work.
 /// </summary>
 /// <param name="request">Marker command without parameters</param>
 
@@ -31,7 +33,7 @@ public class TriggerErpImportRunCommandHandler : IRequestHandler<TriggerErpImpor
 
     public async Task<Unit> Handle(TriggerErpImportRunCommand request, CancellationToken cancellationToken)
     {
-        var value = DateTime.UtcNow.ToString(RoundtripFormat);
+        var value = DateTime.UtcNow.Add(ErpImportStorageTiming.WriteStabilityWindow).ToString(RoundtripFormat);
         var existing = await _settingsRepository.GetSetting(ErpImportSettingsTypes.NextRunUtc);
 
         if (existing != null)

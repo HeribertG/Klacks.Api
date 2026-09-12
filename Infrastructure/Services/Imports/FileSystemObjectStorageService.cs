@@ -9,6 +9,7 @@
 /// (used by the file explorer) skips only temporary files so fresh uploads are visible at once.
 /// </summary>
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Services.Imports;
@@ -22,7 +23,6 @@ public class FileSystemObjectStorageService : IObjectStorageService
     private const string DefaultRootDirectoryName = "ErpImport";
     private const string HealthCheckMarkerFileName = ".klacksy-health-check";
     private const char KeySeparator = '/';
-    private static readonly TimeSpan WriteStabilityWindow = TimeSpan.FromSeconds(10);
 
     private readonly string _rootPath;
 
@@ -182,7 +182,7 @@ public class FileSystemObjectStorageService : IObjectStorageService
             yield break;
         }
 
-        var cutoff = DateTime.UtcNow - WriteStabilityWindow;
+        var cutoff = DateTime.UtcNow - ErpImportStorageTiming.WriteStabilityWindow;
         foreach (var path in Directory.EnumerateFiles(_rootPath, "*", SearchOption.AllDirectories))
         {
             if (path.EndsWith(UploadTempSuffix, StringComparison.Ordinal) || (onlyStable && File.GetLastWriteTimeUtc(path) > cutoff))
