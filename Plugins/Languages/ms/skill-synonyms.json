@@ -2191,8 +2191,12 @@
     "cari model terbaik secara automatik"
   ],
   "partition_clients_by_address": [
-    "bahagikan klien mengikut alamat",
-    "bahagikan pekerja kepada kumpulan mengikut alamat"
+    "bahagikan klien ikut alamat",
+    "bina kumpulan lokasi daripada alamat pelanggan dan pekerja",
+    "susun pekerja ikut alamat",
+    "buat kumpulan ikut kawasan dari alamat",
+    "kelaskan pelanggan dan staf ikut alamat",
+    "hasilkan struktur kumpulan lokasi dari alamat"
   ],
   "place_work": [
     "letakkan yasmine di syif pagi pada 15 mei",

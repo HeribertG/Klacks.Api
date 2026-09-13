@@ -66,14 +66,15 @@ public sealed class AssignOrdersToGroupsCommandHandler
             cancellationToken);
 
         var groups = (await _groupRepository.List()).ToList();
-        var plan = OrderGroupPlanner.Plan(orders, groups);
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var plan = OrderGroupPlanner.Plan(orders, groups, today);
 
         if (!request.Apply || plan.Assignments.Count == 0)
         {
             return BuildResult(plan, applied: request.Apply, verifiedCount: 0);
         }
 
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
+        var validFrom = request.ValidFrom ?? today;
         var now = DateTime.UtcNow;
 
         var verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>

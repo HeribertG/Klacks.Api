@@ -27,6 +27,11 @@
 /// geocode_location_groups and set_group_location require CanEditSettings and are dropped again by the
 /// permission filter for users without settings rights; check_group_geocoding_status only needs
 /// CanViewGroups.
+/// The set also includes the bulk tree builder partition_clients_by_address (creates the region/state/
+/// cluster tree from addresses of all client types), because a "create groups from addresses" request
+/// is exactly the grouping intent this resolver detects and the skill otherwise loses its place at the
+/// provider cap. It requires CanEditClients/CanCreateGroups/CanViewGroups and is dropped by the
+/// permission filter for users without them.
 /// </summary>
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 
@@ -43,7 +48,7 @@ public static class GroupingIntentResolver
          "zuordn", "zuteil", "zuweis", "assign", "verteil"];
 
     private static readonly string[] GuaranteedGroupingSkills =
-        ["propose_grouping", "apply_grouping",
+        ["propose_grouping", "apply_grouping", "partition_clients_by_address",
          "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
          "geocode_location_groups", "set_group_location", "check_group_geocoding_status"];
 

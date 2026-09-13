@@ -2182,7 +2182,11 @@
   ],
   "partition_clients_by_address": [
     "bagi klien berdasarkan alamat",
-    "bagi karyawan ke dalam grup berdasarkan alamat"
+    "buat grup lokasi dari alamat semua klien",
+    "kelompokkan karyawan dan pelanggan berdasarkan wilayah",
+    "buat grup wilayah untuk klien dan staf",
+    "susun hirarki grup dari alamat",
+    "kelompokkan alamat jadi beberapa grup kota"
   ],
   "place_work": [
     "tugaskan yasmine ke shift pagi tanggal 15 mei",

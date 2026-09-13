@@ -2,13 +2,14 @@
 
 /// <summary>
 /// Pure, read-only planner for assign_orders_to_groups: derives the target group of every open order
-/// from the address of its customer, in a fixed precedence — exact city-name match, then exact canton-code
-/// match, then the nearest group carrying coordinates, then unassigned with a reason. It never touches the
-/// database; the command handler is the only place that writes. Address choice differs from the staff
-/// planners in one point: an order is fulfilled where the customer works, so the workplace address wins
-/// over the main address, and only below that the same rule as CustomerGroupingPlanner applies. Scenario
-/// rows are the caller's responsibility to exclude; scenario memberships (AnalyseToken set) are ignored
-/// here so an analysis scenario never hides a needed placement.
+/// from its customer, in a fixed precedence — the customer's own active membership in a group carrying
+/// coordinates (the cluster the address partition placed it in), then exact city-name match, then exact
+/// state-code match, then the nearest group carrying coordinates, then unassigned with a reason. It never
+/// touches the database; the command handler is the only place that writes. Address choice differs from
+/// the staff planners in one point: an order is fulfilled where the customer works, so the workplace
+/// address wins over the main address, and only below that the same rule as CustomerGroupingPlanner
+/// applies. Scenario rows are the caller's responsibility to exclude; scenario memberships (AnalyseToken
+/// set) are ignored here so an analysis scenario never hides a needed placement.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Orders;
@@ -26,19 +27,20 @@ public static class OrderGroupPlanner
     private const AddressTypeEnum PreferredOrderAddressType = AddressTypeEnum.Workplace;
 
     private const string ReasonNoCustomer = "the order has no customer";
-    private const string ReasonNoUsableAddress = "the customer has no address with a city, a canton or coordinates";
-    private const string ReasonNoAnchors = "no group is named after the customer's city or canton and no group carries coordinates";
-    private const string ReasonNoMatch = "no group is named after the customer's city or canton and the customer's address has no coordinates";
+    private const string ReasonNoUsableAddress = "the customer has no address with a city, a state or coordinates";
+    private const string ReasonNoAnchors = "no group is named after the customer's city or state and no group carries coordinates";
+    private const string ReasonNoMatch = "no group is named after the customer's city or state and the customer's address has no coordinates";
 
+    private const string MatchByMembership = "customer's group membership";
     private const string MatchByCityName = "city name";
-    private const string MatchByCantonCode = "canton code";
+    private const string MatchByStateCode = "state code";
     private const string MatchByCoordinates = "nearest coordinates";
 
     private const string MainAddressLabel = "main address";
     private const string WorkplaceAddressLabel = "workplace address";
     private const string InvoicingAddressLabel = "invoicing address";
 
-    public static OrderGroupPlan Plan(IReadOnlyList<Shift> orders, IReadOnlyList<Group> groups)
+    public static OrderGroupPlan Plan(IReadOnlyList<Shift> orders, IReadOnlyList<Group> groups, DateTime today)
     {
         var activeGroups = groups.Where(g => !g.IsDeleted).ToList();
         var groupById = activeGroups.ToDictionary(g => g.Id);
@@ -68,8 +70,17 @@ public static class OrderGroupPlanner
             }
 
             var customerName = DisplayName(customer);
+
+            var membershipTarget = ResolveMembershipTarget(customer, groupById, today);
+            if (membershipTarget != null)
+            {
+                assignments.Add(new OrderGroupAssignment(
+                    order.Id, order.Name, customerName, membershipTarget.Id, membershipTarget.Name, MatchByMembership, null));
+                continue;
+            }
+
             var cityAddress = SelectOrderAddress(customer, CustomerGroupingPlanner.HasCity);
-            var cantonAddress = SelectOrderAddress(customer, HasCanton);
+            var stateAddress = SelectOrderAddress(customer, HasState);
             var coordinateAddress = SelectOrderAddress(customer, CustomerGroupingPlanner.HasCoordinates);
 
             var nameTarget = ResolveNameTarget(cityAddress?.City, groupsByUniqueName);
@@ -81,12 +92,12 @@ public static class OrderGroupPlanner
                 continue;
             }
 
-            var cantonTarget = ResolveNameTarget(cantonAddress?.State, groupsByUniqueName);
-            if (cantonTarget != null)
+            var stateTarget = ResolveNameTarget(stateAddress?.State, groupsByUniqueName);
+            if (stateTarget != null)
             {
                 assignments.Add(new OrderGroupAssignment(
-                    order.Id, order.Name, customerName, cantonTarget.Id, cantonTarget.Name,
-                    DescribeMatch(MatchByCantonCode, cantonAddress!.Type), null));
+                    order.Id, order.Name, customerName, stateTarget.Id, stateTarget.Name,
+                    DescribeMatch(MatchByStateCode, stateAddress!.Type), null));
                 continue;
             }
 
@@ -108,7 +119,7 @@ public static class OrderGroupPlanner
 
             unassignable.Add(new UnassignableOrder(
                 order.Id, order.Name, customerName,
-                ResolveUnassignableReason(cityAddress, cantonAddress, coordinateAddress, geoAnchors.Count > 0)));
+                ResolveUnassignableReason(cityAddress, stateAddress, coordinateAddress, geoAnchors.Count > 0)));
         }
 
         return new OrderGroupPlan(orders.Count, skipped, assignments, unassignable);
@@ -124,7 +135,18 @@ public static class OrderGroupPlanner
         return workplace ?? CustomerGroupingPlanner.SelectPreferredAddress(customer, isUsable);
     }
 
-    private static bool HasCanton(Address address) => !string.IsNullOrWhiteSpace(address.State);
+    private static bool HasState(Address address) => !string.IsNullOrWhiteSpace(address.State);
+
+    private static Group? ResolveMembershipTarget(Client customer, IReadOnlyDictionary<Guid, Group> groupById, DateTime today)
+    {
+        return customer.GroupItems
+            .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null)
+            .Where(gi => !gi.ValidUntil.HasValue || gi.ValidUntil.Value.Date >= today.Date)
+            .Where(gi => !gi.ValidFrom.HasValue || gi.ValidFrom.Value.Date <= today.Date)
+            .OrderByDescending(gi => gi.ValidFrom)
+            .Select(gi => groupById.TryGetValue(gi.GroupId, out var group) ? group : null)
+            .FirstOrDefault(group => group != null && group.Latitude.HasValue && group.Longitude.HasValue);
+    }
 
     private static Group? ResolveNameTarget(string? candidate, IReadOnlyDictionary<string, Group> groupsByUniqueName)
     {
@@ -137,9 +159,9 @@ public static class OrderGroupPlanner
     }
 
     private static string ResolveUnassignableReason(
-        Address? cityAddress, Address? cantonAddress, Address? coordinateAddress, bool hasGeoAnchors)
+        Address? cityAddress, Address? stateAddress, Address? coordinateAddress, bool hasGeoAnchors)
     {
-        if (cityAddress == null && cantonAddress == null && coordinateAddress == null)
+        if (cityAddress == null && stateAddress == null && coordinateAddress == null)
         {
             return ReasonNoUsableAddress;
         }

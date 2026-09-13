@@ -1,0 +1,8 @@
+{
+  "regions": [
+    { "name": "Westschweiz", "states": ["GE", "VD", "NE", "JU", "FR"] },
+    { "name": "Deutschschweiz Zürich", "states": ["ZH", "AG"] },
+    { "name": "Deutschschweiz Mitte", "states": ["BE", "SO", "BS", "BL"] },
+    { "name": "Deutschschweiz Ost", "states": ["LU", "SG", "TG", "AI", "AR", "GL", "GR", "NW", "OW", "SH", "SZ", "TI", "UR", "VS", "ZG"] }
+  ]
+}

@@ -5,15 +5,15 @@ using Klacks.Api.Application.DTOs.Grouping;
 namespace Klacks.Api.Application.DTOs.Groups;
 
 /// <summary>
-/// Result of partitioning clients into a region/canton/city group hierarchy built from their address.
+/// Result of partitioning clients into a region/state/city group hierarchy built from their address.
 /// With Applied=false it is a dry-run preview; with Applied=true the groups and memberships were
 /// persisted and the new memberships were re-read for verification. UnassignableSample is deliberately
 /// truncated (see UnassignableCount for the true total) so a run over thousands of clients still returns
 /// a small payload; Groups is not truncated because a run only ever plans a few dozen groups.
 /// </summary>
 /// <param name="Applied">False for a dry-run preview, true when groups and memberships were persisted.</param>
-/// <param name="Level">The requested partition level (canton, city or canton_city).</param>
-/// <param name="EntityType">The client type that was partitioned (Employee or ExternEmp).</param>
+/// <param name="Level">The requested partition level (cluster, state, city or state_city).</param>
+/// <param name="EntityType">The client type(s) that were partitioned: a single type name, or "All" when more than one type was requested.</param>
 /// <param name="TotalClients">Total number of clients of the requested entity type considered.</param>
 /// <param name="SkippedAlreadyGroupedCount">Clients skipped because they already hold an active group membership and includeAlreadyGrouped was false.</param>
 /// <param name="UnassignableCount">Total number of clients that could not be placed (their address is missing the field(s) the level needs).</param>

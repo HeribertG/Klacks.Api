@@ -259,6 +259,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
         services.AddScoped<ICountryResolver, Klacks.Api.Domain.Services.Common.CountryResolver>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Geo.ICountryRegionProvider>(
+            _ => Klacks.Api.Infrastructure.Services.Geo.FileCountryRegionProvider.FromBaseDirectory());
         services.AddScoped<Klacks.Api.Domain.Services.Common.StateAbbreviationResolver>();
         services.AddScoped<IBranchRepository, BranchRepository>();
         services.AddScoped<ICalendarSelectionRepository, CalendarSelectionRepository>();

@@ -2218,8 +2218,12 @@
     "alege automat cel mai bun model de limbaj"
   ],
   "partition_clients_by_address": [
-    "împarte clienții după adresă",
-    "împarte angajații în grupuri după adresă"
+    "împarte clienții pe adrese în grupuri",
+    "creează grupuri după adresă pentru angajați și clienți",
+    "construiește arborele de grupuri de locații din adrese",
+    "grupează angajații pe zone după adresă",
+    "fă grupuri de locații pentru clienți și personal",
+    "împarte adresele în grupuri pe regiuni și orașe"
   ],
   "place_work": [
     "plasează clientul pe schimb",

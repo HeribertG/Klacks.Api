@@ -2192,8 +2192,12 @@
     "thử nghiệm các mô hình và loại bỏ mô hình không dùng được"
   ],
   "partition_clients_by_address": [
-    "chia khách hàng theo địa chỉ",
-    "chia nhân viên thành nhóm theo địa chỉ"
+    "tạo nhóm theo địa chỉ khách hàng",
+    "chia nhân viên thành nhóm theo địa chỉ",
+    "tạo nhóm khách hàng và nhân viên theo địa chỉ",
+    "gom địa chỉ thành các nhóm khu vực",
+    "xây dựng cây nhóm địa điểm từ địa chỉ",
+    "phân nhóm khách hàng theo khu vực địa lý"
   ],
   "place_work": [
     "gán yasmine vào ca sáng ngày 15/5",
