@@ -5,6 +5,8 @@
 /// Whisper uses bare ISO 639-1 codes and knows Norwegian only as "no".
 /// </summary>
 /// <param name="locale">Application locale to map; null or empty yields an empty string</param>
+using Klacks.Api.Domain.Common;
+
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 public static class WhisperLanguageMapper
@@ -22,14 +24,7 @@ public static class WhisperLanguageMapper
             return string.Empty;
         }
 
-        var baseCode = locale.Trim();
-        var separatorIndex = baseCode.IndexOf('-');
-        if (separatorIndex > 0)
-        {
-            baseCode = baseCode[..separatorIndex];
-        }
-
-        baseCode = baseCode.ToLowerInvariant();
+        var baseCode = LanguageTag.BaseLanguage(locale)!.ToLowerInvariant();
         return Aliases.TryGetValue(baseCode, out var alias) ? alias : baseCode;
     }
 }

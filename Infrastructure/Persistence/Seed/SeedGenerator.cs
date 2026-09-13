@@ -441,7 +441,6 @@ namespace Klacks.Api.Data.Seed
                 // Application Settings
                 ("d5bbf185-b799-4aa4-86ca-c3fe879654f2", "appName", "Klacks-Net"),
                 ("1234567a-1234-1234-1234-123456789001", "defaultLanguage", "de"),
-                ("1234567a-1234-1234-1234-123456789002", "timezone", "Europe/Zurich"),
                 ("1234567a-1234-1234-1234-123456789003", "dateFormat", "dd.MM.yyyy"),
                 ("1234567a-1234-1234-1234-123456789004", "timeFormat", "HH:mm"),
                 ("1234567a-1234-1234-1234-123456789005", "currency", "CHF"),

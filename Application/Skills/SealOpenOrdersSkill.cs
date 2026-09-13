@@ -128,13 +128,20 @@ public class SealOpenOrdersSkill : BaseSkillImplementation
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
+        var fromDateStr = GetParameter<string>(parameters, "fromDate");
+        var untilDateStr = GetParameter<string>(parameters, "untilDate");
         var (fromDate, invalidFromDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "fromDate"), today);
+            fromDateStr, today, context.UserLanguage);
         var (untilDate, invalidUntilDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "untilDate"), today);
-        if (invalidFromDate || invalidUntilDate)
+            untilDateStr, today, context.UserLanguage);
+        if (invalidFromDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("fromDate", fromDateStr!));
+        }
+
+        if (invalidUntilDate)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("untilDate", untilDateStr!));
         }
 
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;

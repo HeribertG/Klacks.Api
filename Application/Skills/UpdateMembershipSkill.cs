@@ -67,10 +67,10 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
-        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
         if (invalidValidFrom)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         if (validFrom.HasValue && validFrom.Value != membership.ValidFrom)
@@ -91,10 +91,10 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         else
         {
             var validUntilStr = GetParameter<string>(parameters, "validUntil");
-            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today);
+            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, context.UserLanguage);
             if (invalidValidUntil)
             {
-                return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+                return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
             }
 
             if (validUntil.HasValue && validUntil.Value != membership.ValidUntil)

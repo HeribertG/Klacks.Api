@@ -13,6 +13,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -104,7 +105,7 @@ public class GoogleTtsService : ITtsProvider
             return voiceId;
         }
 
-        var langPrefix = locale.Contains('-') ? locale[..locale.IndexOf('-')] : locale;
+        var langPrefix = LanguageTag.BaseLanguage(locale) ?? locale;
         return GoogleTtsConstants.LocaleDefaults.TryGetValue(langPrefix, out var localeVoice)
             ? localeVoice
             : GoogleTtsConstants.DefaultVoice;

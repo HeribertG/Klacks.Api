@@ -62,12 +62,13 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
         var lastName = GetRequiredString(parameters, "lastName");
         var groupName = GetRequiredString(parameters, "groupName");
 
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"), today);
+            validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var idNumber = GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName);

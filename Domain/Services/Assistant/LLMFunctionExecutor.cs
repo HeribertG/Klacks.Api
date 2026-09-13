@@ -220,6 +220,7 @@ public class LLMFunctionExecutor
             AccessToken = context.AccessToken,
             CurrentPage = context.PageContext?.CurrentRoute,
             SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
+            UserLanguage = context.Language,
             SessionId = context.ConversationId,
             TurnId = context.TurnId,
             SupportsUiActions = true,

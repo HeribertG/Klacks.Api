@@ -71,12 +71,13 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         var count = GetParameter<int?>(parameters, "count");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"), today);
+            validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);

@@ -31,10 +31,12 @@ namespace Klacks.Api.Application.Skills;
 public class UpdateAddressSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
-    public UpdateAddressSkill(IMediator mediator)
+    public UpdateAddressSkill(IMediator mediator, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -87,10 +89,16 @@ public class UpdateAddressSkill : BaseSkillImplementation
         var validFromRaw = GetParameter<string>(parameters, "validFrom");
         if (!string.IsNullOrWhiteSpace(validFromRaw))
         {
-            if (!SkillUtcDateTimeParser.TryParse(validFromRaw, out var validFrom))
+            var today = await _companyClock.GetTodayAsync(cancellationToken);
+            var (parsed, invalid) = SkillDateParser.ParseOptionalUtcDate(
+                validFromRaw, today, context.UserLanguage);
+            if (invalid)
             {
-                return SkillResult.Error($"Invalid validFrom value: {validFromRaw}. Expected format yyyy-MM-dd.");
+                return SkillResult.Error(
+                    SkillDateParser.InvalidDateMessageFor("validFrom", validFromRaw));
             }
+
+            var validFrom = parsed!.Value;
 
             if (address.ValidFrom != validFrom)
             {

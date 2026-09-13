@@ -69,12 +69,13 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid client ID format: {clientIdStr}");
         }
 
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"), today);
+            validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var client = await _clientRepository.Get(clientId);

@@ -92,7 +92,7 @@ public class SkillExecutorService : ISkillExecutor
                 return permissionResult;
             }
 
-            var parameterResult = ValidateParameters(descriptor, invocation.Parameters);
+            var parameterResult = ValidateParameters(descriptor, invocation.Parameters, context.UserLanguage);
             if (!parameterResult.Success)
             {
                 await TrackFailureAsync(descriptor.Name, SkillFailureKind.ParameterInvalid, context, invocation.Parameters, parameterResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
@@ -150,10 +150,11 @@ public class SkillExecutorService : ISkillExecutor
             else if (descriptor.ImplementationType != null)
             {
                 var instance = _serviceProvider.GetRequiredService(descriptor.ImplementationType);
+                var skillParameters = WithExecutionContextKeys(invocation.Parameters, context);
 
                 if (instance is ISkillImplementation impl)
                 {
-                    result = await impl.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+                    result = await impl.ExecuteAsync(context, skillParameters, cancellationToken);
                 }
                 else if (instance is Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl)
                 {
@@ -169,7 +170,7 @@ public class SkillExecutorService : ISkillExecutor
                 }
                 else if (instance is ISkill skill)
                 {
-                    result = await skill.ExecuteAsync(context, invocation.Parameters, cancellationToken);
+                    result = await skill.ExecuteAsync(context, skillParameters, cancellationToken);
                 }
                 else
                 {
@@ -242,6 +243,30 @@ public class SkillExecutorService : ISkillExecutor
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
             return result;
         }
+    }
+
+    /// <summary>
+    /// Copy of the invocation arguments carrying the reserved execution-context keys a skill's
+    /// parameter reader needs but no skill declares - today the caller's UI language, so an ambiguous
+    /// date like "03/04/2026" is read the way that user writes it. Only in-process skills get this
+    /// copy: validation, usage tracking, UI actions, plugin skills and the generic dispatcher keep the
+    /// original dictionary, so the reserved key never reaches a log, the frontend or an outgoing call.
+    /// </summary>
+    /// <param name="parameters">Invocation arguments exactly as the LLM sent them.</param>
+    /// <param name="context">Execution context the reserved values are taken from.</param>
+    private static Dictionary<string, object> WithExecutionContextKeys(
+        Dictionary<string, object> parameters,
+        SkillExecutionContext context)
+    {
+        if (string.IsNullOrWhiteSpace(context.UserLanguage))
+        {
+            return parameters;
+        }
+
+        return new Dictionary<string, object>(parameters)
+        {
+            [SkillParameterKeys.UserLanguage] = context.UserLanguage
+        };
     }
 
     private async Task TrackFailureAsync(
@@ -324,7 +349,10 @@ public class SkillExecutorService : ISkillExecutor
         return SkillResult.SuccessResult(null);
     }
 
-    private static SkillResult ValidateParameters(SkillDescriptor descriptor, Dictionary<string, object> parameters)
+    private static SkillResult ValidateParameters(
+        SkillDescriptor descriptor,
+        Dictionary<string, object> parameters,
+        string? language)
     {
         var missingRequired = descriptor.Parameters
             .Where(p => p.Required && !parameters.ContainsKey(p.Name))
@@ -337,7 +365,7 @@ public class SkillExecutorService : ISkillExecutor
                 $"Missing required parameters: {string.Join(", ", missingRequired)}");
         }
 
-        var typeErrors = SkillParameterTypeValidator.Validate(descriptor, parameters);
+        var typeErrors = SkillParameterTypeValidator.Validate(descriptor, parameters, language);
         if (typeErrors.Count > 0)
         {
             return SkillResult.Error(

@@ -82,6 +82,7 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
             UserPermissions = request.UserRights,
             AccessToken = request.AccessToken,
             CurrentPage = request.PageContext?.CurrentRoute,
+            UserLanguage = request.Language,
             SelectedEntityIds = request.PageContext?.GetSelectedEntityIds()
         };
 

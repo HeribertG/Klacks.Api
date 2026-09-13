@@ -50,12 +50,13 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
         var groupName = GetRequiredString(parameters, "groupName");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"), today);
+            validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var selectedIds = context.SelectedEntityIds;

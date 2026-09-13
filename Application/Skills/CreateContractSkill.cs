@@ -73,10 +73,10 @@ public class CreateContractSkill : BaseSkillImplementation
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
         if (invalidValidFrom)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var minimumHours = GetParameter<decimal?>(parameters, "minimumHours")
@@ -92,10 +92,10 @@ public class CreateContractSkill : BaseSkillImplementation
         var soRate = GetParameter<decimal?>(parameters, "soRate") ?? decimal.Zero;
         var percent = GetParameter<decimal?>(parameters, "percent");
         var validUntilStr = GetParameter<string>(parameters, "validUntil");
-        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today);
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, context.UserLanguage);
         if (invalidValidUntil)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
 
         var negativeNullable = new (string Key, decimal? Value)[]

@@ -120,6 +120,7 @@ public class TurnReplayService : ITurnReplayService
         context.InjectedMemoryIds = soulAndMemoryPrompt?.InjectedMemoryIds;
 
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
+        var temporalContext = await _promptBuilder.BuildTemporalContextAsync(context, cancellationToken);
 
         var forcingPlan = RecipeForcingResolver.Resolve(item.Message);
         var recipeWouldForce = forcingPlan != null;
@@ -134,7 +135,9 @@ public class TurnReplayService : ITurnReplayService
             Message = item.Message,
             SystemPrompt = systemPrompt,
             VolatileSystemPrompt = LLMService.CombineVolatile(
-                LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
+                temporalContext,
+                LLMService.CombineVolatile(
+                    LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt)),
             ModelId = model.ApiModelId,
             ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
             AvailableFunctions = context.AvailableFunctions,

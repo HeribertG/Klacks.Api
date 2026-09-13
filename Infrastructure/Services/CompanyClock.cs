@@ -6,7 +6,10 @@
 /// the explicit APP_ADDRESS_TIMEZONE setting -> the IANA zone derived from APP_ADDRESS_COUNTRY -> the
 /// IANA zone derived from the global calendar's country setting (SettingKeys.GlobalCalendarCountry,
 /// used by installations that only configured a holiday calendar, not an address) -> UTC as the neutral
-/// fallback (never a hard-coded regional default). The resolved zone is memoised for the
+/// fallback (never a hard-coded regional default), reported as CompanyTimeZoneSource.UtcMultiZoneCountry
+/// instead of Utc when a country IS configured but spans several time zones (the United States, Canada,
+/// Australia, ...), so the UI and the setup guidance can say why no zone could be derived rather than
+/// only that none was. The resolved zone is memoised for the
 /// lifetime of this scoped instance, stamped with ISettingsChangeVersion.Current so a settings write
 /// earlier in the same DI scope (e.g. a settings-writing skill followed by a recalculation in the same
 /// chain) is picked up instead of served from a stale cache - mirroring the pattern in
@@ -87,6 +90,12 @@ public class CompanyClock : ICompanyClock
         SettingKeys.GlobalCalendarCountry
     ];
 
+    private static readonly string[] CountrySettingTypes =
+    [
+        SettingsConstants.APP_ADDRESS_COUNTRY,
+        SettingKeys.GlobalCalendarCountry
+    ];
+
     private async Task<CompanyTimeZoneResolution> ResolveTimeZoneAsync(CancellationToken cancellationToken)
     {
         var settings = await _settingsReader.GetSettingsByTypesAsync(ZoneSettingTypes, cancellationToken);
@@ -109,6 +118,19 @@ public class CompanyClock : ICompanyClock
             return new CompanyTimeZoneResolution(calendarCountryZone, CompanyTimeZoneSource.CalendarCountry);
         }
 
-        return new CompanyTimeZoneResolution(TimeZoneInfo.Utc, CompanyTimeZoneSource.Utc);
+        return new CompanyTimeZoneResolution(TimeZoneInfo.Utc, ResolveUtcSource(settings));
+    }
+
+    private static CompanyTimeZoneSource ResolveUtcSource(IReadOnlyDictionary<string, string> settings)
+    {
+        foreach (var settingType in CountrySettingTypes)
+        {
+            if (settings.TryGetValue(settingType, out var country) && CountryTimeZones.IsMultiZoneCountry(country))
+            {
+                return CompanyTimeZoneSource.UtcMultiZoneCountry;
+            }
+        }
+
+        return CompanyTimeZoneSource.Utc;
     }
 }

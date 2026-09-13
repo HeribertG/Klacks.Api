@@ -8,6 +8,8 @@
 /// so the conversion cannot drift apart between them again.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public static class SkillParameterReader
@@ -15,7 +17,14 @@ public static class SkillParameterReader
     /// <param name="parameters">Raw invocation arguments; values are JsonElement or already CLR values</param>
     /// <param name="name">Argument name as declared by the skill</param>
     /// <param name="defaultValue">Returned when the argument is absent, null, or not convertible</param>
-    public static T? Read<T>(Dictionary<string, object> parameters, string name, T? defaultValue = default)
+    /// <param name="language">UI language of the calling user, used to resolve ambiguous date formats;
+    /// null falls back to the reserved SkillParameterKeys.UserLanguage entry the executor adds, and
+    /// then to the default culture list</param>
+    public static T? Read<T>(
+        Dictionary<string, object> parameters,
+        string name,
+        T? defaultValue = default,
+        string? language = null)
     {
         if (!parameters.TryGetValue(name, out var value))
         {
@@ -27,6 +36,8 @@ public static class SkillParameterReader
         {
             return defaultValue;
         }
+
+        var effectiveLanguage = language ?? ReadUserLanguage(parameters);
 
         if (unwrapped is T typedValue)
         {
@@ -57,17 +68,27 @@ public static class SkillParameterReader
 
             if (typeof(T) == typeof(DateOnly) || typeof(T) == typeof(DateOnly?))
             {
-                return (T)(object)DateOnly.Parse(unwrapped.ToString()!);
+                if (!SkillCalendarStringParser.TryParseDateOnly(unwrapped.ToString(), effectiveLanguage, out var dateValue))
+                {
+                    return defaultValue;
+                }
+
+                return (T)(object)dateValue;
             }
 
             if (typeof(T) == typeof(TimeOnly) || typeof(T) == typeof(TimeOnly?))
             {
-                return (T)(object)TimeOnly.Parse(unwrapped.ToString()!);
+                if (!SkillCalendarStringParser.TryParseTimeOnly(unwrapped.ToString(), effectiveLanguage, out var timeValue))
+                {
+                    return defaultValue;
+                }
+
+                return (T)(object)timeValue;
             }
 
             if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
             {
-                if (!SkillUtcDateTimeParser.TryParse(unwrapped.ToString(), out var dateTimeValue))
+                if (!SkillCalendarStringParser.TryParseDateTime(unwrapped.ToString(), effectiveLanguage, out var dateTimeValue))
                 {
                     return defaultValue;
                 }
@@ -91,5 +112,16 @@ public static class SkillParameterReader
         {
             return defaultValue;
         }
+    }
+
+    private static string? ReadUserLanguage(Dictionary<string, object> parameters)
+    {
+        if (parameters.TryGetValue(SkillParameterKeys.UserLanguage, out var raw)
+            && SkillParameterValueUnwrapper.Unwrap(raw) is { } reserved)
+        {
+            return reserved.ToString();
+        }
+
+        return null;
     }
 }

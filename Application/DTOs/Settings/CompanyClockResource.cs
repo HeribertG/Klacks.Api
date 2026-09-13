@@ -5,8 +5,9 @@
 /// GeneralSettingsController, which is Admin-only). TimeZone is the IANA id (e.g. "Asia/Kolkata");
 /// Today is the company's current calendar date (yyyy-MM-dd, per the DateOnly wire format); Source is
 /// the resolution-chain step that produced TimeZone, serialized as CompanyTimeZoneSource.ToString()
-/// ("Setting" | "AddressCountry" | "CalendarCountry" | "Utc") so the frontend can compare it directly
-/// without an int-to-name mapping.
+/// ("Setting" | "AddressCountry" | "CalendarCountry" | "Utc" | "UtcMultiZoneCountry") so the frontend
+/// can compare it directly without an int-to-name mapping. UtcMultiZoneCountry means a country is
+/// configured but spans several zones, so none could be derived from it.
 /// </summary>
 
 namespace Klacks.Api.Application.DTOs.Settings;

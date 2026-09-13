@@ -27,17 +27,20 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GetErpImportStatusSkill> _logger;
+    private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public GetErpImportStatusSkill(
         IMediator mediator,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
-        ILogger<GetErpImportStatusSkill> logger)
+        ILogger<GetErpImportStatusSkill> logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _mediator = mediator;
         _settingsReader = settingsReader;
         _companyClock = companyClock;
         _logger = logger;
+        _driftNotifier = driftNotifier;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -50,7 +53,7 @@ public class GetErpImportStatusSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, _driftNotifier, cancellationToken);
         var nextRunSetting = await _settingsReader.GetSetting(ErpImportSettingsTypes.NextRunUtc);
 
         string? nextRunLocal = null;

@@ -12,6 +12,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Holidays;
@@ -76,7 +77,8 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
                 Date = h.CurrentDate.ToString("yyyy-MM-dd"),
                 h.CurrentName,
                 h.Officially,
-                DayOfWeek = h.CurrentDate.DayOfWeek.ToString()
+                DayOfWeek = h.CurrentDate.DayOfWeek.ToString(),
+                DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, h.CurrentDate.DayOfWeek)
             })
             .ToList();
 

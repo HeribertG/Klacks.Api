@@ -108,11 +108,14 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 "\"morgen\"/\"tomorrow\" → tomorrow's date; \"1. Juli\"/\"July 1st\" → the matching YYYY-MM-DD.");
         }
 
-        if (!SkillUtcDateTimeParser.TryParse(memberSince, out var memberSinceDate))
+        var (parsedMemberSince, invalidMemberSince) = SkillDateParser.ParseOptionalUtcDate(
+            memberSince, await _companyClock.GetTodayAsync(cancellationToken), context.UserLanguage);
+        if (invalidMemberSince || parsedMemberSince is null)
         {
-            return SkillResult.Error(
-                $"Invalid memberSince value: {memberSince}. Expected format YYYY-MM-DD (e.g. 2026-06-01).");
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("memberSince", memberSince));
         }
+
+        var memberSinceDate = parsedMemberSince.Value;
 
         // An address must ALWAYS be complete — a partial address (e.g. a missing zip / postal code) is
         // invalid even when contact data is skipped. proceedWithoutContact only waives email/phone.
@@ -181,8 +184,13 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        if (!string.IsNullOrEmpty(birthdate) && SkillUtcDateTimeParser.TryParse(birthdate, out var birthdateValue))
+        if (!string.IsNullOrEmpty(birthdate))
         {
+            if (!SkillUtcDateTimeParser.TryParse(birthdate, context.UserLanguage, out var birthdateValue))
+            {
+                return SkillResult.Error(SkillDateParser.InvalidBirthdateMessage(birthdate));
+            }
+
             client.Birthdate = birthdateValue;
         }
 

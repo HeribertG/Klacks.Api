@@ -4,6 +4,7 @@ using Klacks.Api.Application.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Globalization;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 
@@ -61,7 +62,8 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-        if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
+        if (DateOnly.TryParse(startDate, CultureInfo.InvariantCulture, out var start)
+            && DateOnly.TryParse(endDate, CultureInfo.InvariantCulture, out var end))
         {
             await _dateRangeTracker.RegisterConnectionAsync(Context.ConnectionId, start, end, token);
 

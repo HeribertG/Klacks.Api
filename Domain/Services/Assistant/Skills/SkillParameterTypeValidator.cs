@@ -8,9 +8,15 @@
 /// an Integer) pass; null, blank and undeclared parameters are left to the skill itself.
 /// Numeric checks accept invariant OR current culture, so they gate "plausibly numeric" values
 /// rather than guaranteeing the exact value the skill's culture-specific conversion will produce.
+/// The date gate is given the caller's language and must use exactly the language
+/// <c>SkillDateParser</c> is given afterwards: a relative day word is only a date in the user's own
+/// language or in English, so a French "hier" sent by a German user is blocked here rather than
+/// silently becoming yesterday inside the skill.
 /// </summary>
 /// <param name="descriptor">Skill whose declared parameters define the expected types.</param>
 /// <param name="parameters">Raw invocation arguments (JsonElement or CLR values), keyed by name.</param>
+/// <param name="language">UI language of the calling user; null widens relative day words to every
+/// language, which is what a caller without a user (batch, scheduler) needs.</param>
 
 using System.Globalization;
 using System.Text.Json;
@@ -24,7 +30,8 @@ public static class SkillParameterTypeValidator
 {
     public static IReadOnlyList<string> Validate(
         SkillDescriptor descriptor,
-        Dictionary<string, object> parameters)
+        Dictionary<string, object> parameters,
+        string? language = null)
     {
         var errors = new List<string>();
 
@@ -41,7 +48,7 @@ public static class SkillParameterTypeValidator
                 continue;
             }
 
-            var error = ValidateValue(declared, value);
+            var error = ValidateValue(declared, value, language);
             if (error is not null)
             {
                 errors.Add(error);
@@ -51,7 +58,7 @@ public static class SkillParameterTypeValidator
         return errors;
     }
 
-    private static string? ValidateValue(SkillParameter declared, object value)
+    private static string? ValidateValue(SkillParameter declared, object value, string? language)
     {
         return declared.Type switch
         {
@@ -64,13 +71,13 @@ public static class SkillParameterTypeValidator
             SkillParameterType.Boolean => IsBoolean(value)
                 ? null
                 : TypeError(declared.Name, value, "a boolean (true or false)"),
-            SkillParameterType.Date => IsDate(value)
+            SkillParameterType.Date => IsDate(value, language)
                 ? null
                 : TypeError(declared.Name, value, "a date (e.g. 2026-07-08)"),
             SkillParameterType.Time => IsTime(value)
                 ? null
                 : TypeError(declared.Name, value, "a time (e.g. 08:30)"),
-            SkillParameterType.DateTime => IsDateTime(value)
+            SkillParameterType.DateTime => IsDateTime(value, language)
                 ? null
                 : TypeError(declared.Name, value, "a date-time (e.g. 2026-07-08T08:30)"),
             SkillParameterType.Enum => IsEnumValue(declared, value)
@@ -148,12 +155,12 @@ public static class SkillParameterTypeValidator
         };
     }
 
-    private static bool IsDate(object value)
+    private static bool IsDate(object value, string? language)
     {
         return value switch
         {
             DateOnly or DateTime or DateTimeOffset => true,
-            string s => SkillDateParsingDefaults.IsTodayWord(s) || ParsesAsDate(s.Trim()),
+            string s => SkillRelativeDayWords.IsRelativeDayWord(s, language) || ParsesAsDate(s.Trim()),
             _ => false
         };
     }
@@ -163,25 +170,37 @@ public static class SkillParameterTypeValidator
         return value switch
         {
             TimeOnly or TimeSpan => true,
-            string s => TimeOnly.TryParse(s.Trim(), CultureInfo.InvariantCulture, out _)
-                        || TimeOnly.TryParse(s.Trim(), CultureInfo.CurrentCulture, out _),
+            string s => ParsesAsTime(s.Trim()),
             _ => false
         };
     }
 
-    private static bool IsDateTime(object value)
+    private static bool IsDateTime(object value, string? language)
     {
         return value switch
         {
             DateTime or DateTimeOffset or DateOnly => true,
-            string s => SkillDateParsingDefaults.IsTodayWord(s) || ParsesAsDate(s.Trim()),
+            string s => SkillRelativeDayWords.IsRelativeDayWord(s, language) || ParsesAsDate(s.Trim()),
             _ => false
         };
     }
 
+    private static bool ParsesAsTime(string text)
+    {
+        foreach (var parseCulture in SkillDateCultureResolver.AllSupportedCultures)
+        {
+            if (TimeOnly.TryParse(text, parseCulture, out _))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool ParsesAsDate(string text)
     {
-        foreach (var culture in SkillDateParsingDefaults.Cultures)
+        foreach (var culture in SkillDateCultureResolver.AllSupportedCultures)
         {
             if (DateTime.TryParse(text, culture, DateTimeStyles.None, out _))
             {

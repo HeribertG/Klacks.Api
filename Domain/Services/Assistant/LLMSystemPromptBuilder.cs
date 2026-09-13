@@ -1,18 +1,28 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Globalization;
 using System.Text;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public class LLMSystemPromptBuilder
 {
     private readonly IPromptTranslationProvider _translationProvider;
+    private readonly ICompanyClock _companyClock;
 
     private const string CurrentViewHeader = "=== CURRENT VIEW ===";
     private const string CurrentViewFooter = "=== END CURRENT VIEW ===";
+
+    private const string TemporalContextHeader = "=== CURRENT DATE & TIME ===";
+    private const string TemporalContextFooter = "=== END CURRENT DATE & TIME ===";
+    private const string IsoDateFormat = "yyyy-MM-dd";
+    private const string IsoTimeFormat = "HH:mm";
+    private const string DefaultDirectiveLanguage = "en";
 
     private const string ToolCallBatchingGuide = """
 
@@ -105,19 +115,71 @@ TOOL CALLS & HONESTY (mandatory):
   otherwise.
 """;
 
+    private const string TemporalContextGuide = """
+
+TEMPORAL CONTEXT (mandatory):
+- The CURRENT DATE & TIME block of this prompt is the only authority on what "now" is. Resolve every
+  relative date (today, tomorrow, yesterday, next Monday, end of month, in 3 days) against THAT date in
+  THAT time zone — never against a date you remember or assume.
+- Pass dates to tools as ISO yyyy-MM-dd and times as HH:mm, whatever wording the user used.
+- If the user's wording is ambiguous (e.g. "03/04", or a bare weekday that could be the past or the
+  coming one), ask which date is meant instead of guessing.
+- Never present a date without its weekday when the exact day matters to the user.
+- Call get_current_time when you need the precise clock time, a week number, or another time zone.
+""";
+
     private static readonly IReadOnlyDictionary<string, string> LanguageDirectives =
-        new Dictionary<string, string>
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            ["ar"] = "أجب حصريًا باللغة العربية، بغض النظر عن اللغة التي يكتب أو يتحدث بها المستخدم.",
+            ["cs"] = "Odpovídej výhradně česky, bez ohledu na to, v jakém jazyce uživatel píše nebo mluví.",
+            ["da"] = "Svar udelukkende på dansk, uanset hvilket sprog brugeren skriver eller taler.",
             ["de"] = "Antworte ausschließlich auf Deutsch, unabhängig davon, in welcher Sprache der Benutzer schreibt oder spricht.",
+            ["el"] = "Απάντα αποκλειστικά στα ελληνικά, ανεξάρτητα από τη γλώσσα στην οποία γράφει ή μιλάει ο χρήστης.",
             ["en"] = "Respond exclusively in English, regardless of the language the user writes or speaks in.",
+            ["es"] = "Responde exclusivamente en español, independientemente del idioma en que el usuario escriba o hable.",
+            ["fi"] = "Vastaa yksinomaan suomeksi riippumatta siitä, millä kielellä käyttäjä kirjoittaa tai puhuu.",
             ["fr"] = "Réponds exclusivement en français, quelle que soit la langue dans laquelle l'utilisateur écrit ou parle.",
+            ["he"] = "ענה אך ורק בעברית, ללא קשר לשפה שבה המשתמש כותב או מדבר.",
+            ["id"] = "Jawablah secara eksklusif dalam bahasa Indonesia, terlepas dari bahasa yang ditulis atau diucapkan pengguna.",
             ["it"] = "Rispondi esclusivamente in italiano, indipendentemente dalla lingua in cui l'utente scrive o parla.",
+            ["ja"] = "ユーザーがどの言語で書いても話しても、必ず日本語のみで回答してください。",
+            ["ko"] = "사용자가 어떤 언어로 쓰거나 말하든 상관없이 반드시 한국어로만 답변하세요.",
+            ["ms"] = "Jawab secara eksklusif dalam bahasa Melayu, tanpa mengira bahasa yang ditulis atau dituturkan oleh pengguna.",
+            ["nb"] = "Svar utelukkende på norsk bokmål, uansett hvilket språk brukeren skriver eller snakker.",
+            ["nl"] = "Antwoord uitsluitend in het Nederlands, ongeacht de taal waarin de gebruiker schrijft of spreekt.",
+            ["pl"] = "Odpowiadaj wyłącznie po polsku, niezależnie od języka, w którym użytkownik pisze lub mówi.",
+            ["pt"] = "Responda exclusivamente em português, independentemente do idioma em que a pessoa escreve ou fala.",
+            ["ro"] = "Răspunde exclusiv în limba română, indiferent de limba în care scrie sau vorbește utilizatorul.",
+            ["sv"] = "Svara uteslutande på svenska, oavsett vilket språk användaren skriver eller talar.",
+            ["th"] = "ตอบเป็นภาษาไทยเท่านั้น ไม่ว่าผู้ใช้จะเขียนหรือพูดด้วยภาษาใดก็ตาม",
+            ["vi"] = "Chỉ trả lời bằng tiếng Việt, bất kể người dùng viết hay nói bằng ngôn ngữ nào.",
+            ["zh-CN"] = "无论用户使用哪种语言书写或说话，都只用简体中文回答。",
+            ["zh-TW"] = "無論使用者以何種語言書寫或說話，一律只用繁體中文回答。"
         };
 
-    public LLMSystemPromptBuilder(IPromptTranslationProvider translationProvider)
+    public LLMSystemPromptBuilder(IPromptTranslationProvider translationProvider, ICompanyClock companyClock)
     {
         _translationProvider = translationProvider;
+        _companyClock = companyClock;
     }
+
+    /// <summary>
+    /// The language directive for a UI language code. A known full tag wins over its base language, so
+    /// "zh-CN" keeps the simplified-Chinese directive instead of degrading to English through the base
+    /// tag "zh"; an unknown language falls back to English.
+    /// </summary>
+    /// <param name="language">UI language code, e.g. "de", "pt-BR" or "zh-TW"</param>
+    public static string ResolveLanguageDirective(string? language) =>
+        LanguageDirectives[ResolveDirectiveKey(language)];
+
+    /// <summary>
+    /// Whether a UI language code has an own directive rather than falling back to English. Used by the
+    /// architecture guard that walks the installed language packs.
+    /// </summary>
+    /// <param name="language">UI language code as an installed language pack declares it</param>
+    public static bool HasLanguageDirective(string? language) =>
+        !string.IsNullOrWhiteSpace(language) && LanguageDirectives.ContainsKey(language.Trim());
 
     public async Task<string> BuildSystemPromptAsync(LLMContext context, string? soulAndMemoryPrompt = null)
     {
@@ -128,7 +190,7 @@ TOOL CALLS & HONESTY (mandatory):
 
         var language = NormalizeLanguage(context.Language);
         var t = await _translationProvider.GetTranslationsAsync(language);
-        var languageDirective = LanguageDirectives.GetValueOrDefault(language, LanguageDirectives["en"]);
+        var languageDirective = ResolveLanguageDirective(context.Language);
 
         var canViewSettings = HasPermission(context, "CanViewSettings");
         var canEditSettings = HasPermission(context, "CanEditSettings");
@@ -162,6 +224,7 @@ TOOL CALLS & HONESTY (mandatory):
         sb.Append(HonestyAndToolCallGuide);
         sb.Append(UntrustedToolContentGuide);
         sb.Append(FactualGroundingGuide);
+        sb.Append(TemporalContextGuide);
         sb.Append(InternalDisclosureGuide);
 
         if (HasNavigateToSkill(context))
@@ -208,17 +271,55 @@ TOOL CALLS & HONESTY (mandatory):
         return sb.Length > 0 ? sb.ToString() : null;
     }
 
-    private static string NormalizeLanguage(string? language)
+    /// <summary>
+    /// Renders the company's current calendar day, wall-clock time and IANA time zone. Lives in the
+    /// volatile segment, never in the cached stable one: the wall-clock minute changes between two
+    /// turns of the same conversation, which would invalidate the provider's prompt cache on every
+    /// turn, and a conversation running over midnight would otherwise resolve "tomorrow" against
+    /// yesterday. The weekday is rendered in the user's own language so the model can quote it.
+    /// </summary>
+    /// <param name="context">Turn context providing the user's UI language</param>
+    /// <param name="cancellationToken">Cancels the company clock lookups</param>
+    public async Task<string?> BuildTemporalContextAsync(
+        LLMContext context, CancellationToken cancellationToken = default)
+    {
+        if (context.IsNonConversational)
+        {
+            return null;
+        }
+
+        var now = await _companyClock.GetNowAsync(cancellationToken);
+        var resolution = await _companyClock.GetTimeZoneResolutionAsync(cancellationToken);
+        var weekday = UiLanguageCulture.DayName(context.Language, now.DayOfWeek);
+
+        var sb = new StringBuilder();
+        sb.AppendLine(TemporalContextHeader);
+        sb.AppendLine($"- date: {now.ToString(IsoDateFormat, CultureInfo.InvariantCulture)} ({weekday})");
+        sb.AppendLine($"- time: {now.ToString(IsoTimeFormat, CultureInfo.InvariantCulture)}");
+        sb.AppendLine($"- timeZone: {resolution.IanaId}");
+        sb.Append(TemporalContextFooter);
+        return sb.ToString();
+    }
+
+    private static string ResolveDirectiveKey(string? language)
     {
         if (string.IsNullOrWhiteSpace(language))
         {
-            return "en";
+            return DefaultDirectiveLanguage;
         }
 
-        var normalized = language.Trim().ToLowerInvariant();
-        var separator = normalized.IndexOf('-');
-        return separator > 0 ? normalized[..separator] : normalized;
+        var trimmed = language.Trim();
+        if (LanguageDirectives.ContainsKey(trimmed))
+        {
+            return trimmed;
+        }
+
+        var baseLanguage = LanguageTag.BaseLanguage(trimmed)!;
+        return LanguageDirectives.ContainsKey(baseLanguage) ? baseLanguage : DefaultDirectiveLanguage;
     }
+
+    private static string NormalizeLanguage(string? language) =>
+        LanguageTag.BaseLanguage(language)?.ToLowerInvariant() ?? DefaultDirectiveLanguage;
 
     private static string? RenderCurrentViewBlock(AssistantPageContext? pageContext)
     {

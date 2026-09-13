@@ -125,17 +125,22 @@ public class CreateGroupSkill : BaseSkillImplementation
             }
         }
 
-        var validFrom = await _companyClock.GetTodayAsync(cancellationToken);
-        if (!string.IsNullOrEmpty(validFromStr) && SkillUtcDateTimeParser.TryParse(validFromStr, out var parsedValidFrom))
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var (parsedValidFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
+            validFromStr, today, context.UserLanguage);
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
+            validUntilStr, today, context.UserLanguage);
+        if (invalidValidFrom)
         {
-            validFrom = parsedValidFrom;
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
-        DateTime? validUntil = null;
-        if (!string.IsNullOrEmpty(validUntilStr) && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedValidUntil))
+        if (invalidValidUntil)
         {
-            validUntil = parsedValidUntil;
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
+
+        var validFrom = parsedValidFrom ?? today;
 
         var group = new Group
         {

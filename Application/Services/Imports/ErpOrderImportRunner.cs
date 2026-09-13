@@ -57,6 +57,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly IUnitOfWork _unitOfWork;
     private readonly ErpImportRunState _runState;
     private readonly ILogger<ErpOrderImportRunner> _logger;
+    private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public ErpOrderImportRunner(
         IErpDropPointRepository dropPointRepository,
@@ -72,7 +73,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         ICompanyClock companyClock,
         IUnitOfWork unitOfWork,
         ErpImportRunState runState,
-        ILogger<ErpOrderImportRunner> logger)
+        ILogger<ErpOrderImportRunner> logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _dropPointRepository = dropPointRepository;
         _defaultDropPointProvider = defaultDropPointProvider;
@@ -88,6 +90,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _unitOfWork = unitOfWork;
         _runState = runState;
         _logger = logger;
+        _driftNotifier = driftNotifier;
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -118,7 +121,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     {
         var cronExpression = (await _settingsRepository.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, _driftNotifier, cancellationToken);
         // Read untracked on purpose: the occurrence is claimed through a conditional update that
         // bypasses the change tracker, so a tracked instance would keep the pre-claim value and any
         // later save in the same scope would silently roll the claim back.

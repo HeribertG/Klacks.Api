@@ -10,6 +10,7 @@ using System.Text;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -116,7 +117,7 @@ public class EdgeTtsService : ITtsProvider
             return voice;
         }
 
-        var langPrefix = locale.Contains('-') ? locale[..locale.IndexOf('-')] : locale;
+        var langPrefix = LanguageTag.BaseLanguage(locale) ?? locale;
         return VoiceMap.GetValueOrDefault(langPrefix, FallbackVoiceShortName);
     }
 

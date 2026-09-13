@@ -26,6 +26,13 @@
 /// what it is good at. Everything factual therefore travels in Data; Message states the same facts in
 /// one line so a model that ignores structured data still cannot make them up.
 ///
+/// The company time zone comes first in both the data and the message whenever it is unconfigured
+/// (CompanyTimeZoneSource.Utc, or UtcMultiZoneCountry where a country is configured but spans several
+/// zones): it is the one setting that silently corrupts every other fact this skill reports, because an
+/// installation on the UTC fallback attributes days, deadlines and hour totals to the wrong calendar
+/// day. It is reported even when setup is otherwise complete, which is exactly the case where nobody
+/// would otherwise look.
+///
 /// Reachable independently of the one-off no_schedule_yet notification (which dedups permanently),
 /// which is what makes the guide re-enterable after the user abandons it.
 ///
@@ -47,7 +54,7 @@
 /// <param name="activityProbe">Installation-wide setup snapshot along the order -> shift -> assignment chain.</param>
 /// <param name="objectStorageService">Resolves the drop point's bucket prefix to an absolute on-disk path.</param>
 /// <param name="settingsReader">Reads the import poll schedule and its time zone.</param>
-/// <param name="companyClock">Resolves the installation's configured time zone when no cron time zone setting is configured.</param>
+/// <param name="companyClock">Resolves the installation's configured time zone - both for the ERP cron zone when no cron time zone setting is configured, and for the first-priority "no company time zone configured" item.</param>
 /// <param name="logger">Logs when the configured cron time zone setting does not resolve to a known time zone.</param>
 
 using Klacks.Api.Application.Queries.ErpDropPoints;
@@ -71,6 +78,17 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_setup_guidance")]
 public class GetSetupGuidanceSkill : BaseSkillImplementation
 {
+    private const string OwnerAddressTarget = "owner-address";
+    private const string TimeZoneNotConfiguredAction =
+        "Configure the company time zone FIRST, before anything else: without it the installation "
+        + "computes every business day on UTC boundaries, so days, deadlines and hour totals are "
+        + "attributed to the wrong date for anybody not living on UTC.";
+    private const string TimeZoneMultiZoneCountryReason =
+        "A country is configured, but it spans several time zones, so no single zone can be derived "
+        + "from it - the zone has to be picked explicitly.";
+    private const string TimeZoneNoCountryReason =
+        "Neither a time zone nor a country from which one could be derived is configured.";
+
     private const string OrderListTarget = "shift-list";
     private const string NewShiftTarget = "new-shift";
     private const string CutShiftTarget = "cut-shift";
@@ -83,6 +101,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GetSetupGuidanceSkill> _logger;
+    private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public GetSetupGuidanceSkill(
         IMediator mediator,
@@ -90,7 +109,8 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         IObjectStorageService objectStorageService,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
-        ILogger<GetSetupGuidanceSkill> logger)
+        ILogger<GetSetupGuidanceSkill> logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _mediator = mediator;
         _activityProbe = activityProbe;
@@ -98,6 +118,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         _settingsReader = settingsReader;
         _companyClock = companyClock;
         _logger = logger;
+        _driftNotifier = driftNotifier;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -106,12 +127,19 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var state = await _activityProbe.GetSetupStateAsync(cancellationToken);
+        var timeZone = await BuildTimeZoneAsync(cancellationToken);
         if (state.HasWork)
         {
             return SkillResult.SuccessResult(
-                new { SetupComplete = true, Installation = new { state.HasOrders, state.HasShifts, state.HasWork } },
-                "Setup is complete — orders, shifts and work assignments all exist, so there is nothing "
-                + "left to set up before scheduling.");
+                new
+                {
+                    SetupComplete = true,
+                    TimeZone = timeZone,
+                    Installation = new { state.HasOrders, state.HasShifts, state.HasWork }
+                },
+                TimeZoneSentence(timeZone)
+                + "Setup is complete — orders, shifts and work assignments all exist, so there is "
+                + "nothing left to set up before scheduling.");
         }
 
         var phase = GetParameter<string>(parameters, SetupConsultationParameters.Phase);
@@ -128,17 +156,17 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             state, attribution, orderSource, context.UserPermissions.Contains(Roles.Admin));
 
         var isIntro = string.Equals(phase, SetupConsultationPhases.Intro, StringComparison.OrdinalIgnoreCase);
-        var data = BuildData(state, stage, erpRoute, isIntro ? null : route, attribution, orderSource);
+        var data = BuildData(state, stage, erpRoute, isIntro ? null : route, attribution, orderSource, timeZone);
 
         if (string.Equals(phase, SetupConsultationPhases.Act, StringComparison.OrdinalIgnoreCase)
             && nextStep == SetupNextStepChoice.Show)
         {
             return SkillResult.Navigation(
                 new { Route = route.ShowTarget, Target = route.ShowTarget },
-                BuildMessage(stage, erpRoute));
+                BuildMessage(stage, erpRoute, timeZone));
         }
 
-        return SkillResult.SuccessResult(data, BuildMessage(stage, erpRoute));
+        return SkillResult.SuccessResult(data, BuildMessage(stage, erpRoute, timeZone));
     }
 
     private object BuildData(
@@ -147,9 +175,11 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         ErpRouteFacts erpRoute,
         SetupRouteFacts? route,
         SetupAttributionAnswer attribution,
-        SetupOrderSourceAnswer orderSource) => new
+        SetupOrderSourceAnswer orderSource,
+        TimeZoneFacts timeZone) => new
     {
         SetupComplete = false,
+        TimeZone = timeZone,
         Stage = stage.ToString(),
         Installation = new
         {
@@ -230,6 +260,36 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         ScheduleTarget
     };
 
+    private async Task<TimeZoneFacts> BuildTimeZoneAsync(CancellationToken cancellationToken)
+    {
+        var resolution = await _companyClock.GetTimeZoneResolutionAsync(cancellationToken);
+        var isMultiZoneCountry = resolution.Source == CompanyTimeZoneSource.UtcMultiZoneCountry;
+        var isConfigured = resolution.Source != CompanyTimeZoneSource.Utc && !isMultiZoneCountry;
+
+        return new TimeZoneFacts(
+            isConfigured,
+            resolution.IanaId,
+            resolution.Source.ToString(),
+            isConfigured ? null : TimeZoneNotConfiguredAction,
+            isConfigured
+                ? null
+                : isMultiZoneCountry ? TimeZoneMultiZoneCountryReason : TimeZoneNoCountryReason,
+            isConfigured ? null : OwnerAddressTarget);
+    }
+
+    private static string TimeZoneSentence(TimeZoneFacts timeZone)
+    {
+        if (timeZone.Configured)
+        {
+            return string.Empty;
+        }
+
+        return $"FIRST: the company time zone is not configured, so the installation runs on "
+            + $"{timeZone.IanaId}. {timeZone.Reason} Set it on the company address page "
+            + $"(Settings -> Company address, navigation target '{timeZone.SettingsTarget}') before "
+            + "anything else - every business day is computed on the wrong boundary until then. ";
+    }
+
     private async Task<ErpRouteFacts> BuildErpRouteAsync(CancellationToken cancellationToken)
     {
         var dropPoint = await _mediator.Send(new GetDefaultQuery(), cancellationToken);
@@ -243,7 +303,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, _driftNotifier, cancellationToken);
 
         var tokens = await _mediator.Send(new GetErpImportTokensQuery(dropPoint.Id), cancellationToken);
 
@@ -260,7 +320,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             tokens.Count);
     }
 
-    private static string BuildMessage(ScheduleSetupStage stage, ErpRouteFacts erp)
+    private static string BuildMessage(ScheduleSetupStage stage, ErpRouteFacts erp, TimeZoneFacts timeZone)
     {
         var erpSentence = erp.DropPointConfigured
             ? $"An ERP handover point '{erp.Name}' exists ({(erp.IsEnabled == true ? "switched on" : "switched off")}), "
@@ -268,7 +328,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
                 + $"[{erp.CronExpression}] {erp.TimeZone}; {erp.TokenCount} import token(s) exist."
             : "No ERP handover point is configured yet, so the ERP route would have to be set up first.";
 
-        return $"Setup stage: {stage}. {erpSentence} A plannable shift is never created directly: it "
+        return TimeZoneSentence(timeZone) + $"Setup stage: {stage}. {erpSentence} A plannable shift is never created directly: it "
             + "only comes into existence by sealing an order, which is irreversible. The choice is when "
             + "to seal — a draft order stays editable and produces no shift yet, an order created "
             + "without the draft flag is sealed at once and its shift exists immediately. A customer is "
@@ -276,6 +336,14 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             + "New button and seal without one. An import always delivers drafts and seals nothing by "
             + "itself.";
     }
+
+    private sealed record TimeZoneFacts(
+        bool Configured,
+        string IanaId,
+        string Source,
+        string? Action,
+        string? Reason,
+        string? SettingsTarget);
 
     private sealed record ErpRouteFacts(
         bool DropPointConfigured,

@@ -8,7 +8,13 @@
 /// skill itself persists. Always returns an IANA id: a configured setting still holding a Windows id
 /// from before it was normalized on write is converted, and a configured value that resolves to no
 /// known time zone at all (e.g. a typo) is discarded in favour of the company zone, with a warning
-/// logged, rather than being echoed back as an unusable, non-IANA string.
+/// logged, rather than being echoed back as an unusable, non-IANA string. A configured zone that
+/// resolves but differs from the company zone is honoured and warned about through
+/// <see cref="ErpCronTimeZoneDriftNotifier"/> - once per distinct pair of zones, not once per
+/// resolution - with both ids in the structured log: it is legitimate (a Swiss customer importing on
+/// Swiss time), but on a non-Swiss installation it is usually a row persisted by the old
+/// always-persist behaviour that nobody has noticed. No data is migrated - the setting is the owner's
+/// to keep or clear.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -28,20 +34,28 @@ public static class ErpImportCronTimeZone
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
         ILogger logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier,
         CancellationToken cancellationToken = default)
     {
+        var companyZone = await companyClock.GetTimeZoneAsync(cancellationToken);
+        var companyIanaId = IanaTimeZoneId.From(companyZone);
+
         var configured = (await settingsReader.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value;
         if (!string.IsNullOrWhiteSpace(configured))
         {
             if (IanaTimeZoneId.TryFrom(configured, out var configuredIanaId))
             {
+                if (!string.Equals(configuredIanaId, companyIanaId, StringComparison.Ordinal))
+                {
+                    driftNotifier.WarnOnce(logger, configuredIanaId!, companyIanaId);
+                }
+
                 return configuredIanaId!;
             }
 
             logger.LogWarning(UnresolvableSettingWarning, configured);
         }
 
-        var companyZone = await companyClock.GetTimeZoneAsync(cancellationToken);
-        return IanaTimeZoneId.From(companyZone);
+        return companyIanaId;
     }
 }

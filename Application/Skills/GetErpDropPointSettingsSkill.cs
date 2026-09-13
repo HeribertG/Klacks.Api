@@ -30,18 +30,21 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<GetErpDropPointSettingsSkill> _logger;
+    private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public GetErpDropPointSettingsSkill(
         IMediator mediator,
         IObjectStorageService objectStorageService,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
-        ILogger<GetErpDropPointSettingsSkill> logger)
+        ILogger<GetErpDropPointSettingsSkill> logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _mediator = mediator;
         _objectStorageService = objectStorageService;
         _settingsReader = settingsReader;
         _logger = logger;
+        _driftNotifier = driftNotifier;
         _companyClock = companyClock;
     }
 
@@ -62,7 +65,7 @@ public class GetErpDropPointSettingsSkill : BaseSkillImplementation
 
         var cronExpression = (await _settingsReader.GetSetting(ErpImportSettingsTypes.CronExpression))?.Value
             ?? ErpImportSettingsTypes.DefaultCronExpression;
-        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, cancellationToken);
+        var timeZoneId = await ErpImportCronTimeZone.ResolveAsync(_settingsReader, _companyClock, _logger, _driftNotifier, cancellationToken);
 
         var data = new
         {

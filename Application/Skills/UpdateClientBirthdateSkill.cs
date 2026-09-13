@@ -60,9 +60,9 @@ public class UpdateClientBirthdateSkill : BaseSkillImplementation
         var lastName = GetRequiredString(parameters, "lastName");
         var birthdateStr = GetRequiredString(parameters, "birthdate");
 
-        if (!SkillUtcDateTimeParser.TryParse(birthdateStr, out var birthdate))
+        if (!SkillUtcDateTimeParser.TryParse(birthdateStr, context.UserLanguage, out var birthdate))
         {
-            return SkillResult.Error($"Invalid birthdate format: '{birthdateStr}'. Expected YYYY-MM-DD.");
+            return SkillResult.Error(SkillDateParser.InvalidBirthdateMessage(birthdateStr));
         }
 
         var (client, error) = await ClientResolver.ResolveByNameAsync(

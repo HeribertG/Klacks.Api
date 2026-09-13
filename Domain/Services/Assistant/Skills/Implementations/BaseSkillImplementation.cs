@@ -18,7 +18,10 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default);
 
-    protected static T? GetParameter<T>(Dictionary<string, object> parameters, string name, T? defaultValue = default)
+    protected static T? GetParameter<T>(
+        Dictionary<string, object> parameters,
+        string name,
+        T? defaultValue = default)
         => SkillParameterReader.Read(parameters, name, defaultValue);
 
     protected static string GetRequiredString(Dictionary<string, object> parameters, string name)

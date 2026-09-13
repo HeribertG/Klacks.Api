@@ -11,6 +11,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Holidays;
@@ -63,7 +64,8 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
                     Country = country,
                     State = state,
                     IsHoliday = false,
-                    DayOfWeek = date.DayOfWeek.ToString()
+                    DayOfWeek = date.DayOfWeek.ToString(),
+                    DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
                 },
                 $"{date:yyyy-MM-dd} is NOT a holiday in {country}/{(string.IsNullOrEmpty(state) ? "—" : state)}.");
         }
@@ -77,7 +79,8 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
                 IsHoliday = true,
                 HolidayName = hit.CurrentName,
                 hit.Officially,
-                DayOfWeek = date.DayOfWeek.ToString()
+                DayOfWeek = date.DayOfWeek.ToString(),
+                DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
             },
             $"{date:yyyy-MM-dd} is a holiday: {hit.CurrentName}" + (hit.Officially ? " (officially observed)." : "."));
     }

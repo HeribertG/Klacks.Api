@@ -102,18 +102,17 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(
-                "I couldn't read the start date for the assignment. Please give a concrete date " +
-                "(for example 2026-05-01) or say 'today'.");
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
-        DateTime? validUntil = null;
-        if (!string.IsNullOrEmpty(validUntilStr) && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedUntil))
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
+            validUntilStr, today, context.UserLanguage);
+        if (invalidValidUntil)
         {
-            validUntil = parsedUntil;
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
 
         var groupItem = new GroupItem

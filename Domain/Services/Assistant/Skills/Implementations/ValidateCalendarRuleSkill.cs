@@ -7,6 +7,7 @@
 /// <param name="companyClock">Resolves the company's current calendar year when no year is supplied.</param>
 
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -64,7 +65,8 @@ public class ValidateCalendarRuleSkill : BaseSkillImplementation
                     SubRule = subRule,
                     CalculatedDate = holiday.CurrentDate.ToString("yyyy-MM-dd"),
                     FormattedDate = holiday.FormatDate,
-                    DayOfWeek = holiday.CurrentDate.DayOfWeek.ToString()
+                    DayOfWeek = holiday.CurrentDate.DayOfWeek.ToString(),
+                    DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, holiday.CurrentDate.DayOfWeek)
                 };
 
                 return SkillResult.SuccessResult(result,

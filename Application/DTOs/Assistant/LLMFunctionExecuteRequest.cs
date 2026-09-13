@@ -12,4 +12,6 @@ public class LLMFunctionExecuteRequest
     public Dictionary<string, object>? Parameters { get; set; }
 
     public Klacks.Api.Domain.Models.Assistant.AssistantPageContext? PageContext { get; set; }
+
+    public string? Language { get; set; }
 }

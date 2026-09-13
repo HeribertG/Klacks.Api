@@ -26,6 +26,11 @@ public static class SkillParameterRedactor
 
         foreach (var parameter in parameters)
         {
+            if (SkillParameterKeys.IsReserved(parameter.Key))
+            {
+                continue;
+            }
+
             redacted[parameter.Key] = IsSensitiveName(parameter.Key)
                 ? SensitiveSkillParameters.RedactedValue
                 : RedactValue(parameter.Value);

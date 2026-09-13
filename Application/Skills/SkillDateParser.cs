@@ -14,15 +14,24 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class SkillDateParser
 {
-    private static readonly string[] TodayWords = SkillDateParsingDefaults.TodayWords;
+    /// <summary>
+    /// Clarification naming the parameter that could not be read, so the model knows which of several
+    /// date arguments to ask about instead of retrying the whole call blindly.
+    /// </summary>
+    /// <param name="parameterName">Declared parameter name, e.g. "validFrom".</param>
+    /// <param name="raw">The value as the user or the model wrote it, quoted back to the model.</param>
+    public static string InvalidDateMessageFor(string parameterName, string raw) =>
+        $"Invalid {parameterName} value: '{raw}'. Please give a concrete date (for example 2026-05-01), " +
+        "a relative day such as 'today' or 'tomorrow', or ask the user which date is meant.";
 
     /// <summary>
-    /// Clarification a membership skill returns when a non-blank start date was supplied but could not
-    /// be understood, so the caller asks the user for a concrete date instead of defaulting to today.
+    /// Clarification for a birthdate that could not be read. A birthdate is a fixed historical fact, so
+    /// relative day words are deliberately rejected here rather than resolved against the company day.
     /// </summary>
-    public const string InvalidDateMessage =
-        "I couldn't read that date. Please give a concrete date " +
-        "(for example 2026-05-01) or say 'today'.";
+    /// <param name="raw">The value as the user or the model wrote it, quoted back to the model.</param>
+    public static string InvalidBirthdateMessage(string raw) =>
+        $"Invalid birthdate '{raw}'. Please give a concrete date (for example 1984-05-01) in ISO " +
+        "format; relative words such as 'today' or 'tomorrow' are not valid birthdates.";
 
     /// <summary>
     /// Parses an optional date to a UTC midnight value. Returns Invalid=true when a non-blank value
@@ -30,12 +39,18 @@ internal static class SkillDateParser
     /// Delegates the actual date/time reading to <see cref="SkillUtcDateTimeParser"/> (then takes just
     /// the calendar day) so this never disagrees with it about what an offset or "Z" value resolves to.
     /// </summary>
-    /// <param name="raw">The user-supplied date string (may be null/blank, a date, or a "today" word).</param>
+    /// <param name="raw">The user-supplied date string (may be null/blank, a date, or a relative day
+    /// word such as "today", "tomorrow" or "yesterday" in any supported language).</param>
     /// <param name="today">
-    /// The company's current calendar date as a UTC-midnight value (from <c>ICompanyClock</c>), returned
-    /// for "today" words so the membership date reflects the company's local day rather than the server's UTC day.
+    /// The company's current calendar date as a UTC-midnight value (from <c>ICompanyClock</c>), used as
+    /// the anchor for relative day words so the membership date reflects the company's local day rather
+    /// than the server's UTC day. Tomorrow and yesterday are that day shifted by one, keeping Kind=Utc.
     /// </param>
-    public static (DateTime? Value, bool Invalid) ParseOptionalUtcDate(string? raw, DateTime today)
+    /// <param name="language">UI language of the calling user, so an ambiguous written date such as
+    /// "03/04/2026" is read the way that user writes it and a relative day word is only recognised in
+    /// that language or in English; null keeps the historical culture list and the full word union.</param>
+    public static (DateTime? Value, bool Invalid) ParseOptionalUtcDate(
+        string? raw, DateTime today, string? language = null)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
@@ -43,12 +58,12 @@ internal static class SkillDateParser
         }
 
         var trimmed = raw.Trim();
-        if (TodayWords.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+        if (SkillRelativeDayWords.TryResolveDayOffset(trimmed, language, out var dayOffset))
         {
-            return (today, false);
+            return (today.AddDays(dayOffset), false);
         }
 
-        if (SkillUtcDateTimeParser.TryParse(trimmed, out var parsed))
+        if (SkillUtcDateTimeParser.TryParse(trimmed, language, out var parsed))
         {
             return (parsed.Date, false);
         }

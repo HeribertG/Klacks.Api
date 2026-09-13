@@ -77,15 +77,28 @@ public class AssignOrdersToGroupsSkill : BaseSkillImplementation
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
+        var fromDateStr = GetParameter<string>(parameters, "fromDate");
+        var untilDateStr = GetParameter<string>(parameters, "untilDate");
+        var validFromStr = GetParameter<string>(parameters, "validFrom");
         var (fromDate, invalidFromDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "fromDate"), today);
+            fromDateStr, today, context.UserLanguage);
         var (untilDate, invalidUntilDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "untilDate"), today);
+            untilDateStr, today, context.UserLanguage);
         var (validFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"), today);
-        if (invalidFromDate || invalidUntilDate || invalidValidFrom)
+            validFromStr, today, context.UserLanguage);
+        if (invalidFromDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("fromDate", fromDateStr!));
+        }
+
+        if (invalidUntilDate)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("untilDate", untilDateStr!));
+        }
+
+        if (invalidValidFrom)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;

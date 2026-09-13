@@ -16,6 +16,7 @@ using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Klacks.Api.Infrastructure.Services.Update;
 
@@ -151,7 +152,8 @@ public class UpdateDetectionBackgroundService : BackgroundService
 
     private static bool IsWithinMaintenanceWindow(string? start, string? end, TimeOnly now)
     {
-        if (!TimeOnly.TryParse(start, out var from) || !TimeOnly.TryParse(end, out var to))
+        if (!TimeOnly.TryParse(start, CultureInfo.InvariantCulture, out var from)
+            || !TimeOnly.TryParse(end, CultureInfo.InvariantCulture, out var to))
         {
             return true;
         }

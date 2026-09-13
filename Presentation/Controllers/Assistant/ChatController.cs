@@ -411,7 +411,8 @@ public class ChatController : ControllerBase
             UserId = userId,
             UserRights = userRights,
             AccessToken = Request.GetBearerToken(),
-            PageContext = request.PageContext
+            PageContext = request.PageContext,
+            Language = request.Language
         });
 
         return Ok(response);
@@ -448,7 +449,8 @@ public class ChatController : ControllerBase
                 UserId = userId,
                 UserRights = userRights,
                 AccessToken = Request.GetBearerToken(),
-                PageContext = request.PageContext
+                PageContext = request.PageContext,
+                Language = request.Language
             });
 
             results.Add(response);

@@ -21,7 +21,7 @@ namespace Klacks.Api.Infrastructure.Converters
 
             foreach (var format in formats)
             {
-                if (TimeOnly.TryParseExact(s, format, null, DateTimeStyles.None, out var timeOnly))
+                if (TimeOnly.TryParseExact(s, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var timeOnly))
                 {
                     return timeOnly;
                 }

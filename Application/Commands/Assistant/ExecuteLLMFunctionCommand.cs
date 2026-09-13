@@ -8,6 +8,7 @@
 /// <param name="UserId">ID of the user triggering the function call</param>
 /// <param name="UserRights">List of permission strings held by the user</param>
 /// <param name="PageContext">Optional context about the current frontend page</param>
+/// <param name="Language">UI language of the calling user, so a date argument is read the way that user writes it</param>
 
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -24,4 +25,6 @@ public class ExecuteLLMFunctionCommand : IRequest<LLMFunctionResult>
 
     public BearerToken? AccessToken { get; set; }
     public AssistantPageContext? PageContext { get; set; }
+
+    public string? Language { get; set; }
 }

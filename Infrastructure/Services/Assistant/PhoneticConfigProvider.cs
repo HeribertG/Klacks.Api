@@ -11,6 +11,7 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -41,12 +42,7 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
 
     private static string Normalize(string? locale)
     {
-        if (string.IsNullOrWhiteSpace(locale))
-            return DefaultCoreLocale;
-
-        var value = locale.Trim().ToLowerInvariant();
-        var separator = value.IndexOf('-');
-        return separator > 0 ? value[..separator] : value;
+        return LanguageTag.BaseLanguage(locale)?.ToLowerInvariant() ?? DefaultCoreLocale;
     }
 
     private static Dictionary<string, PhoneticConfig> LoadCore()

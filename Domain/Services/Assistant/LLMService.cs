@@ -843,7 +843,10 @@ public class LLMService : ILLMService
 
         stageWatch.Restart();
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
-        var volatilePrompt = CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt);
+        var temporalContext = await _promptBuilder.BuildTemporalContextAsync(context, cancellationToken);
+        var volatilePrompt = CombineVolatile(
+            temporalContext,
+            CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt));
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 

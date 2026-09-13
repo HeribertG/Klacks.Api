@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Caching.Memory;
+using System.Globalization;
 
 public sealed class NagerDateHolidayProvider : IPublicHolidayProvider
 {
@@ -88,7 +89,7 @@ public sealed class NagerDateHolidayProvider : IPublicHolidayProvider
 
             var entries = (raw ?? [])
                 .Where(h => !string.IsNullOrWhiteSpace(h.Date) && !string.IsNullOrWhiteSpace(h.LocalName))
-                .Select(h => DateOnly.TryParse(h.Date, out var date)
+                .Select(h => DateOnly.TryParse(h.Date, CultureInfo.InvariantCulture, out var date)
                     ? new HolidayEntry(date, h.LocalName!)
                     : null)
                 .Where(e => e is not null)

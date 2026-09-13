@@ -13,6 +13,15 @@ public record SkillExecutionContext
     public string? CurrentPage { get; init; }
     public IReadOnlyList<Guid>? SelectedEntityIds { get; init; }
     public string? UserTimezone { get; init; }
+
+    /// <summary>
+    /// UI language code of the calling user (e.g. "de", "en", "pt", "zh-CN"), copied from
+    /// <see cref="LLMContext.Language"/> by the executor. Passed to
+    /// <c>GetParameter</c> so an ambiguous date such as "03/04/2026" is read the way that user wrote
+    /// it instead of the way the server's process culture would read it. Null on paths that do not
+    /// know the language; the parser then keeps its default culture list.
+    /// </summary>
+    public string? UserLanguage { get; init; }
     public LLMProviderType? ProviderId { get; init; }
     public string? ModelId { get; init; }
     public string? SessionId { get; init; }

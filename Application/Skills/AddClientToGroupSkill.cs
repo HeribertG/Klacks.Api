@@ -103,10 +103,10 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today, context.UserLanguage);
         if (invalidDate)
         {
-            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
         if (validFrom is null)
@@ -116,10 +116,11 @@ public class AddClientToGroupSkill : BaseSkillImplementation
                     $"add this client to group '{group.Name}'"));
         }
 
-        DateTime? validUntil = null;
-        if (!string.IsNullOrEmpty(validUntilStr) && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedUntil))
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
+            validUntilStr, today, context.UserLanguage);
+        if (invalidValidUntil)
         {
-            validUntil = parsedUntil;
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
 
         var groupItem = new GroupItem

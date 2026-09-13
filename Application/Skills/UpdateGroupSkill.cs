@@ -44,19 +44,22 @@ public class UpdateGroupSkill : BaseSkillImplementation
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly GroupMapper _groupMapper;
     private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ICompanyClock _companyClock;
 
     public UpdateGroupSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         ICalendarSelectionRepository calendarSelectionRepository,
         GroupMapper groupMapper,
-        IKlacksSelfApiClient selfApi)
+        IKlacksSelfApiClient selfApi,
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _calendarSelectionRepository = calendarSelectionRepository;
         _groupMapper = groupMapper;
         _selfApi = selfApi;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -97,25 +100,34 @@ public class UpdateGroupSkill : BaseSkillImplementation
             verifications.Add(persisted => persisted.Description == description);
         }
 
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+
         var validFromStr = GetParameter<string>(parameters, "validFrom");
-        if (!string.IsNullOrEmpty(validFromStr) && SkillUtcDateTimeParser.TryParse(validFromStr, out var parsedValidFrom))
+        var (parsedValidFrom, invalidValidFrom) = SkillDateParser.ParseOptionalUtcDate(
+            validFromStr, today, context.UserLanguage);
+        if (invalidValidFrom)
         {
-            if (group.ValidFrom != parsedValidFrom)
-            {
-                group.ValidFrom = parsedValidFrom;
-                changed.Add("validFrom");
-                verifications.Add(persisted => persisted.ValidFrom == parsedValidFrom);
-            }
+            return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
+        }
+
+        if (parsedValidFrom.HasValue && group.ValidFrom != parsedValidFrom.Value)
+        {
+            var newValidFrom = parsedValidFrom.Value;
+            group.ValidFrom = newValidFrom;
+            changed.Add("validFrom");
+            verifications.Add(persisted => persisted.ValidFrom == newValidFrom);
         }
 
         var validUntilStr = GetParameter<string>(parameters, "validUntil");
         if (validUntilStr != null)
         {
-            DateTime? newValidUntil = null;
-            if (validUntilStr.Length > 0 && SkillUtcDateTimeParser.TryParse(validUntilStr, out var parsedValidUntil))
+            var (newValidUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(
+                validUntilStr, today, context.UserLanguage);
+            if (invalidValidUntil)
             {
-                newValidUntil = parsedValidUntil;
+                return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
             }
+
             if (group.ValidUntil != newValidUntil)
             {
                 group.ValidUntil = newValidUntil;

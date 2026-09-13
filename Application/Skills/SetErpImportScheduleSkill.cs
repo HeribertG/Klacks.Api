@@ -31,17 +31,20 @@ public class SetErpImportScheduleSkill : BaseSkillImplementation
     private readonly ICompanyClock _companyClock;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<SetErpImportScheduleSkill> _logger;
+    private readonly ErpCronTimeZoneDriftNotifier _driftNotifier;
 
     public SetErpImportScheduleSkill(
         ISettingsRepository settingsRepository,
         ICompanyClock companyClock,
         IUnitOfWork unitOfWork,
-        ILogger<SetErpImportScheduleSkill> logger)
+        ILogger<SetErpImportScheduleSkill> logger,
+        ErpCronTimeZoneDriftNotifier driftNotifier)
     {
         _settingsRepository = settingsRepository;
         _companyClock = companyClock;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _driftNotifier = driftNotifier;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -61,7 +64,7 @@ public class SetErpImportScheduleSkill : BaseSkillImplementation
         var explicitTimeZoneGiven = !string.IsNullOrWhiteSpace(timeZoneId);
         var resolvedTimeZone = explicitTimeZoneGiven
             ? timeZoneId!
-            : await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, cancellationToken);
+            : await ErpImportCronTimeZone.ResolveAsync(_settingsRepository, _companyClock, _logger, _driftNotifier, cancellationToken);
 
         if (!IanaTimeZoneId.TryFrom(resolvedTimeZone, out var normalizedTimeZone))
         {

@@ -119,8 +119,13 @@ public class UpdateClientSkill : BaseSkillImplementation
         }
 
         var birthdate = GetParameter<string>(parameters, "birthdate");
-        if (!string.IsNullOrEmpty(birthdate) && SkillUtcDateTimeParser.TryParse(birthdate, out var parsedBirthdate))
+        if (!string.IsNullOrEmpty(birthdate))
         {
+            if (!SkillUtcDateTimeParser.TryParse(birthdate, context.UserLanguage, out var parsedBirthdate))
+            {
+                return SkillResult.Error(SkillDateParser.InvalidBirthdateMessage(birthdate));
+            }
+
             if (client.Birthdate != parsedBirthdate)
             {
                 client.Birthdate = parsedBirthdate;

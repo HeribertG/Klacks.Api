@@ -8,6 +8,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -49,6 +50,7 @@ public class GetCurrentTimeSkill : BaseSkillImplementation
             Timezone = timezoneId,
             UtcOffset = tz.GetUtcOffset(now).ToString(),
             DayOfWeek = now.DayOfWeek.ToString(),
+            DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, now.DayOfWeek),
             WeekNumber = System.Globalization.ISOWeek.GetWeekOfYear(now)
         };
 

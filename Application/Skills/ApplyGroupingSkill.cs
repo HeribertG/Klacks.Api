@@ -61,7 +61,7 @@ public class ApplyGroupingSkill : BaseSkillImplementation
         {
             if (!DateTime.TryParseExact(
                     validFromValue, ValidFromFormat, CultureInfo.InvariantCulture,
-                    DateTimeStyles.None, out var parsedValidFrom))
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsedValidFrom))
             {
                 return SkillResult.Error(
                     $"Invalid {ValidFromParameterName} '{validFromValue}'. Expected format {ValidFromFormat}.");

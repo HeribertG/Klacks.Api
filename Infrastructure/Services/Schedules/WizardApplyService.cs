@@ -15,6 +15,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -460,7 +461,8 @@ public sealed class WizardApplyService : IWizardApplyService
             {
                 continue;
             }
-            if (!DateOnly.TryParse(esc.Date, out var date) || date < periodStart || date > periodEnd)
+            if (!DateOnly.TryParse(esc.Date, CultureInfo.InvariantCulture, out var date)
+                || date < periodStart || date > periodEnd)
             {
                 continue;
             }

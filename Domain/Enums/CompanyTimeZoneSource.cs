@@ -7,5 +7,6 @@ public enum CompanyTimeZoneSource
     Setting = 0,
     AddressCountry = 1,
     CalendarCountry = 2,
-    Utc = 3
+    Utc = 3,
+    UtcMultiZoneCountry = 4
 }
