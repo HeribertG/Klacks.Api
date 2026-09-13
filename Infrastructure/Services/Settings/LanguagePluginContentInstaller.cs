@@ -477,8 +477,6 @@ public class LanguagePluginContentInstaller
 
         await MergeNonCoreJsonbTranslationsAsync(db, code,
             LanguagePluginConstants.CalendarRulesFileName, "calendar_rule", hasDescription: true);
-        await MergeNonCoreJsonbTranslationsAsync(db, code,
-            LanguagePluginConstants.StatesFileName, "state", hasDescription: false);
     }
 
     /// <summary>
@@ -561,6 +559,88 @@ public class LanguagePluginContentInstaller
         public string Abbreviation { get; set; } = string.Empty;
         public Dictionary<string, string> Name { get; set; } = new();
         public string Prefix { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Installs the plugin's subdivisions from {code}/states.json: inserts each entry as a new
+    /// selectable state if it doesn't exist yet, or merges its name translations into the existing
+    /// row otherwise. A plugin country ships its own subdivisions (e.g. the Spanish autonomous
+    /// communities that come with the "es" plugin) that are not part of the core seed, so those
+    /// rows need upsert semantics instead of the update-only merge used for calendar rules.
+    /// </summary>
+    /// <param name="scope">Service scope providing the database context.</param>
+    /// <param name="code">Plugin language code being installed.</param>
+    public async Task InstallStatesAsync(IServiceScope scope, string code)
+    {
+        var filePath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.StatesFileName);
+        if (!File.Exists(filePath))
+            return;
+
+        try
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+            var json = File.ReadAllText(filePath);
+            var entries = JsonSerializer.Deserialize<List<PluginStateEntry>>(json, JsonOptions);
+            if (entries == null || entries.Count == 0)
+                return;
+
+            var count = 0;
+            foreach (var entry in entries)
+            {
+                if (!Guid.TryParse(entry.Id, out var id) || string.IsNullOrEmpty(entry.Abbreviation))
+                    continue;
+
+                var existing = await db.State.FirstOrDefaultAsync(s => s.Id == id);
+
+                if (existing != null)
+                {
+                    foreach (var (language, value) in entry.Name)
+                    {
+                        if (!string.IsNullOrEmpty(value))
+                            existing.Name.SetValue(language, value);
+                    }
+                }
+                else
+                {
+                    var name = new MultiLanguage();
+                    foreach (var (language, value) in entry.Name)
+                    {
+                        if (!string.IsNullOrEmpty(value))
+                            name.SetValue(language, value);
+                    }
+
+                    db.State.Add(new State
+                    {
+                        Id = id,
+                        Abbreviation = entry.Abbreviation,
+                        CountryPrefix = entry.CountryPrefix,
+                        Name = name
+                    });
+                }
+
+                count++;
+            }
+
+            if (count > 0)
+            {
+                await db.SaveChangesAsync();
+                _logger.LogInformation(
+                    "Installed states for language plugin '{Code}': {Count} row(s) upserted",
+                    code.ForLog(), count);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install states for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    private sealed class PluginStateEntry
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Abbreviation { get; set; } = string.Empty;
+        public string CountryPrefix { get; set; } = string.Empty;
+        public Dictionary<string, string> Name { get; set; } = new();
     }
 
     /// <summary>

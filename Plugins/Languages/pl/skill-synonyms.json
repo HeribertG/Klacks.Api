@@ -2255,8 +2255,12 @@
     "optymalizuj modele językowe"
   ],
   "partition_clients_by_address": [
-    "podziel klientów według adresu",
-    "podziel pracowników na grupy według adresu"
+    "podziel klientów według adresów",
+    "utwórz grupy lokalizacyjne na podstawie adresów",
+    "przypisz pracowników i klientów do grup według adresu",
+    "zbuduj drzewo grup lokalizacyjnych z adresów",
+    "pogrupuj klientów i personel według lokalizacji",
+    "utwórz grupy dla klientów i pracowników na podstawie adresów"
   ],
   "place_work": [
     "przypisz pracownika do zmiany",

@@ -2246,8 +2246,12 @@
     "proveď optimalizaci modelů pro asistenta"
   ],
   "partition_clients_by_address": [
-    "rozdělit klienty podle adresy",
-    "rozdělit zaměstnance do skupin podle adresy"
+    "rozděl klienty podle adresy",
+    "vytvoř skupiny podle adres",
+    "rozděl zaměstnance do skupin podle adresy",
+    "vybuduj strom lokalitních skupin z adres",
+    "vytvoř skupiny pro klienty a zaměstnance podle jejich adres",
+    "seskup adresy do skupin podle lokality"
   ],
   "place_work": [
     "přiřaď klienta na směnu 15.5.",

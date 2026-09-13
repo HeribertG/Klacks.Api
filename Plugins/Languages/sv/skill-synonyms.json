@@ -2207,8 +2207,12 @@
     "testa vilka modeller som fungerar med klacks och ställ in bästa som standard"
   ],
   "partition_clients_by_address": [
-    "dela klienter efter adress",
-    "dela medarbetare i grupper efter adress"
+    "skapa platsgrupper från kundernas adresser",
+    "dela in kunder och personal i grupper efter adress",
+    "bygg en grupphierarki från alla adresser",
+    "gruppera anställda och kunder efter ort",
+    "skapa grupper för kunder och anställda utifrån deras adresser",
+    "fördela adresser i grupper per region och stad"
   ],
   "place_work": [
     "sätt yasmine på morgonskiftet den 15 maj",

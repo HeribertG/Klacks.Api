@@ -2221,8 +2221,12 @@
     "mittoi kaikki mallit ja aseta paras oletukseksi"
   ],
   "partition_clients_by_address": [
-    "jaa asiakkaat osoitteen mukaan",
-    "jaa työntekijät ryhmiin osoitteen mukaan"
+    "jaa asiakkaat ryhmiin osoitteiden perusteella",
+    "rakenna sijaintiryhmät osoitteista",
+    "luo ryhmät asiakkaille ja työntekijöille osoitteiden mukaan",
+    "ryhmittele työntekijät ja asiakkaat osoitteen mukaan",
+    "muodosta ryhmähierarkia osoitteista",
+    "klusteroi osoitteet ryhmiin"
   ],
   "place_work": [
     "sijoita yasmine aamuvuoroon 15.5.",
