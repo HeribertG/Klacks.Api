@@ -65,6 +65,20 @@ public static class AffirmationDetector
         }
     }
 
+    /// <summary>
+    /// Discards every entry Configure ever merged in and restores the core-only state the detector starts
+    /// in. Test-only: Configure writes process-wide static state additively, so without a way back a
+    /// fixture that loads a language pack would decide the outcome of every fixture running after it.
+    /// </summary>
+    internal static void Reset()
+    {
+        lock (_configureLock)
+        {
+            _pluginAffirmationEntries = [];
+            _pluginNegationEntries = [];
+        }
+    }
+
     public static bool IsAffirmation(string? message)
     {
         if (string.IsNullOrWhiteSpace(message) || message.Contains('?'))

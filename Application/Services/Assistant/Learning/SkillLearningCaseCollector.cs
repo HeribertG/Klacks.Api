@@ -178,6 +178,40 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
         }
     }
 
+    public async Task CollectRecipeDeclineAsync(
+        SkillLearningRecipeDecline decline, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(decline.ClusterKey)
+            || MessageNormalizer.CountWords(decline.IntentExcerpt) < SkillLearningDefaults.MinTokenCount)
+        {
+            return;
+        }
+
+        try
+        {
+            await RecordAsync(
+                decline.AgentId,
+                decline.ClusterKey,
+                decline.IntentExcerpt,
+                SkillLearningSignals.RecipeDeclined,
+                decline.UserId,
+                conversationId: null,
+                NormalizeLocale(decline.Locale),
+                decline.RecipeName,
+                expectedSkill: null,
+                decline.ToolsetJson,
+                decline.TrajectoryId,
+                cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Skill learning recipe decline collection failed for agent {AgentId}",
+                decline.AgentId);
+        }
+    }
+
     private async Task RecordAsync(
         Guid agentId,
         string clusterKey,

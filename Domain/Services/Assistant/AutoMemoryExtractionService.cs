@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -24,6 +25,8 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
     private readonly ICheapestModelResolver _cheapestModelResolver;
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly IEmbeddingService _embeddingService;
+    private readonly AutoMemoryOptions _options;
+    private readonly TimeProvider _timeProvider;
 
     private const float DuplicateSimilarityThreshold = 0.90f;
     private const int MaxExtractedMemoriesPerTurn = 3;
@@ -31,12 +34,15 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
     private const double ExtractionTemperature = 0.1;
     private const int MinimumImportance = 5;
 
-    private static readonly string ExtractionSystemPrompt =
+    internal static readonly string ExtractionSystemPrompt =
         "You are a memory extraction assistant. Analyze the conversation turn and extract 0-" +
         MaxExtractedMemoriesPerTurn +
         " important facts worth remembering long-term. " +
         "Only extract: user preferences, decisions, company facts, procedural knowledge. " +
         "Ignore greetings, trivial questions, temporary requests. " +
+        "Never extract the user's permissions, roles or access rights, nor session or navigation state, " +
+        "nor one-time action confirmations. " +
+        "A 'decision' is a lasting policy decision, never 'the user confirmed to run X now'. " +
         "Do NOT extract explanations of the Klacks application itself (its pages, buttons, masks or " +
         "concepts like orders, sealing or shift planning) — that knowledge is curated elsewhere. " +
         "Respond ONLY with a valid JSON array. Each element: {\"key\":string,\"content\":string,\"category\":string,\"importance\":number}. " +
@@ -47,12 +53,16 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         ILogger<AutoMemoryExtractionService> logger,
         ICheapestModelResolver cheapestModelResolver,
         IAgentMemoryRepository agentMemoryRepository,
-        IEmbeddingService embeddingService)
+        IEmbeddingService embeddingService,
+        IOptions<AutoMemoryOptions> options,
+        TimeProvider timeProvider)
     {
         _logger = logger;
         _cheapestModelResolver = cheapestModelResolver;
         _agentMemoryRepository = agentMemoryRepository;
         _embeddingService = embeddingService;
+        _options = options.Value;
+        _timeProvider = timeProvider;
     }
 
     public async Task ExtractAndStoreMemoriesAsync(
@@ -63,6 +73,11 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
     {
         try
         {
+            if (!_options.Enabled)
+            {
+                return;
+            }
+
             var extractedFacts = await ExtractFactsFromConversationAsync(userMessage, assistantResponse);
             if (extractedFacts.Count == 0)
                 return;
@@ -185,6 +200,17 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
     private async Task StoreIfNotDuplicateAsync(Guid agentId, ExtractedFact fact, Guid? userId)
     {
         var scopedUserId = MemoryCategories.IsPersonal(fact.Category) ? userId : null;
+        var normalizedKey = MessageNormalizer.Normalize(fact.Key);
+        var normalizedContent = MessageNormalizer.Normalize(fact.Content);
+
+        var duplicate = await _agentMemoryRepository.FindDuplicateAsync(
+            agentId, scopedUserId, normalizedKey, normalizedContent);
+
+        if (duplicate != null)
+        {
+            await RefreshOrSkipAsync(duplicate, fact);
+            return;
+        }
 
         var embedding = await _embeddingService.GenerateEmbeddingAsync($"{fact.Key}: {fact.Content}");
 
@@ -212,7 +238,8 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
             Importance = fact.Importance,
             Embedding = embedding,
             Source = MemorySources.Conversation,
-            IsPinned = false
+            IsPinned = false,
+            ExpiresAt = ResolveExpiry(fact.Category)
         };
 
         await _agentMemoryRepository.AddAsync(memory);
@@ -220,6 +247,30 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         _logger.LogDebug("Auto-extracted memory '{Key}' [{Category}] importance={Importance}",
             fact.Key, fact.Category, fact.Importance);
     }
+
+    // An expiring duplicate is the one case where finding a copy must still write something. Every read
+    // path hides an expired row and nothing purges it, so leaving it alone would block this fact forever:
+    // the dedupe check keeps seeing the row, the retrieval never does.
+    private async Task RefreshOrSkipAsync(AgentMemory duplicate, ExtractedFact fact)
+    {
+        if (duplicate.ExpiresAt == null)
+        {
+            _logger.LogDebug("Skipping duplicate memory '{Key}' (same key or content already stored)", fact.Key);
+            return;
+        }
+
+        duplicate.ExpiresAt = ExpiryFromNow();
+        await _agentMemoryRepository.UpdateAsync(duplicate);
+
+        _logger.LogDebug(
+            "Refreshed the expiry of duplicate memory '{Key}' instead of storing it a second time", fact.Key);
+    }
+
+    private DateTime? ResolveExpiry(string category) =>
+        MemoryCategories.IsExpiring(category) ? ExpiryFromNow() : null;
+
+    private DateTime ExpiryFromNow() =>
+        _timeProvider.GetUtcNow().UtcDateTime.AddDays(_options.ContextTtlDays);
 
     private sealed record ExtractedFact(string Key, string Content, string Category, int Importance);
 }

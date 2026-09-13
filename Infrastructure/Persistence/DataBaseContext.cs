@@ -290,6 +290,7 @@ public class DataBaseContext : IdentityDbContext
     // Skill Selection Telemetry & Evaluation
     public DbSet<SkillSelectionTrajectory> SkillSelectionTrajectories { get; set; }
     public DbSet<EvalRun> EvalRuns { get; set; }
+    public DbSet<EvalRunItem> EvalRunItems { get; set; }
     public DbSet<ProposedSkillChange> ProposedSkillChanges { get; set; }
     public DbSet<RecipeRun> RecipeRuns { get; set; }
 

@@ -7,10 +7,15 @@
 /// <param name="MinDistinctUsers">Different users after which a cluster is worth learning from, regardless of repetitions</param>
 /// <param name="PruneDays">Days an activated artefact may stay unused before it is retired</param>
 /// <param name="RetentionDays">Days a terminal cluster is kept before it is soft-deleted</param>
+/// <param name="MinGoldenCasesForAutoApply">Holdout golden cases the gate needs before a description may be applied automatically</param>
+
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record SkillLearningOptions(
     int MinOccurrences,
     int MinDistinctUsers,
     int PruneDays,
-    int RetentionDays);
+    int RetentionDays,
+    int MinGoldenCasesForAutoApply = SkillLearningDefaults.MinGoldenCasesForAutoApply);

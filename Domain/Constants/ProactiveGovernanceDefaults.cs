@@ -53,6 +53,7 @@ public static class ProactiveGovernanceDefaults
         AgentTriggerKinds.ClientMissingCoreData,
         AgentTriggerKinds.ContractExpiringSoon,
         AgentTriggerKinds.EmptyContainer,
+        AgentTriggerKinds.EvalRegression,
         AgentTriggerKinds.KlacksyLearnedDigest,
         AgentTriggerKinds.LockConflict,
         AgentTriggerKinds.NextPeriodSchedulingDue,

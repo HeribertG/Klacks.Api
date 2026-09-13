@@ -345,6 +345,7 @@ public class LLMService : ILLMService
                 yield return SseChunk.Content(confirmText);
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                context.RecipeAwaitingConfirmation = true;
                 if (recipeRun != null)
                 {
                     await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
@@ -967,6 +968,7 @@ public class LLMService : ILLMService
 
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
+                ctx.Context.RecipeAwaitingConfirmation = true;
                 if (recipeRun != null)
                 {
                     await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);

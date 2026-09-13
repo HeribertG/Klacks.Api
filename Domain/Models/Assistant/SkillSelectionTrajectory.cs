@@ -69,6 +69,13 @@ public class SkillSelectionTrajectory : BaseEntity
     public string? LearnedPhraseHit { get; set; }
 
     /// <summary>
+    /// State of the recipe confirmation gate this turn opened, see <see cref="RecipeOutcomes"/>. Null when
+    /// the turn asked no confirmation question. A declined gate is deliberately NOT a correction: the user
+    /// answered the assistant's own question, they did not say the routing was wrong.
+    /// </summary>
+    public string? RecipeOutcome { get; set; }
+
+    /// <summary>
     /// True when the user gave the answer a thumbs-up, null while they said nothing. Deliberately
     /// nullable: "nobody judged this turn" and "somebody judged it unhelpful" are different facts, and
     /// the fitness quote may only count the first as neutral.

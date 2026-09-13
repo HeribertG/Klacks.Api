@@ -8,7 +8,10 @@
 /// </summary>
 /// <param name="Query">The utterance excerpt, at most 120 characters</param>
 /// <param name="ExpectedSourceId">Name of the skill or recipe the query must retrieve</param>
+/// <param name="Origin">Whether the case came from a learning cluster or from a shipped goldset</param>
+/// <param name="Partition">Train cases feed learning, holdout cases are the only ones a gate may replay</param>
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -21,4 +24,8 @@ public class SkillLearningGoldenCase : BaseEntity
     public string ExpectedSourceId { get; set; } = string.Empty;
 
     public Guid? ClusterId { get; set; }
+
+    public string Origin { get; set; } = GoldenCaseOrigins.Cluster;
+
+    public string Partition { get; set; } = GoldenCasePartitions.Holdout;
 }

@@ -15,6 +15,8 @@ public class ProposedSkillChange : BaseEntity
 
     public string Field { get; set; } = ProposedChangeFields.Description;
 
+    public string Origin { get; set; } = ProposedChangeOrigins.Correction;
+
     public string ValueBefore { get; set; } = string.Empty;
 
     public string ValueAfter { get; set; } = string.Empty;

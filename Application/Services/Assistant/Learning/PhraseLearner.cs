@@ -98,7 +98,7 @@ public class PhraseLearner : IPhraseLearner
             return PhraseLearningOutcome.Failure("The generator produced no usable phrase.");
         }
 
-        var goldenCases = await _goldenCaseRepository.ListAsync(
+        var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
             SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
         var baseline = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
 
@@ -248,7 +248,9 @@ public class PhraseLearner : IPhraseLearner
                 Query = cluster.IntentExcerpt,
                 Locale = cluster.Locale,
                 ExpectedSourceId = skillName,
-                ClusterId = cluster.ClusterId
+                ClusterId = cluster.ClusterId,
+                Origin = GoldenCaseOrigins.Cluster,
+                Partition = GoldenCasePartitions.Holdout
             },
             cancellationToken);
     }

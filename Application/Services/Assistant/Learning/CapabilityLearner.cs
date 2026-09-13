@@ -111,7 +111,7 @@ public class CapabilityLearner : ICapabilityLearner
         }
 
         var existing = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
-        var goldenCases = await _goldenCaseRepository.ListAsync(
+        var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
             SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
 
         var drafts = await _generator.GenerateCapabilitiesAsync(
@@ -375,7 +375,9 @@ public class CapabilityLearner : ICapabilityLearner
                 Query = cluster.IntentExcerpt,
                 Locale = cluster.Locale,
                 ExpectedSourceId = recipeName,
-                ClusterId = cluster.ClusterId
+                ClusterId = cluster.ClusterId,
+                Origin = GoldenCaseOrigins.Cluster,
+                Partition = GoldenCasePartitions.Holdout
             },
             cancellationToken);
     }

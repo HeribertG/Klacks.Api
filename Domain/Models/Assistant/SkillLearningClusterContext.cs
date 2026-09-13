@@ -8,6 +8,7 @@
 /// <param name="ExpectedSkill">Skill a user named in an explicit correction, null when nobody did</param>
 /// <param name="ChosenSkill">Skill the model called instead, null when it called nothing</param>
 /// <param name="OfferedTools">Tool names that were offered in the turn the wish was refused in</param>
+/// <param name="DeclinedRecipe">Recipe named by the newest case whose signal is recipe_declined, null when none names one</param>
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record SkillLearningClusterContext(
@@ -18,4 +19,5 @@ public sealed record SkillLearningClusterContext(
     string? ChosenSkill,
     IReadOnlyList<string> OfferedTools,
     int AttemptCount,
-    string? LastError);
+    string? LastError,
+    string? DeclinedRecipe);

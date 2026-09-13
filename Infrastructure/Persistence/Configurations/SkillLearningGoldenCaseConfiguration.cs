@@ -3,7 +3,8 @@
 /// <summary>
 /// EF Core configuration for SkillLearningGoldenCase. The foreign key sets null instead of cascading:
 /// a golden case must outlive the cluster it came from, otherwise retention would delete exactly the
-/// regression protection the loop built up.
+/// regression protection the loop built up. The origin/partition index serves the holdout lookup every
+/// gate runs before it decides anything.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
@@ -17,6 +18,8 @@ public class SkillLearningGoldenCaseConfiguration : IEntityTypeConfiguration<Ski
     private const int QueryMaxLength = SkillLearningDefaults.ExcerptMaxLength;
     private const int LocaleMaxLength = 8;
     private const int ExpectedSourceIdMaxLength = 128;
+    private const int OriginMaxLength = 16;
+    private const int PartitionMaxLength = 16;
 
     public void Configure(EntityTypeBuilder<SkillLearningGoldenCase> builder)
     {
@@ -26,8 +29,17 @@ public class SkillLearningGoldenCaseConfiguration : IEntityTypeConfiguration<Ski
         builder.Property(p => p.Query).HasMaxLength(QueryMaxLength).IsRequired();
         builder.Property(p => p.Locale).HasMaxLength(LocaleMaxLength);
         builder.Property(p => p.ExpectedSourceId).HasMaxLength(ExpectedSourceIdMaxLength).IsRequired();
+        builder.Property(p => p.Origin)
+            .HasMaxLength(OriginMaxLength)
+            .HasDefaultValue(GoldenCaseOrigins.Cluster)
+            .IsRequired();
+        builder.Property(p => p.Partition)
+            .HasMaxLength(PartitionMaxLength)
+            .HasDefaultValue(GoldenCasePartitions.Holdout)
+            .IsRequired();
 
         builder.HasIndex(p => p.ExpectedSourceId);
+        builder.HasIndex(p => new { p.Origin, p.Partition });
 
         builder.HasOne<SkillLearningCluster>()
             .WithMany()

@@ -114,4 +114,11 @@ public class LLMContext
     /// loop and would otherwise need a widened return tuple to escape.
     /// </summary>
     public string? ActiveRecipeName { get; set; }
+
+    /// <summary>
+    /// True when this turn ends on the recipe confirmation question rather than on an ask step or a tool
+    /// call. Carried on the context for the same reason as <see cref="ActiveRecipeName"/>: the context is
+    /// the one object both chat entry points share with the post-turn hooks.
+    /// </summary>
+    public bool RecipeAwaitingConfirmation { get; set; }
 }

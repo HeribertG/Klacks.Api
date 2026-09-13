@@ -347,6 +347,53 @@ public class EvalController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// The skills that were offered to the model in the turn the user is about to correct (C1), so the
+    /// correction menu can let them name the one it should have been instead of guessing. A POST rather
+    /// than a GET because the body carries the raw utterance: hashing belongs to MessageNormalizer on the
+    /// server, and a query string would put the user's message into every access log. The query is scoped
+    /// to the caller, so a turn of another user does not exist for this request and answers with an empty
+    /// list like any other utterance nobody captured for this user.
+    /// </summary>
+    [HttpPost("turn-options")]
+    public async Task<ActionResult<List<TurnOptionDto>>> TurnOptions(
+        [FromBody] TurnOptionsRequest body,
+        CancellationToken cancellationToken)
+    {
+        if (body == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _mediator.Send(
+                new GetTurnOptionsQuery
+                {
+                    UserId = userId,
+                    UserMessage = body.UserMessage ?? string.Empty
+                },
+                cancellationToken);
+
+            return Ok(result.Options);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    public sealed class TurnOptionsRequest
+    {
+        public string? UserMessage { get; set; }
+    }
+
     public sealed class SubmitCorrectionRequest
     {
         public string? UserMessage { get; set; }

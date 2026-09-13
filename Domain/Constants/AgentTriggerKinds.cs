@@ -35,6 +35,7 @@ public static class AgentTriggerKinds
     public const string BulkSealOrdersCompleted = "bulk_seal_orders_completed";
     public const string BulkSealOrdersFailed = "bulk_seal_orders_failed";
     public const string NoScheduleYet = "no_schedule_yet";
+    public const string EvalRegression = "eval_regression";
 
     /// <summary>
     /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
@@ -76,7 +77,8 @@ public static class AgentTriggerKinds
         KlacksyLearnedDigest,
         BulkSealOrdersCompleted,
         BulkSealOrdersFailed,
-        NoScheduleYet
+        NoScheduleYet,
+        EvalRegression
     ];
 }
 

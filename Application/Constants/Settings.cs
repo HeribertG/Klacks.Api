@@ -154,6 +154,7 @@ namespace Klacks.Api.Application.Constants
         public const string KLACKSY_LEARNING_MIN_USERS = "KLACKSY_LEARNING_MIN_USERS";
         public const string KLACKSY_LEARNING_PRUNE_DAYS = "KLACKSY_LEARNING_PRUNE_DAYS";
         public const string KLACKSY_LEARNING_RETENTION_DAYS = "KLACKSY_LEARNING_RETENTION_DAYS";
+        public const string KLACKSY_LEARNING_MIN_GOLDEN_CASES = "KLACKSY_LEARNING_MIN_GOLDEN_CASES";
     }
 }
 

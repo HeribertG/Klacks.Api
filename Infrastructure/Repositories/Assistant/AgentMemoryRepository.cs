@@ -9,6 +9,7 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -310,6 +311,37 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     {
         await _context.AgentMemories.AddAsync(memory, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<AgentMemory?> FindDuplicateAsync(
+        Guid agentId,
+        Guid? userId,
+        string normalizedKey,
+        string normalizedContent,
+        CancellationToken cancellationToken = default)
+    {
+        var candidates = await _context.AgentMemories
+            .AsNoTracking()
+            .Where(m => m.AgentId == agentId
+                && m.UserId == userId
+                && !m.IsDeleted
+                && m.Source != MemorySources.SystemImport
+                && m.Content.Length <= AgentMemoryDedupeLimits.MaxCandidateContentLength)
+            .Select(m => new { m.Id, m.Key, m.Content })
+            .ToListAsync(cancellationToken);
+
+        var match = candidates.Find(candidate =>
+            string.Equals(MessageNormalizer.Normalize(candidate.Key), normalizedKey, StringComparison.Ordinal)
+            || string.Equals(
+                MessageNormalizer.Normalize(candidate.Content), normalizedContent, StringComparison.Ordinal));
+
+        if (match == null)
+        {
+            return null;
+        }
+
+        return await _context.AgentMemories
+            .FirstOrDefaultAsync(m => m.Id == match.Id, cancellationToken);
     }
 
     public async Task UpdateAsync(AgentMemory memory, CancellationToken cancellationToken = default)

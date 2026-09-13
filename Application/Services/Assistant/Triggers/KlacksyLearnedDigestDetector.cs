@@ -13,10 +13,14 @@
 /// <param name="clusterRepository">Counts which clusters entered a reportable status in the window</param>
 /// <param name="proposalRepository">Counts the description sharpenings the regression gate withheld</param>
 /// <param name="companyClock">Supplies the operator's local date, so the week boundary is theirs, not the server's</param>
+/// <param name="evalRunRepository">Supplies the numbers of the latest full eval run</param>
 
+using System.Text.Json;
+using Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -24,6 +28,9 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public sealed class KlacksyLearnedDigestDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     private const int DaysPerWeek = 7;
+
+    // The digest reports one run, so the repository read is bounded at exactly that one.
+    private const int LatestFullRunOnly = 1;
 
     // Ready is deliberately absent. Before the learning loop existed it was the only status a wish could
     // reach, so counting it was the difference between a digest and silence; now the loop drains it within
@@ -40,15 +47,18 @@ public sealed class KlacksyLearnedDigestDetector : IAgentTriggerDetector, IAgent
     private readonly ISkillLearningClusterRepository _clusterRepository;
     private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly ICompanyClock _companyClock;
+    private readonly IEvalRunRepository _evalRunRepository;
 
     public KlacksyLearnedDigestDetector(
         ISkillLearningClusterRepository clusterRepository,
         IProposedSkillChangeRepository proposalRepository,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IEvalRunRepository evalRunRepository)
     {
         _clusterRepository = clusterRepository;
         _proposalRepository = proposalRepository;
         _companyClock = companyClock;
+        _evalRunRepository = evalRunRepository;
     }
 
     public string Kind => AgentTriggerKinds.KlacksyLearnedDigest;
@@ -95,8 +105,30 @@ public sealed class KlacksyLearnedDigestDetector : IAgentTriggerDetector, IAgent
             return null;
         }
 
+        var latestFullRun = (await _evalRunRepository.ListRecentFullRunsAsync(
+            TurnEvalDefaults.DefaultGoldset, LatestFullRunOnly, cancellationToken)).FirstOrDefault();
+        var evalDimensions = ReadDimensions(latestFullRun);
+
         return new KlacksyLearnedDigestTriggerEvent(
-            reportedWeekStart, phrases, capabilities, unfulfillable, blocked);
+            reportedWeekStart, phrases, capabilities, unfulfillable, blocked,
+            evalDimensions?.RetrievalHit, evalDimensions?.SelectionHit, latestFullRun?.ItemsTotal);
+    }
+
+    private static TurnEvalDimensions? ReadDimensions(EvalRun? run)
+    {
+        if (run == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<TurnEvalDimensions>(run.DimensionsJson);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static int Count(IReadOnlyDictionary<string, int> counts, string status) =>

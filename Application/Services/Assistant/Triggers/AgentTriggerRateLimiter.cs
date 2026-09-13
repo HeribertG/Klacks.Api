@@ -20,11 +20,14 @@ public class AgentTriggerRateLimiter : IAgentTriggerRateLimiter
     private const int DailyBudgetDefault = 5;
 
     // Per-kind overrides of the daily budget. Curiosity questions are kept deliberately rare
-    // (at most one per user per day) to stay helpful rather than nagging.
+    // (at most one per user per day) to stay helpful rather than nagging. The eval regression alert is
+    // capped the same way for the opposite reason: the nightly eval produces at most one new comparison
+    // per day, so a second delivery would only re-announce the run the administrator already saw.
     private static readonly IReadOnlyDictionary<string, int> PerKindDailyBudget =
         new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
             [AgentTriggerKinds.CuriosityQuestion] = 1,
+            [AgentTriggerKinds.EvalRegression] = 1,
         };
 
     private readonly ConcurrentDictionary<string, BudgetEntry> _state = new();

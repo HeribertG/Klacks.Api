@@ -18,12 +18,15 @@
 /// <param name="phraseLearner">Runs one phrase round for a phrase gap</param>
 /// <param name="capabilityLearner">Runs one composition round for a wish several skills could serve together</param>
 /// <param name="descriptionSharpener">Applies the pending description proposals behind the same gate</param>
+/// <param name="proposalRepository">Opens the narrowing proposal a too-broad recipe trigger produces</param>
 /// <param name="logger">One summary line per run</param>
 
+using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Learning;
 
@@ -40,6 +43,7 @@ public class SkillLearningLoop : ISkillLearningLoop
     private readonly IPhraseLearner _phraseLearner;
     private readonly ICapabilityLearner _capabilityLearner;
     private readonly ISkillDescriptionSharpener _descriptionSharpener;
+    private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly ILogger<SkillLearningLoop> _logger;
 
     public SkillLearningLoop(
@@ -50,6 +54,7 @@ public class SkillLearningLoop : ISkillLearningLoop
         IPhraseLearner phraseLearner,
         ICapabilityLearner capabilityLearner,
         ISkillDescriptionSharpener descriptionSharpener,
+        IProposedSkillChangeRepository proposalRepository,
         ILogger<SkillLearningLoop> logger)
     {
         _clusterRepository = clusterRepository;
@@ -59,6 +64,7 @@ public class SkillLearningLoop : ISkillLearningLoop
         _phraseLearner = phraseLearner;
         _capabilityLearner = capabilityLearner;
         _descriptionSharpener = descriptionSharpener;
+        _proposalRepository = proposalRepository;
         _logger = logger;
     }
 
@@ -108,13 +114,15 @@ public class SkillLearningLoop : ISkillLearningLoop
         var (sharpened, blocked) = await TrySharpenAsync(cancellationToken);
 
         var summary = new SkillLearningRunSummary(
-            claimed.Count, learned, alreadyRouted, unfulfillable, failed, sharpened, blocked);
+            claimed.Count, learned, alreadyRouted, unfulfillable, failed, sharpened, blocked,
+            triage.RecipeTriggerProposals);
 
         _logger.LogInformation(
             "Skill learning run finished: claimed={Processed}, learned={Learned}, sharpened={Sharpened}, "
-            + "blocked={Blocked}, unfulfillable={Unfulfillable}, alreadyRouted={AlreadyRouted}, failed={Failed}",
+            + "blocked={Blocked}, unfulfillable={Unfulfillable}, alreadyRouted={AlreadyRouted}, "
+            + "recipeTriggerProposals={RecipeTriggerProposals}, failed={Failed}",
             summary.Processed, summary.Learned, summary.Sharpened, summary.Blocked,
-            summary.Unfulfillable, summary.AlreadyRouted, summary.Failed);
+            summary.Unfulfillable, summary.AlreadyRouted, summary.RecipeTriggerProposals, summary.Failed);
 
         return summary;
     }
@@ -193,6 +201,7 @@ public class SkillLearningLoop : ISkillLearningLoop
     {
         var pending = new List<SkillLearningTriageInput>();
         var alreadyRouted = 0;
+        var recipeTriggerProposals = 0;
 
         foreach (var cluster in claimed)
         {
@@ -201,6 +210,14 @@ public class SkillLearningLoop : ISkillLearningLoop
             try
             {
                 var context = await BuildContextAsync(cluster, cancellationToken);
+
+                if (RecipeDeclineClusterPolicy.IsTriggerTooBroad(cluster.SignalKindsJson)
+                    && await TryCloseAsTooBroadTriggerAsync(cluster, context, cancellationToken))
+                {
+                    recipeTriggerProposals++;
+                    continue;
+                }
+
                 var probe = await _routingOracle.ProbeAsync(
                     context.IntentExcerpt, context.Locale, context.ExpectedSkill ?? string.Empty, cancellationToken);
 
@@ -230,7 +247,90 @@ public class SkillLearningLoop : ISkillLearningLoop
             }
         }
 
-        return new TriageResult(pending, alreadyRouted);
+        return new TriageResult(pending, alreadyRouted, recipeTriggerProposals);
+    }
+
+    // A declined recipe is never a routing gap: the assistant asked and the user said no. The only thing
+    // such a cluster can teach is that the recipe's trigger is too broad, and that is a wording change on
+    // the recipe, which no oracle can judge - so it is opened for review and never applied.
+    // The name comes from the declined cases alone, never from the cluster's newest case of any signal: a
+    // mixed cluster also carries ordinary routing targets, and one of those on a narrowing proposal would
+    // ask for a trigger to be narrowed that never fired. A cluster whose declines name no recipe is left to
+    // the ordinary path rather than released, because a released cluster would arrive here again on every
+    // run and never terminate.
+    private async Task<bool> TryCloseAsTooBroadTriggerAsync(
+        SkillLearningCluster cluster,
+        SkillLearningClusterContext context,
+        CancellationToken cancellationToken)
+    {
+        var recipeName = context.DeclinedRecipe;
+
+        if (string.IsNullOrWhiteSpace(recipeName))
+        {
+            _logger.LogWarning(
+                "Learning cluster {ClusterId} looks like a too-broad recipe trigger, but none of its declined "
+                + "cases names a recipe; it is handled as an ordinary wish instead",
+                cluster.Id);
+
+            return false;
+        }
+
+        if (await HasOpenNarrowingProposalAsync(cluster.Id, cancellationToken))
+        {
+            _logger.LogDebug(
+                "Learning cluster {ClusterId} already carries a pending narrowing proposal", cluster.Id);
+        }
+        else
+        {
+            await _proposalRepository.AddAsync(
+                new ProposedSkillChange
+                {
+                    Id = Guid.NewGuid(),
+                    AgentId = cluster.AgentId,
+                    SkillId = Guid.Empty,
+                    SkillName = recipeName,
+                    Field = ProposedChangeFields.RecipeTriggerNarrowing,
+                    ValueBefore = string.Empty,
+                    ValueAfter = context.IntentExcerpt,
+                    Justification = string.Format(
+                        CultureInfo.InvariantCulture,
+                        RecipeDeclineClusterPolicy.JustificationTemplate,
+                        recipeName,
+                        cluster.OccurrenceCount),
+                    Status = ProposedChangeStatuses.Pending,
+                    EvidenceJson = JsonSerializer.Serialize(
+                        new { clusterId = cluster.Id, locale = cluster.Locale, occurrences = cluster.OccurrenceCount })
+                },
+                cancellationToken);
+        }
+
+        await _clusterRepository.FinishLearningAsync(
+            cluster.Id,
+            SkillLearningClusterStatuses.Dismissed,
+            outcomeRefKind: null,
+            outcomeRef: null,
+            string.Format(CultureInfo.InvariantCulture, RecipeDeclineClusterPolicy.DismissalTemplate, recipeName),
+            cluster.AttemptCount,
+            cancellationToken);
+
+        return true;
+    }
+
+    // The proposal is written and the cluster dismissed in the same breath, so only a run that died between
+    // the two can leave a second chance to propose. Reading back the newest pending narrowings catches that
+    // without scanning the whole review backlog on every declined recipe. The dismissal is repeated either
+    // way: a cluster left ready would be re-examined on every run for good.
+    private async Task<bool> HasOpenNarrowingProposalAsync(Guid clusterId, CancellationToken cancellationToken)
+    {
+        var pending = await _proposalRepository.GetPendingAsync(
+            ProposedChangeFields.RecipeTriggerNarrowing,
+            SkillLearningDefaults.MaxNarrowingProposalsScannedForDuplicates,
+            cancellationToken);
+
+        var marker = clusterId.ToString();
+
+        return pending.Exists(
+            proposal => proposal.EvidenceJson.Contains(marker, StringComparison.OrdinalIgnoreCase));
     }
 
     // Offered names first so the classifier reads the likeliest answers at the top, then what retrieval
@@ -456,7 +556,8 @@ public class SkillLearningLoop : ISkillLearningLoop
             chosen,
             tools,
             cluster.AttemptCount,
-            cluster.LastError);
+            cluster.LastError,
+            RecipeDeclineClusterPolicy.ResolveDeclinedRecipeName(cases));
     }
 
     private static IReadOnlyList<string> ParseToolNames(string? toolsetJson)
@@ -501,5 +602,6 @@ public class SkillLearningLoop : ISkillLearningLoop
         Failed
     }
 
-    private sealed record TriageResult(IReadOnlyList<SkillLearningTriageInput> Pending, int AlreadyRouted);
+    private sealed record TriageResult(
+        IReadOnlyList<SkillLearningTriageInput> Pending, int AlreadyRouted, int RecipeTriggerProposals);
 }

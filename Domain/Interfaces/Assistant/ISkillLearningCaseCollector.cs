@@ -23,4 +23,12 @@ public interface ISkillLearningCaseCollector
     /// </summary>
     Task CollectImplicitCorrectionAsync(
         SkillLearningImplicitCorrection correction, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Counts a declined recipe confirmation as a case of the TRIGGER utterance's cluster. The cluster key
+    /// comes from the stored trajectory hash for the same reason as the implicit path: the message itself
+    /// is never persisted.
+    /// </summary>
+    Task CollectRecipeDeclineAsync(
+        SkillLearningRecipeDecline decline, CancellationToken cancellationToken = default);
 }
