@@ -18301,6 +18301,7 @@
     {
       "name": "fill_group_by_criteria",
       "area": "group",
+      "pairedApplySkill": "fill_group_by_criteria",
       "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'add all employees from <canton> to group <Y>', 'add all employees in city <X> with qualification <Y> to group <Z>' or 'add employees with zip starting <prefix> to group <Y>'.",
       "category": "Crud",
       "executionType": "Skill",
@@ -18432,7 +18433,7 @@
           "aggiungi dipendenti al gruppo"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -18713,6 +18714,7 @@
     {
       "name": "assign_orders_to_groups",
       "area": "shift",
+      "pairedApplySkill": "assign_orders_to_groups",
       "description": "Places every open order that has no group yet into the group its customer's address points to, in ONE server-side call: a group named after the customer's city, else one named after its canton code, else the nearest group with coordinates. Use for 'put the imported orders into their groups' or 'the orders have no group' after an ERP import. Orders that already have a group are never touched, so running it twice changes nothing.",
       "category": "Crud",
       "executionType": "Skill",
@@ -18823,11 +18825,12 @@
           "ordini senza gruppo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "seal_open_orders",
       "area": "shift",
+      "pairedApplySkill": "seal_open_orders",
       "description": "Seals every open order matching the filter in one call, turning each into an immutable sealed order plus its plannable shift. Use for 'turn all orders into shifts' or 'seal all open orders'. Each order seals in its own transaction; blocked and failed orders are reported per order, not aborted. With autoAssignGroups the missing group links are derived first. Sealing can never be undone. Over 25 sealable orders runs as a background job; the user is notified in their inbox when done.",
       "category": "Crud",
       "executionType": "Skill",
@@ -18909,12 +18912,19 @@
         "de": [
           "bestellungen siegeln",
           "alle bestellungen umwandeln",
-          "offene bestellungen"
+          "offene bestellungen",
+          "versiegle",
+          "versiegeln",
+          "offenen bestellungen",
+          "bestellungen versiegeln",
+          "in planbare dienste"
         ],
         "en": [
           "seal orders",
           "convert orders",
-          "open orders"
+          "open orders",
+          "seal all orders",
+          "plannable shifts"
         ],
         "fr": [
           "sceller les commandes",
@@ -18945,7 +18955,7 @@
           "convertire gli ordini in servizi"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "remove_client_from_group",

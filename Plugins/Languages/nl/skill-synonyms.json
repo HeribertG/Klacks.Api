@@ -2240,8 +2240,12 @@
     "probeer alle taalmodellen en sorteer ze uit"
   ],
   "partition_clients_by_address": [
-    "cliënten splitsen op adres",
-    "medewerkers indelen in groepen op adres"
+    "maak groepen aan op basis van alle adressen",
+    "bouw de locatiegroepen op vanuit de klantadressen",
+    "deel klanten en medewerkers in op basis van hun adres",
+    "maak een groepenstructuur van regio tot stad",
+    "verdeel iedereen in clusters per locatie",
+    "er bestaan nog geen groepen, verdeel de adressen maar"
   ],
   "place_work": [
     "zet yasmine op 15 mei vroege dienst",

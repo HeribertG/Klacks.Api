@@ -2233,8 +2233,12 @@
     "descubre qué modelos puedo usar y desactiva los que no sirven"
   ],
   "partition_clients_by_address": [
-    "dividir clientes por dirección",
-    "repartir empleados en grupos por dirección"
+    "crear grupos por dirección de clientes",
+    "dividir empleados en grupos según su dirección",
+    "construir grupos de ubicación con las direcciones",
+    "agrupar clientes y personal por zona",
+    "hacer grupos por ciudad y región desde las direcciones",
+    "asignar clientes y empleados a grupos por su domicilio"
   ],
   "place_work": [
     "poner a yasmine en turno temprano el 15 de mayo",

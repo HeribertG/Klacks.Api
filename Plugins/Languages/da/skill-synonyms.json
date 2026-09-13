@@ -2212,8 +2212,12 @@
     "optimér sprogmodellerne til klacks"
   ],
   "partition_clients_by_address": [
-    "opdel klienter efter adresse",
-    "del medarbejdere op i grupper efter adresse"
+    "opret grupper ud fra alle adresser",
+    "byg lokationsgrupper for kunder og medarbejdere",
+    "opdel kunder efter adresse",
+    "fordel medarbejdere i grupper ud fra adresse",
+    "lav gruppehierarki fra adresser",
+    "dan grupper til kunder og ansatte ud fra deres adresser"
   ],
   "place_work": [
     "sæt yasmine på morgenvagt den 15. maj",

@@ -154,6 +154,7 @@ public class LanguagePluginService : ILanguagePluginService
             foreach (var code in codes)
             {
                 await _contentInstaller.InstallCountryAsync(scope, code);
+                await _contentInstaller.InstallStatesAsync(scope, code);
             }
         }
         catch (Exception ex)
@@ -289,6 +290,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
         await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
         await _contentInstaller.InstallCountryAsync(scope, code);
+        await _contentInstaller.InstallStatesAsync(scope, code);
 
         // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
         // keeps matching on the pre-install keywords until the next application start. The index sync

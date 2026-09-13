@@ -2229,8 +2229,12 @@
     "procurar o melhor modelo automaticamente"
   ],
   "partition_clients_by_address": [
-    "dividir clientes por endereço",
-    "dividir funcionários em grupos por endereço"
+    "agrupar clientes por endereço",
+    "criar grupos de localização a partir dos endereços",
+    "dividir funcionários em grupos por endereço",
+    "montar a estrutura de grupos por localização",
+    "criar grupos para clientes e funcionários por endereço",
+    "separar clientes por região e cidade"
   ],
   "place_work": [
     "colocar a yasmine na escala do dia 15 para o turno da manhã",
