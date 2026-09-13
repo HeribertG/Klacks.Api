@@ -93,13 +93,18 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
             await _unitOfWork.CompleteAsync();
             await _overtimeCascadeService.ReprocessSuccessorsAsync(work, existingWork);
 
-            var periodHours = await _completionService.SaveAndTrackMoveAsync(
+            var (periodHours, previousPeriodHours) = await _completionService.SaveAndTrackMoveAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd,
                 existingWork.ClientId, existingWork.CurrentDate, work.AnalyseToken);
 
             var connectionId = _notificationFacade.GetConnectionId();
             await _notificationFacade.NotifyWorkUpdatedAsync(work, connectionId, periodStart, periodEnd);
             await _notificationFacade.NotifyPeriodHoursUpdatedAsync(work.ClientId, periodStart, periodEnd, periodHours, connectionId, work.AnalyseToken);
+            if (previousPeriodHours != null)
+            {
+                await _notificationFacade.NotifyPeriodHoursUpdatedAsync(
+                    existingWork.ClientId, periodStart, periodEnd, previousPeriodHours, connectionId, work.AnalyseToken);
+            }
 
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)> { (work.ShiftId, work.CurrentDate) };
             await _notificationFacade.NotifyShiftStatsAsync(affectedShifts, connectionId, work.AnalyseToken, cancellationToken);
@@ -127,6 +132,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                     .Where(e => e.ClientId == existingWork.ClientId)
                     .Select(_scheduleMapper.ToWorkScheduleResource)
                     .ToList(),
+                SourcePeriodHours = previousPeriodHours,
             };
         },
         "reassigning work to another client",

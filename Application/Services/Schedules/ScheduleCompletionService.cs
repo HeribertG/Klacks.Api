@@ -41,7 +41,7 @@ public class ScheduleCompletionService : IScheduleCompletionService
         return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
     }
 
-    public async Task<PeriodHoursResource> SaveAndTrackMoveAsync(
+    public async Task<(PeriodHoursResource PeriodHours, PeriodHoursResource? PreviousPeriodHours)> SaveAndTrackMoveAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
         Guid? previousClientId, DateOnly? previousDate,
@@ -58,7 +58,17 @@ public class ScheduleCompletionService : IScheduleCompletionService
             _timelineService.QueueCheck(previousClientId.Value, previousDate.Value, analyseToken);
         }
 
-        return await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
+        var periodHours = await RecalculateAndGetPeriodHoursAsync(clientId, periodStart, periodEnd, analyseToken);
+
+        // Recalculated separately only when the CLIENT actually changed: a same-client date move within
+        // the same period has no separate "previous client" row to fix up. A cross-period move (old and
+        // new date fall in different periodStart/periodEnd) is a pre-existing, separate gap - callers
+        // resolve boundaries once from the new date before calling this method.
+        PeriodHoursResource? previousPeriodHours = previousClientId.HasValue && previousClientId.Value != clientId
+            ? await RecalculateAndGetPeriodHoursAsync(previousClientId.Value, periodStart, periodEnd, analyseToken)
+            : null;
+
+        return (periodHours, previousPeriodHours);
     }
 
     public async Task SaveBulkAndTrackAsync(

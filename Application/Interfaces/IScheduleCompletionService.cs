@@ -12,7 +12,7 @@ public interface IScheduleCompletionService
         DateOnly periodStart, DateOnly periodEnd,
         Guid? analyseToken);
 
-    Task<PeriodHoursResource> SaveAndTrackMoveAsync(
+    Task<(PeriodHoursResource PeriodHours, PeriodHoursResource? PreviousPeriodHours)> SaveAndTrackMoveAsync(
         Guid clientId, DateOnly currentDate,
         DateOnly periodStart, DateOnly periodEnd,
         Guid? previousClientId, DateOnly? previousDate,
