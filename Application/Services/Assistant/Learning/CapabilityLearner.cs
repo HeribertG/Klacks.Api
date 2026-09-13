@@ -112,7 +112,7 @@ public class CapabilityLearner : ICapabilityLearner
 
         var existing = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
         var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
-            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
+            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cluster.ExpectedSkill, cancellationToken);
 
         var drafts = await _generator.GenerateCapabilitiesAsync(
             cluster, blocks, BuildExamples(existing), cluster.LastError, cancellationToken);

@@ -6,8 +6,9 @@
 /// tightening one moves that skill's vector and can push a neighbouring skill out of reach for a query
 /// nobody proposed anything about. There is no way to predict that: the change has to be applied, the
 /// index rebuilt and the goldset replayed, and rolled back when it turned something red.
-/// A case that was already failing before the change is not a regression - the baseline is measured once,
-/// before the first proposal is touched, and carried forward as each accepted proposal shifts it.
+/// A case that was already failing before the change is not a regression - the baseline is measured on the
+/// holdout population the proposal's own skill selects, carried forward as each accepted proposal shifts it,
+/// and measured again only when the next proposal names a different skill.
 /// The gate can only be measured on a description that is actually live, because the assembler reads the
 /// skill catalogue and the knowledge index rather than a candidate value. The description is therefore
 /// set, measured and put back again - the put-back sits in a finally, so a probe that throws half way
@@ -95,25 +96,24 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
             return (0, 0);
         }
 
-        var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
-            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
-
-        var baseline = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
-
         var applied = 0;
         var blocked = 0;
+        GatePopulation? population = null;
 
         foreach (var proposal in pending)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var outcome = await DecideAsync(proposal, goldenCases, baseline, cancellationToken);
+            population = await ResolveGatePopulationAsync(proposal, population, cancellationToken);
+
+            var outcome = await DecideAsync(
+                proposal, population.GoldenCases, population.Baseline, cancellationToken);
             if (outcome == null)
             {
                 continue;
             }
 
-            baseline = outcome.Baseline;
+            population = population with { Baseline = outcome.Baseline };
 
             if (outcome.Applied)
             {
@@ -126,6 +126,25 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         }
 
         return (applied, blocked);
+    }
+
+    // The replay budget is small, so it is spent on the holdout cases of the skill the proposal changes -
+    // the population a wider description is most likely to break. Two proposals for the same skill see the
+    // same population and therefore share one baseline pass; a different skill needs its own, because a
+    // baseline measured on other cases would report their pre-existing failures as this proposal's doing.
+    private async Task<GatePopulation> ResolveGatePopulationAsync(
+        ProposedSkillChange proposal, GatePopulation? current, CancellationToken cancellationToken)
+    {
+        if (current != null && string.Equals(current.SkillName, proposal.SkillName, StringComparison.Ordinal))
+        {
+            return current;
+        }
+
+        var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
+            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, proposal.SkillName, cancellationToken);
+        var baseline = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
+
+        return new GatePopulation(proposal.SkillName, goldenCases, baseline);
     }
 
     private async Task<Decision?> DecideAsync(
@@ -269,4 +288,9 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
             + string.Join("; ", regressions);
 
     private sealed record Decision(bool Applied, IReadOnlyList<string> Baseline);
+
+    private sealed record GatePopulation(
+        string SkillName,
+        IReadOnlyList<SkillLearningGoldenCase> GoldenCases,
+        IReadOnlyList<string> Baseline);
 }

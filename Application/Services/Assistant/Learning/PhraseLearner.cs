@@ -99,7 +99,7 @@ public class PhraseLearner : IPhraseLearner
         }
 
         var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
-            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
+            SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, skill.Name, cancellationToken);
         var baseline = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
 
         var variantNo = await _candidateRepository.CountByClusterAsync(cluster.ClusterId, cancellationToken);

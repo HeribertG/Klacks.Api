@@ -27,7 +27,7 @@
 /// already covers.
 /// </summary>
 /// <param name="dispatchRepository">Due-row reads, the reminder compare-and-swaps and the unread count.</param>
-/// <param name="conditionRepository">Resolves the ledger row a reminder reports, so a closed finding stops the loop.</param>
+/// <param name="conditionRepository">Resolves the ledger row a reminder reports, so a closed finding stops the loop and an open one supplies the current payload the reminder is rendered from.</param>
 /// <param name="preferenceService">Per-user mute / snooze / severity threshold, re-checked on every reminder.</param>
 /// <param name="notificationService">Pushes the reminder and inbox changes via SignalR.</param>
 /// <param name="activityTracker">Suppresses the live push while the user is actively chatting.</param>
@@ -176,7 +176,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
             return;
         }
 
-        await DeliverAsync(row, deliveryUserId, cancellationToken);
+        await DeliverAsync(row, condition, deliveryUserId, cancellationToken);
     }
 
     /// <summary>
@@ -185,8 +185,13 @@ public sealed class ProactiveReminderService : IProactiveReminderService
     /// nudges the inbox badge. A failed push is a warning, never a rollback - the row was already
     /// advanced, and rolling back would invite a duplicate reminder.
     /// </summary>
+    /// <param name="row">The claimed dispatch row, carrying the content key, the action and the frozen parameters.</param>
+    /// <param name="condition">The still-open ledger row, whose current payload the content parameters are taken from.</param>
+    /// <param name="deliveryUserId">The connected user id the push is addressed to.</param>
+    /// <param name="cancellationToken">Cancels the unread-count read of the quiet path.</param>
     private async Task DeliverAsync(
         ProactiveTriggerDispatchRow row,
+        AgentCondition condition,
         string deliveryUserId,
         CancellationToken cancellationToken)
     {
@@ -197,7 +202,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
                 await _notificationService.SendProactiveMessageAsync(
                     deliveryUserId,
                     FormatReminderMessage(row),
-                    contentParams: ParseParams(row.ContentParamsJson),
+                    contentParams: ResolveContentParams(row, condition),
                     messageId: row.Id.ToString(),
                     kind: row.TriggerKind,
                     actionRoute: row.ActionRoute,
@@ -246,6 +251,112 @@ public sealed class ProactiveReminderService : IProactiveReminderService
         };
 
         return $"{severityTag}{contentKey}";
+    }
+
+    /// <summary>
+    /// The content parameters of a reminder, taken from the ledger row's CURRENT payload rather than
+    /// from the parameters frozen onto the dispatch row at first delivery. Aggregated findings state
+    /// counts, names and magnitudes in their message, and those move while the finding stays open - a
+    /// reminder rendered from the frozen copy therefore reports numbers that stopped being true, which
+    /// is worse than not reminding at all.
+    ///
+    /// The live values are MERGED over the frozen ones instead of replacing them, because the two sets
+    /// are not the same shape: the payload is what the detector captured (a period label, a count, the
+    /// affected rows), the frozen parameters are what the message's i18n string interpolates. Replacing
+    /// would silently drop every placeholder the payload happens not to carry and render the sentence
+    /// with holes in it. The worst case of the merge is therefore exactly today's behaviour.
+    ///
+    /// Only the CONTENT parameters are resolved this way. The action parameters stay the row's own:
+    /// they address the route the user lands on, and a payload key that happened to share their name
+    /// would silently redirect the click.
+    /// </summary>
+    private IReadOnlyDictionary<string, string>? ResolveContentParams(
+        ProactiveTriggerDispatchRow row,
+        AgentCondition condition)
+    {
+        var frozenParams = ParseParams(row.ContentParamsJson);
+        var liveParams = ParseLivePayloadParams(condition.PayloadJson);
+
+        if (liveParams is null || liveParams.Count == 0)
+        {
+            return frozenParams;
+        }
+
+        if (frozenParams is null || frozenParams.Count == 0)
+        {
+            return liveParams;
+        }
+
+        var merged = new Dictionary<string, string>(frozenParams, StringComparer.Ordinal);
+        foreach (var liveParam in liveParams)
+        {
+            merged[liveParam.Key] = liveParam.Value;
+        }
+
+        return merged;
+    }
+
+    /// <summary>
+    /// The scalar entries of a condition payload, as interpolation values. The payload is free-form per
+    /// detector kind and routinely nests objects and arrays; those are skipped rather than stringified,
+    /// because their raw JSON in a user-facing sentence is noise, not information. An unreadable payload
+    /// degrades to no live values at all, which leaves the frozen ones in place.
+    /// </summary>
+    private Dictionary<string, string>? ParseLivePayloadParams(string? payloadJson)
+    {
+        if (string.IsNullOrWhiteSpace(payloadJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            var payload = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(payloadJson);
+            if (payload is null)
+            {
+                return null;
+            }
+
+            var scalars = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var entry in payload)
+            {
+                if (TryRenderScalar(entry.Value, out var rendered))
+                {
+                    scalars[entry.Key] = rendered;
+                }
+            }
+
+            return scalars;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Condition payload is not valid JSON; the reminder falls back to the parameters frozen on the dispatch row");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// A payload value as text, for the value kinds a message can interpolate. Numbers are taken from
+    /// their raw JSON text, which is culture-invariant by definition of the format.
+    /// </summary>
+    private static bool TryRenderScalar(JsonElement element, out string rendered)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.String:
+                rendered = element.GetString() ?? string.Empty;
+                return true;
+            case JsonValueKind.Number:
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+                rendered = element.GetRawText();
+                return true;
+            default:
+                rendered = string.Empty;
+                return false;
+        }
     }
 
     /// <summary>

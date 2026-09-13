@@ -2,11 +2,15 @@
 
 /// <summary>
 /// EF Core repository for the frozen routing expectations, self-committing.
-/// The holdout read spends its budget on the shipped goldset cases first and only then on the learned
-/// ones. OnBeforeSaving stamps CreateTime on insert, so the goldset cases seeded once at startup are the
-/// oldest holdout rows in the table forever - a plain newest-first window dropped exactly the curated
-/// population out of the gate as soon as enough cluster-born cases existed, while the count check that
-/// guards the gate stayed green because it counts rows the replay no longer sees.
+/// The holdout read spends its budget on the cases of the skill under change first, then on the remaining
+/// shipped goldset cases, and only then on the learned ones. OnBeforeSaving stamps CreateTime on insert, so
+/// the goldset cases seeded once at startup are the oldest holdout rows in the table forever - a plain
+/// newest-first window dropped exactly the curated population out of the gate as soon as enough
+/// cluster-born cases existed, while the count check that guards the gate stayed green because it counts
+/// rows the replay no longer sees.
+/// The goldset half is ordered in memory with an ordinal comparer rather than in SQL, because ORDER BY on a
+/// text column follows the database collation and would order the same rows differently on another server -
+/// a budget this small must not depend on where it runs.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -57,31 +61,31 @@ public class SkillLearningGoldenCaseRepository : ISkillLearningGoldenCaseReposit
     }
 
     public async Task<IReadOnlyList<SkillLearningGoldenCase>> ListHoldoutAsync(
-        int limit, CancellationToken cancellationToken = default)
+        int limit, string? prioritisedSkillName, CancellationToken cancellationToken = default)
     {
         var goldset = await _context.SkillLearningGoldenCases
             .AsNoTracking()
             .Where(c => c.Partition == GoldenCasePartitions.Holdout
                 && c.Origin == GoldenCaseOrigins.Goldset)
-            .OrderByDescending(c => c.CreateTime)
-            .Take(limit)
             .ToListAsync(cancellationToken);
-
-        var remaining = limit - goldset.Count;
-        if (remaining <= 0)
-        {
-            return goldset;
-        }
 
         var learned = await _context.SkillLearningGoldenCases
             .AsNoTracking()
             .Where(c => c.Partition == GoldenCasePartitions.Holdout
                 && c.Origin != GoldenCaseOrigins.Goldset)
-            .OrderByDescending(c => c.CreateTime)
-            .Take(remaining)
+            .OrderBy(c => c.ExpectedSourceId == prioritisedSkillName ? 0 : 1)
+            .ThenByDescending(c => c.CreateTime)
+            .Take(limit)
             .ToListAsync(cancellationToken);
 
-        return [.. goldset, .. learned];
+        var goldsetByQuery = goldset.OrderBy(c => c.Query, StringComparer.Ordinal).ToList();
+
+        var ordered = goldsetByQuery.Where(c => IsPrioritised(c, prioritisedSkillName))
+            .Concat(learned.Where(c => IsPrioritised(c, prioritisedSkillName)))
+            .Concat(goldsetByQuery.Where(c => !IsPrioritised(c, prioritisedSkillName)))
+            .Concat(learned.Where(c => !IsPrioritised(c, prioritisedSkillName)));
+
+        return [.. ordered.Take(limit)];
     }
 
     public async Task<int> CountHoldoutAsync(CancellationToken cancellationToken = default)
@@ -107,4 +111,8 @@ public class SkillLearningGoldenCaseRepository : ISkillLearningGoldenCaseReposit
             .AsNoTracking()
             .AnyAsync(c => c.Query == query && c.ExpectedSourceId == expectedSourceId, cancellationToken);
     }
+
+    private static bool IsPrioritised(SkillLearningGoldenCase goldenCase, string? prioritisedSkillName) =>
+        prioritisedSkillName != null
+            && string.Equals(goldenCase.ExpectedSourceId, prioritisedSkillName, StringComparison.Ordinal);
 }
