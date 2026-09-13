@@ -770,6 +770,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IHelpfulBoostEvaluator, Klacks.Api.Application.Services.Assistant.Triggers.HelpfulBoostEvaluator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IUserActivityTracker, Klacks.Api.Application.Services.Assistant.Triggers.UserActivityTracker>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAdminAutonomyLevelAggregator, Klacks.Api.Application.Services.Assistant.Autonomy.AdminAutonomyLevelAggregator>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingConfirmationRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>();

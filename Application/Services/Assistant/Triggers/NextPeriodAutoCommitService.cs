@@ -9,12 +9,14 @@
 /// including its conflict validation and its Block-mode compliance gate, never overridden - and is
 /// additionally preceded by a stricter zero-tolerance gate: one new compliance issue of any severity
 /// keeps the scenario a draft. A watched chain can take up to
-/// NextPeriodScheduling.AutoCommitWatchTimeoutMinutes to finish, so BOTH governance inputs are re-read
-/// right before the commit itself and not only by the detector at tick time: the global proactive kill
-/// switch, and the effective autonomy level - an admin who lowers their level during the wait has
-/// withdrawn consent for this very accept. The accept is not anonymous either: it is sent under the
-/// admin whose preference released the run, and the same id is recorded as the ledger row's approving
-/// user.
+/// NextPeriodScheduling.AutoCommitWatchTimeoutMinutes to finish, so the whole autonomy decision is
+/// re-read after the watch and before the commit, not only by the detector at tick time: the kill switch,
+/// the global level, this kind's governance row and the admin minimum all arrive together through
+/// INextPeriodAutonomyResolver, and an admin who lowers their level - or an owner who flips the kill
+/// switch or switches the kind off - during the wait has withdrawn consent for this very accept. The
+/// watcher reads the decision's gate, it never re-checks any of those four inputs itself. The accept is
+/// not anonymous either: it is sent under the admin whose preference released the run, and the same id
+/// is recorded as the ledger row's approving user.
 /// EVERY way of not committing raises a NextPeriodAutoCommitBlockedTriggerEvent with its own reason.
 /// A silent failure is the one outcome this branch must never produce - the planners would keep
 /// believing the period was committed while it is still a draft.
@@ -23,7 +25,7 @@
 /// </summary>
 /// <param name="jobRunner">Singleton runner, polled to detect chain completion.</param>
 /// <param name="terminalStateCache">DB-backed terminal outcome of the chain (final scenario id/token).</param>
-/// <param name="scopeFactory">Creates the fresh scope the scoped compliance/mediator/ledger/governance services need.</param>
+/// <param name="scopeFactory">Creates the fresh scope the scoped compliance/mediator/ledger/autonomy services need.</param>
 /// <param name="applicationLifetime">Source of the shutdown token every wait and every scoped call is bound to.</param>
 /// <param name="timeProvider">Measures the watch window; the wait must not read the wall clock directly.</param>
 /// <param name="logger">Structured log per watched job.</param>
@@ -52,7 +54,6 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
     private const int TerminalStateAttempts = 3;
     private const int TerminalStateRetryDelaySeconds = 2;
     private const int NoNewIssues = 0;
-    private const AutonomyLevel CommitMinimumLevel = AutonomyLevel.FullyAutonomous;
 
     private readonly IAutoWizardJobRunner _jobRunner;
     private readonly JobTerminalStateCache<AutoWizardJobResultDto> _terminalStateCache;
@@ -174,8 +175,9 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var governanceResolver = scope.ServiceProvider.GetRequiredService<IProactiveGovernanceResolver>();
-        if (await governanceResolver.IsKillSwitchActiveAsync(cancellationToken))
+        var autonomyResolver = scope.ServiceProvider.GetRequiredService<INextPeriodAutonomyResolver>();
+        var autonomy = await autonomyResolver.ResolveAsync(cancellationToken);
+        if (autonomy.BlockedBy == NextPeriodAutonomyBlockedBy.KillSwitch)
         {
             _logger.LogWarning(
                 "NextPeriodAutoCommit: proactive kill switch is active; withholding auto-accept for scenario {ScenarioId}, group {GroupName} - the scenario stays a draft",
@@ -211,13 +213,11 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
             return;
         }
 
-        var autonomyResolver = scope.ServiceProvider.GetRequiredService<INextPeriodAutonomyResolver>();
-        var autonomy = await autonomyResolver.ResolveAsync(cancellationToken);
-        if (autonomy.EffectiveLevel < CommitMinimumLevel)
+        if (!autonomy.CanCommit)
         {
             _logger.LogWarning(
-                "NextPeriodAutoCommit: effective autonomy level fell to {Level} while job for group {GroupName} was watched; withholding auto-accept for scenario {ScenarioId}",
-                autonomy.EffectiveLevel, groupName, scenarioId);
+                "NextPeriodAutoCommit: the commit gate closed while job for group {GroupName} was watched (blocked by {BlockedBy}, effective level {Level}); withholding auto-accept for scenario {ScenarioId}",
+                groupName, autonomy.BlockedBy, autonomy.EffectiveLevel, scenarioId);
 
             await PublishAsync(
                 scope,

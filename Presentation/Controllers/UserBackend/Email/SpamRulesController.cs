@@ -25,6 +25,7 @@ public class SpamRulesController : BaseController
     }
 
     [HttpGet("SpamRules")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<List<SpamRuleResource>>> GetSpamRules()
     {
         var result = await _mediator.Send(new GetSpamRulesQuery());

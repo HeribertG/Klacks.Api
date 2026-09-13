@@ -9,9 +9,13 @@
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
 /// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
 /// contracts they are always suggested, never executed. The effective level is the MINIMUM over
-/// all admin users (no admins = suggest only), additionally capped by the global proactive autonomy
-/// level (KLACKSY_PROACTIVE_AUTONOMY_LEVEL), so from a global level below Autonomous nothing here
-/// executes automatically no matter what the admins chose. Regardless of autonomy level, an action is only
+/// all admin users via IAdminAutonomyLevelAggregator (no admins = suggest only), additionally capped
+/// by the global proactive autonomy level (KLACKSY_PROACTIVE_AUTONOMY_LEVEL), so from a global level
+/// below Autonomous nothing here executes automatically no matter what the admins chose. Before any
+/// of that, the global proactive kill switch is checked first and, when active, degrades the whole
+/// flow to suggest-only exactly like a global level of Propose - the same brake every other
+/// autonomous path (next-period autofill, goal-plan execution) respects. Regardless of autonomy
+/// level, an action is only
 /// executed when the LLM rated its own analysis as high-confidence; low or unknown confidence
 /// always degrades to a suggestion. The vacation/availability/keyword-command actions (vacation,
 /// day-off wish, availability, shift preference) additionally require the affected period to have
@@ -59,8 +63,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private static readonly string[] TrainingKeywords =
         ["schulung", "weiterbildung", "fortbildung", "kurs", "training", "course", "formation", "corso"];
 
-    private readonly IAgentAutonomyPreferenceRepository _autonomyPreferences;
-    private readonly IPlanningAudienceResolver _audienceResolver;
+    private readonly IAdminAutonomyLevelAggregator _adminAutonomy;
     private readonly ISkillExecutor _skillExecutor;
     private readonly IGroupMembershipService _groupMembershipService;
     private readonly Application.Interfaces.IAbsenceRepository _absenceRepository;
@@ -76,8 +79,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
     public EmailActionOrchestrator(
-        IAgentAutonomyPreferenceRepository autonomyPreferences,
-        IPlanningAudienceResolver audienceResolver,
+        IAdminAutonomyLevelAggregator adminAutonomy,
         ISkillExecutor skillExecutor,
         IGroupMembershipService groupMembershipService,
         Application.Interfaces.IAbsenceRepository absenceRepository,
@@ -92,8 +94,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         IOptions<EmailAutomationOptions> automationOptions,
         ILogger<EmailActionOrchestrator> logger)
     {
-        _autonomyPreferences = autonomyPreferences;
-        _audienceResolver = audienceResolver;
+        _adminAutonomy = adminAutonomy;
         _skillExecutor = skillExecutor;
         _groupMembershipService = groupMembershipService;
         _absenceRepository = absenceRepository;
@@ -715,29 +716,23 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private async Task<(AutonomyLevel Level, Guid? ExecutingAdminId)> ResolveEffectiveLevelAsync(
         CancellationToken cancellationToken)
     {
-        var adminIds = (await _audienceResolver.GetAdminUserIdsAsync(cancellationToken))
-            .Where(id => Guid.TryParse(id, out _))
-            .OrderBy(id => id, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        if (await _governanceResolver.IsKillSwitchActiveAsync(cancellationToken))
+        {
+            _logger.LogInformation(
+                "E-mail automation kill switch is active; no autonomous action will be executed");
+            return (AutonomyLevel.Propose, null);
+        }
 
-        if (adminIds.Count == 0)
+        var aggregate = await _adminAutonomy.AggregateAsync(
+            AdminAutonomyMissingPreferencePolicy.FallBackToDefault, cancellationToken);
+        if (aggregate.MinimumLevel is not { } adminMinimum)
         {
             return (AutonomyLevel.Propose, null);
         }
 
-        var minimum = AutonomyLevel.FullyAutonomous;
-        foreach (var adminId in adminIds)
-        {
-            var row = await _autonomyPreferences.GetAsync(adminId, cancellationToken);
-            var level = row?.Level ?? AutonomyDefaults.DefaultLevel;
-            if (level < minimum)
-            {
-                minimum = level;
-            }
-        }
-
         var globalLevel = await _governanceResolver.GetGlobalAutonomyLevelAsync(cancellationToken);
-        return (globalLevel < minimum ? globalLevel : minimum, Guid.Parse(adminIds[0]));
+        var effectiveLevel = globalLevel < adminMinimum ? globalLevel : adminMinimum;
+        return (effectiveLevel, aggregate.DecidingAdminUserId);
     }
 
     private static Absence? ResolveAbsenceByKeywords(IEnumerable<Absence> absences, string[] keywords)

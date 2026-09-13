@@ -11,16 +11,18 @@
 /// A period with no shift in it is a different case — there is nothing to staff, and both the hint
 /// and the autofill chain below it would have no input.
 /// While the EMAIL_ANALYSIS_ENABLED setting is active, an unprocessed inbox backlog defers the whole
-/// scan one tick, because availability/day-off mail may not be incorporated yet. At an effective
-/// autonomy level of Autonomous or higher — the minimum over all admin users, capped by the global
-/// proactive autonomy level, the same aggregation EmailActionOrchestrator applies — the detector starts the AutoWizard chain itself (fire-and-forget
-/// inside the runner; it produces a draft scenario a human must accept) and emits an informative
-/// NextPeriodAutofillStartedTriggerEvent; below that, or when the automatic start is not possible, it
-/// emits a NextPeriodSchedulingDueTriggerEvent hint. At FullyAutonomous the produced scenario is
-/// additionally handed to INextPeriodAutoCommitService, which accepts it into the real schedule only
-/// when it introduces zero new compliance issues. The global proactive kill switch pins the whole
-/// tick to the hint-only branch, exactly like every governed trigger kind — checked once per tick,
-/// not per group, since it is a single settings read shared by the whole scan.
+/// scan one tick, because availability/day-off mail may not be incorporated yet. Whether the detector
+/// may start the AutoWizard chain itself is NOT decided here: it reads CanStartAutofill off the shared
+/// INextPeriodAutonomyResolver decision, which already folds all four brakes — the global kill switch,
+/// the global autonomy level, and the Enabled/MaxAction pair of this kind's governance row — together
+/// with the minimum autonomy level over all admin users. The decision is resolved once per tick and
+/// reused for every group, because all of its inputs are installation-wide.
+/// When CanStartAutofill holds, the chain runs fire-and-forget inside the runner (it produces a draft
+/// scenario a human must accept) and an informative NextPeriodAutofillStartedTriggerEvent is emitted;
+/// otherwise, or when the automatic start is not possible, a NextPeriodSchedulingDueTriggerEvent hint
+/// is emitted instead — the hint branch is never gated, findings keep being reported. When CanCommit
+/// holds as well, the produced scenario is additionally handed to INextPeriodAutoCommitService, which
+/// accepts it into the real schedule only when it introduces zero new compliance issues.
 /// A period already covered by a scenario is skipped, with one exception: when that scenario is a
 /// still-unaccepted draft of an automatic run whose watcher is gone (an API restart), the tick reports
 /// it once as an interrupted auto-commit. It is never silently re-committed — the accept a dead watcher
@@ -33,10 +35,9 @@
 /// <param name="autoWizardJobRunner">Starts the Wizard 1+2+3 chain when autonomy permits.</param>
 /// <param name="clientRepository">Resolves the group's active clients as wizard agents.</param>
 /// <param name="shiftScheduleRepository">Resolves the group's visible shifts for the period.</param>
-/// <param name="autoCommitService">Watches a started chain and auto-accepts at FullyAutonomous.</param>
-/// <param name="autonomyResolver">Effective autonomy level and the admin who decided it, shared with the watcher.</param>
+/// <param name="autoCommitService">Watches a started chain and auto-accepts when the commit gate holds.</param>
+/// <param name="autonomyResolver">All four autonomy brakes folded into one decision, shared with the watcher.</param>
 /// <param name="conditionRepository">Open ledger rows of this kind, read to recognise an interrupted auto-commit.</param>
-/// <param name="governanceResolver">Source of the global proactive kill switch.</param>
 /// <param name="settingsReader">Reads the EMAIL_ANALYSIS_ENABLED setting.</param>
 /// <param name="receivedEmailRepository">Probes for unprocessed inbox mail.</param>
 /// <param name="logger">Structured log per tick.</param>
@@ -68,7 +69,6 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private const int WeeklyPeriodDays = 7;
     private const int BiweeklyCycleDays = 14;
     private const int UnprocessedEmailProbeCount = 1;
-    private const AutonomyLevel AutoRunMinimumLevel = AutonomyLevel.Autonomous;
     private const int NoNewComplianceIssues = 0;
 
     private readonly IGroupRepository _groupRepository;
@@ -81,7 +81,6 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private readonly INextPeriodAutoCommitService _autoCommitService;
     private readonly INextPeriodAutonomyResolver _autonomyResolver;
     private readonly IAgentConditionRepository _conditionRepository;
-    private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly ISettingsReader _settingsReader;
     private readonly IReceivedEmailRepository _receivedEmailRepository;
     private readonly ILogger<NextPeriodSchedulingDueDetector> _logger;
@@ -99,7 +98,6 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         INextPeriodAutoCommitService autoCommitService,
         INextPeriodAutonomyResolver autonomyResolver,
         IAgentConditionRepository conditionRepository,
-        IProactiveGovernanceResolver governanceResolver,
         ISettingsReader settingsReader,
         IReceivedEmailRepository receivedEmailRepository,
         ILogger<NextPeriodSchedulingDueDetector> logger,
@@ -116,7 +114,6 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         _autoCommitService = autoCommitService;
         _autonomyResolver = autonomyResolver;
         _conditionRepository = conditionRepository;
-        _governanceResolver = governanceResolver;
         _settingsReader = settingsReader;
         _receivedEmailRepository = receivedEmailRepository;
         _logger = logger;
@@ -150,9 +147,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
-        var killSwitchActive = await _governanceResolver.IsKillSwitchActiveAsync(cancellationToken);
 
-        AutonomyLevel? effectiveLevel = null;
+        NextPeriodAutonomyDecision? autonomy = null;
         var events = new List<IAgentTriggerEvent>();
         var autofillStarts = 0;
         var skippedWithoutShifts = 0;
@@ -200,12 +196,11 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
                 continue;
             }
 
-            effectiveLevel ??= (await _autonomyResolver.ResolveAsync(cancellationToken)).EffectiveLevel;
-            if (!killSwitchActive && effectiveLevel >= AutoRunMinimumLevel)
+            autonomy ??= await _autonomyResolver.ResolveAsync(cancellationToken);
+            if (autonomy.CanStartAutofill)
             {
-                var autoCommit = effectiveLevel == AutonomyLevel.FullyAutonomous;
                 var (startedEvent, fallBackToHint) =
-                    await TryStartAutofillAsync(group, periodStart, periodEnd, autoCommit, cancellationToken);
+                    await TryStartAutofillAsync(group, periodStart, periodEnd, autonomy.CanCommit, cancellationToken);
                 if (startedEvent != null)
                 {
                     events.Add(startedEvent);

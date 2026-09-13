@@ -74,4 +74,23 @@ public static class ProactiveGovernanceDefaults
 
     public static bool IsGovernedKind(string triggerKind) =>
         GovernedKinds.Contains(triggerKind, StringComparer.Ordinal);
+
+    /// <summary>
+    /// Per-kind exceptions to <see cref="MaxAction"/> for the seeded default row. The next-period
+    /// autofill is the one governed kind whose action path was built and reviewed specifically to run
+    /// unattended (see INextPeriodAutonomyResolver); seeding it at the global Hint default would leave
+    /// every installation silently unable to autofill, even where the global autonomy level and the
+    /// admins' own preferences already allow it, and nobody would know why. Every other kind keeps the
+    /// fail-safe Hint default. This only sets the CEILING an admin can raise a rule to - the global
+    /// level, admin preferences, the kill switch and Enabled remain the actual brakes.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, ProactiveMaxAction> SeededMaxActionOverrides =
+        new Dictionary<string, ProactiveMaxAction>(StringComparer.Ordinal)
+        {
+            [AgentTriggerKinds.NextPeriodSchedulingDue] = ProactiveMaxAction.Execute
+        };
+
+    /// <summary>The seeded max action for one kind: its override if one exists, otherwise <see cref="MaxAction"/>.</summary>
+    public static ProactiveMaxAction SeededMaxActionFor(string triggerKind) =>
+        SeededMaxActionOverrides.TryGetValue(triggerKind, out var overrideAction) ? overrideAction : MaxAction;
 }

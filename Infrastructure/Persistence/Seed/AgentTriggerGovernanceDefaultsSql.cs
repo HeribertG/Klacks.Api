@@ -3,8 +3,10 @@
 /// <summary>
 /// Installs one default governance row per governed trigger kind, so an administrator opening the
 /// settings card sees a complete table instead of an empty one and no kind starts out unconfigured.
-/// The values are the fail-safe defaults - report and wait - which is exactly how the pipeline behaved
-/// before governance existed, so applying this changes no behaviour.
+/// Most kinds get the fail-safe defaults - report and wait - which is exactly how the pipeline behaved
+/// before governance existed, so applying this changes no behaviour for them. The exception is
+/// next_period_scheduling_due, seeded at ProactiveGovernanceDefaults.SeededMaxActionOverrides'
+/// Execute ceiling instead of Hint - see that constant for why.
 /// </summary>
 /// <remarks>
 /// The rows are inserted with WHERE NOT EXISTS rather than ON CONFLICT: the uniqueness of an
@@ -44,13 +46,14 @@ namespace Klacks.Api.Data.Seed
 
         private static string InsertDefaultRow(string triggerKind)
         {
+            var maxAction = ProactiveGovernanceDefaults.SeededMaxActionFor(triggerKind);
             return $@"
 INSERT INTO {TableName} (
     id, trigger_kind, group_id, max_action, enabled, responsible_owner_user_id,
     daily_action_budget, window_action_limit, window_minutes,
     create_time, current_user_created, is_deleted)
 SELECT
-    gen_random_uuid(), '{triggerKind}', NULL, {(int)ProactiveGovernanceDefaults.MaxAction},
+    gen_random_uuid(), '{triggerKind}', NULL, {(int)maxAction},
     {(ProactiveGovernanceDefaults.Enabled ? "true" : "false")}, NULL,
     {ProactiveGovernanceDefaults.DailyActionBudget}, {ProactiveGovernanceDefaults.WindowActionLimit},
     {ProactiveGovernanceDefaults.WindowMinutes},
