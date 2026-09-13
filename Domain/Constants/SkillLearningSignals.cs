@@ -20,5 +20,13 @@ public static class SkillLearningSignals
     /// </summary>
     public const string Explicit = "explicit";
 
-    public static readonly IReadOnlyList<string> All = [Refusal, WrongSkill, NoneNeeded, Implicit, Explicit];
+    /// <summary>
+    /// The user turned a recipe down at its confirmation question. Not a correction: the assistant asked
+    /// and the user answered. It says the recipe's trigger matched an utterance it should not have matched,
+    /// which is a statement about the trigger, never about skill routing.
+    /// </summary>
+    public const string RecipeDeclined = "recipe_declined";
+
+    public static readonly IReadOnlyList<string> All =
+        [Refusal, WrongSkill, NoneNeeded, Implicit, Explicit, RecipeDeclined];
 }

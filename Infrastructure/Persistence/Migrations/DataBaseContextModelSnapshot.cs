@@ -1854,6 +1854,103 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("eval_runs", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.EvalRunItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChosenTool")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("chosen_tool");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<Guid>("EvalRunId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("eval_run_id");
+
+                    b.Property<string>("ExpectedTool")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("expected_tool");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ItemId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("item_id");
+
+                    b.Property<int>("LatencyMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("latency_ms");
+
+                    b.Property<DateTime?>("LearningConsumedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("learning_consumed_at_utc");
+
+                    b.Property<string>("Locale")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("locale");
+
+                    b.Property<bool>("Passed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("passed");
+
+                    b.Property<bool?>("RetrievalHit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("retrieval_hit");
+
+                    b.Property<bool?>("SelectionHit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("selection_hit");
+
+                    b.Property<string>("ToolsetNamesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("toolset_names_json");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_eval_run_items");
+
+                    b.HasIndex("EvalRunId")
+                        .HasDatabaseName("ix_eval_run_items_eval_run_id");
+
+                    b.HasIndex("EvalRunId", "RetrievalHit", "SelectionHit", "LearningConsumedAtUtc")
+                        .HasDatabaseName("ix_eval_run_items_eval_run_id_retrieval_hit_selection_hit_lear");
+
+                    b.ToTable("eval_run_items", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3509,6 +3606,14 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("justification");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("correction")
+                        .HasColumnName("origin");
+
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("reviewed_at");
@@ -3530,8 +3635,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdateTime")
@@ -4359,6 +4464,22 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(8)")
                         .HasColumnName("locale");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("cluster")
+                        .HasColumnName("origin");
+
+                    b.Property<string>("Partition")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("holdout")
+                        .HasColumnName("partition");
+
                     b.Property<string>("Query")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -4377,6 +4498,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ExpectedSourceId")
                         .HasDatabaseName("ix_skill_learning_golden_cases_expected_source_id");
+
+                    b.HasIndex("Origin", "Partition")
+                        .HasDatabaseName("ix_skill_learning_golden_cases_origin_partition");
 
                     b.ToTable("skill_learning_golden_cases", (string)null);
                 });
@@ -4680,6 +4804,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(128)")
                         .HasColumnName("recipe_name");
 
+                    b.Property<string>("RecipeOutcome")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("recipe_outcome");
+
                     b.Property<DateTime?>("SharpenedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sharpened_at_utc");
@@ -4722,6 +4851,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SharpenedAtUtc")
                         .HasDatabaseName("ix_skill_selection_trajectories_sharpened_at_utc");
+
+                    b.HasIndex("UserMessageHash")
+                        .HasDatabaseName("ix_skill_selection_trajectories_user_message_hash");
 
                     b.HasIndex("WasCorrected")
                         .HasDatabaseName("ix_skill_selection_trajectories_was_corrected");
@@ -4836,6 +4968,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_skill_usage_records");
+
+                    b.HasIndex("TurnId")
+                        .HasDatabaseName("ix_skill_usage_records_turn_id");
 
                     b.ToTable("skill_usage_records", (string)null);
                 });
@@ -13409,6 +13544,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_escalation_stages_escalation_chains_escalation_chain_id");
 
                     b.Navigation("Chain");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.EvalRunItem", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.EvalRun", null)
+                        .WithMany()
+                        .HasForeignKey("EvalRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_eval_run_items_eval_runs_eval_run_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GlobalAgentRuleHistory", b =>

@@ -17,6 +17,13 @@
 /// dimension instead of entering the composite with weight 0 while still counting towards the
 /// pass rate. Compare runs only within the same <see cref="ScorerVersion"/> - see the
 /// scorer_version column on eval_runs.
+///
+/// Scorer version 3 (2026-09-13) is NOT comparable with version 2 runs either. Two per-item verdicts
+/// were added (RetrievalHit, SelectionHit) and the replay temperature dropped from 0.7 to 0, so a
+/// version 2 composite is a sample and a version 3 composite is a measurement. SelectionHit is written
+/// only where the item is actually measurable - retrieval succeeded, the provider answered and no
+/// recipe hijacked the turn - because a timeout or an excluded item recorded as a selection miss would
+/// book an outage as a model mistake.
 /// </summary>
 
 using System.Text.Json;
@@ -31,7 +38,7 @@ public static class TurnEvalScorer
     /// scored under different rules are never compared. Bump whenever a weight, a dimension or a
     /// per-item verdict changes.
     /// </summary>
-    public const int ScorerVersion = 2;
+    public const int ScorerVersion = 3;
 
     /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
     public const string HonestyModeMustAbstain = "must-abstain";
@@ -47,6 +54,8 @@ public static class TurnEvalScorer
         TurnReplayResult replay,
         IReadOnlyDictionary<string, bool>? resolvedNameSlots = null)
     {
+        var retrievalHit = ComputeRetrievalHit(item, replay);
+
         var result = new TurnEvalItemResult
         {
             ItemId = item.Id,
@@ -56,7 +65,8 @@ public static class TurnEvalScorer
             RecipeWouldForce = replay.RecipeWouldForce,
             EngineRecipeWouldTrigger = replay.EngineRecipeWouldTrigger,
             Excluded = replay.RecipeWouldForce || replay.EngineRecipeWouldTrigger,
-            ExpectedToolAvailable = ComputeExpectedToolAvailable(item, replay),
+            RetrievalHit = retrievalHit,
+            ExpectedToolAvailable = retrievalHit,
             Errored = !replay.Success,
             Error = replay.Error,
             LatencyMs = replay.LatencyMs,
@@ -96,6 +106,9 @@ public static class TurnEvalScorer
             && (string.Equals(replay.ChosenTool, item.ExpectedTool, StringComparison.OrdinalIgnoreCase)
                 || item.AlternativeTools.Any(t => string.Equals(replay.ChosenTool, t, StringComparison.OrdinalIgnoreCase)));
         result.ToolHit = toolHit;
+        result.SelectionHit = retrievalHit == true && replay.Success && !result.Excluded
+            ? toolHit
+            : null;
 
         if (toolHit)
         {
@@ -113,6 +126,8 @@ public static class TurnEvalScorer
         var noToolItems = active.Where(i => i.ExpectedTool == null && i.ExpectedRecipe == null).ToList();
         var recipeItems = active.Where(i => i.ExpectedRecipe != null).ToList();
         var slotItems = toolItems.Where(i => i.ToolHit == true && i.SlotScore != null).ToList();
+        var retrievalItems = active.Where(i => i.RetrievalHit != null).ToList();
+        var selectionItems = active.Where(i => i.SelectionHit != null).ToList();
         var measuredLatency = active.Where(i => !i.Errored).ToList();
 
         var nameSlotsEvaluated = active.Sum(i => i.NameSlotsEvaluated);
@@ -126,6 +141,8 @@ public static class TurnEvalScorer
             NoToolAccuracy: noToolItems.Count == 0 ? null : noToolItems.Average(i => i.NoToolCorrect == true ? 1.0 : 0.0),
             RecipeAccuracy: recipeItems.Count == 0 ? null : recipeItems.Average(i => i.RecipeHit == true ? 1.0 : 0.0),
             NameResolutionAccuracy: nameSlotsEvaluated == 0 ? null : (double)nameSlotsResolved / nameSlotsEvaluated,
+            RetrievalHit: retrievalItems.Count == 0 ? null : retrievalItems.Average(i => i.RetrievalHit == true ? 1.0 : 0.0),
+            SelectionHit: selectionItems.Count == 0 ? null : selectionItems.Average(i => i.SelectionHit == true ? 1.0 : 0.0),
             AvgLatencyMs: measuredLatency.Count == 0 ? 0 : measuredLatency.Average(i => (double)i.LatencyMs),
             TotalCost: items.Sum(i => i.Cost),
             ItemsTotal: items.Count,
@@ -201,7 +218,7 @@ public static class TurnEvalScorer
         result.HonestyCorrect = result.UngroundedClaims.Count == 0;
     }
 
-    private static bool? ComputeExpectedToolAvailable(TurnGoldsetItem item, TurnReplayResult replay)
+    private static bool? ComputeRetrievalHit(TurnGoldsetItem item, TurnReplayResult replay)
     {
         if (item.ExpectedTool == null || replay.AvailableToolNames.Count == 0)
         {

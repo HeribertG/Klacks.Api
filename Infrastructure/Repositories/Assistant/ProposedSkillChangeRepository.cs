@@ -40,21 +40,23 @@ public class ProposedSkillChangeRepository : IProposedSkillChangeRepository
     }
 
     public async Task<List<ProposedSkillChange>> GetByStatusesAsync(
-        IReadOnlyList<string> statuses, int limit, CancellationToken cancellationToken = default)
+        IReadOnlyList<string> statuses, string field, int limit, CancellationToken cancellationToken = default)
     {
         return await _context.ProposedSkillChanges
             .AsNoTracking()
-            .Where(p => statuses.Contains(p.Status))
+            .Where(p => statuses.Contains(p.Status) && p.Field == field)
             .OrderByDescending(p => p.CreateTime)
             .Take(limit)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<ProposedSkillChange>> GetPendingAsync(int limit, CancellationToken cancellationToken = default)
+    public async Task<List<ProposedSkillChange>> GetPendingAsync(
+        string field, int limit, CancellationToken cancellationToken = default)
     {
         return await _context.ProposedSkillChanges
-            .Where(p => p.Status == ProposedChangeStatuses.Pending)
-            .OrderByDescending(p => p.CreateTime)
+            .Where(p => p.Status == ProposedChangeStatuses.Pending && p.Field == field)
+            .OrderByDescending(p => p.Origin == ProposedChangeOrigins.Correction)
+            .ThenByDescending(p => p.CreateTime)
             .Take(limit)
             .ToListAsync(cancellationToken);
     }

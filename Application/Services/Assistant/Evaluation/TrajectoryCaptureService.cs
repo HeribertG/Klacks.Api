@@ -63,7 +63,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         {
             if (!string.IsNullOrWhiteSpace(context.UserId))
             {
-                await MarkImplicitCorrectionIfApplicableAsync(agentId, context.UserId, context.Message);
+                await ResolvePreviousTurnAsync(agentId, context);
             }
 
             var llmUsage = await TryGetLlmUsageAsync(context.TurnId);
@@ -97,6 +97,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 LatencyMsKnowledge = latencyKnowledge,
                 LatencyMsLlm = latencyLlm,
                 RecipeName = Truncate(context.ActiveRecipeName),
+                RecipeOutcome = ResolveRecipeOutcome(context),
                 LearnedPhraseHit = await FindLearnedPhraseHitAsync(context.Message),
                 CreateTime = DateTime.UtcNow
             };
@@ -161,14 +162,23 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         return decisiveRows.All(row => row.Success);
     }
 
-    private async Task MarkImplicitCorrectionIfApplicableAsync(Guid agentId, string userId, string message)
+    // A bare negation is its own admission ticket to the lookup, next to the correction signal and the
+    // resumed recipe. The correction vocabulary is the smaller of the two sets ("nein, nicht, falsch, no,
+    // not, wrong, non, faux ..."), so "Nö", "Nee", "Nope", "Rien" and every plugin-language refusal used
+    // to miss the gate entirely and leave the confirmation outcome pending for good.
+    private async Task ResolvePreviousTurnAsync(Guid agentId, LLMContext context)
     {
-        if (!ImplicitCorrectionDetector.IsCorrectionSignal(message))
+        var isCorrectionSignal = ImplicitCorrectionDetector.IsCorrectionSignal(context.Message);
+        var isBareNegation = DeclineDetector.IsBareNegation(context.Message);
+        var resumesRecipe = !context.RecipeAwaitingConfirmation
+            && !string.IsNullOrWhiteSpace(context.ActiveRecipeName);
+
+        if (!isCorrectionSignal && !isBareNegation && !resumesRecipe)
         {
             return;
         }
 
-        var previous = await _repository.FindMostRecentByAgentAndUserAsync(agentId, userId);
+        var previous = await _repository.FindMostRecentByAgentAndUserAsync(agentId, context.UserId);
         if (previous == null || previous.WasCorrected)
         {
             return;
@@ -179,14 +189,71 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             return;
         }
 
+        if (string.Equals(previous.RecipeOutcome, RecipeOutcomes.Pending, StringComparison.Ordinal))
+        {
+            await ResolvePendingRecipeAsync(agentId, previous, context, isBareNegation);
+            return;
+        }
+
+        if (!isCorrectionSignal || string.IsNullOrWhiteSpace(previous.LlmChosenSkill))
+        {
+            return;
+        }
+
+        await MarkImplicitCorrectionAsync(agentId, previous);
+    }
+
+    // A bare negation answers the assistant's own question and says the recipe trigger was too broad; a
+    // negation that carries content is an ordinary turn and resolves nothing. The confirmed branch needs
+    // both halves of the evidence: an affirmation AND the same recipe running again. The affirmation alone
+    // is what LLMService acts on to clear the gate, and without it the same recipe re-triggering from a
+    // rejection ("Nein, neue Gruppe anlegen" discards the pending recipe and is matched afresh) would book
+    // a gate as confirmed that LLMService had just recorded as declined. The stored name went through
+    // Truncate, the name on the context did not, so the comparison has to truncate too.
+    private async Task ResolvePendingRecipeAsync(
+        Guid agentId, SkillSelectionTrajectory previous, LLMContext context, bool isBareNegation)
+    {
+        if (isBareNegation)
+        {
+            await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Declined);
+
+            await _caseCollector.CollectRecipeDeclineAsync(new SkillLearningRecipeDecline(
+                agentId,
+                previous.UserMessageHash,
+                previous.IntentExcerpt,
+                previous.UserId,
+                previous.Locale,
+                previous.RecipeName,
+                previous.KnowledgeIndexCandidatesJson,
+                previous.Id));
+
+            return;
+        }
+
+        if (AffirmationDetector.IsAffirmation(context.Message)
+            && string.Equals(previous.RecipeName, Truncate(context.ActiveRecipeName), StringComparison.Ordinal))
+        {
+            await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Confirmed);
+        }
+    }
+
+    private async Task MarkRecipeOutcomeAsync(SkillSelectionTrajectory previous, string outcome)
+    {
+        previous.RecipeOutcome = outcome;
+        previous.UpdateTime = DateTime.UtcNow;
+        await _repository.UpdateAsync(previous);
+    }
+
+    // The WasCorrected guard in the caller is what keeps this to one case per corrected turn. The cluster
+    // key is the stored hash of the preceding message, never a hash of its excerpt: for anything longer
+    // than the excerpt limit the two differ and would split one wish across two clusters.
+    private async Task MarkImplicitCorrectionAsync(Guid agentId, SkillSelectionTrajectory previous)
+    {
         previous.WasCorrected = true;
         previous.CorrectionType = CorrectionTypes.Implicit;
         previous.UpdateTime = DateTime.UtcNow;
         await _repository.UpdateAsync(previous);
 
-        // The WasCorrected guard above is what keeps this to one case per corrected turn. The cluster key
-        // is the stored hash of the preceding message, never a hash of its excerpt: for anything longer
-        // than the excerpt limit the two differ and would split one wish across two clusters.
         await _caseCollector.CollectImplicitCorrectionAsync(new SkillLearningImplicitCorrection(
             agentId,
             previous.UserMessageHash,
@@ -210,6 +277,11 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
 
         return Truncate(LearnedPhraseMatcher.FirstMatchingOwner(learned, message));
     }
+
+    private static string? ResolveRecipeOutcome(LLMContext context) =>
+        context.RecipeAwaitingConfirmation && !string.IsNullOrWhiteSpace(context.ActiveRecipeName)
+            ? RecipeOutcomes.Pending
+            : null;
 
     private static string? Truncate(string? value)
     {

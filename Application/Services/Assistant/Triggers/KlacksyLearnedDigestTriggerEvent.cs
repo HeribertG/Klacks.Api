@@ -6,9 +6,15 @@
 /// administrator concern, not a scheduling gap, so it reaches admins only. Severity is medium on purpose -
 /// the digest must appear as an inbox line and a badge, and must never interrupt a conversation with a
 /// chat bubble.
+/// The digest additionally carries the numbers of the latest full eval run, so "Klacksy learned
+/// something" and "did it get better" are read in the same line instead of in two places. Missing
+/// numbers are reported as n/a rather than as zeroes.
 /// </summary>
 /// <param name="WeekStartUtc">Monday of the reported week, the window the counters were taken from</param>
 /// <param name="Blocked">Description sharpenings withheld because they would have broken a golden case</param>
+/// <param name="EvalRetrievalHit">RetrievalHit of the latest full eval run, null when there is none</param>
+/// <param name="EvalSelectionHit">SelectionHit of the latest full eval run, null when there is none</param>
+/// <param name="EvalItemsTotal">Items that run covered, null when there is no such run</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -21,8 +27,14 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
     int Phrases,
     int Capabilities,
     int Unfulfillable,
-    int Blocked) : IAgentTriggerEvent
+    int Blocked,
+    double? EvalRetrievalHit = null,
+    double? EvalSelectionHit = null,
+    int? EvalItemsTotal = null) : IAgentTriggerEvent
 {
+    private const string NotAvailable = "n/a";
+    private const string NumberFormat = "F2";
+
     public int Total => Phrases + Capabilities + Unfulfillable + Blocked;
 
     public string Kind => AgentTriggerKinds.KlacksyLearnedDigest;
@@ -39,7 +51,10 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
         ["capabilities"] = Capabilities.ToString(CultureInfo.InvariantCulture),
         ["unfulfillable"] = Unfulfillable.ToString(CultureInfo.InvariantCulture),
         ["blocked"] = Blocked.ToString(CultureInfo.InvariantCulture),
-        ["total"] = Total.ToString(CultureInfo.InvariantCulture)
+        ["total"] = Total.ToString(CultureInfo.InvariantCulture),
+        ["evalRetrieval"] = Format(EvalRetrievalHit),
+        ["evalSelection"] = Format(EvalSelectionHit),
+        ["evalItems"] = EvalItemsTotal?.ToString(CultureInfo.InvariantCulture) ?? NotAvailable
     };
 
     public string DedupKey => DedupKeyFor(WeekStartUtc);
@@ -58,8 +73,14 @@ public sealed record KlacksyLearnedDigestTriggerEvent(
         ["capabilities"] = Capabilities,
         ["unfulfillable"] = Unfulfillable,
         ["blocked"] = Blocked,
-        ["total"] = Total
+        ["total"] = Total,
+        ["evalRetrievalHit"] = EvalRetrievalHit,
+        ["evalSelectionHit"] = EvalSelectionHit,
+        ["evalItemsTotal"] = EvalItemsTotal
     };
+
+    private static string Format(double? value) =>
+        value?.ToString(NumberFormat, CultureInfo.InvariantCulture) ?? NotAvailable;
 
     /// <summary>
     /// ISO week of the digest, so at most one digest per calendar week reaches an administrator no matter

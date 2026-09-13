@@ -24,6 +24,8 @@
 /// <param name="goldenCaseRepository">The goldset the gate replays</param>
 /// <param name="routingOracle">Runs the replay</param>
 /// <param name="catalogRefresher">Rebuilds cache, registry and knowledge index after each change</param>
+/// <param name="optionsProvider">Supplies the settings-backed minimum size of the holdout goldset</param>
+/// <param name="holdoutReplayGate">Replays the holdout goldset items of a goldset-born proposal</param>
 /// <param name="logger">One line per decision</param>
 
 using Klacks.Api.Domain.Constants;
@@ -35,6 +37,8 @@ namespace Klacks.Api.Application.Services.Assistant.Learning;
 public class SkillDescriptionSharpener : ISkillDescriptionSharpener
 {
     private const int TrajectoriesToAnalyze = 30;
+    private const string GoldenCaseBlockPrefix = "Blocked by the routing regression gate: ";
+    private const string TargetedReplayBlockPrefix = "Blocked by the targeted holdout replay: ";
 
     private readonly ISkillDescriptionOptimizer _optimizer;
     private readonly IProposedSkillChangeRepository _proposalRepository;
@@ -42,6 +46,8 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
     private readonly ISkillLearningGoldenCaseRepository _goldenCaseRepository;
     private readonly ISkillRoutingOracle _routingOracle;
     private readonly ISkillCatalogRefresher _catalogRefresher;
+    private readonly ISkillLearningOptionsProvider _optionsProvider;
+    private readonly IGoldsetHoldoutReplayGate _holdoutReplayGate;
     private readonly ILogger<SkillDescriptionSharpener> _logger;
 
     public SkillDescriptionSharpener(
@@ -51,6 +57,8 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         ISkillLearningGoldenCaseRepository goldenCaseRepository,
         ISkillRoutingOracle routingOracle,
         ISkillCatalogRefresher catalogRefresher,
+        ISkillLearningOptionsProvider optionsProvider,
+        IGoldsetHoldoutReplayGate holdoutReplayGate,
         ILogger<SkillDescriptionSharpener> logger)
     {
         _optimizer = optimizer;
@@ -59,6 +67,8 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         _goldenCaseRepository = goldenCaseRepository;
         _routingOracle = routingOracle;
         _catalogRefresher = catalogRefresher;
+        _optionsProvider = optionsProvider;
+        _holdoutReplayGate = holdoutReplayGate;
         _logger = logger;
     }
 
@@ -67,14 +77,25 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         await _optimizer.GenerateProposalsAsync(TrajectoriesToAnalyze, cancellationToken);
 
         var pending = await _proposalRepository.GetPendingAsync(
-            SkillLearningDefaults.MaxProposalsPerRun, cancellationToken);
+            ProposedChangeFields.Description, SkillLearningDefaults.MaxProposalsPerRun, cancellationToken);
 
         if (pending.Count == 0)
         {
             return (0, 0);
         }
 
-        var goldenCases = await _goldenCaseRepository.ListAsync(
+        var options = await _optionsProvider.GetAsync(cancellationToken);
+        var holdoutCount = await _goldenCaseRepository.CountHoldoutAsync(cancellationToken);
+        if (holdoutCount < options.MinGoldenCasesForAutoApply)
+        {
+            _logger.LogInformation(
+                "Description sharpening skipped: {Count} holdout golden case(s), {Minimum} required. "
+                    + "{Pending} proposal(s) stay pending for a person to decide",
+                holdoutCount, options.MinGoldenCasesForAutoApply, pending.Count);
+            return (0, 0);
+        }
+
+        var goldenCases = await _goldenCaseRepository.ListHoldoutAsync(
             SkillLearningDefaults.MaxGoldenCasesPerRegressionCheck, cancellationToken);
 
         var baseline = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
@@ -143,6 +164,7 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         // A restore that itself fails is logged as an error and rethrown: an unmeasured description
         // must never stay live silently.
         var keepChange = false;
+        var blockedByTargetedReplay = false;
         IReadOnlyList<string> failing;
         IReadOnlyList<string> regressions;
         try
@@ -150,6 +172,28 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
             try
             {
                 failing = await _routingOracle.FindFailingGoldenCasesAsync(goldenCases, cancellationToken);
+                regressions = failing.Except(baseline, StringComparer.Ordinal).ToList();
+
+                // A goldset-born narrowing additionally has to survive the holdout items it touches:
+                // the golden cases say nothing about which of two competing skills the model picks.
+                if (regressions.Count == 0
+                    && string.Equals(proposal.Origin, ProposedChangeOrigins.GoldsetEval, StringComparison.Ordinal))
+                {
+                    var verdict = await _holdoutReplayGate.EvaluateAsync(skill.Name, cancellationToken);
+                    if (!verdict.Measured)
+                    {
+                        _logger.LogInformation(
+                            "The targeted holdout replay could not be measured for proposal {ProposalId}; the "
+                                + "description of skill {Name} was put back and the proposal stays pending",
+                            proposal.Id, skill.Name);
+                        return null;
+                    }
+
+                    regressions = verdict.Regressions;
+                    blockedByTargetedReplay = regressions.Count > 0;
+                }
+
+                keepChange = regressions.Count == 0;
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
@@ -160,9 +204,6 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
                     proposal.Id, skill.Name);
                 return null;
             }
-
-            regressions = failing.Except(baseline, StringComparer.Ordinal).ToList();
-            keepChange = regressions.Count == 0;
         }
         finally
         {
@@ -192,12 +233,12 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
             return new Decision(true, failing);
         }
 
-        proposal.Justification = Describe(regressions);
+        proposal.Justification = Describe(regressions, blockedByTargetedReplay);
         await MarkAsync(proposal, ProposedChangeStatuses.BlockedRegression, cancellationToken);
 
         _logger.LogWarning(
-            "Description proposal {ProposalId} for skill {Name} blocked: {Count} golden case(s) would break",
-            proposal.Id, skill.Name, regressions.Count);
+            "Description proposal {ProposalId} for skill {Name} blocked: {Justification}",
+            proposal.Id, skill.Name, proposal.Justification);
 
         return new Decision(false, baseline);
     }
@@ -221,8 +262,11 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
         await _proposalRepository.UpdateAsync(proposal, cancellationToken);
     }
 
-    private static string Describe(IReadOnlyList<string> regressions) =>
-        "Blocked by the routing regression gate: " + string.Join("; ", regressions);
+    // The verdict is the only durable trace of the decision, so it has to name the gate that actually
+    // said no: on a goldset-born proposal the golden-case gate was green by definition.
+    private static string Describe(IReadOnlyList<string> regressions, bool blockedByTargetedReplay) =>
+        (blockedByTargetedReplay ? TargetedReplayBlockPrefix : GoldenCaseBlockPrefix)
+            + string.Join("; ", regressions);
 
     private sealed record Decision(bool Applied, IReadOnlyList<string> Baseline);
 }

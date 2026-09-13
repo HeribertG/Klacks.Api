@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Scans the last completed calendar month for clients whose accumulated hours diverge from their
-/// guaranteed hours by more than DriftThresholdHours. Emits one TargetHoursDriftTriggerEvent
-/// per affected client; severity is set per absolute drift magnitude in the event record itself.
+/// guaranteed hours by more than DriftThresholdHours. Emits ONE aggregated TargetHoursDriftTriggerEvent
+/// listing every affected client, never one event per client; severity is set from the largest absolute
+/// drift in the event record itself.
 /// Uses IClientRepository.GetQuery to enumerate the workforce and IWorkRepository.GetPeriodHoursForClients
 /// for the bulk hours read. Customers are excluded, see BuildCandidateQuery. Unlike its sibling
 /// detectors this one carries no cap - the roster it scans is the entire active, non-customer client
@@ -74,25 +75,26 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
         var clientIds = clients.Select(c => c.Id).ToList();
         var hoursMap = await _workRepository.GetPeriodHoursForClients(clientIds, periodStart, periodEnd, analyseToken: null, cancellationToken);
 
-        var events = new List<IAgentTriggerEvent>();
+        var affected = new List<TargetHoursDriftAffectedClient>();
         foreach (var client in clients)
         {
             if (!hoursMap.TryGetValue(client.Id, out var hours)) continue;
             if (!ExceedsThreshold(hours, out var drift)) continue;
 
             var clientName = $"{client.FirstName} {client.Name}".Trim();
-            events.Add(new TargetHoursDriftTriggerEvent(
+            affected.Add(new TargetHoursDriftAffectedClient(
                 client.Id,
                 string.IsNullOrEmpty(clientName) ? client.Id.ToString() : clientName,
-                drift,
-                periodLabel));
+                drift));
         }
 
         _logger.LogInformation(
-            "TargetHoursDrift scan for {Period}: {Clients} client(s) scanned, {Events} drift event(s) emitted",
-            periodLabel, clients.Count, events.Count);
+            "TargetHoursDrift scan for {Period}: {Clients} client(s) scanned, {Affected} over threshold",
+            periodLabel, clients.Count, affected.Count);
 
-        return events;
+        return affected.Count == 0
+            ? Array.Empty<IAgentTriggerEvent>()
+            : [new TargetHoursDriftTriggerEvent(affected, periodLabel)];
     }
 
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
@@ -114,12 +116,14 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector, IAgentConditionFi
 
         var hoursMap = await _workRepository.GetPeriodHoursForClients(clientIds, periodStart, periodEnd, analyseToken: null, cancellationToken);
 
-        return clientIds
-            .Where(id => hoursMap.TryGetValue(id, out var hours) && ExceedsThreshold(hours, out _))
-            .Select(id => AgentConditionLedgerPolicy.FingerprintFor(
-                Kind,
-                TargetHoursDriftTriggerEvent.DedupKeyFor(id, periodLabel)))
-            .ToHashSet(StringComparer.Ordinal);
+        var anyAffected = clientIds
+            .Any(id => hoursMap.TryGetValue(id, out var hours) && ExceedsThreshold(hours, out _));
+
+        return anyAffected
+            ? new HashSet<string>(
+                [AgentConditionLedgerPolicy.FingerprintFor(Kind, TargetHoursDriftTriggerEvent.DedupKeyFor(periodLabel))],
+                StringComparer.Ordinal)
+            : new HashSet<string>(StringComparer.Ordinal);
     }
 
     /// <summary>

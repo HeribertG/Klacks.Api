@@ -340,6 +340,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
+        services.AddScoped<IEvalRunItemRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunItemRepository>();
         services.AddScoped<ISkillEffectivenessRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillEffectivenessRepository>();
         services.AddScoped<IProposedSkillChangeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProposedSkillChangeRepository>();
         services.AddScoped<ISkillDescriptionOptimizer, Klacks.Api.Application.Services.Assistant.Evaluation.SkillDescriptionOptimizer>();
@@ -699,6 +700,7 @@ public static class ServiceCollectionExtensions
 
     private static void AddAssistantServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<AutoMemoryOptions>(configuration.GetSection(AutoMemoryOptions.SectionName));
         services.AddLLMCoreServices();
         services.AddLLMProviders();
         services.AddSkillServices();
@@ -810,6 +812,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.KlacksyLearnedDigestDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NoScheduleYetDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INextPeriodAutonomyResolver, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutonomyResolver>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EvalRegressionDetector>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.INextPeriodAutoCommitService, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutoCommitService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentSkillExecutionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillExecutionRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientContractReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientContractReadRepository>();
@@ -1049,6 +1052,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
         services.AddScoped<Persistence.Seed.SkillRelationSeedLoader>();
+        services.AddScoped<Persistence.Seed.TurnGoldsetGoldenCaseSeedLoader>();
         services.AddScoped<Persistence.Seed.RecipeSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();
@@ -1262,6 +1266,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILearnedArtefactResolver, Klacks.Api.Application.Services.Assistant.Learning.LearnedArtefactResolver>();
         services.AddScoped<ISkillLearningFitnessService, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningFitnessService>();
         services.AddScoped<ISkillLearningPruner, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningPruner>();
+        services.AddScoped<IGoldsetHoldoutReplayGate, Klacks.Api.Application.Services.Assistant.Learning.GoldsetHoldoutReplayGate>();
         services.AddScoped<ISkillDescriptionSharpener, Klacks.Api.Application.Services.Assistant.Learning.SkillDescriptionSharpener>();
         services.AddScoped<ISkillLearningLoop, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningLoop>();
 

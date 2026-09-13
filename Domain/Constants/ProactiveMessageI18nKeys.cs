@@ -10,6 +10,14 @@ namespace Klacks.Api.Domain.Constants;
 public static class ProactiveMessageI18nKeys
 {
     public const string TargetHoursDrift = "assistant.proactive.targetHoursDrift";
+
+    /// <summary>
+    /// The aggregated form of <see cref="TargetHoursDrift"/>: one sentence for the whole workforce of one
+    /// period. Its parameters are count, period, hours (the largest absolute drift, signed) and names -
+    /// deliberately no "name", because the aggregate names no single person. The per-employee key stays
+    /// in every catalogue: dispatch rows written before the aggregation still reference it.
+    /// </summary>
+    public const string TargetHoursDriftSummary = "assistant.proactive.targetHoursDriftSummary";
     public const string PeriodCloseDue = "assistant.proactive.periodCloseDue";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
     public const string LockConflict = "assistant.proactive.lockConflict";
@@ -48,6 +56,13 @@ public static class ProactiveMessageI18nKeys
     public const string NextPeriodAutoCommitBlockedAutonomyLowered = "assistant.proactive.nextPeriodAutoCommitBlockedAutonomyLowered";
     public const string NextPeriodAutoCommitBlockedInterrupted = "assistant.proactive.nextPeriodAutoCommitBlockedInterrupted";
     public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
+
+    /// <summary>
+    /// The turn-selection eval lost ground between two consecutive full runs. Its parameters name the
+    /// goldset and the model the trend was measured on, both current values and both drops - a drop
+    /// without the level it fell from tells an administrator nothing about how bad the state is.
+    /// </summary>
+    public const string EvalRegression = "assistant.proactive.evalRegression";
     public const string BulkSealOrdersCompleted = "assistant.proactive.bulkSealOrdersCompleted";
     public const string BulkSealOrdersFailed = "assistant.proactive.bulkSealOrdersFailed";
 

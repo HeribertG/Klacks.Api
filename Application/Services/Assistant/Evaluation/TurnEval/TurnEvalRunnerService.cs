@@ -7,6 +7,10 @@
 /// against the BEST completed run of the same goldset, model, item count and scorer version
 /// - never against the latest run (which would let quality ratchet down by the tolerance on
 /// every run) and never against a run over a different number of items.
+///
+/// Every replayed item is additionally persisted as an eval_run_items row, written in one batch after
+/// the run itself because the rows carry a foreign key to it. Without those rows a run is a single
+/// number and the two causes behind a miss cannot be told apart after the fact.
 /// </summary>
 
 using System.Diagnostics;
@@ -23,6 +27,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
     private readonly ITurnReplayService _replayService;
     private readonly ISlotEntityResolver _slotEntityResolver;
     private readonly IEvalRunRepository _evalRunRepository;
+    private readonly IEvalRunItemRepository _evalRunItemRepository;
     private readonly ILogger<TurnEvalRunnerService> _logger;
 
     public TurnEvalRunnerService(
@@ -30,12 +35,14 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         ITurnReplayService replayService,
         ISlotEntityResolver slotEntityResolver,
         IEvalRunRepository evalRunRepository,
+        IEvalRunItemRepository evalRunItemRepository,
         ILogger<TurnEvalRunnerService> logger)
     {
         _goldsetLoader = goldsetLoader;
         _replayService = replayService;
         _slotEntityResolver = slotEntityResolver;
         _evalRunRepository = evalRunRepository;
+        _evalRunItemRepository = evalRunItemRepository;
         _logger = logger;
     }
 
@@ -63,8 +70,10 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var items = maxItems.HasValue ? allItems.Take(maxItems.Value).ToList() : allItems.ToList();
         var isPartial = items.Count != allItems.Count;
 
+        var runId = Guid.NewGuid();
         var runStopwatch = Stopwatch.StartNew();
         var itemResults = new List<TurnEvalItemResult>(items.Count);
+        var itemRows = new List<EvalRunItem>(items.Count);
         string? providerId = null;
 
         foreach (var item in items)
@@ -75,7 +84,9 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             providerId ??= replay.ProviderId;
 
             var resolvedNameSlots = await ResolveNameSlotsAsync(item, replay, cancellationToken);
-            itemResults.Add(TurnEvalScorer.ScoreItem(item, replay, resolvedNameSlots));
+            var scored = TurnEvalScorer.ScoreItem(item, replay, resolvedNameSlots);
+            itemResults.Add(scored);
+            itemRows.Add(BuildItemRow(runId, item, replay, scored));
         }
 
         runStopwatch.Stop();
@@ -93,7 +104,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
 
         var evalRun = new EvalRun
         {
-            Id = Guid.NewGuid(),
+            Id = runId,
             Goldset = goldset,
             Provider = providerId,
             Model = modelId,
@@ -109,6 +120,9 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         };
 
         await _evalRunRepository.AddAsync(evalRun, cancellationToken);
+
+        // After the run, never before: the item rows carry a foreign key to it.
+        await _evalRunItemRepository.AddRangeAsync(itemRows, cancellationToken);
 
         _logger.LogInformation(
             "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, regression={Regression}",
@@ -127,6 +141,24 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             Items = itemResults
         };
     }
+
+    private static EvalRunItem BuildItemRow(
+        Guid runId, TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult scored) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            EvalRunId = runId,
+            ItemId = item.Id,
+            Locale = item.Locale,
+            ExpectedTool = item.ExpectedTool,
+            ChosenTool = scored.ChosenTool,
+            ToolsetNamesJson = JsonSerializer.Serialize(replay.AvailableToolNames),
+            RetrievalHit = scored.RetrievalHit,
+            SelectionHit = scored.SelectionHit,
+            Passed = scored.Passed,
+            LatencyMs = (int)Math.Min(scored.LatencyMs, int.MaxValue),
+            CreateTime = DateTime.UtcNow
+        };
 
     private async Task<IReadOnlyDictionary<string, bool>?> ResolveNameSlotsAsync(
         TurnGoldsetItem item,

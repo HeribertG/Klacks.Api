@@ -33,6 +33,13 @@ public static class SkillLearningDefaults
     public const int ToolsetCandidatesMax = 30;
 
     /// <summary>
+    /// Width of every skill-name column of the learning loop. The expected skill arrives as free text
+    /// from the correction menu, so the value is clipped to this bound before it is stored; the entity
+    /// configuration takes its HasMaxLength from here, so the two can no longer drift apart.
+    /// </summary>
+    public const int SkillNameMaxLength = 128;
+
+    /// <summary>
     /// Maximum length of the optional free-text comment a user may attach to a not-helpful judgement
     /// (W1.8). Stored on the trajectory; longer input is truncated, never rejected.
     /// </summary>
@@ -99,6 +106,21 @@ public static class SkillLearningDefaults
     public const int MaxGoldenCasesPerRegressionCheck = 200;
 
     /// <summary>
+    /// How many holdout golden cases have to exist before the loop may apply a description change on its
+    /// own. Below this a green gate does not mean "nothing broke", it means "almost nothing was measured":
+    /// with an empty goldset every proposal passed, which is how unmeasured narrowings went live.
+    /// Settings-backed via KLACKSY_LEARNING_MIN_GOLDEN_CASES so it can be raised without a deploy.
+    /// </summary>
+    public const int MinGoldenCasesForAutoApply = 20;
+
+    /// <summary>
+    /// Upper bound on holdout goldset items replayed per goldset-born proposal. Each replay is a paid
+    /// provider call, so an unbounded targeted gate would make one learning round cost as much as a full
+    /// eval run.
+    /// </summary>
+    public const int MaxTargetedHoldoutReplaysPerProposal = 25;
+
+    /// <summary>
     /// How many existing phrases of the target skill are shown to the generator as context, so it does
     /// not propose a wording that is already indexed.
     /// </summary>
@@ -120,6 +142,30 @@ public static class SkillLearningDefaults
     /// refresh plus a full replay of the goldset, twice when it has to be rolled back.
     /// </summary>
     public const int MaxProposalsPerRun = 3;
+
+    /// <summary>
+    /// How many unconsumed selection misses of the latest full eval run are read per learning run. It is
+    /// a safety ceiling, not a sample: the query is already narrowed to the train items of the goldset,
+    /// so the value only has to stay above the goldset size, or misses would be cut off by a limit rather
+    /// than by the partition and the tail could never be reached.
+    /// </summary>
+    public const int MaxGoldsetMissesPerRun = 400;
+
+    /// <summary>
+    /// How many goldset-born description proposals one run may open. Every group is one paid model call
+    /// plus one pending row, and the goldset branch sees hundreds of items where the correction branch
+    /// sees the handful of turns a person actually flagged - uncapped it would fill every slot of
+    /// <see cref="MaxProposalsPerRun"/> before a correction is ever looked at.
+    /// </summary>
+    public const int MaxGoldsetProposalsPerRun = 3;
+
+    /// <summary>
+    /// How many of the newest pending trigger narrowings are read back to decide whether a cluster already
+    /// carries one. A cluster is dismissed in the same pass that opens its proposal, so only a run that died
+    /// between the two writes can collide; reading the whole review backlog for every declined recipe would
+    /// cost far more than the rare duplicate it prevents.
+    /// </summary>
+    public const int MaxNarrowingProposalsScannedForDuplicates = 50;
 
     /// <summary>
     /// Capability variants the generator produces per round, mirroring the phrase budget.

@@ -85,4 +85,28 @@ public class EvalRunRepository : IEvalRunRepository
             .Take(limit)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<EvalRun?> GetLatestFullRunAsync(
+        string goldset, int scorerVersion, CancellationToken cancellationToken = default)
+    {
+        return await _context.EvalRuns
+            .AsNoTracking()
+            .Where(r => r.Goldset == goldset
+                && r.ScorerVersion == scorerVersion
+                && !r.IsPartial
+                && r.ItemsTotal > 0)
+            .OrderByDescending(r => r.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<EvalRun>> ListRecentFullRunsAsync(
+        string goldset, int limit, CancellationToken cancellationToken = default)
+    {
+        return await _context.EvalRuns
+            .AsNoTracking()
+            .Where(r => r.Goldset == goldset && !r.IsPartial && r.ItemsTotal > 0)
+            .OrderByDescending(r => r.CreateTime)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
 }

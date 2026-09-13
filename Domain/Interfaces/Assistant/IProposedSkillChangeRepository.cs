@@ -16,7 +16,18 @@ public interface IProposedSkillChangeRepository
 
     Task UpdateAsync(ProposedSkillChange record, CancellationToken cancellationToken = default);
 
-    Task<List<ProposedSkillChange>> GetPendingAsync(int limit, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Pending proposals of one field. The field is a parameter and not a filter in the caller, because the
+    /// sharpener may only take as many rows as it can decide on: a proposal of another field that it skips
+    /// would still consume one of its per-run slots and starve description sharpening for good.
+    /// Ordered correction-born first, newest first inside each origin. The goldset branch opens its
+    /// proposals in bulk and therefore with the newer timestamps, so a plain newest-first window would push
+    /// the proposals a person actually caused out of every run. Callers of another field are unaffected as
+    /// long as their rows carry the default origin; a field whose rows mix origins gets a window shaped by
+    /// origin before age.
+    /// </summary>
+    Task<List<ProposedSkillChange>> GetPendingAsync(
+        string field, int limit, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Whether this skill already carries a proposal the loop must not stack another one on: one still
@@ -27,8 +38,13 @@ public interface IProposedSkillChangeRepository
     /// </summary>
     Task<bool> HasOpenProposalForSkillAsync(Guid skillId, string field, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Proposals of one field in any of the given statuses, newest first. The field is a SQL parameter and
+    /// not a filter in the caller for the same reason the limit is: the window is taken newest-first, so a
+    /// burst of rows of another field would fill it and leave the caller with nothing after filtering.
+    /// </summary>
     Task<List<ProposedSkillChange>> GetByStatusesAsync(
-        IReadOnlyList<string> statuses, int limit, CancellationToken cancellationToken = default);
+        IReadOnlyList<string> statuses, string field, int limit, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// How many proposals were moved into each of the given statuses inside a half-open window, the

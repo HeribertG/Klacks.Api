@@ -3,8 +3,8 @@
 /// <summary>
 /// EF Core configuration for SkillUsageRecord. Pins the table name and adds the soft-delete query
 /// filter the entity was missing, so a deleted telemetry row can no longer inflate the failure
-/// counters of the "Skill-Wirksamkeit" scorecard (W6). The filter produces no schema change, so no
-/// migration belongs to this file.
+/// counters of the "Skill-Wirksamkeit" scorecard (W6). The turn_id index backs the query-time
+/// fitness join of the trajectory repository.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant;
@@ -21,5 +21,6 @@ public class SkillUsageRecordConfiguration : IEntityTypeConfiguration<SkillUsage
     {
         builder.ToTable(TableName);
         builder.HasQueryFilter(p => !p.IsDeleted);
+        builder.HasIndex(p => p.TurnId);
     }
 }

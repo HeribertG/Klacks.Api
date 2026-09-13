@@ -712,6 +712,10 @@ await app.InitializeSkillRegistryAsync();
 await app.LoadSkillRelationSeedsAsync();
 await app.DeriveSubstratePriorAsync();
 
+// The regression gate has nothing to replay until this runs. Insert-only and idempotent, so every
+// startup after the first is a single read plus a no-op.
+await app.SeedGoldsetGoldenCasesAsync();
+
 // Must follow the synonym seed and the language plugin install above, and must finish before
 // app.Run(): the cache refreshes lazily, so without it the first request after a restart sees an
 // empty snapshot and misses every navigation fast path.

@@ -124,6 +124,14 @@ public static class AssistantExtensions
         return app;
     }
 
+    public static async Task<IApplicationBuilder> SeedGoldsetGoldenCasesAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var loader = scope.ServiceProvider.GetRequiredService<TurnGoldsetGoldenCaseSeedLoader>();
+        await loader.LoadAsync();
+        return app;
+    }
+
     public static async Task<IApplicationBuilder> DeriveSubstratePriorAsync(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();

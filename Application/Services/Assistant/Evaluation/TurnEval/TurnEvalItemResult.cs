@@ -47,6 +47,25 @@ public class TurnEvalItemResult
 
     public bool EngineRecipeWouldTrigger { get; set; }
 
+    /// <summary>
+    /// Whether the expected tool (or one of its alternatives) was in the assembled toolset at all. Null
+    /// when the item expects no tool, or when the replay reported no toolset. A miss here is a retrieval
+    /// problem, not a model problem.
+    /// </summary>
+    public bool? RetrievalHit { get; set; }
+
+    /// <summary>
+    /// Whether the model picked the expected tool, measured ONLY where the verdict can mean something:
+    /// <see cref="RetrievalHit"/> is true, the replay succeeded and no recipe excluded the item. Null
+    /// everywhere else - a model that was never offered the tool, never answered at all or never got to
+    /// choose cannot be judged on not choosing it.
+    /// </summary>
+    public bool? SelectionHit { get; set; }
+
+    /// <summary>
+    /// Legacy name of <see cref="RetrievalHit"/>, kept because the live scorecard of the integration
+    /// eval prints it on every MISS line. Always the identical value; never computed twice.
+    /// </summary>
     public bool? ExpectedToolAvailable { get; set; }
 
     public long LatencyMs { get; set; }

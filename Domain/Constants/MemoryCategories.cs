@@ -64,12 +64,26 @@ public static class MemoryCategories
         SystemKnowledge
     };
 
+    private static readonly HashSet<string> ExpiringCategories = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Context,
+        Temporal
+    };
+
     /// <summary>
     /// True for categories that belong to one specific user (and must be scoped by UserId),
     /// as opposed to shared company-wide knowledge.
     /// </summary>
     public static bool IsPersonal(string? category) =>
         !string.IsNullOrWhiteSpace(category) && PersonalCategories.Contains(category);
+
+    /// <summary>
+    /// True for categories that describe a situation rather than a fact ("the user is currently planning
+    /// May"). Such a memory is given an expiry date on write: kept forever it becomes a statement about a
+    /// world that has moved on, which is worse than having no memory at all.
+    /// </summary>
+    public static bool IsExpiring(string? category) =>
+        !string.IsNullOrWhiteSpace(category) && ExpiringCategories.Contains(category);
 
     /// <summary>
     /// True for durable, company-wide truths (e.g. a naming convention) that should stay

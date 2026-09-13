@@ -22,8 +22,6 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public class TurnReplayService : ITurnReplayService
 {
-    private const double ReplayTemperature = 0.7;
-
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
@@ -141,7 +139,7 @@ public class TurnReplayService : ITurnReplayService
             ModelId = model.ApiModelId,
             ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
             AvailableFunctions = context.AvailableFunctions,
-            Temperature = ReplayTemperature,
+            Temperature = TurnEvalDefaults.ReplayTemperature,
             MaxTokens = model.MaxTokens,
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,

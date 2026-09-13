@@ -31,7 +31,8 @@ public class SkillLearningOptionsProvider : ISkillLearningOptionsProvider
             await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_MIN_OCCURRENCES, SkillLearningDefaults.MinOccurrences),
             await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_MIN_USERS, SkillLearningDefaults.MinDistinctUsers),
             await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_PRUNE_DAYS, SkillLearningDefaults.PruneDays),
-            await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_RETENTION_DAYS, SkillLearningDefaults.RetentionDays));
+            await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_RETENTION_DAYS, SkillLearningDefaults.RetentionDays),
+            await ReadPositiveIntAsync(SettingsKeys.KLACKSY_LEARNING_MIN_GOLDEN_CASES, SkillLearningDefaults.MinGoldenCasesForAutoApply));
     }
 
     private async Task<int> ReadPositiveIntAsync(string key, int fallback)

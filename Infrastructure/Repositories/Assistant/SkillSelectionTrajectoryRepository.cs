@@ -5,6 +5,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -91,6 +92,61 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    // was_successful is a snapshot taken while the trajectory was written. A UiAction reports its real
+    // outcome afterwards (W1.4), flipping skill_usage_records.success without anybody rewriting that
+    // snapshot - so a turn whose only execution the browser later reported as failed was still being
+    // booked as a success through the "?? true" fallback. Evaluating the turn_id join here instead makes
+    // the late report count. Rows still in Dispatched state remain excluded, exactly as at capture time:
+    // "nobody has reported yet" is not a failure.
+    internal IQueryable<Guid> FailedTurnIds() =>
+        _context.SkillUsageRecords
+            .Where(u => u.TurnId != null
+                && !u.Success
+                && (u.UiActionStatus == null || u.UiActionStatus != UiActionStatus.Dispatched))
+            .Select(u => u.TurnId!.Value);
+
+    // The three fitness queries are built apart from their execution so a unit test can pin the SQL
+    // Npgsql generates for them. The sub-select is the whole point of the join and is invisible to the
+    // in-memory provider: a translation that quietly stopped emitting it would keep every test green
+    // while every late UiAction failure went back to counting as a success.
+    internal IQueryable<UsageRow> PhraseUsageQuery(string ownerName, DateTime fromUtc)
+    {
+        var failedTurnIds = FailedTurnIds();
+
+        return _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc)
+            .Select(t => new UsageRow(
+                t.CreateTime, t.WasCorrected, t.Helpful,
+                t.LlmChosenSkill == ownerName && !t.WasCorrected && (t.WasSuccessful ?? true)
+                    && (t.TurnId == null || !failedTurnIds.Contains(t.TurnId.Value))));
+    }
+
+    internal IQueryable<UsageRow> RecipeUsageQuery(string recipeName, DateTime fromUtc)
+    {
+        var failedTurnIds = FailedTurnIds();
+
+        return _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc)
+            .Select(t => new UsageRow(
+                t.CreateTime, t.WasCorrected, t.Helpful,
+                !t.WasCorrected && (t.WasSuccessful ?? t.WasExecuted)
+                    && (t.TurnId == null || !failedTurnIds.Contains(t.TurnId.Value))));
+    }
+
+    internal IQueryable<SkillSelectionTrajectory> SuccessfulRecipeTurnQuery(string recipeName)
+    {
+        var failedTurnIds = FailedTurnIds();
+
+        return _context.SkillSelectionTrajectories
+            .AsNoTracking()
+            .Where(t => t.RecipeName == recipeName
+                && !t.WasCorrected
+                && (t.WasSuccessful ?? t.WasExecuted)
+                && (t.TurnId == null || !failedTurnIds.Contains(t.TurnId.Value)));
+    }
+
     // Success for a phrase means the turn actually reached the skill the phrase belongs to AND every
     // skill execution of that turn succeeded (W1.3). The phrase occurring while a different skill ran
     // is a use, not a success - which is exactly the distinction the quote exists to make. Legacy rows
@@ -98,13 +154,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
     public async Task<LearnedArtefactUsage> CountPhraseUsageAsync(
         string ownerName, DateTime fromUtc, CancellationToken cancellationToken = default)
     {
-        var rows = await _context.SkillSelectionTrajectories
-            .AsNoTracking()
-            .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc)
-            .Select(t => new UsageRow(
-                t.CreateTime, t.WasCorrected, t.Helpful,
-                t.LlmChosenSkill == ownerName && !t.WasCorrected && (t.WasSuccessful ?? true)))
-            .ToListAsync(cancellationToken);
+        var rows = await PhraseUsageQuery(ownerName, fromUtc).ToListAsync(cancellationToken);
 
         return Summarise(rows);
     }
@@ -112,13 +162,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
     public async Task<LearnedArtefactUsage> CountRecipeUsageAsync(
         string recipeName, DateTime fromUtc, CancellationToken cancellationToken = default)
     {
-        var rows = await _context.SkillSelectionTrajectories
-            .AsNoTracking()
-            .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc)
-            .Select(t => new UsageRow(
-                t.CreateTime, t.WasCorrected, t.Helpful,
-                !t.WasCorrected && (t.WasSuccessful ?? t.WasExecuted)))
-            .ToListAsync(cancellationToken);
+        var rows = await RecipeUsageQuery(recipeName, fromUtc).ToListAsync(cancellationToken);
 
         return Summarise(rows);
     }
@@ -126,11 +170,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
     public async Task<bool> HasSuccessfulRecipeTurnAsync(
         string recipeName, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillSelectionTrajectories
-            .AsNoTracking()
-            .AnyAsync(t => t.RecipeName == recipeName
-                && !t.WasCorrected
-                && (t.WasSuccessful ?? t.WasExecuted), cancellationToken);
+        return await SuccessfulRecipeTurnQuery(recipeName).AnyAsync(cancellationToken);
     }
 
     private static LearnedArtefactUsage Summarise(IReadOnlyList<UsageRow> rows) =>
@@ -143,5 +183,5 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
                 rows.Count(row => row.Helpful == true),
                 rows.Max(row => row.CreateTime));
 
-    private sealed record UsageRow(DateTime? CreateTime, bool WasCorrected, bool? Helpful, bool IsSuccess);
+    internal sealed record UsageRow(DateTime? CreateTime, bool WasCorrected, bool? Helpful, bool IsSuccess);
 }

@@ -6,6 +6,10 @@
 /// proposed (proposed_skill_changes). They are merged because an administrator judges both the same way -
 /// "does this wording help Klacksy find the right skill". Approved and rejected proposals are history and
 /// stay out; pending, automatically applied and regression-blocked ones are the ones still worth looking at.
+/// Only description proposals qualify: the same table also carries recipe trigger narrowings, which name a
+/// recipe and quote the utterance that wrongly matched it, so editing one as a phrasing would write that
+/// utterance back as a skill description. The field is therefore asked for in SQL, never filtered out
+/// afterwards: the store returns the newest rows of the window, and a burst of narrowings would fill it.
 /// </summary>
 /// <param name="phraseRepository">Learned trigger phrases</param>
 /// <param name="proposalRepository">Proposed description changes</param>
@@ -53,7 +57,10 @@ public class GetLearnedPhrasesQueryHandler
                     SkillPhraseSources.Learned, request.Limit, cancellationToken);
 
                 var proposals = await _proposalRepository.GetByStatusesAsync(
-                    ProposedChangeStatuses.ReviewableForLearning, request.Limit, cancellationToken);
+                    ProposedChangeStatuses.ReviewableForLearning,
+                    ProposedChangeFields.Description,
+                    request.Limit,
+                    cancellationToken);
 
                 var fitness = await ResolveFitnessAsync(request.Limit, cancellationToken);
 
