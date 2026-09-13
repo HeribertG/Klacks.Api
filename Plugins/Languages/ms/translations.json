@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Lengkapkan kontena kosong dengan slot lebih awal",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Dalam {{days}} hari terakhir, peringkat eskalasi terpaksa membangunkan seseorang sebanyak {{count}} kali kerana laporan ketidakhadiran tidak disahkan tepat pada masanya.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Kurangkan eskalasi ketidakhadiran yang tidak disahkan",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Dalam {{days}} hari terakhir, penurunan kualiti jawapan yang diukur telah dilaporkan sebanyak {{count}} kali.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Elak penurunan kualiti jawapan Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Dalam {{days}} hari terakhir, perubahan yang disekat oleh kunci telah dilaporkan sebanyak {{count}} kali.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Elakkan perubahan pelan yang tersekat",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Dalam {{days}} hari terakhir, ketiadaan jadual sepenuhnya telah dilaporkan sebanyak {{count}} kali.",

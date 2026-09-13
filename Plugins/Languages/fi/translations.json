@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Määritä tyhjät kontit aikaisemmin",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Viimeisten {{days}} päivän aikana on jouduttu {{count}} kertaa nostamaan hälytystasoa, koska häiriöilmoitusta ei vahvistettu ajoissa.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Vähentää vahvistamattomia vikailmoitusten eskalointeja",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Viimeisten {{days}} päivän aikana mitatun vastauslaadun lasku on ilmoitettu {{count}} kertaa.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Estä Klacksyn vastausten laadun heikkeneminen",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Viimeisten {{days}} päivän aikana muutos on estynyt lukituksen vuoksi {{count}} kertaa.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Vältä estyneitä suunnitelmamuutoksia",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Viimeisten {{days}} päivän aikana on {{count}} kertaa havaittu, ettei mitään ole suunniteltu lainkaan.",

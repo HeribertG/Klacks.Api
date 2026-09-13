@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Έγκαιρη διαμόρφωση κενών κοντέινερ",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Τις τελευταίες {{days}} ημέρες, χρειάστηκε {{count}} φορές να ενεργοποιηθεί ένα επίπεδο κλιμάκωσης για να ξυπνήσει κάποιον, επειδή μια αναφορά βλάβης δεν επιβεβαιώθηκε εγκαίρως.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Μείωση των μη επιβεβαιωμένων κλιμακώσεων βλαβών",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Τις τελευταίες {{days}} ημέρες αναφέρθηκε {{count}} φορές πτώση της μετρούμενης ποιότητας απαντήσεων.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Αποτροπή πτώσης της ποιότητας απαντήσεων του Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Τις τελευταίες {{days}} ημέρες εμποδίστηκε {{count}} φορές μια αλλαγή λόγω κλειδώματος.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Αποφυγή μπλοκαρισμένων αλλαγών προγράμματος",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Τις τελευταίες {{days}} ημέρες παρατηρήθηκε {{count}} φορές ότι δεν έχει προγραμματιστεί απολύτως τίποτα.",

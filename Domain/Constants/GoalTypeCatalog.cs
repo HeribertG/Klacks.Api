@@ -166,7 +166,14 @@ public static class GoalTypeCatalog
                 "noScheduleYet",
                 "nothing has been scheduled anywhere yet, so no duty is assigned to anybody",
                 "Get the first schedule off the ground",
-                "An unplanned installation came up {0} time(s) in the last {1} days.")
+                "An unplanned installation came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.EvalRegression] = Define(
+                AgentTriggerKinds.EvalRegression,
+                "evalRegression",
+                "Klacksy's answer quality, measured against its reference questions, fell behind the previous measurement",
+                "Keep Klacksy's answer quality from slipping",
+                "A drop in measured answer quality came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>

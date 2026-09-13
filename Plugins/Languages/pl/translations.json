@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Wcześniejsze wyposażanie pustych kontenerów w sloty",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "W ciągu ostatnich {{days}} dni {{count}} razy konieczne było podniesienie poziomu eskalacji, aby kogoś obudzić, ponieważ zgłoszenie awarii nie zostało potwierdzone na czas.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Ograniczenie liczby niepotwierdzonych eskalacji awarii",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "W ciągu ostatnich {{days}} dni {{count}} razy zgłoszono spadek mierzonej jakości odpowiedzi.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Zapobiegaj spadkowi jakości odpowiedzi Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "W ciągu ostatnich {{days}} dni {{count}} razy blokada uniemożliwiła wprowadzenie zmiany.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Unikaj zablokowanych zmian w planie",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "W ciągu ostatnich {{days}} dni {{count}} razy zgłoszono, że nic w ogóle nie zostało zaplanowane.",

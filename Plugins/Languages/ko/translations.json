@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "빈 컨테이너를 더 일찍 설정하기",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "지난 {{days}}일 동안 {{count}}회 긴급 단계가 출동하지 않은 이유로 누군가를 깨웠습니다. 이는 장애 보고가 제때 확인되지 않았기 때문입니다.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "확인되지 않은 장애 긴급 단계 줄이기",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "지난 {{days}}일 동안 측정된 답변 품질 저하가 {{count}}회 보고되었습니다.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Klacksy 답변 품질 저하 방지",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "지난 {{days}}일 동안 잠금으로 인해 변경이 {{count}}회 차단되었습니다.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "차단된 계획 변경 방지",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "지난 {{days}}일 동안 일정이 전혀 계획되지 않은 상태가 {{count}}회 보고되었습니다.",

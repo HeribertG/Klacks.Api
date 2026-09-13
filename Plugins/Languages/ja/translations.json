@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "空のコンテナを早めに設定する",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "過去{{days}}日間で、{{count}}回、エスカレーションレベルが誰かを起こしました。これは、障害通知が時間内に確認されなかったためです。",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "未確認の障害エスカレーションを削減",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "過去{{days}}日間に、測定された回答品質の低下が{{count}}回報告されました。",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Klacksyの回答品質の低下を防ぐ",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "過去{{days}}日間に、ロックによって変更が妨げられたケースが{{count}}回報告されました。",
   "assistant-chat.goal-candidates.type.lockConflict.title": "計画変更のブロックを回避する",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "過去{{days}}日間に、予定が全く組まれていないことが{{count}}回報告されました。",

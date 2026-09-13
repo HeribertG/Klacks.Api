@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Lege containers eerder van slots voorzien",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "In de afgelopen {{days}} dagen moest er {{count}} keer een escalatieniveau worden geactiveerd om iemand wakker te maken, omdat een storingsmelding niet op tijd was bevestigd.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Het aantal onbevestigde escalaties van storingen verminderen",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "In de afgelopen {{days}} dagen is {{count}} keer een daling van de gemeten antwoordkwaliteit gemeld.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Voorkomen dat de antwoordkwaliteit van Klacksy terugloopt",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "In de afgelopen {{days}} dagen is {{count}} keer een wijziging door een vergrendeling geblokkeerd.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Geblokkeerde planwijzigingen vermijden",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "In de afgelopen {{days}} dagen is {{count}} keer gemeld dat er nog helemaal niets is ingepland.",

@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "ตั้งค่าคอนเทนเนอร์ที่ว่างเปล่าให้เร็วขึ้น",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "ใน {{days}} วันที่ผ่านมา ต้องมีการปลุกพนักงานในระดับการยกระดับ {{count}} ครั้ง เนื่องจากการแจ้งเตือนการขาดงานไม่ได้รับการยืนยันทันเวลา",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "ลดการยกระดับการขาดงานที่ไม่ได้รับการยืนยัน",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "ในช่วง {{days}} วันที่ผ่านมา มีการรายงานคุณภาพคำตอบที่วัดได้ลดลง {{count}} ครั้ง",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "ป้องกันไม่ให้คุณภาพคำตอบของ Klacksy ลดลง",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "ในช่วง {{days}} วันที่ผ่านมา การเปลี่ยนแปลงถูกล็อกขัดขวางไว้ {{count}} ครั้ง",
   "assistant-chat.goal-candidates.type.lockConflict.title": "หลีกเลี่ยงการเปลี่ยนแปลงแผนที่ถูกบล็อก",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "ในช่วง {{days}} วันที่ผ่านมา มีการตรวจพบ {{count}} ครั้งว่ายังไม่มีการวางแผนใดๆ เลย",
