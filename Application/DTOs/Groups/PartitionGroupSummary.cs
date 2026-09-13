@@ -3,7 +3,7 @@
 namespace Klacks.Api.Application.DTOs.Groups;
 
 /// <summary>
-/// One region, canton or city group in a partition_clients_by_address preview or apply result, in
+/// One region, state/province or city group in a partition_clients_by_address preview or apply result, in
 /// top-down order (a parent always precedes its children).
 /// </summary>
 /// <param name="Name">Display name the group has or would get.</param>

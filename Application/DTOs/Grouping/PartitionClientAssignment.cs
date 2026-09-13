@@ -3,7 +3,7 @@
 namespace Klacks.Api.Application.DTOs.Grouping;
 
 /// <summary>
-/// One client placed into the leaf group (city, canton or, at city level, a flat city node) of a
+/// One client placed into the leaf group (city, state/province or, at city level, a flat city node) of a
 /// GroupPartitionPlanner plan.
 /// </summary>
 /// <param name="ClientId">The client that would be (or was) added to the leaf group.</param>

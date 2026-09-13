@@ -1,23 +1,25 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Splits every client of a given entity type into a region/canton/city group hierarchy built from
-/// their current address, creating the missing groups and the memberships in one server-side call —
-/// the bulk counterpart to filling one group at a time. With apply=false (default) it returns a
-/// read-only preview of the planned groups and placements; with apply=true it persists them and
-/// verifies the write. Reusable in an already-partly-grouped install: an existing group with the right
-/// name under the right parent is reused instead of duplicated, and clients that already hold a group
-/// membership are skipped unless includeAlreadyGrouped is set.
+/// Builds a location group tree from client addresses in one server-side call: region (when the
+/// country ships a region map) → state/province group → city cluster, and places every client of the
+/// requested types (employees, external employees and customers, or all three) into its cluster.
+/// With apply=false (default) it returns a read-only preview; with apply=true it creates the missing
+/// groups (reusing a group with the right name under the right parent), persists the memberships and
+/// verifies the write. Cluster groups receive the mean coordinates of their addresses so the order
+/// assignment's distance fallback works without geocoding.
 /// </summary>
-/// <param name="level">Granularity: 'canton', 'city' or 'canton_city' (default); canton_city nests a city group under its canton group.</param>
-/// <param name="entityType">Client type to partition: 'Employee' (default) or 'ExternEmp'. 'Customer' is rejected — customers are placed with the customer-grouping tools instead.</param>
-/// <param name="rootGroupName">Optional name of an existing group every top-level node (canton, or city at city level) attaches under; when omitted, cantons are nested under the same region roots the demo seed uses.</param>
+/// <param name="level">Granularity: 'cluster' (default), 'state', 'city' or 'state_city'.</param>
+/// <param name="entityType">Client types to place: 'All' (default), 'Employee', 'ExternEmp' or 'Customer'.</param>
+/// <param name="clusterSharePercent">At level 'cluster': minimum share (1-100, default 10) of a state's addresses a city needs to become its own cluster; the largest city of a state is always a cluster.</param>
+/// <param name="rootGroupName">Optional name of an existing group every top-level node attaches under; when omitted, states nest under the regions the country's region map defines.</param>
 /// <param name="includeAlreadyGrouped">When false (default), clients that already hold an active group membership are left untouched.</param>
 /// <param name="validFrom">Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when omitted.</param>
 /// <param name="apply">When false (default) only previews the plan; when true creates the groups and persists the memberships.</param>
 
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -41,15 +43,25 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         "Ask an administrator to run it, or build the groups inside your scope one at a time instead.";
 
     private const string InvalidLevelError =
-        "Invalid level '{0}'. Allowed: canton, city, canton_city.";
+        "Invalid level '{0}'. Allowed: cluster, state, city, state_city.";
 
-    private const string CustomerEntityTypeError =
-        "entityType 'Customer' is not supported by this skill: the ERP import creates customers as " +
-        "clients too, and this skill is meant for the staff address book. Use the customer-grouping " +
-        "tools for customers instead.";
+    private const string LevelCluster = "cluster";
+    private const string LevelState = "state";
+    private const string LevelCity = "city";
+    private const string LevelStateCity = "state_city";
 
     private const string InvalidEntityTypeError =
-        "Invalid entityType '{0}'. Allowed: Employee, ExternEmp.";
+        "Invalid entityType '{0}'. Allowed: All, Employee, ExternEmp, Customer.";
+
+    private const string InvalidClusterShareError =
+        "clusterSharePercent must be between {0} and {1}; got {2}.";
+
+    private const string EntityTypeAll = "All";
+    private const int MinClusterSharePercent = 1;
+    private const int MaxClusterSharePercent = 100;
+
+    private static readonly IReadOnlyList<EntityTypeEnum> AllEntityTypes =
+        [EntityTypeEnum.Employee, EntityTypeEnum.ExternEmp, EntityTypeEnum.Customer];
 
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
@@ -73,34 +85,22 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var levelStr = GetParameter<string>(parameters, "level") ?? "canton_city";
+        var levelStr = GetParameter<string>(parameters, "level") ?? LevelCluster;
         if (!TryParseLevel(levelStr, out var level))
         {
             return SkillResult.Error(string.Format(InvalidLevelError, levelStr));
         }
 
         var entityTypeStr = GetParameter<string>(parameters, "entityType");
-        if (string.Equals(entityTypeStr, "Customer", StringComparison.OrdinalIgnoreCase))
-        {
-            return SkillResult.Error(CustomerEntityTypeError);
-        }
-
-        EntityTypeEnum entityType;
-        if (string.IsNullOrWhiteSpace(entityTypeStr))
-        {
-            entityType = EntityTypeEnum.Employee;
-        }
-        else if (string.Equals(entityTypeStr, "Employee", StringComparison.OrdinalIgnoreCase))
-        {
-            entityType = EntityTypeEnum.Employee;
-        }
-        else if (string.Equals(entityTypeStr, "ExternEmp", StringComparison.OrdinalIgnoreCase))
-        {
-            entityType = EntityTypeEnum.ExternEmp;
-        }
-        else
+        if (!TryParseEntityTypes(entityTypeStr, out var entityTypes))
         {
             return SkillResult.Error(string.Format(InvalidEntityTypeError, entityTypeStr));
+        }
+
+        if (!TryParseClusterSharePercent(GetParameter<int?>(parameters, "clusterSharePercent"), out var clusterSharePercent))
+        {
+            return SkillResult.Error(string.Format(
+                InvalidClusterShareError, MinClusterSharePercent, MaxClusterSharePercent, clusterSharePercent));
         }
 
         var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
@@ -140,7 +140,8 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         {
             result = await _mediator.Send(
                 new PartitionClientsByAddressCommand(
-                    level, entityType, rootGroupId, rootGroupName, includeAlreadyGrouped, validFrom, apply, context.UserName),
+                    level, entityTypes, rootGroupId, rootGroupName, includeAlreadyGrouped, validFrom, apply,
+                    context.UserName, clusterSharePercent),
                 cancellationToken);
         }
         catch (SkillVerificationException ex)
@@ -157,7 +158,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 result,
-                $"None of the {result.TotalClients} {result.EntityType}(s) could be placed at level " +
+                $"None of the {result.TotalClients} {result.EntityType} client(s) could be placed at level " +
                 $"'{result.Level}'. {BuildDiagnostics(result)} Nothing was changed.");
         }
 
@@ -182,12 +183,15 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         var alreadyNote = result.AlreadyMemberCount > 0
             ? $" ({result.AlreadyMemberCount} were already members)"
             : string.Empty;
+        var newCount = result.Groups.Count(g => !g.Existed);
+        var reusedCount = result.Groups.Count - newCount;
 
         return SkillResult.SuccessResult(
             result,
-            $"Partitioned {result.TotalClients} {result.EntityType}(s) at level '{result.Level}' into " +
-            $"{result.Groups.Count} group(s), added {result.AssignedCount} membership(s) and confirmed " +
-            $"{result.VerifiedCount} in the database (verified){alreadyNote}. {BuildDiagnostics(result)}");
+            $"Partitioned {result.TotalClients} {result.EntityType} client(s) at level '{result.Level}' into " +
+            $"{result.Groups.Count} group(s) ({newCount} new, {reusedCount} reused), added {result.AssignedCount} " +
+            $"membership(s) and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
+            $"{BuildDiagnostics(result)}");
     }
 
     private static string BuildDiagnostics(PartitionClientsByAddressResult result)
@@ -218,21 +222,48 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
         return parts.Count > 0 ? string.Join("; ", parts) + "." : string.Empty;
     }
 
+    private static bool TryParseEntityTypes(string? value, out IReadOnlyList<EntityTypeEnum> entityTypes)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.Equals(value.Trim(), EntityTypeAll, StringComparison.OrdinalIgnoreCase))
+        {
+            entityTypes = AllEntityTypes;
+            return true;
+        }
+
+        if (Enum.TryParse<EntityTypeEnum>(value.Trim(), ignoreCase: true, out var parsed) && Enum.IsDefined(parsed))
+        {
+            entityTypes = [parsed];
+            return true;
+        }
+
+        entityTypes = AllEntityTypes;
+        return false;
+    }
+
+    private static bool TryParseClusterSharePercent(int? value, out int share)
+    {
+        share = value ?? GroupPartitionContext.DefaultClusterSharePercent;
+        return share >= MinClusterSharePercent && share <= MaxClusterSharePercent;
+    }
+
     private static bool TryParseLevel(string value, out GroupPartitionLevelEnum level)
     {
         switch (value.Trim().ToLowerInvariant())
         {
-            case "canton":
-                level = GroupPartitionLevelEnum.Canton;
+            case LevelCluster:
+                level = GroupPartitionLevelEnum.Cluster;
                 return true;
-            case "city":
+            case LevelState:
+                level = GroupPartitionLevelEnum.State;
+                return true;
+            case LevelCity:
                 level = GroupPartitionLevelEnum.City;
                 return true;
-            case "canton_city":
-                level = GroupPartitionLevelEnum.CantonCity;
+            case LevelStateCity:
+                level = GroupPartitionLevelEnum.StateCity;
                 return true;
             default:
-                level = GroupPartitionLevelEnum.CantonCity;
+                level = GroupPartitionLevelEnum.Cluster;
                 return false;
         }
     }

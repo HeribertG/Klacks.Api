@@ -2,45 +2,73 @@
 
 /// <summary>
 /// Pure, read-only planner for partition_clients_by_address: turns a client list and the currently
-/// existing groups into the region/canton/city hierarchy the skill would create or reuse, plus the
-/// per-client leaf placement. It never touches the database — the caller (the command handler) is the
-/// only place that writes. The "current address" of a client is resolved the same way
-/// <see cref="CustomerGroupingPlanner"/> does (Employee-type address preferred, then the most recently
-/// valid one of any type), so this planner and the geographic customer-grouping feature agree on what
-/// "the client's address" means. Region parents mirror the deterministic canton-to-region assignment
-/// baked into GroupsSeed (see <see cref="SwissCantonRegions"/>) unless a caller-supplied root group
-/// overrides it, in which case every canton (or, at City level, every city) attaches directly under
-/// that root instead.
+/// existing groups into the region/state/city (or cluster) hierarchy the skill would create or reuse,
+/// plus the per-client leaf placement. It never touches the database — the command handler is the only
+/// place that writes. The "current address" of a client is resolved the same way
+/// <see cref="CustomerGroupingPlanner"/> does. Region parents come from the country's region map in the
+/// context (a country without a map gets no region level) unless a caller-supplied root group overrides
+/// it, in which case every state (or, at City level, every city) attaches directly under that root.
+/// At Cluster level the leaf nodes are the density clusters computed by <see cref="AddressClusterPlanner"/>.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Grouping;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Geo;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
 public static class GroupPartitionPlanner
 {
     private const string ReasonNoAddress = "no address on record";
-    private const string ReasonNoCanton = "address has no canton (state)";
+    private const string ReasonNoState = "address has no state/province";
     private const string ReasonNoCity = "address has no city";
-    private const string ReasonNoCantonAndCity = "address has neither canton nor city";
+    private const string ReasonNoStateAndCity = "address has neither state/province nor city";
 
     private const string RegionKeyPrefix = "region:";
-    private const string CantonKeyPrefix = "canton:";
+    private const string StateKeyPrefix = "state:";
     private const string CityKeyPrefix = "city:";
-    private const string CityKeyPartSeparator = "|";
+    private const string ClusterKeyPrefix = "cluster:";
     private const string NameParentKeySeparator = "|group-key|";
     private const string RootParentMarker = "root";
 
+    private sealed record PlacedClient(Client Client, string Country, string State, string City, double? Latitude, double? Longitude);
+
+    private sealed class PlanBuilder
+    {
+        public PlanBuilder(List<UnassignablePartitionClient> unassignable)
+        {
+            Unassignable = unassignable;
+        }
+
+        public List<PlannedPartitionGroup> Groups { get; } = new();
+
+        public Dictionary<string, Guid?> ResolvedId { get; } = new(StringComparer.Ordinal);
+
+        public Dictionary<string, string> StateKeyByCountryAndCode { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<Guid, string> LeafKeyByClientId { get; } = new();
+
+        public List<UnassignablePartitionClient> Unassignable { get; }
+    }
+
+    /// <summary>
+    /// Plans the group tree and the leaf placement for the given clients.
+    /// </summary>
+    /// <param name="clients">Clients of every requested entity type with addresses and memberships loaded</param>
+    /// <param name="existingGroups">All groups currently in the database</param>
+    /// <param name="level">Granularity of the tree</param>
+    /// <param name="rootGroupId">Optional root every top-level node attaches under; null uses the region map</param>
+    /// <param name="includeAlreadyGrouped">When false, clients with an active membership are skipped</param>
+    /// <param name="context">Default country, region maps, state names and the cluster share</param>
     public static GroupPartitionPlan Plan(
         IReadOnlyList<Client> clients,
         IReadOnlyList<Group> existingGroups,
         GroupPartitionLevelEnum level,
         Guid? rootGroupId,
-        bool includeAlreadyGrouped)
+        bool includeAlreadyGrouped,
+        GroupPartitionContext context)
     {
         var activeGroups = existingGroups
             .Where(g => !g.IsDeleted && !string.IsNullOrWhiteSpace(g.Name))
@@ -53,7 +81,7 @@ public static class GroupPartitionPlanner
 
         var skipped = 0;
         var unassignable = new List<UnassignablePartitionClient>();
-        var placedClients = new List<(Client Client, string Canton, string City)>();
+        var placed = new List<PlacedClient>();
 
         foreach (var client in clients)
         {
@@ -64,144 +92,236 @@ public static class GroupPartitionPlanner
             }
 
             var address = CustomerGroupingPlanner.SelectPreferredAddress(client, _ => true);
-            var canton = address?.State?.Trim().ToUpperInvariant() ?? string.Empty;
+            var country = string.IsNullOrWhiteSpace(address?.Country)
+                ? context.DefaultCountryCode.Trim().ToUpperInvariant()
+                : address!.Country.Trim().ToUpperInvariant();
+            var state = address?.State?.Trim().ToUpperInvariant() ?? string.Empty;
             var city = address?.City?.Trim() ?? string.Empty;
 
-            var reason = ResolveUnassignableReason(level, address, canton, city);
+            var reason = ResolveUnassignableReason(level, address, state, city);
             if (reason != null)
             {
                 unassignable.Add(new UnassignablePartitionClient(client.Id, DisplayName(client), reason));
                 continue;
             }
 
-            placedClients.Add((client, canton, city));
+            placed.Add(new PlacedClient(client, country, state, city, address?.Latitude, address?.Longitude));
         }
 
-        var groups = new List<PlannedPartitionGroup>();
-        var resolvedId = new Dictionary<string, Guid?>(StringComparer.Ordinal);
-        var cantonKeyByCode = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var cityKeyByCityOnly = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var cityKeyByCantonAndCity = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var builder = new PlanBuilder(unassignable);
 
         if (level != GroupPartitionLevelEnum.City)
         {
-            var neededCantons = placedClients
-                .Select(c => c.Canton)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(c => c, StringComparer.Ordinal)
-                .ToList();
+            PlanRegionsAndStates(level, rootGroupId, context, placed, existingByNameAndParent, builder);
+        }
 
-            var regionKeyByName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (rootGroupId is null)
-            {
-                var regionNames = neededCantons
-                    .Select(c => SwissCantonRegions.ByCantonCode.TryGetValue(c, out var region) ? region : null)
-                    .Where(region => region != null)
-                    .Select(region => region!)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(region => region, StringComparer.Ordinal);
-
-                foreach (var regionName in regionNames)
+        switch (level)
+        {
+            case GroupPartitionLevelEnum.State:
+                foreach (var client in placed)
                 {
-                    var key = RegionKeyPrefix + regionName;
-                    var existing = LookupExisting(existingByNameAndParent, regionName, parentActualId: null, parentIsPending: false);
-                    groups.Add(new PlannedPartitionGroup(key, regionName, ParentKey: null, existing != null, existing?.Id, ClientCount: 0));
-                    regionKeyByName[regionName] = key;
-                    resolvedId[key] = existing?.Id;
-                }
-            }
-
-            foreach (var cantonCode in neededCantons)
-            {
-                string? parentKey = null;
-                Guid? parentActualId = rootGroupId;
-                var parentIsPending = false;
-
-                if (rootGroupId is null && SwissCantonRegions.ByCantonCode.TryGetValue(cantonCode, out var regionName))
-                {
-                    parentKey = regionKeyByName[regionName];
-                    parentActualId = resolvedId[parentKey];
-                    parentIsPending = parentActualId is null;
+                    builder.LeafKeyByClientId[client.Client.Id] = builder.StateKeyByCountryAndCode[StateLookupKey(client.Country, client.State)];
                 }
 
-                var key = CantonKeyPrefix + cantonCode;
-                var existing = LookupExisting(existingByNameAndParent, cantonCode, parentActualId, parentIsPending);
-                var clientCount = level == GroupPartitionLevelEnum.Canton
-                    ? placedClients.Count(c => string.Equals(c.Canton, cantonCode, StringComparison.OrdinalIgnoreCase))
-                    : 0;
-
-                groups.Add(new PlannedPartitionGroup(key, cantonCode, parentKey, existing != null, existing?.Id, clientCount));
-                cantonKeyByCode[cantonCode] = key;
-                resolvedId[key] = existing?.Id;
-            }
+                break;
+            case GroupPartitionLevelEnum.City:
+                PlanFlatCities(rootGroupId, placed, existingByNameAndParent, builder);
+                break;
+            case GroupPartitionLevelEnum.StateCity:
+                PlanCitiesUnderStates(placed, existingByNameAndParent, builder);
+                break;
+            case GroupPartitionLevelEnum.Cluster:
+                PlanClustersUnderStates(context.ClusterSharePercent, placed, existingByNameAndParent, builder);
+                break;
         }
 
-        if (level == GroupPartitionLevelEnum.CantonCity)
-        {
-            var neededCities = placedClients
-                .GroupBy(c => (Canton: c.Canton, CityUpper: c.City.ToUpperInvariant()))
-                .Select(g => (Canton: g.Key.Canton, City: g.First().City))
-                .OrderBy(c => c.Canton, StringComparer.Ordinal)
-                .ThenBy(c => c.City, StringComparer.Ordinal);
-
-            foreach (var (canton, city) in neededCities)
-            {
-                var cantonKey = cantonKeyByCode[canton];
-                var parentActualId = resolvedId[cantonKey];
-                var parentIsPending = parentActualId is null;
-
-                var key = CityKeyPrefix + canton + CityKeyPartSeparator + city;
-                var existing = LookupExisting(existingByNameAndParent, city, parentActualId, parentIsPending);
-                var clientCount = placedClients.Count(c =>
-                    string.Equals(c.Canton, canton, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
-
-                groups.Add(new PlannedPartitionGroup(key, city, cantonKey, existing != null, existing?.Id, clientCount));
-                cityKeyByCantonAndCity[canton + CityKeyPartSeparator + city] = key;
-            }
-        }
-        else if (level == GroupPartitionLevelEnum.City)
-        {
-            var neededCities = placedClients
-                .Select(c => c.City)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(c => c, StringComparer.Ordinal);
-
-            foreach (var city in neededCities)
-            {
-                var key = CityKeyPrefix + city;
-                var existing = LookupExisting(existingByNameAndParent, city, rootGroupId, parentIsPending: false);
-                var clientCount = placedClients.Count(c => string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
-
-                groups.Add(new PlannedPartitionGroup(key, city, ParentKey: null, existing != null, existing?.Id, clientCount));
-                cityKeyByCityOnly[city] = key;
-            }
-        }
-
-        var assignments = placedClients
-            .Select(c => new PartitionClientAssignment(
-                c.Client.Id,
-                DisplayName(c.Client),
-                LeafKeyFor(level, c.Canton, c.City, cantonKeyByCode, cityKeyByCityOnly, cityKeyByCantonAndCity)))
+        var assignments = placed
+            .Where(c => builder.LeafKeyByClientId.ContainsKey(c.Client.Id))
+            .Select(c => new PartitionClientAssignment(c.Client.Id, DisplayName(c.Client), builder.LeafKeyByClientId[c.Client.Id]))
             .ToList();
 
-        var warnings = BuildDuplicateNameWarnings(groups, groupsByNameAnywhere);
+        var warnings = BuildDuplicateNameWarnings(builder.Groups, groupsByNameAnywhere);
 
-        return new GroupPartitionPlan(clients.Count, skipped, groups, assignments, unassignable, warnings);
+        return new GroupPartitionPlan(clients.Count, skipped, builder.Groups, assignments, unassignable, warnings);
     }
 
-    private static string LeafKeyFor(
+    private static void PlanRegionsAndStates(
         GroupPartitionLevelEnum level,
-        string canton,
-        string city,
-        Dictionary<string, string> cantonKeyByCode,
-        Dictionary<string, string> cityKeyByCityOnly,
-        Dictionary<string, string> cityKeyByCantonAndCity) => level switch
+        Guid? rootGroupId,
+        GroupPartitionContext context,
+        List<PlacedClient> placed,
+        Dictionary<string, Group> existingByNameAndParent,
+        PlanBuilder builder)
     {
-        GroupPartitionLevelEnum.Canton => cantonKeyByCode[canton],
-        GroupPartitionLevelEnum.City => cityKeyByCityOnly[city],
-        _ => cityKeyByCantonAndCity[canton + CityKeyPartSeparator + city]
-    };
+        var neededStates = placed
+            .Select(c => (c.Country, c.State))
+            .Distinct()
+            .OrderBy(s => s.Country, StringComparer.Ordinal)
+            .ThenBy(s => s.State, StringComparer.Ordinal)
+            .ToList();
+
+        var regionKeyByCountryAndName = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (rootGroupId is null)
+        {
+            var regions = neededStates
+                .Select(s => (s.Country, Region: RegionFor(context, s.Country, s.State)))
+                .Where(r => r.Region != null)
+                .Select(r => (r.Country, Region: r.Region!))
+                .Distinct()
+                .OrderBy(r => r.Country, StringComparer.Ordinal)
+                .ThenBy(r => r.Region, StringComparer.Ordinal);
+
+            foreach (var (country, regionName) in regions)
+            {
+                var key = RegionKeyPrefix + country + GroupPartitionContext.StateKeySeparator + regionName;
+                var existing = LookupExisting(existingByNameAndParent, regionName, parentActualId: null, parentIsPending: false);
+                builder.Groups.Add(new PlannedPartitionGroup(key, regionName, ParentKey: null, existing != null, existing?.Id, ClientCount: 0));
+                regionKeyByCountryAndName[country + GroupPartitionContext.StateKeySeparator + regionName] = key;
+                builder.ResolvedId[key] = existing?.Id;
+            }
+        }
+
+        foreach (var (country, stateCode) in neededStates)
+        {
+            string? parentKey = null;
+            Guid? parentActualId = rootGroupId;
+            var parentIsPending = false;
+
+            var regionName = rootGroupId is null ? RegionFor(context, country, stateCode) : null;
+            if (regionName != null)
+            {
+                parentKey = regionKeyByCountryAndName[country + GroupPartitionContext.StateKeySeparator + regionName];
+                parentActualId = builder.ResolvedId[parentKey];
+                parentIsPending = parentActualId is null;
+            }
+
+            var key = StateKeyPrefix + country + GroupPartitionContext.StateKeySeparator + stateCode;
+            var existing = LookupExisting(existingByNameAndParent, stateCode, parentActualId, parentIsPending);
+            var clientCount = level == GroupPartitionLevelEnum.State
+                ? placed.Count(c => c.Country == country && string.Equals(c.State, stateCode, StringComparison.OrdinalIgnoreCase))
+                : 0;
+            var description = context.StateNameByCountryAndCode.TryGetValue(GroupPartitionContext.StateKey(country, stateCode), out var name)
+                ? name
+                : stateCode;
+
+            builder.Groups.Add(new PlannedPartitionGroup(key, stateCode, parentKey, existing != null, existing?.Id, clientCount, description));
+            builder.StateKeyByCountryAndCode[StateLookupKey(country, stateCode)] = key;
+            builder.ResolvedId[key] = existing?.Id;
+        }
+    }
+
+    private static void PlanFlatCities(
+        Guid? rootGroupId,
+        List<PlacedClient> placed,
+        Dictionary<string, Group> existingByNameAndParent,
+        PlanBuilder builder)
+    {
+        var cityKeyByCity = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var neededCities = placed
+            .Select(c => c.City)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(c => c, StringComparer.Ordinal);
+
+        foreach (var city in neededCities)
+        {
+            var key = CityKeyPrefix + city;
+            var existing = LookupExisting(existingByNameAndParent, city, rootGroupId, parentIsPending: false);
+            var clientCount = placed.Count(c => string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
+
+            builder.Groups.Add(new PlannedPartitionGroup(key, city, ParentKey: null, existing != null, existing?.Id, clientCount));
+            cityKeyByCity[city] = key;
+        }
+
+        foreach (var client in placed)
+        {
+            builder.LeafKeyByClientId[client.Client.Id] = cityKeyByCity[client.City];
+        }
+    }
+
+    private static void PlanCitiesUnderStates(
+        List<PlacedClient> placed,
+        Dictionary<string, Group> existingByNameAndParent,
+        PlanBuilder builder)
+    {
+        var cityKeyByStateAndCity = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var neededCities = placed
+            .GroupBy(c => (c.Country, c.State, CityUpper: c.City.ToUpperInvariant()))
+            .Select(g => (g.Key.Country, g.Key.State, City: g.First().City))
+            .OrderBy(c => c.Country, StringComparer.Ordinal)
+            .ThenBy(c => c.State, StringComparer.Ordinal)
+            .ThenBy(c => c.City, StringComparer.Ordinal);
+
+        foreach (var (country, state, city) in neededCities)
+        {
+            var stateKey = builder.StateKeyByCountryAndCode[StateLookupKey(country, state)];
+            var parentActualId = builder.ResolvedId[stateKey];
+            var parentIsPending = parentActualId is null;
+
+            var key = CityKeyPrefix + country + GroupPartitionContext.StateKeySeparator + state + GroupPartitionContext.StateKeySeparator + city;
+            var existing = LookupExisting(existingByNameAndParent, city, parentActualId, parentIsPending);
+            var clientCount = placed.Count(c =>
+                c.Country == country &&
+                string.Equals(c.State, state, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(c.City, city, StringComparison.OrdinalIgnoreCase));
+
+            builder.Groups.Add(new PlannedPartitionGroup(key, city, stateKey, existing != null, existing?.Id, clientCount));
+            cityKeyByStateAndCity[StateLookupKey(country, state) + GroupPartitionContext.StateKeySeparator + city] = key;
+        }
+
+        foreach (var client in placed)
+        {
+            builder.LeafKeyByClientId[client.Client.Id] =
+                cityKeyByStateAndCity[StateLookupKey(client.Country, client.State) + GroupPartitionContext.StateKeySeparator + client.City];
+        }
+    }
+
+    private static void PlanClustersUnderStates(
+        int sharePercent,
+        List<PlacedClient> placed,
+        Dictionary<string, Group> existingByNameAndParent,
+        PlanBuilder builder)
+    {
+        var clientById = placed.ToDictionary(c => c.Client.Id, c => c.Client);
+        var clusterPlan = AddressClusterPlanner.Plan(
+            placed.Select(c => new ClusterAddress(c.Client.Id, c.Country, c.State, c.City, c.Latitude, c.Longitude)).ToList(),
+            sharePercent);
+
+        var clusterKeyByCluster = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var cluster in clusterPlan.Clusters)
+        {
+            var stateKey = builder.StateKeyByCountryAndCode[StateLookupKey(cluster.Country, cluster.State)];
+            var parentActualId = builder.ResolvedId[stateKey];
+            var parentIsPending = parentActualId is null;
+
+            var key = ClusterKeyPrefix + cluster.Country + GroupPartitionContext.StateKeySeparator + cluster.State + GroupPartitionContext.StateKeySeparator + cluster.City;
+            var existing = LookupExisting(existingByNameAndParent, cluster.City, parentActualId, parentIsPending);
+
+            builder.Groups.Add(new PlannedPartitionGroup(
+                key, cluster.City, stateKey, existing != null, existing?.Id,
+                cluster.DirectCount + cluster.AttachedCount, string.Empty, cluster.Latitude, cluster.Longitude));
+            clusterKeyByCluster[ClusterLookupKey(cluster.Country, cluster.State, cluster.City)] = key;
+        }
+
+        foreach (var assignment in clusterPlan.Assignments)
+        {
+            builder.LeafKeyByClientId[assignment.ClientId] = clusterKeyByCluster[ClusterLookupKey(assignment.Country, assignment.State, assignment.City)];
+        }
+
+        foreach (var rejection in clusterPlan.Rejections)
+        {
+            builder.Unassignable.Add(new UnassignablePartitionClient(rejection.ClientId, DisplayName(clientById[rejection.ClientId]), rejection.Reason));
+        }
+    }
+
+    private static string? RegionFor(GroupPartitionContext context, string country, string stateCode) =>
+        context.RegionByCountryAndState.TryGetValue(country, out var byState) && byState.TryGetValue(stateCode, out var region)
+            ? region
+            : null;
+
+    private static string StateLookupKey(string country, string state) => country + GroupPartitionContext.StateKeySeparator + state;
+
+    private static string ClusterLookupKey(string country, string state, string city) =>
+        country + GroupPartitionContext.StateKeySeparator + state + GroupPartitionContext.StateKeySeparator + city;
 
     private static List<string> BuildDuplicateNameWarnings(
         IReadOnlyList<PlannedPartitionGroup> groups, ILookup<string, Group> groupsByNameAnywhere)
@@ -247,7 +367,7 @@ public static class GroupPartitionPlanner
         client.GroupItems.Any(gi => !gi.IsDeleted && gi.AnalyseToken == null);
 
     private static string? ResolveUnassignableReason(
-        GroupPartitionLevelEnum level, Address? address, string canton, string city)
+        GroupPartitionLevelEnum level, Address? address, string state, string city)
     {
         if (address == null)
         {
@@ -256,12 +376,12 @@ public static class GroupPartitionPlanner
 
         return level switch
         {
-            GroupPartitionLevelEnum.Canton => string.IsNullOrEmpty(canton) ? ReasonNoCanton : null,
+            GroupPartitionLevelEnum.State => string.IsNullOrEmpty(state) ? ReasonNoState : null,
             GroupPartitionLevelEnum.City => string.IsNullOrEmpty(city) ? ReasonNoCity : null,
-            _ => string.IsNullOrEmpty(canton) && string.IsNullOrEmpty(city)
-                ? ReasonNoCantonAndCity
-                : string.IsNullOrEmpty(canton)
-                    ? ReasonNoCanton
+            _ => string.IsNullOrEmpty(state) && string.IsNullOrEmpty(city)
+                ? ReasonNoStateAndCity
+                : string.IsNullOrEmpty(state)
+                    ? ReasonNoState
                     : string.IsNullOrEmpty(city)
                         ? ReasonNoCity
                         : null
@@ -270,6 +390,11 @@ public static class GroupPartitionPlanner
 
     private static string DisplayName(Client client)
     {
+        if (!string.IsNullOrWhiteSpace(client.Company))
+        {
+            return client.Company!;
+        }
+
         var name = $"{client.FirstName} {client.Name}".Trim();
         return string.IsNullOrWhiteSpace(name) ? client.Name : name;
     }

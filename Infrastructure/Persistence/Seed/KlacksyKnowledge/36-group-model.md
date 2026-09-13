@@ -77,8 +77,9 @@ it.
 - `create_group` / `update_group` / `move_group` / `delete_group`
 - `set_user_group_scope` / `get_user_group_scope` — who sees which groups
 - `fill_group_by_criteria` / `propose_grouping` / `apply_grouping` — filling without picking
-- `partition_clients_by_address` — builds a whole canton/city group tree from addresses in one call,
-  for a fresh install that has clients but no groups yet
+- `partition_clients_by_address` — builds the whole location group tree (region → state/province →
+  city cluster) from the addresses of employees, external employees and customers in one call, for a
+  fresh install that has clients but no groups yet; orders then follow their customer's cluster
 - `set_group_location` / `add_client_to_nearest_group` / `check_group_geocoding_status` — geography
 - `get_group_hours_balance` / `get_group_absence_overlap` — evaluation
 

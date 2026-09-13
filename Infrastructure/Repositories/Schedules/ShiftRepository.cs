@@ -422,6 +422,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var query = context.Shift
             .Include(s => s.Client!)
                 .ThenInclude(c => c.Addresses!)
+            .Include(s => s.Client!)
+                .ThenInclude(c => c.GroupItems)
             .Include(s => s.GroupItems)
             .Where(s => s.Status == ShiftStatus.OriginalOrder
                 && s.AnalyseToken == null

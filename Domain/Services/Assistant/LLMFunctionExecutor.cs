@@ -122,6 +122,9 @@ public class LLMFunctionExecutor
     // be missing from the next turn's tool set and the model could only improvise prose. Recording the
     // pairing declared in the skill catalogue lets the toolset assembler offer that exact skill again.
     // Executing the apply skill (or any other redemption) drops the hint immediately.
+    // Some skills preview and apply themselves through one name, toggled by an "apply" parameter, and
+    // declare themselves as their own PairedApplySkill. For those, a preview call (apply absent or
+    // false) leaves a hint naming itself instead of a different skill, and an apply call discards it.
     private async Task TrackProposalPairingAsync(LLMContext context, LLMFunctionCall call)
     {
         if (!call.Success || !Guid.TryParse(context.UserId, out var userId) || userId == Guid.Empty)
@@ -132,6 +135,20 @@ public class LLMFunctionExecutor
         try
         {
             var skill = await GetSkillAsync(call.FunctionName);
+
+            if (IsSelfPaired(skill, call.FunctionName))
+            {
+                if (IsApplyInvocation(call))
+                {
+                    _pendingConfirmationStore.DiscardProposalHints(userId, call.FunctionName);
+                }
+                else
+                {
+                    _pendingConfirmationStore.CreateProposalHint(userId, call.FunctionName);
+                }
+
+                return;
+            }
 
             if (IsPairedApplyTarget(call.FunctionName))
             {
@@ -148,6 +165,19 @@ public class LLMFunctionExecutor
         {
             _logger.LogWarning(ex, "Tracking the proposal pairing of {FunctionName} failed", call.FunctionName);
         }
+    }
+
+    private const string ApplyParameterName = "apply";
+
+    private static bool IsSelfPaired(AgentSkill? skill, string functionName)
+    {
+        return !string.IsNullOrWhiteSpace(skill?.PairedApplySkill)
+            && string.Equals(skill!.PairedApplySkill, functionName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsApplyInvocation(LLMFunctionCall call)
+    {
+        return SkillParameterReader.Read<bool>(call.Parameters, ApplyParameterName, false);
     }
 
     private bool IsPairedApplyTarget(string functionName)

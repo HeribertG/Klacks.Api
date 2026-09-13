@@ -18580,7 +18580,8 @@
     {
       "name": "partition_clients_by_address",
       "area": "group",
-      "description": "Splits every employee (or external employee) into a canton, city, or canton-then-city group hierarchy built from their current address, adding any missing groups and every client to its group in ONE server-side call. Use for bulk requests such as 'split all clients into groups by canton and city' on an install that has clients but no groups yet. An existing group with the right name is reused, not duplicated; already-grouped clients are skipped unless told otherwise.",
+      "pairedApplySkill": "partition_clients_by_address",
+      "description": "Builds the location group tree from client addresses in ONE server-side call: region (where the country defines regions) → state/province group (canton, Bundesland, département) → city cluster, and places employees, external employees AND customers into their cluster. A city with at least clusterSharePercent of its state's addresses becomes its own cluster; smaller places join the nearest cluster by distance. Use for 'create groups from all addresses', 'build location groups for customers and staff', or when orders cannot be sealed because no groups exist. Existing groups with the right name are reused, already-grouped clients are skipped unless told otherwise.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18591,30 +18592,41 @@
       "parameters": [
         {
           "name": "level",
-          "description": "Granularity of the split: 'canton', 'city', or 'canton_city' which nests each city group under its canton group; defaults to canton_city.",
+          "description": "Granularity: 'cluster' (default) nests density-based city clusters under state groups; 'state' one group per state/province; 'city' one flat group per city; 'state_city' every city under its state.",
           "type": "Enum",
           "required": false,
-          "defaultValue": "canton_city",
+          "defaultValue": "cluster",
           "enumValues": [
-            "canton",
+            "cluster",
+            "state",
             "city",
-            "canton_city"
+            "state_city"
           ]
         },
         {
           "name": "entityType",
-          "description": "Client type to partition; 'Customer' is rejected because the ERP import creates customers as clients too and this skill is meant for the staff address book.",
+          "description": "Client types to place into the tree; 'All' (default) covers employees, external employees and customers together.",
           "type": "Enum",
           "required": false,
-          "defaultValue": "Employee",
+          "defaultValue": "All",
           "enumValues": [
+            "All",
             "Employee",
-            "ExternEmp"
+            "ExternEmp",
+            "Customer"
           ]
         },
         {
+          "name": "clusterSharePercent",
+          "description": "Only at level 'cluster': minimum share (1-100) of a state's addresses a city needs to become its own cluster group; defaults to 10. The largest city of every state is always a cluster.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 10,
+          "enumValues": null
+        },
+        {
           "name": "rootGroupName",
-          "description": "Optional name of an existing group every top-level node attaches under; when omitted the default regional hierarchy used by the demo data is mirrored instead.",
+          "description": "Optional name of an existing group every top-level node attaches under; when omitted, states nest under the regions defined for their country (none: states at the root).",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -18654,34 +18666,49 @@
         "de": [
           "aufteilen",
           "partitionieren",
-          "nach adresse gruppieren"
+          "nach adresse gruppieren",
+          "gruppen aus adressen"
         ],
         "en": [
           "partition",
-          "split into groups"
+          "split into groups",
+          "location groups"
         ]
       },
       "synonyms": {
         "de": [
           "clients nach adresse aufteilen",
           "mitarbeiter in gruppen aufteilen",
-          "gruppenhierarchie aus adressen aufbauen"
+          "gruppenhierarchie aus adressen aufbauen",
+          "standortgruppen aus adressen aufbauen",
+          "gruppen für kunden und mitarbeiter erstellen",
+          "gruppen aus mitarbeitern kunden und externen erstellen",
+          "adressen in cluster gruppieren",
+          "gruppenbaum region kanton stadt",
+          "gruppen nach bundesland und stadt"
         ],
         "en": [
           "partition clients by address",
           "split employees into groups by address",
-          "build groups from addresses"
+          "build groups from addresses",
+          "build location group tree from addresses",
+          "create groups for customers and staff from their addresses",
+          "cluster addresses into groups",
+          "groups by region state and city"
         ],
         "fr": [
           "répartir les clients par adresse",
-          "diviser les employés en groupes par adresse"
+          "diviser les employés en groupes par adresse",
+          "créer des groupes pour les clients et le personnel"
         ],
         "it": [
           "suddividere i clienti per indirizzo",
-          "dividere i dipendenti in gruppi per indirizzo"
+          "dividere i dipendenti in gruppi per indirizzo",
+          "creare gruppi di sede dagli indirizzi",
+          "creare gruppi per clienti e personale"
         ]
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "assign_orders_to_groups",
