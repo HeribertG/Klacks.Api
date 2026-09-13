@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Equipar contentores vazios com slots mais cedo",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Nos últimos {{days}} dias, foi necessário ativar um nível de escalamento {{count}} vezes para acordar alguém, porque uma notificação de falha não foi confirmada atempadamente.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Reduzir as escaladas de falhas não confirmadas",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Nos últimos {{days}} dias, foi comunicada {{count}} vezes uma queda na qualidade medida das respostas.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Evitar a degradação da qualidade das respostas do Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Nos últimos {{days}} dias, {{count}} vezes uma alteração foi impedida por um bloqueio.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Evitar alterações de plano bloqueadas",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Nos últimos {{days}} dias, foi constatado {{count}} vez(es) que ainda não há nada planeado.",

@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Asignar antes una plantilla de slots a los contenedores vacíos",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "En los últimos {{days}} días, se ha tenido que recurrir {{count}} veces a un nivel de escalación para avisar a alguien porque no se había confirmado a tiempo un aviso de avería.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Reducir las escaladas de incidencias no confirmadas",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "En los últimos {{days}} días se notificó {{count}} veces una caída de la calidad medida de las respuestas.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Evitar que baje la calidad de las respuestas de Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "En los últimos {{days}} días se impidió {{count}} veces un cambio debido a un bloqueo.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Evitar cambios de plan bloqueados",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "En los últimos {{days}} días se detectó {{count}} veces que no hay nada planificado en absoluto.",

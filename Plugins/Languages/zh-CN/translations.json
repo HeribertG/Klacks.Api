@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "尽早为空容器配置槽位模板",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "在过去的{{days}}天里，由于故障报告未及时确认，升级级别已唤醒某人{{count}}次。",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "减少未确认的故障升级",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "最近 {{days}} 天内，测得的回答质量下降被报告了 {{count}} 次。",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "防止Klacksy回答质量下降",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "最近 {{days}} 天内，有 {{count}} 次更改因锁定被阻止。",
   "assistant-chat.goal-candidates.type.lockConflict.title": "避免计划变更被阻止",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "在过去 {{days}} 天中，已发现 {{count}} 次完全没有安排任何排班。",

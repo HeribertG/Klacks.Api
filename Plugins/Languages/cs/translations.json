@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Vybavit prázdné kontejnery sloty dříve",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Za posledních {{days}} dní musela eskalační úroveň {{count}}krát někoho probudit, protože hlášení o výpadku nebylo včas potvrzeno.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Omezit neověřené eskalace výpadků",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "V posledních {{days}} dnech byl {{count}}× nahlášen pokles měřené kvality odpovědí.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Nedopustit pokles kvality odpovědí Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "V posledních {{days}} dnech bylo {{count}}× zabráněno změně kvůli uzamčení.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Předcházet blokovaným změnám plánu",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "V posledních {{days}} dnech bylo {{count}}krát zjištěno, že vůbec nic není naplánováno.",

@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Cấu hình container trống sớm hơn",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Trong {{days}} ngày qua, {{count}} lần một cấp độ leo thang phải đánh thức ai đó vì một báo cáo sự cố không được xác nhận kịp thời.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Giảm các trường hợp leo thang sự cố chưa được xác nhận",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Trong {{days}} ngày qua, sự sụt giảm chất lượng câu trả lời đo được đã được báo cáo {{count}} lần.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Ngăn chất lượng câu trả lời của Klacksy giảm sút",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Trong {{days}} ngày qua, một thay đổi đã bị khóa ngăn chặn {{count}} lần.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Tránh các thay đổi kế hoạch bị chặn do khóa",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Trong {{days}} ngày qua, đã phát hiện {{count}} lần rằng vẫn chưa có gì được lên lịch cả.",

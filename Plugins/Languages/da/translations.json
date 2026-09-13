@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Opret pladsskabeloner for tomme containere tidligere",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "I løbet af de sidste {{days}} dage har et eskaleringsniveau været nødt til at vække nogen {{count}} gange, fordi en fejlmelding ikke blev bekræftet i tide.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Reducere antallet af ubekræftede eskaleringer af driftsforstyrrelser",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "I de sidste {{days}} dage er der {{count}} gange blevet rapporteret et fald i den målte svarkvalitet.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Undgå at Klacksys svarkvalitet falder",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "I de sidste {{days}} dage er en ændring blevet forhindret af en spærring {{count}} gange.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Undgå blokerede planændringer",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "I de sidste {{days}} dage er det {{count}} gang(e) blevet konstateret, at der slet intet er planlagt.",

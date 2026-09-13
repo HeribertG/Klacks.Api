@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Konfigurasikan kontainer kosong lebih awal",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Dalam {{days}} hari terakhir, {{count}} kali eskalasi harus membangunkan seseorang karena laporan kegagalan tidak dikonfirmasi tepat waktu.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Kurangi eskalasi kegagalan yang tidak dikonfirmasi",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Dalam {{days}} hari terakhir, penurunan kualitas jawaban yang terukur dilaporkan sebanyak {{count}} kali.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Cegah penurunan kualitas jawaban Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Dalam {{days}} hari terakhir, perubahan yang diblokir oleh kunci dilaporkan sebanyak {{count}} kali.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Hindari perubahan jadwal yang terblokir",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Dalam {{days}} hari terakhir, belum adanya jadwal sama sekali dilaporkan sebanyak {{count}} kali.",

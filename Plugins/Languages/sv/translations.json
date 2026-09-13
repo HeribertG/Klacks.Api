@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Konfigurera tomma containrar tidigare",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "Under de senaste {{days}} dagarna har en eskaleringsnivå varit tvungen att väcka någon {{count}} gånger på grund av att ett felmeddelande inte bekräftades i tid.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Minska antalet obekräftade eskaleringar av driftstörningar",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "Under de senaste {{days}} dagarna rapporterades en försämring av den uppmätta svarskvaliteten {{count}} gånger.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Förhindra att Klacksys svarskvalitet försämras",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "Under de senaste {{days}} dagarna förhindrades en ändring av en spärr {{count}} gånger.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Undvik blockerade schemaändringar",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "Det har noterats {{count}} gång(er) under de senaste {{days}} dagarna att inget alls har schemalagts.",

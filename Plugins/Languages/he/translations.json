@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "להגדיר מכולות ריקות מוקדם יותר",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "ב{{days}} הימים האחרונים נאלצו {{count}} פעמים להעלות את רמת החומרה כדי להעיר מישהו, משום שדיווח על תקלה לא אושר בזמן.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "צמצום מקרים של החמרה במצבי תקלה שלא אושרו",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "ב-{{days}} הימים האחרונים דווחה ירידה באיכות התשובות הנמדדת {{count}} פעמים.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "למנוע ירידה באיכות התשובות של Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "ב-{{days}} הימים האחרונים נמנע שינוי עקב נעילה {{count}} פעמים.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "מניעת שינויי תוכנית חסומים",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "ב-{{days}} הימים האחרונים הובחן {{count}} פעמים שלא תוכנן שום דבר כלל.",

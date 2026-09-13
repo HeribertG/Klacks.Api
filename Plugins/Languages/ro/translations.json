@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Configurarea mai devreme a containerelor goale",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "În ultimele {{days}} zile, a fost necesar de {{count}} ori să se recurgă la un nivel superior de escaladare pentru a trezi pe cineva, deoarece o notificare de defecțiune nu a fost confirmată la timp.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Reducerea escaladărilor neconfirmate ale defecțiunilor",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "În ultimele {{days}} zile a fost semnalată de {{count}} ori o scădere a calității măsurate a răspunsurilor.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Prevenirea scăderii calității răspunsurilor Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "În ultimele {{days}} zile o modificare a fost împiedicată de {{count}} ori de o blocare.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Evitarea modificărilor de plan blocate",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "În ultimele {{days}} zile, s-a constatat de {{count}} ori că nu a fost planificat încă nimic.",

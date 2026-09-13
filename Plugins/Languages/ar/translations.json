@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "تجهيز الحاويات الفارغة بالفتحات في وقت أبكر",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "خلال الأيام {{days}} الماضية، اضطر مستوى التصعيد إلى إيقاظ شخص ما {{count}} مرة، لأن إشعارًا بالانقطاع لم يتم تأكيده في الوقت المناسب.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "الحد من تصاعد حالات التعطل غير المؤكدة",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "خلال آخر {{days}} يومًا، تم الإبلاغ عن تراجع في جودة الإجابات المقاسة {{count}} مرة.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "منع تراجع جودة إجابات Klacksy",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "خلال آخر {{days}} يومًا، تم منع تغيير بسبب قفل {{count}} مرة.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "تجنّب تغييرات الخطة المحظورة",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "خلال آخر {{days}} يومًا، لوحظ {{count}} مرة أن لا شيء قد تم تخطيطه على الإطلاق.",

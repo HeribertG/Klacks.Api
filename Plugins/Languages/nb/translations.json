@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "Utstyr tomme containere med slots tidligere",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "I løpet av de siste {{days}} dagene har et eskaleringsnivå måttet vekke noen {{count}} ganger fordi en feilmelding ikke ble bekreftet i tide.",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "Redusere antall ubekreftede eskaleringer av driftsavbrudd",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "De siste {{days}} dagene ble et fall i den målte svarkvaliteten rapportert {{count}} ganger.",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "Hindre at Klacksys svarkvalitet faller",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "De siste {{days}} dagene ble en endring forhindret av en sperre {{count}} ganger.",
   "assistant-chat.goal-candidates.type.lockConflict.title": "Unngå blokkerte planendringer",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "De siste {{days}} dagene ble det {{count}} ganger observert at ingenting i det hele tatt er planlagt.",

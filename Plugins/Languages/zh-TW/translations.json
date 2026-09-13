@@ -496,6 +496,8 @@
   "assistant-chat.goal-candidates.type.emptyContainer.title": "儘早為空容器設定槽位範本",
   "assistant-chat.goal-candidates.type.escalationStageAlert.rationale": "在過去 {{days}} 天內，有 {{count}} 次因未及時確認故障通報而需要喚醒升級層級人員。",
   "assistant-chat.goal-candidates.type.escalationStageAlert.title": "減少未確認的故障升級",
+  "assistant-chat.goal-candidates.type.evalRegression.rationale": "在過去 {{days}} 天內，系統回報了 {{count}} 次量測到的回答品質下滑。",
+  "assistant-chat.goal-candidates.type.evalRegression.title": "避免Klacksy回答品質下滑",
   "assistant-chat.goal-candidates.type.lockConflict.rationale": "在過去 {{days}} 天內，有 {{count}} 次變更被鎖定阻擋。",
   "assistant-chat.goal-candidates.type.lockConflict.title": "避免排班變更被鎖定阻擋",
   "assistant-chat.goal-candidates.type.noScheduleYet.rationale": "在過去 {{days}} 天中，已發現 {{count}} 次完全沒有安排任何排班。",
