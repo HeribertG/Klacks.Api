@@ -8,10 +8,14 @@
 /// the same sentence is typed by many users, and whose turn was captured last must not decide whether a
 /// correction menu opens. Always-on plumbing and the skill the model actually chose are dropped: neither
 /// answers "which skill should it have been", and an expected_skill naming plumbing would send the
-/// description sharpener after a tool no user ever wants.
+/// description sharpener after a tool no user ever wants. Plumbing is recognised twice - by the recorded
+/// provenance and by the skill's own always-on flag - because a turn captured before the provenance
+/// column existed carries no source, and a candidate without one would otherwise reach the menu.
 /// </summary>
 /// <param name="trajectories">Trajectory store, queried by caller id and utterance hash</param>
-/// <param name="skillCache">Enabled skills of every agent, used for the description of an option</param>
+/// <param name="skillCache">Enabled skills of every agent, used for the description and the always-on
+/// flag of an option</param>
+/// <param name="logger">Logger for the lookup that found no captured turn of this caller</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -32,13 +36,16 @@ public class GetTurnOptionsQueryHandler : IRequestHandler<GetTurnOptionsQuery, T
 
     private readonly ISkillSelectionTrajectoryRepository _trajectories;
     private readonly ISkillCacheService _skillCache;
+    private readonly ILogger<GetTurnOptionsQueryHandler> _logger;
 
     public GetTurnOptionsQueryHandler(
         ISkillSelectionTrajectoryRepository trajectories,
-        ISkillCacheService skillCache)
+        ISkillCacheService skillCache,
+        ILogger<GetTurnOptionsQueryHandler> logger)
     {
         _trajectories = trajectories;
         _skillCache = skillCache;
+        _logger = logger;
     }
 
     public async Task<TurnOptionsResult> Handle(GetTurnOptionsQuery request, CancellationToken cancellationToken)
@@ -59,38 +66,50 @@ public class GetTurnOptionsQueryHandler : IRequestHandler<GetTurnOptionsQuery, T
 
         if (trajectory == null)
         {
+            _logger.LogInformation(
+                "Turn options requested for user {UserId} but no matching trajectory was found (hash {Hash})",
+                request.UserId, hash);
             return new TurnOptionsResult { Outcome = TurnOptionsOutcome.NotFound };
         }
 
-        var descriptions = await LoadDescriptionsAsync(cancellationToken);
+        var catalogue = await LoadCatalogueAsync(cancellationToken);
 
         return new TurnOptionsResult
         {
             Outcome = TurnOptionsOutcome.Found,
-            Options = BuildOptions(trajectory, descriptions)
+            Options = BuildOptions(trajectory, catalogue)
         };
     }
 
-    private async Task<Dictionary<string, string>> LoadDescriptionsAsync(CancellationToken cancellationToken)
+    // The cache holds the enabled skills of every agent, so one name can arrive more than once. The
+    // always-on flag is therefore folded with OR: a name that is plumbing for any agent stays plumbing
+    // here, where a last-one-wins entry would let it back into the menu.
+    private async Task<Dictionary<string, TurnOptionSkill>> LoadCatalogueAsync(CancellationToken cancellationToken)
     {
         var skills = await _skillCache.GetAllEnabledSkillsAsync(cancellationToken);
-        var descriptions = new Dictionary<string, string>(StringComparer.Ordinal);
+        var catalogue = new Dictionary<string, TurnOptionSkill>(StringComparer.Ordinal);
 
         foreach (var skill in skills)
         {
-            descriptions[skill.Name] = skill.Description;
+            var alwaysOn = skill.AlwaysOn
+                || (catalogue.TryGetValue(skill.Name, out var known) && known.AlwaysOn);
+            catalogue[skill.Name] = new TurnOptionSkill(skill.Description, alwaysOn);
         }
 
-        return descriptions;
+        return catalogue;
     }
 
+    // The provenance string alone is not enough: it was added with the capture of W1.6, so a turn
+    // recorded before it carries no source at all, and the skill's own flag is what still identifies
+    // plumbing in such a row.
     private static List<TurnOptionDto> BuildOptions(
-        SkillSelectionTrajectory trajectory, IReadOnlyDictionary<string, string> descriptions)
+        SkillSelectionTrajectory trajectory, IReadOnlyDictionary<string, TurnOptionSkill> catalogue)
     {
         return Deserialize(trajectory.KnowledgeIndexCandidatesJson)
             .Where(candidate => !string.IsNullOrWhiteSpace(candidate.Name))
             .Where(candidate => !string.Equals(
                 candidate.Source, nameof(ToolsetSkillSource.AlwaysOn), StringComparison.Ordinal))
+            .Where(candidate => !IsAlwaysOn(candidate.Name!, catalogue))
             .Where(candidate => !string.Equals(
                 candidate.Name, trajectory.LlmChosenSkill, StringComparison.Ordinal))
             .OrderBy(candidate => candidate.Rank)
@@ -99,12 +118,15 @@ public class GetTurnOptionsQueryHandler : IRequestHandler<GetTurnOptionsQuery, T
             {
                 SkillName = candidate.Name!,
                 DisplayName = SkillNameHumanizer.ToDisplayName(candidate.Name),
-                Description = descriptions.TryGetValue(candidate.Name!, out var description)
-                    ? description
+                Description = catalogue.TryGetValue(candidate.Name!, out var skill)
+                    ? skill.Description
                     : string.Empty
             })
             .ToList();
     }
+
+    private static bool IsAlwaysOn(string name, IReadOnlyDictionary<string, TurnOptionSkill> catalogue) =>
+        catalogue.TryGetValue(name, out var skill) && skill.AlwaysOn;
 
     // A trajectory row is telemetry, not a contract: a column that cannot be parsed must cost the menu
     // its options, never the whole request.
@@ -125,4 +147,6 @@ public class GetTurnOptionsQueryHandler : IRequestHandler<GetTurnOptionsQuery, T
             return new List<TurnToolsetCandidate>();
         }
     }
+
+    private sealed record TurnOptionSkill(string Description, bool AlwaysOn);
 }

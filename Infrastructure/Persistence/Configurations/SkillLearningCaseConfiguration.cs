@@ -16,7 +16,7 @@ public class SkillLearningCaseConfiguration : IEntityTypeConfiguration<SkillLear
     private const int IntentExcerptMaxLength = SkillLearningDefaults.ExcerptMaxLength;
     private const int LocaleMaxLength = 8;
     private const int SignalMaxLength = 24;
-    private const int SkillNameMaxLength = 128;
+    private const int SkillNameMaxLength = SkillLearningDefaults.SkillNameMaxLength;
 
     public void Configure(EntityTypeBuilder<SkillLearningCase> builder)
     {

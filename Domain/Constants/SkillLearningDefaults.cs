@@ -33,6 +33,13 @@ public static class SkillLearningDefaults
     public const int ToolsetCandidatesMax = 30;
 
     /// <summary>
+    /// Width of every skill-name column of the learning loop. The expected skill arrives as free text
+    /// from the correction menu, so the value is clipped to this bound before it is stored; the entity
+    /// configuration takes its HasMaxLength from here, so the two can no longer drift apart.
+    /// </summary>
+    public const int SkillNameMaxLength = 128;
+
+    /// <summary>
     /// Maximum length of the optional free-text comment a user may attach to a not-helpful judgement
     /// (W1.8). Stored on the trajectory; longer input is truncated, never rejected.
     /// </summary>

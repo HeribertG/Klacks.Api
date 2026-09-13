@@ -254,7 +254,7 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
                 IntentExcerpt = excerpt,
                 Signal = signal,
                 ChosenSkill = chosenSkill,
-                ExpectedSkill = expectedSkill,
+                ExpectedSkill = ClipSkillName(expectedSkill),
                 ToolsetJson = toolsetJson,
                 TrajectoryId = trajectoryId,
                 IsGolden = cluster.OccurrenceCount == 0,
@@ -344,6 +344,14 @@ public class SkillLearningCaseCollector : ISkillLearningCaseCollector
         var trimmed = language.Trim();
         return trimmed.Length <= 8 ? trimmed : trimmed[..8];
     }
+
+    // The expected skill is free text from the correction menu, while the column is only
+    // SkillLearningDefaults.SkillNameMaxLength wide. A null stays null: four of the five collect paths
+    // never carry an expected skill, and an empty string would claim they did.
+    private static string? ClipSkillName(string? skillName) =>
+        skillName == null
+            ? null
+            : MessageNormalizer.Excerpt(skillName, SkillLearningDefaults.SkillNameMaxLength);
 
     private static string SerializeToolNames(IReadOnlyList<string>? toolNames)
     {
