@@ -101,9 +101,17 @@ public static class SkillLearningDefaults
     /// <summary>
     /// Upper bound on golden cases replayed per regression check. The check runs an embedding and a
     /// reranking pass per case, so an unbounded goldset would make every learning round scale with the
-    /// full history of everything ever learned.
+    /// full history of everything ever learned. At roughly one second per probe in development and three
+    /// in production, one pass costs about 40 seconds respectively 120 seconds; a sharpening round pays one
+    /// baseline pass plus one gated pass per proposal - four passes while the round's proposals share a
+    /// skill, one further baseline pass for every additional skill. A goldset-born proposal pays
+    /// <see cref="MaxTargetedHoldoutReplaysPerProposal"/> replays on top of that. The old bound of 200 was
+    /// never reached by the shipped goldset, so a pass replayed all 83 of its holdout cases and a round
+    /// blocked the loop for minutes. The cut is affordable because the budget is no longer spent on
+    /// whatever happens to be oldest: the repository fills it with the cases of the skill under change
+    /// first, which is the population a widened description is most likely to break.
     /// </summary>
-    public const int MaxGoldenCasesPerRegressionCheck = 200;
+    public const int MaxGoldenCasesPerRegressionCheck = 40;
 
     /// <summary>
     /// How many holdout golden cases have to exist before the loop may apply a description change on its
