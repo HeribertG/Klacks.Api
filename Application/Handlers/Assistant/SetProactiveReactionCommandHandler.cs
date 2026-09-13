@@ -82,6 +82,10 @@ public class SetProactiveReactionCommandHandler : IRequestHandler<SetProactiveRe
         row.AcknowledgedAtUtc ??= now;
         row.NextReminderAtUtc = null;
 
+        // A reaction implies the message was read - the frontend no longer sends a separate read-mark
+        // on the dismiss path. An earlier explicit read keeps its own timestamp.
+        row.ReadAtUtc ??= now;
+
         row.RejectReason = request.Reaction == ProactiveReaction.Dismissed ? request.RejectReason : null;
 
         await _dispatchRepository.UpdateAsync(row, cancellationToken);

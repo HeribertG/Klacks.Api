@@ -21,6 +21,10 @@
 /// when it introduces zero new compliance issues. The global proactive kill switch pins the whole
 /// tick to the hint-only branch, exactly like every governed trigger kind — checked once per tick,
 /// not per group, since it is a single settings read shared by the whole scan.
+/// A period already covered by a scenario is skipped, with one exception: when that scenario is a
+/// still-unaccepted draft of an automatic run whose watcher is gone (an API restart), the tick reports
+/// it once as an interrupted auto-commit. It is never silently re-committed — the accept a dead watcher
+/// would have made is exactly the decision that now needs a human.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period boundaries.</param>
@@ -30,14 +34,16 @@
 /// <param name="clientRepository">Resolves the group's active clients as wizard agents.</param>
 /// <param name="shiftScheduleRepository">Resolves the group's visible shifts for the period.</param>
 /// <param name="autoCommitService">Watches a started chain and auto-accepts at FullyAutonomous.</param>
-/// <param name="audienceResolver">Resolves the admin users whose autonomy levels are aggregated.</param>
-/// <param name="autonomyPreferences">Per-admin autonomy level rows (default when absent).</param>
+/// <param name="autonomyResolver">Effective autonomy level and the admin who decided it, shared with the watcher.</param>
+/// <param name="conditionRepository">Open ledger rows of this kind, read to recognise an interrupted auto-commit.</param>
 /// <param name="governanceResolver">Source of the global proactive kill switch.</param>
 /// <param name="settingsReader">Reads the EMAIL_ANALYSIS_ENABLED setting.</param>
 /// <param name="receivedEmailRepository">Probes for unprocessed inbox mail.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
+/// <param name="timeProvider">Ages the ledger row of an automatic start against the interrupted grace window.</param>
 
+using System.Text.Json;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
@@ -49,7 +55,10 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Assistant;
 using AppSettings = Klacks.Api.Application.Constants.Settings;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -60,6 +69,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private const int BiweeklyCycleDays = 14;
     private const int UnprocessedEmailProbeCount = 1;
     private const AutonomyLevel AutoRunMinimumLevel = AutonomyLevel.Autonomous;
+    private const int NoNewComplianceIssues = 0;
 
     private readonly IGroupRepository _groupRepository;
     private readonly IWeekConfiguration _weekConfiguration;
@@ -69,13 +79,14 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     private readonly IClientRepository _clientRepository;
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
     private readonly INextPeriodAutoCommitService _autoCommitService;
-    private readonly IPlanningAudienceResolver _audienceResolver;
-    private readonly IAgentAutonomyPreferenceRepository _autonomyPreferences;
+    private readonly INextPeriodAutonomyResolver _autonomyResolver;
+    private readonly IAgentConditionRepository _conditionRepository;
     private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly ISettingsReader _settingsReader;
     private readonly IReceivedEmailRepository _receivedEmailRepository;
     private readonly ILogger<NextPeriodSchedulingDueDetector> _logger;
     private readonly ICompanyClock _companyClock;
+    private readonly TimeProvider _timeProvider;
 
     public NextPeriodSchedulingDueDetector(
         IGroupRepository groupRepository,
@@ -86,13 +97,14 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         IClientRepository clientRepository,
         IShiftScheduleRepository shiftScheduleRepository,
         INextPeriodAutoCommitService autoCommitService,
-        IPlanningAudienceResolver audienceResolver,
-        IAgentAutonomyPreferenceRepository autonomyPreferences,
+        INextPeriodAutonomyResolver autonomyResolver,
+        IAgentConditionRepository conditionRepository,
         IProactiveGovernanceResolver governanceResolver,
         ISettingsReader settingsReader,
         IReceivedEmailRepository receivedEmailRepository,
         ILogger<NextPeriodSchedulingDueDetector> logger,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        TimeProvider timeProvider)
     {
         _groupRepository = groupRepository;
         _weekConfiguration = weekConfiguration;
@@ -102,13 +114,14 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         _clientRepository = clientRepository;
         _shiftScheduleRepository = shiftScheduleRepository;
         _autoCommitService = autoCommitService;
-        _audienceResolver = audienceResolver;
-        _autonomyPreferences = autonomyPreferences;
+        _autonomyResolver = autonomyResolver;
+        _conditionRepository = conditionRepository;
         _governanceResolver = governanceResolver;
         _settingsReader = settingsReader;
         _receivedEmailRepository = receivedEmailRepository;
         _logger = logger;
         _companyClock = companyClock;
+        _timeProvider = timeProvider;
     }
 
     public string Kind => AgentTriggerKinds.NextPeriodSchedulingDue;
@@ -143,6 +156,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         var events = new List<IAgentTriggerEvent>();
         var autofillStarts = 0;
         var skippedWithoutShifts = 0;
+        var interruptedAutoCommits = 0;
+        List<AgentCondition>? openConditions = null;
 
         foreach (var group in groups)
         {
@@ -162,7 +177,22 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             if (daysUntilStart > NextPeriodScheduling.LeadTimeDays) continue;
 
             var periodEnd = ComputeNextPeriodEnd(group, periodStart);
-            if (await ScenarioCoversPeriodAsync(group.Id, periodStart, periodEnd, cancellationToken)) continue;
+            var covering = await FindCoveringScenarioAsync(group.Id, periodStart, periodEnd, cancellationToken);
+            if (covering != null)
+            {
+                if (covering.Status == AnalyseScenarioStatus.Active)
+                {
+                    openConditions ??= await _conditionRepository.GetOpenByKindAsync(Kind, cancellationToken);
+                    var interrupted = FindInterruptedAutoCommit(group, periodStart, periodEnd, covering, openConditions);
+                    if (interrupted != null)
+                    {
+                        events.Add(interrupted);
+                        interruptedAutoCommits++;
+                    }
+                }
+
+                continue;
+            }
 
             if (!await _activityProbe.HasPlannableShiftsInRangeAsync(group, periodStart, periodEnd, cancellationToken))
             {
@@ -170,7 +200,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
                 continue;
             }
 
-            effectiveLevel ??= await ResolveEffectiveAutonomyLevelAsync(cancellationToken);
+            effectiveLevel ??= (await _autonomyResolver.ResolveAsync(cancellationToken)).EffectiveLevel;
             if (!killSwitchActive && effectiveLevel >= AutoRunMinimumLevel)
             {
                 var autoCommit = effectiveLevel == AutonomyLevel.FullyAutonomous;
@@ -195,8 +225,8 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
         }
 
         _logger.LogInformation(
-            "NextPeriodSchedulingDue scan: {Total} group(s) scanned, {Events} event(s) emitted, {Autofills} autofill run(s) started, {SkippedWithoutShifts} skipped because the next period holds no plannable shift",
-            groups.Count, events.Count, autofillStarts, skippedWithoutShifts);
+            "NextPeriodSchedulingDue scan: {Total} group(s) scanned, {Events} event(s) emitted, {Autofills} autofill run(s) started, {SkippedWithoutShifts} skipped because the next period holds no plannable shift, {Interrupted} interrupted auto-commit(s) reported",
+            groups.Count, events.Count, autofillStarts, skippedWithoutShifts, interruptedAutoCommits);
 
         return events;
     }
@@ -217,42 +247,117 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
     }
 
     /// <summary>
-    /// The minimum autonomy level over all admin users, additionally capped by the global proactive
-    /// autonomy level — one cautious admin throttles the automatic start for everybody, the same
-    /// aggregation EmailActionOrchestrator applies. No admins means no one has consented to automation,
-    /// so the level degrades to Propose.
+    /// An automatic run whose watcher never reported an outcome, recognised WITHOUT re-committing
+    /// anything. Four conditions have to hold together, and each one rules out a different look-alike:
+    /// the run was started automatically WITH an auto-commit intent (its ledger row says so - a manual
+    /// draft or an Autonomous-level run was never going to be committed); the wizard job is no longer in
+    /// the registry (nothing is working on it here); no commit outcome was ever reported for this group
+    /// and period (a watcher that finished and blocked leaves exactly the same draft behind, and must not
+    /// be reported a second time under a different name); and the run is older than the grace window,
+    /// because the job registry is per API instance - inside that window a watcher on another instance
+    /// may legitimately still be working on the very same chain.
+    /// The residual false positive this cannot see: once every commit-outcome row of the period has been
+    /// dismissed by a planner it is no longer open, and one interrupted event can be raised on top of it.
     /// </summary>
-    private async Task<AutonomyLevel> ResolveEffectiveAutonomyLevelAsync(CancellationToken cancellationToken)
+    private NextPeriodAutoCommitBlockedTriggerEvent? FindInterruptedAutoCommit(
+        Group group,
+        DateOnly periodStart,
+        DateOnly periodEnd,
+        AnalyseScenario covering,
+        IReadOnlyList<AgentCondition> openConditions)
     {
-        var adminIds = await _audienceResolver.GetAdminUserIdsAsync(cancellationToken);
-        if (adminIds.Count == 0)
+        var autofillFingerprint = AgentConditionLedgerPolicy.FingerprintFor(
+            Kind, NextPeriodAutofillStartedTriggerEvent.DedupKeyFor(group.Id, periodStart));
+        var autofillRow = openConditions.FirstOrDefault(row =>
+            string.Equals(row.Fingerprint, autofillFingerprint, StringComparison.Ordinal));
+        if (autofillRow == null || !TryReadAutoCommitIntent(autofillRow.PayloadJson, out var jobId))
         {
-            return AutonomyLevel.Propose;
+            return null;
         }
 
-        var minimum = AutonomyLevel.FullyAutonomous;
-        foreach (var adminId in adminIds)
+        if (_autoWizardJobRunner.IsRunning(jobId))
         {
-            var row = await _autonomyPreferences.GetAsync(adminId, cancellationToken);
-            var level = row?.Level ?? AutonomyDefaults.DefaultLevel;
-            if (level < minimum)
-            {
-                minimum = level;
-            }
+            return null;
         }
 
-        var globalLevel = await _governanceResolver.GetGlobalAutonomyLevelAsync(cancellationToken);
-        return globalLevel < minimum ? globalLevel : minimum;
+        var outcomePrefix = AgentConditionLedgerPolicy.FingerprintFor(
+            Kind, NextPeriodAutoCommitBlockedTriggerEvent.CommitOutcomeDedupPrefix(group.Id, periodStart));
+        if (openConditions.Any(row => row.Fingerprint.StartsWith(outcomePrefix, StringComparison.Ordinal)))
+        {
+            return null;
+        }
+
+        var graceEnd = autofillRow.DetectedAtUtc.AddMinutes(NextPeriodScheduling.AutoCommitInterruptedGraceMinutes);
+        if (_timeProvider.GetUtcNow().UtcDateTime < graceEnd)
+        {
+            return null;
+        }
+
+        _logger.LogWarning(
+            "NextPeriodSchedulingDue: automatic autofill job {JobId} for group {GroupName} left scenario {ScenarioId} unaccepted and is no longer being watched; reporting it for manual review",
+            jobId, group.Name, covering.Id);
+
+        return new NextPeriodAutoCommitBlockedTriggerEvent(
+            group.Id,
+            group.Name,
+            periodStart,
+            periodEnd,
+            covering.Id,
+            NoNewComplianceIssues,
+            NextPeriodAutoCommitBlockReason.Interrupted);
     }
 
-    private async Task<bool> ScenarioCoversPeriodAsync(
+    /// <summary>
+    /// Reads the auto-commit intent and the job id out of an autofill ledger payload. False for a payload
+    /// that is unreadable, carries no intent or names no job - all three mean the same thing here, that
+    /// this row cannot establish an interrupted auto-commit, and a malformed row must never be guessed at.
+    /// </summary>
+    private static bool TryReadAutoCommitIntent(string payloadJson, out Guid jobId)
+    {
+        jobId = Guid.Empty;
+        try
+        {
+            using var document = JsonDocument.Parse(payloadJson);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+
+            if (!root.TryGetProperty(NextPeriodAutofillStartedTriggerEvent.AutoCommitIntendedPayloadKey, out var intended)
+                || intended.ValueKind != JsonValueKind.True)
+            {
+                return false;
+            }
+
+            return root.TryGetProperty(NextPeriodAutofillStartedTriggerEvent.JobIdPayloadKey, out var job)
+                && job.TryGetGuid(out jobId);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// The scenario that already covers this period, preferring an Accepted one over a still-open draft.
+    /// The preference is not cosmetic: an Accepted scenario means the period IS committed, and returning
+    /// a draft that happens to sit next to it would let the interrupted check report a committed period
+    /// as unfinished.
+    /// </summary>
+    private async Task<AnalyseScenario?> FindCoveringScenarioAsync(
         Guid groupId, DateOnly periodStart, DateOnly periodEnd, CancellationToken cancellationToken)
     {
         var scenarios = await _scenarioRepository.GetByGroupAsync(groupId, cancellationToken);
-        return scenarios.Any(scenario =>
-            (scenario.Status == AnalyseScenarioStatus.Active || scenario.Status == AnalyseScenarioStatus.Accepted)
-            && scenario.FromDate <= periodStart
-            && scenario.UntilDate >= periodEnd);
+        var covering = scenarios
+            .Where(scenario =>
+                (scenario.Status == AnalyseScenarioStatus.Active || scenario.Status == AnalyseScenarioStatus.Accepted)
+                && scenario.FromDate <= periodStart
+                && scenario.UntilDate >= periodEnd)
+            .ToList();
+
+        return covering.FirstOrDefault(scenario => scenario.Status == AnalyseScenarioStatus.Accepted)
+            ?? covering.FirstOrDefault();
     }
 
     private async Task<(NextPeriodAutofillStartedTriggerEvent? StartedEvent, bool FallBackToHint)> TryStartAutofillAsync(

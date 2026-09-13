@@ -101,6 +101,16 @@ jobs:
           path: Klacks.UnitTest
           token: ${{ secrets.GH_PAT || github.token }}
 
+      - name: Checkout Klacks.Ui (permission constants for guard test)
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Ui
+          path: Klacks.Ui
+          token: ${{ secrets.GH_PAT || github.token }}
+          sparse-checkout: |
+            src/app/domain/constants
+          sparse-checkout-cone-mode: false
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:

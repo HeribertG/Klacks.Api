@@ -31,7 +31,10 @@ public sealed record PeriodCloseDueTriggerEvent(
         ["days"] = DaysUntilDue.ToString(CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => $"{GroupId}:{PeriodEndDate:yyyy-MM-dd}";
+    public static string DedupKeyFor(Guid groupId, DateOnly periodEndDate) =>
+        $"{groupId}:{periodEndDate:yyyy-MM-dd}";
+
+    public string DedupKey => DedupKeyFor(GroupId, PeriodEndDate);
 
     // Bridges the record's non-nullable GroupId to the interface's nullable member: a plain public
     // property of type Guid does not implicitly satisfy a Guid? interface member.

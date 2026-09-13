@@ -7,9 +7,12 @@
 /// notification via AssistantNotificationHub (Klacksy proactively writes to the user).
 /// </summary>
 
+using Klacks.Api.Domain.Models.Assistant;
+
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAgentTriggerService
 {
-    Task OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default);
+    /// <summary>Returns the per-recipient dispatch outcome so a caller can aggregate tick-level telemetry.</summary>
+    Task<ProactiveDispatchOutcome> OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default);
 }

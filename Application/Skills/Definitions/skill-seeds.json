@@ -18582,7 +18582,7 @@
       "name": "partition_clients_by_address",
       "area": "group",
       "pairedApplySkill": "partition_clients_by_address",
-      "description": "Builds the location group tree from client addresses in ONE server-side call: region (where the country defines regions) → state/province group (canton, Bundesland, département) → city cluster, and places employees, external employees AND customers into their cluster. A city with at least clusterSharePercent of its state's addresses becomes its own cluster; smaller places join the nearest cluster by distance. Use for 'create groups from all addresses', 'build location groups for customers and staff', or when orders cannot be sealed because no groups exist. Existing groups with the right name are reused, already-grouped clients are skipped unless told otherwise.",
+      "description": "Builds the location group tree from client addresses: region → state/province → city cluster, placing employees, external employees and customers into their cluster. Use for 'create groups from all addresses', 'build location groups for customers and staff', or when orders cannot be sealed because no groups exist. Existing groups are reused and already-grouped clients are skipped.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18709,7 +18709,7 @@
           "creare gruppi per clienti e personale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "assign_orders_to_groups",

@@ -108,7 +108,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             _timelineService.QueueRangeCheck(scenario.FromDate, scenario.UntilDate, null);
 
-            await ExecuteLedgerConditionAsync(command.ScenarioId, cancellationToken);
+            await ExecuteLedgerConditionAsync(command, cancellationToken);
 
             return true;
         }, nameof(Handle), new { command.ScenarioId });
@@ -128,8 +128,10 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     /// either way. Nothing here may throw: the plan has been promoted to the real schedule by now, and
     /// failing the request over a bookkeeping write would tell the user their accept did not happen.
     /// </summary>
-    private async Task ExecuteLedgerConditionAsync(Guid scenarioId, CancellationToken cancellationToken)
+    private async Task ExecuteLedgerConditionAsync(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
     {
+        var scenarioId = command.ScenarioId;
+
         try
         {
             var condition = await _conditionRepository.FindByScenarioIdAsync(scenarioId, cancellationToken);
@@ -138,7 +140,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 return;
             }
 
-            var acceptingUserId = AcceptingUserId();
+            var acceptingUserId = AcceptingUserId(command);
 
             var executed = await _ledgerService.TryTransitionAsync(
                 condition.Id,
@@ -163,15 +165,24 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     }
 
     /// <summary>
-    /// The accepting human, read from the request's identity claim. Null when there is no HTTP context or
-    /// the claim does not parse as a Guid; the acceptance is then recorded without an author rather than
-    /// abandoned, mirroring how RejectAnalyseScenarioCommandHandler treats the same case.
+    /// The user this acceptance is recorded under. The request's identity claim ALWAYS wins when there is
+    /// one, and command.ActingUserId is only consulted in its absence. The order is a security property,
+    /// not a preference: AcceptAnalyseScenarioCommand is constructed field by field in
+    /// AnalyseScenariosController today, but the day anybody model-binds it the opposite order would let a
+    /// caller stamp somebody else's id onto their own accept. A background run has no HTTP context at all,
+    /// so it still gets the actor it passed. Null when neither is available - the acceptance is then
+    /// recorded without an author rather than abandoned, mirroring how RejectAnalyseScenarioCommandHandler
+    /// treats the same case.
     /// </summary>
-    private Guid? AcceptingUserId()
+    private Guid? AcceptingUserId(AcceptAnalyseScenarioCommand command)
     {
         var claimValue = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (Guid.TryParse(claimValue, out var userId))
+        {
+            return userId;
+        }
 
-        return Guid.TryParse(claimValue, out var userId) ? userId : null;
+        return command.ActingUserId is Guid actingUserId && actingUserId != Guid.Empty ? actingUserId : null;
     }
 
     /// <summary>

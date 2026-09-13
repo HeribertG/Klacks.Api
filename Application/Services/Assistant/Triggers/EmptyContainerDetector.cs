@@ -1,53 +1,37 @@
-﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Scans for active container shifts (ShiftType.IsContainer, ShiftStatus.OriginalShift) that have
 /// no ContainerTemplate row at all -- a slot-definition gap, distinct from unstaffed_shift (missing
 /// employees on slots that already exist). The anti-join against ContainerTemplate first materializes
-/// the set of container ids that already have a template, then filters shifts against that set --
-/// two set-based round-trips total, never one query per shift, mirroring the pattern
-/// ContainerAvailableTasksService uses for the same kind of exclusion. The groups of the surviving
-/// containers are then read in ONE batched lookup (never one query per container), because that group
-/// set is what narrows the notification to the planners who may see the container. Emission is capped at
-/// MaxFindingsPerTick events per tick (this scan has no time window, unlike UnstaffedShift7dDetector).
-/// Ordered by FromDate (oldest gap first), Id as tiebreaker, before the cap applies -- without an
-/// explicit order the cap would pick from physical storage order, which is not even stable between ticks.
+/// the set of container ids that already have a template, then filters shifts against that set,
+/// set-based rather than one query per shift, mirroring the pattern ContainerAvailableTasksService uses
+/// for the same kind of exclusion. The groups of the reported containers are then read in ONE batched
+/// lookup (never one query per container), because that group set is what narrows the notification to
+/// the planners who may see the container.
 ///
-/// That order alone starves NEW findings, which is why a second, smaller slice is added to it. The
-/// oldest-first sort degenerates whenever candidates share a FromDate - the normal shape of bulk-created
-/// containers: the sort key is then constant, the selection collapses onto the random-GUID tiebreaker, and
-/// the cap picks an arbitrary fixed 50 forever. Measured in the reference installation on 2026-08-26: 260
-/// candidates, every one of them FromDate 2025-01-01. A container created today sorts behind all of them
-/// and would never be reported - and unreported here means invisible everywhere, because the planner
-/// notification, ListOpenFindingsSkill, the LLM context, the digest and the action dispatcher all read the
-/// LEDGER, which only ever learns what this scan emitted.
+/// Emission is capped at MaxFindingsPerTick events per tick (this scan has no time window, unlike
+/// UnstaffedShift7dDetector), and which candidates fill that cap ROTATES: AgentConditionRotationPolicy
+/// puts the containers the ledger has never opened a row for first, and behind them the open rows least
+/// recently observed. A plain oldest-FromDate-first cap cannot do this - the sort key is constant across
+/// bulk-created containers (measured in the reference installation: 260 candidates, every one of them
+/// FromDate 2025-01-01), so the selection collapses onto the random-GUID tiebreaker and picks the same
+/// fixed 50 forever. Rotation matters because a Reported row means "handed to the notification
+/// pipeline", NOT "delivered": AgentTriggerService drops the message when the recipient has hit the
+/// per-user daily cap, and the row still becomes Reported. A recipient who was throttled must therefore
+/// be offered every row again on a later tick, which is precisely what least-recently-observed ordering
+/// guarantees - LastSeenAtUtc is advanced on every row this tick reports, so the whole backlog cycles in
+/// ceil(candidates / MaxFindingsPerTick) ticks.
 ///
-/// RecentlyCreatedSlots further rows therefore carry candidates the ledger has not opened a row for yet.
-/// They are added ON TOP of the cap rather than carved out of it, so the oldest-first selection keeps
-/// every one of its slots and no row that was being reported stops being reported - which matters because
-/// a row that stops being re-observed also stops having its payload refreshed. The slice stays empty
-/// unless the cap actually bit, so it is a no-op for any installation whose findings all fit.
-///
-/// EARLIER VERSION, KEPT AS A RECORD: this slice used to require "CreateTime strictly greater than every
-/// already-selected row" instead. That degenerates the same way the FromDate order does whenever
-/// candidates share a CreateTime - the normal shape of bulk-created containers: the floor becomes a value
-/// every candidate ties, "strictly greater" is never true, and the second slice returns nothing. Measured
-/// in the reference installation on 2026-08-28: 260 candidates, 240 sharing one CreateTime to the
-/// microsecond; 50 ever reached the ledger, 210 never did, across 14 real ticks. Excluding by ledger
-/// membership instead of by a CreateTime floor has no such degenerate case: a row that was never open
-/// stays eligible regardless of what any other row's CreateTime is, and once a tick reports it, it drops
-/// out of the pool on its own by becoming open - which is also what makes repeated ticks converge instead
-/// of reporting the same RecentlyCreatedSlots rows forever.
-///
-/// What this does NOT solve: a candidate whose ledger row keeps failing remediation and never reaches a
-/// terminal status stays open, and open means excluded here - it will not be picked as a "not yet open"
-/// row again, but it is also never dropped from the oldest-first stream once that stream reaches it on
-/// FromDate order. Bounded and visible, where the old behaviour was unbounded and silent.
+/// What rotation costs: a row that is not re-observed in a tick also has no payload refresh in that
+/// tick, so a reported container's PayloadJson can be up to one full cycle old. Bounded staleness is the
+/// deliberate trade for the previous behaviour, where the rows behind the fixed cap were never reported
+/// at all.
 /// </summary>
 /// <param name="shiftRepository">Read-only access to container shift candidates.</param>
 /// <param name="containerTemplateRepository">Read-only access to the set of container ids that already have a template.</param>
 /// <param name="groupScopeReader">Batched shift-to-groups lookup for audience scoping.</param>
-/// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, so the second slice can exclude them.</param>
+/// <param name="agentConditionRepository">Source of the ledger rows still open for this kind, whose LastSeenAtUtc drives the rotation.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day for the period-active severity check.</param>
 /// <param name="logger">Structured log per tick.</param>
 
@@ -66,13 +50,6 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     public const int MaxFindingsPerTick = 50;
-
-    /// <summary>
-    /// Rows reported IN ADDITION to the cap, carrying the most recently created candidates. Not a share of
-    /// MaxFindingsPerTick: taking slots away from the oldest-first selection would stop rows that are being
-    /// reported today from being reported, which also stops their payload being refreshed.
-    /// </summary>
-    public const int RecentlyCreatedSlots = 15;
 
     /// <summary>
     /// ISO weekday number (1 = Monday .. 7 = Sunday) per weekday flag of a Shift, in ascending order, so
@@ -117,21 +94,35 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
         var containerIdsWithTemplate = await LoadContainerIdsWithTemplateAsync(cancellationToken);
-        var candidates = BuildCandidateQuery(containerIdsWithTemplate);
 
-        var emptyContainers = await candidates
-            .OrderBy(s => s.FromDate)
-            .ThenBy(s => s.Id)
-            .Take(MaxFindingsPerTick)
+        var candidates = await BuildCandidateQuery(containerIdsWithTemplate)
+            .Select(s => new ContainerCandidate(s.Id, s.FromDate))
             .ToListAsync(cancellationToken);
+
+        if (candidates.Count == 0)
+        {
+            return Array.Empty<IAgentTriggerEvent>();
+        }
+
+        var lastSeenByContainerId = await LoadLastSeenByContainerIdAsync(cancellationToken);
+
+        var selectedIds = AgentConditionRotationPolicy
+            .Select(
+                candidates,
+                candidate => candidate.Id,
+                lastSeenByContainerId,
+                CompareByFromDateThenId,
+                MaxFindingsPerTick)
+            .Select(candidate => candidate.Id)
+            .ToList();
+
+        var emptyContainers = await LoadInRotationOrderAsync(
+            containerIdsWithTemplate, selectedIds, cancellationToken);
 
         if (emptyContainers.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
         }
-
-        emptyContainers.AddRange(
-            await NotYetOpenInLedgerAsync(candidates, emptyContainers, cancellationToken));
 
         var groupsByShift = await _groupScopeReader.GetGroupIdsByShiftIdsAsync(
             emptyContainers.Select(container => container.Id).ToList(), cancellationToken);
@@ -149,8 +140,9 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
             .ToList();
 
         _logger.LogInformation(
-            "EmptyContainer scan: {Events} empty container(s) with no template found",
-            events.Count);
+            "EmptyContainer scan: {Events} of {Candidates} empty container(s) with no template reported this tick",
+            events.Count,
+            candidates.Count);
 
         return events;
     }
@@ -171,38 +163,51 @@ public class EmptyContainerDetector : IAgentTriggerDetector, IAgentConditionFing
     }
 
     /// <summary>
-    /// Up to RecentlyCreatedSlots candidates the ledger has no open row for yet, excluding the rows the
-    /// oldest-first selection already holds, or nothing at all when the cap did not bite.
-    ///
-    /// Excluding by ledger membership rather than by "newer than every selected row" is what makes this
-    /// immune to CreateTime ties: a row that was never opened stays eligible no matter what any other
-    /// row's CreateTime is. It also makes the two sets provably disjoint (both exclusions apply before the
-    /// query runs), so the caller appends without de-duplicating, and self-limiting the same way the old
-    /// CreateTime floor was: once every candidate has an open ledger row, this returns nothing.
+    /// Identity and business order of one candidate, kept as a projection so the rotation input costs two
+    /// columns per candidate instead of a full Shift row for a backlog that is deliberately uncapped here.
     /// </summary>
-    private async Task<List<Shift>> NotYetOpenInLedgerAsync(
-        IQueryable<Shift> candidates,
-        List<Shift> selected,
+    private sealed record ContainerCandidate(Guid Id, DateOnly FromDate);
+
+    private static int CompareByFromDateThenId(ContainerCandidate left, ContainerCandidate right)
+    {
+        var byFromDate = left.FromDate.CompareTo(right.FromDate);
+
+        return byFromDate != 0 ? byFromDate : left.Id.CompareTo(right.Id);
+    }
+
+    /// <summary>
+    /// LastSeenAtUtc per container of the ledger rows still OPEN for this kind; rows without an EntityId
+    /// cannot be matched to a container and are ignored. Should several open rows ever share one entity,
+    /// the OLDEST observation wins, so the container is offered sooner rather than later.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<Guid, DateTime>> LoadLastSeenByContainerIdAsync(
+        CancellationToken cancellationToken) =>
+        (await _agentConditionRepository.GetOpenByKindAsync(Kind, cancellationToken))
+            .Where(condition => condition.EntityId.HasValue)
+            .GroupBy(condition => condition.EntityId!.Value)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Min(condition => condition.LastSeenAtUtc));
+
+    /// <summary>
+    /// The full Shift rows behind the selected ids, re-sorted into the order the rotation produced -
+    /// GetQuery() carries an OrderBy of its own, so the database order is not the rotation order. Ids that
+    /// no longer match the candidate predicates (a template added, or a soft delete, between the two
+    /// queries) simply drop out rather than being reported from a stale projection.
+    /// </summary>
+    private async Task<List<Shift>> LoadInRotationOrderAsync(
+        List<Guid> containerIdsWithTemplate,
+        List<Guid> selectedIds,
         CancellationToken cancellationToken)
     {
-        if (selected.Count < MaxFindingsPerTick)
-        {
-            return [];
-        }
+        var containersById = await BuildCandidateQuery(containerIdsWithTemplate)
+            .Where(s => selectedIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, cancellationToken);
 
-        var openEntityIds = (await _agentConditionRepository.GetOpenByKindAsync(Kind, cancellationToken))
-            .Where(condition => condition.EntityId.HasValue)
-            .Select(condition => condition.EntityId!.Value)
-            .ToHashSet();
-        var selectedIds = selected.Select(container => container.Id).ToHashSet();
-
-        return await candidates
-            .Where(container => !selectedIds.Contains(container.Id) && !openEntityIds.Contains(container.Id))
-            .OrderByDescending(container => container.CreateTime)
-            .ThenBy(container => container.FromDate)
-            .ThenBy(container => container.Id)
-            .Take(RecentlyCreatedSlots)
-            .ToListAsync(cancellationToken);
+        return selectedIds
+            .Where(containersById.ContainsKey)
+            .Select(containerId => containersById[containerId])
+            .ToList();
     }
 
     private async Task<List<Guid>> LoadContainerIdsWithTemplateAsync(CancellationToken cancellationToken) =>

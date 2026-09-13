@@ -33,6 +33,20 @@ public static class ProactiveMessageI18nKeys
     public const string NextPeriodAutofillStarted = "assistant.proactive.nextPeriodAutofillStarted";
     public const string NextPeriodPlanCommitted = "assistant.proactive.nextPeriodPlanCommitted";
     public const string NextPeriodAutoCommitBlocked = "assistant.proactive.nextPeriodAutoCommitBlocked";
+
+    /// <summary>
+    /// One key per NextPeriodAutoCommitBlockReason other than NewViolations, which keeps the unsuffixed
+    /// key above. Flat camelCase rather than a dotted suffix on that key: the Ui catalogue is a flat
+    /// dictionary, and a key that is a strict prefix of another live key is the one shape whose lookup
+    /// depends on the translation parser's traversal rules.
+    /// </summary>
+    public const string NextPeriodAutoCommitBlockedRefused = "assistant.proactive.nextPeriodAutoCommitBlockedRefused";
+    public const string NextPeriodAutoCommitBlockedConflict = "assistant.proactive.nextPeriodAutoCommitBlockedConflict";
+    public const string NextPeriodAutoCommitBlockedTimeout = "assistant.proactive.nextPeriodAutoCommitBlockedTimeout";
+    public const string NextPeriodAutoCommitBlockedNotCommittable = "assistant.proactive.nextPeriodAutoCommitBlockedNotCommittable";
+    public const string NextPeriodAutoCommitBlockedKillSwitch = "assistant.proactive.nextPeriodAutoCommitBlockedKillSwitch";
+    public const string NextPeriodAutoCommitBlockedAutonomyLowered = "assistant.proactive.nextPeriodAutoCommitBlockedAutonomyLowered";
+    public const string NextPeriodAutoCommitBlockedInterrupted = "assistant.proactive.nextPeriodAutoCommitBlockedInterrupted";
     public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
     public const string BulkSealOrdersCompleted = "assistant.proactive.bulkSealOrdersCompleted";
     public const string BulkSealOrdersFailed = "assistant.proactive.bulkSealOrdersFailed";

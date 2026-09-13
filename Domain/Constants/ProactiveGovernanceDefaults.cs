@@ -41,11 +41,14 @@ public static class ProactiveGovernanceDefaults
     /// The kind below which a governance row is meaningless: MaxAction steers what happens to a
     /// CONDITION, and only a ledger-tracked event ever becomes one. That is exactly the set matching
     /// AgentConditionLedgerPolicy.IsLedgerTracked - no TargetUserId, and PlannersOnly or AdminOnly set.
-    /// Two members carry no detector of their own (order_import_failed, work_dropped_by_erp_import) but
-    /// are raised from the ERP import path and do produce ledger rows, so they are governed like the
-    /// rest. Per-user companion chatter (curiosity, mute suggestion, plan approval, skill sequence),
-    /// the daily digest and the escalation alert are absent on purpose: they never reach the ledger.
-    /// ProactiveGovernanceKindGuardTests pins this list against the trigger event classes themselves.
+    /// Two members carry no detector of their own (order_import_failed, work_dropped_by_erp_import) and
+    /// are raised directly via IAgentTriggerService.OnEventAsync from the ERP import path
+    /// (ErpOrderImportRunner, OrderSupersessionService), never through UpsertDetectedAsync - so they are
+    /// governed (preferences, budget, kill switch all apply) but never open a ledger row: no reminder
+    /// loop, no resolve reconciliation, no action dispatcher. Per-user companion chatter (curiosity, mute
+    /// suggestion, plan approval, skill sequence), the daily digest and the escalation alert are absent on
+    /// purpose: they never reach the ledger either. ProactiveGovernanceKindGuardTests pins this list
+    /// against the trigger event classes themselves.
     /// </summary>
     public static readonly IReadOnlyList<string> GovernedKinds = new[]
     {

@@ -76,14 +76,14 @@ public class AgentTriggerService : IAgentTriggerService
         _logger = logger;
     }
 
-    public async Task OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default)
+    public async Task<ProactiveDispatchOutcome> OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default)
     {
         var connectedUserIds = (await _notificationService.GetConnectedUserIdsAsync()).ToList();
         var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
         if (recipients.Count == 0)
         {
             _logger.LogDebug("Trigger {Kind} skipped — no recipients", triggerEvent.Kind);
-            return;
+            return ProactiveDispatchOutcome.Empty;
         }
 
         var connectedLookup = BuildConnectedLookup(connectedUserIds);
@@ -197,6 +197,8 @@ public class AgentTriggerService : IAgentTriggerService
         _logger.LogInformation(
             "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Failed} failed. Summary: {Summary}",
             triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, failed, triggerEvent.Summary);
+
+        return new ProactiveDispatchOutcome(persisted, throttled, muted, deduped, failed);
     }
 
     /// <summary>

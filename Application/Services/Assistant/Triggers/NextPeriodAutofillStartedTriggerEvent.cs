@@ -22,6 +22,20 @@ public sealed record NextPeriodAutofillStartedTriggerEvent(
     bool AutoCommitIntended) : IAgentTriggerEvent
 {
     private const string AutofillDedupSuffix = ":autofill";
+    private const string PeriodDedupFormat = "yyyy-MM-dd";
+
+    /// <summary>Payload key naming the wizard job this run started; read back by the detector.</summary>
+    public const string JobIdPayloadKey = "jobId";
+
+    /// <summary>Payload key recording that an auto-commit watcher was queued for this run.</summary>
+    public const string AutoCommitIntendedPayloadKey = "autoCommitIntended";
+
+    /// <summary>
+    /// The DedupKey this event would carry for a group and period, so the detector can find the ledger
+    /// row of an earlier automatic start without owning a second copy of the spelling.
+    /// </summary>
+    public static string DedupKeyFor(Guid groupId, DateOnly periodStartDate) =>
+        $"{groupId}:{periodStartDate.ToString(PeriodDedupFormat, CultureInfo.InvariantCulture)}{AutofillDedupSuffix}";
 
     public string Kind => AgentTriggerKinds.NextPeriodSchedulingDue;
 
@@ -37,7 +51,7 @@ public sealed record NextPeriodAutofillStartedTriggerEvent(
         ["date"] = PeriodStartDate.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture)
     };
 
-    public string DedupKey => $"{GroupId}:{PeriodStartDate:yyyy-MM-dd}{AutofillDedupSuffix}";
+    public string DedupKey => DedupKeyFor(GroupId, PeriodStartDate);
 
     // Bridges the record's non-nullable GroupId to the interface's nullable member: a plain public
     // property of type Guid does not implicitly satisfy a Guid? interface member.
@@ -57,7 +71,7 @@ public sealed record NextPeriodAutofillStartedTriggerEvent(
         ["groupName"] = GroupName,
         ["periodStartDate"] = PeriodStartDate,
         ["periodEndDate"] = PeriodEndDate,
-        ["jobId"] = JobId,
-        ["autoCommitIntended"] = AutoCommitIntended
+        [JobIdPayloadKey] = JobId,
+        [AutoCommitIntendedPayloadKey] = AutoCommitIntended
     };
 }

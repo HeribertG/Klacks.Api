@@ -16,6 +16,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -214,6 +215,11 @@ public class AgentTriggerBackgroundService : BackgroundService
     /// turn them into action gates, which the governance design forbids - and with a per-user daily
     /// budget of five against a detector cap of fifty findings, it would strand the other forty-five
     /// findings in Detected where no remediation can ever see them.
+    ///
+    /// Also the one place the dispatch outcome of every event this detector produced is summed and
+    /// logged at Information level, one line per detector per tick - without it the whole pipeline is
+    /// invisible whenever the host's default log level sits above Information (Production does), and
+    /// AgentTriggerService itself only logs per RECIPIENT, which is far too granular for a host log.
     /// </summary>
     private async Task<(int Events, int Dispatched, int Resolved)> RunDetectorAsync(
         IAgentTriggerDetector detector,
@@ -223,12 +229,13 @@ public class AgentTriggerBackgroundService : BackgroundService
     {
         var events = await detector.DetectAsync(cancellationToken);
         var dispatched = 0;
+        var outcome = ProactiveDispatchOutcome.Empty;
 
         foreach (var triggerEvent in events)
         {
             if (!AgentConditionLedgerPolicy.IsLedgerTracked(triggerEvent))
             {
-                await triggerService.OnEventAsync(triggerEvent, cancellationToken);
+                outcome = outcome.Add(await triggerService.OnEventAsync(triggerEvent, cancellationToken));
                 dispatched++;
                 continue;
             }
@@ -242,7 +249,7 @@ public class AgentTriggerBackgroundService : BackgroundService
                 JsonSerializer.Serialize(triggerEvent.Payload),
                 cancellationToken);
 
-            await triggerService.OnEventAsync(triggerEvent, cancellationToken);
+            outcome = outcome.Add(await triggerService.OnEventAsync(triggerEvent, cancellationToken));
             dispatched++;
 
             if (condition.Status == AgentConditionStatus.Detected)
@@ -253,6 +260,10 @@ public class AgentTriggerBackgroundService : BackgroundService
 
         var resolved = await ReconcileResolvedAsync(detector, ledgerService, cancellationToken);
 
+        _logger.LogInformation(
+            "Agent trigger kind {Kind}: {Events} events, {Persisted} persisted, {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Failed} failed, {Resolved} resolved",
+            detector.Kind, events.Count, outcome.Persisted, outcome.Throttled, outcome.Muted, outcome.Deduped, outcome.Failed, resolved);
+
         return (events.Count, dispatched, resolved);
     }
 
@@ -261,8 +272,9 @@ public class AgentTriggerBackgroundService : BackgroundService
     /// Without this step every row would sit in Detected for the rest of its life and the Reported to
     /// Prepared claim the action dispatcher is built around could never fire.
     ///
-    /// What Reported does and does not assert: OnEventAsync returned without throwing. It returns void
-    /// and applies its own per-user rate limiting, mute settings and audience scoping underneath, so a
+    /// What Reported does and does not assert: OnEventAsync returned without throwing. The outcome it
+    /// returns only counts recipients per gate; it says nothing about whether anybody saw the message.
+    /// It applies its own per-user rate limiting, mute settings and audience scoping underneath, so a
     /// row can reach Reported although the event reached nobody - Reported means "handed to the
     /// notification pipeline", never "a human has seen it". A lost compare-and-swap (another instance
     /// got there first) is not an error and is simply left alone.

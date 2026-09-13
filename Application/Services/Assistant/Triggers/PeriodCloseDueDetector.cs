@@ -12,6 +12,13 @@
 /// the LAST gate, after the sealed-day check, so it only costs a query for groups that would
 /// otherwise have produced an event. Same defect class as PeriodOverdueDetector — see its summary
 /// for the measured case.
+///
+/// Also implements IAgentConditionFingerprintSource: GetActiveFingerprintsAsync reuses the same
+/// window computation as DetectAsync, including the sealed-day check, but skips the activity check -
+/// so its result is a deliberate SUPERSET of what DetectAsync emits with respect to that one guard
+/// only (a still-unplanned group counts as an active fingerprint, a sealed one never does). That is
+/// the safe direction — see IAgentConditionFingerprintSource's own summary for why a narrower set
+/// would be the dangerous one.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
@@ -27,10 +34,11 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
-public class PeriodCloseDueDetector : IAgentTriggerDetector
+public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
     private const int WarnWithinDays = 3;
 
@@ -61,11 +69,69 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
+        var (totalGroups, matches) = await FindGroupsWithPeriodEndInWindowAsync(cancellationToken);
+
+        var events = new List<IAgentTriggerEvent>();
+        var skippedUnplanned = 0;
+        foreach (var match in matches)
+        {
+            var periodStart = PeriodBoundaries.StartFor(match.Group.PaymentInterval, match.PeriodEnd);
+            if (!await _activityProbe.HasWorkInRangeAsync(match.Group, periodStart, match.PeriodEnd, cancellationToken))
+            {
+                skippedUnplanned++;
+                continue;
+            }
+
+            events.Add(new PeriodCloseDueTriggerEvent(
+                match.Group.Id,
+                match.Group.Name,
+                match.PeriodEnd,
+                match.DaysUntilDue));
+        }
+
+        _logger.LogInformation(
+            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted, {SkippedUnplanned} skipped because the period holds no work",
+            totalGroups, events.Count, skippedUnplanned);
+
+        return events;
+    }
+
+    /// <summary>
+    /// Every fingerprint the window computation currently matches, deliberately WITHOUT the activity
+    /// check DetectAsync applies afterwards - the activity probe is an anti-spam guard, not a truth
+    /// condition, so a still-unplanned group must keep its fingerprint alive, or MarkResolvedAsync would
+    /// resolve its ledger row on this very tick and re-arm it as new the moment the period gets planned.
+    /// The sealed-day check, in contrast, IS the resolved condition itself and lives in the shared window
+    /// computation below, so a sealed group drops out of both this set and DetectAsync's events together.
+    /// </summary>
+    public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
+    {
+        var (_, matches) = await FindGroupsWithPeriodEndInWindowAsync(cancellationToken);
+
+        return matches
+            .Select(match => AgentConditionLedgerPolicy.FingerprintFor(
+                Kind, PeriodCloseDueTriggerEvent.DedupKeyFor(match.Group.Id, match.PeriodEnd)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// The window computation shared by DetectAsync and GetActiveFingerprintsAsync: which groups have a
+    /// period end within WarnWithinDays days AND are not already sealed at that end date - a sealed
+    /// period is the resolved condition itself, so both paths must drop it together, or a sealed group
+    /// would linger in the fingerprint scan for up to WarnWithinDays days after it was actually closed.
+    /// Whether the period holds any work is deliberately NOT part of this shared predicate; that check
+    /// is DetectAsync's own anti-spam guard, never a truth condition about the group. Kept in ONE place
+    /// so the two paths can never spell the window predicate, the staffing check or the dedup key
+    /// differently from one another.
+    /// </summary>
+    private async Task<(int TotalGroups, IReadOnlyList<GroupPeriodEndMatch> Matches)> FindGroupsWithPeriodEndInWindowAsync(
+        CancellationToken cancellationToken)
+    {
         var today = await _companyClock.GetTodayDateAsync(cancellationToken);
         var groups = await _groupRepository.List();
         if (groups.Count == 0)
         {
-            return Array.Empty<IAgentTriggerEvent>();
+            return (0, Array.Empty<GroupPeriodEndMatch>());
         }
 
         var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
@@ -74,8 +140,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
 
-        var events = new List<IAgentTriggerEvent>();
-        var skippedUnplanned = 0;
+        var matches = new List<GroupPeriodEndMatch>();
         foreach (var group in groups)
         {
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
@@ -88,26 +153,17 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             var existingSeals = await _sealedDayRepository.GetRangeAsync(periodEnd, periodEnd, group.Id, cancellationToken);
             if (existingSeals.Count > 0) continue;
 
-            var periodStart = PeriodBoundaries.StartFor(group.PaymentInterval, periodEnd);
-            if (!await _activityProbe.HasWorkInRangeAsync(group, periodStart, periodEnd, cancellationToken))
-            {
-                skippedUnplanned++;
-                continue;
-            }
-
-            events.Add(new PeriodCloseDueTriggerEvent(
-                group.Id,
-                group.Name,
-                periodEnd,
-                daysUntil));
+            matches.Add(new GroupPeriodEndMatch(group, periodEnd, daysUntil));
         }
 
-        _logger.LogInformation(
-            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted, {SkippedUnplanned} skipped because the period holds no work",
-            groups.Count, events.Count, skippedUnplanned);
-
-        return events;
+        return (groups.Count, matches);
     }
+
+    /// <summary>
+    /// One group whose period end falls inside the warn window and is not yet sealed, before the
+    /// activity check that only DetectAsync applies.
+    /// </summary>
+    private sealed record GroupPeriodEndMatch(Group Group, DateOnly PeriodEnd, int DaysUntilDue);
 
     private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly endOfConfiguredWeek)
     {
