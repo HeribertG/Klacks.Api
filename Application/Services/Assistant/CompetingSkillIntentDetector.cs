@@ -69,7 +69,7 @@ public class CompetingSkillIntentDetector : ICompetingSkillIntentDetector
             }
 
             var matchedPhrases = SkillMatchingEngine.MatchedMultiwordPhrases(skill, message, language);
-            if (matchedPhrases.Any(phrase => !RecipeTriggerMatcher.Matches(matchedTrigger, matchedRecipeSynonyms, phrase)))
+            if (matchedPhrases.Any(phrase => !RecipeTriggerMatcher.Matches(matchedTrigger, matchedRecipeSynonyms, phrase, language)))
             {
                 competing.Add(skill.Name);
             }

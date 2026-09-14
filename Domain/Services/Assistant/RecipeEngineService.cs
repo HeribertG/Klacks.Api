@@ -186,7 +186,7 @@ public class RecipeEngineService
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
             var synonyms = SynonymsFor(recipe, language);
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, logger))
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, logger, language))
             {
                 return (recipe, trigger, synonyms);
             }
@@ -456,8 +456,8 @@ public class RecipeEngineService
     private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)
         => recipes.FirstOrDefault(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
 
-    private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger)
-        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger);
+    private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger, string? language = null)
+        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language);
 
     private static IReadOnlyCollection<string>? SynonymsFor(AgentRecipe recipe, string? language)
     {

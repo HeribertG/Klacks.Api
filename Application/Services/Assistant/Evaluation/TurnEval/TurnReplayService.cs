@@ -209,7 +209,7 @@ public class TurnReplayService : ITurnReplayService
                 synonyms = languageSynonyms;
             }
 
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message))
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, language))
             {
                 return recipe.Name;
             }

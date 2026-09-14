@@ -30,26 +30,26 @@ public static class RecipeTriggerMatcher
         "Recipe trigger regex timed out after {Timeout} on a {Length}-character message; treating the " +
         "condition as no match. The turn continues without a recipe.";
 
-    public static bool Matches(RecipeTrigger trigger, string? message)
-        => Matches(trigger, null, message, null);
+    public static bool Matches(RecipeTrigger trigger, string? message, string? language = null)
+        => Matches(trigger, null, message, null, language);
 
-    public static bool Matches(RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message)
-        => Matches(trigger, synonyms, message, null);
+    public static bool Matches(RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, string? language = null)
+        => Matches(trigger, synonyms, message, null, language);
 
     public static bool Matches(
-        RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, ILogger? logger)
+        RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, ILogger? logger, string? language = null)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(message))
         {
             return false;
         }
 
-        if (IsVetoed(trigger, message, logger))
+        if (IsVetoed(trigger, message, logger, language))
         {
             return false;
         }
 
-        if (trigger.AllOf.Count > 0 && trigger.AllOf.All(c => ConditionMatches(c, message, logger)))
+        if (trigger.AllOf.Count > 0 && trigger.AllOf.All(c => ConditionMatches(c, message, logger, language)))
         {
             return true;
         }
@@ -59,24 +59,39 @@ public static class RecipeTriggerMatcher
                 && message.Contains(s, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static bool IsVetoed(RecipeTrigger? trigger, string? message)
-        => IsVetoed(trigger, message, null);
+    public static bool IsVetoed(RecipeTrigger? trigger, string? message, string? language = null)
+        => IsVetoed(trigger, message, null, language);
 
-    public static bool IsVetoed(RecipeTrigger? trigger, string? message, ILogger? logger)
+    public static bool IsVetoed(RecipeTrigger? trigger, string? message, ILogger? logger, string? language = null)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(message))
         {
             return false;
         }
 
-        return trigger.NoneOf.Any(c => ConditionMatches(c, message, logger));
+        return trigger.NoneOf.Any(c => ConditionMatches(c, message, logger, language));
     }
 
-    private static bool ConditionMatches(RecipeCondition condition, string message, ILogger? logger)
+    private static bool ConditionMatches(RecipeCondition condition, string message, ILogger? logger, string? language)
     {
         if (condition.AnyWordStart is { Count: > 0 } && MatchesWordStart(condition.AnyWordStart, message, logger))
         {
             return true;
+        }
+
+        // AnyWordStartByLocale: per-locale stems that only fire for the detected language.
+        // Case-insensitive key lookup, matching SynonymsFor's convention.
+        if (condition.AnyWordStartByLocale != null && language != null)
+        {
+            foreach (var kvp in condition.AnyWordStartByLocale)
+            {
+                if (string.Equals(kvp.Key, language, StringComparison.OrdinalIgnoreCase)
+                    && kvp.Value is { Count: > 0 }
+                    && MatchesWordStart(kvp.Value, message, logger))
+                {
+                    return true;
+                }
+            }
         }
 
         if (condition.AnySubstring is { Count: > 0 }

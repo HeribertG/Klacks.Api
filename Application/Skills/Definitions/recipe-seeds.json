@@ -10,7 +10,7 @@
         "fr": "Intégrer un nouvel employé de bout en bout : créer la personne, attribuer le contrat de travail et l'ajouter à un groupe — le tout dans un flux guidé.",
         "it": "Inserire un nuovo dipendente dall'inizio alla fine: creare la persona, assegnare il contratto di lavoro e aggiungerla a un gruppo — tutto in un flusso guidato."
       },
-      "version": 11,
+      "version": 12,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -162,7 +162,6 @@
               "lösch",
               "entfern",
               "storn",
-              "alle ",
               "sämtlich",
               "mehrere",
               "jede",
@@ -247,7 +246,12 @@
               "compte de connexion",
               "account utente",
               "account di accesso"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -568,7 +572,7 @@
         "fr": "Enregistrer un déménagement d'un employé : créer la nouvelle adresse postale avec sa date de validité comme nouvelle entrée — l'ancienne adresse est conservée comme historique.",
         "it": "Registrare un trasloco di un dipendente: creare il nuovo indirizzo postale con la data di validità come nuova voce — il vecchio indirizzo rimane come cronologia."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 7,
       "trigger": {
@@ -727,7 +731,6 @@
               "annul",
               "rimuov",
               "annull",
-              "alle ",
               "sämtlich",
               "mehrere",
               "jede",
@@ -743,7 +746,12 @@
               "shift",
               "service",
               "quart"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           }
         ]
       },
@@ -814,7 +822,7 @@
         "fr": "Enregistrer le départ d'un employé : fixer la date de fin de l'affiliation active — dès le lendemain, la personne n'est plus planifiable.",
         "it": "Registrare l'uscita di un dipendente: impostare la data di fine dell'appartenenza attiva — dal giorno successivo la persona non è più pianificabile."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 8,
       "trigger": {
@@ -1001,7 +1009,6 @@
               "login-konto",
               "compte utilisateur",
               "account utente",
-              "alle ",
               "sämtlich",
               "mehrere",
               "jede",
@@ -1013,7 +1020,12 @@
               "tutte ",
               "ogni",
               "eintritt"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -1082,7 +1094,7 @@
         "fr": "Ajouter un employé existant à un groupe donné pour une période définie.",
         "it": "Aggiungere un dipendente esistente a un gruppo per un periodo definito."
       },
-      "version": 14,
+      "version": 15,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -1200,7 +1212,6 @@
               "umkreis",
               "nearest",
               "closest",
-              "alle ",
               "sämtlich",
               "verteil",
               "jede",
@@ -1253,7 +1264,12 @@
               "questi dipendenti",
               "questi clienti",
               "queste persone"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -1338,7 +1354,7 @@
         "fr": "Ajouter en masse tous les employés correspondant aux critères (canton/région et/ou contrat) à un groupe, avec aperçu avant application.",
         "it": "Aggiungere in blocco tutti i dipendenti che soddisfano i criteri (cantone/regione e/o contratto) a un gruppo, con anteprima prima dell'applicazione."
       },
-      "version": 11,
+      "version": 12,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
@@ -1370,7 +1386,6 @@
           },
           {
             "anySubstring": [
-              "alle ",
               "sämtlich",
               "mehrere",
               "jede",
@@ -1382,7 +1397,12 @@
               "tutte ",
               "più ",
               "ogni"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -1603,7 +1623,7 @@
         "fr": "Enregistrer une absence pour un employé existant à une date donnée avec un type d'absence.",
         "it": "Registrare un'assenza per un dipendente esistente in una data specifica con un tipo di assenza."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 20,
       "trigger": {
@@ -1726,7 +1746,6 @@
               "lösch",
               "entfern",
               "storn",
-              "alle ",
               "sämtlich",
               "ganze gruppe",
               "jede ",
@@ -1755,7 +1774,12 @@
             ],
             "anyWordStart": [
               "elimin"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -2068,7 +2092,7 @@
         "fr": "Déplacer un groupe existant sous un autre groupe parent dans l'arbre.",
         "it": "Spostare un gruppo esistente sotto un altro gruppo padre nell'albero."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 31,
       "trigger": {
@@ -2218,7 +2242,6 @@
               "create",
               "cré",
               "crea",
-              "alle ",
               "sämtlich",
               "verteil",
               "jede",
@@ -2231,7 +2254,12 @@
               "tutte ",
               "più ",
               "ogni"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           }
         ]
       },
@@ -2280,7 +2308,7 @@
         "fr": "Ajouter un service/une commande existant(e) à un groupe donné.",
         "it": "Aggiungere un servizio/ordine esistente a un gruppo."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 40,
       "trigger": {
@@ -2411,7 +2439,6 @@
               "umkreis",
               "nearest",
               "closest",
-              "alle ",
               "sämtlich",
               "verteil",
               "jede",
@@ -2446,7 +2473,12 @@
             "anyWordStart": [
               "proche",
               "elimin"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           }
         ]
       },
@@ -2513,7 +2545,7 @@
         "fr": "Réaffecter en masse chaque client à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni cliente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 55,
       "trigger": {
@@ -2555,7 +2587,6 @@
           },
           {
             "anySubstring": [
-              "alle ",
               "sämtlich",
               "jede",
               "mehrere",
@@ -2572,7 +2603,12 @@
               "più ",
               "tutto ",
               "tutta "
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -2758,7 +2794,7 @@
         "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
@@ -2804,7 +2840,6 @@
           },
           {
             "anySubstring": [
-              "alle ",
               "sämtlich",
               "jede",
               "mehrere",
@@ -2830,7 +2865,12 @@
               "nostro ",
               "nostra ",
               "intero"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -3019,7 +3059,7 @@
         "fr": "Réaffecter en masse chaque employé externe à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente esterno al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 58,
       "trigger": {
@@ -3065,7 +3105,6 @@
           },
           {
             "anySubstring": [
-              "alle ",
               "sämtlich",
               "jede",
               "mehrere",
@@ -3091,7 +3130,12 @@
               "nostro ",
               "nostra ",
               "intero"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -3265,7 +3309,7 @@
         "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
         "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -3380,7 +3424,6 @@
           },
           {
             "anySubstring": [
-              "alle ",
               "sämtlich",
               "jede",
               "mehrere",
@@ -3406,7 +3449,12 @@
               "nostro ",
               "nostra ",
               "intero"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anyWordStart": [
@@ -3929,7 +3977,7 @@
         "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
         "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 41,
       "trigger": {
@@ -4085,7 +4133,6 @@
               "austritt",
               "kündigung",
               "offboard",
-              "alle ",
               "sämtlich",
               "verteil",
               "jede",
@@ -4101,7 +4148,12 @@
             ],
             "anyWordStart": [
               "elimin"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -4243,7 +4295,7 @@
         "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
         "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 46,
       "trigger": {
@@ -4345,7 +4397,6 @@
               "reset",
               "réinitialis",
               "ripristin",
-              "alle ",
               "sämtlich",
               "verteil",
               "jede",
@@ -4361,7 +4412,12 @@
             ],
             "anyWordStart": [
               "elimin"
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -4456,7 +4512,7 @@
         "fr": "Supprimer une absence prévue (préréservation) du calendrier des absences d'un employé à une date donnée.",
         "it": "Rimuovere un'assenza pianificata (prenotazione) dal calendario delle assenze di un dipendente in una data specifica."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 21,
       "trigger": {
@@ -4571,7 +4627,6 @@
               "abwesenheitstyp",
               "absence type",
               "typ ",
-              "alle ",
               "sämtlich",
               "ganze gruppe",
               "jede ",
@@ -4592,7 +4647,12 @@
               "tutte ",
               "ogni ",
               "più "
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -4665,7 +4725,7 @@
         "fr": "Déplacer ou redimensionner une absence prévue (préréservation) d'un employé vers une nouvelle période dans le calendrier des absences.",
         "it": "Spostare o ridimensionare un'assenza pianificata (prenotazione) di un dipendente su un nuovo periodo nel calendario delle assenze."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 22,
       "trigger": {
@@ -4778,7 +4838,6 @@
               "abwesenheitstyp",
               "absence type",
               "typ ",
-              "alle ",
               "sämtlich",
               "ganze gruppe",
               "jede ",
@@ -4799,7 +4858,12 @@
               "tutte ",
               "ogni ",
               "più "
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -4892,7 +4956,7 @@
         "fr": "Enregistrer les jours et heures où un employé est disponible (ou indisponible).",
         "it": "Registrare in quali giorni e ore un dipendente è disponibile (o non disponibile)."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 23,
       "trigger": {
@@ -5024,7 +5088,6 @@
               "shift",
               "service",
               "quart",
-              "alle ",
               "sämtlich",
               "jede ",
               "mehrere",
@@ -5036,7 +5099,12 @@
               "tutte ",
               "ogni ",
               "più "
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           },
           {
             "anySubstring": [
@@ -5111,7 +5179,7 @@
         "fr": "Réinitialiser les disponibilités d'un employé pour une période afin que ces jours soient à nouveau entièrement ouverts.",
         "it": "Reimpostare le disponibilità di un dipendente per un periodo, in modo che quei giorni siano di nuovo completamente aperti."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 24,
       "trigger": {
@@ -5237,7 +5305,6 @@
               "shift",
               "service",
               "quart",
-              "alle ",
               "sämtlich",
               "jede ",
               "mehrere",
@@ -5249,7 +5316,12 @@
               "tutte ",
               "ogni ",
               "più "
-            ]
+            ],
+            "anyWordStartByLocale": {
+              "de": [
+                "alle"
+              ]
+            }
           }
         ]
       },
