@@ -30,8 +30,15 @@ public static class RecipeTriggerMatcher
         "Recipe trigger regex timed out after {Timeout} on a {Length}-character message; treating the " +
         "condition as no match. The turn continues without a recipe.";
 
-    public static bool Matches(RecipeTrigger trigger, string? message, string? language = null)
-        => Matches(trigger, null, message, null, language);
+    // Deliberately carries no optional `language`. Adding one made this 3-parameter overload the better
+    // match for Matches(trigger, null, message): a null literal converts to both string? and
+    // IReadOnlyCollection<string>?, and of two applicable candidates the one omitting no optional argument
+    // wins. The message then bound to `language`, `message` stayed null, and the call returned false for
+    // every trigger - silently, which disarmed the live regression guard for the 2026-07-16 company-rule
+    // incident. Callers that need a language pass synonyms explicitly:
+    // Matches(trigger, null, message, language).
+    public static bool Matches(RecipeTrigger trigger, string? message)
+        => Matches(trigger, null, message, null, null);
 
     public static bool Matches(RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, string? language = null)
         => Matches(trigger, synonyms, message, null, language);
