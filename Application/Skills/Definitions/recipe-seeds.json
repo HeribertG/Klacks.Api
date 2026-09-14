@@ -1245,7 +1245,7 @@
         "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
         "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -1257,7 +1257,7 @@
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
           { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
-          { "anyWordStart": ["turno"], "anySubstring": ["dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "elimin", "rimuov"] }
+          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti", "dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "elimin", "rimuov"] }
         ]
       },
       "steps": [
