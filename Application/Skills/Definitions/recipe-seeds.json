@@ -10,19 +10,249 @@
         "fr": "Intégrer un nouvel employé de bout en bout : créer la personne, attribuer le contrat de travail et l'ajouter à un groupe — le tout dans un flux guidé.",
         "it": "Inserire un nuovo dipendente dall'inizio alla fine: creare la persona, assegnare il contratto di lavoro e aggiungerla a un gruppo — tutto in un flusso guidato."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["erstell", "anleg", "leg", "einstell", "anstell", "registrier", "erfass", "onboard", "rekrutier", "hire", "create", "add", "cré", "embauch", "recrut", "engag", "inscri", "enregistr", "crea", "assum", "reclut", "iscriv", "registra"] },
-          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "mitarbeiterin", "angestellt", "employee", "onboarding", "employé", "employée", "salarié", "salariée", "dipendente", "dipendenti", "impiegato", "impiegata"] }
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "leg",
+              "einstell",
+              "anstell",
+              "registrier",
+              "erfass",
+              "onboard",
+              "rekrutier",
+              "hire",
+              "create",
+              "add",
+              "cré",
+              "embauch",
+              "recrut",
+              "engag",
+              "inscri",
+              "enregistr",
+              "crea",
+              "assum",
+              "reclut",
+              "iscriv",
+              "registra"
+            ]
+          },
+          {
+            "anySubstring": [
+              "mitarbeiter",
+              "mitarbeitende",
+              "mitarbeitenden",
+              "mitarbeiterin",
+              "angestellt",
+              "employee",
+              "onboarding",
+              "employé",
+              "employée",
+              "salarié",
+              "salariée",
+              "dipendente",
+              "dipendenti",
+              "impiegato",
+              "impiegata"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "ganze", "ganzen", "gesamte", "unsere ", "unser ", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "benutzerkonto", "systembenutzer", "user account", "login-konto", "client", "cliente", "créer un groupe", "nouveau groupe", "creare un gruppo", "nuovo gruppo", "service", "quart", "commande", "mission", "servizio", "ordine", "missione", "proche", "plus proche", "vicino", "più vicino", "géograph", "geografic", "meilleur", "migliore", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "formation", "formazione", "supprim", "retir", "annul", "elimin", "rimuov", "annull", "tous ", "toutes ", "plusieurs", "chaque", "notre ", "tutti ", "tutte ", "ogni", "nostro ", "nostra ", "sélectionné", "sélectionnée", "coché", "cochée", "selezionat", "contrassegnat", "spuntat", "ces employés", "ces salariés", "ces clients", "ces personnes", "questi dipendenti", "questi clienti", "queste persone", "compte utilisateur", "compte de connexion", "account utente", "account di accesso"] },
           {
-            "anySubstring": ["to group"]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "proche",
+              "beste",
+              "mission",
+              "elimin"
+            ],
+            "anySubstring": [
+              "kunde",
+              "customer",
+              "klient",
+              "gruppe erstell",
+              "gruppe anleg",
+              "neue gruppe",
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "schulung",
+              "lösch",
+              "entfern",
+              "storn",
+              "alle ",
+              "sämtlich",
+              "mehrere",
+              "jede",
+              "ganze",
+              "ganzen",
+              "gesamte",
+              "unsere ",
+              "unser ",
+              "selektiert",
+              "markiert",
+              "ausgewählt",
+              "angehakt",
+              "angekreuzt",
+              "selected",
+              "diese mitarbeiter",
+              "diese mitarbeitenden",
+              "diese kunden",
+              "diese personen",
+              "diese leute",
+              "benutzerkonto",
+              "systembenutzer",
+              "user account",
+              "login-konto",
+              "client",
+              "cliente",
+              "créer un groupe",
+              "nouveau groupe",
+              "creare un gruppo",
+              "nuovo gruppo",
+              "service",
+              "quart",
+              "commande",
+              "servizio",
+              "ordine",
+              "missione",
+              "plus proche",
+              "vicino",
+              "più vicino",
+              "géograph",
+              "geografic",
+              "meilleur",
+              "migliore",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formation",
+              "formazione",
+              "supprim",
+              "retir",
+              "annul",
+              "rimuov",
+              "annull",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "notre ",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "nostro ",
+              "nostra ",
+              "sélectionné",
+              "sélectionnée",
+              "coché",
+              "cochée",
+              "selezionat",
+              "contrassegnat",
+              "spuntat",
+              "ces employés",
+              "ces salariés",
+              "ces clients",
+              "ces personnes",
+              "questi dipendenti",
+              "questi clienti",
+              "queste persone",
+              "compte utilisateur",
+              "compte de connexion",
+              "account utente",
+              "account di accesso"
+            ]
+          },
+          {
+            "anySubstring": [
+              "to group"
+            ]
           }
         ]
       },
@@ -95,7 +325,9 @@
         {
           "kind": "mutate",
           "skill": "assign_contract_by_name",
-          "inject": { "contractName": "$contractName" },
+          "inject": {
+            "contractName": "$contractName"
+          },
           "note": "Assign the employment contract to the employee just created. contractName is supplied. Resolve the employee by name: split the full name (known value employeeName) into firstName and lastName. Use the employee's start date (known value startDate) as fromDate, formatted yyyy-MM-dd; leave untilDate empty for an indefinite contract. If the contract name is ambiguous, the skill lists the available contracts — relay those and ask the user to pick, never invent one."
         },
         {
@@ -113,7 +345,9 @@
         {
           "kind": "mutate",
           "skill": "add_client_to_group_by_name",
-          "inject": { "groupName": "$groupName" },
+          "inject": {
+            "groupName": "$groupName"
+          },
           "note": "Add the new employee to the group. groupName is supplied. Resolve the employee by name: split the full name (known value employeeName) into firstName and lastName. Use the employee's start date (known value startDate) as validFrom, formatted yyyy-MM-dd. This skill rejects duplicates, so it safely refuses if the employee is already in the group. Relay the result, then summarise the whole onboarding (employee created, contract assigned, group added) to the user."
         }
       ]
@@ -127,132 +361,46 @@
         "fr": "Créer un nouveau compte de connexion (utilisateur système) et lui attribuer un rôle d'autorisation.",
         "it": "Creare un nuovo account di accesso (utente di sistema) e assegnargli un ruolo di autorizzazione."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 6,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["erstell", "anleg", "leg", "einricht", "registrier", "erfass", "create", "add", "cré", "inscri", "enregistr", "configur", "paramétr", "crea", "iscriv", "registra", "imposta"] },
-          { "anySubstring": ["benutzer", "user", "konto", "zugang", "account", "utilisateur", "compte", "accès", "utente", "accesso"] }
-        ],
-        "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "mitarbeiterin", "employee", "angestellt", "lösch", "entfern", "storn", "employé", "employée", "salarié", "dipendente", "impiegato", "supprim", "retir", "annul", "elimin", "rimuov", "annull"] },
-          {
-            "anySubstring": ["token accesso", "mail address"]
-          },
-          {
-            "anySubstring": ["jeton accès"]
-          }
-        ]
-      },
-      "steps": [
-        {
-          "kind": "ask",
-          "slot": "fullName",
-          "prompt": "Ask the user for the full name (first and last name) of the person who should get the new login account.",
-          "promptTranslations": {
-            "de": "Wie lautet der vollständige Name (Vor- und Nachname) der Person, die das neue Login-Konto erhalten soll?",
-            "en": "What is the full name (first and last name) of the person who should get the new login account?",
-            "fr": "Quel est le nom complet (prénom et nom) de la personne qui doit recevoir le nouveau compte de connexion ?",
-            "it": "Qual è il nome completo (nome e cognome) della persona che deve ricevere il nuovo account di accesso?"
-          },
-          "description": "the full name (first and last name) of the person who should get the new login account"
-        },
-        {
-          "kind": "ask",
-          "slot": "email",
-          "prompt": "Ask the user for the email address of the new login account.",
-          "promptTranslations": {
-            "de": "Wie lautet die E-Mail-Adresse für das neue Login-Konto?",
-            "en": "What is the email address for the new login account?",
-            "fr": "Quelle est l'adresse e-mail du nouveau compte de connexion ?",
-            "it": "Qual è l'indirizzo e-mail del nuovo account di accesso?"
-          },
-          "description": "the email address of the new login account"
-        },
-        {
-          "kind": "mutate",
-          "skill": "create_user",
-          "inject": { "email": "$email" },
-          "note": "Create the new login account now. email is supplied — do not ask for it again. Split the full name (known value fullName) into firstName and lastName. Relay the created username back to the user; a password is generated automatically and is intentionally not shown."
-        },
-        {
-          "kind": "ask",
-          "slot": "roleChoice",
-          "prompt": "Ask the user which permission level the new account should get: Admin (full access), Supervisor (create/edit access without settings) or User (view-only).",
-          "promptTranslations": {
-            "de": "Welche Berechtigungsstufe soll das neue Konto erhalten: Admin (Vollzugriff), Supervisor (Erstellen/Bearbeiten ohne Einstellungen) oder User (nur Lesen)?",
-            "en": "Which permission level should the new account get: Admin (full access), Supervisor (create/edit without settings) or User (view-only)?",
-            "fr": "Quel niveau d'autorisation le nouveau compte doit-il recevoir : Admin (accès complet), Supervisor (création/édition sans paramètres) ou User (lecture seule) ?",
-            "it": "Quale livello di autorizzazione deve ricevere il nuovo account: Admin (accesso completo), Supervisor (creazione/modifica senza impostazioni) o User (sola lettura)?"
-          },
-          "description": "the permission level for the new account: Admin, Supervisor or User"
-        },
-        {
-          "kind": "mutate",
-          "skill": "assign_user_permissions",
-          "note": "Assign the permission level now. Resolve the target user via userName using the full name (known value fullName) just created — do not pass userId, it was never captured. Map the role the user chose (known value roleChoice) to the exact allowed values: 'Admin' -> Admin; 'Supervisor'/'Authorised'/'Sachbearbeiter' -> Authorised; 'User'/'Benutzer'/'Standard' -> User. Relay the confirmed role and permission set, then summarise the whole flow (login account created, role assigned) to the user."
-        }
-      ]
-    },
-    {
-      "name": "record-employee-address-change",
-      "goal": "Record an address change (relocation) for an employee: capture the new postal address with its valid-from date as a new address entry, keeping the old address as history.",
-      "goalTranslations": {
-        "de": "Einen Umzug eines Mitarbeiters erfassen: die neue Postadresse mit Gültig-ab-Datum als neuen Adresseintrag anlegen — die alte Adresse bleibt als Historie erhalten.",
-        "en": "Record an employee's address change: create the new postal address with its valid-from date as a new address entry — the old address is kept as history.",
-        "fr": "Enregistrer un déménagement d'un employé : créer la nouvelle adresse postale avec sa date de validité comme nouvelle entrée — l'ancienne adresse est conservée comme historique.",
-        "it": "Registrare un trasloco di un dipendente: creare il nuovo indirizzo postale con la data di validità come nuova voce — il vecchio indirizzo rimane come cronologia."
-      },
-      "version": 4,
-      "isEnabled": true,
-      "sortOrder": 7,
-      "trigger": {
-        "allOf": [
           {
             "anyWordStart": [
-              "umzieh",
-              "umzug",
-              "zieh",
-              "zügel",
-              "änder",
-              "wechsel",
-              "aktualisier",
+              "erstell",
+              "anleg",
+              "leg",
+              "einricht",
+              "registrier",
               "erfass",
-              "hinterleg",
-              "korrigier",
-              "updat",
-              "chang",
-              "mov",
-              "record",
-              "déménag",
-              "modifi",
-              "aggiorn",
-              "cambi",
-              "trasloc",
+              "create",
+              "add",
+              "cré",
+              "inscri",
+              "enregistr",
+              "configur",
+              "paramétr",
+              "crea",
+              "iscriv",
               "registra",
-              "sposta"
+              "imposta"
             ]
           },
           {
             "anySubstring": [
-              "adresse",
-              "anschrift",
-              "wohnort",
-              "wohnadresse",
-              "umzug",
-              "umgezogen",
-              "zieht um",
-              "zügelt",
-              "address",
-              "moved",
-              "moving",
-              "domicile",
-              "déménag",
-              "indirizzo",
-              "trasloc",
-              "abitazione"
+              "benutzer",
+              "konto",
+              "zugang",
+              "account",
+              "utilisateur",
+              "compte",
+              "accès",
+              "utente",
+              "accesso"
+            ],
+            "anyWordStart": [
+              "user"
             ]
           }
         ],
@@ -300,11 +448,248 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
-            "anyWordStart": ["turno"],
+            "anySubstring": [
+              "mitarbeiter",
+              "mitarbeitende",
+              "mitarbeitenden",
+              "mitarbeiterin",
+              "employee",
+              "angestellt",
+              "lösch",
+              "entfern",
+              "storn",
+              "employé",
+              "employée",
+              "salarié",
+              "dipendente",
+              "impiegato",
+              "supprim",
+              "retir",
+              "annul",
+              "rimuov",
+              "annull"
+            ],
+            "anyWordStart": [
+              "elimin"
+            ]
+          },
+          {
+            "anySubstring": [
+              "token accesso",
+              "mail address"
+            ]
+          },
+          {
+            "anySubstring": [
+              "jeton accès"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "fullName",
+          "prompt": "Ask the user for the full name (first and last name) of the person who should get the new login account.",
+          "promptTranslations": {
+            "de": "Wie lautet der vollständige Name (Vor- und Nachname) der Person, die das neue Login-Konto erhalten soll?",
+            "en": "What is the full name (first and last name) of the person who should get the new login account?",
+            "fr": "Quel est le nom complet (prénom et nom) de la personne qui doit recevoir le nouveau compte de connexion ?",
+            "it": "Qual è il nome completo (nome e cognome) della persona che deve ricevere il nuovo account di accesso?"
+          },
+          "description": "the full name (first and last name) of the person who should get the new login account"
+        },
+        {
+          "kind": "ask",
+          "slot": "email",
+          "prompt": "Ask the user for the email address of the new login account.",
+          "promptTranslations": {
+            "de": "Wie lautet die E-Mail-Adresse für das neue Login-Konto?",
+            "en": "What is the email address for the new login account?",
+            "fr": "Quelle est l'adresse e-mail du nouveau compte de connexion ?",
+            "it": "Qual è l'indirizzo e-mail del nuovo account di accesso?"
+          },
+          "description": "the email address of the new login account"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_user",
+          "inject": {
+            "email": "$email"
+          },
+          "note": "Create the new login account now. email is supplied — do not ask for it again. Split the full name (known value fullName) into firstName and lastName. Relay the created username back to the user; a password is generated automatically and is intentionally not shown."
+        },
+        {
+          "kind": "ask",
+          "slot": "roleChoice",
+          "prompt": "Ask the user which permission level the new account should get: Admin (full access), Supervisor (create/edit access without settings) or User (view-only).",
+          "promptTranslations": {
+            "de": "Welche Berechtigungsstufe soll das neue Konto erhalten: Admin (Vollzugriff), Supervisor (Erstellen/Bearbeiten ohne Einstellungen) oder User (nur Lesen)?",
+            "en": "Which permission level should the new account get: Admin (full access), Supervisor (create/edit without settings) or User (view-only)?",
+            "fr": "Quel niveau d'autorisation le nouveau compte doit-il recevoir : Admin (accès complet), Supervisor (création/édition sans paramètres) ou User (lecture seule) ?",
+            "it": "Quale livello di autorizzazione deve ricevere il nuovo account: Admin (accesso completo), Supervisor (creazione/modifica senza impostazioni) o User (sola lettura)?"
+          },
+          "description": "the permission level for the new account: Admin, Supervisor or User"
+        },
+        {
+          "kind": "mutate",
+          "skill": "assign_user_permissions",
+          "note": "Assign the permission level now. Resolve the target user via userName using the full name (known value fullName) just created — do not pass userId, it was never captured. Map the role the user chose (known value roleChoice) to the exact allowed values: 'Admin' -> Admin; 'Supervisor'/'Authorised'/'Sachbearbeiter' -> Authorised; 'User'/'Benutzer'/'Standard' -> User. Relay the confirmed role and permission set, then summarise the whole flow (login account created, role assigned) to the user."
+        }
+      ]
+    },
+    {
+      "name": "record-employee-address-change",
+      "goal": "Record an address change (relocation) for an employee: capture the new postal address with its valid-from date as a new address entry, keeping the old address as history.",
+      "goalTranslations": {
+        "de": "Einen Umzug eines Mitarbeiters erfassen: die neue Postadresse mit Gültig-ab-Datum als neuen Adresseintrag anlegen — die alte Adresse bleibt als Historie erhalten.",
+        "en": "Record an employee's address change: create the new postal address with its valid-from date as a new address entry — the old address is kept as history.",
+        "fr": "Enregistrer un déménagement d'un employé : créer la nouvelle adresse postale avec sa date de validité comme nouvelle entrée — l'ancienne adresse est conservée comme historique.",
+        "it": "Registrare un trasloco di un dipendente: creare il nuovo indirizzo postale con la data di validità come nuova voce — il vecchio indirizzo rimane come cronologia."
+      },
+      "version": 5,
+      "isEnabled": true,
+      "sortOrder": 7,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "umzieh",
+              "umzug",
+              "zieh",
+              "zügel",
+              "änder",
+              "wechsel",
+              "aktualisier",
+              "erfass",
+              "hinterleg",
+              "korrigier",
+              "updat",
+              "chang",
+              "mov",
+              "record",
+              "déménag",
+              "modifi",
+              "aggiorn",
+              "cambi",
+              "trasloc",
+              "registra",
+              "sposta"
+            ]
+          },
+          {
+            "anySubstring": [
+              "adresse",
+              "anschrift",
+              "wohnort",
+              "wohnadresse",
+              "umzug",
+              "umgezogen",
+              "zieht um",
+              "zügelt",
+              "address",
+              "moving",
+              "domicile",
+              "déménag",
+              "indirizzo",
+              "trasloc",
+              "abitazione"
+            ],
+            "anyWordStart": [
+              "moved"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "elimin"
+            ],
             "anySubstring": [
               "mail",
               "e-mail",
@@ -340,7 +725,6 @@
               "supprim",
               "retir",
               "annul",
-              "elimin",
               "rimuov",
               "annull",
               "alle ",
@@ -430,7 +814,7 @@
         "fr": "Enregistrer le départ d'un employé : fixer la date de fin de l'affiliation active — dès le lendemain, la personne n'est plus planifiable.",
         "it": "Registrare l'uscita di un dipendente: impostare la data di fine dell'appartenenza attiva — dal giorno successivo la persona non è più pianificabile."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 8,
       "trigger": {
@@ -537,11 +921,32 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
-            "anyWordStart": ["turno", "order"],
+            "anyWordStart": [
+              "turno",
+              "order",
+              "elimin"
+            ],
             "anySubstring": [
               "kunde",
               "customer",
@@ -588,7 +993,6 @@
               "supprim",
               "retir",
               "annul",
-              "elimin",
               "rimuov",
               "annull",
               "benutzerkonto",
@@ -612,10 +1016,14 @@
             ]
           },
           {
-            "anySubstring": ["data di uscita"]
+            "anySubstring": [
+              "data di uscita"
+            ]
           },
           {
-            "anySubstring": ["leave date"]
+            "anySubstring": [
+              "leave date"
+            ]
           }
         ]
       },
@@ -674,19 +1082,183 @@
         "fr": "Ajouter un employé existant à un groupe donné pour une période définie.",
         "it": "Aggiungere un dipendente esistente a un gruppo per un periodo definito."
       },
-      "version": 13,
+      "version": 14,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "eintrag", "aufnehm", "zuordn", "add", "ajout", "attribu", "inscri", "affect", "aggiung", "assegn", "iscriv"] },
-          { "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "eintrag",
+              "aufnehm",
+              "zuordn",
+              "add",
+              "ajout",
+              "attribu",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "service", "quart", "commande", "mission", "servizio", "ordine", "missione", "nouveau groupe", "créer un groupe", "nuovo gruppo", "creare un gruppo", "proche", "plus proche", "vicino", "più vicino", "tous ", "toutes ", "répart", "distribu", "chaque", "plusieurs", "tutti ", "tutte ", "ripart", "ogni", "più ", "sélectionné", "sélectionnée", "coché", "cochée", "selezionat", "contrassegnat", "spuntat", "ces employés", "ces clients", "ces personnes", "questi dipendenti", "questi clienti", "queste persone"] },
           {
-            "anySubstring": ["nach stadt"]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "proche",
+              "mission"
+            ],
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "alle ",
+              "sämtlich",
+              "verteil",
+              "jede",
+              "mehrere",
+              "selektiert",
+              "markiert",
+              "ausgewählt",
+              "angehakt",
+              "angekreuzt",
+              "selected",
+              "diese mitarbeiter",
+              "diese mitarbeitenden",
+              "diese kunden",
+              "diese personen",
+              "diese leute",
+              "service",
+              "quart",
+              "commande",
+              "servizio",
+              "ordine",
+              "missione",
+              "nouveau groupe",
+              "créer un groupe",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "plus proche",
+              "vicino",
+              "più vicino",
+              "tous ",
+              "toutes ",
+              "répart",
+              "distribu",
+              "chaque",
+              "plusieurs",
+              "tutti ",
+              "tutte ",
+              "ripart",
+              "ogni",
+              "più ",
+              "sélectionné",
+              "sélectionnée",
+              "coché",
+              "cochée",
+              "selezionat",
+              "contrassegnat",
+              "spuntat",
+              "ces employés",
+              "ces clients",
+              "ces personnes",
+              "questi dipendenti",
+              "questi clienti",
+              "queste persone"
+            ]
+          },
+          {
+            "anySubstring": [
+              "nach stadt"
+            ]
           }
         ]
       },
@@ -706,7 +1278,9 @@
         {
           "kind": "search",
           "skill": "list_groups",
-          "inject": { "searchTerm": "$groupName" },
+          "inject": {
+            "searchTerm": "$groupName"
+          },
           "capture": "Groups[].Id as groupId",
           "note": "Find the target group. The search term is supplied. The recipe captures the matching group automatically when exactly one group matches."
         },
@@ -725,7 +1299,9 @@
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName" },
+          "inject": {
+            "searchTerm": "$clientName"
+          },
           "capture": "Results[].Id as clientId",
           "note": "Find the employee. The search term is supplied. The recipe captures the matching employee automatically when exactly one matches."
         },
@@ -744,7 +1320,11 @@
         {
           "kind": "mutate",
           "skill": "add_client_to_group",
-          "inject": { "clientId": "$clientId", "groupId": "$groupId", "validFrom": "$validFrom" },
+          "inject": {
+            "clientId": "$clientId",
+            "groupId": "$groupId",
+            "validFrom": "$validFrom"
+          },
           "note": "Add the employee to the group now. clientId, groupId and validFrom are supplied — do not ask for them again. This skill rejects duplicates, so it safely refuses if the employee is already in the group."
         }
       ]
@@ -758,18 +1338,212 @@
         "fr": "Ajouter en masse tous les employés correspondant aux critères (canton/région et/ou contrat) à un groupe, avec aperçu avant application.",
         "it": "Aggiungere in blocco tutti i dipendenti che soddisfano i criteri (cantone/regione e/o contratto) a un gruppo, con anteprima prima dell'applicazione."
       },
-      "version": 10,
+      "version": 11,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "verteil", "zuweis", "zuordn", "aufnehm", "nimm", "ordn", "add", "ajout", "attribu", "répart", "distribu", "inscri", "affect", "organis", "aggiung", "assegn", "ripart", "iscriv", "organizz"] },
-          { "anySubstring": ["alle ", "sämtlich", "mehrere", "jede", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"] },
-          { "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "verteil",
+              "zuweis",
+              "zuordn",
+              "aufnehm",
+              "nimm",
+              "ordn",
+              "add",
+              "ajout",
+              "attribu",
+              "répart",
+              "distribu",
+              "inscri",
+              "affect",
+              "organis",
+              "aggiung",
+              "assegn",
+              "ripart",
+              "iscriv",
+              "organizz"
+            ]
+          },
+          {
+            "anySubstring": [
+              "alle ",
+              "sämtlich",
+              "mehrere",
+              "jede",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "più ",
+              "ogni"
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "service", "quart", "commande", "mission", "servizio", "ordine", "missione", "client", "cliente", "nouveau groupe", "créer un groupe", "nuovo gruppo", "creare un gruppo", "proche", "plus proche", "vicino", "più vicino", "géograph", "geografic", "meilleur", "migliore", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "formation", "formazione", "sélectionné", "sélectionnée", "coché", "cochée", "selezionat", "contrassegnat", "spuntat", "ces employés", "ces clients", "ces personnes", "questi dipendenti", "questi clienti", "queste persone"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "proche",
+              "beste",
+              "mission"
+            ],
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "kunde",
+              "customer",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "abwesenheit",
+              "absenz",
+              "schulung",
+              "ferien",
+              "urlaub",
+              "krank",
+              "selektiert",
+              "markiert",
+              "ausgewählt",
+              "angehakt",
+              "angekreuzt",
+              "selected",
+              "diese mitarbeiter",
+              "diese mitarbeitenden",
+              "diese kunden",
+              "diese personen",
+              "diese leute",
+              "service",
+              "quart",
+              "commande",
+              "servizio",
+              "ordine",
+              "missione",
+              "client",
+              "cliente",
+              "nouveau groupe",
+              "créer un groupe",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "plus proche",
+              "vicino",
+              "più vicino",
+              "géograph",
+              "geografic",
+              "meilleur",
+              "migliore",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formation",
+              "formazione",
+              "sélectionné",
+              "sélectionnée",
+              "coché",
+              "cochée",
+              "selezionat",
+              "contrassegnat",
+              "spuntat",
+              "ces employés",
+              "ces clients",
+              "ces personnes",
+              "questi dipendenti",
+              "questi clienti",
+              "queste persone"
+            ]
+          }
         ]
       },
       "steps": [
@@ -812,7 +1586,10 @@
         {
           "kind": "mutate",
           "skill": "fill_group_by_criteria",
-          "inject": { "groupName": "$groupName", "validFrom": "$validFrom" },
+          "inject": {
+            "groupName": "$groupName",
+            "validFrom": "$validFrom"
+          },
           "note": "Bulk-fill the group. groupName and validFrom are supplied — do not ask for them again. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name) and/or contractName. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
@@ -826,19 +1603,166 @@
         "fr": "Enregistrer une absence pour un employé existant à une date donnée avec un type d'absence.",
         "it": "Registrare un'assenza per un dipendente esistente in una data specifica con un tipo di assenza."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 20,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["eintrag", "erfass", "trag", "setz", "melde", "buch", "verbuch", "add", "enregistr", "déclar", "sais", "registra", "dichiar", "inser"] },
-          { "anySubstring": ["abwesenheit", "absenz", "ferien", "urlaub", "krank", "abwesend", "fehltag", "ausfall", "absence", "congé", "vacances", "malad", "absent", "assenza", "ferie", "malattia", "assente"] }
+          {
+            "anyWordStart": [
+              "eintrag",
+              "erfass",
+              "trag",
+              "setz",
+              "melde",
+              "buch",
+              "verbuch",
+              "add",
+              "enregistr",
+              "déclar",
+              "sais",
+              "registra",
+              "dichiar",
+              "inser"
+            ]
+          },
+          {
+            "anySubstring": [
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "abwesend",
+              "fehltag",
+              "ausfall",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "absent",
+              "assenza",
+              "ferie",
+              "malattia",
+              "assente"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "platzhalter", "placeholder", "lösch", "entfern", "storn", "alle ", "sämtlich", "ganze gruppe", "jede ", "mehrere", "type d'absence", "nouvelle absence", "nouveau type", "supprim", "retir", "annul", "tous ", "toutes ", "tout le groupe", "chaque ", "plusieurs", "tipo di assenza", "nuova assenza", "nuovo tipo", "elimin", "rimuov", "annull", "tutti ", "tutte ", "tutto il gruppo", "ogni ", "più "] },
           {
-            "anySubstring": ["absence kind", "absence type", "absence category"]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "absenz-typ",
+              "absenzart",
+              "absence type",
+              "neue absenz",
+              "art erstell",
+              "typ erstell",
+              "neue art",
+              "platzhalter",
+              "placeholder",
+              "lösch",
+              "entfern",
+              "storn",
+              "alle ",
+              "sämtlich",
+              "ganze gruppe",
+              "jede ",
+              "mehrere",
+              "type d'absence",
+              "nouvelle absence",
+              "nouveau type",
+              "supprim",
+              "retir",
+              "annul",
+              "tous ",
+              "toutes ",
+              "tout le groupe",
+              "chaque ",
+              "plusieurs",
+              "tipo di assenza",
+              "nuova assenza",
+              "nuovo tipo",
+              "rimuov",
+              "annull",
+              "tutti ",
+              "tutte ",
+              "tutto il gruppo",
+              "ogni ",
+              "più "
+            ],
+            "anyWordStart": [
+              "elimin"
+            ]
+          },
+          {
+            "anySubstring": [
+              "absence kind",
+              "absence type",
+              "absence category"
+            ]
           }
         ]
       },
@@ -858,7 +1782,10 @@
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName", "entityType": "Employee" },
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
           "capture": "Results[].Id as clientId",
           "note": "Find the employee. The search term and entityType='Employee' are supplied — customers and external employees are excluded from the search. The recipe captures the matching employee automatically when exactly one matches."
         },
@@ -894,7 +1821,9 @@
         {
           "kind": "mutate",
           "skill": "add_break",
-          "inject": { "clientId": "$clientId" },
+          "inject": {
+            "clientId": "$clientId"
+          },
           "note": "Place the absence now. clientId is supplied — do not ask for it. Choose absenceId from the absence types that list_absence_types just returned by matching the kind of absence the user named (see known values below). Use the date the user gave (known values) as date, formatted yyyy-MM-dd. Leave startTime, endTime and workTime at their defaults unless the user explicitly specified them."
         }
       ]
@@ -908,25 +1837,148 @@
         "fr": "Créer un nouveau groupe (au niveau racine ou sous un groupe parent) avec un nom, une date de début de validité et un calendrier des jours fériés.",
         "it": "Creare un nuovo gruppo (a livello principale o sotto un gruppo padre) con nome, data di inizio validità e calendario festivo."
       },
-      "version": 11,
+      "version": 12,
       "isEnabled": true,
       "sortOrder": 30,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["erstell", "anleg", "leg", "mach", "create", "cré", "crea"] },
-          { "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra"] }
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "leg",
+              "mach",
+              "create",
+              "cré",
+              "crea"
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["hinzufüg", "zuweis", "aufnehm", "zuordn", "mitarbeiter", "client", "dienst", "schicht", "entfern", "lösch", "ajout", "attribu", "inscri", "affect", "employé", "salarié", "service", "quart", "supprim", "retir", "aggiung", "assegn", "iscriv", "dipendente", "impiegato", "servizio", "elimin", "rimuov"] },
           {
-            "anySubstring": ["vale la pena"]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
           },
           {
-            "anySubstring": ["selon la qualification", "selon les localités"]
+            "anyWordStart": [
+              "turno",
+              "elimin"
+            ],
+            "anySubstring": [
+              "hinzufüg",
+              "zuweis",
+              "aufnehm",
+              "zuordn",
+              "mitarbeiter",
+              "client",
+              "dienst",
+              "schicht",
+              "entfern",
+              "lösch",
+              "ajout",
+              "attribu",
+              "inscri",
+              "affect",
+              "employé",
+              "salarié",
+              "service",
+              "quart",
+              "supprim",
+              "retir",
+              "aggiung",
+              "assegn",
+              "iscriv",
+              "dipendente",
+              "impiegato",
+              "servizio",
+              "rimuov"
+            ]
           },
           {
-            "anySubstring": ["nach qualifikation", "ortschaft"]
+            "anySubstring": [
+              "vale la pena"
+            ]
+          },
+          {
+            "anySubstring": [
+              "selon la qualification",
+              "selon les localités"
+            ]
+          },
+          {
+            "anySubstring": [
+              "nach qualifikation",
+              "ortschaft"
+            ]
           }
         ]
       },
@@ -982,20 +2034,27 @@
         {
           "kind": "search",
           "skill": "list_calendars",
-          "inject": { "searchTerm": "$calendarName" },
+          "inject": {
+            "searchTerm": "$calendarName"
+          },
           "capture": "CalendarSelections[].Id as calendarId",
           "note": "Find the holiday calendar. The search term is supplied. The recipe captures the matching calendar automatically when exactly one matches."
         },
         {
           "kind": "search",
           "skill": "list_groups",
-          "inject": { "searchTerm": "$placement" },
+          "inject": {
+            "searchTerm": "$placement"
+          },
           "note": "Look up candidate parent groups for the placement the user gave. Just call list_groups and read its result; do not ask anything. If the placement is 'root' / top level, this lookup simply finds nothing relevant — that is fine."
         },
         {
           "kind": "mutate",
           "skill": "create_group",
-          "inject": { "name": "$groupName", "calendarId": "$calendarId" },
+          "inject": {
+            "name": "$groupName",
+            "calendarId": "$calendarId"
+          },
           "note": "Create the group now. name and calendarId are supplied — do not ask for them. Use the start date the user gave (see the known values below) as validFrom, formatted yyyy-MM-dd. PLACEMENT: if the user chose root / top level / 'Wurzel', or did NOT name an existing parent group, do NOT pass parentId (the group is created at root level). ONLY if the user named an existing parent group, set parentId to that group's Id from the list_groups result above. The payment interval defaults to Monthly."
         }
       ]
@@ -1009,25 +2068,170 @@
         "fr": "Déplacer un groupe existant sous un autre groupe parent dans l'arbre.",
         "it": "Spostare un gruppo esistente sotto un altro gruppo padre nell'albero."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 31,
       "trigger": {
         "allOf": [
           {
-            "anyWordStart": ["verschieb", "versetz", "umhäng", "häng", "move", "reparent", "déplac", "rattach", "sposta", "riaggancia"]
+            "anyWordStart": [
+              "verschieb",
+              "versetz",
+              "umhäng",
+              "häng",
+              "move",
+              "reparent",
+              "déplac",
+              "rattach",
+              "sposta",
+              "riaggancia"
+            ]
           },
           {
-            "anySubstring": ["gruppe", "group", "groupe", "gruppo", "team", "équipe", "squadra"]
+            "anySubstring": [
+              "gruppe",
+              "group",
+              "groupe",
+              "gruppo",
+              "team",
+              "équipe",
+              "squadra"
+            ]
           }
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom "
+            ]
           },
           {
-            "anyWordStart": ["turno", "order"],
-            "anySubstring": ["mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "kunde", "client", "customer", "cliente", "person", "leute", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "dienst", "schicht", "shift", "service", "quart", "bestellung", "auftrag", "commande", "ordine", "einsatz", "mission", "container", "lösch", "entfern", "delete", "supprim", "elimin", "rimuov", "remove", "retir", "erstell", "anleg", "create", "cré", "crea", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+            "anyWordStart": [
+              "turno",
+              "order",
+              "mission",
+              "elimin",
+              "anleg",
+              "erstell"
+            ],
+            "anySubstring": [
+              "mitarbeiter",
+              "employee",
+              "employé",
+              "salarié",
+              "dipendente",
+              "impiegato",
+              "kunde",
+              "client",
+              "customer",
+              "cliente",
+              "person",
+              "leute",
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "quart",
+              "bestellung",
+              "auftrag",
+              "commande",
+              "ordine",
+              "einsatz",
+              "container",
+              "lösch",
+              "entfern",
+              "delete",
+              "supprim",
+              "rimuov",
+              "remove",
+              "retir",
+              "create",
+              "cré",
+              "crea",
+              "alle ",
+              "sämtlich",
+              "verteil",
+              "jede",
+              "mehrere",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "più ",
+              "ogni"
+            ]
           }
         ]
       },
@@ -1076,18 +2280,174 @@
         "fr": "Ajouter un service/une commande existant(e) à un groupe donné.",
         "it": "Aggiungere un servizio/ordine esistente a un gruppo."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 40,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "aufnehm", "add", "ajout", "attribu", "inscri", "affect", "aggiung", "assegn", "iscriv"] },
-          { "anyWordStart": ["turno"], "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "service", "quart", "commande", "mission", "servizio", "ordine", "missione"] },
-          { "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "aufnehm",
+              "add",
+              "ajout",
+              "attribu",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "iscriv"
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "mission"
+            ],
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "service",
+              "quart",
+              "commande",
+              "servizio",
+              "ordine",
+              "missione"
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anySubstring": ["mitarbeiter", "client", "kunde", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "employé", "salarié", "cliente", "nouveau groupe", "créer un groupe", "supprim", "retir", "proche", "plus proche", "tous ", "toutes ", "répart", "distribu", "chaque", "plusieurs", "dipendente", "impiegato", "nuovo gruppo", "creare un gruppo", "elimin", "rimuov", "vicino", "più vicino", "tutti ", "tutte ", "ripart", "ogni", "più "] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "mitarbeiter",
+              "client",
+              "kunde",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "entfern",
+              "lösch",
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "alle ",
+              "sämtlich",
+              "verteil",
+              "jede",
+              "mehrere",
+              "employé",
+              "salarié",
+              "cliente",
+              "nouveau groupe",
+              "créer un groupe",
+              "supprim",
+              "retir",
+              "plus proche",
+              "tous ",
+              "toutes ",
+              "répart",
+              "distribu",
+              "chaque",
+              "plusieurs",
+              "dipendente",
+              "impiegato",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "rimuov",
+              "vicino",
+              "più vicino",
+              "tutti ",
+              "tutte ",
+              "ripart",
+              "ogni",
+              "più "
+            ],
+            "anyWordStart": [
+              "proche",
+              "elimin"
+            ]
+          }
         ]
       },
       "steps": [
@@ -1106,7 +2466,9 @@
         {
           "kind": "search",
           "skill": "search_shifts",
-          "inject": { "searchString": "$shiftName" },
+          "inject": {
+            "searchString": "$shiftName"
+          },
           "capture": "Shifts[].Id as shiftId",
           "note": "Find the shift. The search string is supplied. The recipe captures the matching shift automatically when exactly one shift matches."
         },
@@ -1125,14 +2487,19 @@
         {
           "kind": "search",
           "skill": "list_groups",
-          "inject": { "searchTerm": "$groupName" },
+          "inject": {
+            "searchTerm": "$groupName"
+          },
           "capture": "Groups[].Id as groupId",
           "note": "Find the target group. The search term is supplied. The recipe captures the matching group automatically when exactly one group matches."
         },
         {
           "kind": "mutate",
           "skill": "add_shift_to_group",
-          "inject": { "shiftId": "$shiftId", "groupId": "$groupId" },
+          "inject": {
+            "shiftId": "$shiftId",
+            "groupId": "$groupId"
+          },
           "note": "Add the shift to the group now. shiftId and groupId are supplied — do not ask for them. This skill rejects duplicates, so it safely refuses if the shift is already in the group."
         }
       ]
@@ -1146,26 +2513,238 @@
         "fr": "Réaffecter en masse chaque client à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni cliente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 55,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "iscriv"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta "] },
-          { "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti"] },
-          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "standort", "region", "beste", "proche", "plus proche", "géograph", "emplacement", "région", "meilleur", "vicino", "più vicino", "geografic", "posizione", "regione", "migliore"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "ordn",
+              "ordne",
+              "platzier",
+              "gruppier",
+              "grupp",
+              "sortier",
+              "organisier",
+              "verteil",
+              "add",
+              "ajout",
+              "attribu",
+              "plac",
+              "group",
+              "tri",
+              "organis",
+              "répart",
+              "distribu",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "posizion",
+              "raggrupp",
+              "smist",
+              "organizz",
+              "ripart",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "alle ",
+              "sämtlich",
+              "jede",
+              "mehrere",
+              "ganze",
+              "tous ",
+              "toutes ",
+              "chaque",
+              "plusieurs",
+              "tout ",
+              "toute ",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "più ",
+              "tutto ",
+              "tutta "
+            ]
+          },
+          {
+            "anySubstring": [
+              "kunde",
+              "kunden",
+              "customer",
+              "klient",
+              "client",
+              "clients",
+              "cliente",
+              "clienti"
+            ]
+          },
+          {
+            "anySubstring": [
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "standort",
+              "region",
+              "plus proche",
+              "géograph",
+              "emplacement",
+              "région",
+              "meilleur",
+              "vicino",
+              "più vicino",
+              "geografic",
+              "posizione",
+              "regione",
+              "migliore"
+            ],
+            "anyWordStart": [
+              "proche",
+              "beste"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["mitarbeiter", "employee", "extern", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "employé", "salarié", "externe", "service", "quart", "commande", "mission", "absence", "congé", "vacances", "malad", "formation", "nouveau groupe", "créer un groupe", "supprim", "retir", "dipendente", "impiegato", "esterno", "esterna", "servizio", "ordine", "missione", "assenza", "ferie", "malattia", "formazione", "nuovo gruppo", "creare un gruppo", "elimin", "rimuov"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "mission",
+              "elimin"
+            ],
+            "anySubstring": [
+              "mitarbeiter",
+              "employee",
+              "extern",
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "abwesenheit",
+              "absenz",
+              "schulung",
+              "ferien",
+              "urlaub",
+              "krank",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "entfern",
+              "lösch",
+              "employé",
+              "salarié",
+              "externe",
+              "service",
+              "quart",
+              "commande",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "nouveau groupe",
+              "créer un groupe",
+              "supprim",
+              "retir",
+              "dipendente",
+              "impiegato",
+              "esterno",
+              "esterna",
+              "servizio",
+              "ordine",
+              "missione",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "rimuov"
+            ]
+          }
         ]
       },
       "steps": [
         {
           "kind": "mutate",
           "skill": "propose_grouping",
-          "inject": { "entityType": "Customer" },
+          "inject": {
+            "entityType": "Customer"
+          },
           "note": "Re-distribute ALL customers to their location group. This recipe takes no per-customer input — it operates on the whole customer base. entityType='Customer' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the customer's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='Customer' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
@@ -1179,26 +2758,254 @@
         "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "divis", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "divid", "iscriv"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
-          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "employee", "angestellt", "personal", "belegschaft", "employé", "employés", "salarié", "personnel", "effectif", "dipendente", "dipendenti", "impiegato", "personale", "organico"] },
-          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "proche", "plus proche", "géograph", "meilleur", "vicino", "più vicino", "geografic", "migliore"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "ordn",
+              "ordne",
+              "platzier",
+              "gruppier",
+              "grupp",
+              "sortier",
+              "organisier",
+              "verteil",
+              "aufteil",
+              "einteil",
+              "add",
+              "ajout",
+              "attribu",
+              "plac",
+              "group",
+              "tri",
+              "organis",
+              "répart",
+              "distribu",
+              "divis",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "posizion",
+              "raggrupp",
+              "smist",
+              "organizz",
+              "ripart",
+              "divid",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "alle ",
+              "sämtlich",
+              "jede",
+              "mehrere",
+              "ganze",
+              "unsere ",
+              "unser ",
+              "gesamte",
+              "ganzen",
+              "tous ",
+              "toutes ",
+              "chaque",
+              "plusieurs",
+              "tout ",
+              "toute ",
+              "notre ",
+              "entier",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "più ",
+              "tutto ",
+              "tutta ",
+              "nostro ",
+              "nostra ",
+              "intero"
+            ]
+          },
+          {
+            "anySubstring": [
+              "mitarbeiter",
+              "mitarbeitende",
+              "mitarbeitenden",
+              "employee",
+              "angestellt",
+              "personal",
+              "belegschaft",
+              "employé",
+              "employés",
+              "salarié",
+              "personnel",
+              "effectif",
+              "dipendente",
+              "dipendenti",
+              "impiegato",
+              "personale",
+              "organico"
+            ]
+          },
+          {
+            "anySubstring": [
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "plus proche",
+              "géograph",
+              "meilleur",
+              "vicino",
+              "più vicino",
+              "geografic",
+              "migliore"
+            ],
+            "anyWordStart": [
+              "proche",
+              "beste"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "kunden", "customer", "klient", "extern", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "client", "cliente", "externe", "service", "quart", "commande", "mission", "absence", "congé", "vacances", "malad", "formation", "nouveau groupe", "créer un groupe", "supprim", "retir", "esterno", "esterna", "servizio", "ordine", "missione", "assenza", "ferie", "malattia", "formazione", "nuovo gruppo", "creare un gruppo", "elimin", "rimuov"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "mission",
+              "elimin"
+            ],
+            "anySubstring": [
+              "kunde",
+              "kunden",
+              "customer",
+              "klient",
+              "extern",
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "abwesenheit",
+              "absenz",
+              "schulung",
+              "ferien",
+              "urlaub",
+              "krank",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "entfern",
+              "lösch",
+              "client",
+              "cliente",
+              "externe",
+              "service",
+              "quart",
+              "commande",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "nouveau groupe",
+              "créer un groupe",
+              "supprim",
+              "retir",
+              "esterno",
+              "esterna",
+              "servizio",
+              "ordine",
+              "missione",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "rimuov"
+            ]
+          }
         ]
       },
       "steps": [
         {
           "kind": "mutate",
           "skill": "propose_grouping",
-          "inject": { "entityType": "Employee" },
+          "inject": {
+            "entityType": "Employee"
+          },
           "note": "Re-distribute ALL employees to their location group. This recipe takes no per-employee input — it operates on the whole employee base. entityType='Employee' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the employee's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='Employee' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
@@ -1212,26 +3019,239 @@
         "fr": "Réaffecter en masse chaque employé externe à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente esterno al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 58,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "divis", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "divid", "iscriv"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
-          { "anySubstring": ["extern", "externe", "esterno", "esterna"] },
-          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "proche", "plus proche", "géograph", "meilleur", "vicino", "più vicino", "geografic", "migliore"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "ordn",
+              "ordne",
+              "platzier",
+              "gruppier",
+              "grupp",
+              "sortier",
+              "organisier",
+              "verteil",
+              "aufteil",
+              "einteil",
+              "add",
+              "ajout",
+              "attribu",
+              "plac",
+              "group",
+              "tri",
+              "organis",
+              "répart",
+              "distribu",
+              "divis",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "posizion",
+              "raggrupp",
+              "smist",
+              "organizz",
+              "ripart",
+              "divid",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "alle ",
+              "sämtlich",
+              "jede",
+              "mehrere",
+              "ganze",
+              "unsere ",
+              "unser ",
+              "gesamte",
+              "ganzen",
+              "tous ",
+              "toutes ",
+              "chaque",
+              "plusieurs",
+              "tout ",
+              "toute ",
+              "notre ",
+              "entier",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "più ",
+              "tutto ",
+              "tutta ",
+              "nostro ",
+              "nostra ",
+              "intero"
+            ]
+          },
+          {
+            "anySubstring": [
+              "extern",
+              "externe",
+              "esterno",
+              "esterna"
+            ]
+          },
+          {
+            "anySubstring": [
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "plus proche",
+              "géograph",
+              "meilleur",
+              "vicino",
+              "più vicino",
+              "geografic",
+              "migliore"
+            ],
+            "anyWordStart": [
+              "proche",
+              "beste"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "service", "quart", "commande", "mission", "absence", "congé", "vacances", "malad", "formation", "nouveau groupe", "créer un groupe", "supprim", "retir", "servizio", "ordine", "missione", "assenza", "ferie", "malattia", "formazione", "nuovo gruppo", "creare un gruppo", "elimin", "rimuov"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "mission",
+              "elimin"
+            ],
+            "anySubstring": [
+              "kunde",
+              "kunden",
+              "customer",
+              "klient",
+              "client",
+              "clients",
+              "cliente",
+              "clienti",
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "abwesenheit",
+              "absenz",
+              "schulung",
+              "ferien",
+              "urlaub",
+              "krank",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "entfern",
+              "lösch",
+              "service",
+              "quart",
+              "commande",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "nouveau groupe",
+              "créer un groupe",
+              "supprim",
+              "retir",
+              "servizio",
+              "ordine",
+              "missione",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "rimuov"
+            ]
+          }
         ]
       },
       "steps": [
         {
           "kind": "mutate",
           "skill": "propose_grouping",
-          "inject": { "entityType": "ExternEmp" },
+          "inject": {
+            "entityType": "ExternEmp"
+          },
           "note": "Re-distribute ALL external employees to their location group. This recipe takes no per-person input — it operates on the whole external-employee base. entityType='ExternEmp' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the person's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any external employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='ExternEmp' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
@@ -1245,19 +3265,175 @@
         "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
         "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordne", "platzier", "add", "ajout", "attribu", "affect", "plac", "inscri", "aggiung", "assegn", "posizion", "iscriv"] },
-          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "proche", "plus proche", "vicino", "più vicino"] },
-          { "anySubstring": ["extern", "externe", "esterno", "esterna"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "ordne",
+              "platzier",
+              "add",
+              "ajout",
+              "attribu",
+              "affect",
+              "plac",
+              "inscri",
+              "aggiung",
+              "assegn",
+              "posizion",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "plus proche",
+              "vicino",
+              "più vicino"
+            ],
+            "anyWordStart": [
+              "proche"
+            ]
+          },
+          {
+            "anySubstring": [
+              "extern",
+              "externe",
+              "esterno",
+              "esterna"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
-          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti", "dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "elimin", "rimuov"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "alle ",
+              "sämtlich",
+              "jede",
+              "mehrere",
+              "ganze",
+              "unsere ",
+              "unser ",
+              "gesamte",
+              "ganzen",
+              "tous ",
+              "toutes ",
+              "chaque",
+              "plusieurs",
+              "tout ",
+              "toute ",
+              "notre ",
+              "entier",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "più ",
+              "tutto ",
+              "tutta ",
+              "nostro ",
+              "nostra ",
+              "intero"
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "elimin"
+            ],
+            "anySubstring": [
+              "kunde",
+              "kunden",
+              "customer",
+              "klient",
+              "client",
+              "clients",
+              "cliente",
+              "clienti",
+              "dienst",
+              "schicht",
+              "entfern",
+              "lösch",
+              "service",
+              "quart",
+              "supprim",
+              "retir",
+              "servizio",
+              "rimuov"
+            ]
+          }
         ]
       },
       "steps": [
@@ -1276,7 +3452,10 @@
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName", "entityType": "ExternEmp" },
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "ExternEmp"
+          },
           "capture": "Results[].Id as clientId",
           "note": "Find the external employee. The search term and entityType='ExternEmp' are supplied — employees and customers are excluded from the search. The recipe captures the matching external employee automatically when exactly one matches."
         },
@@ -1295,7 +3474,10 @@
         {
           "kind": "mutate",
           "skill": "add_client_to_nearest_group",
-          "inject": { "clientId": "$clientId", "validFrom": "$validFrom" },
+          "inject": {
+            "clientId": "$clientId",
+            "validFrom": "$validFrom"
+          },
           "note": "Place the external employee into the geographically nearest group now. clientId and validFrom are supplied — do not ask for them again. The nearest group is derived from group coordinates (geocoded from group names). If the person has no geocoded address or no group carries coordinates, the skill leaves it unchanged and explains why — relay that explanation."
         }
       ]
@@ -1309,18 +3491,196 @@
         "fr": "Ajouter les personnes cochées dans la liste (sélection de l'interface) à un groupe, avec aperçu avant application.",
         "it": "Aggiungere le persone selezionate nell'elenco (selezione dell'interfaccia) a un gruppo, con anteprima prima dell'applicazione."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 16,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "aufnehm", "nimm", "add", "ajout", "attribu", "inscri", "affect", "aggiung", "assegn", "iscriv"] },
-          { "anySubstring": ["selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "sélectionné", "sélectionnée", "coché", "cochée", "ces employés", "ces clients", "ces personnes", "selezionat", "contrassegnat", "spuntat", "questi dipendenti", "questi clienti", "queste persone"] },
-          { "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra"] }
+          {
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "zuweis",
+              "zuordn",
+              "ordn",
+              "aufnehm",
+              "nimm",
+              "add",
+              "ajout",
+              "attribu",
+              "inscri",
+              "affect",
+              "aggiung",
+              "assegn",
+              "iscriv"
+            ]
+          },
+          {
+            "anySubstring": [
+              "selektiert",
+              "markiert",
+              "ausgewählt",
+              "angehakt",
+              "angekreuzt",
+              "selected",
+              "diese mitarbeiter",
+              "diese mitarbeitenden",
+              "diese kunden",
+              "diese personen",
+              "diese leute",
+              "sélectionné",
+              "sélectionnée",
+              "coché",
+              "cochée",
+              "ces employés",
+              "ces clients",
+              "ces personnes",
+              "selezionat",
+              "contrassegnat",
+              "spuntat",
+              "questi dipendenti",
+              "questi clienti",
+              "queste persone"
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "neue gruppe", "gruppe erstell", "gruppe anleg", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "entfern", "lösch", "service", "quart", "commande", "mission", "proche", "plus proche", "géograph", "meilleur", "nouveau groupe", "créer un groupe", "absence", "congé", "vacances", "malad", "formation", "supprim", "retir", "servizio", "ordine", "missione", "vicino", "più vicino", "geografic", "migliore", "nuovo gruppo", "creare un gruppo", "assenza", "ferie", "malattia", "formazione", "elimin", "rimuov"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno",
+              "proche",
+              "beste",
+              "mission",
+              "elimin"
+            ],
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "einsatz",
+              "näch",
+              "nahe",
+              "umkreis",
+              "nearest",
+              "closest",
+              "geografisch",
+              "geograf",
+              "neue gruppe",
+              "gruppe erstell",
+              "gruppe anleg",
+              "abwesenheit",
+              "absenz",
+              "schulung",
+              "ferien",
+              "urlaub",
+              "krank",
+              "entfern",
+              "lösch",
+              "service",
+              "quart",
+              "commande",
+              "plus proche",
+              "géograph",
+              "meilleur",
+              "nouveau groupe",
+              "créer un groupe",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "supprim",
+              "retir",
+              "servizio",
+              "ordine",
+              "missione",
+              "vicino",
+              "più vicino",
+              "geografic",
+              "migliore",
+              "nuovo gruppo",
+              "creare un gruppo",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "rimuov"
+            ]
+          }
         ]
       },
       "steps": [
@@ -1351,7 +3711,10 @@
         {
           "kind": "mutate",
           "skill": "add_selected_clients_to_group",
-          "inject": { "groupName": "$groupName", "validFrom": "$validFrom" },
+          "inject": {
+            "groupName": "$groupName",
+            "validFrom": "$validFrom"
+          },
           "note": "Add the clients the user ticked in the list to the group. groupName and validFrom are supplied — do not ask for them again. The selected client ids come from the current UI selection (the execution context), NOT from a parameter — never ask the user for them. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
@@ -1370,12 +3733,159 @@
       "sortOrder": 65,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["einricht", "konfigurier", "hinterleg", "setz", "änder", "aktualisier", "wähl", "auswähl", "zuweis", "setup", "assign", "configure", "choose", "select", "update", "configur", "paramétr", "chois", "sélectionn", "modifi", "attribu", "imposta", "scegli", "selezion", "modific", "aggiorna", "assegn"] },
-          { "anySubstring": ["kalender", "calendar", "calendrier", "calendario"] }
+          {
+            "anyWordStart": [
+              "einricht",
+              "konfigurier",
+              "hinterleg",
+              "setz",
+              "änder",
+              "aktualisier",
+              "wähl",
+              "auswähl",
+              "zuweis",
+              "setup",
+              "assign",
+              "configure",
+              "choose",
+              "select",
+              "update",
+              "configur",
+              "paramétr",
+              "chois",
+              "sélectionn",
+              "modifi",
+              "attribu",
+              "imposta",
+              "scegli",
+              "selezion",
+              "modific",
+              "aggiorna",
+              "assegn"
+            ]
+          },
+          {
+            "anySubstring": [
+              "kalender",
+              "calendar",
+              "calendrier",
+              "calendario"
+            ]
+          }
         ],
         "noneOf": [
-          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["mitarbeiter", "employee", "kunde", "customer", "klient", "gruppe", "group", "dienst", "schicht", "shift", "absenz", "abwesenheit", "ferien", "urlaub", "krank", "schulung", "employé", "salarié", "client", "cliente", "groupe", "équipe", "service", "quart", "absence", "congé", "vacances", "malad", "formation", "dipendente", "impiegato", "gruppo", "squadra", "servizio", "assenza", "ferie", "malattia", "formazione", "auswahl", "selection", "sélection", "selezione"] }
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anyWordStart": [
+              "turno"
+            ],
+            "anySubstring": [
+              "mitarbeiter",
+              "employee",
+              "kunde",
+              "customer",
+              "klient",
+              "gruppe",
+              "group",
+              "dienst",
+              "schicht",
+              "shift",
+              "absenz",
+              "abwesenheit",
+              "ferien",
+              "urlaub",
+              "krank",
+              "schulung",
+              "employé",
+              "salarié",
+              "client",
+              "cliente",
+              "groupe",
+              "équipe",
+              "service",
+              "quart",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "dipendente",
+              "impiegato",
+              "gruppo",
+              "squadra",
+              "servizio",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "auswahl",
+              "selection",
+              "sélection",
+              "selezione"
+            ]
+          }
         ]
       },
       "steps": [
@@ -1394,14 +3904,18 @@
         {
           "kind": "search",
           "skill": "list_calendars",
-          "inject": { "searchTerm": "$calendarName" },
+          "inject": {
+            "searchTerm": "$calendarName"
+          },
           "capture": "CalendarSelections[].Id as calendarId",
           "note": "Find the holiday calendar matching the name given. The recipe captures the match automatically when exactly one result matches."
         },
         {
           "kind": "mutate",
           "skill": "update_owner_locale_settings",
-          "inject": { "calendarId": "$calendarId" },
+          "inject": {
+            "calendarId": "$calendarId"
+          },
           "note": "Set the company's global holiday calendar now. calendarId is supplied. If the user also mentioned the country, state/canton or time zone anywhere in this conversation, pass those too as country/state/timeZone (country and state as ISO abbreviations, e.g. CH/ZH; timeZone as an IANA identifier, e.g. Europe/Zurich) — otherwise omit them so existing values stay unchanged. Relay the confirmation, including which calendar is now active."
         }
       ]
@@ -1415,31 +3929,201 @@
         "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
         "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 41,
       "trigger": {
         "allOf": [
           {
-            "anyWordStart": ["erstell", "anleg", "erfass", "neu", "creat", "new", "cré", "crea", "nuov", "nouvel"]
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "erfass",
+              "neu",
+              "creat",
+              "new",
+              "cré",
+              "crea",
+              "nuov",
+              "nouvel"
+            ]
           },
           {
-            "anyWordStart": ["turno", "order"],
-            "anySubstring": ["dienst", "schicht", "shift", "bestellung", "auftrag", "einsatz", "service", "quart", "commande", "mission", "servizio", "ordine", "missione"]
+            "anyWordStart": [
+              "turno",
+              "order",
+              "mission"
+            ],
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "auftrag",
+              "einsatz",
+              "service",
+              "quart",
+              "commande",
+              "servizio",
+              "ordine",
+              "missione"
+            ]
           }
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom "
+            ]
           },
           {
-            "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra", "container", "conteneur", "contenitore", "versiegel", "siegel", "seal", "scell", "sigill", "verrouill", "zuschneid", "zerschneid", "schnitt", "split", "découp", "tagli", "einsatzplan", "dienstplan", "planung", "planning", "plan ", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "abwesenheit", "absence", "ferien", "urlaub", "krank", "lösch", "delete", "supprim", "elimin", "entfern", "remove", "retir", "rimuov", "démission", "dimission", "austritt", "kündigung", "offboard", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+            "anySubstring": [
+              "gruppe",
+              "team",
+              "groupe",
+              "équipe",
+              "gruppo",
+              "squadra",
+              "container",
+              "conteneur",
+              "contenitore",
+              "versiegel",
+              "siegel",
+              "seal",
+              "scell",
+              "sigill",
+              "verrouill",
+              "zuschneid",
+              "zerschneid",
+              "schnitt",
+              "split",
+              "découp",
+              "tagli",
+              "einsatzplan",
+              "dienstplan",
+              "planung",
+              "planning",
+              "plan ",
+              "mitarbeiter",
+              "employee",
+              "employé",
+              "salarié",
+              "dipendente",
+              "impiegato",
+              "abwesenheit",
+              "absence",
+              "ferien",
+              "urlaub",
+              "krank",
+              "lösch",
+              "delete",
+              "supprim",
+              "entfern",
+              "remove",
+              "retir",
+              "rimuov",
+              "démission",
+              "dimission",
+              "austritt",
+              "kündigung",
+              "offboard",
+              "alle ",
+              "sämtlich",
+              "verteil",
+              "jede",
+              "mehrere",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "più ",
+              "ogni"
+            ],
+            "anyWordStart": [
+              "elimin"
+            ]
           },
           {
-            "anySubstring": ["firmenregel", "betriebsregel", "hausregel", "unternehmensregel", "zuschlagsregel", "neue regel", "company rule", "company policy", "new rule", "règle d'entreprise", "nouvelle règle", "regola aziendale", "nuova regola"]
+            "anySubstring": [
+              "firmenregel",
+              "betriebsregel",
+              "hausregel",
+              "unternehmensregel",
+              "zuschlagsregel",
+              "neue regel",
+              "company rule",
+              "company policy",
+              "new rule",
+              "règle d'entreprise",
+              "nouvelle règle",
+              "regola aziendale",
+              "nuova regola"
+            ]
           },
           {
-            "anySubstring": ["permission"]
+            "anySubstring": [
+              "permission"
+            ]
           }
         ]
       },
@@ -1559,33 +4243,140 @@
         "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
         "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
       },
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 46,
       "trigger": {
         "allOf": [
           {
-            "anyWordStart": ["hinzufüg", "füg", "einfüg", "ergänz", "aufnehm", "add", "ajout", "aggiung"]
+            "anyWordStart": [
+              "hinzufüg",
+              "füg",
+              "einfüg",
+              "ergänz",
+              "aufnehm",
+              "add",
+              "ajout",
+              "aggiung"
+            ]
           },
           {
-            "anySubstring": ["container", "conteneur", "contenitore"]
+            "anySubstring": [
+              "container",
+              "conteneur",
+              "contenitore"
+            ]
           }
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "est-ce", "c'est", "cos'è", "è ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom "]
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom "
+            ]
           },
           {
-            "anySubstring": ["lösch", "entfern", "remove", "delete", "supprim", "retir", "elimin", "rimuov", "zurücksetz", "reset", "réinitialis", "ripristin", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+            "anySubstring": [
+              "lösch",
+              "entfern",
+              "remove",
+              "delete",
+              "supprim",
+              "retir",
+              "rimuov",
+              "zurücksetz",
+              "reset",
+              "réinitialis",
+              "ripristin",
+              "alle ",
+              "sämtlich",
+              "verteil",
+              "jede",
+              "mehrere",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "più ",
+              "ogni"
+            ],
+            "anyWordStart": [
+              "elimin"
+            ]
           },
           {
-            "anySubstring": ["modello contenitore"]
+            "anySubstring": [
+              "modello contenitore"
+            ]
           },
           {
-            "anySubstring": ["modèle conteneur"]
+            "anySubstring": [
+              "modèle conteneur"
+            ]
           },
           {
-            "anySubstring": ["container template"]
+            "anySubstring": [
+              "container template"
+            ]
           }
         ]
       },
@@ -1749,11 +4540,30 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
-            "anyWordStart": ["turno"],
+            "anyWordStart": [
+              "turno"
+            ],
             "anySubstring": [
               "absenz-typ",
               "absenzart",
@@ -1785,10 +4595,18 @@
             ]
           },
           {
-            "anySubstring": ["absence kind", "absence type", "absence category", "tipo malattia", "tipo di assenza"]
+            "anySubstring": [
+              "absence kind",
+              "absence type",
+              "absence category",
+              "tipo malattia",
+              "tipo di assenza"
+            ]
           },
           {
-            "anySubstring": ["tipo assenza"]
+            "anySubstring": [
+              "tipo assenza"
+            ]
           }
         ]
       },
@@ -1926,11 +4744,30 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
-            "anyWordStart": ["turno"],
+            "anyWordStart": [
+              "turno"
+            ],
             "anySubstring": [
               "lösch",
               "entfern",
@@ -1965,16 +4802,26 @@
             ]
           },
           {
-            "anySubstring": ["può spostare", "spostare un assenza"]
+            "anySubstring": [
+              "può spostare",
+              "spostare un assenza"
+            ]
           },
           {
-            "anySubstring": ["peut-il déplacer", "déplacer une absence"]
+            "anySubstring": [
+              "peut-il déplacer",
+              "déplacer une absence"
+            ]
           },
           {
-            "anySubstring": ["darf der planer"]
+            "anySubstring": [
+              "darf der planer"
+            ]
           },
           {
-            "anySubstring": ["verschiebt der assistent"]
+            "anySubstring": [
+              "verschiebt der assistent"
+            ]
           }
         ]
       },
@@ -2045,7 +4892,7 @@
         "fr": "Enregistrer les jours et heures où un employé est disponible (ou indisponible).",
         "it": "Registrare in quali giorni e ore un dipendente è disponibile (o non disponibile)."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 23,
       "trigger": {
@@ -2072,9 +4919,11 @@
               "verfuegbar",
               "verfügbarkeit",
               "availability",
-              "available",
-              "disponib",
               "disponibil"
+            ],
+            "anyWordStart": [
+              "disponib",
+              "available"
             ]
           }
         ],
@@ -2119,14 +4968,34 @@
               "c'è",
               "wer ",
               "qui ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
               "quando ",
               "dove ",
               "a chi "
             ]
           },
           {
-            "anyWordStart": ["turno"],
+            "anyWordStart": [
+              "turno",
+              "elimin"
+            ],
             "anySubstring": [
               "lösch",
               "entfern",
@@ -2136,7 +5005,6 @@
               "annull",
               "supprim",
               "retir",
-              "elimin",
               "rimuov",
               "azzer",
               "abwesenheit",
@@ -2171,7 +5039,9 @@
             ]
           },
           {
-            "anySubstring": ["availability records"]
+            "anySubstring": [
+              "availability records"
+            ]
           }
         ]
       },
@@ -2241,7 +5111,7 @@
         "fr": "Réinitialiser les disponibilités d'un employé pour une période afin que ces jours soient à nouveau entièrement ouverts.",
         "it": "Reimpostare le disponibilità di un dipendente per un periodo, in modo che quei giorni siano di nuovo completamente aperti."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 24,
       "trigger": {
@@ -2273,9 +5143,11 @@
               "verfuegbar",
               "verfügbarkeit",
               "availability",
-              "available",
-              "disponib",
               "disponibil"
+            ],
+            "anyWordStart": [
+              "disponib",
+              "available"
             ]
           }
         ],
@@ -2320,14 +5192,33 @@
               "c'è",
               "wer ",
               "qui ",
-              "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
               "quando ",
               "dove ",
               "a chi "
             ]
           },
           {
-            "anyWordStart": ["turno"],
+            "anyWordStart": [
+              "turno"
+            ],
             "anySubstring": [
               "abwesenheit",
               "absenz",
@@ -2416,7 +5307,7 @@
         "fr": "Clôture guidée de la période de paie : vérification préalable des problèmes, présentation des résultats, puis scellement de la période uniquement après confirmation explicite.",
         "it": "Chiusura guidata del periodo di paga: verifica preliminare dei problemi, presentazione dei risultati, poi sigillatura del periodo solo dopo conferma esplicita."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 70,
       "trigger": {
@@ -2452,7 +5343,9 @@
               "lohnlauf",
               "mois",
               "paie",
-              "mese",
+              "mese"
+            ],
+            "anyWordStart": [
               "paga"
             ]
           }
@@ -2516,11 +5409,19 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
-            "anyWordStart": ["turno", "order"],
+            "anyWordStart": [
+              "turno",
+              "order",
+              "mission"
+            ],
             "anySubstring": [
               "dienst",
               "schicht",
@@ -2531,7 +5432,6 @@
               "service",
               "quart",
               "commande",
-              "mission",
               "servizio",
               "ordine",
               "missione",
@@ -2546,7 +5446,10 @@
             ]
           },
           {
-            "anySubstring": ["periodo è sigillato", "protocollo dei sigilli"]
+            "anySubstring": [
+              "periodo è sigillato",
+              "protocollo dei sigilli"
+            ]
           }
         ]
       },
@@ -2651,7 +5554,9 @@
               "when ",
               "where ",
               "who ",
-              "whom ", "show ", "is there",
+              "whom ",
+              "show ",
+              "is there",
               "comment ",
               "pourquoi",
               "montre",
@@ -2675,7 +5580,11 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "est-ce", "c'est", "cos'è", "è "
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
             ]
           },
           {
@@ -2808,14 +5717,20 @@
               "quando ",
               "dove ",
               "a chi ",
-              "chi ", "est-ce", "c'est", "cos'è", "è ",
+              "chi ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è ",
               "how ",
               "what ",
               "why ",
               "show ",
               "which ",
               "explain",
-              "is there", "is ", "are ",
+              "is there",
+              "is ",
+              "are ",
               "when ",
               "where ",
               "who ",
@@ -2921,35 +5836,76 @@
         "fr": "Conseil jusqu'au premier service planifiable : explique comment une commande devient un service, pose deux questions et propose l'étape suivante.",
         "it": "Consulenza fino al primo servizio pianificabile: spiega come un ordine diventa un turno, pone due domande e propone il passo successivo."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 75,
       "trigger": {
         "allOf": [
           {
             "anySubstring": [
-              "wie fange ich an", "wie fang ich an", "wo fange ich an", "womit fange ich an",
-              "erste schritte", "ersten schritte", "noch nichts geplant", "nichts geplant",
-              "kann ich nichts planen", "wie richte ich klacks ein", "klacks einrichten", "loslegen",
-              "how do i get started", "getting started", "where do i start", "how do i start",
-              "first steps", "nothing planned yet", "set up klacks",
-              "comment commencer", "par où commencer", "par ou commencer", "premiers pas",
-              "premières étapes", "rien n'est encore planifié",
-              "come inizio", "da dove comincio", "come iniziare", "primi passi",
+              "wie fange ich an",
+              "wie fang ich an",
+              "wo fange ich an",
+              "womit fange ich an",
+              "erste schritte",
+              "ersten schritte",
+              "noch nichts geplant",
+              "nichts geplant",
+              "kann ich nichts planen",
+              "wie richte ich klacks ein",
+              "klacks einrichten",
+              "loslegen",
+              "how do i get started",
+              "getting started",
+              "where do i start",
+              "how do i start",
+              "first steps",
+              "nothing planned yet",
+              "set up klacks",
+              "comment commencer",
+              "par où commencer",
+              "par ou commencer",
+              "premiers pas",
+              "premières étapes",
+              "rien n'est encore planifié",
+              "come inizio",
+              "da dove comincio",
+              "come iniziare",
+              "primi passi",
               "non è stato ancora pianificato"
             ]
           }
         ],
         "noneOf": [
           {
-            "anyWordStart": ["erstell", "anleg", "erfass", "create", "crée", "crea"]
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "erfass",
+              "create",
+              "crée",
+              "crea"
+            ]
           },
           {
             "anySubstring": [
-              "tour", "rundgang", "walkthrough", "visite guid",
-              "planungsprofil", "planning profile", "profil de planification", "profilo di pianificazione",
-              "kalender", "calendar", "calendrier", "calendario",
-              "import status", "statut de l'import", "stato dell'import"
+              "rundgang",
+              "walkthrough",
+              "visite guid",
+              "planungsprofil",
+              "planning profile",
+              "profil de planification",
+              "profilo di pianificazione",
+              "kalender",
+              "calendar",
+              "calendrier",
+              "calendario",
+              "import status",
+              "statut de l'import",
+              "stato dell'import"
+            ],
+            "anyWordStart": [
+              "tour"
             ]
           }
         ]
@@ -2958,7 +5914,9 @@
         {
           "kind": "search",
           "skill": "get_setup_guidance",
-          "inject": { "phase": "intro" },
+          "inject": {
+            "phase": "intro"
+          },
           "note": "RECIPE 'setup-consultation' step 1 of 6: Data.ManualRoute explains what an order is, what a clientless duty is, and that sealing (an order, or a clientless duty on creation) is irreversible. Your NEXT reply MUST first explain, in two to three short sentences and using ONLY facts from Data.ManualRoute, the difference between a customer order and a clientless duty and that sealing cannot be undone — and ONLY AFTER that explanation ask the first recipe question. Never reply with the question alone. Do not offer any action yet, and never invent a folder, page or button that is not in Data.ManualRoute."
         },
         {
