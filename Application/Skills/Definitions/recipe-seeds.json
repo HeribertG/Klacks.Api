@@ -10,7 +10,7 @@
         "fr": "Intégrer un nouvel employé de bout en bout : créer la personne, attribuer le contrat de travail et l'ajouter à un groupe — le tout dans un flux guidé.",
         "it": "Inserire un nuovo dipendente dall'inizio alla fine: creare la persona, assegnare il contratto di lavoro e aggiungerla a un gruppo — tutto in un flusso guidato."
       },
-      "version": 9,
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -20,7 +20,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "ganze", "ganzen", "gesamte", "unsere ", "unser ", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "benutzerkonto", "systembenutzer", "user account", "login-konto", "client", "cliente", "créer un groupe", "nouveau groupe", "creare un gruppo", "nuovo gruppo", "service", "quart", "commande", "mission", "servizio", "ordine", "missione", "proche", "plus proche", "vicino", "più vicino", "géograph", "geografic", "meilleur", "migliore", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "formation", "formazione", "supprim", "retir", "annul", "elimin", "rimuov", "annull", "tous ", "toutes ", "plusieurs", "chaque", "notre ", "nos ", "tutti ", "tutte ", "ogni", "nostro ", "nostra ", "sélectionné", "sélectionnée", "coché", "cochée", "selezionat", "contrassegnat", "spuntat", "ces employés", "ces salariés", "ces clients", "ces personnes", "questi dipendenti", "questi clienti", "queste persone", "compte utilisateur", "compte de connexion", "account utente", "account di accesso"] },
+          { "anyWordStart": ["turno"], "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "ganze", "ganzen", "gesamte", "unsere ", "unser ", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "benutzerkonto", "systembenutzer", "user account", "login-konto", "client", "cliente", "créer un groupe", "nouveau groupe", "creare un gruppo", "nuovo gruppo", "service", "quart", "commande", "mission", "servizio", "ordine", "missione", "proche", "plus proche", "vicino", "più vicino", "géograph", "geografic", "meilleur", "migliore", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "formation", "formazione", "supprim", "retir", "annul", "elimin", "rimuov", "annull", "tous ", "toutes ", "plusieurs", "chaque", "notre ", "tutti ", "tutte ", "ogni", "nostro ", "nostra ", "sélectionné", "sélectionnée", "coché", "cochée", "selezionat", "contrassegnat", "spuntat", "ces employés", "ces salariés", "ces clients", "ces personnes", "questi dipendenti", "questi clienti", "queste persone", "compte utilisateur", "compte de connexion", "account utente", "account di accesso"] },
           {
             "anySubstring": ["to group"]
           }
@@ -1179,13 +1179,13 @@
         "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
         "allOf": [
           { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "divis", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "divid", "iscriv"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
           { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "employee", "angestellt", "personal", "belegschaft", "employé", "employés", "salarié", "personnel", "effectif", "dipendente", "dipendenti", "impiegato", "personale", "organico"] },
           { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "proche", "plus proche", "géograph", "meilleur", "vicino", "più vicino", "geografic", "migliore"] }
         ],
@@ -1212,13 +1212,13 @@
         "fr": "Réaffecter en masse chaque employé externe à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente esterno al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 58,
       "trigger": {
         "allOf": [
           { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "divis", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "divid", "iscriv"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
           { "anySubstring": ["extern", "externe", "esterno", "esterna"] },
           { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "proche", "plus proche", "géograph", "meilleur", "vicino", "più vicino", "geografic", "migliore"] }
         ],
@@ -1245,7 +1245,7 @@
         "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
         "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
       },
-      "version": 8,
+      "version": 9,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -1256,7 +1256,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "wann ", "wo ", "woher", "wohin", "wem ", "wen ", "wer ", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "quand ", "où ", "à qui ", "qui ", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "quando ", "dove ", "a chi ", "chi ", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "is ", "are ", "when ", "where ", "who ", "whom ", "est-ce", "c'est", "cos'è", "è "] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
           { "anyWordStart": ["turno"], "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti", "dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "elimin", "rimuov"] }
         ]
       },
