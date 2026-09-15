@@ -37,4 +37,17 @@ public static class RecipeEngineDefaults
     /// it with the full toolset, then this joins the still-open ask question onto the same response.
     /// </summary>
     public const string TopicSwitchReaskSeparator = "\n\n";
+
+    /// <summary>
+    /// Cap for the persisted triggering message. Enforced in code, not only in the column configuration:
+    /// EF InMemory ignores HasMaxLength, and this value is copied on every ask-pause rather than once.
+    /// </summary>
+    public const int PendingRecipeTriggerMessageMaxLength = 2000;
+
+    /// <summary>
+    /// Joins the triggering message and the correction into the composite that a re-resolve runs on. One
+    /// newline rather than two: the result is fed to matching and embedding, not shown to a user, and a
+    /// blank line invites a tokenizer to treat the halves as unrelated documents.
+    /// </summary>
+    public const string CorrectionCompositeSeparator = "\n";
 }

@@ -27,4 +27,11 @@ public sealed class PendingRecipeRow
     public bool AwaitingConfirmation { get; set; }
 
     public bool CaptureRewindUsed { get; set; }
+
+    /// <summary>
+    /// Persisted form of <see cref="PendingRecipe.TriggerMessage"/>. Capped in code, not only through the
+    /// column configuration: EF InMemory ignores HasMaxLength, so a length guard test against the store
+    /// would pass without the cap actually being applied.
+    /// </summary>
+    public string? TriggerMessage { get; set; }
 }

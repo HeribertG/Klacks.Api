@@ -1455,7 +1455,7 @@ public class LLMService : ILLMService
                             "correction of the recipe", resumed.Name, step!.Slot);
 
                         return await ResolveAfterCorrectionAsync(
-                            resumed.Name, context, provider, model, cancellationToken);
+                            resumed.Name, resumed.TriggerMessage, context, provider, model, cancellationToken);
                     }
                     else
                     {
@@ -1499,24 +1499,29 @@ public class LLMService : ILLMService
     /// </summary>
     private async Task<RecipeExecutionPlan?> ResolveAfterCorrectionAsync(
         string abortedRecipeName,
+        string? triggerMessage,
         LLMContext context,
         ILLMProvider provider,
         LLMModel model,
         CancellationToken cancellationToken)
     {
-        // Resolving on the correction alone usually finds nothing: the engine suppresses the semantic
-        // fallback for a message that opens with a negation and carries no mutation verb, correctly,
-        // because such a message is not a standalone request. The intent sits in the message that
-        // triggered the recipe, and nothing persists that message yet.
+        // The composite, not the correction. On its own the correction usually resolves to nothing: it
+        // opens with a negation and carries no mutation verb, so the engine suppresses the semantic
+        // fallback - correctly, because such a message is not a standalone request. The intent sits in the
+        // message that triggered the recipe, which PendingRecipe.TriggerMessage now carries across turns.
+        // Composed through RecipeCorrectionComposer because the toolset assembler must produce the same
+        // bytes to guarantee the same recipe's skills for this turn.
+        var composite = RecipeCorrectionComposer.Compose(triggerMessage, context.Message);
+
         var fresh = await _recipeEngine.ResolveAsync(
-            context.Message, context.Language, context.UserRights, cancellationToken);
+            composite, context.Language, context.UserRights, cancellationToken);
         if (fresh == null || string.Equals(fresh.Name, abortedRecipeName, StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
         var extracted = await _slotExtractor.ExtractAsync(
-            provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
+            provider, model, composite, fresh.AskSlotHints(), cancellationToken);
         fresh.PrefillSlots(extracted);
         fresh.AdvanceOverSatisfied();
 

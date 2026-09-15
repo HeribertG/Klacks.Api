@@ -49,7 +49,8 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         string? alternativeGoal = null,
         bool captureRewindUsed = false,
         IReadOnlyDictionary<string, string>? goalTranslations = null,
-        IReadOnlyDictionary<string, string>? alternativeGoalTranslations = null)
+        IReadOnlyDictionary<string, string>? alternativeGoalTranslations = null,
+        string? triggerMessage = null)
     {
         Name = name;
         Goal = string.IsNullOrWhiteSpace(goal) ? name : goal;
@@ -61,7 +62,16 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         _index = stepIndex;
         NeedsConfirmation = needsConfirmation;
         _captureRewindUsed = captureRewindUsed;
+        TriggerMessage = triggerMessage;
     }
+
+    /// <summary>
+    /// The message that engaged this recipe, carried across turns so a later correction can be resolved
+    /// against the original intent instead of against the correction alone. Last constructor parameter on
+    /// purpose: the first four are passed positionally at every call site, so inserting one anywhere
+    /// earlier would silently shift stepIndex rather than fail to compile.
+    /// </summary>
+    public string? TriggerMessage { get; }
 
     public string Name { get; }
 

@@ -46,6 +46,10 @@ public class PendingRecipeRepository : IPendingRecipeRepository
         existing.ExpiresAtUtc = row.ExpiresAtUtc;
         existing.AwaitingConfirmation = row.AwaitingConfirmation;
         existing.CaptureRewindUsed = row.CaptureRewindUsed;
+        // Explicit field copy, so a column added to the row without being added here is silently dropped
+        // on every re-persist - and the update path is the normal case, not the exception: Persist runs on
+        // every ask-pause, so from turn two onwards the row already exists.
+        existing.TriggerMessage = row.TriggerMessage;
         await _context.SaveChangesAsync(cancellationToken);
     }
 
