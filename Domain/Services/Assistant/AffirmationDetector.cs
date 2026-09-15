@@ -6,7 +6,8 @@
 /// action. Combined with an outstanding pending confirmation, the orchestrator uses it to force a
 /// real tool call so the model actually executes confirm_pending_action instead of replying in prose.
 /// It deliberately favours precision over recall: a negation token anywhere ("nein", "nicht",
-/// "abbrechen", "no", "cancel") or a trailing question suppresses the signal, so an ambiguous reply
+/// "abbrechen", "no", "cancel") or a question mark anywhere - not only a trailing one, see
+/// RecipeReplyGuard.QuestionMarks for the marks covered - suppresses the signal, so an ambiguous reply
 /// like "ja, aber nicht heute" or "ja? was kostet das" leaves the existing "auto" behaviour intact.
 /// Core languages (de/en/fr/it) are handled by hardcoded tokens. Plugin language entries are
 /// loaded at startup via Configure() from conversation-signals.json files in each language plugin.

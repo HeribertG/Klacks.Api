@@ -51,7 +51,10 @@ public static class EscalationAcknowledgementDetector
             return true;
         }
 
-        if (trimmed.Contains('?'))
+        // QuestionMarks, not '?': the same ASCII-only test was just removed from AffirmationDetector, and
+        // a question punctuated with the fullwidth or Arabic mark is still a question, not an
+        // acknowledgement.
+        if (trimmed.IndexOfAny(RecipeReplyGuard.QuestionMarks) >= 0)
         {
             return false;
         }
