@@ -81,7 +81,10 @@ public static class AffirmationDetector
 
     public static bool IsAffirmation(string? message)
     {
-        if (string.IsNullOrWhiteSpace(message) || message.Contains('?'))
+        // QuestionMarks, not '?': the confirmation gate this guards is reached in all 25 languages, and
+        // a CJK or Arabic punctuated question ("大丈夫？") used to be read as an affirmation candidate
+        // because the ASCII test missed it. RecipeTopicSwitchDetector already gates on the same set.
+        if (string.IsNullOrWhiteSpace(message) || message.IndexOfAny(RecipeReplyGuard.QuestionMarks) >= 0)
         {
             return false;
         }
