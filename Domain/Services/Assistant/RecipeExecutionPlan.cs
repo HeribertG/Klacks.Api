@@ -214,15 +214,35 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     }
 
     /// <summary>
-    /// True when the current ask step's slot is injected into a later search step that captures a value,
-    /// so the expected answer is an entity reference that must resolve to exactly one row (the
-    /// lone-element capture rule). This is a property of the recipe definition rather than of the
-    /// message, which is what makes it usable as a correction signal in all 25 languages: a multi-clause
-    /// sentence is not a plausible person, client or group name, and no vocabulary list has to decide
-    /// that. Vocabulary-based gates cannot reach the 21 plugin languages at all, because noneOf is
-    /// core-language only.
+    /// Slot-name suffix marking an entity name, see CurrentAskSlotExpectsAnEntityName.
     /// </summary>
-    public bool CurrentAskSlotFeedsACapturingSearch()
+    private const string EntityReferenceSlotSuffix = "Name";
+
+    /// <summary>
+    /// True when the current ask step's slot expects an entity name rather than free text - either the
+    /// name of an existing entity to resolve, or the name of one being created
+    /// (onboard-employee/employeeName, user-onboarding/fullName, create-group/groupName,
+    /// create-shift-order/shiftName). Both have the property the correction gate needs: a multi-clause
+    /// sentence is not a plausible value. Two independent signals, either one sufficient:
+    ///
+    /// Structural - the slot is injected into a later search step that captures a value, so the engine
+    /// binds it to a single row (the lone-element capture rule).
+    ///
+    /// Conventional - the slot is named *Name. This is what covers the entity references the structural
+    /// test cannot see: move-group/groupName and newParentName, onboard-employee/contractName and
+    /// groupName, bulk-add-employees-to-group/groupName and add-selected-clients-to-group/groupName are
+    /// resolved by name inside a MUTATE skill, so there is no capturing search step to find. Those are the
+    /// write paths, and they are the expensive ones to miss: a correction raw-filled into groupName reaches
+    /// a name resolver whose fuzzy token-cover stage asks whether every word of the STORED name appears in
+    /// the QUERY, so a longer query covers MORE readily - move_group then writes against whatever it found.
+    ///
+    /// Both signals are properties of the recipe definition rather than of the message, so they hold in
+    /// every language; vocabulary-based gates reach the four core languages only, because noneOf is
+    /// core-language vocabulary. The convention is not left to chance: the admitted set is derived from the
+    /// real seed file and pinned by RecipeCorrectionEntityReferenceCensusTests, so a free-text slot named
+    /// *Name shows up there instead of silently widening the correction gate.
+    /// </summary>
+    public bool CurrentAskSlotExpectsAnEntityName()
     {
         if (!CurrentIsAsk)
         {
@@ -233,6 +253,11 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         if (string.IsNullOrWhiteSpace(slot))
         {
             return false;
+        }
+
+        if (slot.EndsWith(EntityReferenceSlotSuffix, StringComparison.Ordinal))
+        {
+            return true;
         }
 
         for (var i = _index + 1; i < _steps.Count; i++)
