@@ -1425,6 +1425,30 @@ public class LLMService : ILLMService
                         return null;
                     }
 
+                    // A correction of the RECIPE ("Nein du hast mich missverstanden, alle Mitarbeitern,
+                    // Externen und Kunden. Plural nicht singular") is neither a cancellation nor an answer:
+                    // raw-filling it sends the whole sentence to the entity search the slot feeds. Abort and
+                    // resolve afresh on this message.
+                    //
+                    // Honest limit of this stage: resolving on the correction alone finds nothing when the
+                    // message opens with a negation and carries no mutation verb, because the engine
+                    // suppresses the semantic fallback there — correctly, such a message is not a standalone
+                    // request. The intent sits in the message that triggered the recipe, and nothing persists
+                    // it yet. Carrying it along is stage 2; until then this branch stops the wrong search
+                    // rather than guaranteeing the right skill.
+                    if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
+                    {
+                        await _recipeRunRecorder.AbortRunningAsync(
+                            resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
+                        _recipeEngine.Clear(userGuid, conversationId);
+                        _logger.LogInformation(
+                            "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
+                            "correction of the recipe, resolving afresh on it", resumed.Name, step!.Slot);
+
+                        return await _recipeEngine.ResolveAsync(
+                            context.Message, context.Language, context.UserRights, cancellationToken);
+                    }
+
                     // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
                     // pending slot either — raw-filling it would silence every skill the tool-less ask-step
                     // call could otherwise have used to answer it. Leave the slot unfilled and let the loop

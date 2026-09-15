@@ -214,6 +214,48 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     }
 
     /// <summary>
+    /// True when the current ask step's slot is injected into a later search step that captures a value,
+    /// so the expected answer is an entity reference that must resolve to exactly one row (the
+    /// lone-element capture rule). This is a property of the recipe definition rather than of the
+    /// message, which is what makes it usable as a correction signal in all 25 languages: a multi-clause
+    /// sentence is not a plausible person, client or group name, and no vocabulary list has to decide
+    /// that. Vocabulary-based gates cannot reach the 21 plugin languages at all, because noneOf is
+    /// core-language only.
+    /// </summary>
+    public bool CurrentAskSlotFeedsACapturingSearch()
+    {
+        if (!CurrentIsAsk)
+        {
+            return false;
+        }
+
+        var slot = _steps[_index].Slot;
+        if (string.IsNullOrWhiteSpace(slot))
+        {
+            return false;
+        }
+
+        for (var i = _index + 1; i < _steps.Count; i++)
+        {
+            var step = _steps[i];
+            if (!string.Equals(step.Kind, RecipeStepKinds.Search, StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(step.Capture)
+                || step.Inject == null)
+            {
+                continue;
+            }
+
+            if (step.Inject.Values.Any(value =>
+                    string.Equals(TryGetSlotName(value), slot, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Advance past steps whose work is already done: an ask whose slot is filled, or a search whose
     /// capture target slot is filled. Stops at the first step that still needs the model (an unfilled
     /// ask, or any push step). Returns when no more steps can be auto-satisfied.

@@ -48,6 +48,21 @@ public static class ImplicitCorrectionDetector
         }
     }
 
+    /// <summary>
+    /// Discards every plugin entry and keeps the core-language tokens. Test-only, and the reason it
+    /// exists is that Configure is additive on process-wide static state: a fixture that configures
+    /// plugin corrections leaks them into every later fixture in the same run. DeclineDetector and
+    /// AffirmationDetector already carry this; without it a detector that delegates here cannot be
+    /// tested hermetically.
+    /// </summary>
+    internal static void Reset()
+    {
+        lock (_configureLock)
+        {
+            _pluginCorrectionEntries = [];
+        }
+    }
+
     public static bool IsCorrectionSignal(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
