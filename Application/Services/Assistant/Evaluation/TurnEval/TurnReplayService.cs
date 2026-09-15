@@ -203,11 +203,7 @@ public class TurnReplayService : ITurnReplayService
                 continue;
             }
 
-            IReadOnlyCollection<string>? synonyms = null;
-            if (language != null && recipe.Synonyms != null && recipe.Synonyms.TryGetValue(language, out var languageSynonyms))
-            {
-                synonyms = languageSynonyms;
-            }
+            IReadOnlyCollection<string>? synonyms = recipe.SynonymsFor(language);
 
             if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, language))
             {

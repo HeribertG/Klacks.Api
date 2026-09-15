@@ -168,7 +168,7 @@ public class RecipeEngineService
                                   && !MutationIntentDetector.IsInformationQuestion(message)
                                   && !isLeadingDecline;
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
-            ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken)
+            ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, language, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);
         var match = triggerMatch?.Recipe ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
@@ -185,7 +185,7 @@ public class RecipeEngineService
         foreach (var recipe in recipes)
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-            var synonyms = SynonymsFor(recipe, language);
+            var synonyms = recipe.SynonymsFor(language);
             if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, logger, language))
             {
                 return (recipe, trigger, synonyms);
@@ -275,7 +275,7 @@ public class RecipeEngineService
     }
 
     private async Task<(AgentRecipe? Recipe, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeSemanticAsync(
-        IServiceScope scope, List<AgentRecipe> recipes, string message, CancellationToken cancellationToken)
+        IServiceScope scope, List<AgentRecipe> recipes, string message, string? language, CancellationToken cancellationToken)
     {
         var retrieval = scope.ServiceProvider.GetRequiredService<IKnowledgeRetrievalService>();
 
@@ -329,7 +329,7 @@ public class RecipeEngineService
                 continue;
             }
 
-            if (IsVetoedByNoneOfGuard(resolved, message, _logger))
+            if (IsVetoedByNoneOfGuard(resolved, message, _logger, language))
             {
                 _logger.LogInformation(
                     "Recipe '{Recipe}' semantic candidate (score={Score:F3}) vetoed by its noneOf guard.",
@@ -364,7 +364,7 @@ public class RecipeEngineService
             }
 
             var alternativeRecipe = FindRecipeByName(recipes, candidate.Entry.SourceId);
-            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger))
+            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger, language))
             {
                 continue;
             }
@@ -458,26 +458,6 @@ public class RecipeEngineService
 
     private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger, string? language = null)
         => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language);
-
-    private static IReadOnlyCollection<string>? SynonymsFor(AgentRecipe recipe, string? language)
-    {
-        if (string.IsNullOrEmpty(language) || recipe.Synonyms == null)
-        {
-            return null;
-        }
-
-        // Case-insensitive on the language key so a casing/culture variant ("ES") still resolves, while
-        // preserving region-qualified plugin codes such as "zh-CN" (compared, not lowercased).
-        foreach (var entry in recipe.Synonyms)
-        {
-            if (string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase))
-            {
-                return entry.Value;
-            }
-        }
-
-        return null;
-    }
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)
     {
