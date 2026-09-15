@@ -23,16 +23,24 @@ public static class RecipeCorrectionDetector
     /// Floor separating a correction from a short entity name. It cannot be the precision gate: the two
     /// calibration cases in the design spec are 50 and 49 characters long, so no threshold separates them
     /// and picking the value between them would be fitting to two data points. Precision comes from C1 —
-    /// the 49-character case is an answer to a criteria slot, and C1 only admits slots that feed a
-    /// capturing entity search. This floor only has to sit above any plausible person, client or group
-    /// name.
+    /// the 49-character case is an answer to a criteria slot, and C1 only admits slots that expect an
+    /// entity name. This floor only has to sit above any plausible person, client or group name.
     /// Characters rather than words because every word counter in this namespace tokenizes with \p{L}+,
     /// and Han/Kana are written without spaces: an entire Chinese sentence is one token, so a word-count
     /// floor rejects zh/ja outright instead of judging them. The floor is still calibrated on Latin text,
     /// which makes it too high for compact scripts — a faithful Chinese rendering of the incident this
-    /// detector exists for is 39 characters and misses. Per-script thresholds are known debt.
+    /// detector exists for is 39 characters and misses it - hence the second floor below.
     /// </summary>
     private const int MinCorrectionLengthInChars = 40;
+
+    /// <summary>
+    /// The same floor for Thai, Kana and Han, where one character carries roughly what a Latin word does
+    /// and the Latin floor is therefore far too high. 24 keeps a wide margin over an entity name (2-6 Han
+    /// characters; Thai runs longer because combining vowels and tone marks inflate Length) while still
+    /// admitting any real sentence. Both floors are reasoned rather than measured - calibrating them per
+    /// script is what the turn-eval goldset is for.
+    /// </summary>
+    private const int MinCorrectionLengthInNonSegmentedScriptChars = 24;
 
     /// <summary>
     /// True when the message contradicts the recipe AND the open ask step cannot plausibly be what the
@@ -70,8 +78,11 @@ public static class RecipeCorrectionDetector
             return false;
         }
 
-        // Gate C2 - substance beyond the cue itself. Keeps "Montag, aber nicht Dienstag" out: a cue and a
-        // capturing slot, but no correction.
-        return message.Length >= MinCorrectionLengthInChars;
+        // Gate C2 - substance beyond the cue itself. Keeps "Montag, aber nicht Dienstag" out: a cue and an
+        // entity-name slot, but no correction.
+        var floor = PluginPhraseMatcher.UsesNonSegmentedScript(message)
+            ? MinCorrectionLengthInNonSegmentedScriptChars
+            : MinCorrectionLengthInChars;
+        return message.Length >= floor;
     }
 }
