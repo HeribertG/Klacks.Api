@@ -1493,9 +1493,9 @@ public class LLMService : ILLMService
     /// execute. Re-engaging a push-first recipe belongs to the assembler, which is where the composite
     /// intent message has to be built anyway.
     ///
-    /// A fresh plan for the recipe that was just aborted is discarded rather than returned: it would
-    /// restart at step 0 with every slot the user already supplied thrown away, which is worse than the
-    /// raw-fill this branch prevented.
+    /// A fresh plan for the recipe that was just aborted cannot occur: it is excluded from the match
+    /// rather than discarded afterwards, because re-matching it would restart at step 0 with every slot
+    /// the user already supplied thrown away, which is worse than the raw-fill this branch prevented.
     /// </summary>
     private async Task<RecipeExecutionPlan?> ResolveAfterCorrectionAsync(
         string abortedRecipeName,
@@ -1509,13 +1509,15 @@ public class LLMService : ILLMService
         // opens with a negation and carries no mutation verb, so the engine suppresses the semantic
         // fallback - correctly, because such a message is not a standalone request. The intent sits in the
         // message that triggered the recipe, which PendingRecipe.TriggerMessage now carries across turns.
-        // Composed through RecipeCorrectionComposer because the toolset assembler must produce the same
-        // bytes to guarantee the same recipe's skills for this turn.
+        // Composed through RecipeCorrectionComposer because the toolset assembler produces the same bytes:
+        // FindMatchingRecipeAsync memoizes on (message, language, excluded), so identical composition and
+        // identical exclusion mean this call reuses the entry GuaranteedSkillNamesAsync already warmed for
+        // this turn instead of paying for a second embedding round.
         var composite = RecipeCorrectionComposer.Compose(triggerMessage, context.Message);
 
         var fresh = await _recipeEngine.ResolveAsync(
-            composite, context.Language, context.UserRights, cancellationToken);
-        if (fresh == null || string.Equals(fresh.Name, abortedRecipeName, StringComparison.OrdinalIgnoreCase))
+            composite, context.Language, context.UserRights, cancellationToken, abortedRecipeName);
+        if (fresh == null)
         {
             return null;
         }

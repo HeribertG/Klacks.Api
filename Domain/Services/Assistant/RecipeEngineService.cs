@@ -59,7 +59,11 @@ public class RecipeEngineService
     // itself: ResolveAsync uses it to decide whether the plan needs a confirmation gate, and a cache hit
     // that dropped this flag would silently skip the gate for a semantically-matched recipe. The same
     // holds for HasCompetingSkillIntent: it also feeds the confirmation gate decision.
-    private (string Message, string? Language, AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)? _matchMemo;
+    // ExcludedRecipeName is part of the KEY, not only of the payload: a call that excludes the recipe the
+    // user just corrected must neither be served from nor overwrite the entry a call without that
+    // exclusion produced for the same text. Same reason MatchedSemantically and HasCompetingSkillIntent
+    // are cached alongside the recipe rather than recomputed.
+    private (string Message, string? Language, string? ExcludedRecipeName, AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)? _matchMemo;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -76,9 +80,17 @@ public class RecipeEngineService
         _logger = logger;
     }
 
+    /// <param name="excludedRecipeName">
+    /// Recipe to skip while matching, used after a correction aborted the pending one. Last parameter on
+    /// purpose rather than before cancellationToken: every existing caller - both chat loops, the
+    /// capability learner and the engine's own tests - passes the first four positionally, and inserting a
+    /// parameter among them would rebind cancellationToken instead of failing to compile. The ordering is
+    /// unconventional and deliberate.
+    /// </param>
     public async Task<RecipeExecutionPlan?> ResolveAsync(
         string? message, string? language = null,
-        IReadOnlyCollection<string>? userRights = null, CancellationToken cancellationToken = default)
+        IReadOnlyCollection<string>? userRights = null, CancellationToken cancellationToken = default,
+        string? excludedRecipeName = null)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -90,7 +102,7 @@ public class RecipeEngineService
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
         var (recipe, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations) =
-            await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken);
+            await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken, excludedRecipeName);
         if (recipe == null)
         {
             return null;
@@ -135,7 +147,8 @@ public class RecipeEngineService
     // ResolveAsync can gate a semantic match behind a user confirmation before forcing its steps.
     private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, string? language,
-        IReadOnlyCollection<string>? userRights, CancellationToken cancellationToken)
+        IReadOnlyCollection<string>? userRights, CancellationToken cancellationToken,
+        string? excludedRecipeName = null)
     {
         if (recipes.Count == 0)
         {
@@ -143,9 +156,23 @@ public class RecipeEngineService
         }
 
         var memo = _matchMemo;
-        if (memo != null && memo.Value.Message == message && memo.Value.Language == language)
+        if (memo != null && memo.Value.Message == message && memo.Value.Language == language
+                         && memo.Value.ExcludedRecipeName == excludedRecipeName)
         {
             return (memo.Value.Recipe, memo.Value.MatchedSemantically, memo.Value.HasCompetingSkillIntent, memo.Value.AlternativeGoal, memo.Value.AlternativeGoalTranslations);
+        }
+
+        // Filtered once, here, so both matching paths inherit it: the deterministic trigger walk AND the
+        // semantic fallback, including the two noneOf veto checks inside it that resolve candidates by name
+        // out of this same list. Excluding inside only one of the paths would leave the other free to hand
+        // back the recipe the user just corrected - and for a correction, re-matching it is the worst
+        // outcome, because the plan would restart at step 0 with every collected slot discarded.
+        var eligible = string.IsNullOrWhiteSpace(excludedRecipeName)
+            ? recipes
+            : recipes.Where(r => !string.Equals(r.Name, excludedRecipeName, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (eligible.Count == 0)
+        {
+            return (null, false, false, null, null);
         }
 
         // Every recipe is a guided MUTATION flow (create/add/onboard/setup/bulk). The semantic fallback
@@ -162,21 +189,21 @@ public class RecipeEngineService
         // otherwise rank into the grey zone of a mutation recipe and hijack the turn into a
         // confirmation gate. A mutation verb after the negation ("Nein, erstelle stattdessen ...")
         // re-enables the fallback because the negation then corrects course instead of declining.
-        var triggerMatch = MatchByTrigger(recipes, message, language, _logger);
+        var triggerMatch = MatchByTrigger(eligible, message, language, _logger);
         var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
                                && !MutationIntentDetector.IsMutationIntent(message);
         var runSemanticFallback = triggerMatch == null
                                   && !MutationIntentDetector.IsInformationQuestion(message)
                                   && !isLeadingDecline;
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
-            ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, language, cancellationToken)
+            ? await FindMatchingRecipeSemanticAsync(scope, eligible, message, language, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);
         var match = triggerMatch?.Recipe ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
         var hasCompetingSkillIntent = triggerMatch != null
             && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, userRights, cancellationToken);
 
-        _matchMemo = (message, language, match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
+        _matchMemo = (message, language, excludedRecipeName, match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
         return (match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
     }
 
@@ -437,7 +464,14 @@ public class RecipeEngineService
                 var paused = await repository.GetByNameAsync(pending.RecipeName, cancellationToken);
                 if (paused != null && paused.IsEnabled)
                 {
-                    return ExtractStepSkills(paused);
+                    // Not unconditional: when this very message corrects the paused recipe, the turn will
+                    // run a different one, and the toolset is already final by then - assembly happens
+                    // before LLMService runs, so the correction branch cannot widen it afterwards.
+                    // Guaranteeing the paused recipe's skills in that case is exactly the gap that made a
+                    // re-resolved recipe unexecutable.
+                    var corrected = await FindCorrectedRecipeAsync(
+                        scope, repository, pending, paused, message, language, userRights, cancellationToken);
+                    return ExtractStepSkills(corrected ?? paused);
                 }
             }
         }
@@ -453,6 +487,60 @@ public class RecipeEngineService
         }
 
         return [];
+    }
+
+    /// <summary>
+    /// Resolves the recipe a correction points at, so the toolset can guarantee ITS step skills. Null when
+    /// the message is not a strong correction of the paused recipe, or when nothing else matches - both
+    /// leave the caller on the paused recipe's own skills, which is the behaviour before stage 2.
+    ///
+    /// Matches on the same composite and with the same exclusion the correction branch in LLMService uses,
+    /// through RecipeCorrectionComposer. That is not tidiness: FindMatchingRecipeAsync memoizes on
+    /// (message, language, excluded), so identical composition means this call warms the entry the branch
+    /// then hits - one embedding round instead of two, and the toolset and the plan cannot disagree about
+    /// which recipe matched.
+    /// </summary>
+    private async Task<AgentRecipe?> FindCorrectedRecipeAsync(
+        IServiceScope scope,
+        IAgentRecipeRepository repository,
+        PendingRecipe pending,
+        AgentRecipe paused,
+        string? message,
+        string? language,
+        IReadOnlyCollection<string>? userRights,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return null;
+        }
+
+        var pausedSteps = Deserialize<List<RecipeStep>>(paused.StepsJson);
+        if (pausedSteps == null || pausedSteps.Count == 0)
+        {
+            return null;
+        }
+
+        var pausedPlan = new RecipeExecutionPlan(
+            paused.Name,
+            pausedSteps,
+            new Dictionary<string, string>(pending.Slots, StringComparer.OrdinalIgnoreCase),
+            pending.StepIndex,
+            captureRewindUsed: pending.CaptureRewindUsed,
+            triggerMessage: pending.TriggerMessage);
+        if (!RecipeCorrectionDetector.IsStrongCorrection(message, pausedPlan))
+        {
+            return null;
+        }
+
+        var composite = RecipeCorrectionComposer.Compose(pending.TriggerMessage, message);
+        var recipes = await repository.GetAllEnabledAsync(cancellationToken);
+
+        // Excluded here rather than filtered afterwards, so the memo entry this writes is the one the
+        // correction branch reuses instead of a second entry for the same text.
+        var (corrected, _, _, _, _) = await FindMatchingRecipeAsync(
+            scope, recipes, composite, language, userRights, cancellationToken, paused.Name);
+        return corrected;
     }
 
     private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)
