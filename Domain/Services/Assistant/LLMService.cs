@@ -1425,30 +1425,6 @@ public class LLMService : ILLMService
                         return null;
                     }
 
-                    // A correction of the RECIPE ("Nein du hast mich missverstanden, alle Mitarbeitern,
-                    // Externen und Kunden. Plural nicht singular") is neither a cancellation nor an answer:
-                    // raw-filling it sends the whole sentence to the entity search the slot feeds. Abort and
-                    // resolve afresh on this message.
-                    //
-                    // Honest limit of this stage: resolving on the correction alone finds nothing when the
-                    // message opens with a negation and carries no mutation verb, because the engine
-                    // suppresses the semantic fallback there — correctly, such a message is not a standalone
-                    // request. The intent sits in the message that triggered the recipe, and nothing persists
-                    // it yet. Carrying it along is stage 2; until then this branch stops the wrong search
-                    // rather than guaranteeing the right skill.
-                    if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
-                    {
-                        await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
-                        _recipeEngine.Clear(userGuid, conversationId);
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
-                            "correction of the recipe, resolving afresh on it", resumed.Name, step!.Slot);
-
-                        return await _recipeEngine.ResolveAsync(
-                            context.Message, context.Language, context.UserRights, cancellationToken);
-                    }
-
                     // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
                     // pending slot either — raw-filling it would silence every skill the tool-less ask-step
                     // call could otherwise have used to answer it. Leave the slot unfilled and let the loop
@@ -1461,6 +1437,25 @@ public class LLMService : ILLMService
                             "Recipe '{Recipe}' ask step (slot {Slot}) bypassed for one turn: message reads " +
                             "as an independent question, running a normal full-tool turn and re-asking afterwards",
                             resumed.Name, step!.Slot);
+                    }
+                    // Checked after the topic switch, not before it. A topic switch requires a question
+                    // mark, an interrogative lead and two words, so it is the more specific finding — and
+                    // the recoverable one, since it answers the question and re-asks the same slot on the
+                    // next turn. A message satisfying both ("Nein, nicht so — wie finde ich heraus, welche
+                    // Gruppen ein Mitarbeiter schon hat?") is far more likely an independent question, and
+                    // aborting for it would trade a recoverable turn for a lost recipe. The correction this
+                    // branch exists for carries no question mark, so the ordering costs it nothing.
+                    else if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
+                    {
+                        await _recipeRunRecorder.AbortRunningAsync(
+                            resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
+                        _recipeEngine.Clear(userGuid, conversationId);
+                        _logger.LogInformation(
+                            "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
+                            "correction of the recipe", resumed.Name, step!.Slot);
+
+                        return await ResolveAfterCorrectionAsync(
+                            resumed.Name, context, provider, model, cancellationToken);
                     }
                     else
                     {
@@ -1485,6 +1480,47 @@ public class LLMService : ILLMService
         }
 
         return fresh;
+    }
+
+    /// <summary>
+    /// Re-engages a recipe after the pending one was aborted because the user corrected it.
+    ///
+    /// Only a plan that stops on an ask is handed back. This turn's toolset was assembled before
+    /// LLMService ran and guaranteed the step skills of the recipe that was just aborted, so a plan whose
+    /// first open step forces a skill cannot be driven: ResolveRecipeIteration finds the skill missing and
+    /// the forcing silently no-ops, leaving an active plan that never pauses on an ask and is therefore
+    /// never persisted. An ask step needs no tool at all, so it is the one shape this turn can still
+    /// execute. Re-engaging a push-first recipe belongs to the assembler, which is where the composite
+    /// intent message has to be built anyway.
+    ///
+    /// A fresh plan for the recipe that was just aborted is discarded rather than returned: it would
+    /// restart at step 0 with every slot the user already supplied thrown away, which is worse than the
+    /// raw-fill this branch prevented.
+    /// </summary>
+    private async Task<RecipeExecutionPlan?> ResolveAfterCorrectionAsync(
+        string abortedRecipeName,
+        LLMContext context,
+        ILLMProvider provider,
+        LLMModel model,
+        CancellationToken cancellationToken)
+    {
+        // Resolving on the correction alone usually finds nothing: the engine suppresses the semantic
+        // fallback for a message that opens with a negation and carries no mutation verb, correctly,
+        // because such a message is not a standalone request. The intent sits in the message that
+        // triggered the recipe, and nothing persists that message yet.
+        var fresh = await _recipeEngine.ResolveAsync(
+            context.Message, context.Language, context.UserRights, cancellationToken);
+        if (fresh == null || string.Equals(fresh.Name, abortedRecipeName, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var extracted = await _slotExtractor.ExtractAsync(
+            provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
+        fresh.PrefillSlots(extracted);
+        fresh.AdvanceOverSatisfied();
+
+        return fresh.CurrentIsAsk ? fresh : null;
     }
 
     // Execution-time replacement for the former per-iteration toolset shrinking: read-only skills

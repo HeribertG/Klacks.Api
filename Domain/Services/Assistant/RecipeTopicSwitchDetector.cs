@@ -32,7 +32,15 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public static class RecipeTopicSwitchDetector
 {
     private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
-    private static readonly char[] SentenceTerminators = { '.', '!', '?', '\n', ';' };
+
+    /// <summary>
+    /// Spreads RecipeReplyGuard.QuestionMarks rather than listing '?' again: the gate below already
+    /// accepts the fullwidth and Arabic marks, so a message punctuated with them passed that gate and then
+    /// failed to split. The sentence-level scan for an interrogative lead then saw one long sentence
+    /// opening with a statement, and the question was raw-filled into the pending slot - the exact bug
+    /// this detector exists for, in any language that does not write ASCII punctuation.
+    /// </summary>
+    private static readonly char[] SentenceTerminators = ['.', '!', '\n', ';', .. RecipeReplyGuard.QuestionMarks];
 
     private const int MinWordCountForTopicSwitch = 2;
 

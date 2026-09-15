@@ -224,7 +224,13 @@ public class RecipeDraftValidator : IRecipeDraftValidator
     {
         foreach (var goldenCase in goldenCases)
         {
-            if (RecipeTriggerMatcher.Matches(trigger, goldenCase.Query))
+            // With the golden case's locale, not without it: 18 of the seeded recipes scope a term through
+            // anyWordStartByLocale, and RecipeTriggerMatcher skips every such condition when the language
+            // is null. A draft that swallowed a de-bound bulk utterance would then pass this check, and an
+            // enabled recipe is live the instant it is written - there is no window to measure and withdraw
+            // it. The locale is already on the golden case; the other three Matches calls in this class
+            // probe a draft that carries no language of its own and stay locale-blind until it does.
+            if (RecipeTriggerMatcher.Matches(trigger, null, goldenCase.Query, goldenCase.Locale))
             {
                 return $"It would swallow the utterance '{goldenCase.Query}', which must reach "
                        + $"'{goldenCase.ExpectedSourceId}'.";
