@@ -49,7 +49,8 @@ public class PersistentPendingRecipeStore : IPendingRecipeStore
             SlotsJson = JsonSerializer.Serialize(pending.Slots, JsonOptions),
             ExpiresAtUtc = pending.ExpiresAtUtc,
             AwaitingConfirmation = pending.AwaitingConfirmation,
-            CaptureRewindUsed = pending.CaptureRewindUsed
+            CaptureRewindUsed = pending.CaptureRewindUsed,
+            TriggerMessage = pending.TriggerMessage
         };
 
         using var scope = _scopeFactory.CreateScope();
@@ -84,7 +85,8 @@ public class PersistentPendingRecipeStore : IPendingRecipeStore
             Slots = DeserializeSlots(row.SlotsJson),
             ExpiresAtUtc = row.ExpiresAtUtc,
             AwaitingConfirmation = row.AwaitingConfirmation,
-            CaptureRewindUsed = row.CaptureRewindUsed
+            CaptureRewindUsed = row.CaptureRewindUsed,
+            TriggerMessage = row.TriggerMessage
         };
     }
 

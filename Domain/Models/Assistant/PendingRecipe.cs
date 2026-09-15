@@ -35,4 +35,13 @@ public sealed class PendingRecipe
     /// every turn and a repeatedly ambiguous answer would re-ask forever instead of deactivating.
     /// </summary>
     public bool CaptureRewindUsed { get; set; }
+
+    /// <summary>
+    /// The message that engaged this recipe, kept so a correction in a LATER turn can still be resolved.
+    /// The correction alone is not resolvable: it opens with a negation, which makes the engine suppress
+    /// the semantic fallback, and the actual intent sits here rather than in the correction. Read through
+    /// RecipeCorrectionComposer so the plan and the toolset assembler compose byte-identically - two
+    /// different compositions would resolve one recipe for the toolset and another for the plan.
+    /// </summary>
+    public string? TriggerMessage { get; set; }
 }

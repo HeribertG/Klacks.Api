@@ -122,7 +122,8 @@ public class RecipeEngineService
             goal: recipe.Goal,
             alternativeGoal: alternativeGoal,
             goalTranslations: recipe.GoalTranslations,
-            alternativeGoalTranslations: alternativeGoalTranslations);
+            alternativeGoalTranslations: alternativeGoalTranslations,
+            triggerMessage: message);
     }
 
     // Shared by ResolveAsync and GuaranteedSkillNamesAsync so both agree on which recipe (if any)
@@ -416,7 +417,8 @@ public class RecipeEngineService
             needsConfirmation: pending.AwaitingConfirmation,
             goal: recipe.Goal,
             captureRewindUsed: pending.CaptureRewindUsed,
-            goalTranslations: recipe.GoalTranslations);
+            goalTranslations: recipe.GoalTranslations,
+            triggerMessage: pending.TriggerMessage);
     }
 
     public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
@@ -484,7 +486,8 @@ public class RecipeEngineService
             StepIndex = plan.StepIndex,
             Slots = new Dictionary<string, string>(plan.Slots, StringComparer.OrdinalIgnoreCase),
             AwaitingConfirmation = plan.NeedsConfirmation,
-            CaptureRewindUsed = plan.CaptureRewindUsed
+            CaptureRewindUsed = plan.CaptureRewindUsed,
+            TriggerMessage = RecipeCorrectionComposer.CapForStorage(plan.TriggerMessage)
         });
     }
 
