@@ -58,7 +58,14 @@ public static class PluginPhraseMatcher
             .ToArray();
     }
 
-    private static bool UsesNonSegmentedScript(string entry)
+    /// <summary>
+    /// True when the text contains Thai, Kana or Han characters - a script written without word
+    /// separators. Internal rather than private because the correction gate needs the same judgement for a
+    /// different purpose: a character-count floor calibrated on Latin text is far too high for these
+    /// scripts, where one character carries what a whole Latin word does, and a word-count floor is worse
+    /// than useless because \p{L}+ tokenization makes an entire sentence a single token.
+    /// </summary>
+    internal static bool UsesNonSegmentedScript(string entry)
     {
         foreach (var ch in entry)
         {
