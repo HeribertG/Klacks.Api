@@ -62,9 +62,10 @@ public static class RecipeCorrectionDetector
             return false;
         }
 
-        // Gate C1 - the pending slot expects an entity reference that a later search step must resolve to
-        // exactly one row, so a multi-clause sentence is not a plausible value for it.
-        if (!plan.CurrentAskSlotFeedsACapturingSearch())
+        // Gate C1 - the pending slot expects an entity name, so a multi-clause sentence is not a plausible
+        // value for it. See RecipeExecutionPlan.CurrentAskSlotExpectsAnEntityName for the two signals it
+        // combines.
+        if (!plan.CurrentAskSlotExpectsAnEntityName())
         {
             return false;
         }
