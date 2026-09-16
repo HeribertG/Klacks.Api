@@ -239,6 +239,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<PendingRecipeRow> PendingRecipes { get; set; }
     public DbSet<PendingConfirmationRow> PendingConfirmations { get; set; }
     public DbSet<PendingCompanyRuleDraftRow> PendingCompanyRuleDrafts { get; set; }
+    public DbSet<AssistantLastActionRow> AssistantLastActions { get; set; }
     public DbSet<Klacks.Api.Domain.Models.Authentification.OAuth2StateRow> OAuth2States { get; set; }
     public DbSet<Klacks.Api.Domain.Models.Authentification.OAuthAuthorizationCodeRow> OAuthAuthorizationCodes { get; set; }
     public DbSet<Klacks.Api.Domain.Models.Schedules.JobTerminalStateRow> JobTerminalStates { get; set; }
