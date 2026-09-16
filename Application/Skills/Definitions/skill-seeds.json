@@ -1,5 +1,5 @@
 {
-  "version": 24,
+  "version": 25,
   "skills": [
     {
       "name": "get_current_time",
@@ -10736,12 +10736,12 @@
         ]
       },
       "labels": {
-        "de": "SMTP-Einstellungen anzeigen",
+        "de": "SMTP-Einstellungen",
         "en": "Show SMTP settings",
         "fr": "Afficher les paramètres SMTP",
         "it": "Mostra le impostazioni SMTP"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_imap_settings",
@@ -10814,12 +10814,12 @@
         ]
       },
       "labels": {
-        "de": "IMAP-Einstellungen anzeigen",
+        "de": "IMAP-Einstellungen",
         "en": "Show IMAP settings",
         "fr": "Afficher les paramètres IMAP",
         "it": "Mostra le impostazioni IMAP"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_owner_address",
@@ -10971,12 +10971,12 @@
         ]
       },
       "labels": {
-        "de": "Arbeits- und Lohneinstellungen anzeigen",
+        "de": "Arbeits- und Lohneinstellungen",
         "en": "Show employment and payroll settings",
         "fr": "Afficher les paramètres d'emploi et de paie",
         "it": "Mostra le impostazioni di lavoro e paga"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_scheduling_defaults",
@@ -11198,12 +11198,12 @@
         ]
       },
       "labels": {
-        "de": "Spamfilter-Einstellungen anzeigen",
+        "de": "Spamfilter-Einstellungen",
         "en": "Show spam filter settings",
         "fr": "Afficher les paramètres du filtre anti-spam",
         "it": "Mostra le impostazioni del filtro antispam"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_web_search_settings",
@@ -13318,12 +13318,12 @@
         ]
       },
       "labels": {
-        "de": "Perioden-Stundenbilanz einer Person anzeigen",
+        "de": "Perioden-Stundenbilanz eines Mitarbeitenden anzeigen",
         "en": "Show an employee's period-hours balance",
         "fr": "Afficher le solde d'heures de période d'un employé",
         "it": "Mostra il saldo ore del periodo di un dipendente"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "accept_scenario",
@@ -18016,11 +18016,11 @@
       },
       "labels": {
         "de": "Ausfall erfassen und Ersatz vorschlagen",
-        "en": "Record a dropout and propose cover",
+        "en": "Record an unplanned absence and propose cover",
         "fr": "Enregistrer une absence imprévue et proposer un remplacement",
         "it": "Registra un'assenza improvvisa e proponi una copertura"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "evaluate_scenario",
@@ -21786,12 +21786,12 @@
         ]
       },
       "labels": {
-        "de": "Vertragsdetails anzeigen",
+        "de": "Vertragsdetails",
         "en": "Contract details",
         "fr": "Détails du contrat",
         "it": "Dettagli del contratto"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_contract",
@@ -22130,12 +22130,12 @@
         ]
       },
       "labels": {
-        "de": "Verfügbarkeitseinträge von Mitarbeitenden auflisten",
+        "de": "Verfügbarkeitseinträge eines Mitarbeitenden auflisten",
         "en": "List an employee's availability entries",
         "fr": "Lister les disponibilités d'un employé",
         "it": "Elenca le disponibilità di un dipendente"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "set_client_availability",
@@ -22253,12 +22253,12 @@
         ]
       },
       "labels": {
-        "de": "Verfügbarkeit von Mitarbeitenden festlegen",
+        "de": "Verfügbarkeit eines Mitarbeitenden festlegen",
         "en": "Set an employee's availability",
         "fr": "Définir la disponibilité d'un employé",
         "it": "Imposta la disponibilità di un dipendente"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_expenses",
@@ -22507,12 +22507,12 @@
         ]
       },
       "labels": {
-        "de": "Spesen ändern",
+        "de": "Speseneintrag ändern",
         "en": "Update an expense entry",
         "fr": "Modifier une dépense",
         "it": "Modifica una spesa"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_expense",
@@ -22573,12 +22573,12 @@
         ]
       },
       "labels": {
-        "de": "Spesen löschen",
+        "de": "Speseneintrag löschen",
         "en": "Delete an expense entry",
         "fr": "Supprimer une dépense",
         "it": "Elimina una spesa"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_autonomy_level",
@@ -23795,9 +23795,9 @@
         "de": "E-Mail als gelesen/ungelesen markieren",
         "en": "Mark an email as read or unread",
         "fr": "Marquer un e-mail comme lu ou non lu",
-        "it": "Contrassegna un'e-mail come letta o da leggere"
+        "it": "Contrassegna un'e-mail come letta o non letta"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "fetch_new_emails",
@@ -27658,11 +27658,11 @@
       },
       "labels": {
         "de": "Posteingang-Seite erklären",
-        "en": "Explain the inbox page",
+        "en": "Explain the Inbox page",
         "fr": "Expliquer la page de la boîte de réception",
         "it": "Spiega la pagina della posta in arrivo"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "explain_page_settings_overview",
@@ -28989,10 +28989,10 @@
       "labels": {
         "de": "Einsatzänderung bearbeiten",
         "en": "Edit an assignment change",
-        "fr": "Ajuster une modification d'affectation",
+        "fr": "Mettre à jour une modification d'affectation",
         "it": "Aggiorna una modifica all'assegnazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_workchange",
@@ -30796,12 +30796,12 @@
         ]
       },
       "labels": {
-        "de": "Einen Auftrag versiegeln",
+        "de": "Einzelnen Auftrag versiegeln",
         "en": "Seal a single order",
         "fr": "Sceller une seule commande",
         "it": "Sigilla un singolo ordine"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "set_sealed_order_until_date",
@@ -31890,12 +31890,12 @@
         ]
       },
       "labels": {
-        "de": "Einsetzbarkeit von Mitarbeitenden prüfen",
+        "de": "Einsetzbarkeit eines Mitarbeitenden prüfen",
         "en": "Check whether an employee is deployable",
         "fr": "Vérifier si un employé est mobilisable",
         "it": "Verifica se un dipendente è impiegabile"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_availability_overview",
@@ -32087,12 +32087,12 @@
         ]
       },
       "labels": {
-        "de": "Verfügbarkeit von Mitarbeitenden zurücksetzen",
-        "en": "Reset an employee's availability",
-        "fr": "Réinitialiser la disponibilité d'un employé",
-        "it": "Reimposta la disponibilità di un dipendente"
+        "de": "Verfügbarkeit eines Mitarbeitenden löschen",
+        "en": "Clear an employee's availability",
+        "fr": "Effacer la disponibilité d'un employé",
+        "it": "Cancella la disponibilità di un dipendente"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_group_hours_balance",
@@ -34270,10 +34270,10 @@
       "labels": {
         "de": "Planungs-Wizards erklären",
         "en": "Explain the planning wizards",
-        "fr": "Expliquer les assistants de planification",
-        "it": "Spiega gli assistenti di pianificazione"
+        "fr": "Expliquer la planification automatique en trois étapes",
+        "it": "Spiega la pianificazione automatica in tre fasi"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_company_rules",
@@ -35183,12 +35183,12 @@
         ]
       },
       "labels": {
-        "de": "Monatliche Soll-Stunden festlegen",
+        "de": "Monatliche Sollstunden festlegen",
         "en": "Set monthly target hours",
         "fr": "Définir les heures cibles mensuelles",
-        "it": "Imposta le ore mensili previste"
+        "it": "Imposta le ore obiettivo mensili"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_monthly_target_hours",
@@ -35345,12 +35345,12 @@
         ]
       },
       "labels": {
-        "de": "Monatliche Soll-Stunden entfernen",
+        "de": "Monatliche Sollstunden entfernen",
         "en": "Remove monthly target hours",
         "fr": "Supprimer les heures cibles mensuelles",
-        "it": "Rimuovi le ore mensili previste"
+        "it": "Rimuovi le ore obiettivo mensili"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_counter_rules",
@@ -39369,12 +39369,12 @@
         ]
       },
       "labels": {
-        "de": "KI-Modell des Planungs-Assistenten ändern",
+        "de": "KI-Modell des Planungsassistenten ändern",
         "en": "Update the scheduling wizard's AI model",
         "fr": "Modifier le modèle IA de l'assistant de planification",
         "it": "Modifica il modello IA dell'assistente di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_export_formats_settings",
@@ -40446,12 +40446,12 @@
         ]
       },
       "labels": {
-        "de": "Lokales Spracherkennungs-Modell deinstallieren",
-        "en": "Uninstall the local speech recognition model",
+        "de": "Lokale Spracherkennung deinstallieren",
+        "en": "Uninstall local speech recognition",
         "fr": "Désinstaller le modèle de reconnaissance vocale local",
         "it": "Disinstalla il modello di riconoscimento vocale locale"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "optimize_llm_models_for_klacksy",
@@ -42551,7 +42551,7 @@
           "unread overview"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "wo liegt unbearbeitete post",
@@ -42579,10 +42579,10 @@
         ]
       },
       "labels": {
-        "de": "Offene E-Mails je Gruppe und Kunde",
-        "en": "Unread email backlog by group and customer",
+        "de": "Unerledigte E-Mails je Gruppe und Kunde",
+        "en": "Pending email backlog by group and customer",
         "fr": "E-mails en attente par groupe et client",
-        "it": "E-mail aperte per gruppo e cliente"
+        "it": "E-mail in attesa per gruppo e cliente"
       }
     },
     {

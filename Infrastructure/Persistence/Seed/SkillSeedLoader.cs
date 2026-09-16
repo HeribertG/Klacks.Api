@@ -502,6 +502,9 @@ public class SkillSeedLoader
     /// A separate method rather than a generic one shared with MergeSynonyms: the value types differ
     /// (string vs. List&lt;string&gt;), and a generic version would have to copy the list defensively for
     /// one caller and not the other.
+    /// Convention this method establishes: a label-less skill ends up with an EMPTY dictionary here but
+    /// with null from CreateSkillFromDefinition on insert, so every consumer must treat null and empty
+    /// alike - SkillLabelResolver.Resolve does, returning null for both.
     /// </summary>
     /// <param name="existing">Labels currently stored on the skill, including pack-installed languages</param>
     /// <param name="definition">Labels the seed file declares, core languages only</param>

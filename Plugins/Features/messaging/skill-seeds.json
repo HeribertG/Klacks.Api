@@ -53,7 +53,13 @@
       "fr": ["envoyer un message", "envoyer un sms", "envoyer un texto", "écrire un message"],
       "it": ["inviare un messaggio", "mandare un messaggio", "inviare un sms", "scrivere un messaggio"]
     },
-    "version": 16
+    "labels": {
+      "de": "Nachricht über Messenger senden",
+      "en": "Send a message via messenger",
+      "fr": "Envoyer un message par messagerie",
+      "it": "Invia un messaggio tramite messenger"
+    },
+    "version": 17
   },
   {
     "name": "read_messages",
@@ -102,7 +108,13 @@
       "fr": ["lire les messages", "messages reçus", "afficher les messages reçus", "derniers messages"],
       "it": ["leggere i messaggi", "messaggi ricevuti", "mostrare i messaggi ricevuti", "ultimi messaggi"]
     },
-    "version": 10
+    "labels": {
+      "de": "Messenger-Nachrichten lesen",
+      "en": "Read messenger messages",
+      "fr": "Lire les messages de messagerie",
+      "it": "Leggi i messaggi di messaggistica"
+    },
+    "version": 11
   },
   {
     "name": "list_messaging_providers",
@@ -123,6 +135,12 @@
       "fr": ["lister les fournisseurs de messagerie", "canaux de messagerie configurés", "quelles messageries sont configurées"],
       "it": ["elencare i provider di messaggistica", "canali di messaggistica configurati", "quali messenger sono configurati"]
     },
-    "version": 10
+    "labels": {
+      "de": "Messaging-Dienste auflisten",
+      "en": "List messaging providers",
+      "fr": "Lister les fournisseurs de messagerie",
+      "it": "Elenca i provider di messaggistica"
+    },
+    "version": 11
   }
 ]
