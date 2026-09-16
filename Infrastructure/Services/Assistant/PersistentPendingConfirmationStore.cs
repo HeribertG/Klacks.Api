@@ -19,7 +19,10 @@
 /// GetActiveForUser/Consume repository calls rather than adding a second persistence path.
 /// A correction-undo row is a third purpose in the same table, written through Create and dropped by
 /// DiscardCorrectionUndo; both discards share one loop because they differ only in the purpose they
-/// match and in whether they narrow by skill name.
+/// match and in whether they narrow by skill name. Writing one replaces its predecessor the way a
+/// proposal hint does, so a user never has two redeemable undo offers at once: the offering turn cannot
+/// discard its own fresh row (it runs after the write), and without this a second correction inside the
+/// force window would leave the first offer redeemable by a "ja" that was never meant for it.
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
 
@@ -53,6 +56,11 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         IReadOnlyDictionary<string, object> parameters,
         string purpose = PendingConfirmationPurposes.GateReplay)
     {
+        if (string.Equals(purpose, PendingConfirmationPurposes.CorrectionUndo, StringComparison.Ordinal))
+        {
+            DiscardCorrectionUndo(userId);
+        }
+
         return CreateRow(userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose);
     }
 

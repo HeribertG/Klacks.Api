@@ -94,6 +94,16 @@ public class TurnPreparationService : ITurnPreparationService
     /// gate-bypassing write the user never confirmed. It is read before the gate-replay row because it is
     /// the more recent offer by construction, and reading it first also guarantees no undo row survives an
     /// affirming turn: if one existed, it won.
+    /// The turn that MAKES the offer is excluded from both halves. The entry points write that token
+    /// immediately before the model call this method runs inside, so the offering turn would otherwise
+    /// see its own row: it would discard it (the correction message is not an affirmation, and the offer
+    /// would be dead before the user ever read it) or, for a correction that opens with "ja, ich meinte
+    /// ...", redeem it and carry the undo out before it was offered at all. GracefulCorrectionApplied is
+    /// already on the context by then and says exactly that. The residue: a correction that follows
+    /// another correction leaves the older row untouched for one more turn. When it makes an offer of its
+    /// own, Create drops the predecessor and nothing is left over; when it makes none, the older row stays
+    /// redeemable until the force window closes. That is the smaller evil - the alternative kills every
+    /// fresh offer on the turn that makes it.
     /// </summary>
     internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
     {
@@ -102,18 +112,26 @@ public class TurnPreparationService : ITurnPreparationService
             return (false, null, null);
         }
 
+        var undoIsOfferedThisTurn = context.GracefulCorrectionApplied;
+
         if (!AffirmationDetector.IsAffirmation(context.Message))
         {
-            _pendingConfirmationStore.DiscardCorrectionUndo(userGuid);
+            if (!undoIsOfferedThisTurn)
+            {
+                _pendingConfirmationStore.DiscardCorrectionUndo(userGuid);
+            }
+
             return (false, null, null);
         }
 
         var forceWindow = TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds);
-        var pending =
-            _pendingConfirmationStore.PeekLatestForUser(
-                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo)
-            ?? _pendingConfirmationStore.PeekLatestForUser(
-                userGuid, forceWindow, PendingConfirmationPurposes.GateReplay);
+        var pending = undoIsOfferedThisTurn
+            ? null
+            : _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo);
+
+        pending ??= _pendingConfirmationStore.PeekLatestForUser(
+            userGuid, forceWindow, PendingConfirmationPurposes.GateReplay);
         if (pending == null)
         {
             return (false, null, null);
