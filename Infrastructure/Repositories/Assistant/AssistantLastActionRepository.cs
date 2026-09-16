@@ -81,6 +81,12 @@ public class AssistantLastActionRepository : IAssistantLastActionRepository
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
 
+    /// <summary>
+    /// Hard-deletes every row whose TTL elapsed. A DbUpdateConcurrencyException here means a concurrent
+    /// prune (every tool-calling turn of every user prunes globally) already removed the same row - the
+    /// row is gone either way, which is exactly the outcome this method wants, so it is swallowed rather
+    /// than propagated into the chat turn that triggered this prune.
+    /// </summary>
     public async Task PruneExpiredAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
     {
         var expired = await _context.AssistantLastActions
@@ -92,6 +98,13 @@ public class AssistantLastActionRepository : IAssistantLastActionRepository
         }
 
         _context.AssistantLastActions.RemoveRange(expired);
-        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+        }
     }
 }
