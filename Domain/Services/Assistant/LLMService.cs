@@ -141,6 +141,14 @@ public class LLMService : ILLMService
 
             if (error != null) return _responseBuilder.BuildErrorResponse(error);
 
+            if (context.CorrectionClarificationReply is { Length: > 0 } clarification)
+            {
+                await PersistClarificationTurnAsync(
+                    context, conversation!, model!, provider!, clarification, stopwatch, cancellationToken);
+
+                return BuildClarificationResponse(conversation!, clarification);
+            }
+
             var totalUsage = new Providers.LLMUsage();
             var ctx = new MultiTurnContext(
                 context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch,
@@ -223,6 +231,25 @@ public class LLMService : ILLMService
         }
 
         yield return SseChunk.StreamStart(conversation!.ConversationId);
+
+        if (context.CorrectionClarificationReply is { Length: > 0 } streamClarification)
+        {
+            yield return SseChunk.Content(streamClarification);
+
+            try
+            {
+                await PersistClarificationTurnAsync(
+                    context, conversation!, model!, provider!, streamClarification, stopwatch, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving the correction clarification for user {UserId}", context.UserId);
+            }
+
+            yield return SseChunk.Metadata(BuildClarificationResponse(conversation!, streamClarification));
+            yield return SseChunk.Done();
+            yield break;
+        }
 
         var totalUsage = new Providers.LLMUsage();
         var allFunctionCalls = new List<LLMFunctionCall>();
@@ -736,6 +763,50 @@ public class LLMService : ILLMService
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();
     }
+
+    /// <summary>
+    /// The save/track/background tail of a turn that answered with the authored clarification question of
+    /// a graceful correction instead of calling the model. Shared by both chat paths so the streaming and
+    /// the non-streaming chat persist exactly the same turn. Usage is tracked with an empty usage record
+    /// because no provider was called at all, and the background tasks run with an empty call list, so the
+    /// turn is captured as what it was: a correction answered with a question and no action.
+    /// RecordLastAction is deliberately NOT called - the previous-action record is the anchor the entry
+    /// point has just written the two clarification pins onto, and a turn without an executed call marks
+    /// exactly that record superseded.
+    /// </summary>
+    private async Task PersistClarificationTurnAsync(
+        LLMContext context,
+        LLMConversation conversation,
+        LLMModel model,
+        ILLMProvider provider,
+        string clarification,
+        Stopwatch stopwatch,
+        CancellationToken cancellationToken)
+    {
+        await _conversationManager.SaveConversationMessagesAsync(
+            conversation, context.Message, clarification, model.ModelId);
+
+        await _conversationManager.TrackUsageAsync(
+            context.UserId, model, conversation,
+            new Providers.LLMUsage(), stopwatch.ElapsedMilliseconds,
+            toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: 0,
+            turnId: context.TurnId, functionsCalledJson: null,
+            toolChoiceRequested: false, toolChoiceSupported: provider.SupportsToolChoice,
+            toolCallReturned: false);
+
+        var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+        _backgroundTaskService.RunBackgroundTasks(
+            agent, conversation, context, clarification, new List<LLMFunctionCall>());
+    }
+
+    /// <summary>
+    /// The response payload of a clarification turn: the authored question as content, an empty usage
+    /// record and no function calls, since nothing was called and nothing was navigated to.
+    /// </summary>
+    private LLMResponse BuildClarificationResponse(LLMConversation conversation, string clarification) =>
+        _responseBuilder.BuildSuccessResponse(
+            new LLMProviderResponse { Content = clarification, Usage = new Providers.LLMUsage(), Success = true },
+            conversation.ConversationId, clarification, new List<LLMFunctionCall>(), null, null);
 
     /// <summary>
     /// Calls the provider and retries on transient failures (rate limit, overload, gateway errors)

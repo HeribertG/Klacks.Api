@@ -209,6 +209,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        if (correction is { ClarificationReply.Length: > 0, ClarificationSkillNames.Count: > 0 } && hasConversation)
+        {
+            _lastActionStore.SaveClarificationCandidates(
+                userGuid, request.ConversationId!, correction.ClarificationSkillNames);
+        }
+
         var context = new LLMContext
         {
             Message = request.Message,
