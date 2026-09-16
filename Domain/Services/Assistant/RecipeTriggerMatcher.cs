@@ -38,20 +38,45 @@ public static class RecipeTriggerMatcher
     // incident. Callers that need a language pass synonyms explicitly:
     // Matches(trigger, null, message, language).
     public static bool Matches(RecipeTrigger trigger, string? message)
-        => Matches(trigger, null, message, null, null);
+        => Matches(trigger, null, message, null, null, null);
 
     public static bool Matches(RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, string? language = null)
-        => Matches(trigger, synonyms, message, null, language);
+        => Matches(trigger, synonyms, message, null, language, null);
 
     public static bool Matches(
         RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message, ILogger? logger, string? language = null)
+        => Matches(trigger, synonyms, message, logger, language, null);
+
+    /// <summary>
+    /// The full form. <paramref name="packVetoTerms"/> is the language pack's question-word veto for this
+    /// recipe (AgentRecipe.VetoesFor(language)) and is REQUIRED here rather than optional. Every shorter
+    /// overload above is unchanged and passes null, so no existing call site alters which overload it
+    /// binds to. Adding an optional parameter to one of them instead would shift overload resolution for
+    /// every positional call whose arguments fit more than one signature - which is exactly how the
+    /// 2026-09-14 change silently disarmed the live regression guard for the 2026-07-16 incident: a
+    /// null literal at position 2 bound to the new parameter, the message went null, and every match
+    /// returned false while the guard asserting ShouldBeFalse stayed permanently satisfied.
+    /// </summary>
+    /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
+    /// <param name="synonyms">Pack synonyms for the detected language; whole-recipe OR shortcut.</param>
+    /// <param name="message">The user message.</param>
+    /// <param name="logger">Receives regex timeout warnings; may be null.</param>
+    /// <param name="language">Detected message language; null skips locale-bound conditions.</param>
+    /// <param name="packVetoTerms">Pack question-word veto for this recipe and language; may be null.</param>
+    public static bool Matches(
+        RecipeTrigger trigger,
+        IReadOnlyCollection<string>? synonyms,
+        string? message,
+        ILogger? logger,
+        string? language,
+        IReadOnlyCollection<string>? packVetoTerms)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(message))
         {
             return false;
         }
 
-        if (IsVetoed(trigger, message, logger, language))
+        if (IsVetoed(trigger, message, logger, language, packVetoTerms))
         {
             return false;
         }
@@ -67,16 +92,40 @@ public static class RecipeTriggerMatcher
     }
 
     public static bool IsVetoed(RecipeTrigger? trigger, string? message, string? language = null)
-        => IsVetoed(trigger, message, null, language);
+        => IsVetoed(trigger, message, null, language, null);
 
     public static bool IsVetoed(RecipeTrigger? trigger, string? message, ILogger? logger, string? language = null)
+        => IsVetoed(trigger, message, logger, language, null);
+
+    /// <summary>
+    /// The full veto check. The pack vocabulary is evaluated FIRST and independently of the trigger,
+    /// because noneOf is core-language only: for a plugin-language message the structured veto has no
+    /// surface to match, so the pack terms are the only thing standing between an information question
+    /// and a mutation recipe. Terms carry the same startsWith semantics as noneOf[].startsWith.
+    /// </summary>
+    public static bool IsVetoed(
+        RecipeTrigger? trigger,
+        string? message,
+        ILogger? logger,
+        string? language,
+        IReadOnlyCollection<string>? packVetoTerms)
     {
-        if (trigger == null || string.IsNullOrWhiteSpace(message))
+        if (string.IsNullOrWhiteSpace(message))
         {
             return false;
         }
 
-        return trigger.NoneOf.Any(c => ConditionMatches(c, message, logger, language));
+        if (packVetoTerms is { Count: > 0 })
+        {
+            // VetoesFor hands back the underlying List<string>, so the cast normally avoids a copy.
+            var terms = packVetoTerms as IReadOnlyList<string> ?? packVetoTerms.ToList();
+            if (MatchesStartsWith(terms, message, logger))
+            {
+                return true;
+            }
+        }
+
+        return trigger != null && trigger.NoneOf.Any(c => ConditionMatches(c, message, logger, language));
     }
 
     private static bool ConditionMatches(RecipeCondition condition, string message, ILogger? logger, string? language)

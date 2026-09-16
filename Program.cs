@@ -694,6 +694,11 @@ await Task.WhenAll(
     app.SeedNavigationTargetSynonymsAsync(),
     app.BackfillClientPhoneticTokensAsync());
 
+// Depends on two branches of the batch above completing: the installed language codes that
+// InitializeLanguagePluginsAsync loads and the recipe rows LoadRecipeSeedsAsync creates. Inside the
+// batch it would race the seeder and silently skip every recipe that did not exist yet.
+await app.BackfillRecipeVetoesAsync();
+
 // Both depend on the default agent that LoadSkillSeedsAsync creates on a fresh database
 // (EnsureDefaultAgentAsync); running them inside the batch above races that creation and
 // silently skips the seed on first startup, so they run only after it has completed.

@@ -1,0 +1,227 @@
+{
+  "onboard-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "user-onboarding": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-employee-to-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "bulk-add-employees-to-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-selected-clients-to-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-absence-for-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "create-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "move-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-shift-to-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "setup-owner-address": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "create-shift-order": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "add-task-to-container": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "remove-absence-for-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "move-absence-for-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "record-availability-for-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "clear-availability-for-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "record-employee-address-change": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "offboard-employee": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "close-payroll-period": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "bundle-mobile-services-into-container": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ],
+  "setup-planning-profile": [
+    "cum ",
+    "ce ",
+    "de ce ",
+    "când ",
+    "unde ",
+    "cine ",
+    "care "
+  ]
+}

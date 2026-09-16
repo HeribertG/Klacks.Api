@@ -272,6 +272,92 @@ public class LanguagePluginContentInstaller
     }
 
     /// <summary>
+    /// Writes the pack's per-recipe question-word veto vocabulary into AgentRecipe.Vetoes[code].
+    /// Two deliberate differences from InstallRecipeSynonymsAsync:
+    /// nothing is mirrored into skill_phrase, because vetoes are exclusion vocabulary rather than
+    /// routing phrases - indexing them would let a question word pull the recipe UP in semantic
+    /// retrieval, which is the opposite of what a veto exists for; and the pack owns its language key
+    /// outright, so a reinstall replaces it instead of merging, there being no admin-edit path that
+    /// also writes this column.
+    /// Like every other install here a failure is logged and swallowed, so a malformed pack file is a
+    /// silent no-op while the unit gates parse the same file successfully. "Gate green / runtime empty"
+    /// is therefore possible; the error log is the only place it shows.
+    /// </summary>
+    /// <param name="scope">Scope providing the recipe repository</param>
+    /// <param name="code">Language code of the pack</param>
+    public async Task InstallRecipeVetoesAsync(IServiceScope scope, string code)
+    {
+        var vetoesPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.RecipeVetoesFileName);
+        if (!File.Exists(vetoesPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(vetoesPath);
+            var vetoMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (vetoMap == null || vetoMap.Count == 0)
+                return;
+
+            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var allRecipes = await recipeRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var recipe in allRecipes)
+            {
+                if (!vetoMap.TryGetValue(recipe.Name, out var terms))
+                    continue;
+
+                recipe.Vetoes ??= new Dictionary<string, List<string>>();
+                recipe.Vetoes[code] = terms
+                    .Where(term => !string.IsNullOrWhiteSpace(term))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+                await recipeRepo.UpdateAsync(recipe);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Installed recipe vetoes for language plugin '{Code}': {Count} recipe(s) updated",
+                code.ForLog(), count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install recipe vetoes for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    public async Task UninstallRecipeVetoesAsync(IServiceScope scope, string code)
+    {
+        try
+        {
+            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var allRecipes = await recipeRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var recipe in allRecipes)
+            {
+                // Driven by the column, not by the pack file: at uninstall time the file may already be
+                // gone, and after a recipe rename it no longer names the row that still carries the key.
+                // Only rows actually holding this language are written, so the loop stays as cheap as
+                // the file-driven synonym uninstall.
+                if (recipe.Vetoes == null || !recipe.Vetoes.Remove(code))
+                    continue;
+
+                await recipeRepo.UpdateAsync(recipe);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Uninstalled recipe vetoes for language plugin '{Code}': {Count} recipe(s) updated",
+                code.ForLog(), count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to uninstall recipe vetoes for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    /// <summary>
     /// Writes the synonyms a language pack contributes into skill_phrase next to the legacy jsonb
     /// dictionary. The replacement is restricted to the LanguagePack origin of exactly this language
     /// code, so installing or removing a pack can neither delete the seeded core-language phrases nor

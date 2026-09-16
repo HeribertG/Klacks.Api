@@ -205,7 +205,11 @@ public class TurnReplayService : ITurnReplayService
 
             IReadOnlyCollection<string>? synonyms = recipe.SynonymsFor(language);
 
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, language))
+            // The replay is the measurement instrument: any vocabulary the engine honours but the replay
+            // does not is invisible to the goldset, which is how the ordinal/case-insensitive divergence
+            // in SynonymsFor went unnoticed. Vetoes therefore resolve through the same method.
+            if (trigger != null && RecipeTriggerMatcher.Matches(
+                    trigger, synonyms, message, null, language, recipe.VetoesFor(language)))
             {
                 return recipe.Name;
             }

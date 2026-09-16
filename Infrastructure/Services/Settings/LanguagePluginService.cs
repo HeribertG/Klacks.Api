@@ -100,6 +100,45 @@ public class LanguagePluginService : ILanguagePluginService
     }
 
     /// <summary>
+    /// Writes the recipe veto vocabulary of every installed pack into the enabled recipes on startup.
+    /// Without this the column stays empty on every existing installation: a pack only reaches the
+    /// recipes that are enabled at the moment it is installed, so a column added later would need all
+    /// 21 packs uninstalled and reinstalled by hand before a single plugin-language question was vetoed.
+    /// Deliberately NOT called from InitializeAsync. That runs inside the same Task.WhenAll as
+    /// LoadRecipeSeedsAsync in Program.cs, so a backfill there would race the seeder and silently skip
+    /// every recipe row that did not exist yet - the same unordered-execution failure the skill-seed
+    /// chaining in that batch documents. Program.cs therefore calls this only after the batch completed.
+    /// </summary>
+    public async Task ApplyInstalledRecipeVetoesAsync()
+    {
+        // Idempotent: returns immediately once _initialized is set, which the parallel startup branch
+        // has normally already done by the time this runs.
+        await InitializeAsync();
+
+        string[] codes;
+        lock (_installedLock)
+        {
+            codes = _installedCodes.ToArray();
+        }
+
+        if (codes.Length == 0)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var code in codes)
+            {
+                await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill recipe vetoes for installed language plugins");
+        }
+    }
+
+    /// <summary>
     /// Re-syncs manual docs from the plugin directory into the database for every already-installed
     /// language on each startup, so manuals added to a plugin after its initial install are picked up
     /// without requiring an uninstall/reinstall cycle.
@@ -283,6 +322,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallDocsAsync(scope, code);
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
         await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
+        await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
         await _contentInstaller.InstallWakeWordsAsync(code);
@@ -321,6 +361,7 @@ public class LanguagePluginService : ILanguagePluginService
 
         await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
         await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
+        await _contentInstaller.UninstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);

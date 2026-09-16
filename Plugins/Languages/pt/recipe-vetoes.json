@@ -1,0 +1,252 @@
+{
+  "onboard-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "user-onboarding": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-employee-to-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "bulk-add-employees-to-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-selected-clients-to-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-absence-for-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "create-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "move-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-shift-to-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "setup-owner-address": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "create-shift-order": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "add-task-to-container": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "remove-absence-for-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "move-absence-for-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "record-availability-for-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "clear-availability-for-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "record-employee-address-change": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "offboard-employee": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "close-payroll-period": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "bundle-mobile-services-into-container": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ],
+  "setup-planning-profile": [
+    "o que ",
+    "por que ",
+    "porque ",
+    "quando ",
+    "onde ",
+    "quem ",
+    "qual ",
+    "quais "
+  ]
+}

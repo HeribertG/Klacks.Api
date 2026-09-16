@@ -13,4 +13,18 @@ public static class LanguagePluginExtensions
 
         return app;
     }
+
+    /// <summary>
+    /// Backfills the recipe veto vocabulary of every installed language pack. Must run after the
+    /// parallel startup seeding batch rather than inside it: it needs both the installed-codes list
+    /// InitializeLanguagePluginsAsync loads and the recipe rows LoadRecipeSeedsAsync creates, and those
+    /// two are parallel branches of one Task.WhenAll.
+    /// </summary>
+    public static async Task<IApplicationBuilder> BackfillRecipeVetoesAsync(this IApplicationBuilder app)
+    {
+        var service = app.ApplicationServices.GetRequiredService<ILanguagePluginService>();
+        await service.ApplyInstalledRecipeVetoesAsync();
+
+        return app;
+    }
 }

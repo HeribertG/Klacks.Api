@@ -214,7 +214,8 @@ public class RecipeEngineService
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
             var synonyms = recipe.SynonymsFor(language);
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message, logger, language))
+            if (trigger != null && RecipeTriggerMatcher.Matches(
+                    trigger, synonyms, message, logger, language, recipe.VetoesFor(language)))
             {
                 return (recipe, trigger, synonyms);
             }
@@ -546,8 +547,14 @@ public class RecipeEngineService
     private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)
         => recipes.FirstOrDefault(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>
+    /// The exclusion guard on the semantic fallback path. Carries the pack veto vocabulary as well as
+    /// noneOf, because a veto honoured only in the keyword path lets the very same message re-enter the
+    /// recipe through embedding ranking - the blind spot fixed on 2026-09-15.
+    /// </summary>
     private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger, string? language = null)
-        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language);
+        => RecipeTriggerMatcher.IsVetoed(
+            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.VetoesFor(language));
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)
     {
