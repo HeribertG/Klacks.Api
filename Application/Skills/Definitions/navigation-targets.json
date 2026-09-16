@@ -5679,12 +5679,12 @@
   },
   {
     "targetId": "skill-effectiveness",
-    "route": "/workplace/settings",
+    "route": "/workplace/klacksy-training",
     "labelKey": "settings.skillEffectiveness",
     "category": "settings.ai",
-    "requiredPermission": "CanViewSettings",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-09-12T11:33:05.360Z",
+    "requiredPermission": "Admin",
+    "sourceFile": "src/app/presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component.html",
+    "lastScannedAt": "2026-09-16T14:29:40.281Z",
     "synonyms": {
       "de": [
         "skill-wirksamkeit",
