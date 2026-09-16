@@ -11,8 +11,9 @@ namespace Klacks.Api.Application.Skills.Meta;
 ///
 /// Since 2026-09-16 the entries also carry a structured mapping (copied argument names, or the result
 /// property holding a created id) so the graceful-correction path can build the inverse call itself
-/// instead of describing it. The prose half is unchanged and still drives SkillRiskClassifier and
-/// RollbackMyLastChangeSkill; an entry without a structured mapping behaves exactly as before.
+/// instead of describing it. The two halves are read through two accessors: TryBuildUndo (over TryGet)
+/// sees every entry, while TryGetRollbackEntry hides the UndoOnly ones, so SkillRiskClassifier and
+/// RollbackMyLastChangeSkill answer exactly as they did before the structured entries existed.
 /// </summary>
 public static class InverseSkillRegistry
 {
@@ -30,7 +31,7 @@ public static class InverseSkillRegistry
     ///
     /// The structured entries at the end of the table are proposed 2026-09-16, owner approval pending
     /// (spec §8). They are all marked UndoOnly: none of those skills had an entry before, and each of
-    /// them would otherwise turn from Irreversible into Reversible and leave the autonomy gate, which
+    /// them would otherwise change risk class and leave the autonomy gate, which
     /// SkillRiskReversibilityPinTests caught and which is not part of this change.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, InverseSkillEntry> Map =
@@ -75,15 +76,6 @@ public static class InverseSkillRegistry
             ["add_container_template_task"] = new(
                 "remove_container_template_task", "Same containerId, weekday and taskShiftId.",
                 ["containerId", "weekday", "taskShiftId"], UndoOnly: true),
-            ["set_shift_required_qualification"] = new(
-                "remove_shift_required_qualification", "Same shiftId and qualificationId.",
-                ["shiftId", "qualificationId"], UndoOnly: true),
-            ["add_client_to_group_by_name"] = new(
-                "remove_client_from_group", "Same firstName, lastName and groupName.",
-                ["firstName", "lastName", "groupName"], UndoOnly: true),
-            ["assign_contract_by_name"] = new(
-                "remove_client_contract", "Same firstName, lastName and contractName.",
-                ["firstName", "lastName", "contractName"], UndoOnly: true),
             ["create_group"] = new(
                 "delete_group", "Take GroupId from the original execution's result.",
                 null, "GroupId", "groupId", UndoOnly: true),
@@ -97,6 +89,20 @@ public static class InverseSkillRegistry
 
     public static bool TryGet(string skillName, out InverseSkillEntry inverse)
         => Map.TryGetValue(skillName, out inverse!);
+
+    /// <summary>
+    /// The prose view of the table: the entries that describe a rollback path a human may be told about.
+    /// An UndoOnly entry is invisible here - it exists only so the correction path can build an undo
+    /// call, and the skill must behave exactly as if it had no entry at all. Both readers of the prose
+    /// half share this one rule: SkillRiskClassifier (is the skill reversible enough to run unattended?)
+    /// and RollbackMyLastChangeSkill (what would a human call to undo it?). A __manual__ entry is
+    /// deliberately still visible - it is a rollback path, just not a callable one, and each caller
+    /// answers it its own way. The structured undo path keeps using TryGet, which sees every entry.
+    /// </summary>
+    /// <param name="skillName">The skill whose rollback path is asked for.</param>
+    /// <param name="inverse">The entry, valid only when this returns true.</param>
+    public static bool TryGetRollbackEntry(string skillName, out InverseSkillEntry inverse)
+        => Map.TryGetValue(skillName, out inverse!) && !inverse.UndoOnly;
 
     /// <summary>
     /// Builds the exact inverse invocation for a call that was made, or reports that none can be built.

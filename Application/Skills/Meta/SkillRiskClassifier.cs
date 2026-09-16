@@ -575,8 +575,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
             return true;
         }
 
-        return InverseSkillRegistry.TryGet(skillName, out var inverse)
-            && !inverse.UndoOnly
+        return InverseSkillRegistry.TryGetRollbackEntry(skillName, out var inverse)
             && !string.Equals(inverse.SkillName, InverseSkillRegistry.ManualMarker, StringComparison.Ordinal);
     }
 

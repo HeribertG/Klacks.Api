@@ -37,7 +37,7 @@ public class RollbackMyLastChangeSkill : BaseSkillImplementation
             return SkillResult.Error("No successful skill execution found for the current user in the last 30 minutes.");
         }
 
-        if (!InverseSkillRegistry.TryGet(execution.ToolName, out var inverse))
+        if (!InverseSkillRegistry.TryGetRollbackEntry(execution.ToolName, out var inverse))
         {
             return SkillResult.Error(
                 $"Skill '{execution.ToolName}' is not in the rollback whitelist — escalate to the human operator. " +
