@@ -17,7 +17,10 @@ public sealed class AssistantLastActionCall
     /// correction note and the clarification name this instead of the internal snake_case name - and it
     /// has to be captured HERE, because by the time the correction turn runs the skill is excluded from
     /// the toolset and can no longer be looked up. Null when the turn had no description for it; the
-    /// caller then falls back to MutationGuardConstants.RedactedInternalIdentifier, never to the name.
+    /// caller then falls back to GracefulCorrectionNotes.UnnamedPreviousActionLabel, never to the name.
+    /// That stand-in is English because the note it lands in is model-facing - the German user-facing
+    /// redaction (MutationGuardConstants.RedactedInternalIdentifier) belongs in front of a user, not in
+    /// an English instruction.
     /// </summary>
     public string? SkillDisplayLabel { get; set; }
 

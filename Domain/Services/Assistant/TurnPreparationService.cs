@@ -14,7 +14,6 @@
 /// <param name="routeProbe">Gate G5 of the correction path: does the correction route on its own?</param>
 /// <param name="logger">Logger for the recipe lifecycle lines this block already emitted.</param>
 
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -320,6 +319,10 @@ public class TurnPreparationService : ITurnPreparationService
     /// Gates G0-G4 are evaluated first and only then is the (comparatively expensive) G5 probe paid for,
     /// so a message that was going to be rejected anyway never runs it.
     ///
+    /// A turn without a resolved agent fails closed before any gate runs: the G5 probe would then have no
+    /// skills to guarantee and would answer "does not route alone" for every message, which OPENS the
+    /// correction path on exactly the turns that already lost their toolset.
+    ///
     /// A broken probe is treated as "the correction routes alone", i.e. NO correction. The probe throws
     /// rather than returning an empty list precisely because empty means "does not route alone" and would
     /// OPEN the correction path: swallowing the failure into an empty result would bias every probe
@@ -329,6 +332,12 @@ public class TurnPreparationService : ITurnPreparationService
     public async Task<GracefulCorrectionPlan?> PlanCorrectionAsync(
         GracefulCorrectionInput input, CancellationToken cancellationToken = default)
     {
+        if (input.Agent == null)
+        {
+            _logger.LogDebug("Graceful correction rejected: no agent was resolved for this turn.");
+            return null;
+        }
+
         var gate = GracefulCorrectionDetector.Evaluate(
             input.Message, input.LastAction, input.RecipeIsActive,
             correctionRoutesAlone: false, DateTime.UtcNow);
@@ -398,7 +407,7 @@ public class TurnPreparationService : ITurnPreparationService
             GracefulCorrectionNotes.CorrectionContextTemplate,
             previousLabel,
             previousArguments,
-            plan.CorrectionMessage,
+            CapCorrection(plan.CorrectionMessage),
             openingSentence,
             AnswerLanguage(language));
 
@@ -413,16 +422,27 @@ public class TurnPreparationService : ITurnPreparationService
     }
 
     /// <summary>
-    /// A user-facing label for what a recorded call did. Never the internal snake_case name: the label
-    /// was captured from the toolset of the turn that made the call (AssistantLastActionCall), because
-    /// by the time the correction turn runs that skill is excluded from the toolset and cannot be looked
-    /// up any more. Without a label the neutral redaction wording is used - the same one
-    /// InternalIdentifierRedactor puts in front of the user everywhere else.
+    /// A label for what a recorded call did. Never the internal snake_case name: the label was captured
+    /// from the toolset of the turn that made the call (AssistantLastActionCall), because by the time the
+    /// correction turn runs that skill is excluded from the toolset and cannot be looked up any more.
+    /// Without a label the English stand-in of the note is used rather than the user-facing German
+    /// redaction, because this text is substituted into a model-facing instruction.
     /// </summary>
     private static string LabelOf(AssistantLastActionCall? call) =>
         string.IsNullOrWhiteSpace(call?.SkillDisplayLabel)
-            ? MutationGuardConstants.RedactedInternalIdentifier
+            ? GracefulCorrectionNotes.UnnamedPreviousActionLabel
             : call!.SkillDisplayLabel!;
+
+    /// <summary>
+    /// The correction as the note quotes it. The message is LIVE user input and, unlike the anchor's own
+    /// fields, was never capped by the store, so an over-long paste would otherwise push the note past
+    /// the history budget it is itself measured against. Capped to the same length the anchor's user
+    /// message is stored at, by a hard slice for the reason RecipeCorrectionComposer.CapForStorage gives.
+    /// </summary>
+    private static string CapCorrection(string correction) =>
+        correction.Length <= GracefulCorrectionDefaults.UserMessageMaxLength
+            ? correction
+            : correction[..GracefulCorrectionDefaults.UserMessageMaxLength];
 
     /// <summary>
     /// The deterministically guaranteed skills of the composite: keyword/synonym matches and recipe step
@@ -446,12 +466,14 @@ public class TurnPreparationService : ITurnPreparationService
         IReadOnlyList<LLMFunction> orderedCandidates, string previousLabel, string? language) => null;
 
     /// <summary>
-    /// The language tag the answer must be written in. Never empty: a blank tag would read as
-    /// "Answer in language ''" and the model would fall back to guessing, which is what the one-language
-    /// rule exists to prevent.
+    /// The language the answer must be written in. Never empty: a blank tag would read as "Answer in
+    /// language ''" and the model would fall back to guessing, which is what the one-language rule exists
+    /// to prevent. A turn without a language does NOT get a default tag either - ordering English for a
+    /// user writing German would break the same rule from the other side - it is pointed at the user's
+    /// own message instead.
     /// </summary>
     private static string AnswerLanguage(string? language) =>
-        string.IsNullOrWhiteSpace(language) ? LanguageConfig.DefaultLanguageFallback : language!;
+        string.IsNullOrWhiteSpace(language) ? GracefulCorrectionNotes.LanguageOfTheUserMessage : language!;
 
     private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call) => new()
     {

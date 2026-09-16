@@ -808,11 +808,7 @@ public class LLMService : ILLMService
         stageWatch.Restart();
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
         var temporalContext = await _promptBuilder.BuildTemporalContextAsync(context, cancellationToken);
-        var volatilePrompt = CombineVolatile(
-            temporalContext,
-            CombineVolatile(
-                CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
-                context.CorrectionNote));
+        var volatilePrompt = BuildVolatilePrompt(temporalContext, context, soulAndMemoryPrompt?.VolatilePrompt);
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
@@ -829,6 +825,25 @@ public class LLMService : ILLMService
 
         return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile);
     }
+
+    /// <summary>
+    /// The turn's volatile system-prompt segment: temporal context, the context-derived additions, the
+    /// soul/memory segment and - on a correction turn - LLMContext.CorrectionNote. The correction note
+    /// belongs HERE rather than in the per-iteration note slot of the loop: the pending/recipe/plan notes
+    /// are alternatives to each other, while a correction note applies to every iteration of the turn it
+    /// belongs to. Volatile rather than stable so a note that changes every turn cannot invalidate a
+    /// provider's cached stable segment.
+    /// </summary>
+    /// <param name="temporalContext">The turn's date/time block.</param>
+    /// <param name="context">The turn context, source of the volatile additions and the correction note.</param>
+    /// <param name="soulAndMemoryVolatilePrompt">Volatile half of the soul/memory assembly, null when it did not run.</param>
+    internal static string BuildVolatilePrompt(
+        string? temporalContext, LLMContext context, string? soulAndMemoryVolatilePrompt) =>
+        CombineVolatile(
+            temporalContext,
+            CombineVolatile(
+                CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryVolatilePrompt),
+                context.CorrectionNote));
 
     // Milliseconds since the turn clock started, i.e. before the toolset assembly the caller already
     // paid for. Null when no clock was handed in, which keeps elapsedMs off the wire instead of

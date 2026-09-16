@@ -39,6 +39,23 @@ public static class GracefulCorrectionNotes
         "Understood - not {0}, but what you just described.";
 
     /// <summary>
+    /// Stands in for the previous action when the turn that made the call captured no display label.
+    /// English like the rest of this file, because it is substituted into a MODEL-facing note, not shown
+    /// to a user: MutationGuardConstants.RedactedInternalIdentifier is the user-facing redaction and is
+    /// German, so putting it here would drop a German fragment into an English instruction and invite the
+    /// model to answer in the wrong language. The internal snake_case name is never an option either.
+    /// </summary>
+    public const string UnnamedPreviousActionLabel = "the tool it used";
+
+    /// <summary>
+    /// Substituted for the language tag when the turn carries no language. NOT a default tag: ordering
+    /// "Answer in language 'en'" for a user who wrote German would break the one-language rule the
+    /// explicit tag exists to enforce, and an installation without a configured language is exactly the
+    /// case where the user's own message is the better evidence.
+    /// </summary>
+    public const string LanguageOfTheUserMessage = "the same language as the user's message";
+
+    /// <summary>
     /// Placeholders: {0} what the previous turn changed, {1} the inverse skill that undoes it, {2} the
     /// language the question must be written in - the undo question is a question to the user and falls
     /// under the same one-language rule as the clarification.

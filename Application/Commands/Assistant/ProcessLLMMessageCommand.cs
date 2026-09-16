@@ -111,7 +111,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
                 lastAction = _lastActionStore.Peek(userGuid, request.ConversationId!);
             }
 
-            var recipeIsActive = hasConversation
+            var recipeIsActive = lastAction?.CanAnchorCorrection(DateTime.UtcNow) == true
                 && _pendingRecipeStore.Peek(userGuid, request.ConversationId!) != null;
 
             correctionPlan = await _turnPreparation.PlanCorrectionAsync(
@@ -135,9 +135,21 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             pinnedSkillNames: lastAction?.ClarificationSkillNames,
             cancellationToken: cancellationToken);
 
-        var correction = correctionPlan == null
-            ? null
-            : _turnPreparation.CompleteCorrection(correctionPlan, toolset.Functions, request.Language);
+        GracefulCorrectionOutcome? correction = null;
+        if (correctionPlan != null)
+        {
+            try
+            {
+                correction = _turnPreparation.CompleteCorrection(
+                    correctionPlan, toolset.Functions, request.Language);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex,
+                    "Completing the graceful correction failed for user {UserId}; continuing as an ordinary turn.",
+                    request.UserId);
+            }
+        }
 
         var context = new LLMContext
         {
