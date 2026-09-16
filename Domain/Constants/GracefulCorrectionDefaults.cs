@@ -12,10 +12,10 @@ public static class GracefulCorrectionDefaults
 {
     /// <summary>
     /// How soon after the assistant's turn a negation is trusted as a reactive correction of THAT turn
-    /// rather than an unrelated later message that happens to contain a negation. One constant for both
+    /// rather than an unrelated later message that happens to contain a negation. Single source for both
     /// consumers: gate G0 of the correction path and the implicit-correction window of the learning
-    /// trajectory (TrajectoryCaptureService), which still carries its own copy of the same two minutes
-    /// until the trajectory service is switched to this constant.
+    /// trajectory (TrajectoryCaptureService.ImplicitCorrectionWindow), so the learning loop and the
+    /// routing loop can never disagree about which turn a user just corrected.
     /// </summary>
     public const int CorrectionWindowMinutes = 2;
 

@@ -125,12 +125,21 @@ public static class DeclineDetector
         || Array.IndexOf(_pluginNegationEntries, token) >= 0;
 
     /// <summary>
+    /// Separators a negation lead may be followed by before the rest of the clause starts: ASCII comma,
+    /// colon and dash (plain and en/em), plus the CJK equivalents - ideographic comma '、', fullwidth
+    /// comma '，' and fullwidth colon '：' - since zh/ja negation leads (plugin-configured) are followed
+    /// by these instead.
+    /// </summary>
+    private static readonly char[] LeadSeparators =
+        [' ', '\t', ',', ':', '-', '–', '—', '、', '，', '：'];
+
+    /// <summary>
     /// Removes a message's leading negation word (core-language or a single-token plugin entry) together
-    /// with a following comma, colon, dash and whitespace. A caller correcting the previous turn opens
-    /// with "Nein, ..." - the negation and what follows share one clause with no sentence terminator
-    /// between them, so a sentence-splitting detector (RecipeTopicSwitchDetector) can never see the part
-    /// after the comma as its own sentence. Stripping the lead here lets such a caller re-check the
-    /// remainder on its own.
+    /// with a following separator (see LeadSeparators) and whitespace. A caller correcting the previous
+    /// turn opens with "Nein, ..." - the negation and what follows share one clause with no sentence
+    /// terminator between them, so a sentence-splitting detector (RecipeTopicSwitchDetector) can never
+    /// see the part after the comma as its own sentence. Stripping the lead here lets such a caller
+    /// re-check the remainder on its own.
     /// Returns the message unchanged when it does not lead with a negation, or when the lead is a
     /// multi-word plugin phrase - a phrase has no single token boundary to strip at.
     /// </summary>
@@ -150,7 +159,7 @@ public static class DeclineDetector
         }
 
         var remainder = message[(match.Index + match.Length)..];
-        return remainder.TrimStart(' ', '\t', ',', ':', '-', '–', '—');
+        return remainder.TrimStart(LeadSeparators);
     }
 
     // Plugin entries must match at the START of the message (single token among the leading
