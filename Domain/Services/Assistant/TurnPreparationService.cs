@@ -11,9 +11,12 @@
 /// <param name="recipeRunRecorder">Lifecycle rows of a recipe run (started/aborted/completed).</param>
 /// <param name="slotExtractor">One structured model call that pre-fills a fresh recipe's slots.</param>
 /// <param name="lastActionStore">Persistence of the previous-action record.</param>
+/// <param name="routeProbe">Gate G5 of the correction path: does the correction route on its own?</param>
 /// <param name="logger">Logger for the recipe lifecycle lines this block already emitted.</param>
 
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -27,6 +30,7 @@ public class TurnPreparationService : ITurnPreparationService
     private readonly IRecipeRunRecorder _recipeRunRecorder;
     private readonly RecipeSlotExtractor _slotExtractor;
     private readonly IAssistantLastActionStore _lastActionStore;
+    private readonly IDeterministicRouteProbe _routeProbe;
     private readonly ILogger<TurnPreparationService> _logger;
 
     public TurnPreparationService(
@@ -35,6 +39,7 @@ public class TurnPreparationService : ITurnPreparationService
         IRecipeRunRecorder recipeRunRecorder,
         RecipeSlotExtractor slotExtractor,
         IAssistantLastActionStore lastActionStore,
+        IDeterministicRouteProbe routeProbe,
         ILogger<TurnPreparationService> logger)
     {
         _pendingConfirmationStore = pendingConfirmationStore;
@@ -42,6 +47,7 @@ public class TurnPreparationService : ITurnPreparationService
         _recipeRunRecorder = recipeRunRecorder;
         _slotExtractor = slotExtractor;
         _lastActionStore = lastActionStore;
+        _routeProbe = routeProbe;
         _logger = logger;
     }
 
@@ -309,6 +315,143 @@ public class TurnPreparationService : ITurnPreparationService
             _logger.LogWarning(ex, "Could not record the previous action for user {UserId}", context.UserId);
         }
     }
+
+    /// <summary>
+    /// Gates G0-G4 are evaluated first and only then is the (comparatively expensive) G5 probe paid for,
+    /// so a message that was going to be rejected anyway never runs it.
+    ///
+    /// A broken probe is treated as "the correction routes alone", i.e. NO correction. The probe throws
+    /// rather than returning an empty list precisely because empty means "does not route alone" and would
+    /// OPEN the correction path: swallowing the failure into an empty result would bias every probe
+    /// outage towards re-routing a request the user never made. Rejecting instead costs at most one
+    /// missed repair, which is the precision-biased half of that trade.
+    /// </summary>
+    public async Task<GracefulCorrectionPlan?> PlanCorrectionAsync(
+        GracefulCorrectionInput input, CancellationToken cancellationToken = default)
+    {
+        var gate = GracefulCorrectionDetector.Evaluate(
+            input.Message, input.LastAction, input.RecipeIsActive,
+            correctionRoutesAlone: false, DateTime.UtcNow);
+
+        if (gate != GracefulCorrectionGate.Passed)
+        {
+            _logger.LogDebug("Graceful correction rejected by gate {Gate}", gate);
+            return null;
+        }
+
+        bool routesAlone;
+        try
+        {
+            routesAlone = (await _routeProbe.GuaranteedSkillNamesAsync(
+                input.Agent, input.UserRights, input.Message, input.Language, cancellationToken)).Count > 0;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex,
+                "The deterministic route probe failed for user {UserId}; treating the message as a " +
+                "self-contained request, so this turn runs without a correction.", input.UserId);
+            routesAlone = true;
+        }
+
+        if (routesAlone)
+        {
+            _logger.LogDebug("Graceful correction rejected by gate {Gate}", GracefulCorrectionGate.RoutesAlone);
+            return null;
+        }
+
+        var lastAction = input.LastAction!;
+        var excluded = GracefulCorrectionDetector.ExcludedSkillNames(lastAction);
+
+        _logger.LogInformation(
+            "Graceful correction engaged: re-routing on the composite of the previous request and the " +
+            "correction; excluding {Skills}", string.Join(", ", excluded));
+
+        return new GracefulCorrectionPlan(
+            lastAction,
+            input.Message,
+            RecipeCorrectionComposer.Compose(lastAction.UserMessage, input.Message),
+            excluded);
+    }
+
+    public GracefulCorrectionOutcome CompleteCorrection(
+        GracefulCorrectionPlan plan,
+        IReadOnlyList<LLMFunction> assembledFunctions,
+        string? language)
+    {
+        var correctedCall = plan.LastAction.Calls.FirstOrDefault();
+        var previousLabel = LabelOf(correctedCall);
+        var previousArguments = correctedCall?.ArgumentsJson ?? GracefulCorrectionDefaults.EmptyJsonObject;
+
+        var candidates = DeterministicCandidates(assembledFunctions)
+            .OrderByDescending(f => f.RetrievalScore ?? 0.0)
+            .ToList();
+
+        var clarification = BuildClarification(candidates, previousLabel, language);
+
+        var openingSentence = string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            GracefulCorrectionNotes.OpeningSentenceTemplate,
+            previousLabel);
+
+        var note = string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            GracefulCorrectionNotes.CorrectionContextTemplate,
+            previousLabel,
+            previousArguments,
+            plan.CorrectionMessage,
+            openingSentence,
+            AnswerLanguage(language));
+
+        if (candidates.Count == 0)
+        {
+            note += GracefulCorrectionNotes.NoCandidateSuffix;
+        }
+
+        return clarification == null
+            ? new GracefulCorrectionOutcome(note, null, [])
+            : new GracefulCorrectionOutcome(note, clarification, [candidates[0].Name, candidates[1].Name]);
+    }
+
+    /// <summary>
+    /// A user-facing label for what a recorded call did. Never the internal snake_case name: the label
+    /// was captured from the toolset of the turn that made the call (AssistantLastActionCall), because
+    /// by the time the correction turn runs that skill is excluded from the toolset and cannot be looked
+    /// up any more. Without a label the neutral redaction wording is used - the same one
+    /// InternalIdentifierRedactor puts in front of the user everywhere else.
+    /// </summary>
+    private static string LabelOf(AssistantLastActionCall? call) =>
+        string.IsNullOrWhiteSpace(call?.SkillDisplayLabel)
+            ? MutationGuardConstants.RedactedInternalIdentifier
+            : call!.SkillDisplayLabel!;
+
+    /// <summary>
+    /// The deterministically guaranteed skills of the composite: keyword/synonym matches and recipe step
+    /// skills. Retrieved and expanded skills are excluded on purpose - they are a ranking, and a ranking
+    /// is exactly what a correction cannot be trusted to have got right. Always-on skills carry
+    /// ToolsetSkillSource.AlwaysOn and are outside this set already; confirm_pending_action is removed by
+    /// name because it is always-on for a different reason and is never an intent.
+    /// </summary>
+    internal static List<LLMFunction> DeterministicCandidates(IReadOnlyList<LLMFunction> functions) =>
+        functions
+            .Where(f => f.ToolsetSource is ToolsetSkillSource.Keyword or ToolsetSkillSource.RecipeStep)
+            .Where(f => !string.Equals(
+                f.Name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    /// <summary>
+    /// The clarification question of a correction whose re-routing produced no clear winner. A stub until
+    /// the task that builds the question text; a correction therefore always acts for now and never asks.
+    /// </summary>
+    private static string? BuildClarification(
+        IReadOnlyList<LLMFunction> orderedCandidates, string previousLabel, string? language) => null;
+
+    /// <summary>
+    /// The language tag the answer must be written in. Never empty: a blank tag would read as
+    /// "Answer in language ''" and the model would fall back to guessing, which is what the one-language
+    /// rule exists to prevent.
+    /// </summary>
+    private static string AnswerLanguage(string? language) =>
+        string.IsNullOrWhiteSpace(language) ? LanguageConfig.DefaultLanguageFallback : language!;
 
     private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call) => new()
     {

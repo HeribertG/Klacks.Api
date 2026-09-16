@@ -46,6 +46,10 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
+    private readonly IAssistantLastActionStore _lastActionStore;
+    private readonly IPendingRecipeStore _pendingRecipeStore;
+    private readonly ITurnPreparationService _turnPreparation;
+    private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
@@ -55,7 +59,11 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         IPlanningScopeEnricher planningScopeEnricher,
         IEntityCandidateGrounder entityCandidateGrounder,
         LLMProviderOrchestrator providerOrchestrator,
-        IContextBudgetPolicy contextBudgetPolicy)
+        IContextBudgetPolicy contextBudgetPolicy,
+        IAssistantLastActionStore lastActionStore,
+        IPendingRecipeStore pendingRecipeStore,
+        ITurnPreparationService turnPreparation,
+        ILogger<ProcessLLMMessageCommandHandler> logger)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
@@ -65,6 +73,10 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         _entityCandidateGrounder = entityCandidateGrounder;
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
+        _lastActionStore = lastActionStore;
+        _pendingRecipeStore = pendingRecipeStore;
+        _turnPreparation = turnPreparation;
+        _logger = logger;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -87,10 +99,45 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             : KnowledgeIndexConstants.MaxToolsForProvider;
         var effectiveModelId = earlyModel?.ModelId ?? request.ModelId;
 
+        Guid.TryParse(request.UserId, out var userGuid);
+        var hasConversation = userGuid != Guid.Empty && !string.IsNullOrEmpty(request.ConversationId);
+
+        AssistantLastAction? lastAction = null;
+        GracefulCorrectionPlan? correctionPlan = null;
+        try
+        {
+            if (hasConversation)
+            {
+                lastAction = _lastActionStore.Peek(userGuid, request.ConversationId!);
+            }
+
+            var recipeIsActive = hasConversation
+                && _pendingRecipeStore.Peek(userGuid, request.ConversationId!) != null;
+
+            correctionPlan = await _turnPreparation.PlanCorrectionAsync(
+                new GracefulCorrectionInput(
+                    agent, request.UserRights, request.Message, request.ConversationId, request.UserId,
+                    request.Language, lastAction, recipeIsActive),
+                cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "Graceful correction planning failed for user {UserId}; continuing as an ordinary turn.",
+                request.UserId);
+        }
+
         var toolset = await _toolsetAssembler.AssembleAsync(
-            agent, request.UserRights, request.Message, request.ConversationId,
-            request.PageContext?.CurrentRoute, request.UserId, request.Language,
-            maxToolsForProvider, cancellationToken: cancellationToken);
+            agent, request.UserRights, correctionPlan?.CompositeMessage ?? request.Message,
+            request.ConversationId, request.PageContext?.CurrentRoute, request.UserId, request.Language,
+            maxToolsForProvider, applyLearnedPhraseGuarantee: true,
+            excludedSkillNames: correctionPlan?.ExcludedSkillNames,
+            pinnedSkillNames: lastAction?.ClarificationSkillNames,
+            cancellationToken: cancellationToken);
+
+        var correction = correctionPlan == null
+            ? null
+            : _turnPreparation.CompleteCorrection(correctionPlan, toolset.Functions, request.Language);
 
         var context = new LLMContext
         {
@@ -108,7 +155,10 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             IsVoiceMode = request.IsVoiceMode,
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
-            ToolsetAssemblyMs = toolset.AssemblyMs
+            ToolsetAssemblyMs = toolset.AssemblyMs,
+            CorrectionNote = correction?.ContextNote,
+            CorrectionClarificationReply = correction?.ClarificationReply,
+            GracefulCorrectionApplied = correction != null
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

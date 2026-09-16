@@ -810,7 +810,9 @@ public class LLMService : ILLMService
         var temporalContext = await _promptBuilder.BuildTemporalContextAsync(context, cancellationToken);
         var volatilePrompt = CombineVolatile(
             temporalContext,
-            CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt));
+            CombineVolatile(
+                CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
+                context.CorrectionNote));
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
@@ -848,6 +850,9 @@ public class LLMService : ILLMService
     // availableFunctions is the toolset SkillToolsetAssembler already assembled for this turn (final
     // by the time budgeting runs in both call sites), so the tool-definition reserve reflects what is
     // actually sent instead of a pessimistic flat constant.
+    // The volatile segment also carries LLMContext.CorrectionNote on a correction turn, so such a turn
+    // budgets roughly 120 tokens less history than an ordinary one. That is deliberate:
+    // MinHistoryBudgetTokens stays the floor and the note lives exactly one turn.
     private static int HistoryBudgetFor(
         ILLMProvider provider, LLMModel model, string? systemPrompt, string? volatileSystemPrompt, List<LLMFunction>? availableFunctions) =>
         ComputeHistoryBudget(

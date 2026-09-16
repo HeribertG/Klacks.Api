@@ -47,4 +47,32 @@ public interface ITurnPreparationService
         string responseContent,
         IReadOnlyList<LLMFunctionCall> functionCalls,
         bool recipePaused);
+
+    /// <summary>
+    /// Part (c) of the turn preparation: decides whether this turn corrects the previous one and what
+    /// the re-routing must run on. Called BEFORE the toolset assembly, because the composite is the
+    /// assembler's input and the exclusion is one of its parameters.
+    ///
+    /// The caller must await this to completion before it starts the assembly and must never run the
+    /// two concurrently: the gate G5 probe and the assembler share the scoped RecipeEngineService and
+    /// its non-atomic match memo, so a parallel start races two writers onto one tuple.
+    /// </summary>
+    /// <param name="input">Message, rights, language plus the previous action and the active-recipe flag the caller read from its stores.</param>
+    /// <param name="cancellationToken">Cancellation of the turn.</param>
+    Task<GracefulCorrectionPlan?> PlanCorrectionAsync(
+        GracefulCorrectionInput input, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The second half, called AFTER the assembly: reads the deterministic candidates out of the
+    /// assembled toolset and produces the volatile note and the clarification question when there is no
+    /// clear winner. Creates nothing and persists nothing - the caller decides whether a confirmation
+    /// token is written, so a headless replay stays side-effect-free.
+    /// </summary>
+    /// <param name="plan">The plan PlanCorrectionAsync returned for this turn.</param>
+    /// <param name="assembledFunctions">This turn's final toolset, the source of the deterministic candidates.</param>
+    /// <param name="language">The single language tag the whole answer must be written in.</param>
+    GracefulCorrectionOutcome CompleteCorrection(
+        GracefulCorrectionPlan plan,
+        IReadOnlyList<LLMFunction> assembledFunctions,
+        string? language);
 }

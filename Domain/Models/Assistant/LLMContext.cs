@@ -121,4 +121,32 @@ public class LLMContext
     /// the one object both chat entry points share with the post-turn hooks.
     /// </summary>
     public bool RecipeAwaitingConfirmation { get; set; }
+
+    /// <summary>
+    /// Volatile system note of a correction turn: what the previous turn called, what the user
+    /// corrected, the language to answer in and the pre-formulated opening sentence the answer must
+    /// carry. Null on every ordinary turn. Set by both chat entry points before ILLMService runs,
+    /// because the toolset - and therefore the note's content - is final before the loop starts.
+    /// The note is combined into the turn's VOLATILE prompt rather than into the per-iteration note
+    /// slot: the pending/recipe/plan notes are alternatives to each other, while a correction note
+    /// applies to every iteration of the turn it belongs to. It therefore also counts against
+    /// LLMService.HistoryBudgetFor and shrinks a correction turn's history budget by its own length
+    /// (~120 tokens), which is harmless - MinHistoryBudgetTokens remains the floor and the note lives
+    /// exactly one turn.
+    /// </summary>
+    public string? CorrectionNote { get; set; }
+
+    /// <summary>
+    /// Ready-to-send clarification question of a correction whose re-routing produced two candidates
+    /// within CorrectionAmbiguityTolerance. When set, the turn answers with exactly this text and makes
+    /// no provider call at all - the one case in which the assistant asks before acting.
+    /// </summary>
+    public string? CorrectionClarificationReply { get; set; }
+
+    /// <summary>
+    /// True when the graceful-correction path engaged this turn. Read by the trajectory capture so the
+    /// learning loop can tell "user corrected and we re-routed" from "user corrected and nothing
+    /// happened" (CorrectionTypes.GracefulRerouted vs. Implicit).
+    /// </summary>
+    public bool GracefulCorrectionApplied { get; set; }
 }

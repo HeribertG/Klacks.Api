@@ -67,6 +67,9 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
+    private readonly IAssistantLastActionStore _lastActionStore;
+    private readonly IPendingRecipeStore _pendingRecipeStore;
+    private readonly ITurnPreparationService _turnPreparation;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     public LLMStreamingOrchestrator(
@@ -77,6 +80,9 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         IEntityCandidateGrounder entityCandidateGrounder,
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
+        IAssistantLastActionStore lastActionStore,
+        IPendingRecipeStore pendingRecipeStore,
+        ITurnPreparationService turnPreparation,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -86,6 +92,9 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _entityCandidateGrounder = entityCandidateGrounder;
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
+        _lastActionStore = lastActionStore;
+        _pendingRecipeStore = pendingRecipeStore;
+        _turnPreparation = turnPreparation;
         _logger = logger;
     }
 
@@ -136,13 +145,44 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             : KnowledgeIndexConstants.MaxToolsForProvider;
         var effectiveModelId = earlyModel?.ModelId ?? request.ModelId;
 
+        Guid.TryParse(request.UserId, out var userGuid);
+        var hasConversation = userGuid != Guid.Empty && !string.IsNullOrEmpty(request.ConversationId);
+
+        AssistantLastAction? lastAction = null;
+        GracefulCorrectionPlan? correctionPlan = null;
+        try
+        {
+            if (hasConversation)
+            {
+                lastAction = _lastActionStore.Peek(userGuid, request.ConversationId!);
+            }
+
+            var recipeIsActive = hasConversation
+                && _pendingRecipeStore.Peek(userGuid, request.ConversationId!) != null;
+
+            correctionPlan = await _turnPreparation.PlanCorrectionAsync(
+                new GracefulCorrectionInput(
+                    agent, request.UserRights, request.Message, request.ConversationId, request.UserId,
+                    request.Language, lastAction, recipeIsActive),
+                cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "Graceful correction planning failed for user {UserId}; continuing as an ordinary turn.",
+                request.UserId);
+        }
+
         SkillToolsetResult toolset;
         try
         {
             toolset = await _toolsetAssembler.AssembleAsync(
-                agent, request.UserRights, request.Message, request.ConversationId,
-                request.PageContext?.CurrentRoute, request.UserId, request.Language,
-                maxToolsForProvider, cancellationToken: cancellationToken);
+                agent, request.UserRights, correctionPlan?.CompositeMessage ?? request.Message,
+                request.ConversationId, request.PageContext?.CurrentRoute, request.UserId, request.Language,
+                maxToolsForProvider, applyLearnedPhraseGuarantee: true,
+                excludedSkillNames: correctionPlan?.ExcludedSkillNames,
+                pinnedSkillNames: lastAction?.ClarificationSkillNames,
+                cancellationToken: cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -152,6 +192,10 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 request.UserId, request.ConversationId);
             toolset = new SkillToolsetResult();
         }
+
+        var correction = correctionPlan == null
+            ? null
+            : _turnPreparation.CompleteCorrection(correctionPlan, toolset.Functions, request.Language);
 
         var context = new LLMContext
         {
@@ -169,7 +213,10 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
             IsVoiceMode = request.IsVoiceMode,
-            ToolsetAssemblyMs = toolset.AssemblyMs
+            ToolsetAssemblyMs = toolset.AssemblyMs,
+            CorrectionNote = correction?.ContextNote,
+            CorrectionClarificationReply = correction?.ClarificationReply,
+            GracefulCorrectionApplied = correction != null
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
