@@ -9,8 +9,9 @@
 ///     topic-switch branches;
 /// (3) correction planning (PlanCorrectionAsync) - gates G0-G5, ending in the composite this turn routes
 ///     on and the skills it excludes;
-/// (4) correction completion (CompleteCorrection) - delegated in full to CorrectionOutcomeComposer,
-///     which is pure and therefore testable without this class's seven dependencies;
+/// (4) correction completion (CompleteCorrection) - resolves the inverse call of the corrected turn and
+///     hands it to CorrectionOutcomeComposer, which is pure and therefore testable without this class's
+///     dependencies; the resolution lives here because it needs one of them;
 /// (5) the previous-action record (RecordLastAction), the anchor a later correction reads.
 /// Extracted from LLMService in 2026-09; TurnPreparationCharacterizationTests pinned that move and was
 /// green against both sides of it, but the class has grown behaviour since and is no longer a copy.
@@ -21,6 +22,7 @@
 /// <param name="slotExtractor">One structured model call that pre-fills a fresh recipe's slots.</param>
 /// <param name="lastActionStore">Persistence of the previous-action record.</param>
 /// <param name="routeProbe">Gate G5 of the correction path: does the correction route on its own?</param>
+/// <param name="inverseResolver">The inverse call of a write the corrected turn made, when one exists.</param>
 /// <param name="logger">Logger for the recipe lifecycle lines this block already emitted.</param>
 
 using Klacks.Api.Domain.Constants;
@@ -39,6 +41,7 @@ public class TurnPreparationService : ITurnPreparationService
     private readonly RecipeSlotExtractor _slotExtractor;
     private readonly IAssistantLastActionStore _lastActionStore;
     private readonly IDeterministicRouteProbe _routeProbe;
+    private readonly ISkillInverseResolver _inverseResolver;
     private readonly ILogger<TurnPreparationService> _logger;
 
     public TurnPreparationService(
@@ -48,6 +51,7 @@ public class TurnPreparationService : ITurnPreparationService
         RecipeSlotExtractor slotExtractor,
         IAssistantLastActionStore lastActionStore,
         IDeterministicRouteProbe routeProbe,
+        ISkillInverseResolver inverseResolver,
         ILogger<TurnPreparationService> logger)
     {
         _pendingConfirmationStore = pendingConfirmationStore;
@@ -56,6 +60,7 @@ public class TurnPreparationService : ITurnPreparationService
         _slotExtractor = slotExtractor;
         _lastActionStore = lastActionStore;
         _routeProbe = routeProbe;
+        _inverseResolver = inverseResolver;
         _logger = logger;
     }
 
@@ -394,8 +399,44 @@ public class TurnPreparationService : ITurnPreparationService
     public GracefulCorrectionOutcome CompleteCorrection(
         GracefulCorrectionPlan plan,
         IReadOnlyList<LLMFunction> assembledFunctions,
-        string? language) =>
-        CorrectionOutcomeComposer.Compose(plan, assembledFunctions, language);
+        string? language)
+    {
+        var (undo, undoneCall) = ResolveUndo(plan);
+        var outcome = CorrectionOutcomeComposer.Compose(plan, assembledFunctions, language, undo, undoneCall);
+
+        if (outcome.Undo != null && undoneCall != null)
+        {
+            _logger.LogInformation(
+                "Graceful correction: offering to undo '{Skill}' with '{Inverse}'",
+                undoneCall.SkillName, outcome.Undo.SkillName);
+        }
+
+        return outcome;
+    }
+
+    /// <summary>
+    /// At most one undo per correction, for the FIRST reversible write the corrected turn made. Not one
+    /// per call: rule 3 asks for a single yes/no sentence, and a turn that wrote twice would otherwise
+    /// produce a menu. The matched call is returned alongside the invocation rather than assumed to be
+    /// Calls[0] - a turn that looked something up before it wrote has the reversible call in a later
+    /// position, and naming the read in the undo sentence would say the assistant is about to undo the
+    /// search. Nothing is persisted here: the caller decides whether a confirmation token is written,
+    /// which is what keeps the headless replay side-effect-free. Whether the offer is made at all is
+    /// decided by the composer, which drops it next to a clarification.
+    /// </summary>
+    /// <param name="plan">The correction the planning decided on, with the previous action it anchors to</param>
+    private (SkillUndoInvocation? Undo, AssistantLastActionCall? UndoneCall) ResolveUndo(GracefulCorrectionPlan plan)
+    {
+        foreach (var call in plan.LastAction.Calls)
+        {
+            if (_inverseResolver.TryResolve(call, out var undo) && undo != null)
+            {
+                return (undo, call);
+            }
+        }
+
+        return (null, null);
+    }
 
     private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call) => new()
     {

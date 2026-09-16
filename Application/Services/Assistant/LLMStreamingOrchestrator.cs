@@ -70,6 +70,20 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IAssistantLastActionStore _lastActionStore;
     private readonly IPendingRecipeStore _pendingRecipeStore;
     private readonly ITurnPreparationService _turnPreparation;
+
+    /// <summary>
+    /// Holds the one-time token of an undo offer. Written HERE and in ProcessLLMMessageCommandHandler
+    /// only, never in the turn preparation: a headless replay resolves the same undo as data and must
+    /// leave no redeemable token behind. The token carries PendingConfirmationPurposes.GateReplay because
+    /// it is redeemed exactly like any other held invocation - an affirmation narrows the next turn to
+    /// confirm_pending_action, which replays these arguments. Known limitation, not introduced here:
+    /// PeekLatestForUser looks up the latest token PER USER, not per conversation, so an affirmation in
+    /// another conversation of the same user that is open at the same time can redeem this one. TP1
+    /// narrows the window (the token exists only on the non-ambiguous path and only when an offer was
+    /// actually made); conversation-scoped confirmations are TP2 work.
+    /// </summary>
+    private readonly IPendingConfirmationStore _pendingConfirmationStore;
+
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     public LLMStreamingOrchestrator(
@@ -83,6 +97,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         IAssistantLastActionStore lastActionStore,
         IPendingRecipeStore pendingRecipeStore,
         ITurnPreparationService turnPreparation,
+        IPendingConfirmationStore pendingConfirmationStore,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -95,6 +110,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _lastActionStore = lastActionStore;
         _pendingRecipeStore = pendingRecipeStore;
         _turnPreparation = turnPreparation;
+        _pendingConfirmationStore = pendingConfirmationStore;
         _logger = logger;
     }
 
@@ -221,6 +237,19 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 _logger.LogWarning(ex,
                     "Could not pin the clarification candidates for user {UserId}; the follow-up turn runs without them.",
                     request.UserId);
+            }
+        }
+
+        if (correction?.Undo != null && userGuid != Guid.Empty)
+        {
+            try
+            {
+                _pendingConfirmationStore.Create(userGuid, correction.Undo.SkillName, correction.Undo.Arguments);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex,
+                    "Could not register the undo offer for skill {Skill}", correction.Undo.SkillName);
             }
         }
 

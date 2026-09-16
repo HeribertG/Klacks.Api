@@ -197,7 +197,8 @@ public class TurnReplayService : ITurnReplayService
                 ApiModelId = model.ApiModelId,
                 LatencyMs = stopwatch.ElapsedMilliseconds,
                 CorrectionApplied = true,
-                CorrectionClarificationOffered = true
+                CorrectionClarificationOffered = true,
+                UndoOfferedSkill = correction?.Undo?.SkillName
             };
         }
 
@@ -227,7 +228,8 @@ public class TurnReplayService : ITurnReplayService
             ProviderId = model.ProviderId,
             ApiModelId = model.ApiModelId,
             CorrectionApplied = correction != null,
-            CorrectionClarificationOffered = false
+            CorrectionClarificationOffered = false,
+            UndoOfferedSkill = correction?.Undo?.SkillName
         };
 
         _logger.LogInformation(

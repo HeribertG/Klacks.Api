@@ -26,8 +26,6 @@ namespace Klacks.Api.Application.Skills.Meta;
 
 public class SkillRiskClassifier : ISkillRiskClassifier
 {
-    private const string ManualInverseMarker = "__manual__";
-
     internal static readonly HashSet<string> SensitiveSkills = new(StringComparer.OrdinalIgnoreCase)
     {
         "delete_system_user",
@@ -578,7 +576,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         }
 
         return InverseSkillRegistry.TryGet(skillName, out var inverse)
-            && !string.Equals(inverse.SkillName, ManualInverseMarker, StringComparison.Ordinal);
+            && !inverse.UndoOnly
+            && !string.Equals(inverse.SkillName, InverseSkillRegistry.ManualMarker, StringComparison.Ordinal);
     }
 
     private static bool IsReadOnly(SkillDescriptor descriptor)

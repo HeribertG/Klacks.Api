@@ -44,7 +44,7 @@ public class RollbackMyLastChangeSkill : BaseSkillImplementation
                 "Add an entry to InverseSkillRegistry when its inverse skill exists.");
         }
 
-        if (string.Equals(inverse.SkillName, "__manual__", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(inverse.SkillName, InverseSkillRegistry.ManualMarker, StringComparison.OrdinalIgnoreCase))
         {
             return SkillResult.Error(
                 $"Skill '{execution.ToolName}' has no automatic rollback path: {inverse.ParamHint}. " +

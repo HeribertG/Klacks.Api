@@ -1,20 +1,40 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json;
+using Klacks.Api.Domain.Models.Assistant;
+
 namespace Klacks.Api.Application.Skills.Meta;
 
 /// <summary>
 /// Phase 5 — read-only map of "skill X is rolled back by skill Y with these param mappings".
 /// Skills not in the map are NOT auto-reversible and must escalate to HITL.
+///
+/// Since 2026-09-16 the entries also carry a structured mapping (copied argument names, or the result
+/// property holding a created id) so the graceful-correction path can build the inverse call itself
+/// instead of describing it. The prose half is unchanged and still drives SkillRiskClassifier and
+/// RollbackMyLastChangeSkill; an entry without a structured mapping behaves exactly as before.
 /// </summary>
 public static class InverseSkillRegistry
 {
     /// <summary>
+    /// Marks an entry whose inverse is a human decision, not a callable skill. Public because three
+    /// places compare against it - the classifier, the rollback skill and the undo builder - and a
+    /// literal repeated three times is a magic string waiting to drift.
+    /// </summary>
+    public const string ManualMarker = "__manual__";
+
+    /// <summary>
     /// Lookup: original-skill-name → (inverse-skill-name, param-mapping-hint).
     /// Param-mapping-hint is informational — the actual rollback skill must take the right id
     /// from the original execution's result.
+    ///
+    /// The structured entries at the end of the table are proposed 2026-09-16, owner approval pending
+    /// (spec §8). They are all marked UndoOnly: none of those skills had an entry before, and each of
+    /// them would otherwise turn from Irreversible into Reversible and leave the autonomy gate, which
+    /// SkillRiskReversibilityPinTests caught and which is not part of this change.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, InverseSkill> Map =
-        new Dictionary<string, InverseSkill>(StringComparer.OrdinalIgnoreCase)
+    public static readonly IReadOnlyDictionary<string, InverseSkillEntry> Map =
+        new Dictionary<string, InverseSkillEntry>(StringComparer.OrdinalIgnoreCase)
         {
             ["place_work"] = new("delete_work", "Take workId from the original execution's result."),
             ["add_break"] = new("delete_break", "Take breakId from the original execution's result."),
@@ -27,32 +47,143 @@ public static class InverseSkillRegistry
             ["revoke_day_approval"] = new("approve_day", "Same date + groupId."),
             ["close_period"] = new("reopen_period", "Same startDate + endDate."),
             ["reopen_period"] = new("close_period", "Same startDate + endDate."),
-            ["accept_scenario"] = new("__manual__", "Accepting merges scenario into main; rollback is manual or requires a fresh scenario producer."),
-            ["reject_scenario"] = new("__manual__", "Rejected scenarios cannot be revived — the data is soft-deleted."),
-            ["add_client_to_group"] = new("__manual__", "remove_client_from_group skill TODO."),
+            ["accept_scenario"] = new(ManualMarker, "Accepting merges scenario into main; rollback is manual or requires a fresh scenario producer."),
+            ["reject_scenario"] = new(ManualMarker, "Rejected scenarios cannot be revived — the data is soft-deleted."),
+            ["add_client_to_group"] = new(ManualMarker, "remove_client_from_group skill TODO."),
             ["create_branch"] = new("delete_branch", "Take branchId from the original execution's result."),
             ["create_contract"] = new("delete_contract", "Take contractId from the original execution's result."),
-            ["create_employee"] = new("__manual__", "delete_employee / mark inactive skill TODO."),
+            ["create_employee"] = new(ManualMarker, "delete_employee / mark inactive skill TODO."),
             ["create_user"] = new("delete_system_user", "Take userId."),
-            ["create_shift"] = new("__manual__", "delete_shift skill TODO."),
+            ["create_shift"] = new(ManualMarker, "delete_shift skill TODO."),
             ["create_container_template"] = new(
                 "delete_container_template",
                 "Take containerId from the original execution's result. WARNING: the delete endpoint is " +
                 "container-scoped, so it removes ALL weekday templates of that container, not only the one " +
                 "just created. It is an exact undo only when the container had no template before — " +
                 "otherwise list_container_template first and re-create the ones that must survive."),
-            ["add_schedule_command"] = new("__manual__", "delete_schedule_command skill TODO."),
+            ["add_schedule_command"] = new(ManualMarker, "delete_schedule_command skill TODO."),
             ["start_autowizard"] = new("cancel_wizard_job", "Cancels in-flight jobs only; produced scenarios stay until accepted or rejected."),
             ["start_wizard1"] = new("cancel_wizard_job", "Cancels in-flight job."),
             ["start_wizard2"] = new("cancel_wizard_job", "Cancels in-flight job."),
             ["start_wizard3"] = new("cancel_wizard_job", "Cancels in-flight job."),
             ["add_ai_memory"] = new("delete_ai_memory", "Take memoryId."),
             ["install_language_pack"] = new("uninstall_language_pack", "Same language pack code."),
-            ["uninstall_language_pack"] = new("install_language_pack", "Same language pack code; pack files remain on disk.")
+            ["uninstall_language_pack"] = new("install_language_pack", "Same language pack code; pack files remain on disk."),
+            ["add_shift_to_group"] = new(
+                "remove_shift_from_group", "Same shiftId and groupId.", ["shiftId", "groupId"],
+                UndoOnly: true),
+            ["add_container_template_task"] = new(
+                "remove_container_template_task", "Same containerId, weekday and taskShiftId.",
+                ["containerId", "weekday", "taskShiftId"], UndoOnly: true),
+            ["set_shift_required_qualification"] = new(
+                "remove_shift_required_qualification", "Same shiftId and qualificationId.",
+                ["shiftId", "qualificationId"], UndoOnly: true),
+            ["add_client_to_group_by_name"] = new(
+                "remove_client_from_group", "Same firstName, lastName and groupName.",
+                ["firstName", "lastName", "groupName"], UndoOnly: true),
+            ["assign_contract_by_name"] = new(
+                "remove_client_contract", "Same firstName, lastName and contractName.",
+                ["firstName", "lastName", "contractName"], UndoOnly: true),
+            ["create_group"] = new(
+                "delete_group", "Take GroupId from the original execution's result.",
+                null, "GroupId", "groupId", UndoOnly: true),
+            ["create_calendar_selection"] = new(
+                "delete_calendar_selection", "Take CalendarSelectionId from the original execution's result.",
+                null, "CalendarSelectionId", "calendarSelectionId", UndoOnly: true),
+            ["create_absence_type"] = new(
+                "delete_absence_type", "Take AbsenceTypeId from the original execution's result.",
+                null, "AbsenceTypeId", "absenceTypeId", UndoOnly: true)
         };
 
-    public static bool TryGet(string skillName, out InverseSkill inverse)
+    public static bool TryGet(string skillName, out InverseSkillEntry inverse)
         => Map.TryGetValue(skillName, out inverse!);
-}
 
-public sealed record InverseSkill(string SkillName, string ParamHint);
+    /// <summary>
+    /// Builds the exact inverse invocation for a call that was made, or reports that none can be built.
+    /// False whenever anything is missing - the entry, an argument the inverse needs, or the created id -
+    /// and always false for a __manual__ entry. Rule 3 says an undo is offered sparingly; silence is the
+    /// correct answer to an incomplete mapping, never a half-filled call the user has to repair.
+    /// </summary>
+    /// <param name="skillName">The skill that was called and is to be undone.</param>
+    /// <param name="argumentsJson">That call's arguments, as stored on the previous-action record.</param>
+    /// <param name="resultDataJson">That call's result data, as stored on the previous-action record.</param>
+    /// <param name="undo">The resolved inverse invocation, null when none could be built.</param>
+    public static bool TryBuildUndo(
+        string skillName, string? argumentsJson, string? resultDataJson, out SkillUndoInvocation? undo)
+    {
+        undo = null;
+        if (!Map.TryGetValue(skillName, out var entry)
+            || string.Equals(entry.SkillName, ManualMarker, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var arguments = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var name in entry.CopiedArguments)
+        {
+            var value = ReadString(argumentsJson, name);
+            if (value == null)
+            {
+                return false;
+            }
+
+            arguments[name] = value;
+        }
+
+        if (entry.ResultIdProperty != null)
+        {
+            var id = ReadString(resultDataJson, entry.ResultIdProperty);
+            if (id == null || entry.ResultIdArgument == null)
+            {
+                return false;
+            }
+
+            arguments[entry.ResultIdArgument] = id;
+        }
+
+        if (arguments.Count == 0)
+        {
+            return false;
+        }
+
+        undo = new SkillUndoInvocation(entry.SkillName, arguments);
+        return true;
+    }
+
+    private static string? ReadString(string? json, string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            foreach (var property in document.RootElement.EnumerateObject())
+            {
+                if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var value = property.Value.ValueKind == JsonValueKind.String
+                    ? property.Value.GetString()
+                    : property.Value.GetRawText();
+                return string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+
+        return null;
+    }
+}

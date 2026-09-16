@@ -36,12 +36,26 @@ public static class CorrectionOutcomeComposer
 
     /// <summary>
     /// Composes the outcome of a correction turn.
+    ///
+    /// The undo is resolved by the caller and handed in already built, because resolving it needs a
+    /// registry that lives in the Application layer while this class depends on nothing but its
+    /// arguments. What is decided HERE is whether the offer is made at all: never alongside a
+    /// clarification. The turn is then already asking one question, and rule 3 allows exactly one yes/no
+    /// offer - two questions in one answer is the dialogue the rule forbids. Dropping it here rather than
+    /// in the caller is deliberate: the entry points write the confirmation token from Undo, so an offer
+    /// that is not made must not leave a redeemable token behind.
     /// </summary>
     /// <param name="plan">The correction the planning decided on, with the previous action it anchors to</param>
     /// <param name="assembledFunctions">The toolset re-assembled from the corrected intent</param>
     /// <param name="language">Active language of the turn</param>
+    /// <param name="undo">The inverse call resolved for this correction, null when there is none</param>
+    /// <param name="undoneCall">The call that inverse would undo, null when there is none</param>
     public static GracefulCorrectionOutcome Compose(
-        GracefulCorrectionPlan plan, IReadOnlyList<LLMFunction> assembledFunctions, string? language)
+        GracefulCorrectionPlan plan,
+        IReadOnlyList<LLMFunction> assembledFunctions,
+        string? language,
+        SkillUndoInvocation? undo,
+        AssistantLastActionCall? undoneCall)
     {
         var correctedCall = plan.LastAction.Calls.FirstOrDefault();
         var previousLabel = LabelOf(correctedCall);
@@ -75,15 +89,32 @@ public static class CorrectionOutcomeComposer
             note += GracefulCorrectionNotes.NoCandidateSuffix;
         }
 
-        return clarification == null
-            ? new GracefulCorrectionOutcome(note, null, [])
-            : new GracefulCorrectionOutcome(
+        if (clarification != null)
+        {
+            return new GracefulCorrectionOutcome(
                 note,
                 clarification,
                 candidates
                     .Take(GracefulCorrectionDefaults.ClarificationCandidateCount)
                     .Select(candidate => candidate.Name)
                     .ToList());
+        }
+
+        if (undo == null)
+        {
+            return new GracefulCorrectionOutcome(note, null, []);
+        }
+
+        var undoneLabel = LabelOf(undoneCall);
+
+        note += string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            GracefulCorrectionNotes.UndoOfferTemplate,
+            undoneLabel ?? GracefulCorrectionNotes.UnnamedPreviousActionLabel,
+            undo.SkillName,
+            AnswerLanguage(language));
+
+        return new GracefulCorrectionOutcome(note, null, [], undo, undoneLabel);
     }
 
     /// <summary>
