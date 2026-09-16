@@ -394,10 +394,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // Applied once, here, and after the expansion rather than before the selection: the keyword
         // guarantee, the learned-phrase guarantee and the co-required expansion can each put the
         // corrected turn's skill back, and a filter that ran earlier would be undone by any of them.
+        // postExclusionRetrievedCount feeds LogToolBudget below so the "retrieved" figure it reports
+        // matches what the model actually receives, not the pre-exclusion count.
+        var postExclusionRetrievedCount = retrievedSkills.Count;
         if (excludedSkillNames is { Count: > 0 })
         {
             var excluded = new HashSet<string>(excludedSkillNames, StringComparer.OrdinalIgnoreCase);
             excluded.Remove(AutonomyDefaults.ConfirmPendingActionSkillName);
+            postExclusionRetrievedCount = retrievedSkills.Count(s => !excluded.Contains(s.Name));
             var dropped = selectedSkills
                 .Where(s => !s.AlwaysOn && excluded.Contains(s.Name))
                 .Select(s => s.Name)
@@ -428,8 +432,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
 
         LogToolBudget(
-            alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated,
-            maxToolsForProvider, guaranteedSkills);
+            alwaysOnSkills.Count, postExclusionRetrievedCount, selectedSkills.Count, truncated,
+            maxToolsForProvider, guaranteedSkills.Where(selectedSkills.Contains).ToList());
 
         var selectedProvenance = ResolveProvenance(
             selectedSkills, guaranteedSources, retrievalScores, expansionNames);
@@ -673,7 +677,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     // recurring failure class, and the counters alone never showed WHICH skills the deterministic layers
     // forced in. Debug is switched off for this namespace in every environment, so a Debug line here would
     // be invisible exactly when it is needed. One short line per chat turn, only when a layer forced
-    // something.
+    // something. Since 2026-09-16 both retrievedCount and guaranteedSkills are the caller's responsibility
+    // to pass POST-exclusion: a correction turn's dropped skill must not be counted as retrieved or
+    // named as guaranteed here, or the log would claim the model got a tool it never received.
     private void LogToolBudget(
         int alwaysOnCount,
         int retrievedCount,
