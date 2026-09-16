@@ -143,8 +143,15 @@ public class LLMService : ILLMService
 
             if (context.CorrectionClarificationReply is { Length: > 0 } clarification)
             {
-                await PersistClarificationTurnAsync(
-                    context, conversation!, model!, provider!, clarification, stopwatch, cancellationToken);
+                try
+                {
+                    await PersistClarificationTurnAsync(
+                        context, conversation!, model!, provider!, clarification, stopwatch, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving the correction clarification for user {UserId}", context.UserId);
+                }
 
                 return BuildClarificationResponse(conversation!, clarification);
             }
@@ -770,9 +777,9 @@ public class LLMService : ILLMService
     /// the non-streaming chat persist exactly the same turn. Usage is tracked with an empty usage record
     /// because no provider was called at all, and the background tasks run with an empty call list, so the
     /// turn is captured as what it was: a correction answered with a question and no action.
-    /// RecordLastAction is deliberately NOT called - the previous-action record is the anchor the entry
-    /// point has just written the two clarification pins onto, and a turn without an executed call marks
-    /// exactly that record superseded.
+    /// RecordLastAction is deliberately NOT called: this turn executed nothing, so there is nothing to
+    /// record, and calling it would only redundantly mark the record superseded. The pins the entry point
+    /// wrote onto that record are not at risk either way - a superseded record still carries them.
     /// </summary>
     private async Task PersistClarificationTurnAsync(
         LLMContext context,

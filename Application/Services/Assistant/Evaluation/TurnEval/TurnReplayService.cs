@@ -9,6 +9,9 @@
 /// production does. It never executes tools, never creates a conversation, never reads or writes
 /// the previous-action record and never triggers background telemetry, so replays cannot pollute
 /// production data; the only intended persistence is the EvalRun written by the runner.
+/// LatencyMs keeps its established meaning on an ordinary replay - the provider call alone, so model
+/// comparisons stay comparable - while a clarification, which makes no such call, reports the time its
+/// own deterministic work took instead of a misleading zero.
 /// </summary>
 
 using System.Diagnostics;
@@ -77,6 +80,8 @@ public class TurnReplayService : ITurnReplayService
         List<string> userRights,
         CancellationToken cancellationToken = default)
     {
+        var stopwatch = Stopwatch.StartNew();
+
         var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(modelId);
         if (error != null || model == null || provider == null)
         {
@@ -187,14 +192,16 @@ public class TurnReplayService : ITurnReplayService
                 EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
                 ForcedRecipeName = forcingPlan?.Name,
                 TriggeredRecipeName = triggeredRecipeName,
+                ToolChoiceRequired = toolChoiceRequired,
                 ProviderId = model.ProviderId,
                 ApiModelId = model.ApiModelId,
+                LatencyMs = stopwatch.ElapsedMilliseconds,
                 CorrectionApplied = true,
                 CorrectionClarificationOffered = true
             };
         }
 
-        var stopwatch = Stopwatch.StartNew();
+        stopwatch.Restart();
         var response = await ProcessWithTransientRetryAsync(provider, request, cancellationToken);
         stopwatch.Stop();
 

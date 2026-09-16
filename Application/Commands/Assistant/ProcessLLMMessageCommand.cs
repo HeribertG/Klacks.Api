@@ -153,8 +153,17 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         if (correction is { ClarificationReply.Length: > 0, ClarificationSkillNames.Count: > 0 } && hasConversation)
         {
-            _lastActionStore.SaveClarificationCandidates(
-                userGuid, request.ConversationId!, correction.ClarificationSkillNames);
+            try
+            {
+                _lastActionStore.SaveClarificationCandidates(
+                    userGuid, request.ConversationId!, correction.ClarificationSkillNames);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex,
+                    "Could not pin the clarification candidates for user {UserId}; the follow-up turn runs without them.",
+                    request.UserId);
+            }
         }
 
         var context = new LLMContext
