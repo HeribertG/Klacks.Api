@@ -94,7 +94,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         _logger = logger;
     }
 
-    public async Task<SkillToolsetResult> AssembleAsync(
+    public Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
         List<string> userRights,
         string userMessage,
@@ -104,7 +104,25 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         string? language,
         int maxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider,
         bool applyLearnedPhraseGuarantee = true,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        AssembleAsync(
+            agent, userRights, userMessage, conversationId, currentRoute, userId, language,
+            maxToolsForProvider, applyLearnedPhraseGuarantee,
+            excludedSkillNames: null, pinnedSkillNames: null, cancellationToken);
+
+    public async Task<SkillToolsetResult> AssembleAsync(
+        Agent? agent,
+        List<string> userRights,
+        string userMessage,
+        string? conversationId,
+        string? currentRoute,
+        string userId,
+        string? language,
+        int maxToolsForProvider,
+        bool applyLearnedPhraseGuarantee,
+        IReadOnlyCollection<string>? excludedSkillNames,
+        IReadOnlyCollection<string>? pinnedSkillNames,
+        CancellationToken cancellationToken)
     {
         if (agent == null)
         {
@@ -313,6 +331,18 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             }
         }
 
+        // Clarification pin: the two options the previous turn asked about. The answer ("die erste",
+        // "die Gruppe") carries no keyword of either skill, so without this the toolset of the turn that
+        // answers the question is the one turn that no longer contains the answer's own skill.
+        if (pinnedSkillNames != null)
+        {
+            foreach (var pinnedSkillName in pinnedSkillNames)
+            {
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, pinnedSkillName, ToolsetSkillSource.Hint, guaranteedSources);
+            }
+        }
+
         foreach (var guaranteed in guaranteedSkills)
         {
             if (!guaranteed.AlwaysOn &&
@@ -358,6 +388,29 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Skill retrieval expansion failed; continuing without expansion.");
+            }
+        }
+
+        // Applied once, here, and after the expansion rather than before the selection: the keyword
+        // guarantee, the learned-phrase guarantee and the co-required expansion can each put the
+        // corrected turn's skill back, and a filter that ran earlier would be undone by any of them.
+        if (excludedSkillNames is { Count: > 0 })
+        {
+            var excluded = new HashSet<string>(excludedSkillNames, StringComparer.OrdinalIgnoreCase);
+            excluded.Remove(AutonomyDefaults.ConfirmPendingActionSkillName);
+            var dropped = selectedSkills
+                .Where(s => !s.AlwaysOn && excluded.Contains(s.Name))
+                .Select(s => s.Name)
+                .ToList();
+
+            if (dropped.Count > 0)
+            {
+                selectedSkills = selectedSkills
+                    .Where(s => s.AlwaysOn || !excluded.Contains(s.Name))
+                    .ToList();
+                _logger.LogInformation(
+                    "Correction turn: dropped {Count} skill(s) the corrected turn had called: {Skills}",
+                    dropped.Count, string.Join(", ", dropped));
             }
         }
 
@@ -412,8 +465,13 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
     /// <summary>
     /// Resolves the single provenance label for every selected skill. A skill can be in the toolset for
-    /// several reasons at once; the label reflects the strongest deterministic one (see SourcePriority),
-    /// with retrieval score attached only for skills whose membership comes from retrieval.
+    /// several reasons at once; the label reflects the strongest deterministic one (see SourcePriority).
+    /// Since 2026-09-16 the retrieval score is attached to a GUARANTEED skill too, not only to a
+    /// retrieved one: the correction path ranks the deterministic candidates against each other and
+    /// cannot do that on a null. This widens what lands in
+    /// skill_selection_trajectories.knowledge_index_candidates_json - the same rows now carry a score
+    /// where they previously carried none. The provenance DISTRIBUTION is unaffected, because it groups
+    /// by Source; a query that treated "has a score" as "was retrieved" has to read Source instead.
     /// </summary>
     private static Dictionary<string, SkillToolsetProvenance> ResolveProvenance(
         IEnumerable<AgentSkill> skills,
@@ -430,7 +488,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             }
             else if (guaranteedSources.TryGetValue(skill.Name, out var source))
             {
-                provenance[skill.Name] = new SkillToolsetProvenance(source, null);
+                provenance[skill.Name] = new SkillToolsetProvenance(
+                    source, retrievalScores.TryGetValue(skill.Name, out var guaranteedScore) ? guaranteedScore : null);
             }
             else if (retrievalScores.TryGetValue(skill.Name, out var score))
             {
