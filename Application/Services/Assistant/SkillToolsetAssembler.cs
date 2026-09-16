@@ -370,6 +370,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         // Silent expansion: pull in high-confidence co-required neighbours of the selected skills into
         // FREE budget only (never evict). Best-effort — a failure must never break skill selection.
+        // freeBudget is computed pre-exclusion; the exclusion filter and the truncation both run after
+        // this block, so nothing is cut prematurely — a correction turn only ever sees a SMALLER
+        // expansion fill, because the skills it excluded still count against selectedSkills.Count here.
         var freeBudget = maxToolsForProvider - selectedSkills.Count;
         if (freeBudget > 0)
         {
@@ -394,29 +397,12 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // Applied once, here, and after the expansion rather than before the selection: the keyword
         // guarantee, the learned-phrase guarantee and the co-required expansion can each put the
         // corrected turn's skill back, and a filter that ran earlier would be undone by any of them.
-        // postExclusionRetrievedCount feeds LogToolBudget below so the "retrieved" figure it reports
-        // matches what the model actually receives, not the pre-exclusion count.
-        var postExclusionRetrievedCount = retrievedSkills.Count;
-        if (excludedSkillNames is { Count: > 0 })
-        {
-            var excluded = new HashSet<string>(excludedSkillNames, StringComparer.OrdinalIgnoreCase);
-            excluded.Remove(AutonomyDefaults.ConfirmPendingActionSkillName);
-            postExclusionRetrievedCount = retrievedSkills.Count(s => !excluded.Contains(s.Name));
-            var dropped = selectedSkills
-                .Where(s => !s.AlwaysOn && excluded.Contains(s.Name))
-                .Select(s => s.Name)
-                .ToList();
-
-            if (dropped.Count > 0)
-            {
-                selectedSkills = selectedSkills
-                    .Where(s => s.AlwaysOn || !excluded.Contains(s.Name))
-                    .ToList();
-                _logger.LogInformation(
-                    "Correction turn: dropped {Count} skill(s) the corrected turn had called: {Skills}",
-                    dropped.Count, string.Join(", ", dropped));
-            }
-        }
+        // Accepted noise: a co-required partner the expansion pulled in for an excluded skill is not
+        // itself excluded and survives in the tool set.
+        var excludedSkillNameSet = ResolveExclusionSet(excludedSkillNames);
+        selectedSkills = DropExcluded(selectedSkills, excludedSkillNameSet, guaranteedSources);
+        var postExclusionRetrievedCount = retrievedSkills.Count(
+            s => !IsExcluded(s, excludedSkillNameSet, guaranteedSources));
 
         var preCapCount = selectedSkills.Count;
         var truncated = preCapCount > maxToolsForProvider;
@@ -660,6 +646,72 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         ToolsetSkillSource.Hint => 2,
         _ => 1
     };
+
+    /// <summary>
+    /// Normalizes a correction turn's excluded-skill input into a case-insensitive set, with
+    /// confirm_pending_action removed unconditionally: it is the user's only way to redeem a held
+    /// pending action and must never leave the tool set, even if a caller lists it by name. A null or
+    /// empty input yields an empty set.
+    /// </summary>
+    private static HashSet<string> ResolveExclusionSet(IReadOnlyCollection<string>? excludedSkillNames)
+    {
+        var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (excludedSkillNames is { Count: > 0 })
+        {
+            excluded.UnionWith(excludedSkillNames);
+        }
+
+        excluded.Remove(AutonomyDefaults.ConfirmPendingActionSkillName);
+        return excluded;
+    }
+
+    /// <summary>
+    /// Whether a skill is dropped by the correction turn's exclusion: it must be in
+    /// <paramref name="excluded"/> and must not be exempt. Always-on skills are exempt by definition
+    /// (they are in every toolset regardless of this turn), and a RecipeStep-guaranteed skill is exempt
+    /// too — the recipe engine's step decision on a composite recipe is more specific than the
+    /// turn-level exclusion, and the forcing spine must never be pointed at a step skill missing from
+    /// its own tool set. This is the single predicate both DropExcluded and the retrieved-count
+    /// bookkeeping in AssembleAsync use, so the two can never disagree about what "excluded" means.
+    /// </summary>
+    private static bool IsExcluded(
+        AgentSkill skill,
+        IReadOnlySet<string> excluded,
+        IReadOnlyDictionary<string, ToolsetSkillSource> guaranteedSources) =>
+        !skill.AlwaysOn &&
+        excluded.Contains(skill.Name) &&
+        !(guaranteedSources.TryGetValue(skill.Name, out var source) && source == ToolsetSkillSource.RecipeStep);
+
+    /// <summary>
+    /// Drops the skills a correction turn must not offer again (see IsExcluded for the exemptions) and
+    /// logs the dropped names. A no-op, without a log line, when nothing in the selection is excluded.
+    /// </summary>
+    private List<AgentSkill> DropExcluded(
+        List<AgentSkill> selectedSkills,
+        IReadOnlySet<string> excluded,
+        IReadOnlyDictionary<string, ToolsetSkillSource> guaranteedSources)
+    {
+        if (excluded.Count == 0)
+        {
+            return selectedSkills;
+        }
+
+        var dropped = selectedSkills
+            .Where(s => IsExcluded(s, excluded, guaranteedSources))
+            .Select(s => s.Name)
+            .ToList();
+
+        if (dropped.Count == 0)
+        {
+            return selectedSkills;
+        }
+
+        _logger.LogInformation(
+            "Correction turn: dropped {Count} skill(s) the corrected turn had called: {Skills}",
+            dropped.Count, string.Join(", ", dropped));
+
+        return selectedSkills.Where(s => !IsExcluded(s, excluded, guaranteedSources)).ToList();
+    }
 
     private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
     {

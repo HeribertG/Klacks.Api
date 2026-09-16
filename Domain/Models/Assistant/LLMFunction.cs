@@ -24,8 +24,10 @@ public class LLMFunction
     public ToolsetSkillSource? ToolsetSource { get; set; }
 
     /// <summary>
-    /// Rerank score of the knowledge-index retrieval for this skill, null unless
-    /// <see cref="ToolsetSource"/> is <see cref="ToolsetSkillSource.Retrieved"/>.
+    /// Rerank score of the knowledge-index retrieval for this skill. Present when
+    /// <see cref="ToolsetSource"/> is <see cref="ToolsetSkillSource.Retrieved"/>, and also when the
+    /// skill's membership is a GUARANTEE (any other ToolsetSource) that retrieval independently
+    /// surfaced for the same skill; null when retrieval never scored it.
     /// </summary>
     [JsonIgnore]
     public double? RetrievalScore { get; set; }

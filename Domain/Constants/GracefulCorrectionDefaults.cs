@@ -46,8 +46,9 @@ public static class GracefulCorrectionDefaults
     /// <summary>
     /// Maximum score distance between the two best deterministic candidates at which the assistant asks
     /// which one was meant instead of picking. Start value, calibrated by correction-v1 (item
-    /// cr-de-005-ambiguous). Two candidates that retrieval never scored both read 0.0 and are therefore
-    /// inside the tolerance - a deliberate bias towards the question, see design rule 2.
+    /// cr-de-005-ambiguous). Task 5a's rule: both candidates scored AND within this tolerance of each
+    /// other -> ask; neither candidate scored -> ask (a deliberate bias towards the question, see design
+    /// rule 2); exactly one candidate scored -> act on it, the unscored one never competes.
     /// </summary>
     public const double CorrectionAmbiguityTolerance = 0.05;
 
