@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Application.Constants;
 
@@ -31,12 +31,14 @@ public static class LanguagePluginConstants
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
 
     /// <summary>
-    /// The languages Klacks ships in itself, i.e. the ones a language plugin never supplies. Single
-    /// source with GracefulCorrectionTexts.CoreLanguages rather than a second literal list: the two must
-    /// agree, because a core language that the correction catalogue does not know would resolve its
-    /// user-facing question to English and break the one-language rule, while a core language a loader
-    /// does not know would let a plugin overwrite what the application ships. The list lives in Domain
-    /// because Application may depend on Domain and not the other way round.
+    /// The languages Klacks ships in itself, i.e. the ones a language plugin never supplies. Not a list
+    /// of its own: it is MultiLanguage.CoreLanguages, because a core language a loader does not know
+    /// would let a plugin overwrite what the application ships, while a core language the correction
+    /// catalogue does not know would resolve its user-facing question to English and break the
+    /// one-language rule. The list lives in Domain because Application may depend on Domain and not the
+    /// other way round. Two deliberate copies of the same four codes remain: LanguageConfig
+    /// .SupportedLanguages, which is runtime-configurable and therefore not a constant, and the literal
+    /// list in migration 20260729060051_AddSkillPhrase, which is a frozen snapshot on purpose.
     /// </summary>
-    public static readonly IReadOnlyList<string> CoreLanguages = GracefulCorrectionTexts.CoreLanguages;
+    public static readonly IReadOnlyList<string> CoreLanguages = MultiLanguage.CoreLanguages;
 }

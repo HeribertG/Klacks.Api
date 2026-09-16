@@ -14,7 +14,14 @@ public class MultiLanguage
 {
     private Dictionary<string, string?> _values = new(StringComparer.OrdinalIgnoreCase);
 
-    public static string[] CoreLanguages => ["de", "en", "fr", "it"];
+    /// <summary>
+    /// The languages Klacks ships itself, i.e. the ones no language plugin supplies. The single source
+    /// for that list: LanguagePluginConstants.CoreLanguages (which pack directories a loader skips) and
+    /// GracefulCorrectionTexts.CoreLanguages (which languages must carry an authored assistant sentence)
+    /// both point at this array rather than repeating it. A static readonly array rather than a property
+    /// returning a fresh one, so the three names are one object - no caller mutates it.
+    /// </summary>
+    public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];
 
     [Obsolete("Use CoreLanguages or LanguageConfig.SupportedLanguages instead")]
     public static string[] SupportedLanguages => CoreLanguages;

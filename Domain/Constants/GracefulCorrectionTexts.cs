@@ -34,7 +34,12 @@ public static class GracefulCorrectionTexts
     public const string FirstOptionPlaceholder = "{optionA}";
     public const string SecondOptionPlaceholder = "{optionB}";
 
-    public static readonly IReadOnlyList<string> CoreLanguages = [German, English, French, Italian];
+    /// <summary>
+    /// The languages whose sentence is authored in this file rather than shipped by a pack. Not a list of
+    /// its own: it is MultiLanguage.CoreLanguages, so a fifth core language cannot be added to the
+    /// application without this catalogue going red in the coverage guard.
+    /// </summary>
+    public static readonly IReadOnlyList<string> CoreLanguages = MultiLanguage.CoreLanguages;
 
     /// <summary>Every key a language pack has to ship. The coverage guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys = [ClarificationQuestion];
@@ -102,6 +107,10 @@ public static class GracefulCorrectionTexts
     /// languages from their pack, and ONLY an unknown tag falls back to English. An installed language
     /// whose pack lacks the key returns false - the caller then asks nothing rather than in the wrong
     /// language.
+    /// A regional tag is tried in full first and only then reduced to its base language, so "zh-CN" and
+    /// "zh-TW" keep their own packs while "de-CH" reaches German and "pt-BR" the Portuguese pack. Without
+    /// that second probe every region-qualified installation would land on the English fallback, which is
+    /// precisely what the one-language rule forbids.
     /// </summary>
     /// <param name="key">Catalogue key of the wanted sentence</param>
     /// <param name="language">Active language of the turn, or null when the turn carries none</param>
@@ -116,21 +125,21 @@ public static class GracefulCorrectionTexts
 
         if (!string.IsNullOrWhiteSpace(language))
         {
-            if (byLanguage.TryGetValue(language!, out var core))
+            var exact = ClaimedBy(byLanguage, key, language!, out text);
+            if (exact.HasValue)
             {
-                text = core;
-                return true;
+                return exact.Value;
             }
 
-            if (_pluginTexts.TryGetValue(language!, out var pack))
+            var baseLanguage = LanguageTag.BaseLanguage(language);
+            if (!string.IsNullOrWhiteSpace(baseLanguage)
+                && !string.Equals(baseLanguage, language, StringComparison.OrdinalIgnoreCase))
             {
-                if (!pack.TryGetValue(key, out var localized) || string.IsNullOrWhiteSpace(localized))
+                var byBase = ClaimedBy(byLanguage, key, baseLanguage!, out text);
+                if (byBase.HasValue)
                 {
-                    return false;
+                    return byBase.Value;
                 }
-
-                text = localized;
-                return true;
             }
         }
 
@@ -143,12 +152,47 @@ public static class GracefulCorrectionTexts
         return false;
     }
 
+    /// <summary>
+    /// Whether one exact language tag owns this text, as a three-way answer: true with the text when it
+    /// does, false when the tag belongs to an installed pack that is missing the key (rule 4 - the caller
+    /// asks nothing rather than in the wrong language, and no further lookup may rescue it), and null
+    /// when the tag claims nothing at all, which is the only case the caller may keep searching after.
+    /// </summary>
+    /// <param name="byLanguage">The core table of this key</param>
+    /// <param name="key">Catalogue key of the wanted sentence</param>
+    /// <param name="language">One exact language tag, never blank</param>
+    /// <param name="text">The resolved sentence, empty unless the answer is true</param>
+    private static bool? ClaimedBy(
+        IReadOnlyDictionary<string, string> byLanguage, string key, string language, out string text)
+    {
+        text = string.Empty;
+
+        if (byLanguage.TryGetValue(language, out var core))
+        {
+            text = core;
+            return true;
+        }
+
+        if (!_pluginTexts.TryGetValue(language, out var pack))
+        {
+            return null;
+        }
+
+        if (!pack.TryGetValue(key, out var localized) || string.IsNullOrWhiteSpace(localized))
+        {
+            return false;
+        }
+
+        text = localized;
+        return true;
+    }
+
     /// <summary>Every key of the core catalogue, for the completeness guard test.</summary>
-    public static IReadOnlyCollection<string> Keys => CoreTexts.Keys.ToList();
+    internal static IReadOnlyCollection<string> Keys => CoreTexts.Keys.ToList();
 
     /// <summary>The per-language variants of one core key, for the completeness guard test.</summary>
     /// <param name="key">Catalogue key whose per-language table is wanted</param>
-    public static IReadOnlyDictionary<string, string> VariantsOf(string key) =>
+    internal static IReadOnlyDictionary<string, string> VariantsOf(string key) =>
         CoreTexts.TryGetValue(key, out var byLanguage)
             ? byLanguage
             : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
