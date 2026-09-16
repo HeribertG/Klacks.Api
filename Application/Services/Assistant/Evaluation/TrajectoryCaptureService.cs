@@ -29,10 +29,10 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private const int CandidatesMax = 30;
     private const int OwnerNameMaxLength = 128;
 
-    // How soon after the previous turn a negation/complaint ("nein", "falsch") is trusted as a
-    // reactive correction of that turn rather than an unrelated later message that happens to
-    // contain the same word.
-    private static readonly TimeSpan ImplicitCorrectionWindow = TimeSpan.FromMinutes(2);
+    // Shared with gate G0 of the graceful-correction path: two copies of the same two minutes would let
+    // the learning loop and the routing loop disagree about which turn a user just corrected.
+    private static readonly TimeSpan ImplicitCorrectionWindow =
+        TimeSpan.FromMinutes(GracefulCorrectionDefaults.CorrectionWindowMinutes);
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ISkillLearningCaseCollector _caseCollector;

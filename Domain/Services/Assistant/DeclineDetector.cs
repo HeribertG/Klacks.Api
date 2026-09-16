@@ -124,6 +124,35 @@ public static class DeclineDetector
         LeadingNegationTokens.Contains(token)
         || Array.IndexOf(_pluginNegationEntries, token) >= 0;
 
+    /// <summary>
+    /// Removes a message's leading negation word (core-language or a single-token plugin entry) together
+    /// with a following comma, colon, dash and whitespace. A caller correcting the previous turn opens
+    /// with "Nein, ..." - the negation and what follows share one clause with no sentence terminator
+    /// between them, so a sentence-splitting detector (RecipeTopicSwitchDetector) can never see the part
+    /// after the comma as its own sentence. Stripping the lead here lets such a caller re-check the
+    /// remainder on its own.
+    /// Returns the message unchanged when it does not lead with a negation, or when the lead is a
+    /// multi-word plugin phrase - a phrase has no single token boundary to strip at.
+    /// </summary>
+    /// <param name="message">The raw user message that started the turn.</param>
+    internal static string StripNegationLead(string message)
+    {
+        var match = WordPattern.Match(message);
+        if (!match.Success)
+        {
+            return message;
+        }
+
+        var leadToken = match.Value.ToLowerInvariant();
+        if (!IsNegationToken(leadToken))
+        {
+            return message;
+        }
+
+        var remainder = message[(match.Index + match.Length)..];
+        return remainder.TrimStart(' ', '\t', ',', ':', '-', '–', '—');
+    }
+
     // Plugin entries must match at the START of the message (single token among the leading
     // tokens, or as a prefix for multi-word phrases and non-segmented scripts) — a mid-sentence
     // hit would reintroduce the false positives the leading-token rule exists to avoid.

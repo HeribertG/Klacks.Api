@@ -148,14 +148,15 @@ public class RecipeEngineService
     private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, string? language,
         IReadOnlyCollection<string>? userRights, CancellationToken cancellationToken,
-        string? excludedRecipeName = null)
+        string? excludedRecipeName = null,
+        bool allowSemanticFallback = true)
     {
         if (recipes.Count == 0)
         {
             return (null, false, false, null, null);
         }
 
-        var memo = _matchMemo;
+        var memo = allowSemanticFallback ? _matchMemo : null;
         if (memo != null && memo.Value.Message == message && memo.Value.Language == language
                          && memo.Value.ExcludedRecipeName == excludedRecipeName)
         {
@@ -192,7 +193,8 @@ public class RecipeEngineService
         var triggerMatch = MatchByTrigger(eligible, message, language, _logger);
         var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
                                && !MutationIntentDetector.IsMutationIntent(message);
-        var runSemanticFallback = triggerMatch == null
+        var runSemanticFallback = allowSemanticFallback
+                                  && triggerMatch == null
                                   && !MutationIntentDetector.IsInformationQuestion(message)
                                   && !isLeadingDecline;
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
@@ -203,7 +205,12 @@ public class RecipeEngineService
         var hasCompetingSkillIntent = triggerMatch != null
             && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, userRights, cancellationToken);
 
-        _matchMemo = (message, language, excludedRecipeName, match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
+        if (allowSemanticFallback)
+        {
+            _matchMemo = (message, language, excludedRecipeName, match, matchedSemantically,
+                hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
+        }
+
         return (match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
     }
 
@@ -449,10 +456,24 @@ public class RecipeEngineService
             triggerMessage: pending.TriggerMessage);
     }
 
-    public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
+    public Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
         string? userId, string? conversationId, string? message,
         string? language = null, IReadOnlyCollection<string>? userRights = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        GuaranteedSkillNamesAsync(
+            userId, conversationId, message, language, userRights, allowSemanticFallback: true, cancellationToken);
+
+    /// <param name="allowSemanticFallback">
+    /// False restricts matching to the deterministic trigger walk. The G5 probe passes false: it asks
+    /// whether a message routes BY ITSELF, which a similarity score does not answer, and the embedding
+    /// round would otherwise be paid on every correction that carries a mutation verb. Full arity and no
+    /// default on purpose - an optional parameter appended here would rebind cancellationToken at the
+    /// existing call sites without failing to compile (the 2026-09-14 overload trap).
+    /// </param>
+    public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
+        string? userId, string? conversationId, string? message,
+        string? language, IReadOnlyCollection<string>? userRights,
+        bool allowSemanticFallback, CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
@@ -480,7 +501,8 @@ public class RecipeEngineService
         if (!string.IsNullOrWhiteSpace(message))
         {
             var recipes = await repository.GetAllEnabledAsync(cancellationToken);
-            var (recipe, _, _, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken);
+            var (recipe, _, _, _, _) = await FindMatchingRecipeAsync(
+                scope, recipes, message, language, userRights, cancellationToken, null, allowSemanticFallback);
             if (recipe != null)
             {
                 return ExtractStepSkills(recipe);

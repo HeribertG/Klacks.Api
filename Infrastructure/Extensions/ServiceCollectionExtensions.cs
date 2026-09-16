@@ -779,6 +779,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AssistantLastActionRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAssistantLastActionStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentAssistantLastActionStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnPreparationService, Klacks.Api.Domain.Services.Assistant.TurnPreparationService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IDeterministicRouteProbe, Klacks.Api.Application.Services.Assistant.DeterministicRouteProbe>();
         services.AddScoped<Klacks.Api.Application.Interfaces.IRecipeRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.RecipeRunRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeRunExpirySweep, Klacks.Api.Application.Services.Assistant.RecipeRunExpirySweep>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeRunRecorder, Klacks.Api.Application.Services.Assistant.RecipeRunRecorder>();
