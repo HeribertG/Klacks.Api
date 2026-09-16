@@ -25,17 +25,25 @@ public interface ITurnPreparationService
     /// that left a recipe paused on an ask - the user's next message answers the recipe question and is
     /// never a correction.
     ///
-    /// The conversation id is taken from the context and is length-validated only at the HTTP boundary
-    /// (LLMRequest.ConversationId carries the [StringLength] attribute). A non-HTTP caller must supply
-    /// ids within GracefulCorrectionDefaults.ConversationIdMaxLength itself; the store deliberately does
-    /// not cap the key it later queries with.
+    /// The conversation id is passed in rather than read off the context: the context carries only what
+    /// the client sent, which is null on the first turn of a new conversation, while the chat loop has
+    /// already resolved the persisted conversation by the time it records. Keying the anchor by the
+    /// resolved id makes it the same key the pending-recipe store uses, so the two per-conversation
+    /// records of a turn cannot end up under different keys.
+    ///
+    /// That id is length-validated only at the HTTP boundary (LLMRequest.ConversationId carries the
+    /// [StringLength] attribute). A non-HTTP caller must supply ids within
+    /// GracefulCorrectionDefaults.ConversationIdMaxLength itself; the store deliberately does not cap
+    /// the key it later queries with.
     /// </summary>
-    /// <param name="context">The turn's context, source of user id, conversation id and this turn's toolset.</param>
+    /// <param name="context">The turn's context, source of the user id, the user message and this turn's toolset.</param>
+    /// <param name="conversationId">The resolved conversation id the record is keyed by; a null or empty value records nothing.</param>
     /// <param name="responseContent">The assistant's answer, stored as the excerpt the correction note quotes back.</param>
     /// <param name="functionCalls">Every call of the turn, including the rejected and held ones this filters out.</param>
     /// <param name="recipePaused">True when the turn left a recipe waiting on an ask or confirmation step.</param>
     void RecordLastAction(
         LLMContext context,
+        string conversationId,
         string responseContent,
         IReadOnlyList<LLMFunctionCall> functionCalls,
         bool recipePaused);

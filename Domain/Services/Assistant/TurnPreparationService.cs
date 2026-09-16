@@ -16,7 +16,6 @@
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -264,9 +263,13 @@ public class TurnPreparationService : ITurnPreparationService
     }
 
     public void RecordLastAction(
-        LLMContext context, string responseContent, IReadOnlyList<LLMFunctionCall> functionCalls, bool recipePaused)
+        LLMContext context,
+        string conversationId,
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> functionCalls,
+        bool recipePaused)
     {
-        if (!Guid.TryParse(context.UserId, out var userGuid) || string.IsNullOrEmpty(context.ConversationId))
+        if (!Guid.TryParse(context.UserId, out var userGuid) || string.IsNullOrEmpty(conversationId))
         {
             return;
         }
@@ -275,7 +278,7 @@ public class TurnPreparationService : ITurnPreparationService
         {
             if (recipePaused)
             {
-                _lastActionStore.MarkSuperseded(userGuid, context.ConversationId);
+                _lastActionStore.MarkSuperseded(userGuid, conversationId);
                 return;
             }
 
@@ -285,14 +288,14 @@ public class TurnPreparationService : ITurnPreparationService
 
             if (executedCalls.Count == 0)
             {
-                _lastActionStore.MarkSuperseded(userGuid, context.ConversationId);
+                _lastActionStore.MarkSuperseded(userGuid, conversationId);
                 return;
             }
 
             _lastActionStore.Save(new AssistantLastAction
             {
                 UserId = userGuid,
-                ConversationId = context.ConversationId,
+                ConversationId = conversationId,
                 UserMessage = context.Message,
                 AssistantAnswerExcerpt = responseContent,
                 CreateTimeUtc = DateTime.UtcNow,

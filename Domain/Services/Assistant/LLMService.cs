@@ -166,7 +166,8 @@ public class LLMService : ILLMService
                 toolChoiceSupported: ctx.Provider.SupportsToolChoice,
                 toolCallReturned: allFunctionCalls.Count > 0);
 
-            _turnPreparation.RecordLastAction(context, responseContent, allFunctionCalls, ctx.RecipePausedOnAsk);
+            _turnPreparation.RecordLastAction(
+                context, conversation!.ConversationId, responseContent, allFunctionCalls, ctx.RecipePausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -716,7 +717,8 @@ public class LLMService : ILLMService
                 toolChoiceSupported: provider!.SupportsToolChoice,
                 toolCallReturned: allFunctionCalls.Count > 0);
 
-            _turnPreparation.RecordLastAction(context, responseContent, allFunctionCalls, recipePausedOnAsk);
+            _turnPreparation.RecordLastAction(
+                context, conversation!.ConversationId, responseContent, allFunctionCalls, recipePausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
