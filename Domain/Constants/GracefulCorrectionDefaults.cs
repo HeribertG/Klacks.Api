@@ -14,7 +14,8 @@ public static class GracefulCorrectionDefaults
     /// How soon after the assistant's turn a negation is trusted as a reactive correction of THAT turn
     /// rather than an unrelated later message that happens to contain a negation. One constant for both
     /// consumers: gate G0 of the correction path and the implicit-correction window of the learning
-    /// trajectory (TrajectoryCaptureService), which used to carry its own copy of the same two minutes.
+    /// trajectory (TrajectoryCaptureService), which still carries its own copy of the same two minutes
+    /// until the trajectory service is switched to this constant.
     /// </summary>
     public const int CorrectionWindowMinutes = 2;
 
@@ -35,6 +36,9 @@ public static class GracefulCorrectionDefaults
 
     /// <summary>Cap for the stored assistant answer excerpt, the text the note quotes back.</summary>
     public const int AnswerExcerptMaxLength = 120;
+
+    /// <summary>User-facing label of the called skill, sized like the answer excerpt.</summary>
+    public const int SkillDisplayLabelMaxLength = 120;
 
     /// <summary>Cap for one call's serialized arguments and for its serialized result data.</summary>
     public const int CallJsonMaxLength = 2000;

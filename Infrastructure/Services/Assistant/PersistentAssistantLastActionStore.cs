@@ -151,6 +151,9 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
             capped.Add(new AssistantLastActionCall
             {
                 SkillName = call.SkillName,
+                SkillDisplayLabel = call.SkillDisplayLabel == null
+                    ? null
+                    : Cap(call.SkillDisplayLabel, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength),
                 ArgumentsJson = Cap(call.ArgumentsJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 ResultDataJson = Cap(call.ResultDataJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 IsReadOnly = call.IsReadOnly,
