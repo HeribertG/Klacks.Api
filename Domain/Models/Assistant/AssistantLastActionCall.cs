@@ -34,11 +34,13 @@ public sealed class AssistantLastActionCall
     /// <summary>
     /// Whether the call was read-only by the NAME PREFIX rule of ReadOnlySkillPrefixes - the same rule
     /// the multi-turn loop applies in RejectRepeatedWriteCalls, deliberately not the category-first rule
-    /// of SkillRiskClassifier. The classifier lets a write category (Crud/Action) override a read-only
-    /// prefix, so the two can disagree: a write-category skill whose name starts with a read-only prefix
-    /// reads as read-only here and as a write there. The undo offer needs nothing finer - the divergence
-    /// can only make it OFFER LESS, never undo something it should not have. Which skills may diverge is
-    /// pinned by ReadOnlyPrefixWriteCategoryGuardTests, so the set can shrink but not silently grow.
+    /// of SkillRiskClassifier. The two rules disagree in BOTH directions: a write-category skill whose
+    /// name starts with a read-only prefix reads as read-only here and as a write there - that set is
+    /// pinned by ReadOnlyPrefixWriteCategoryGuardTests, so it can shrink but not silently grow - and a
+    /// read-category skill whose name carries no read-only prefix (82 skills, e.g. navigate_to,
+    /// web_search, select_group, every explain_*) reads as a write here and as read-only there - that
+    /// set is large and not pinned. Because of the second direction, the undo path must never gate on
+    /// IsReadOnly alone; it must also require an available inverse and Success.
     /// </summary>
     public bool IsReadOnly { get; set; }
 
