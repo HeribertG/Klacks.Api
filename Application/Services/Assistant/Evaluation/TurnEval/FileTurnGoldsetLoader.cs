@@ -13,6 +13,7 @@ public class FileTurnGoldsetLoader : ITurnGoldsetLoader
     private const string GoldsetSubPath = "Application/Skills/Goldsets";
     private const string ExpectedKindSelection = "turn-selection";
     private const string ExpectedKindHonesty = "turn-honesty";
+    private const string ExpectedKindCorrection = "turn-correction";
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -39,10 +40,12 @@ public class FileTurnGoldsetLoader : ITurnGoldsetLoader
 
         if (document == null
             || (!string.Equals(document.Kind, ExpectedKindSelection, StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(document.Kind, ExpectedKindHonesty, StringComparison.OrdinalIgnoreCase)))
+                && !string.Equals(document.Kind, ExpectedKindHonesty, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(document.Kind, ExpectedKindCorrection, StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidDataException(
-                $"Goldset '{sanitized}' is not a valid {ExpectedKindSelection}/{ExpectedKindHonesty} goldset.");
+                $"Goldset '{sanitized}' is not a valid {ExpectedKindSelection}/{ExpectedKindHonesty}/" +
+                $"{ExpectedKindCorrection} goldset.");
         }
 
         return document.Items;

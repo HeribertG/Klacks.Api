@@ -85,6 +85,8 @@ public class TurnReplayService : ITurnReplayService
             item.CurrentRoute, userId, item.Locale, budgetProfile.MaxToolsForProvider,
             cancellationToken: cancellationToken);
 
+        var replayHistory = BuildReplayHistory(item);
+
         var context = new LLMContext
         {
             Message = item.Message,
@@ -137,7 +139,7 @@ public class TurnReplayService : ITurnReplayService
                 LLMService.CombineVolatile(
                     LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt)),
             ModelId = model.ApiModelId,
-            ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
+            ConversationHistory = replayHistory,
             AvailableFunctions = context.AvailableFunctions,
             Temperature = TurnEvalDefaults.ReplayTemperature,
             MaxTokens = model.MaxTokens,
@@ -179,6 +181,25 @@ public class TurnReplayService : ITurnReplayService
             item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
 
         return result;
+    }
+
+    /// <summary>
+    /// Seeds the replay with the turn a correction item refers to. Only role and text are persisted in
+    /// production history too (LLMConversationManager), so this is the exact shape the live turn sees.
+    /// An item without a previousTurn replays with an empty history, as before.
+    /// </summary>
+    private static List<Domain.Services.Assistant.Providers.LLMMessage> BuildReplayHistory(TurnGoldsetItem item)
+    {
+        if (item.PreviousTurn == null)
+        {
+            return new List<Domain.Services.Assistant.Providers.LLMMessage>();
+        }
+
+        return
+        [
+            new() { Role = "user", Content = item.PreviousTurn.Message },
+            new() { Role = "assistant", Content = item.PreviousTurn.AssistantAnswerExcerpt ?? string.Empty }
+        ];
     }
 
     private async Task<string?> FindMatchingEngineRecipeNameAsync(

@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "kind": "turn-correction",
+  "items": [
+    {
+      "id": "cr-de-001",
+      "message": "Nein, ich meinte nicht die Kunden suchen, sondern alle Mitarbeitenden in die Gruppe.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zürich" },
+        "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
+      },
+      "source": "curated",
+      "comment": "Core case: the assistant searched customers, the user corrects towards employees-into-group."
+    },
+    {
+      "id": "cr-de-002-g3",
+      "message": "Nein.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": null,
+      "expectsCorrection": false,
+      "previousTurn": {
+        "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zürich" },
+        "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
+      },
+      "source": "curated",
+      "comment": "G3 counter-example: a bare negation stays a decline and must not be repaired."
+    },
+    {
+      "id": "cr-de-003-g4",
+      "message": "Nein, wie finde ich denn heraus, welche Gruppen ein Mitarbeiter schon hat?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": null,
+      "expectsCorrection": false,
+      "previousTurn": {
+        "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zürich" },
+        "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
+      },
+      "source": "curated",
+      "comment": "G4 counter-example: an independent question with a question mark stays a question."
+    },
+    {
+      "id": "cr-de-004-g5",
+      "message": "Nein, trag den Dienst nicht am Montag ein, sondern am Dienstag.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "create_shift",
+      "expectsCorrection": false,
+      "previousTurn": {
+        "message": "Leg mir bitte einen Dienst an.",
+        "calledSkill": "create_shift",
+        "skillDisplayLabel": "Legt einen Dienst an",
+        "arguments": { "name": "Nachtdienst" },
+        "assistantAnswerExcerpt": "Der Dienst wurde angelegt."
+      },
+      "source": "curated",
+      "comment": "G5 counter-example: the correction routes deterministically on its own, so it is a new request."
+    },
+    {
+      "id": "cr-de-005-ambiguous",
+      "message": "Nein, nicht die Kunden — die Gruppe meinte ich.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": null,
+      "expectsCorrection": true,
+      "expectsClarification": true,
+      "previousTurn": {
+        "message": "Zeig mir die Zürcher.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zürich" },
+        "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
+      },
+      "source": "curated",
+      "comment": "Calibration item for CorrectionAmbiguityTolerance: two guaranteed candidates without retrieval scores must produce the two-option clarification, not a guess."
+    },
+    {
+      "id": "cr-de-006-undo",
+      "message": "Nein, nicht diesen Dienst in die Gruppe, ich meinte die Mitarbeitenden.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name"],
+      "expectsCorrection": true,
+      "expectedUndoSkill": "remove_shift_from_group",
+      "previousTurn": {
+        "message": "Nimm das in die Gruppe Zürich auf.",
+        "calledSkill": "add_shift_to_group",
+        "skillDisplayLabel": "Ordnet einen Dienst einer Gruppe zu",
+        "arguments": {
+          "shiftId": "6f0f1f7a-0000-4000-8000-000000000001",
+          "groupId": "6f0f1f7a-0000-4000-8000-000000000002"
+        },
+        "assistantAnswerExcerpt": "Der Dienst wurde der Gruppe zugeordnet."
+      },
+      "source": "curated",
+      "comment": "Undo case: the wrong call was a lossless write, so the turn must offer remove_shift_from_group."
+    },
+    {
+      "id": "cr-de-007-clear-winner",
+      "message": "Nein, ich meinte die Gruppe füllen, nicht die Kundensuche.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": [],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Zeig mir die Zürcher.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zürich" },
+        "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
+      },
+      "source": "curated",
+      "comment": "Calibration counterpart of cr-de-005: a clear winner must be acted on, never asked about. Together the two items bracket CorrectionAmbiguityTolerance."
+    },
+    {
+      "id": "cr-de-008-recipe-collision",
+      "message": "Nein, ich meinte die Gruppe Bern.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": null,
+      "expectsCorrection": false,
+      "previousTurn": {
+        "message": "Nimm alle Zürcher in eine Gruppe auf.",
+        "calledSkill": "search_employees",
+        "skillDisplayLabel": "Sucht Mitarbeitende",
+        "arguments": { "canton": "ZH" },
+        "assistantAnswerExcerpt": "In welche Gruppe sollen sie?"
+      },
+      "source": "curated",
+      "comment": "G1 collision: a recipe whose first step called a tool and then paused on an ask leaves BOTH an anchor and a pending recipe. The message answers the recipe's question and must NOT be repaired - the recipe resumes untouched. Requires the replay/eval harness to report the pending recipe; until the eval can express it, this item is the unit-test case TurnPreparationCharacterizationTests covers and is kept here as the goldset counterpart."
+    },
+    {
+      "id": "cr-en-001",
+      "message": "No, I did not mean searching customers, I meant putting all employees into the group.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Put all employees into the Zurich group.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zurich" },
+        "assistantAnswerExcerpt": "I searched for matching customers."
+      },
+      "source": "curated",
+      "comment": "Core case, English."
+    },
+    {
+      "id": "cr-fr-001",
+      "message": "Non, je ne voulais pas chercher des clients, mais mettre tous les collaborateurs dans le groupe.",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Mets tous les collaborateurs dans le groupe Zurich.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zurich" },
+        "assistantAnswerExcerpt": "J'ai cherché des clients correspondants."
+      },
+      "source": "curated",
+      "comment": "Core case, French."
+    },
+    {
+      "id": "cr-it-001",
+      "message": "No, non intendevo cercare i clienti, ma inserire tutti i collaboratori nel gruppo.",
+      "locale": "it",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Inserisci tutti i collaboratori nel gruppo Zurigo.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zurigo" },
+        "assistantAnswerExcerpt": "Ho cercato i clienti corrispondenti."
+      },
+      "source": "curated",
+      "comment": "Core case, Italian."
+    },
+    {
+      "id": "cr-es-001",
+      "message": "No, no quería buscar clientes, quería poner a todos los empleados en el grupo.",
+      "locale": "es",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Pon a todos los empleados en el grupo Zúrich.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zúrich" },
+        "assistantAnswerExcerpt": "He buscado clientes coincidentes."
+      },
+      "source": "curated",
+      "comment": "Plugin language es: measures the conversation-signals corrections list of that pack."
+    },
+    {
+      "id": "cr-pl-001",
+      "message": "Nie, nie chodziło mi o szukanie klientów, tylko o dodanie wszystkich pracowników do grupy.",
+      "locale": "pl",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "Dodaj wszystkich pracowników do grupy Zurych.",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "Zurych" },
+        "assistantAnswerExcerpt": "Wyszukałem pasujących klientów."
+      },
+      "source": "curated",
+      "comment": "Plugin language pl."
+    },
+    {
+      "id": "cr-zh-cn-001",
+      "message": "不，我不是要搜索客户，我是要把所有员工加入这个组。",
+      "locale": "zh-CN",
+      "currentRoute": null,
+      "expectedTool": "fill_group_by_criteria",
+      "alternativeTools": ["add_client_to_group_by_name", "search_employees"],
+      "expectsCorrection": true,
+      "previousTurn": {
+        "message": "把所有员工加入苏黎世组。",
+        "calledSkill": "find_customer_candidates",
+        "skillDisplayLabel": "Sucht passende Kunden",
+        "arguments": { "searchString": "苏黎世" },
+        "assistantAnswerExcerpt": "我搜索了匹配的客户。"
+      },
+      "source": "curated",
+      "comment": "Plugin language zh-CN: non-segmented script, the known trap of the token-based detectors."
+    }
+  ]
+}

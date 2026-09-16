@@ -45,4 +45,21 @@ public class TurnReplayResult
     public string? ProviderId { get; set; }
 
     public string? ApiModelId { get; set; }
+
+    /// <summary>
+    /// TP1: whether the graceful-correction path engaged for this replay (all gates passed and the
+    /// composite was routed). False on every ordinary turn and on every gate rejection.
+    /// </summary>
+    public bool CorrectionApplied { get; set; }
+
+    /// <summary>
+    /// TP1: whether the correction ended in the deterministic two-option clarification instead of a
+    /// re-routed tool call. Implies CorrectionApplied.
+    /// </summary>
+    public bool CorrectionClarificationOffered { get; set; }
+
+    /// <summary>
+    /// TP1: inverse skill the turn offered as an undo, null when none was offered.
+    /// </summary>
+    public string? UndoOfferedSkill { get; set; }
 }

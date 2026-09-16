@@ -24,6 +24,11 @@
 /// only where the item is actually measurable - retrieval succeeded, the provider answered and no
 /// recipe hijacked the turn - because a timeout or an excluded item recorded as a selection miss would
 /// book an outage as a model mistake.
+///
+/// Scorer version 4 (2026-09-16) is NOT comparable with version 3 runs either: three per-item verdicts
+/// were added (CorrectionHit, FalseRepair, UndoOfferedWhenExpected). They change no weight and enter no
+/// composite, but the version is the key a baseline is looked up under, so a bump is what stops a
+/// version 3 baseline from being compared against a run scored under different per-item rules.
 /// </summary>
 
 using System.Text.Json;
@@ -38,7 +43,7 @@ public static class TurnEvalScorer
     /// scored under different rules are never compared. Bump whenever a weight, a dimension or a
     /// per-item verdict changes.
     /// </summary>
-    public const int ScorerVersion = 3;
+    public const int ScorerVersion = 4;
 
     /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
     public const string HonestyModeMustAbstain = "must-abstain";
@@ -50,6 +55,16 @@ public static class TurnEvalScorer
     private const double HonestyWeight = 0.15;
 
     public static TurnEvalItemResult ScoreItem(
+        TurnGoldsetItem item,
+        TurnReplayResult replay,
+        IReadOnlyDictionary<string, bool>? resolvedNameSlots = null)
+    {
+        var result = ScoreSelection(item, replay, resolvedNameSlots);
+        ApplyCorrectionVerdicts(item, replay, result);
+        return result;
+    }
+
+    private static TurnEvalItemResult ScoreSelection(
         TurnGoldsetItem item,
         TurnReplayResult replay,
         IReadOnlyDictionary<string, bool>? resolvedNameSlots = null)
@@ -119,6 +134,45 @@ public static class TurnEvalScorer
         return result;
     }
 
+    /// <summary>
+    /// The three TP1 verdicts. Only an item that declares a previousTurn is measured: without an anchor
+    /// the pipeline could not have repaired anything, so "was not repaired" would be a vacuous pass.
+    /// A correction item's Passed is tightened rather than replaced - reaching the right skill without
+    /// the correction path having engaged is luck, not a repair, and must not score as one.
+    /// </summary>
+    private static void ApplyCorrectionVerdicts(
+        TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
+    {
+        if (item.PreviousTurn == null)
+        {
+            return;
+        }
+
+        if (item.ExpectsCorrection)
+        {
+            var reached = item.ExpectsClarification
+                ? replay.CorrectionClarificationOffered
+                : result.ToolHit == true || result.RecipeHit == true;
+
+            result.CorrectionHit = replay.Success && replay.CorrectionApplied && reached;
+        }
+        else
+        {
+            result.FalseRepair = replay.CorrectionApplied;
+        }
+
+        if (item.ExpectedUndoSkill != null)
+        {
+            result.UndoOfferedWhenExpected = string.Equals(
+                replay.UndoOfferedSkill, item.ExpectedUndoSkill, StringComparison.OrdinalIgnoreCase);
+        }
+
+        result.Passed = result.Passed
+            && result.CorrectionHit != false
+            && result.FalseRepair != true
+            && result.UndoOfferedWhenExpected != false;
+    }
+
     public static TurnEvalDimensions Aggregate(IReadOnlyList<TurnEvalItemResult> items)
     {
         var active = items.Where(i => !i.Excluded).ToList();
@@ -128,6 +182,9 @@ public static class TurnEvalScorer
         var slotItems = toolItems.Where(i => i.ToolHit == true && i.SlotScore != null).ToList();
         var retrievalItems = active.Where(i => i.RetrievalHit != null).ToList();
         var selectionItems = active.Where(i => i.SelectionHit != null).ToList();
+        var correctionItems = active.Where(i => i.CorrectionHit != null).ToList();
+        var falseRepairItems = active.Where(i => i.FalseRepair != null).ToList();
+        var undoItems = active.Where(i => i.UndoOfferedWhenExpected != null).ToList();
         var measuredLatency = active.Where(i => !i.Errored).ToList();
 
         var nameSlotsEvaluated = active.Sum(i => i.NameSlotsEvaluated);
@@ -143,6 +200,9 @@ public static class TurnEvalScorer
             NameResolutionAccuracy: nameSlotsEvaluated == 0 ? null : (double)nameSlotsResolved / nameSlotsEvaluated,
             RetrievalHit: retrievalItems.Count == 0 ? null : retrievalItems.Average(i => i.RetrievalHit == true ? 1.0 : 0.0),
             SelectionHit: selectionItems.Count == 0 ? null : selectionItems.Average(i => i.SelectionHit == true ? 1.0 : 0.0),
+            CorrectionHit: correctionItems.Count == 0 ? null : correctionItems.Average(i => i.CorrectionHit == true ? 1.0 : 0.0),
+            FalseRepairRate: falseRepairItems.Count == 0 ? null : falseRepairItems.Average(i => i.FalseRepair == true ? 1.0 : 0.0),
+            UndoOfferedWhenExpected: undoItems.Count == 0 ? null : undoItems.Average(i => i.UndoOfferedWhenExpected == true ? 1.0 : 0.0),
             AvgLatencyMs: measuredLatency.Count == 0 ? 0 : measuredLatency.Average(i => (double)i.LatencyMs),
             TotalCost: items.Sum(i => i.Cost),
             ItemsTotal: items.Count,

@@ -42,4 +42,27 @@ public class TurnGoldsetItem
     public string? Comment { get; set; }
 
     public TurnGoldsetHonesty? Honesty { get; set; }
+
+    /// <summary>
+    /// TP1: the assistant turn this item corrects. Null for an ordinary item, which is then never
+    /// measured on any correction dimension.
+    /// </summary>
+    public TurnGoldsetPreviousTurn? PreviousTurn { get; set; }
+
+    /// <summary>
+    /// True when the graceful-correction path MUST engage on this item. False together with a
+    /// PreviousTurn marks the counter-example: an ordinary follow-up that must NOT be repaired.
+    /// </summary>
+    public bool ExpectsCorrection { get; set; }
+
+    /// <summary>
+    /// True when the correct outcome is the deterministic two-option clarification rather than a
+    /// re-routed tool call. Such an item declares no ExpectedTool.
+    /// </summary>
+    public bool ExpectsClarification { get; set; }
+
+    /// <summary>
+    /// Inverse skill the turn is expected to offer as an undo, null when no undo is expected.
+    /// </summary>
+    public string? ExpectedUndoSkill { get; set; }
 }

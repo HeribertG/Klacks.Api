@@ -6,7 +6,10 @@
 /// measured and its weight is redistributed in the composite. AvgLatencyMs is reported and
 /// persisted but is NOT part of the composite (see TurnEvalScorer), and neither are RetrievalHit
 /// and SelectionHit: they split ToolAccuracy into its two causes for diagnosis and for the
-/// regression alert, they are not a second quality target. Both are optional parameters so a run
+/// regression alert, they are not a second quality target. CorrectionHit, FalseRepairRate and
+/// UndoOfferedWhenExpected (TP1) are reported the same way and are likewise outside the composite:
+/// the correction goldset is a separate file, so mixing its rates into a weighted mean of a different
+/// goldset's dimensions would compare two populations. Both are optional parameters so a run
 /// persisted before they existed still deserializes.
 /// </summary>
 
@@ -26,4 +29,7 @@ public sealed record TurnEvalDimensions(
     double? HonestyAccuracy = null,
     double? RecipeAccuracy = null,
     double? RetrievalHit = null,
-    double? SelectionHit = null);
+    double? SelectionHit = null,
+    double? CorrectionHit = null,
+    double? FalseRepairRate = null,
+    double? UndoOfferedWhenExpected = null);

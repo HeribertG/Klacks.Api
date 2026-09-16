@@ -68,6 +68,24 @@ public class TurnEvalItemResult
     /// </summary>
     public bool? ExpectedToolAvailable { get; set; }
 
+    /// <summary>
+    /// TP1: for an item that expects a correction, whether the corrected turn reached the expected
+    /// skill (or offered the expected clarification). Null when the item declares no previousTurn or
+    /// does not expect a correction.
+    /// </summary>
+    public bool? CorrectionHit { get; set; }
+
+    /// <summary>
+    /// TP1: for an item with a previousTurn that must NOT be repaired, whether the pipeline repaired
+    /// it anyway. Null when the item declares no previousTurn or expects a correction.
+    /// </summary>
+    public bool? FalseRepair { get; set; }
+
+    /// <summary>
+    /// TP1: whether the expected inverse skill was offered as an undo. Null when the item expects none.
+    /// </summary>
+    public bool? UndoOfferedWhenExpected { get; set; }
+
     public long LatencyMs { get; set; }
 
     public decimal Cost { get; set; }
