@@ -111,8 +111,6 @@ public class LanguagePluginService : ILanguagePluginService
     /// </summary>
     public async Task ApplyInstalledRecipeVetoesAsync()
     {
-        // Idempotent: returns immediately once _initialized is set, which the parallel startup branch
-        // has normally already done by the time this runs.
         await InitializeAsync();
 
         string[] codes;

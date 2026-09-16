@@ -117,7 +117,6 @@ public static class RecipeTriggerMatcher
 
         if (packVetoTerms is { Count: > 0 })
         {
-            // VetoesFor hands back the underlying List<string>, so the cast normally avoids a copy.
             var terms = packVetoTerms as IReadOnlyList<string> ?? packVetoTerms.ToList();
             if (MatchesStartsWith(terms, message, logger))
             {
