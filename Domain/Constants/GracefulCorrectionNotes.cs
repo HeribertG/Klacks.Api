@@ -23,13 +23,17 @@ public static class GracefulCorrectionNotes
 {
     /// <summary>
     /// Placeholders: {0} previous skill label, {1} previous arguments, {2} the correction, {3} the
-    /// opening sentence, {4} the language tag the whole answer must be written in.
+    /// opening sentence, {4} a full PHRASE naming the language the whole answer must be written in.
+    /// {4} is a phrase rather than a bare tag because it has two shapes - a named tag
+    /// (NamedLanguageTemplate) and the fallback that points at the user's own message
+    /// (LanguageOfTheUserMessage) - and only one of them reads correctly inside quotes. The template
+    /// therefore adds no quotes of its own; the phrase brings them where they belong.
     /// </summary>
     public const string CorrectionContextTemplate =
         "CORRECTION — Your previous turn called {0} with {1}. The user is correcting that, not making " +
         "a new request: \"{2}\" The tools for this turn were re-selected from the corrected intent, and " +
-        "that skill is not offered again. Answer in language '{4}'. You MUST open your answer by naming " +
-        "the new understanding; start from this sentence, translated into '{4}', and rephrase it if it " +
+        "that skill is not offered again. Answer in {4}. You MUST open your answer by naming " +
+        "the new understanding; start from this sentence, translated into {4}, and rephrase it if it " +
         "reads better, but never leave it out: \"{3}\" If the correction only changes an argument and the " +
         "previous skill was in fact the right one, say so and ask for the corrected value instead of " +
         "calling a different tool.";
@@ -48,12 +52,19 @@ public static class GracefulCorrectionNotes
     public const string UnnamedPreviousActionLabel = "the tool it used";
 
     /// <summary>
-    /// Substituted for the language tag when the turn carries no language. NOT a default tag: ordering
-    /// "Answer in language 'en'" for a user who wrote German would break the one-language rule the
-    /// explicit tag exists to enforce, and an installation without a configured language is exactly the
-    /// case where the user's own message is the better evidence.
+    /// Substituted for the language phrase when the turn carries no language. NOT a default tag:
+    /// ordering "Answer in the language 'en'" for a user who wrote German would break the one-language
+    /// rule the explicit tag exists to enforce, and an installation without a configured language is
+    /// exactly the case where the user's own message is the better evidence.
     /// </summary>
     public const string LanguageOfTheUserMessage = "the same language as the user's message";
+
+    /// <summary>
+    /// The other shape of the language phrase: a tag the turn actually carries. Quoted here rather than
+    /// in the note template, because the fallback above is prose and must NOT be quoted.
+    /// Placeholder: {0} the language tag.
+    /// </summary>
+    public const string NamedLanguageTemplate = "the language '{0}'";
 
     /// <summary>
     /// Placeholders: {0} what the previous turn changed, {1} the inverse skill that undoes it, {2} the

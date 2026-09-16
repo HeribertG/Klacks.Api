@@ -275,6 +275,9 @@ GroupingIntentPluginLoader.Load(
 ConversationSignalsPluginLoader.Load(
     AppContext.BaseDirectory,
     (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
+AssistantTextsPluginLoader.Load(
+    AppContext.BaseDirectory,
+    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
 CompletionClaimPluginLoader.Load(
     AppContext.BaseDirectory,
     (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));

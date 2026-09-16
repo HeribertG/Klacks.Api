@@ -418,7 +418,13 @@ public class TurnPreparationService : ITurnPreparationService
 
         return clarification == null
             ? new GracefulCorrectionOutcome(note, null, [])
-            : new GracefulCorrectionOutcome(note, clarification, [candidates[0].Name, candidates[1].Name]);
+            : new GracefulCorrectionOutcome(
+                note,
+                clarification,
+                candidates
+                    .Take(GracefulCorrectionDefaults.ClarificationCandidateCount)
+                    .Select(candidate => candidate.Name)
+                    .ToList());
     }
 
     /// <summary>
@@ -459,21 +465,96 @@ public class TurnPreparationService : ITurnPreparationService
             .ToList();
 
     /// <summary>
-    /// The clarification question of a correction whose re-routing produced no clear winner. A stub until
-    /// the task that builds the question text; a correction therefore always acts for now and never asks.
+    /// The two-option question of design rule 2, or null when the turn may act.
+    ///
+    /// The rule, explicitly, because it is the one judgement call of this feature:
+    ///   - fewer than two candidates    -> no question, because a question offers exactly two options;
+    ///   - both candidates carry a retrieval score and the gap is at most
+    ///     CorrectionAmbiguityTolerance -> ask, the ranking does not separate them;
+    ///   - neither carries a score      -> ask, nothing ranks them at all (a keyword guarantee is a
+    ///                                     yes/no, not a degree, so two of them are simply tied);
+    ///   - exactly one carries a score  -> act on that one, because retrieval judged it relevant while
+    ///                                     the other is only a literal keyword hit;
+    ///   - both scored, gap larger      -> act on the better one.
+    /// A null score is therefore NOT read as zero. Treating it as zero made every pair of keyword
+    /// guarantees tie with every unscored recipe step, which asked far more often than rule 2 intends.
+    /// The two boundary cases are measured by correction-v1 (cr-de-005-ambiguous, cr-de-007-clear-winner)
+    /// before the tolerance is calibrated.
+    ///
+    /// No question is asked when an option cannot be named without leaking an internal snake_case skill
+    /// name, none when both options would be named identically - two CRUD descriptions can share a first
+    /// sentence, and "do you mean X or X?" is a question the user cannot answer - and none when the
+    /// installation's language has no authored sentence: an English question in a non-English
+    /// installation breaks the one-language rule, so the turn falls back to an ordinary answer with the
+    /// note instead.
     /// </summary>
+    /// <param name="orderedCandidates">Deterministic candidates, best retrieval score first</param>
+    /// <param name="previousLabel">User-facing label of what the previous turn did (rule 1)</param>
+    /// <param name="language">Active language of the turn the question is asked in</param>
     private static string? BuildClarification(
-        IReadOnlyList<LLMFunction> orderedCandidates, string previousLabel, string? language) => null;
+        IReadOnlyList<LLMFunction> orderedCandidates, string previousLabel, string? language)
+    {
+        if (orderedCandidates.Count < GracefulCorrectionDefaults.ClarificationCandidateCount)
+        {
+            return null;
+        }
+
+        var best = orderedCandidates[0].RetrievalScore;
+        var runnerUp = orderedCandidates[1].RetrievalScore;
+
+        var ambiguous = best.HasValue && runnerUp.HasValue
+            ? best.Value - runnerUp.Value <= GracefulCorrectionDefaults.CorrectionAmbiguityTolerance
+            : !best.HasValue && !runnerUp.HasValue;
+
+        if (!ambiguous)
+        {
+            return null;
+        }
+
+        var firstLabel = DescribeFunction(orderedCandidates[0]);
+        var secondLabel = DescribeFunction(orderedCandidates[1]);
+        if (firstLabel == null || secondLabel == null
+            || string.Equals(firstLabel, secondLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (!GracefulCorrectionTexts.TryGetText(
+                GracefulCorrectionTexts.ClarificationQuestion, language, out var template))
+        {
+            return null;
+        }
+
+        return template
+            .Replace(GracefulCorrectionTexts.PreviousActionPlaceholder, previousLabel, StringComparison.Ordinal)
+            .Replace(GracefulCorrectionTexts.FirstOptionPlaceholder, firstLabel, StringComparison.Ordinal)
+            .Replace(GracefulCorrectionTexts.SecondOptionPlaceholder, secondLabel, StringComparison.Ordinal);
+    }
 
     /// <summary>
-    /// The language the answer must be written in. Never empty: a blank tag would read as "Answer in
-    /// language ''" and the model would fall back to guessing, which is what the one-language rule exists
-    /// to prevent. A turn without a language does NOT get a default tag either - ordering English for a
-    /// user writing German would break the same rule from the other side - it is pointed at the user's
-    /// own message instead.
+    /// A user-facing label for a candidate: the first sentence of its description, capped. Never the
+    /// internal snake_case name - InternalIdentifierRedactor exists precisely because those must not
+    /// reach a user. Null when the skill carries no description.
+    /// </summary>
+    /// <param name="function">The candidate whose description is turned into an option label</param>
+    private static string? DescribeFunction(LLMFunction function) =>
+        FirstSentenceLabel(function.Description, GracefulCorrectionDefaults.OptionLabelMaxLength);
+
+    /// <summary>
+    /// The whole phrase the note substitutes for its language slot. Never empty: a blank tag would read
+    /// as "Answer in ." and the model would fall back to guessing, which is what the one-language rule
+    /// exists to prevent. A turn without a language does NOT get a default tag either - ordering English
+    /// for a user writing German would break the same rule from the other side - it is pointed at the
+    /// user's own message instead. A phrase rather than a bare tag because only the named-tag half reads
+    /// correctly in quotes, so the quoting lives here and not in the template.
     /// </summary>
     private static string AnswerLanguage(string? language) =>
-        string.IsNullOrWhiteSpace(language) ? GracefulCorrectionNotes.LanguageOfTheUserMessage : language!;
+        string.IsNullOrWhiteSpace(language)
+            ? GracefulCorrectionNotes.LanguageOfTheUserMessage
+            : string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                GracefulCorrectionNotes.NamedLanguageTemplate,
+                language);
 
     private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call) => new()
     {
@@ -494,16 +575,28 @@ public class TurnPreparationService : ITurnPreparationService
     {
         var function = context.AvailableFunctions.FirstOrDefault(
             f => string.Equals(f.Name, functionName, StringComparison.OrdinalIgnoreCase));
-        if (function == null || string.IsNullOrWhiteSpace(function.Description))
+
+        return FirstSentenceLabel(function?.Description, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength);
+    }
+
+    /// <summary>
+    /// The shared shape of both user-facing labels: the first sentence of a skill description, trimmed
+    /// and capped. The two callers differ only in their cap - the stored label of a recorded call is
+    /// sized like the answer excerpt, an option label like the question it has to fit into - so the cap
+    /// is a parameter rather than a second copy of this code.
+    /// </summary>
+    /// <param name="description">Skill description the label is taken from</param>
+    /// <param name="maxLength">Maximum number of characters the label may have</param>
+    private static string? FirstSentenceLabel(string? description, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(description))
         {
             return null;
         }
 
-        var sentenceEnd = function.Description.IndexOf('.');
-        var label = (sentenceEnd > 0 ? function.Description[..sentenceEnd] : function.Description).Trim();
+        var sentenceEnd = description.IndexOf('.');
+        var label = (sentenceEnd > 0 ? description[..sentenceEnd] : description).Trim();
 
-        return label.Length <= GracefulCorrectionDefaults.SkillDisplayLabelMaxLength
-            ? label
-            : label[..GracefulCorrectionDefaults.SkillDisplayLabelMaxLength].TrimEnd();
+        return label.Length <= maxLength ? label : label[..maxLength].TrimEnd();
     }
 }
