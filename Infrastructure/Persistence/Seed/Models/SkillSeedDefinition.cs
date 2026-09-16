@@ -37,5 +37,6 @@ public class SkillSeedDefinition
     [System.Text.Json.Serialization.JsonConverter(typeof(TriggerKeywordGroupsConverter))]
     public Dictionary<string, List<string>>? TriggerKeywords { get; set; }
     public Dictionary<string, List<string>>? Synonyms { get; set; }
+    public Dictionary<string, string>? Labels { get; set; }
     public int Version { get; set; } = 1;
 }

@@ -394,6 +394,7 @@ public class SkillSeedLoader
             HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType,
             TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords),
             Synonyms = definition.Synonyms,
+            Labels = definition.Labels,
             IsEnabled = definition.IsEnabled,
             AlwaysOn = definition.AlwaysOn,
             PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill),
@@ -421,6 +422,7 @@ public class SkillSeedLoader
         skill.HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType;
         skill.TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords);
         skill.Synonyms = MergeSynonyms(skill.Synonyms, definition.Synonyms);
+        skill.Labels = MergeLabels(skill.Labels, definition.Labels);
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
         skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
@@ -484,6 +486,46 @@ public class SkillSeedLoader
             foreach (var entry in definition)
             {
                 merged[entry.Key] = [.. entry.Value];
+            }
+        }
+
+        return merged;
+    }
+
+    /// <summary>
+    /// Merges seed labels into the stored ones instead of replacing them, for exactly the reason
+    /// MergeSynonyms gives: the seed file owns only the core languages, while every other language key is
+    /// written by a language pack at install time and never re-created on startup, so a full replacement
+    /// on a version bump would silently delete 21 languages' worth of authored text. Core languages
+    /// dropped from the definition are removed so they cannot linger forever; non-core keys are never
+    /// removed, not even when the definition carries no labels at all.
+    /// A separate method rather than a generic one shared with MergeSynonyms: the value types differ
+    /// (string vs. List&lt;string&gt;), and a generic version would have to copy the list defensively for
+    /// one caller and not the other.
+    /// </summary>
+    /// <param name="existing">Labels currently stored on the skill, including pack-installed languages</param>
+    /// <param name="definition">Labels the seed file declares, core languages only</param>
+    private static Dictionary<string, string> MergeLabels(
+        Dictionary<string, string>? existing,
+        Dictionary<string, string>? definition)
+    {
+        var merged = existing == null
+            ? new Dictionary<string, string>()
+            : new Dictionary<string, string>(existing);
+
+        foreach (var coreLanguage in LanguagePluginConstants.CoreLanguages)
+        {
+            if (definition == null || !definition.ContainsKey(coreLanguage))
+            {
+                merged.Remove(coreLanguage);
+            }
+        }
+
+        if (definition != null)
+        {
+            foreach (var entry in definition)
+            {
+                merged[entry.Key] = entry.Value;
             }
         }
 

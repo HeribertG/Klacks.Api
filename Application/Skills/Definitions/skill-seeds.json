@@ -1,5 +1,5 @@
 {
-  "version": 23,
+  "version": 24,
   "skills": [
     {
       "name": "get_current_time",
@@ -50,7 +50,13 @@
           "ora attuale"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Aktuelle Uhrzeit und Datum",
+        "en": "Current date and time",
+        "fr": "Date et heure actuelles",
+        "it": "Data e ora attuali"
+      },
+      "version": 7
     },
     {
       "name": "get_system_info",
@@ -82,7 +88,13 @@
           "informazioni di sistema"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Systeminformationen abrufen",
+        "en": "Get system information",
+        "fr": "Obtenir les informations système",
+        "it": "Ottieni le informazioni di sistema"
+      },
+      "version": 6
     },
     {
       "name": "get_user_context",
@@ -128,7 +140,13 @@
           "dove mi trovo nel sistema"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Aktuelle Benutzerinformationen",
+        "en": "Current user information",
+        "fr": "Informations sur l'utilisateur actuel",
+        "it": "Informazioni sull'utente attuale"
+      },
+      "version": 7
     },
     {
       "name": "validate_calendar_rule",
@@ -229,7 +247,13 @@
           "regola data"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Kalenderregel prüfen",
+        "en": "Validate a calendar rule",
+        "fr": "Valider une règle de calendrier",
+        "it": "Convalida una regola di calendario"
+      },
+      "version": 8
     },
     {
       "name": "navigate_to",
@@ -331,7 +355,13 @@
           "aprimi la pagina"
         ]
       },
-      "version": 25
+      "labels": {
+        "de": "Zu einer Seite navigieren",
+        "en": "Navigate to a page",
+        "fr": "Naviguer vers une page",
+        "it": "Naviga a una pagina"
+      },
+      "version": 26
     },
     {
       "name": "get_page_controls",
@@ -371,7 +401,13 @@
           "controlli della pagina"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Steuerelemente einer Seite abrufen",
+        "en": "Get the controls of a page",
+        "fr": "Obtenir les contrôles d'une page",
+        "it": "Ottieni i controlli di una pagina"
+      },
+      "version": 6
     },
     {
       "name": "add_ai_memory",
@@ -502,7 +538,13 @@
           "memorizzare"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Neue KI-Erinnerung hinzufügen (firmenweit)",
+        "en": "Add a new company-wide AI memory",
+        "fr": "Ajouter un souvenir IA à l'échelle de l'entreprise",
+        "it": "Aggiungi un nuovo ricordo IA aziendale"
+      },
+      "version": 9
     },
     {
       "name": "add_personal_memory",
@@ -614,7 +656,13 @@
           "la mia preferenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Persönliche Erinnerung hinzufügen",
+        "en": "Add a personal memory",
+        "fr": "Ajouter un souvenir personnel",
+        "it": "Aggiungi un ricordo personale"
+      },
+      "version": 4
     },
     {
       "name": "add_client_to_group",
@@ -724,7 +772,13 @@
           "forza lavoro"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Person einer Gruppe zuordnen",
+        "en": "Assign a person to a group",
+        "fr": "Affecter une personne à un groupe",
+        "it": "Assegna una persona a un gruppo"
+      },
+      "version": 9
     },
     {
       "name": "add_shift_to_group",
@@ -819,7 +873,13 @@
           "assegnazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schicht einer Gruppe zuordnen",
+        "en": "Assign a shift to a group",
+        "fr": "Affecter un service à un groupe",
+        "it": "Assegna un turno a un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "bulk_add_shifts_to_group",
@@ -892,7 +952,13 @@
           "tutti i turni"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mehrere Schichten per Suchbegriff einer Gruppe zuordnen",
+        "en": "Bulk-assign matching shifts to a group",
+        "fr": "Affecter en masse des services correspondants à un groupe",
+        "it": "Assegna in blocco turni corrispondenti a un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "add_client_to_nearest_group",
@@ -975,7 +1041,13 @@
           "indirizzo"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Person der nächstgelegenen Gruppe zuordnen",
+        "en": "Assign a person to the nearest group",
+        "fr": "Affecter une personne au groupe le plus proche",
+        "it": "Assegna una persona al gruppo più vicino"
+      },
+      "version": 7
     },
     {
       "name": "list_calendars",
@@ -1040,7 +1112,13 @@
           "cantone"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kalenderauswahl auflisten",
+        "en": "List calendar selections",
+        "fr": "Lister les sélections de calendrier",
+        "it": "Elenca le selezioni di calendario"
+      },
+      "version": 4
     },
     {
       "name": "assign_contract_to_client",
@@ -1157,7 +1235,13 @@
           "forza lavoro"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Vertrag einem Mitarbeitenden zuordnen",
+        "en": "Assign a contract to an employee",
+        "fr": "Attribuer un contrat à un employé",
+        "it": "Assegna un contratto a un dipendente"
+      },
+      "version": 9
     },
     {
       "name": "create_branch",
@@ -1257,7 +1341,13 @@
           "punto vendita"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neue Filiale anlegen",
+        "en": "Create a new branch",
+        "fr": "Créer une nouvelle filiale",
+        "it": "Crea una nuova filiale"
+      },
+      "version": 8
     },
     {
       "name": "create_contract",
@@ -1419,7 +1509,13 @@
           "aggiungere un contratto"
         ]
       },
-      "version": 10
+      "labels": {
+        "de": "Neue Vertragsvorlage anlegen",
+        "en": "Create a new contract template",
+        "fr": "Créer un nouveau modèle de contrat",
+        "it": "Crea un nuovo modello di contratto"
+      },
+      "version": 11
     },
     {
       "name": "create_employee",
@@ -1635,7 +1731,13 @@
           "forza lavoro"
         ]
       },
-      "version": 16
+      "labels": {
+        "de": "Neue Person anlegen",
+        "en": "Create a new person",
+        "fr": "Créer une nouvelle personne",
+        "it": "Crea una nuova persona"
+      },
+      "version": 17
     },
     {
       "name": "create_user",
@@ -1734,7 +1836,13 @@
           "permesso"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neues Benutzerkonto anlegen",
+        "en": "Create a new user account",
+        "fr": "Créer un nouveau compte utilisateur",
+        "it": "Crea un nuovo account utente"
+      },
+      "version": 8
     },
     {
       "name": "delete_ai_memory",
@@ -1811,7 +1919,13 @@
           "memorizzare"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "KI-Erinnerung löschen",
+        "en": "Delete an AI memory",
+        "fr": "Supprimer un souvenir IA",
+        "it": "Elimina un ricordo IA"
+      },
+      "version": 8
     },
     {
       "name": "delete_branch",
@@ -1886,7 +2000,13 @@
           "punto vendita"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Filiale löschen",
+        "en": "Delete a branch",
+        "fr": "Supprimer une filiale",
+        "it": "Elimina una filiale"
+      },
+      "version": 8
     },
     {
       "name": "delete_system_user",
@@ -1966,7 +2086,13 @@
           "permesso"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Benutzerkonto löschen",
+        "en": "Delete a user account",
+        "fr": "Supprimer un compte utilisateur",
+        "it": "Elimina un account utente"
+      },
+      "version": 8
     },
     {
       "name": "get_ai_guidelines",
@@ -2030,7 +2156,13 @@
           "comportamento"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Aktive KI-Richtlinien anzeigen",
+        "en": "View active AI guidelines",
+        "fr": "Consulter les directives IA actives",
+        "it": "Visualizza le linee guida IA attive"
+      },
+      "version": 8
     },
     {
       "name": "get_ai_memories",
@@ -2138,7 +2270,13 @@
           "memorizzare"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "KI-Erinnerungen anzeigen",
+        "en": "View AI memories",
+        "fr": "Consulter les souvenirs IA",
+        "it": "Visualizza i ricordi IA"
+      },
+      "version": 8
     },
     {
       "name": "get_ai_soul",
@@ -2226,7 +2364,13 @@
           "persona"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Persönlichkeitsdefinition von Klacksy anzeigen",
+        "en": "View Klacksy's personality definition",
+        "fr": "Consulter la définition de personnalité de Klacksy",
+        "it": "Visualizza la definizione della personalità di Klacksy"
+      },
+      "version": 8
     },
     {
       "name": "get_client_details",
@@ -2332,7 +2476,13 @@
           "forza lavoro"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Vollständige Personendetails abrufen",
+        "en": "Get full person details",
+        "fr": "Obtenir les détails complets d'une personne",
+        "it": "Ottieni i dettagli completi di una persona"
+      },
+      "version": 8
     },
     {
       "name": "get_general_settings",
@@ -2364,7 +2514,13 @@
           "impostazioni generali"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Allgemeine Anwendungseinstellungen",
+        "en": "General application settings",
+        "fr": "Paramètres généraux de l'application",
+        "it": "Impostazioni generali dell'applicazione"
+      },
+      "version": 7
     },
     {
       "name": "get_company_registration",
@@ -2410,7 +2566,13 @@
           "registrazione aziendale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Firmen-Registrierungsdaten",
+        "en": "Company registration details",
+        "fr": "Coordonnées d'immatriculation de l'entreprise",
+        "it": "Dati di registrazione dell'azienda"
+      },
+      "version": 5
     },
     {
       "name": "get_data_retention_settings",
@@ -2443,7 +2605,13 @@
           "impostazioni di conservazione dati"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einstellungen zur Datenaufbewahrung",
+        "en": "Data retention settings",
+        "fr": "Paramètres de conservation des données",
+        "it": "Impostazioni di conservazione dei dati"
+      },
+      "version": 4
     },
     {
       "name": "get_user_permissions",
@@ -2475,7 +2643,13 @@
           "i miei permessi"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Eigene Rolle und Berechtigungen",
+        "en": "Own role and permissions",
+        "fr": "Rôle et autorisations personnels",
+        "it": "Ruolo e permessi personali"
+      },
+      "version": 6
     },
     {
       "name": "assign_user_permissions",
@@ -2575,7 +2749,13 @@
           "concedere"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Benutzerrolle zuweisen",
+        "en": "Assign a user role",
+        "fr": "Attribuer un rôle utilisateur",
+        "it": "Assegna un ruolo utente"
+      },
+      "version": 4
     },
     {
       "name": "create_macro",
@@ -2664,7 +2844,13 @@
           "regola"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Neues Berechnungs-Makro anlegen",
+        "en": "Create a new calculation macro",
+        "fr": "Créer une nouvelle macro de calcul",
+        "it": "Crea una nuova macro di calcolo"
+      },
+      "version": 5
     },
     {
       "name": "create_personal_access_token",
@@ -2735,7 +2921,13 @@
           "token per app esterna"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Erklärung zum Ausstellen eines persönlichen Zugriffstokens",
+        "en": "Explanation of issuing a personal access token",
+        "fr": "Explication de l'émission d'un jeton d'accès personnel",
+        "it": "Spiegazione del rilascio di un token di accesso personale"
+      },
+      "version": 7
     },
     {
       "name": "list_personal_access_tokens",
@@ -2780,7 +2972,13 @@
           "quali token api ho"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Eigene Zugriffstoken auflisten",
+        "en": "List own access tokens",
+        "fr": "Lister ses jetons d'accès",
+        "it": "Elenca i propri token di accesso"
+      },
+      "version": 4
     },
     {
       "name": "revoke_personal_access_token",
@@ -2836,7 +3034,13 @@
           "invalidare il token api"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zugriffstoken widerrufen",
+        "en": "Revoke an access token",
+        "fr": "Révoquer un jeton d'accès",
+        "it": "Revoca un token di accesso"
+      },
+      "version": 6
     },
     {
       "name": "update_my_account",
@@ -2918,7 +3122,13 @@
           "cambiare la mia e-mail di accesso"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Eigene Kontodaten ändern",
+        "en": "Update own account details",
+        "fr": "Modifier son propre compte",
+        "it": "Modifica i propri dati account"
+      },
+      "version": 4
     },
     {
       "name": "list_navigation_targets",
@@ -2994,7 +3204,13 @@
           "stato dei sinonimi di navigazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Navigationsziele auflisten",
+        "en": "List navigation targets",
+        "fr": "Lister les cibles de navigation",
+        "it": "Elenca gli obiettivi di navigazione"
+      },
+      "version": 4
     },
     {
       "name": "update_navigation_synonyms",
@@ -3066,7 +3282,13 @@
           "insegnare questa formulazione a klacksy"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Navigations-Synonyme ergänzen",
+        "en": "Add navigation synonyms",
+        "fr": "Ajouter des synonymes de navigation",
+        "it": "Aggiungi sinonimi di navigazione"
+      },
+      "version": 5
     },
     {
       "name": "list_navigation_feedback",
@@ -3129,7 +3351,13 @@
           "cosa non ha capito klacksy"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Ungelöste Navigations-Rückmeldungen auflisten",
+        "en": "List unresolved navigation feedback",
+        "fr": "Lister les retours de navigation non résolus",
+        "it": "Elenca i feedback di navigazione non risolti"
+      },
+      "version": 4
     },
     {
       "name": "list_macros",
@@ -3199,7 +3427,13 @@
           "regola"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Berechnungsmakros auflisten",
+        "en": "List calculation macros",
+        "fr": "Lister les macros de calcul",
+        "it": "Elenca le macro di calcolo"
+      },
+      "version": 4
     },
     {
       "name": "delete_macro",
@@ -3277,7 +3511,13 @@
           "calcolo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Berechnungs-Makro löschen",
+        "en": "Delete a calculation macro",
+        "fr": "Supprimer une macro de calcul",
+        "it": "Elimina una macro di calcolo"
+      },
+      "version": 4
     },
     {
       "name": "list_branches",
@@ -3371,7 +3611,13 @@
           "punto vendita"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Filialen auflisten",
+        "en": "List branches",
+        "fr": "Lister les filiales",
+        "it": "Elenca le filiali"
+      },
+      "version": 8
     },
     {
       "name": "list_contracts",
@@ -3451,7 +3697,13 @@
           "convenzione"
         ]
       },
-      "version": 9
+      "labels": {
+        "de": "Verträge auflisten",
+        "en": "List contracts",
+        "fr": "Lister les contrats",
+        "it": "Elenca i contratti"
+      },
+      "version": 10
     },
     {
       "name": "list_groups",
@@ -3564,7 +3816,13 @@
           "organizzazione"
         ]
       },
-      "version": 10
+      "labels": {
+        "de": "Gruppen auflisten",
+        "en": "List groups",
+        "fr": "Lister les groupes",
+        "it": "Elenca i gruppi"
+      },
+      "version": 11
     },
     {
       "name": "lookup_location",
@@ -3648,7 +3906,13 @@
           "localita"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Ort anhand Name oder PLZ nachschlagen",
+        "en": "Look up a location by name or postal code",
+        "fr": "Rechercher un lieu par nom ou code postal",
+        "it": "Cerca una località per nome o CAP"
+      },
+      "version": 5
     },
     {
       "name": "list_llm_models",
@@ -3772,7 +4036,13 @@
           "configurazione IA"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "LLM-Modelle auflisten",
+        "en": "List LLM models",
+        "fr": "Lister les modèles LLM",
+        "it": "Elenca i modelli LLM"
+      },
+      "version": 9
     },
     {
       "name": "list_llm_providers",
@@ -3868,7 +4138,13 @@
           "fornitore IA"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "LLM-Provider auflisten",
+        "en": "List LLM providers",
+        "fr": "Lister les fournisseurs LLM",
+        "it": "Elenca i provider LLM"
+      },
+      "version": 9
     },
     {
       "name": "list_scheduling_rules",
@@ -4000,7 +4276,13 @@
           "lavora"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Planungsregeln auflisten",
+        "en": "List scheduling rules",
+        "fr": "Lister les règles de planification",
+        "it": "Elenca le regole di pianificazione"
+      },
+      "version": 9
     },
     {
       "name": "list_system_users",
@@ -4085,7 +4367,13 @@
           "permesso"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Benutzerkonten auflisten",
+        "en": "List user accounts",
+        "fr": "Lister les comptes utilisateurs",
+        "it": "Elenca gli account utente"
+      },
+      "version": 7
     },
     {
       "name": "search_in_list",
@@ -4214,7 +4502,13 @@
           "tutti i clienti"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Listenseite öffnen und filtern",
+        "en": "Open a list page and filter it",
+        "fr": "Ouvrir une page de liste et la filtrer",
+        "it": "Apri una pagina elenco e filtrala"
+      },
+      "version": 6
     },
     {
       "name": "select_group",
@@ -4295,7 +4589,13 @@
           "seleziona il gruppo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Gruppenfilter setzen",
+        "en": "Set the group filter",
+        "fr": "Définir le filtre de groupe",
+        "it": "Imposta il filtro di gruppo"
+      },
+      "version": 4
     },
     {
       "name": "open_schedule",
@@ -4362,7 +4662,13 @@
           "orari"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Dienstplan öffnen",
+        "en": "Open the schedule",
+        "fr": "Ouvrir le planning",
+        "it": "Apri il planning"
+      },
+      "version": 6
     },
     {
       "name": "search_and_navigate",
@@ -4436,7 +4742,13 @@
           "cerca e apri"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Entität suchen und öffnen",
+        "en": "Search for an entity and open it",
+        "fr": "Rechercher une entité et l'ouvrir",
+        "it": "Cerca un'entità e aprila"
+      },
+      "version": 7
     },
     {
       "name": "search_employees",
@@ -4591,7 +4903,13 @@
           "lavora"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Mitarbeitende suchen",
+        "en": "Search for employees",
+        "fr": "Rechercher des employés",
+        "it": "Cerca dipendenti"
+      },
+      "version": 9
     },
     {
       "name": "set_user_group_scope",
@@ -4680,7 +4998,13 @@
           "permesso"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Gruppen-Sichtbarkeit eines Benutzers festlegen",
+        "en": "Set a user's group visibility scope",
+        "fr": "Définir la portée de visibilité des groupes d'un utilisateur",
+        "it": "Imposta l'ambito di visibilità dei gruppi di un utente"
+      },
+      "version": 8
     },
     {
       "name": "get_user_group_scope",
@@ -4761,7 +5085,13 @@
           "ambito dei gruppi"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Gruppen-Sichtbarkeit eines Benutzers anzeigen",
+        "en": "Show a user's group visibility scope",
+        "fr": "Afficher la portée de visibilité des groupes d'un utilisateur",
+        "it": "Mostra l'ambito di visibilità dei gruppi di un utente"
+      },
+      "version": 5
     },
     {
       "name": "test_imap_connection",
@@ -4835,7 +5165,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "IMAP-Verbindung testen",
+        "en": "Test IMAP connection",
+        "fr": "Tester la connexion IMAP",
+        "it": "Testa la connessione IMAP"
+      },
+      "version": 8
     },
     {
       "name": "test_smtp_connection",
@@ -4909,7 +5245,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "SMTP-Verbindung testen",
+        "en": "Test SMTP connection",
+        "fr": "Tester la connexion SMTP",
+        "it": "Testa la connessione SMTP"
+      },
+      "version": 8
     },
     {
       "name": "update_ai_guidelines",
@@ -4991,7 +5333,13 @@
           "comportamento"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "KI-Richtlinien ändern",
+        "en": "Update AI guidelines",
+        "fr": "Modifier les directives IA",
+        "it": "Modifica le linee guida IA"
+      },
+      "version": 8
     },
     {
       "name": "update_ai_memory",
@@ -5122,7 +5470,13 @@
           "memorizzare"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "KI-Erinnerung ändern",
+        "en": "Update an AI memory",
+        "fr": "Modifier un souvenir IA",
+        "it": "Modifica un ricordo IA"
+      },
+      "version": 8
     },
     {
       "name": "update_ai_soul",
@@ -5230,7 +5584,13 @@
           "persona"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Persönlichkeitsdefinition von Klacksy ändern",
+        "en": "Update Klacksy's personality definition",
+        "fr": "Modifier la définition de personnalité de Klacksy",
+        "it": "Modifica la definizione della personalità di Klacksy"
+      },
+      "version": 8
     },
     {
       "name": "update_spam_filter_settings",
@@ -5320,7 +5680,13 @@
           "regola filtro"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Spamfilter-Einstellungen ändern",
+        "en": "Update spam filter settings",
+        "fr": "Modifier les paramètres du filtre anti-spam",
+        "it": "Modifica le impostazioni del filtro antispam"
+      },
+      "version": 8
     },
     {
       "name": "update_web_search_settings",
@@ -5410,7 +5776,13 @@
           "provider ricerca"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Websuche-Einstellungen ändern",
+        "en": "Update web search settings",
+        "fr": "Modifier les paramètres de recherche web",
+        "it": "Modifica le impostazioni di ricerca web"
+      },
+      "version": 8
     },
     {
       "name": "validate_address",
@@ -5508,7 +5880,13 @@
           "CAP"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Adresse validieren und geokodieren",
+        "en": "Validate and geocode an address",
+        "fr": "Valider et géocoder une adresse",
+        "it": "Valida e geocodifica un indirizzo"
+      },
+      "version": 8
     },
     {
       "name": "web_search",
@@ -5559,7 +5937,13 @@
           "ricerca web"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Internet durchsuchen",
+        "en": "Search the internet",
+        "fr": "Rechercher sur Internet",
+        "it": "Cerca su Internet"
+      },
+      "version": 7
     },
     {
       "name": "update_general_settings",
@@ -5652,7 +6036,13 @@
           "preferenza"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Allgemeine Einstellungen ändern",
+        "en": "Update general settings",
+        "fr": "Modifier les paramètres généraux",
+        "it": "Modifica le impostazioni generali"
+      },
+      "version": 7
     },
     {
       "name": "update_data_retention_settings",
@@ -5747,7 +6137,13 @@
           "eliminazione dei dati"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Datenaufbewahrungsfrist ändern",
+        "en": "Update the data retention period",
+        "fr": "Modifier la durée de conservation des données",
+        "it": "Modifica il periodo di conservazione dei dati"
+      },
+      "version": 4
     },
     {
       "name": "update_owner_address",
@@ -6038,7 +6434,13 @@
           "azienda"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Firmenadresse ändern",
+        "en": "Update the company address",
+        "fr": "Modifier l'adresse de l'entreprise",
+        "it": "Modifica l'indirizzo aziendale"
+      },
+      "version": 9
     },
     {
       "name": "update_owner_locale_settings",
@@ -6136,7 +6538,13 @@
           "paese"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Land, Zeitzone und Kalender ändern",
+        "en": "Update country, time zone and calendar",
+        "fr": "Modifier pays, fuseau horaire et calendrier",
+        "it": "Modifica paese, fuso orario e calendario"
+      },
+      "version": 4
     },
     {
       "name": "update_email_settings",
@@ -6481,7 +6889,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "SMTP-Einstellungen ändern",
+        "en": "Update SMTP settings",
+        "fr": "Modifier les paramètres SMTP",
+        "it": "Modifica le impostazioni SMTP"
+      },
+      "version": 8
     },
     {
       "name": "update_imap_settings",
@@ -6735,7 +7149,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "IMAP-Einstellungen ändern",
+        "en": "Update IMAP settings",
+        "fr": "Modifier les paramètres IMAP",
+        "it": "Modifica le impostazioni IMAP"
+      },
+      "version": 8
     },
     {
       "name": "update_work_settings",
@@ -7053,7 +7473,13 @@
           "ore settimanali"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Arbeits- und Lohneinstellungen ändern",
+        "en": "Update employment and payroll settings",
+        "fr": "Modifier les paramètres d'emploi et de paie",
+        "it": "Modifica le impostazioni di lavoro e paga"
+      },
+      "version": 8
     },
     {
       "name": "update_scheduling_defaults",
@@ -7522,7 +7948,13 @@
           "regola pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Planungs-Standardeinstellungen ändern",
+        "en": "Update scheduling defaults",
+        "fr": "Modifier les paramètres par défaut de planification",
+        "it": "Modifica le impostazioni predefinite di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "update_deepl_settings",
@@ -7635,7 +8067,13 @@
           "tradurre"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "DeepL-API-Schlüssel ändern",
+        "en": "Update the DeepL API key",
+        "fr": "Modifier la clé API DeepL",
+        "it": "Modifica la chiave API DeepL"
+      },
+      "version": 8
     },
     {
       "name": "create_llm_provider",
@@ -7900,7 +8338,13 @@
           "fornitore IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neuen LLM-Provider anlegen",
+        "en": "Create a new LLM provider",
+        "fr": "Créer un nouveau fournisseur LLM",
+        "it": "Crea un nuovo provider LLM"
+      },
+      "version": 8
     },
     {
       "name": "update_llm_provider",
@@ -8132,7 +8576,13 @@
           "fornitore IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "LLM-Provider ändern",
+        "en": "Update an LLM provider",
+        "fr": "Modifier un fournisseur LLM",
+        "it": "Modifica un provider LLM"
+      },
+      "version": 8
     },
     {
       "name": "delete_llm_provider",
@@ -8231,7 +8681,13 @@
           "fornitore IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "LLM-Provider löschen",
+        "en": "Delete an LLM provider",
+        "fr": "Supprimer un fournisseur LLM",
+        "it": "Elimina un provider LLM"
+      },
+      "version": 8
     },
     {
       "name": "create_llm_model",
@@ -8608,7 +9064,13 @@
           "configurazione IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neues LLM-Modell anlegen",
+        "en": "Create a new LLM model",
+        "fr": "Créer un nouveau modèle LLM",
+        "it": "Crea un nuovo modello LLM"
+      },
+      "version": 8
     },
     {
       "name": "update_llm_model",
@@ -8937,7 +9399,13 @@
           "configurazione IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "LLM-Modell ändern",
+        "en": "Update an LLM model",
+        "fr": "Modifier un modèle LLM",
+        "it": "Modifica un modello LLM"
+      },
+      "version": 8
     },
     {
       "name": "delete_llm_model",
@@ -9040,7 +9508,13 @@
           "configurazione IA"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "LLM-Modell löschen",
+        "en": "Delete an LLM model",
+        "fr": "Supprimer un modèle LLM",
+        "it": "Elimina un modello LLM"
+      },
+      "version": 8
     },
     {
       "name": "create_scheduling_rule",
@@ -9571,7 +10045,13 @@
           "regola pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neue Planungsregel anlegen",
+        "en": "Create a new scheduling rule",
+        "fr": "Créer une nouvelle règle de planification",
+        "it": "Crea una nuova regola di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "update_scheduling_rule",
@@ -9863,7 +10343,13 @@
           "regola pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Planungsregel ändern",
+        "en": "Update a scheduling rule",
+        "fr": "Modifier une règle de planification",
+        "it": "Modifica una regola di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "delete_scheduling_rule",
@@ -9962,7 +10448,13 @@
           "regola pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Planungsregel löschen",
+        "en": "Delete a scheduling rule",
+        "fr": "Supprimer une règle de planification",
+        "it": "Elimina una regola di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "update_branch",
@@ -10162,7 +10654,13 @@
           "punto vendita"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Niederlassung ändern",
+        "en": "Update a branch",
+        "fr": "Modifier un site",
+        "it": "Modifica una sede"
+      },
+      "version": 8
     },
     {
       "name": "get_email_settings",
@@ -10237,7 +10735,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "SMTP-Einstellungen anzeigen",
+        "en": "Show SMTP settings",
+        "fr": "Afficher les paramètres SMTP",
+        "it": "Mostra le impostazioni SMTP"
+      },
+      "version": 8
     },
     {
       "name": "get_imap_settings",
@@ -10309,7 +10813,13 @@
           "configurazione email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "IMAP-Einstellungen anzeigen",
+        "en": "Show IMAP settings",
+        "fr": "Afficher les paramètres IMAP",
+        "it": "Mostra le impostazioni IMAP"
+      },
+      "version": 8
     },
     {
       "name": "get_owner_address",
@@ -10376,7 +10886,13 @@
           "azienda"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Firmenadresse",
+        "en": "Company address",
+        "fr": "Adresse de l'entreprise",
+        "it": "Indirizzo dell'azienda"
+      },
+      "version": 7
     },
     {
       "name": "get_work_settings",
@@ -10454,7 +10970,13 @@
           "ore settimanali"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Arbeits- und Lohneinstellungen anzeigen",
+        "en": "Show employment and payroll settings",
+        "fr": "Afficher les paramètres d'emploi et de paie",
+        "it": "Mostra le impostazioni di lavoro e paga"
+      },
+      "version": 7
     },
     {
       "name": "get_scheduling_defaults",
@@ -10533,7 +11055,13 @@
           "regola pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Planungs-Standardwerte",
+        "en": "Scheduling default values",
+        "fr": "Valeurs par défaut de planification",
+        "it": "Valori predefiniti di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "get_deepl_settings",
@@ -10599,7 +11127,13 @@
           "tradurre"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "DeepL-Übersetzungseinstellungen",
+        "en": "DeepL translation settings",
+        "fr": "Paramètres de traduction DeepL",
+        "it": "Impostazioni di traduzione DeepL"
+      },
+      "version": 8
     },
     {
       "name": "get_spam_filter_settings",
@@ -10663,7 +11197,13 @@
           "regola filtro"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Spamfilter-Einstellungen anzeigen",
+        "en": "Show spam filter settings",
+        "fr": "Afficher les paramètres du filtre anti-spam",
+        "it": "Mostra le impostazioni del filtro antispam"
+      },
+      "version": 8
     },
     {
       "name": "get_web_search_settings",
@@ -10723,7 +11263,13 @@
           "provider ricerca"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Websuche-Einstellungen",
+        "en": "Web search settings",
+        "fr": "Paramètres de recherche web",
+        "it": "Impostazioni di ricerca web"
+      },
+      "version": 8
     },
     {
       "name": "list_agent_skills",
@@ -10805,7 +11351,13 @@
           "skill agente"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Assistenten-Skills auflisten",
+        "en": "List assistant skills",
+        "fr": "Lister les compétences de l'assistant",
+        "it": "Elenca le abilità dell'assistente"
+      },
+      "version": 7
     },
     {
       "name": "create_agent_skill",
@@ -10926,7 +11478,13 @@
           "skill agente"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Neuen Assistenten-Skill anlegen",
+        "en": "Create a new assistant skill",
+        "fr": "Créer une nouvelle compétence de l'assistant",
+        "it": "Crea una nuova abilità dell'assistente"
+      },
+      "version": 8
     },
     {
       "name": "update_agent_skill",
@@ -11038,7 +11596,13 @@
           "skill agente"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Assistenten-Skill ändern",
+        "en": "Update an assistant skill",
+        "fr": "Modifier une compétence de l'assistant",
+        "it": "Modifica un'abilità dell'assistente"
+      },
+      "version": 8
     },
     {
       "name": "delete_agent_skill",
@@ -11110,7 +11674,13 @@
           "skill agente"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Assistenten-Skill löschen",
+        "en": "Delete an assistant skill",
+        "fr": "Supprimer une compétence de l'assistant",
+        "it": "Elimina un'abilità dell'assistente"
+      },
+      "version": 8
     },
     {
       "name": "list_absence_types",
@@ -11198,7 +11768,13 @@
           "quali assenze"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Abwesenheitsarten auflisten",
+        "en": "List absence types",
+        "fr": "Lister les types d'absence",
+        "it": "Elenca i tipi di assenza"
+      },
+      "version": 8
     },
     {
       "name": "create_absence_type",
@@ -11326,7 +11902,13 @@
           "definire una nuova categoria di assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitsart mit Farbe und Regeln anlegen",
+        "en": "Create an absence type with color and rules",
+        "fr": "Créer un type d'absence avec couleur et règles",
+        "it": "Crea un tipo di assenza con colore e regole"
+      },
+      "version": 4
     },
     {
       "name": "update_absence_type",
@@ -11469,7 +12051,13 @@
           "cambiare il colore del tipo di assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitsart per Name oder ID ändern",
+        "en": "Change an absence type by name or ID",
+        "fr": "Modifier un type d'absence par nom ou ID",
+        "it": "Modifica un tipo di assenza per nome o ID"
+      },
+      "version": 4
     },
     {
       "name": "delete_absence_type",
@@ -11528,7 +12116,13 @@
           "eliminare un tipo di assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitsart per Name oder ID löschen",
+        "en": "Delete an absence type by name or ID",
+        "fr": "Supprimer un type d'absence par nom ou ID",
+        "it": "Elimina un tipo di assenza per nome o ID"
+      },
+      "version": 4
     },
     {
       "name": "search_client_absences",
@@ -11655,7 +12249,13 @@
           "chi non c'è"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Absenzen nach Person suchen",
+        "en": "Search absences by person",
+        "fr": "Rechercher des absences par personne",
+        "it": "Cerca le assenze per persona"
+      },
+      "version": 9
     },
     {
       "name": "create_shift",
@@ -11836,7 +12436,13 @@
           "orario"
         ]
       },
-      "version": 14
+      "labels": {
+        "de": "Neue Schicht erstellen",
+        "en": "Create a new shift",
+        "fr": "Créer un nouveau service",
+        "it": "Crea un nuovo turno"
+      },
+      "version": 15
     },
     {
       "name": "find_customer_candidates",
@@ -11896,7 +12502,13 @@
           "cliente"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Passende Kunden auflisten",
+        "en": "List matching customers",
+        "fr": "Lister les clients correspondants",
+        "it": "Elenca i clienti corrispondenti"
+      },
+      "version": 4
     },
     {
       "name": "find_split_shift_candidates",
@@ -11966,7 +12578,13 @@
           "turno diviso"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Bestehende Teilschichten zur Wiederverwendung prüfen",
+        "en": "Find existing split-shift candidates to reuse",
+        "fr": "Trouver des services fractionnés existants à réutiliser",
+        "it": "Trova turni frazionati esistenti da riutilizzare"
+      },
+      "version": 4
     },
     {
       "name": "cut_shift",
@@ -12044,7 +12662,13 @@
           "tagliare il turno"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Schicht in Teile schneiden",
+        "en": "Cut a shift into parts",
+        "fr": "Découper un service en parties",
+        "it": "Taglia un turno in parti"
+      },
+      "version": 6
     },
     {
       "name": "create_test_environment",
@@ -12177,7 +12801,13 @@
           "ambiente di test"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Test-Umgebung für Autofill erstellen",
+        "en": "Create an autofill test environment",
+        "fr": "Créer un environnement de test Autofill",
+        "it": "Crea un ambiente di test per Autofill"
+      },
+      "version": 7
     },
     {
       "name": "start_autowizard",
@@ -12302,7 +12932,13 @@
           "autopilota"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Autofill-Assistent starten",
+        "en": "Start the auto-fill wizard",
+        "fr": "Démarrer l'assistant de remplissage automatique",
+        "it": "Avvia l'assistente di riempimento automatico"
+      },
+      "version": 4
     },
     {
       "name": "place_work",
@@ -12427,7 +13063,13 @@
           "mettere sul turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsatz einplanen",
+        "en": "Place a work assignment",
+        "fr": "Planifier une affectation",
+        "it": "Pianifica un'assegnazione"
+      },
+      "version": 4
     },
     {
       "name": "delete_work",
@@ -12491,7 +13133,13 @@
           "cancellare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsatz löschen",
+        "en": "Delete a work assignment",
+        "fr": "Supprimer une affectation",
+        "it": "Elimina un'assegnazione"
+      },
+      "version": 4
     },
     {
       "name": "update_work",
@@ -12581,7 +13229,13 @@
           "adattare l'impiego pianificato"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsatz bearbeiten",
+        "en": "Edit a work assignment",
+        "fr": "Modifier une affectation",
+        "it": "Modifica un'assegnazione"
+      },
+      "version": 4
     },
     {
       "name": "get_period_hours",
@@ -12663,7 +13317,13 @@
           "mostrare le ore del periodo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Perioden-Stundenbilanz einer Person anzeigen",
+        "en": "Show an employee's period-hours balance",
+        "fr": "Afficher le solde d'heures de période d'un employé",
+        "it": "Mostra il saldo ore del periodo di un dipendente"
+      },
+      "version": 4
     },
     {
       "name": "accept_scenario",
@@ -12724,7 +13384,13 @@
           "confermare scenario"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsszenario übernehmen",
+        "en": "Accept a planning scenario",
+        "fr": "Accepter un scénario de planification",
+        "it": "Accetta uno scenario di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "confirm_work",
@@ -12788,7 +13454,13 @@
           "convalidare l'assegnazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Einsatz bestätigen und sperren",
+        "en": "Confirm and lock a work assignment",
+        "fr": "Confirmer et verrouiller une affectation",
+        "it": "Conferma e blocca un'assegnazione"
+      },
+      "version": 8
     },
     {
       "name": "unconfirm_work",
@@ -12849,7 +13521,13 @@
           "revocare la conferma"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsatz-Bestätigung aufheben",
+        "en": "Remove confirmation from a work assignment",
+        "fr": "Annuler la confirmation d'une affectation",
+        "it": "Annulla la conferma di un'assegnazione"
+      },
+      "version": 4
     },
     {
       "name": "add_schedule_command",
@@ -12956,7 +13634,13 @@
           "forzare notte"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Planungsvorgabe für einen Tag setzen",
+        "en": "Set a planning command for one day",
+        "fr": "Définir une consigne de planification pour un jour",
+        "it": "Imposta un vincolo di pianificazione per un giorno"
+      },
+      "version": 5
     },
     {
       "name": "list_scenarios",
@@ -13026,7 +13710,13 @@
           "alternative"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Planungsszenarien auflisten",
+        "en": "List planning scenarios",
+        "fr": "Lister les scénarios de planification",
+        "it": "Elenca gli scenari di pianificazione"
+      },
+      "version": 5
     },
     {
       "name": "approve_day",
@@ -13095,7 +13785,13 @@
           "liberare il giorno"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Tag für eine Gruppe freigeben",
+        "en": "Approve a day for a group",
+        "fr": "Approuver une journée pour un groupe",
+        "it": "Approva una giornata per un gruppo"
+      },
+      "version": 8
     },
     {
       "name": "revoke_day_approval",
@@ -13157,7 +13853,13 @@
           "annullare la convalida"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Tagesfreigabe zurücknehmen",
+        "en": "Revoke a day's approval",
+        "fr": "Annuler l'approbation d'une journée",
+        "it": "Revoca l'approvazione di una giornata"
+      },
+      "version": 5
     },
     {
       "name": "close_period",
@@ -13250,7 +13952,13 @@
           "finalizzare mese"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zahlungsperiode abschliessen",
+        "en": "Close a payment period",
+        "fr": "Clôturer une période de paie",
+        "it": "Chiudi un periodo di pagamento"
+      },
+      "version": 5
     },
     {
       "name": "reopen_period",
@@ -13340,7 +14048,13 @@
           "sbloccare mese"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zahlungsperiode wieder öffnen",
+        "en": "Reopen a payment period",
+        "fr": "Rouvrir une période de paie",
+        "it": "Riapri un periodo di pagamento"
+      },
+      "version": 5
     },
     {
       "name": "get_period_status",
@@ -13420,7 +14134,13 @@
           "stato della chiusura del periodo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abschlussstatus einer Periode anzeigen",
+        "en": "Show a period's closing status",
+        "fr": "Afficher le statut de clôture d'une période",
+        "it": "Mostra lo stato di chiusura di un periodo"
+      },
+      "version": 4
     },
     {
       "name": "list_period_issues",
@@ -13508,7 +14228,13 @@
           "verifica prima della chiusura"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Prüfungsbefunde einer Periode auflisten",
+        "en": "List validation issues for a period",
+        "fr": "Lister les problèmes de validation d'une période",
+        "it": "Elenca i problemi di validazione di un periodo"
+      },
+      "version": 4
     },
     {
       "name": "list_period_audit_log",
@@ -13582,7 +14308,13 @@
           "quando è stato sigillato il periodo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Protokoll der Periodenabschlüsse auflisten",
+        "en": "List the period closing audit log",
+        "fr": "Lister le journal d'audit des clôtures de période",
+        "it": "Elenca il registro di controllo delle chiusure periodo"
+      },
+      "version": 4
     },
     {
       "name": "list_open_periods",
@@ -13638,7 +14370,13 @@
           "quali periodi sono pronti per la chiusura"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Offene Abrechnungsperioden auflisten",
+        "en": "List open billing periods",
+        "fr": "Lister les périodes de paie ouvertes",
+        "it": "Elenca i periodi di pagamento aperti"
+      },
+      "version": 4
     },
     {
       "name": "list_open_findings",
@@ -13695,7 +14433,13 @@
           "cosa ha trovato klacksy"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "Offene Klacksy-Befunde auflisten",
+        "en": "List open Klacksy findings",
+        "fr": "Lister les constats ouverts de Klacksy",
+        "it": "Elenca i riscontri aperti di Klacksy"
+      },
+      "version": 2
     },
     {
       "name": "delete_break",
@@ -13752,7 +14496,13 @@
           "annullare assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Absenzeintrag löschen",
+        "en": "Delete an absence entry",
+        "fr": "Supprimer une entrée d'absence",
+        "it": "Elimina una voce di assenza"
+      },
+      "version": 4
     },
     {
       "name": "verify_my_last_action",
@@ -13797,7 +14547,13 @@
           "verifica ultima azione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Letzte Aktion überprüfen",
+        "en": "Verify my last action",
+        "fr": "Vérifier ma dernière action",
+        "it": "Verifica la mia ultima azione"
+      },
+      "version": 4
     },
     {
       "name": "rollback_my_last_change",
@@ -13848,7 +14604,13 @@
           "ripristinare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Letzte Änderung rückgängig machen",
+        "en": "Undo my last change",
+        "fr": "Annuler ma dernière modification",
+        "it": "Annulla la mia ultima modifica"
+      },
+      "version": 4
     },
     {
       "name": "list_open_wizard_jobs",
@@ -13905,7 +14667,13 @@
           "ancora in esecuzione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Status eines Wizard-Jobs abfragen",
+        "en": "Check a wizard job's status",
+        "fr": "Vérifier le statut d'un job d'assistant",
+        "it": "Verifica lo stato di un job wizard"
+      },
+      "version": 4
     },
     {
       "name": "bulk_add_absence_for_group",
@@ -14001,7 +14769,13 @@
           "formazione del gruppo"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Absenz für eine ganze Gruppe eintragen",
+        "en": "Book an absence for a whole group",
+        "fr": "Enregistrer une absence pour tout un groupe",
+        "it": "Registra un'assenza per l'intero gruppo"
+      },
+      "version": 5
     },
     {
       "name": "add_break",
@@ -14129,7 +14903,13 @@
           "formazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Absenz für eine Person eintragen",
+        "en": "Book an absence for a person",
+        "fr": "Enregistrer une absence pour une personne",
+        "it": "Registra un'assenza per una persona"
+      },
+      "version": 4
     },
     {
       "name": "add_workchange",
@@ -14286,7 +15066,13 @@
           "debriefing"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsatzänderung hinzufügen",
+        "en": "Add an assignment change",
+        "fr": "Ajouter une modification d'affectation",
+        "it": "Aggiungi una modifica all'assegnazione"
+      },
+      "version": 4
     },
     {
       "name": "start_wizard1",
@@ -14371,7 +15157,13 @@
           "piano iniziale"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Wizard 1 (Planer) starten",
+        "en": "Start Wizard 1 (Planner)",
+        "fr": "Démarrer l'assistant 1 (planificateur)",
+        "it": "Avvia il wizard 1 (pianificatore)"
+      },
+      "version": 4
     },
     {
       "name": "start_wizard2",
@@ -14461,7 +15253,13 @@
           "equilibrare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Wizard 2 (Harmonizer) starten",
+        "en": "Start Wizard 2 (Harmonizer)",
+        "fr": "Démarrer l'assistant 2 (harmonisateur)",
+        "it": "Avvia il wizard 2 (armonizzatore)"
+      },
+      "version": 4
     },
     {
       "name": "start_wizard3",
@@ -14557,7 +15355,13 @@
           "rifinitura llm"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Wizard 3 (Holistic Harmonizer) starten",
+        "en": "Start Wizard 3 (Holistic Harmonizer)",
+        "fr": "Démarrer l'assistant 3 (harmonisateur holistique)",
+        "it": "Avvia il wizard 3 (armonizzatore olistico)"
+      },
+      "version": 4
     },
     {
       "name": "cancel_wizard_job",
@@ -14617,7 +15421,13 @@
           "interrompere wizard"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Laufenden Wizard-Job abbrechen",
+        "en": "Cancel a running wizard job",
+        "fr": "Annuler un job d'assistant en cours",
+        "it": "Annulla un job wizard in corso"
+      },
+      "version": 4
     },
     {
       "name": "reject_scenario",
@@ -14677,7 +15487,13 @@
           "scartare scenario"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsszenario ablehnen",
+        "en": "Reject a planning scenario",
+        "fr": "Rejeter un scénario de planification",
+        "it": "Rifiuta uno scenario di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "update_client",
@@ -14866,7 +15682,13 @@
           "aggiornare cliente"
         ]
       },
-      "version": 9
+      "labels": {
+        "de": "Stammdaten oder Kontakt einer Person ändern",
+        "en": "Update a person's master data or contact info",
+        "fr": "Modifier les données de base ou le contact d'une personne",
+        "it": "Modifica i dati anagrafici o di contatto di una persona"
+      },
+      "version": 10
     },
     {
       "name": "delete_client",
@@ -14947,7 +15769,13 @@
           "cancellare cliente"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Person löschen",
+        "en": "Delete a person",
+        "fr": "Supprimer une personne",
+        "it": "Elimina una persona"
+      },
+      "version": 5
     },
     {
       "name": "create_group",
@@ -15073,7 +15901,13 @@
           "aggiungere reparto"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Neue Gruppe anlegen",
+        "en": "Create a new group",
+        "fr": "Créer un nouveau groupe",
+        "it": "Crea un nuovo gruppo"
+      },
+      "version": 6
     },
     {
       "name": "update_group",
@@ -15193,7 +16027,13 @@
           "aggiornare filiale"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Gruppe ändern",
+        "en": "Update a group",
+        "fr": "Modifier un groupe",
+        "it": "Modifica un gruppo"
+      },
+      "version": 7
     },
     {
       "name": "get_group_details",
@@ -15260,7 +16100,13 @@
           "posizione del gruppo nell'albero"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Gruppendetails anzeigen",
+        "en": "Show group details",
+        "fr": "Afficher les détails d'un groupe",
+        "it": "Mostra i dettagli di un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "list_group_members",
@@ -15330,7 +16176,13 @@
           "chi è nel gruppo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mitglieder einer Gruppe auflisten",
+        "en": "List a group's members",
+        "fr": "Lister les membres d'un groupe",
+        "it": "Elenca i membri di un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "move_group",
@@ -15412,7 +16264,13 @@
           "riagganciare il gruppo a un altro padre"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Gruppe im Baum verschieben",
+        "en": "Move a group in the tree",
+        "fr": "Déplacer un groupe dans l'arborescence",
+        "it": "Sposta un gruppo nell'albero"
+      },
+      "version": 4
     },
     {
       "name": "delete_group",
@@ -15487,7 +16345,13 @@
           "rimuovere sede"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Gruppe löschen",
+        "en": "Delete a group",
+        "fr": "Supprimer un groupe",
+        "it": "Elimina un gruppo"
+      },
+      "version": 6
     },
     {
       "name": "create_calendar_selection",
@@ -15569,7 +16433,13 @@
           "unire calendari festivi"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Neue Kalenderauswahl anlegen",
+        "en": "Create a new calendar selection",
+        "fr": "Créer une nouvelle sélection de calendrier",
+        "it": "Crea una nuova selezione di calendario"
+      },
+      "version": 5
     },
     {
       "name": "update_calendar_selection",
@@ -15681,7 +16551,13 @@
           "contrassegnare calendario come solo promemoria"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kalenderauswahl ändern",
+        "en": "Update a calendar selection",
+        "fr": "Modifier une sélection de calendriers",
+        "it": "Modifica una selezione di calendari"
+      },
+      "version": 4
     },
     {
       "name": "delete_calendar_selection",
@@ -15746,7 +16622,13 @@
           "eliminare calendario festivo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kalenderauswahl löschen",
+        "en": "Delete a calendar selection",
+        "fr": "Supprimer une sélection de calendrier",
+        "it": "Elimina una selezione di calendario"
+      },
+      "version": 4
     },
     {
       "name": "list_groups_hierarchical",
@@ -15820,7 +16702,13 @@
           "struttura ad albero"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Gruppenbaum hierarchisch auflisten",
+        "en": "List the group tree hierarchically",
+        "fr": "Lister l'arborescence des groupes",
+        "it": "Elenca l'albero dei gruppi in modo gerarchico"
+      },
+      "version": 4
     },
     {
       "name": "create_absence",
@@ -15966,7 +16854,13 @@
           "aggiungere tipo malattia"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Neue Abwesenheitsart anlegen",
+        "en": "Create a new absence type",
+        "fr": "Créer un nouveau type d'absence",
+        "it": "Crea un nuovo tipo di assenza"
+      },
+      "version": 4
     },
     {
       "name": "update_absence",
@@ -16117,7 +17011,13 @@
           "riconfigurare assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitsart ändern",
+        "en": "Change an absence type",
+        "fr": "Modifier un type d'absence",
+        "it": "Modifica un tipo di assenza"
+      },
+      "version": 4
     },
     {
       "name": "delete_absence",
@@ -16180,7 +17080,13 @@
           "cancellare tipo malattia"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitsart löschen",
+        "en": "Delete an absence type",
+        "fr": "Supprimer un type d'absence",
+        "it": "Elimina un tipo di assenza"
+      },
+      "version": 4
     },
     {
       "name": "list_holidays_for_period",
@@ -16274,7 +17180,13 @@
           "feste nazionali"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Feiertage für einen Zeitraum auflisten",
+        "en": "List holidays for a date range",
+        "fr": "Lister les jours fériés pour une période",
+        "it": "Elenca le festività per un periodo"
+      },
+      "version": 4
     },
     {
       "name": "validate_holiday_overlap",
@@ -16355,7 +17267,13 @@
           "sovrapposizione festività"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Feiertagsüberschneidung prüfen",
+        "en": "Check for a holiday overlap",
+        "fr": "Vérifier un chevauchement avec un jour férié",
+        "it": "Verifica una sovrapposizione con un giorno festivo"
+      },
+      "version": 4
     },
     {
       "name": "list_report_templates",
@@ -16423,7 +17341,13 @@
           "elenca modelli"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Berichtsvorlagen auflisten",
+        "en": "List report templates",
+        "fr": "Lister les modèles de rapport",
+        "it": "Elenca i modelli di report"
+      },
+      "version": 4
     },
     {
       "name": "generate_period_summary",
@@ -16502,7 +17426,13 @@
           "panoramica mese"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Zusammenfassung einer Periode erstellen",
+        "en": "Generate a period summary",
+        "fr": "Générer un résumé de période",
+        "it": "Genera un riepilogo del periodo"
+      },
+      "version": 4
     },
     {
       "name": "read_schedule_state",
@@ -16594,7 +17524,13 @@
           "piano attuale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Aktuellen Dienstplan lesen",
+        "en": "Read the current schedule",
+        "fr": "Lire l'état actuel du planning",
+        "it": "Leggi lo stato attuale del planning"
+      },
+      "version": 5
     },
     {
       "name": "detect_conflicts",
@@ -16685,7 +17621,13 @@
           "valida pianificazione"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Plankonflikte erkennen",
+        "en": "Detect schedule conflicts",
+        "fr": "Détecter les conflits de planning",
+        "it": "Rileva i conflitti di pianificazione"
+      },
+      "version": 8
     },
     {
       "name": "interpret_resource_monitor",
@@ -16761,7 +17703,13 @@
           "analisi copertura"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Ressourcenmonitor interpretieren",
+        "en": "Interpret the resource monitor",
+        "fr": "Interpréter le moniteur de ressources",
+        "it": "Interpreta il monitor delle risorse"
+      },
+      "version": 4
     },
     {
       "name": "find_replacement",
@@ -16860,7 +17808,13 @@
           "dipendenti disponibili"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Ersatzperson für eine Schicht finden",
+        "en": "Find a replacement for a shift",
+        "fr": "Trouver un remplaçant pour un service",
+        "it": "Trova un sostituto per un turno"
+      },
+      "version": 5
     },
     {
       "name": "propose_plan",
@@ -16948,7 +17902,13 @@
           "scenario di proposta"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Platzierungen als Szenario vorschlagen",
+        "en": "Propose placements as a scenario",
+        "fr": "Proposer des affectations sous forme de scénario",
+        "it": "Proponi assegnazioni come scenario"
+      },
+      "version": 4
     },
     {
       "name": "cover_absence",
@@ -17054,7 +18014,13 @@
           "gestire un'assenza improvvisa"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Ausfall erfassen und Ersatz vorschlagen",
+        "en": "Record a dropout and propose cover",
+        "fr": "Enregistrer une absence imprévue et proposer un remplacement",
+        "it": "Registra un'assenza improvvisa e proponi una copertura"
+      },
+      "version": 6
     },
     {
       "name": "evaluate_scenario",
@@ -17124,7 +18090,13 @@
           "il piano è valido"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsszenario bewerten",
+        "en": "Evaluate a planning scenario",
+        "fr": "Évaluer un scénario de planification",
+        "it": "Valuta uno scenario di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "set_client_qualification",
@@ -17224,7 +18196,13 @@
           "registrare un certificato"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikation einer Person zuweisen",
+        "en": "Assign a qualification to a person",
+        "fr": "Attribuer une qualification à une personne",
+        "it": "Assegna una qualifica a una persona"
+      },
+      "version": 4
     },
     {
       "name": "set_shift_required_qualification",
@@ -17308,7 +18286,13 @@
           "il turno richiede una qualifica"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikationsanforderung für eine Schicht festlegen",
+        "en": "Set a shift's qualification requirement",
+        "fr": "Définir l'exigence de qualification d'un service",
+        "it": "Imposta il requisito di qualifica di un turno"
+      },
+      "version": 4
     },
     {
       "name": "create_qualification",
@@ -17424,7 +18408,13 @@
           "definire una competenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Neue Qualifikation anlegen",
+        "en": "Create a new qualification",
+        "fr": "Créer une nouvelle qualification",
+        "it": "Crea una nuova qualifica"
+      },
+      "version": 4
     },
     {
       "name": "list_qualifications",
@@ -17474,7 +18464,13 @@
           "competenze disponibili"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikationen auflisten",
+        "en": "List qualifications",
+        "fr": "Lister les qualifications",
+        "it": "Elenca le qualifiche"
+      },
+      "version": 4
     },
     {
       "name": "set_shift_preferences",
@@ -17555,7 +18551,13 @@
           "escludere dal turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schichtpräferenz für Mitarbeitende setzen",
+        "en": "Set an employee's shift preference",
+        "fr": "Définir la préférence de service d'un employé",
+        "it": "Imposta la preferenza di turno di un dipendente"
+      },
+      "version": 4
     },
     {
       "name": "update_shift",
@@ -17687,7 +18689,13 @@
           "cambiare il turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schicht bearbeiten",
+        "en": "Update a shift",
+        "fr": "Modifier un service",
+        "it": "Modifica un turno"
+      },
+      "version": 4
     },
     {
       "name": "delete_shift",
@@ -17743,7 +18751,13 @@
           "rimuovere il turno"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Schicht löschen",
+        "en": "Delete a shift",
+        "fr": "Supprimer un service",
+        "it": "Elimina un turno"
+      },
+      "version": 5
     },
     {
       "name": "email_schedule_to_client",
@@ -17824,7 +18838,13 @@
           "programma via email"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Dienstplan per E-Mail an Kunde senden",
+        "en": "Email the schedule to a client",
+        "fr": "Envoyer le planning par e-mail à un client",
+        "it": "Invia il planning via e-mail a un cliente"
+      },
+      "version": 5
     },
     {
       "name": "import_calendar_rules",
@@ -17903,7 +18923,13 @@
           "importare feste cantonali"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Feiertagsregeln importieren",
+        "en": "Import holiday rules",
+        "fr": "Importer des règles de jours fériés",
+        "it": "Importa regole dei giorni festivi"
+      },
+      "version": 4
     },
     {
       "name": "add_client_phone",
@@ -17978,7 +19004,13 @@
           "numero"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Telefonnummer für Person hinzufügen",
+        "en": "Add a phone number for a person",
+        "fr": "Ajouter un numéro de téléphone pour une personne",
+        "it": "Aggiungi un numero di telefono per una persona"
+      },
+      "version": 7
     },
     {
       "name": "add_client_email",
@@ -18054,7 +19086,13 @@
           "posta elettronica"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "E-Mail-Adresse für Person hinzufügen",
+        "en": "Add an email address for a person",
+        "fr": "Ajouter une adresse e-mail pour une personne",
+        "it": "Aggiungi un indirizzo e-mail per una persona"
+      },
+      "version": 9
     },
     {
       "name": "add_client_note",
@@ -18132,7 +19170,13 @@
           "commento"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Notiz zu Person hinzufügen",
+        "en": "Add a note to a person",
+        "fr": "Ajouter une note à une personne",
+        "it": "Aggiungi una nota a una persona"
+      },
+      "version": 9
     },
     {
       "name": "add_client_to_group_by_name",
@@ -18219,7 +19263,13 @@
           "assegnare gruppo"
         ]
       },
-      "version": 11
+      "labels": {
+        "de": "Person per Namen einer Gruppe zuordnen",
+        "en": "Assign a person to a group by name",
+        "fr": "Affecter une personne à un groupe par nom",
+        "it": "Assegna una persona a un gruppo per nome"
+      },
+      "version": 12
     },
     {
       "name": "add_selected_clients_to_group",
@@ -18296,7 +19346,13 @@
           "dipendenti selezionati nel gruppo"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Ausgewählte Personen einer Gruppe zuordnen",
+        "en": "Assign selected people to a group",
+        "fr": "Affecter les personnes sélectionnées à un groupe",
+        "it": "Assegna le persone selezionate a un gruppo"
+      },
+      "version": 8
     },
     {
       "name": "fill_group_by_criteria",
@@ -18433,7 +19489,13 @@
           "aggiungi dipendenti al gruppo"
         ]
       },
-      "version": 9
+      "labels": {
+        "de": "Gruppe nach Kriterien füllen",
+        "en": "Fill a group by criteria",
+        "fr": "Remplir un groupe par critères",
+        "it": "Riempi un gruppo per criteri"
+      },
+      "version": 10
     },
     {
       "name": "evaluate_grouping_by_qualification",
@@ -18498,7 +19560,13 @@
           "creare gruppi per qualifica"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikationsgruppen-Bedarf auswerten",
+        "en": "Evaluate need for qualification groups",
+        "fr": "Évaluer le besoin de groupes de qualification",
+        "it": "Valuta la necessità di gruppi per qualifica"
+      },
+      "version": 4
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -18576,7 +19644,13 @@
           "assegna in base alla città dell'indirizzo"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Mitarbeitende ohne Gruppe per Ortsname zuordnen",
+        "en": "Assign employees without a group by city name",
+        "fr": "Affecter les employés sans groupe par nom de ville",
+        "it": "Assegna i dipendenti senza gruppo per nome città"
+      },
+      "version": 5
     },
     {
       "name": "partition_clients_by_address",
@@ -18709,7 +19783,13 @@
           "creare gruppi per clienti e personale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Standort-Gruppenbaum aus Adressen aufbauen",
+        "en": "Build a location group tree from addresses",
+        "fr": "Construire une arborescence de groupes à partir des adresses",
+        "it": "Costruisci un albero di gruppi di sede dagli indirizzi"
+      },
+      "version": 5
     },
     {
       "name": "assign_orders_to_groups",
@@ -18825,7 +19905,13 @@
           "ordini senza gruppo"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Offene Aufträge automatisch Gruppen zuordnen",
+        "en": "Auto-assign open orders to their groups",
+        "fr": "Affecter automatiquement les commandes ouvertes à leurs groupes",
+        "it": "Assegna automaticamente gli ordini aperti ai loro gruppi"
+      },
+      "version": 3
     },
     {
       "name": "seal_open_orders",
@@ -18955,7 +20041,13 @@
           "convertire gli ordini in servizi"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mehrere offene Aufträge versiegeln",
+        "en": "Seal multiple open orders",
+        "fr": "Sceller plusieurs commandes ouvertes",
+        "it": "Sigilla più ordini aperti"
+      },
+      "version": 4
     },
     {
       "name": "remove_client_from_group",
@@ -19029,7 +20121,13 @@
           "esci dal gruppo"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Person aus Gruppe entfernen",
+        "en": "Remove a person from a group",
+        "fr": "Retirer une personne d'un groupe",
+        "it": "Rimuovi una persona da un gruppo"
+      },
+      "version": 9
     },
     {
       "name": "update_client_birthdate",
@@ -19099,7 +20197,13 @@
           "modificare la data di nascita"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Geburtsdatum einer Person ändern",
+        "en": "Update a person's birthdate",
+        "fr": "Modifier la date de naissance d'une personne",
+        "it": "Modifica la data di nascita di una persona"
+      },
+      "version": 5
     },
     {
       "name": "update_client_gender",
@@ -19173,7 +20277,13 @@
           "modificare il genere"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Geschlecht einer Person ändern",
+        "en": "Update a person's gender",
+        "fr": "Modifier le genre d'une personne",
+        "it": "Modifica il genere di una persona"
+      },
+      "version": 6
     },
     {
       "name": "assign_contract_by_name",
@@ -19270,7 +20380,13 @@
           "assegnare un contratto nominalmente al dipendente"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Vertrag per Namen zuordnen",
+        "en": "Assign a contract by name",
+        "fr": "Attribuer un contrat par nom",
+        "it": "Assegna un contratto per nome"
+      },
+      "version": 8
     },
     {
       "name": "set_group_location",
@@ -19324,7 +20440,13 @@
           "impostare la posizione del gruppo"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Koordinaten einer Gruppe setzen",
+        "en": "Set a group's coordinates",
+        "fr": "Définir les coordonnées d'un groupe",
+        "it": "Imposta le coordinate di un gruppo"
+      },
+      "version": 3
     },
     {
       "name": "evaluate_location_group_candidates",
@@ -19389,7 +20511,13 @@
           "creare gruppi per località più grandi"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Standortgruppen-Kandidaten auswerten",
+        "en": "Evaluate location group candidates",
+        "fr": "Évaluer les candidats pour des groupes de localisation",
+        "it": "Valuta i candidati per gruppi di sede"
+      },
+      "version": 4
     },
     {
       "name": "propose_grouping",
@@ -19439,7 +20567,13 @@
           "prova a vuoto della distribuzione nei gruppi di localita"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Standort-Gruppierung vorschlagen",
+        "en": "Propose location grouping",
+        "fr": "Proposer un groupement par localisation",
+        "it": "Proponi un raggruppamento per sede"
+      },
+      "version": 5
     },
     {
       "name": "geocode_location_groups",
@@ -19483,7 +20617,13 @@
           "geocodificare automaticamente tutti i gruppi"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Standortgruppen automatisch geokodieren",
+        "en": "Automatically geocode location groups",
+        "fr": "Géocoder automatiquement les groupes de localisation",
+        "it": "Geocodifica automaticamente i gruppi di sede"
+      },
+      "version": 4
     },
     {
       "name": "check_group_geocoding_status",
@@ -19511,7 +20651,13 @@
           "verificare lo stato di geocodifica"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Geocoding-Status der Gruppen prüfen",
+        "en": "Check group geocoding status",
+        "fr": "Vérifier le statut de géocodage des groupes",
+        "it": "Verifica lo stato di geocodifica dei gruppi"
+      },
+      "version": 3
     },
     {
       "name": "apply_grouping",
@@ -19561,7 +20707,13 @@
           "applicare il raggruppamento"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Standort-Gruppierung anwenden und speichern",
+        "en": "Apply and save location grouping",
+        "fr": "Appliquer et enregistrer le groupement par localisation",
+        "it": "Applica e salva il raggruppamento per sede"
+      },
+      "version": 6
     },
     {
       "name": "update_macro",
@@ -19659,7 +20811,13 @@
           "modificare il calcolo"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Berechnungsmakro ändern",
+        "en": "Update a calculation macro",
+        "fr": "Modifier une macro de calcul",
+        "it": "Modifica una macro di calcolo"
+      },
+      "version": 5
     },
     {
       "name": "update_qualification",
@@ -19844,7 +21002,13 @@
           "rinominare la qualifica"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikation ändern",
+        "en": "Update a qualification",
+        "fr": "Modifier une qualification",
+        "it": "Modifica una qualifica"
+      },
+      "version": 4
     },
     {
       "name": "delete_qualification",
@@ -19911,7 +21075,13 @@
           "cancellare una competenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikation löschen",
+        "en": "Delete a qualification",
+        "fr": "Supprimer une qualification",
+        "it": "Elimina una qualifica"
+      },
+      "version": 4
     },
     {
       "name": "search_shifts",
@@ -19987,7 +21157,13 @@
           "lista dei turni"
         ]
       },
-      "version": 9
+      "labels": {
+        "de": "Schichten suchen",
+        "en": "Search for shifts",
+        "fr": "Rechercher des services",
+        "it": "Cerca turni"
+      },
+      "version": 10
     },
     {
       "name": "get_shift_details",
@@ -20049,7 +21225,13 @@
           "orari del turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schicht-Details abrufen",
+        "en": "Get shift details",
+        "fr": "Obtenir les détails d'un service",
+        "it": "Ottieni i dettagli di un turno"
+      },
+      "version": 4
     },
     {
       "name": "list_schedule_notes",
@@ -20111,7 +21293,13 @@
           "annotazioni del piano"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Dienstplan-Notizen auflisten",
+        "en": "List schedule notes",
+        "fr": "Lister les notes de planning",
+        "it": "Elenca le note del planning"
+      },
+      "version": 4
     },
     {
       "name": "add_schedule_note",
@@ -20197,7 +21385,13 @@
           "aggiungere un'annotazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Notiz zum Dienstplan hinzufügen",
+        "en": "Add a schedule note",
+        "fr": "Ajouter une note au planning",
+        "it": "Aggiungi una nota al planning"
+      },
+      "version": 4
     },
     {
       "name": "delete_schedule_note",
@@ -20255,7 +21449,13 @@
           "rimuovere la nota del piano"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Dienstplan-Notiz löschen",
+        "en": "Delete a schedule note",
+        "fr": "Supprimer une note de planning",
+        "it": "Elimina una nota del planning"
+      },
+      "version": 4
     },
     {
       "name": "list_client_memberships",
@@ -20324,7 +21524,13 @@
           "pianificabile da"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mitgliedschaften auflisten",
+        "en": "List memberships",
+        "fr": "Lister les affiliations",
+        "it": "Elenca le affiliazioni"
+      },
+      "version": 4
     },
     {
       "name": "update_membership",
@@ -20421,7 +21627,13 @@
           "adeguare affiliazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mitgliedschaft aktualisieren",
+        "en": "Update a membership",
+        "fr": "Mettre à jour une affiliation",
+        "it": "Aggiorna un'affiliazione"
+      },
+      "version": 4
     },
     {
       "name": "end_client_membership",
@@ -20500,7 +21712,13 @@
           "registrare l'ultimo giorno di lavoro"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Austritt einer Person erfassen",
+        "en": "Record a person's exit",
+        "fr": "Enregistrer la sortie d'une personne",
+        "it": "Registra l'uscita di una persona"
+      },
+      "version": 4
     },
     {
       "name": "get_contract_details",
@@ -20567,7 +21785,13 @@
           "condizioni contrattuali"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Vertragsdetails anzeigen",
+        "en": "Contract details",
+        "fr": "Détails du contrat",
+        "it": "Dettagli del contratto"
+      },
+      "version": 4
     },
     {
       "name": "update_contract",
@@ -20754,7 +21978,13 @@
           "rinominare contratto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Vertragsvorlage ändern",
+        "en": "Update a contract template",
+        "fr": "Modifier un modèle de contrat",
+        "it": "Modifica un modello di contratto"
+      },
+      "version": 5
     },
     {
       "name": "delete_contract",
@@ -20815,7 +22045,13 @@
           "cancellare modello di contratto"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Vertragsvorlage löschen",
+        "en": "Delete a contract template",
+        "fr": "Supprimer un modèle de contrat",
+        "it": "Elimina un modello di contratto"
+      },
+      "version": 4
     },
     {
       "name": "list_client_availabilities",
@@ -20893,7 +22129,13 @@
           "panoramica disponibilità"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Verfügbarkeitseinträge von Mitarbeitenden auflisten",
+        "en": "List an employee's availability entries",
+        "fr": "Lister les disponibilités d'un employé",
+        "it": "Elenca le disponibilità di un dipendente"
+      },
+      "version": 4
     },
     {
       "name": "set_client_availability",
@@ -21010,7 +22252,13 @@
           "modificare la disponibilità"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Verfügbarkeit von Mitarbeitenden festlegen",
+        "en": "Set an employee's availability",
+        "fr": "Définir la disponibilité d'un employé",
+        "it": "Imposta la disponibilità di un dipendente"
+      },
+      "version": 6
     },
     {
       "name": "list_expenses",
@@ -21071,7 +22319,13 @@
           "nota spese"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Spesen auflisten",
+        "en": "List expenses",
+        "fr": "Lister les dépenses",
+        "it": "Elenca le spese"
+      },
+      "version": 9
     },
     {
       "name": "add_expense",
@@ -21162,7 +22416,13 @@
           "contabilizzare spese"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Spesen zu einer Schicht hinzufügen",
+        "en": "Add an expense to a shift",
+        "fr": "Ajouter une dépense à un service",
+        "it": "Aggiungi una spesa a un turno"
+      },
+      "version": 4
     },
     {
       "name": "update_expense",
@@ -21246,7 +22506,13 @@
           "aggiornare l'importo della spesa"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Spesen ändern",
+        "en": "Update an expense entry",
+        "fr": "Modifier une dépense",
+        "it": "Modifica una spesa"
+      },
+      "version": 4
     },
     {
       "name": "delete_expense",
@@ -21306,7 +22572,13 @@
           "rimuovere spese"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Spesen löschen",
+        "en": "Delete an expense entry",
+        "fr": "Supprimer une dépense",
+        "it": "Elimina una spesa"
+      },
+      "version": 4
     },
     {
       "name": "get_autonomy_level",
@@ -21358,7 +22630,13 @@
           "perché chiedi conferma"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Aktuelle Autonomiestufe anzeigen",
+        "en": "View the current autonomy level",
+        "fr": "Consulter le niveau d'autonomie actuel",
+        "it": "Visualizza il livello di autonomia attuale"
+      },
+      "version": 4
     },
     {
       "name": "set_autonomy_level",
@@ -21434,7 +22712,13 @@
           "cambiare il livello di autonomia"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Autonomiestufe festlegen",
+        "en": "Set the autonomy level",
+        "fr": "Définir le niveau d'autonomie",
+        "it": "Imposta il livello di autonomia"
+      },
+      "version": 6
     },
     {
       "name": "get_proactive_governance",
@@ -21486,7 +22770,13 @@
           "l'interruttore di arresto è attivo"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "Proaktivitäts-Regeln anzeigen",
+        "en": "View proactive governance rules",
+        "fr": "Consulter les règles de gouvernance proactive",
+        "it": "Visualizza le regole di governance proattiva"
+      },
+      "version": 2
     },
     {
       "name": "set_proactive_governance",
@@ -21654,7 +22944,13 @@
           "attiva l'interruttore di arresto"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Proaktivitäts-Regel ändern",
+        "en": "Change a proactive governance rule",
+        "fr": "Modifier une règle de gouvernance proactive",
+        "it": "Modifica una regola di governance proattiva"
+      },
+      "version": 3
     },
     {
       "name": "evaluate_autonomy_level_change",
@@ -21721,7 +23017,13 @@
           "dovrei aumentare il livello di autonomia"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Auswirkungen einer Autonomiestufen-Änderung prüfen",
+        "en": "Preview the effect of an autonomy level change",
+        "fr": "Évaluer l'effet d'un changement de niveau d'autonomie",
+        "it": "Valuta l'effetto di una modifica del livello di autonomia"
+      },
+      "version": 3
     },
     {
       "name": "get_dashboard_summary",
@@ -21783,7 +23085,13 @@
           "stato di conferma"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Dashboard-Kennzahlen des Monats",
+        "en": "Dashboard key figures for the month",
+        "fr": "Chiffres clés mensuels du tableau de bord",
+        "it": "Dati chiave mensili della dashboard"
+      },
+      "version": 4
     },
     {
       "name": "get_dashboard_overview",
@@ -21841,7 +23149,13 @@
           "servizi per gruppo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Dashboard-Übersicht anzeigen",
+        "en": "Show the dashboard overview",
+        "fr": "Afficher l'aperçu du tableau de bord",
+        "it": "Mostra la panoramica della dashboard"
+      },
+      "version": 4
     },
     {
       "name": "get_client_locations_overview",
@@ -21921,7 +23235,13 @@
           "mappa dei clienti"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Standortübersicht der Personen anzeigen",
+        "en": "Show location overview of people",
+        "fr": "Afficher l'aperçu des emplacements des personnes",
+        "it": "Mostra la panoramica delle posizioni delle persone"
+      },
+      "version": 5
     },
     {
       "name": "list_sealed_orders",
@@ -22010,7 +23330,13 @@
           "elenca ordini da esportare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Versiegelte Aufträge für Export auflisten",
+        "en": "List sealed orders ready for export",
+        "fr": "Lister les commandes scellées prêtes à l'export",
+        "it": "Elenca gli ordini sigillati pronti per l'esportazione"
+      },
+      "version": 4
     },
     {
       "name": "list_recent_exports",
@@ -22082,7 +23408,13 @@
           "registro esportazioni"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Letzte Exporte auflisten",
+        "en": "List recent exports",
+        "fr": "Lister les exports récents",
+        "it": "Elenca le esportazioni recenti"
+      },
+      "version": 4
     },
     {
       "name": "open_order_export",
@@ -22153,7 +23485,13 @@
           "scaricare esportazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Auftragsexport-Seite öffnen",
+        "en": "Open the order export page",
+        "fr": "Ouvrir la page d'export des commandes",
+        "it": "Apri la pagina di esportazione ordini"
+      },
+      "version": 4
     },
     {
       "name": "list_email_folders",
@@ -22213,7 +23551,13 @@
           "quante email non lette"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail-Ordner auflisten",
+        "en": "List email folders",
+        "fr": "Lister les dossiers e-mail",
+        "it": "Elenca le cartelle e-mail"
+      },
+      "version": 4
     },
     {
       "name": "list_emails",
@@ -22302,7 +23646,13 @@
           "controllare la posta"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mails auflisten",
+        "en": "List emails",
+        "fr": "Lister les e-mails",
+        "it": "Elenca le e-mail"
+      },
+      "version": 4
     },
     {
       "name": "read_email",
@@ -22371,7 +23721,13 @@
           "cosa dice l'email"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "E-Mail lesen",
+        "en": "Read an email",
+        "fr": "Lire un e-mail",
+        "it": "Leggi un'e-mail"
+      },
+      "version": 8
     },
     {
       "name": "mark_email_read",
@@ -22435,7 +23791,13 @@
           "segnare l'email come non letta"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail als gelesen/ungelesen markieren",
+        "en": "Mark an email as read or unread",
+        "fr": "Marquer un e-mail comme lu ou non lu",
+        "it": "Contrassegna un'e-mail come letta o da leggere"
+      },
+      "version": 4
     },
     {
       "name": "fetch_new_emails",
@@ -22482,7 +23844,13 @@
           "aggiornare la posta in arrivo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Neue E-Mails jetzt abrufen",
+        "en": "Fetch new emails now",
+        "fr": "Récupérer les nouveaux e-mails maintenant",
+        "it": "Recupera subito le nuove e-mail"
+      },
+      "version": 4
     },
     {
       "name": "move_email_to_folder",
@@ -22553,7 +23921,13 @@
           "l'email non è spam"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail in Ordner verschieben",
+        "en": "Move email to folder",
+        "fr": "Déplacer un e-mail vers un dossier",
+        "it": "Sposta un'e-mail in una cartella"
+      },
+      "version": 4
     },
     {
       "name": "delete_email",
@@ -22606,7 +23980,13 @@
           "spostare l'email nel cestino"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail löschen",
+        "en": "Delete an email",
+        "fr": "Supprimer un e-mail",
+        "it": "Elimina un'e-mail"
+      },
+      "version": 4
     },
     {
       "name": "restore_email",
@@ -22659,7 +24039,13 @@
           "recuperare l'email dal cestino"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail aus Papierkorb wiederherstellen",
+        "en": "Restore email from trash",
+        "fr": "Restaurer un e-mail depuis la corbeille",
+        "it": "Ripristina un'e-mail dal cestino"
+      },
+      "version": 4
     },
     {
       "name": "get_email_analysis",
@@ -22714,7 +24100,13 @@
           "cosa è stato rilevato nella mail"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail-Analyse anzeigen",
+        "en": "Show email analysis",
+        "fr": "Afficher l'analyse d'un e-mail",
+        "it": "Mostra l'analisi dell'e-mail"
+      },
+      "version": 4
     },
     {
       "name": "translate_email",
@@ -22775,7 +24167,13 @@
           "tradurre la mail in italiano"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "E-Mail übersetzen",
+        "en": "Translate an email",
+        "fr": "Traduire un e-mail",
+        "it": "Traduci un'e-mail"
+      },
+      "version": 4
     },
     {
       "name": "list_transcription_dictionary_entries",
@@ -22855,7 +24253,13 @@
           "quali termini vengono corretti"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Transkriptions-Wörterbuch auflisten",
+        "en": "List transcription dictionary entries",
+        "fr": "Lister les entrées du dictionnaire de transcription",
+        "it": "Elenca le voci del dizionario di trascrizione"
+      },
+      "version": 4
     },
     {
       "name": "add_transcription_dictionary_entry",
@@ -22951,7 +24355,13 @@
           "creare una correzione vocale"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Eintrag im Transkriptions-Wörterbuch hinzufügen",
+        "en": "Add a transcription dictionary entry",
+        "fr": "Ajouter une entrée au dictionnaire de transcription",
+        "it": "Aggiungi una voce al dizionario di trascrizione"
+      },
+      "version": 4
     },
     {
       "name": "update_transcription_dictionary_entry",
@@ -23049,7 +24459,13 @@
           "cambiare le varianti fonetiche"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Transkriptions-Wörterbuch-Eintrag ändern",
+        "en": "Update a transcription dictionary entry",
+        "fr": "Modifier une entrée du dictionnaire de transcription",
+        "it": "Modifica una voce del dizionario di trascrizione"
+      },
+      "version": 4
     },
     {
       "name": "delete_transcription_dictionary_entry",
@@ -23106,7 +24522,13 @@
           "eliminare una correzione vocale"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Eintrag im Transkriptions-Wörterbuch löschen",
+        "en": "Delete a transcription dictionary entry",
+        "fr": "Supprimer une entrée du dictionnaire de transcription",
+        "it": "Elimina una voce dal dizionario di trascrizione"
+      },
+      "version": 4
     },
     {
       "name": "get_speech_settings",
@@ -23168,7 +24590,13 @@
           "impostazioni di riconoscimento vocale"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Spracherkennungs-Einstellungen",
+        "en": "Speech recognition settings",
+        "fr": "Paramètres de reconnaissance vocale",
+        "it": "Impostazioni di riconoscimento vocale"
+      },
+      "version": 4
     },
     {
       "name": "list_languages",
@@ -23229,7 +24657,13 @@
           "lingue disponibili"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Sprachen und Sprachpakete auflisten",
+        "en": "List languages and language packs",
+        "fr": "Lister les langues et packs de langue",
+        "it": "Elenca lingue e pacchetti lingua"
+      },
+      "version": 4
     },
     {
       "name": "get_translation_status",
@@ -23282,7 +24716,13 @@
           "la traduzione funziona"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Übersetzungsstatus (DeepL)",
+        "en": "Translation status (DeepL)",
+        "fr": "État de la traduction (DeepL)",
+        "it": "Stato della traduzione (DeepL)"
+      },
+      "version": 4
     },
     {
       "name": "install_language_pack",
@@ -23342,7 +24782,13 @@
           "aggiungere una lingua"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Sprachpaket installieren",
+        "en": "Install a language pack",
+        "fr": "Installer un pack de langue",
+        "it": "Installa un pacchetto lingua"
+      },
+      "version": 4
     },
     {
       "name": "uninstall_language_pack",
@@ -23402,7 +24848,13 @@
           "rimuovere una lingua"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Sprachpaket deinstallieren",
+        "en": "Uninstall a language pack",
+        "fr": "Désinstaller un pack de langue",
+        "it": "Disinstalla un pacchetto lingua"
+      },
+      "version": 4
     },
     {
       "name": "list_countries",
@@ -23463,7 +24915,13 @@
           "quali paesi"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Länder auflisten",
+        "en": "List countries",
+        "fr": "Lister les pays",
+        "it": "Elenca i paesi"
+      },
+      "version": 4
     },
     {
       "name": "list_states",
@@ -23538,7 +24996,13 @@
           "stati federati"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kantone und Bundesländer auflisten",
+        "en": "List states and cantons",
+        "fr": "Lister les cantons et États",
+        "it": "Elenca cantoni e stati"
+      },
+      "version": 4
     },
     {
       "name": "list_identity_providers",
@@ -23605,7 +25069,13 @@
           "panoramica single sign-on"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Identitätsanbieter auflisten",
+        "en": "List identity providers",
+        "fr": "Lister les fournisseurs d'identité",
+        "it": "Elenca i provider di identità"
+      },
+      "version": 4
     },
     {
       "name": "create_identity_provider",
@@ -23839,7 +25309,13 @@
           "configurare il single sign-on"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Neuen Identitätsanbieter anlegen",
+        "en": "Create a new identity provider",
+        "fr": "Créer un nouveau fournisseur d'identité",
+        "it": "Crea un nuovo provider di identità"
+      },
+      "version": 5
     },
     {
       "name": "update_identity_provider",
@@ -24081,7 +25557,13 @@
           "disattivare un provider di accesso"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Identitätsanbieter ändern",
+        "en": "Update an identity provider",
+        "fr": "Modifier un fournisseur d'identité",
+        "it": "Modifica un provider di identità"
+      },
+      "version": 5
     },
     {
       "name": "delete_identity_provider",
@@ -24154,7 +25636,13 @@
           "rimuovere un provider di accesso"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Identitätsanbieter löschen",
+        "en": "Delete an identity provider",
+        "fr": "Supprimer un fournisseur d'identité",
+        "it": "Elimina un provider di identità"
+      },
+      "version": 5
     },
     {
       "name": "confirm_pending_action",
@@ -24212,7 +25700,13 @@
           "confermo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Zurückgehaltene Aktion ausführen",
+        "en": "Execute a held pending action",
+        "fr": "Exécuter une action en attente confirmée",
+        "it": "Esegui un'azione in sospeso confermata"
+      },
+      "version": 4
     },
     {
       "name": "explain_planning_divide_et_impera",
@@ -24278,7 +25772,13 @@
           "prestare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Prinzip 'Divide et impera' erklären",
+        "en": "Explain the divide-and-conquer planning principle",
+        "fr": "Expliquer le principe diviser pour régner",
+        "it": "Spiega il principio 'divide et impera'"
+      },
+      "version": 4
     },
     {
       "name": "explain_planning_sheets_modular",
@@ -24339,7 +25839,13 @@
           "riferimento"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsblätter und geteilte Mitarbeiterbezüge erklären",
+        "en": "Explain planning sheets and shared employee references",
+        "fr": "Expliquer les feuilles de planification et références partagées",
+        "it": "Spiega i fogli di pianificazione e i riferimenti condivisi"
+      },
+      "version": 4
     },
     {
       "name": "explain_planning_assistant",
@@ -24400,7 +25906,13 @@
           "proposta"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungs-Assistent erklären",
+        "en": "Explain the Planning Assistant",
+        "fr": "Expliquer l'assistant de planification",
+        "it": "Spiega l'assistente di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "explain_macro_editor",
@@ -24468,7 +25980,13 @@
           "stipendio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Erklärung des Makro-Editors",
+        "en": "Explanation of the macro editor",
+        "fr": "Explication de l'éditeur de macros",
+        "it": "Spiegazione dell'editor di macro"
+      },
+      "version": 4
     },
     {
       "name": "explain_shift_type_preferences",
@@ -24542,7 +26060,13 @@
           "desiderio"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Diensttypwünsche erklären",
+        "en": "Explain shift type preferences",
+        "fr": "Expliquer les préférences de type de service",
+        "it": "Spiega le preferenze del tipo di turno"
+      },
+      "version": 5
     },
     {
       "name": "explain_shift_sporadic",
@@ -24609,7 +26133,13 @@
           "bloccato"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Sporadische Schicht erklären",
+        "en": "Explain the Sporadic Shift",
+        "fr": "Expliquer le service sporadique",
+        "it": "Spiega il turno sporadico"
+      },
+      "version": 4
     },
     {
       "name": "explain_shift_time_range",
@@ -24669,7 +26199,13 @@
           "durata"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Zeitfenster-Schicht erklären",
+        "en": "Explain the Time-Range Shift",
+        "fr": "Expliquer le service à plage horaire",
+        "it": "Spiega il turno a fascia oraria"
+      },
+      "version": 4
     },
     {
       "name": "explain_shift_container",
@@ -24740,7 +26276,13 @@
           "espansione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Container-Schicht erklären",
+        "en": "Explain the Container Shift concept",
+        "fr": "Expliquer le concept de service conteneur",
+        "it": "Spiega il concetto di turno contenitore"
+      },
+      "version": 4
     },
     {
       "name": "explain_shift_lifecycle_order_to_shift",
@@ -24838,7 +26380,13 @@
           "differenza tra servizio fatturabile e interno"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Ablauf von Auftrag zu Schicht erklären",
+        "en": "Explain the order-to-shift lifecycle",
+        "fr": "Expliquer le cycle de vie commande vers service",
+        "it": "Spiega il ciclo di vita da ordine a turno"
+      },
+      "version": 7
     },
     {
       "name": "explain_page_dashboard",
@@ -24920,7 +26468,13 @@
           "monitor risorse"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Dashboard-Seite erklären",
+        "en": "Explain the dashboard page",
+        "fr": "Expliquer la page tableau de bord",
+        "it": "Spiega la pagina dashboard"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_schedule",
@@ -25070,7 +26624,13 @@
           "andamento giornaliero"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Dienstplan-Seite erklären",
+        "en": "Explain the Schedule page",
+        "fr": "Expliquer la page Planning",
+        "it": "Spiega la pagina Planning"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_absence",
@@ -25190,7 +26750,13 @@
           "cosa significa prenotato"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Absenzen-Kalender-Seite erklären",
+        "en": "Explain the Absence Calendar page",
+        "fr": "Expliquer la page du calendrier des absences",
+        "it": "Spiega la pagina del calendario delle assenze"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_availability",
@@ -25303,7 +26869,13 @@
           "disponibilità mezza giornata"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Seite Verfügbarkeit erklären",
+        "en": "Explain the Availability page",
+        "fr": "Expliquer la page Disponibilité",
+        "it": "Spiega la pagina Disponibilità"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_shifts",
@@ -25443,7 +27015,13 @@
           "perché non posso modificare questo servizio"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Dienste-Seite erklären",
+        "en": "Explain the Services page",
+        "fr": "Expliquer la page Services",
+        "it": "Spiega la pagina Servizi"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_employees",
@@ -25593,7 +27171,13 @@
           "ordinare la lista"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Seite Alle Adressen erklären",
+        "en": "Explain the All Addresses page",
+        "fr": "Expliquer la page Toutes les adresses",
+        "it": "Spiega la pagina Tutti gli indirizzi"
+      },
+      "version": 6
     },
     {
       "name": "explain_page_groups",
@@ -25737,7 +27321,13 @@
           "visibilità dei gruppi"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Seite Gruppen erklären",
+        "en": "Explain the Groups page",
+        "fr": "Expliquer la page Groupes",
+        "it": "Spiega la pagina Gruppi"
+      },
+      "version": 7
     },
     {
       "name": "explain_page_period_closing",
@@ -25888,7 +27478,13 @@
           "esportare il giustificativo"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Seite Periodenabschluss erklären",
+        "en": "Explain the Period Closing page",
+        "fr": "Expliquer la page de clôture de période",
+        "it": "Spiega la pagina di chiusura del periodo"
+      },
+      "version": 7
     },
     {
       "name": "explain_page_inbox",
@@ -26060,7 +27656,13 @@
           "perché non vedo la posta in arrivo"
         ]
       },
-      "version": 8
+      "labels": {
+        "de": "Posteingang-Seite erklären",
+        "en": "Explain the inbox page",
+        "fr": "Expliquer la page de la boîte de réception",
+        "it": "Spiega la pagina della posta in arrivo"
+      },
+      "version": 9
     },
     {
       "name": "explain_page_settings_overview",
@@ -26186,7 +27788,13 @@
           "icona dell'ingranaggio"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Erklärung der Einstellungsseite",
+        "en": "Explanation of the settings page",
+        "fr": "Explication de la page des paramètres",
+        "it": "Spiegazione della pagina delle impostazioni"
+      },
+      "version": 8
     },
     {
       "name": "explain_page_profile",
@@ -26319,7 +27927,13 @@
           "riconoscimento vocale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Übersicht der Seite Mein Profil",
+        "en": "Overview of the My Profile page",
+        "fr": "Aperçu de la page Mon profil",
+        "it": "Panoramica della pagina Il mio profilo"
+      },
+      "version": 5
     },
     {
       "name": "start_guided_tour",
@@ -26385,7 +27999,13 @@
           "inizia il tour"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Geführte Tour starten",
+        "en": "Start the guided tour",
+        "fr": "Démarrer la visite guidée",
+        "it": "Avvia il tour guidato"
+      },
+      "version": 4
     },
     {
       "name": "delete_communication",
@@ -26445,7 +28065,13 @@
           "eliminare il numero di telefono"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kontakteintrag löschen",
+        "en": "Delete a contact entry",
+        "fr": "Supprimer une entrée de contact",
+        "it": "Elimina una voce di contatto"
+      },
+      "version": 4
     },
     {
       "name": "update_communication",
@@ -26537,7 +28163,13 @@
           "correggere il numero di telefono"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Kontakteintrag aktualisieren",
+        "en": "Update a contact entry",
+        "fr": "Mettre à jour une entrée de contact",
+        "it": "Aggiorna una voce di contatto"
+      },
+      "version": 4
     },
     {
       "name": "create_address",
@@ -26645,7 +28277,13 @@
           "registrare l'indirizzo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Neue Adresse für Person anlegen",
+        "en": "Create a new address for a person",
+        "fr": "Créer une nouvelle adresse pour une personne",
+        "it": "Crea un nuovo indirizzo per una persona"
+      },
+      "version": 4
     },
     {
       "name": "update_address",
@@ -26753,7 +28391,13 @@
           "correggere l'indirizzo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Adresse aktualisieren",
+        "en": "Update an address",
+        "fr": "Mettre à jour une adresse",
+        "it": "Aggiorna un indirizzo"
+      },
+      "version": 4
     },
     {
       "name": "delete_address",
@@ -26813,7 +28457,13 @@
           "cancellare l'indirizzo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Adresse löschen",
+        "en": "Delete an address",
+        "fr": "Supprimer une adresse",
+        "it": "Elimina un indirizzo"
+      },
+      "version": 4
     },
     {
       "name": "update_annotation",
@@ -26881,7 +28531,13 @@
           "cambiare l'osservazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Notiztext aktualisieren",
+        "en": "Update a note's text",
+        "fr": "Mettre à jour le texte d'une note",
+        "it": "Aggiorna il testo di una nota"
+      },
+      "version": 4
     },
     {
       "name": "delete_annotation",
@@ -26941,7 +28597,13 @@
           "cancellare l'osservazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Notiz löschen",
+        "en": "Delete a note",
+        "fr": "Supprimer une note",
+        "it": "Elimina una nota"
+      },
+      "version": 4
     },
     {
       "name": "delete_membership",
@@ -27001,7 +28663,13 @@
           "cancellare il periodo di appartenenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Mitgliedschaft löschen",
+        "en": "Delete a membership",
+        "fr": "Supprimer une affiliation",
+        "it": "Elimina un'affiliazione"
+      },
+      "version": 4
     },
     {
       "name": "update_schedule_note",
@@ -27078,7 +28746,13 @@
           "correggere la nota"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Dienstplan-Notiz bearbeiten",
+        "en": "Edit a schedule note",
+        "fr": "Modifier une note de planning",
+        "it": "Modifica una nota del planning"
+      },
+      "version": 5
     },
     {
       "name": "update_break",
@@ -27188,7 +28862,13 @@
           "correggere il giorno di malattia"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Absenzeintrag bearbeiten",
+        "en": "Edit an absence entry",
+        "fr": "Modifier une entrée d'absence",
+        "it": "Modifica una voce di assenza"
+      },
+      "version": 5
     },
     {
       "name": "update_workchange",
@@ -27306,7 +28986,13 @@
           "regolare la sostituzione"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Einsatzänderung bearbeiten",
+        "en": "Edit an assignment change",
+        "fr": "Ajuster une modification d'affectation",
+        "it": "Aggiorna una modifica all'assegnazione"
+      },
+      "version": 6
     },
     {
       "name": "delete_workchange",
@@ -27368,7 +29054,13 @@
           "eliminare la sostituzione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Einsatzänderung löschen",
+        "en": "Delete an assignment change",
+        "fr": "Supprimer une modification d'affectation",
+        "it": "Elimina una modifica all'assegnazione"
+      },
+      "version": 5
     },
     {
       "name": "get_weather",
@@ -27519,7 +29211,13 @@
           "che tempo fa"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Aktuelles Wetter abrufen",
+        "en": "Get current weather",
+        "fr": "Obtenir la météo actuelle",
+        "it": "Ottieni il meteo attuale"
+      },
+      "version": 8
     },
     {
       "name": "stash_pending_note",
@@ -27584,7 +29282,13 @@
           "accantonare la nota"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Notiz für später hinterlegen",
+        "en": "Stash a note for later",
+        "fr": "Mettre une note de côté pour plus tard",
+        "it": "Salva una nota per dopo"
+      },
+      "version": 4
     },
     {
       "name": "manage_pending_notes",
@@ -27634,7 +29338,13 @@
           "gestire le note in sospeso"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Anstehende Notizen verwalten",
+        "en": "Manage pending notes",
+        "fr": "Gérer les notes en attente",
+        "it": "Gestisci le note in sospeso"
+      },
+      "version": 3
     },
     {
       "name": "recall_delivered_notes",
@@ -27664,7 +29374,13 @@
           "richiamare le note consegnate"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Bereits zugestellte Notizen nachlesen",
+        "en": "Recall delivered notes",
+        "fr": "Consulter les notes déjà transmises",
+        "it": "Richiama le note già consegnate"
+      },
+      "version": 3
     },
     {
       "name": "schedule_recurring_task",
@@ -27830,7 +29546,13 @@
           "pianifica un promemoria"
         ]
       },
-      "version": 7
+      "labels": {
+        "de": "Wiederkehrende Aufgabe planen",
+        "en": "Schedule a recurring task",
+        "fr": "Planifier une tâche récurrente",
+        "it": "Pianifica un'attività ricorrente"
+      },
+      "version": 8
     },
     {
       "name": "list_recurring_tasks",
@@ -27885,7 +29607,13 @@
           "quali attivita ricorrenti"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Wiederkehrende Aufgaben auflisten",
+        "en": "List recurring tasks",
+        "fr": "Lister les tâches récurrentes",
+        "it": "Elenca le attività ricorrenti"
+      },
+      "version": 5
     },
     {
       "name": "cancel_recurring_task",
@@ -27953,7 +29681,13 @@
           "elimina attivita pianificata"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Wiederkehrende Aufgabe abbrechen",
+        "en": "Cancel a recurring task",
+        "fr": "Annuler une tâche récurrente",
+        "it": "Annulla un'attività ricorrente"
+      },
+      "version": 5
     },
     {
       "name": "get_erp_import_status",
@@ -28008,7 +29742,13 @@
           "prossima esecuzione import"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Status des ERP-Bestellimports",
+        "en": "ERP order import status",
+        "fr": "État de l'importation des commandes ERP",
+        "it": "Stato dell'importazione degli ordini ERP"
+      },
+      "version": 4
     },
     {
       "name": "trigger_erp_import_run",
@@ -28060,7 +29800,13 @@
           "esegui importazione ora"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "ERP-Import sofort auslösen",
+        "en": "Trigger an immediate ERP import run",
+        "fr": "Déclencher un import ERP immédiat",
+        "it": "Avvia subito un'importazione ERP"
+      },
+      "version": 4
     },
     {
       "name": "set_erp_import_schedule",
@@ -28129,7 +29875,13 @@
           "intervallo importazione erp"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "ERP-Import-Zeitplan festlegen",
+        "en": "Set the ERP import schedule",
+        "fr": "Définir le calendrier d'import ERP",
+        "it": "Imposta la pianificazione di importazione ERP"
+      },
+      "version": 4
     },
     {
       "name": "explain_page_settings_erp_drop_points",
@@ -28213,7 +29965,13 @@
           "token di accesso erp"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Erklärung der ERP-Übergabepunkte-Einstellungen",
+        "en": "Explanation of ERP drop point settings",
+        "fr": "Explication des paramètres des points de dépôt ERP",
+        "it": "Spiegazione delle impostazioni dei punti di consegna ERP"
+      },
+      "version": 5
     },
     {
       "name": "add_break_placeholder",
@@ -28307,7 +30065,13 @@
           "prenotazione assenza"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitswunsch vormerken",
+        "en": "Pre-book an absence wish",
+        "fr": "Préréserver un souhait d'absence",
+        "it": "Prenota una richiesta di assenza"
+      },
+      "version": 4
     },
     {
       "name": "add_schedule_commands_range",
@@ -28409,7 +30173,13 @@
           "più giorni liberi"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Planungsvorgabe für einen Zeitraum setzen",
+        "en": "Set a planning command for a date range",
+        "fr": "Définir une consigne de planification pour une période",
+        "it": "Imposta un vincolo di pianificazione per un periodo"
+      },
+      "version": 5
     },
     {
       "name": "update_break_placeholder",
@@ -28519,7 +30289,13 @@
           "prolungare le ferie"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitswunsch bearbeiten",
+        "en": "Edit an absence wish",
+        "fr": "Modifier un souhait d'absence",
+        "it": "Modifica una richiesta di assenza"
+      },
+      "version": 4
     },
     {
       "name": "delete_break_placeholder",
@@ -28592,7 +30368,13 @@
           "eliminare l'assenza pianificata"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Abwesenheitswunsch löschen",
+        "en": "Delete an absence wish",
+        "fr": "Supprimer un souhait d'absence",
+        "it": "Elimina una richiesta di assenza"
+      },
+      "version": 4
     },
     {
       "name": "check_absence_conflicts",
@@ -28666,7 +30448,13 @@
           "ferie possibili"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Absenz auf Konflikte prüfen",
+        "en": "Check an absence for conflicts",
+        "fr": "Vérifier les conflits d'une absence",
+        "it": "Verifica i conflitti di un'assenza"
+      },
+      "version": 4
     },
     {
       "name": "check_absence_capacity_reserve",
@@ -28754,7 +30542,13 @@
           "carenza di risorse"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Personalreserve für geplante Absenz prüfen",
+        "en": "Check staffing reserve for a planned absence",
+        "fr": "Vérifier la réserve de personnel pour une absence planifiée",
+        "it": "Verifica la riserva di personale per un'assenza pianificata"
+      },
+      "version": 3
     },
     {
       "name": "find_absence_capacity_windows",
@@ -28857,7 +30651,13 @@
           "quando c'è ancora spazio"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Passende Zeitfenster für eine Absenz finden",
+        "en": "Find suitable time windows for an absence",
+        "fr": "Trouver des créneaux adaptés pour une absence",
+        "it": "Trova finestre temporali adatte per un'assenza"
+      },
+      "version": 3
     },
     {
       "name": "get_client_absence_summary",
@@ -28922,7 +30722,13 @@
           "saldo ferie"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Absenzen-Übersicht einer Person",
+        "en": "Absence summary for a person",
+        "fr": "Résumé des absences d'une personne",
+        "it": "Riepilogo delle assenze di una persona"
+      },
+      "version": 4
     },
     {
       "name": "seal_shift",
@@ -28989,7 +30795,13 @@
           "rilasciare"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einen Auftrag versiegeln",
+        "en": "Seal a single order",
+        "fr": "Sceller une seule commande",
+        "it": "Sigilla un singolo ordine"
+      },
+      "version": 4
     },
     {
       "name": "set_sealed_order_until_date",
@@ -29059,7 +30871,13 @@
           "chiudere l'ordine"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Enddatum eines versiegelten Auftrags setzen",
+        "en": "Set the end date of a sealed order",
+        "fr": "Définir la date de fin d'une commande scellée",
+        "it": "Imposta la data di fine di un ordine sigillato"
+      },
+      "version": 4
     },
     {
       "name": "list_shift_cuts",
@@ -29121,7 +30939,13 @@
           "mostra le parti del turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schnittbaum einer Schicht auflisten",
+        "en": "List a shift's cut tree",
+        "fr": "Lister l'arborescence de découpe d'un service",
+        "it": "Elenca l'albero dei tagli di un turno"
+      },
+      "version": 4
     },
     {
       "name": "reset_shift_cuts",
@@ -29189,7 +31013,13 @@
           "unisci le parti del turno"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schichtteile wieder zusammenführen",
+        "en": "Merge shift cuts back together",
+        "fr": "Refusionner les parties découpées d'un service",
+        "it": "Riunisci le parti tagliate di un turno"
+      },
+      "version": 4
     },
     {
       "name": "cut_shift_by_date",
@@ -29273,7 +31103,13 @@
           "dividi il turno da una data"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Schicht an einem Datum aufteilen",
+        "en": "Split a shift at a date",
+        "fr": "Diviser un service à une date",
+        "it": "Dividi un turno a una data"
+      },
+      "version": 4
     },
     {
       "name": "remove_shift_from_group",
@@ -29346,7 +31182,13 @@
           "elimina collegamento gruppo"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Schicht aus Gruppe entfernen",
+        "en": "Remove a shift from a group",
+        "fr": "Retirer un service d'un groupe",
+        "it": "Rimuovi un turno da un gruppo"
+      },
+      "version": 5
     },
     {
       "name": "remove_shift_required_qualification",
@@ -29418,7 +31260,13 @@
           "annulla condizione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Qualifikationsanforderung einer Schicht entfernen",
+        "en": "Remove a shift's qualification requirement",
+        "fr": "Retirer l'exigence de qualification d'un service",
+        "it": "Rimuovi il requisito di qualifica di un turno"
+      },
+      "version": 4
     },
     {
       "name": "list_container_template",
@@ -29489,7 +31337,13 @@
           "modello del giorno contenitore"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Container-Vorlage auflisten",
+        "en": "List the container template",
+        "fr": "Lister le modèle du conteneur",
+        "it": "Elenca il modello del contenitore"
+      },
+      "version": 4
     },
     {
       "name": "add_container_template_task",
@@ -29576,7 +31430,13 @@
           "inserisci attività nel contenitore"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Aufgaben-Schicht zum Container-Template hinzufügen",
+        "en": "Add a task shift to the container template",
+        "fr": "Ajouter un service-tâche au modèle du conteneur",
+        "it": "Aggiungi un turno-attività al modello del contenitore"
+      },
+      "version": 4
     },
     {
       "name": "create_container_template",
@@ -29708,7 +31568,13 @@
           "configura giorno del contenitore"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Wochentag-Vorlage für Container-Schicht erstellen",
+        "en": "Create a container shift's weekday template",
+        "fr": "Créer le modèle hebdomadaire d'un service conteneur",
+        "it": "Crea il modello settimanale di un turno contenitore"
+      },
+      "version": 3
     },
     {
       "name": "delete_container_template",
@@ -29771,7 +31637,13 @@
           "reimposta il modello del contenitore"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "Container-Vorlage löschen",
+        "en": "Delete the container template",
+        "fr": "Supprimer le modèle du conteneur",
+        "it": "Elimina il modello del contenitore"
+      },
+      "version": 2
     },
     {
       "name": "remove_container_template_task",
@@ -29850,7 +31722,13 @@
           "rimuovi elemento dal contenitore"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Aufgabe aus Container-Vorlage entfernen",
+        "en": "Remove a task from the container template",
+        "fr": "Retirer une tâche du modèle du conteneur",
+        "it": "Rimuovi un'attività dal modello del contenitore"
+      },
+      "version": 4
     },
     {
       "name": "reset_container_day",
@@ -29921,7 +31799,13 @@
           "torna al modello"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Container-Tag auf Vorlage zurücksetzen",
+        "en": "Reset a container day to its template",
+        "fr": "Réinitialiser un jour de conteneur selon le modèle",
+        "it": "Ripristina un giorno del contenitore al modello"
+      },
+      "version": 4
     },
     {
       "name": "check_client_availability",
@@ -30005,7 +31889,13 @@
           "verificare la disponibilità"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Einsetzbarkeit von Mitarbeitenden prüfen",
+        "en": "Check whether an employee is deployable",
+        "fr": "Vérifier si un employé est mobilisable",
+        "it": "Verifica se un dipendente è impiegabile"
+      },
+      "version": 4
     },
     {
       "name": "get_availability_overview",
@@ -30102,7 +31992,13 @@
           "panoramica delle disponibilità"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Verfügbare Mitarbeitende auflisten",
+        "en": "List available employees",
+        "fr": "Lister les employés disponibles",
+        "it": "Elenca i dipendenti disponibili"
+      },
+      "version": 5
     },
     {
       "name": "clear_client_availability",
@@ -30190,7 +32086,13 @@
           "eliminare le disponibilità"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Verfügbarkeit von Mitarbeitenden zurücksetzen",
+        "en": "Reset an employee's availability",
+        "fr": "Réinitialiser la disponibilité d'un employé",
+        "it": "Reimposta la disponibilità di un dipendente"
+      },
+      "version": 5
     },
     {
       "name": "get_group_hours_balance",
@@ -30264,7 +32166,13 @@
           "chi ha ore straordinarie nel gruppo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Stundenbilanz einer Gruppe anzeigen",
+        "en": "Show a group's hours balance",
+        "fr": "Afficher le solde d'heures d'un groupe",
+        "it": "Mostra il saldo ore di un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "get_group_absence_overlap",
@@ -30341,7 +32249,13 @@
           "sovrapposizione ferie del gruppo"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Absenz-Überschneidungen in einer Gruppe",
+        "en": "Absence overlaps within a group",
+        "fr": "Chevauchements d'absences dans un groupe",
+        "it": "Sovrapposizioni di assenze in un gruppo"
+      },
+      "version": 4
     },
     {
       "name": "list_expiring_contracts",
@@ -30421,7 +32335,13 @@
           "contratti che scadono presto"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Bald ablaufende Verträge auflisten",
+        "en": "List expiring contracts",
+        "fr": "Lister les contrats bientôt expirés",
+        "it": "Elenca i contratti in scadenza"
+      },
+      "version": 4
     },
     {
       "name": "analyze_group_semantics",
@@ -30487,7 +32407,13 @@
           "secondo quale criterio sono organizzati i gruppi"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Gruppierungsauftrag analysieren",
+        "en": "Analyze a grouping request",
+        "fr": "Analyser une demande de groupement",
+        "it": "Analizza una richiesta di raggruppamento"
+      },
+      "version": 4
     },
     {
       "name": "start_company_rule",
@@ -30582,7 +32508,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Firmenregel-Erfassung starten",
+        "en": "Start a company-rule intake",
+        "fr": "Démarrer la saisie d'une règle d'entreprise",
+        "it": "Avvia l'acquisizione di una regola aziendale"
+      },
+      "version": 4
     },
     {
       "name": "set_company_rule_parameters",
@@ -30656,7 +32588,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Parameter der Firmenregel setzen",
+        "en": "Set company-rule parameters",
+        "fr": "Définir les paramètres de la règle d'entreprise",
+        "it": "Imposta i parametri della regola aziendale"
+      },
+      "version": 4
     },
     {
       "name": "preview_company_rule",
@@ -30721,7 +32659,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Firmenregel-Entwurf als Vorschau anzeigen",
+        "en": "Preview the company-rule draft",
+        "fr": "Aperçu du brouillon de règle d'entreprise",
+        "it": "Anteprima della bozza di regola aziendale"
+      },
+      "version": 4
     },
     {
       "name": "apply_company_rule",
@@ -30787,7 +32731,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Firmenregel anwenden",
+        "en": "Apply a company rule",
+        "fr": "Appliquer une règle d'entreprise",
+        "it": "Applica una regola aziendale"
+      },
+      "version": 4
     },
     {
       "name": "cancel_company_rule",
@@ -30853,7 +32803,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Firmenregel-Entwurf abbrechen",
+        "en": "Cancel the company-rule draft",
+        "fr": "Annuler le brouillon de règle d'entreprise",
+        "it": "Annulla la bozza di regola aziendale"
+      },
+      "version": 4
     },
     {
       "name": "list_company_rules",
@@ -30919,7 +32875,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Angewendete Firmenregeln auflisten",
+        "en": "List applied company rules",
+        "fr": "Lister les règles d'entreprise appliquées",
+        "it": "Elenca le regole aziendali applicate"
+      },
+      "version": 4
     },
     {
       "name": "revert_company_rule",
@@ -30994,7 +32956,13 @@
           "regola di conteggio"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Firmenregel rückgängig machen",
+        "en": "Revert an applied company rule",
+        "fr": "Annuler une règle d'entreprise appliquée",
+        "it": "Ripristina una regola aziendale applicata"
+      },
+      "version": 4
     },
     {
       "name": "start_planning_profile_setup",
@@ -31060,7 +33028,13 @@
           "regola di pianificazione"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Planungsprofil-Einrichtung starten",
+        "en": "Start the planning profile setup",
+        "fr": "Démarrer la configuration du profil de planification",
+        "it": "Avvia la configurazione del profilo di pianificazione"
+      },
+      "version": 6
     },
     {
       "name": "set_planning_profile_parameters",
@@ -31125,7 +33099,13 @@
           "regola di pianificazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsprofil-Parameter setzen",
+        "en": "Set planning profile parameters",
+        "fr": "Définir les paramètres du profil de planification",
+        "it": "Imposta i parametri del profilo di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "preview_planning_profile",
@@ -31181,7 +33161,13 @@
           "regola di pianificazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsprofil-Entwurf als Vorschau ansehen",
+        "en": "Preview the planning profile draft",
+        "fr": "Prévisualiser le brouillon du profil de planification",
+        "it": "Anteprima della bozza del profilo di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "apply_planning_profile",
@@ -31238,7 +33224,13 @@
           "regola di pianificazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsprofil-Entwurf übernehmen",
+        "en": "Apply the planning profile draft",
+        "fr": "Appliquer le brouillon du profil de planification",
+        "it": "Applica la bozza del profilo di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "cancel_planning_profile_setup",
@@ -31294,7 +33286,13 @@
           "regola di pianificazione"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Planungsprofil-Einrichtung abbrechen",
+        "en": "Cancel the planning profile setup",
+        "fr": "Annuler la configuration du profil de planification",
+        "it": "Annulla la configurazione del profilo di pianificazione"
+      },
+      "version": 4
     },
     {
       "name": "create_plan",
@@ -31333,7 +33331,7 @@
           "several tasks at once"
         ]
       },
-      "version": 6,
+      "version": 7,
       "synonyms": {
         "de": [
           "plan erstellen",
@@ -31361,6 +33359,12 @@
           "più attività insieme",
           "creare un piano di attività"
         ]
+      },
+      "labels": {
+        "de": "Mehrschritt-Plan vorschlagen",
+        "en": "Propose a multi-step plan",
+        "fr": "Proposer un plan à plusieurs étapes",
+        "it": "Proponi un piano a più fasi"
       }
     },
     {
@@ -31400,7 +33404,7 @@
           "is the plan done"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "plan status",
@@ -31426,6 +33430,12 @@
           "controllare lo stato del piano",
           "il piano è terminato"
         ]
+      },
+      "labels": {
+        "de": "Status eines Mehrschritt-Plans abfragen",
+        "en": "Check the status of a multi-step plan",
+        "fr": "Consulter le statut d'un plan à plusieurs étapes",
+        "it": "Controlla lo stato di un piano a più fasi"
       }
     },
     {
@@ -31463,7 +33473,7 @@
           "review the schedule for problems"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "analysiere den dienstplan",
@@ -31489,6 +33499,12 @@
           "dove sono le lacune",
           "analizzare i dati"
         ]
+      },
+      "labels": {
+        "de": "Offene Analysefrage delegieren",
+        "en": "Delegate an open-ended analysis question",
+        "fr": "Déléguer une question d'analyse ouverte",
+        "it": "Delega una domanda di analisi aperta"
       }
     },
     {
@@ -31628,7 +33644,13 @@
           "riempire automaticamente un contenitore con attività ottimizzate per il percorso"
         ]
       },
-      "version": 3
+      "labels": {
+        "de": "Nahegelegene Zeitfenster-Schichten zu Container bündeln",
+        "en": "Bundle nearby time-range shifts into a container",
+        "fr": "Regrouper des services à plage horaire proches dans un conteneur",
+        "it": "Raggruppa turni a fascia oraria vicini in un contenitore"
+      },
+      "version": 4
     },
     {
       "name": "explain_klacksy_memory",
@@ -31698,7 +33720,13 @@
           "cosa sai di me"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Gedächtnis von Klacksy erklären",
+        "en": "Explain Klacksy's memory",
+        "fr": "Expliquer la mémoire de Klacksy",
+        "it": "Spiega la memoria di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_autonomy",
@@ -31767,7 +33795,13 @@
           "annullare"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Autonomiestufen von Klacksy erklären",
+        "en": "Explain Klacksy's autonomy levels",
+        "fr": "Expliquer les niveaux d'autonomie de Klacksy",
+        "it": "Spiega i livelli di autonomia di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_personality",
@@ -31841,7 +33875,13 @@
           "limiti"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Persönlichkeit von Klacksy erklären",
+        "en": "Explain Klacksy's personality settings",
+        "fr": "Expliquer la personnalité de Klacksy",
+        "it": "Spiega la personalità di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_llm_setup",
@@ -31914,7 +33954,13 @@
           "quale modello"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "LLM-Konfiguration von Klacksy erklären",
+        "en": "Explain Klacksy's LLM configuration",
+        "fr": "Expliquer la configuration LLM de Klacksy",
+        "it": "Spiega la configurazione LLM di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_learning",
@@ -31981,7 +34027,13 @@
           "miglioramento"
         ]
       },
-      "version": 6
+      "labels": {
+        "de": "Lernverhalten von Klacksy erklären",
+        "en": "Explain how Klacksy learns",
+        "fr": "Expliquer comment Klacksy apprend",
+        "it": "Spiega come apprende Klacksy"
+      },
+      "version": 7
     },
     {
       "name": "explain_contracts",
@@ -32060,7 +34112,13 @@
           "contratto scade"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Vertragsbedingungen erklären",
+        "en": "Explain contract terms",
+        "fr": "Expliquer les conditions contractuelles",
+        "it": "Spiega le condizioni contrattuali"
+      },
+      "version": 3
     },
     {
       "name": "explain_qualifications",
@@ -32136,7 +34194,13 @@
           "chi può fare questo turno"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Qualifikationskonzept erklären",
+        "en": "Explain the qualification concept",
+        "fr": "Expliquer le concept de qualification",
+        "it": "Spiega il concetto di qualifica"
+      },
+      "version": 3
     },
     {
       "name": "explain_planning_wizards",
@@ -32203,7 +34267,13 @@
           "annullare la pianificazione"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Planungs-Wizards erklären",
+        "en": "Explain the planning wizards",
+        "fr": "Expliquer les assistants de planification",
+        "it": "Spiega gli assistenti di pianificazione"
+      },
+      "version": 3
     },
     {
       "name": "explain_company_rules",
@@ -32267,7 +34337,13 @@
           "annullare una regola"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Firmenregel-Prozess erklären",
+        "en": "Explain the company-rule process",
+        "fr": "Expliquer le processus de règle d'entreprise",
+        "it": "Spiega il processo delle regole aziendali"
+      },
+      "version": 3
     },
     {
       "name": "explain_system_context",
@@ -32341,7 +34417,13 @@
           "ora attuale"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Systemkontext von Klacksy erklären",
+        "en": "Explain Klacksy's system context",
+        "fr": "Expliquer le contexte système de Klacksy",
+        "it": "Spiega il contesto di sistema di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_address_management",
@@ -32415,7 +34497,13 @@
           "vecchio indirizzo"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Datenmodell der Adressverwaltung erklären",
+        "en": "Explain the address management data model",
+        "fr": "Expliquer le modèle de données de la gestion des adresses",
+        "it": "Spiega il modello dati della gestione degli indirizzi"
+      },
+      "version": 3
     },
     {
       "name": "explain_email_setup",
@@ -32490,7 +34578,13 @@
           "crittografia"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "E-Mail-Einrichtung erklären",
+        "en": "Explain email setup",
+        "fr": "Expliquer la configuration de la messagerie",
+        "it": "Spiega la configurazione e-mail"
+      },
+      "version": 3
     },
     {
       "name": "explain_absence_model",
@@ -32555,7 +34649,13 @@
           "le assenze contano nelle ore"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Absenz-Datenmodell erklären",
+        "en": "Explain the absence data model",
+        "fr": "Expliquer le modèle de données des absences",
+        "it": "Spiega il modello dati delle assenze"
+      },
+      "version": 3
     },
     {
       "name": "explain_period_closing_model",
@@ -32628,7 +34728,13 @@
           "esportazione paghe"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Konzept des Periodenabschlusses erklären",
+        "en": "Explain the period closing concept",
+        "fr": "Expliquer le concept de clôture de période",
+        "it": "Spiega il concetto di chiusura del periodo"
+      },
+      "version": 3
     },
     {
       "name": "explain_group_model",
@@ -32695,7 +34801,13 @@
           "gruppo più vicino"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Gruppenmodell erklären",
+        "en": "Explain the group model",
+        "fr": "Expliquer le modèle de groupe",
+        "it": "Spiega il modello di gruppo"
+      },
+      "version": 3
     },
     {
       "name": "explain_roles_and_permissions",
@@ -32774,7 +34886,13 @@
           "token di accesso"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Rollen und Berechtigungen erklärt",
+        "en": "Roles and permissions explained",
+        "fr": "Rôles et autorisations expliqués",
+        "it": "Ruoli e permessi spiegati"
+      },
+      "version": 3
     },
     {
       "name": "explain_guided_tour",
@@ -32835,7 +34953,13 @@
           "nuovo qui"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Geführte Tour erklären",
+        "en": "Explain the guided tour",
+        "fr": "Expliquer la visite guidée",
+        "it": "Spiega il tour guidato"
+      },
+      "version": 5
     },
     {
       "name": "explain_navigation_learning",
@@ -32898,7 +35022,13 @@
           "insegnare a klacksy"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Navigationslernen erklären",
+        "en": "Explain navigation learning",
+        "fr": "Expliquer l'apprentissage de la navigation",
+        "it": "Spiega l'apprendimento della navigazione"
+      },
+      "version": 3
     },
     {
       "name": "list_monthly_target_hours",
@@ -32966,7 +35096,13 @@
           "quota oraria mensile"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Monatliche Sollstunden auflisten",
+        "en": "List monthly target hours",
+        "fr": "Lister les heures cibles mensuelles",
+        "it": "Elenca le ore obiettivo mensili"
+      },
+      "version": 5
     },
     {
       "name": "create_monthly_target_hours",
@@ -33046,7 +35182,13 @@
           "fissare le ore del mese"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Monatliche Soll-Stunden festlegen",
+        "en": "Set monthly target hours",
+        "fr": "Définir les heures cibles mensuelles",
+        "it": "Imposta le ore mensili previste"
+      },
+      "version": 5
     },
     {
       "name": "update_monthly_target_hours",
@@ -33134,7 +35276,13 @@
           "adeguare le ore del mese"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Monats-Sollstunden ändern",
+        "en": "Update monthly target hours",
+        "fr": "Modifier les heures cibles mensuelles",
+        "it": "Modifica le ore target mensili"
+      },
+      "version": 5
     },
     {
       "name": "delete_monthly_target_hours",
@@ -33196,7 +35344,13 @@
           "annullare le ore del mese"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Monatliche Soll-Stunden entfernen",
+        "en": "Remove monthly target hours",
+        "fr": "Supprimer les heures cibles mensuelles",
+        "it": "Rimuovi le ore mensili previste"
+      },
+      "version": 5
     },
     {
       "name": "list_counter_rules",
@@ -33255,7 +35409,13 @@
           "numero di notti consentite"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zählregeln auflisten",
+        "en": "List counter rules",
+        "fr": "Lister les règles de comptage",
+        "it": "Elenca le regole di conteggio"
+      },
+      "version": 6
     },
     {
       "name": "create_counter_rule",
@@ -33370,7 +35530,13 @@
           "limitare il numero di notti"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zählregel erstellen",
+        "en": "Create a counter rule",
+        "fr": "Créer une règle de comptage",
+        "it": "Crea una regola di conteggio"
+      },
+      "version": 6
     },
     {
       "name": "update_counter_rule",
@@ -33484,7 +35650,13 @@
           "trasformare un avviso in blocco"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zählregel ändern",
+        "en": "Update a counter rule",
+        "fr": "Modifier une règle de comptage",
+        "it": "Modifica una regola di conteggio"
+      },
+      "version": 5
     },
     {
       "name": "delete_counter_rule",
@@ -33547,7 +35719,13 @@
           "smettere di conteggiare"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zählregel löschen",
+        "en": "Delete a counter rule",
+        "fr": "Supprimer une règle de comptage",
+        "it": "Elimina una regola di conteggio"
+      },
+      "version": 5
     },
     {
       "name": "list_period_cap_rules",
@@ -33605,7 +35783,13 @@
           "tetto straordinari"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Stundenobergrenzen auflisten",
+        "en": "List period cap rules",
+        "fr": "Lister les plafonds d'heures",
+        "it": "Elenca i tetti di ore"
+      },
+      "version": 5
     },
     {
       "name": "create_period_cap_rule",
@@ -33733,7 +35917,13 @@
           "limitare la media settimanale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Stundenobergrenze erstellen",
+        "en": "Create a period cap rule",
+        "fr": "Créer un plafond d'heures",
+        "it": "Crea un tetto di ore"
+      },
+      "version": 5
     },
     {
       "name": "update_period_cap_rule",
@@ -33860,7 +36050,13 @@
           "abbassare il tetto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Stundenobergrenze ändern",
+        "en": "Update a period cap rule",
+        "fr": "Modifier un plafond d'heures",
+        "it": "Modifica un tetto di ore"
+      },
+      "version": 5
     },
     {
       "name": "delete_period_cap_rule",
@@ -33923,7 +36119,13 @@
           "togliere il tetto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Stundenobergrenze löschen",
+        "en": "Delete a period cap rule",
+        "fr": "Supprimer un plafond d'heures",
+        "it": "Elimina un tetto di ore"
+      },
+      "version": 5
     },
     {
       "name": "list_restricted_time_window_rules",
@@ -33978,7 +36180,13 @@
           "quali ore sono bloccate"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zeitfenster-Sperren auflisten",
+        "en": "List restricted time window rules",
+        "fr": "Lister les créneaux horaires interdits",
+        "it": "Elenca le fasce orarie vietate"
+      },
+      "version": 6
     },
     {
       "name": "create_restricted_time_window_rule",
@@ -34089,7 +36297,13 @@
           "niente di notte in inverno"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zeitfenster-Sperre erstellen",
+        "en": "Create a restricted time window rule",
+        "fr": "Créer un créneau horaire interdit",
+        "it": "Crea una fascia oraria vietata"
+      },
+      "version": 6
     },
     {
       "name": "update_restricted_time_window_rule",
@@ -34207,7 +36421,13 @@
           "adeguare il periodo bloccato"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zeitfenster-Sperre ändern",
+        "en": "Update a restricted time window rule",
+        "fr": "Modifier un créneau horaire interdit",
+        "it": "Modifica una fascia oraria vietata"
+      },
+      "version": 6
     },
     {
       "name": "delete_restricted_time_window_rule",
@@ -34269,7 +36489,13 @@
           "liberare quella fascia"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Zeitfenster-Sperre löschen",
+        "en": "Delete a restricted time window rule",
+        "fr": "Supprimer un créneau horaire interdit",
+        "it": "Elimina una fascia oraria vietata"
+      },
+      "version": 6
     },
     {
       "name": "list_individual_periods",
@@ -34326,7 +36552,13 @@
           "schema di date individuale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Individuelle Abrechnungsschemas auflisten",
+        "en": "List individual period schemes",
+        "fr": "Lister les schémas de période individuels",
+        "it": "Elenca gli schemi di periodo individuali"
+      },
+      "version": 5
     },
     {
       "name": "create_individual_period",
@@ -34396,7 +36628,13 @@
           "creare uno schema di date"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Individuelles Abrechnungsschema anlegen",
+        "en": "Create an individual period scheme",
+        "fr": "Créer un schéma de période individuel",
+        "it": "Crea uno schema di periodo individuale"
+      },
+      "version": 5
     },
     {
       "name": "update_individual_period",
@@ -34474,7 +36712,13 @@
           "sostituire i tratti di date"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Individuelles Abrechnungsschema ändern",
+        "en": "Update an individual period scheme",
+        "fr": "Modifier un schéma de période individuel",
+        "it": "Modifica uno schema di periodo individuale"
+      },
+      "version": 5
     },
     {
       "name": "delete_individual_period",
@@ -34536,7 +36780,13 @@
           "tornare al mese solare"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Individuelles Abrechnungsschema löschen",
+        "en": "Delete an individual period scheme",
+        "fr": "Supprimer un schéma de période individuel",
+        "it": "Elimina uno schema di periodo individuale"
+      },
+      "version": 5
     },
     {
       "name": "list_spam_rules",
@@ -34594,7 +36844,13 @@
           "domini bloccati"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Spam-Regeln auflisten",
+        "en": "List spam rules",
+        "fr": "Lister les règles anti-spam",
+        "it": "Elenca le regole antispam"
+      },
+      "version": 5
     },
     {
       "name": "create_spam_rule",
@@ -34672,7 +36928,13 @@
           "aggiungere un modello di spam"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Neue Spam-Regel anlegen",
+        "en": "Create a new spam rule",
+        "fr": "Créer une nouvelle règle anti-spam",
+        "it": "Crea una nuova regola antispam"
+      },
+      "version": 5
     },
     {
       "name": "update_spam_rule",
@@ -34772,7 +37034,13 @@
           "disattivare un blocco"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Spam-Regel ändern",
+        "en": "Update a spam rule",
+        "fr": "Modifier une règle anti-spam",
+        "it": "Modifica una regola antispam"
+      },
+      "version": 5
     },
     {
       "name": "delete_spam_rule",
@@ -34835,7 +37103,13 @@
           "consentire di nuovo quel dominio"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Spam-Regel löschen",
+        "en": "Delete a spam rule",
+        "fr": "Supprimer une règle anti-spam",
+        "it": "Elimina una regola antispam"
+      },
+      "version": 5
     },
     {
       "name": "list_export_format_overrides",
@@ -34896,7 +37170,13 @@
           "separatore personalizzato"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Anpassungen der Exportformate auflisten",
+        "en": "List export format overrides",
+        "fr": "Lister les personnalisations des formats d'export",
+        "it": "Elenca le personalizzazioni dei formati di esportazione"
+      },
+      "version": 5
     },
     {
       "name": "set_export_format_override",
@@ -34981,7 +37261,13 @@
           "rinominare una colonna dell esportazione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Export-Format-Anpassung festlegen",
+        "en": "Override an export format",
+        "fr": "Définir une adaptation de format d'export",
+        "it": "Imposta una personalizzazione del formato di esportazione"
+      },
+      "version": 5
     },
     {
       "name": "delete_export_format_override",
@@ -35038,7 +37324,13 @@
           "rimuovere l adattamento dell esportazione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Anpassung eines Exportformats entfernen",
+        "en": "Remove an export format override",
+        "fr": "Supprimer une personnalisation de format d'export",
+        "it": "Rimuovi una personalizzazione del formato di esportazione"
+      },
+      "version": 5
     },
     {
       "name": "get_erp_drop_point_settings",
@@ -35100,7 +37392,13 @@
           "dove copio il file xml dell'ordine"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Einstellungen des ERP-Übergabepunkts",
+        "en": "ERP drop point settings",
+        "fr": "Paramètres du point de dépôt ERP",
+        "it": "Impostazioni del punto di consegna ERP"
+      },
+      "version": 6
     },
     {
       "name": "update_erp_drop_point_settings",
@@ -35187,7 +37485,13 @@
           "disattivare il prelievo"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "ERP-Übergabepunkt ändern",
+        "en": "Update an ERP drop point",
+        "fr": "Modifier un point de dépôt ERP",
+        "it": "Modifica un punto di consegna ERP"
+      },
+      "version": 5
     },
     {
       "name": "list_erp_import_tokens",
@@ -35248,7 +37552,13 @@
           "chiavi per consegnare file"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "ERP-Import-Schlüssel auflisten",
+        "en": "List ERP import tokens",
+        "fr": "Lister les jetons d'import ERP",
+        "it": "Elenca i token di importazione ERP"
+      },
+      "version": 5
     },
     {
       "name": "create_erp_import_token",
@@ -35296,7 +37606,13 @@
           "nuova chiave per il sistema esterno"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Erklärung zum Ausstellen eines ERP-Import-Schlüssels",
+        "en": "Explanation of issuing an ERP import key",
+        "fr": "Explication de l'émission d'une clé d'importation ERP",
+        "it": "Spiegazione del rilascio di una chiave di importazione ERP"
+      },
+      "version": 6
     },
     {
       "name": "revoke_erp_import_token",
@@ -35361,7 +37677,13 @@
           "invalidare la chiave del sistema esterno"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "ERP-Import-Schlüssel widerrufen",
+        "en": "Revoke an ERP import token",
+        "fr": "Révoquer un jeton d'import ERP",
+        "it": "Revoca un token di importazione ERP"
+      },
+      "version": 5
     },
     {
       "name": "create_report_template",
@@ -35456,7 +37778,13 @@
           "nuovo modello di rapporto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Neue Berichtsvorlage anlegen",
+        "en": "Create a new report template",
+        "fr": "Créer un nouveau modèle de rapport",
+        "it": "Crea un nuovo modello di report"
+      },
+      "version": 5
     },
     {
       "name": "update_report_template",
@@ -35558,7 +37886,13 @@
           "rinominare un modello di rapporto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Berichtsvorlage ändern",
+        "en": "Update a report template",
+        "fr": "Modifier un modèle de rapport",
+        "it": "Modifica un modello di report"
+      },
+      "version": 5
     },
     {
       "name": "delete_report_template",
@@ -35615,7 +37949,13 @@
           "rimuovere un modello di rapporto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Berichtsvorlage löschen",
+        "en": "Delete a report template",
+        "fr": "Supprimer un modèle de rapport",
+        "it": "Elimina un modello di report"
+      },
+      "version": 5
     },
     {
       "name": "update_user",
@@ -35713,7 +38053,13 @@
           "cambiare il nome di accesso di un utente"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Kontodaten eines anderen Benutzers ändern",
+        "en": "Update another user's account",
+        "fr": "Modifier le compte d'un autre utilisateur",
+        "it": "Modifica l'account di un altro utente"
+      },
+      "version": 5
     },
     {
       "name": "list_feature_plugins",
@@ -35774,7 +38120,13 @@
           "moduli disponibili"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Funktionsmodule auflisten",
+        "en": "List feature modules",
+        "fr": "Lister les modules de fonctionnalité",
+        "it": "Elenca i moduli funzionalità"
+      },
+      "version": 5
     },
     {
       "name": "install_feature_plugin",
@@ -35831,7 +38183,13 @@
           "aggiungere un estensione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Funktionsmodul installieren",
+        "en": "Install a feature module",
+        "fr": "Installer un module de fonctionnalité",
+        "it": "Installa un modulo funzionalità"
+      },
+      "version": 5
     },
     {
       "name": "uninstall_feature_plugin",
@@ -35888,7 +38246,13 @@
           "rimuovere un estensione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Feature-Modul deinstallieren",
+        "en": "Uninstall a feature plugin",
+        "fr": "Désinstaller un module de fonctionnalité",
+        "it": "Disinstalla un modulo funzionale"
+      },
+      "version": 5
     },
     {
       "name": "enable_feature_plugin",
@@ -35945,7 +38309,13 @@
           "accendere un estensione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Feature-Modul aktivieren",
+        "en": "Enable a feature module",
+        "fr": "Activer un module de fonctionnalité",
+        "it": "Attiva un modulo funzionalità"
+      },
+      "version": 5
     },
     {
       "name": "disable_feature_plugin",
@@ -36002,7 +38372,13 @@
           "mettere in pausa un estensione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Feature-Modul deaktivieren",
+        "en": "Disable a feature module",
+        "fr": "Désactiver un module de fonctionnalité",
+        "it": "Disattiva un modulo funzionalità"
+      },
+      "version": 5
     },
     {
       "name": "get_active_industries_settings",
@@ -36053,7 +38429,13 @@
           "profilo settoriale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Aktive Branchen-Einstellungen",
+        "en": "Active industries settings",
+        "fr": "Paramètres des secteurs actifs",
+        "it": "Impostazioni dei settori attivi"
+      },
+      "version": 5
     },
     {
       "name": "update_active_industries_settings",
@@ -36111,7 +38493,13 @@
           "passare a regole interne"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Aktive Branchen festlegen",
+        "en": "Set the active industries",
+        "fr": "Définir les secteurs d'activité actifs",
+        "it": "Imposta i settori attivi"
+      },
+      "version": 6
     },
     {
       "name": "get_compliance_enforcement_settings",
@@ -36164,7 +38552,13 @@
           "un superiore puo forzare"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Einstellungen zur Einhaltung der Arbeitszeitvorschriften",
+        "en": "Compliance enforcement settings",
+        "fr": "Paramètres d'application de la conformité",
+        "it": "Impostazioni di applicazione della conformità"
+      },
+      "version": 5
     },
     {
       "name": "update_compliance_enforcement_settings",
@@ -36337,7 +38731,13 @@
           "consentire la forzatura"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Einstellungen zur Arbeitszeit-Durchsetzung ändern",
+        "en": "Update compliance enforcement settings",
+        "fr": "Modifier les paramètres d'application de la conformité",
+        "it": "Modifica le impostazioni di applicazione della conformità"
+      },
+      "version": 5
     },
     {
       "name": "get_compensatory_rest_settings",
@@ -36389,7 +38789,13 @@
           "quanto resta aperto il diritto"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Einstellungen zum Ausgleichsruhetag",
+        "en": "Compensatory rest settings",
+        "fr": "Paramètres du repos compensatoire",
+        "it": "Impostazioni del riposo compensativo"
+      },
+      "version": 5
     },
     {
       "name": "update_compensatory_rest_settings",
@@ -36452,7 +38858,13 @@
           "modificare il termine di compensazione"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Ausgleichsruhe-Einstellungen ändern",
+        "en": "Update compensatory rest settings",
+        "fr": "Modifier les paramètres de repos compensatoire",
+        "it": "Modifica le impostazioni di riposo compensativo"
+      },
+      "version": 6
     },
     {
       "name": "get_surcharge_mode_settings",
@@ -36506,7 +38918,13 @@
           "quando inizia la notte"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zuschlags-Berechnungsmodus",
+        "en": "Surcharge calculation mode",
+        "fr": "Mode de calcul des suppléments",
+        "it": "Modalità di calcolo delle maggiorazioni"
+      },
+      "version": 5
     },
     {
       "name": "update_surcharge_mode_settings",
@@ -36663,7 +39081,13 @@
           "spostare la fascia notturna"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Zuschlags-Einstellungen ändern",
+        "en": "Update surcharge settings",
+        "fr": "Modifier les paramètres de majoration",
+        "it": "Modifica le impostazioni di maggiorazione"
+      },
+      "version": 5
     },
     {
       "name": "get_overtime_settings",
@@ -36712,7 +39136,13 @@
           "scaglioni delle ore aggiuntive"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Überstunden-Einstellungen",
+        "en": "Overtime settings",
+        "fr": "Paramètres des heures supplémentaires",
+        "it": "Impostazioni degli straordinari"
+      },
+      "version": 5
     },
     {
       "name": "update_overtime_settings",
@@ -36825,7 +39255,13 @@
           "spostare uno scaglione"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Überstunden-Einstellungen ändern",
+        "en": "Update overtime settings",
+        "fr": "Modifier les paramètres des heures supplémentaires",
+        "it": "Modifica le impostazioni degli straordinari"
+      },
+      "version": 5
     },
     {
       "name": "get_wizard_settings",
@@ -36872,7 +39308,13 @@
           "modello per rielaborare l intero piano"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "KI-Modell des Planungsassistenten",
+        "en": "Scheduling wizard AI model",
+        "fr": "Modèle IA de l'assistant de planification",
+        "it": "Modello IA dell'assistente di pianificazione"
+      },
+      "version": 5
     },
     {
       "name": "update_wizard_settings",
@@ -36926,7 +39368,13 @@
           "cambiare il modello dell armonizzatore"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "KI-Modell des Planungs-Assistenten ändern",
+        "en": "Update the scheduling wizard's AI model",
+        "fr": "Modifier le modèle IA de l'assistant de planification",
+        "it": "Modifica il modello IA dell'assistente di pianificazione"
+      },
+      "version": 5
     },
     {
       "name": "get_export_formats_settings",
@@ -36974,7 +39422,13 @@
           "sistema paghe predefinito"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Einstellungen der Exportformate",
+        "en": "Export formats settings",
+        "fr": "Paramètres des formats d'exportation",
+        "it": "Impostazioni dei formati di esportazione"
+      },
+      "version": 5
     },
     {
       "name": "update_export_formats_settings",
@@ -37039,7 +39493,13 @@
           "impostare il sistema paghe predefinito"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Exportformat-Einstellungen ändern",
+        "en": "Update export format settings",
+        "fr": "Modifier les paramètres des formats d'export",
+        "it": "Modifica le impostazioni dei formati di esportazione"
+      },
+      "version": 5
     },
     {
       "name": "get_grid_color_settings",
@@ -37090,7 +39550,13 @@
           "colore di sfondo dei giorni festivi"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Farbeinstellungen der Planungstafel",
+        "en": "Schedule board color settings",
+        "fr": "Couleurs du tableau de planification",
+        "it": "Colori della tabella di pianificazione"
+      },
+      "version": 5
     },
     {
       "name": "update_grid_color_settings",
@@ -37284,7 +39750,13 @@
           "ricolorare lo sfondo del tabellone"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Farbeinstellungen des Planungsrasters ändern",
+        "en": "Update schedule grid colour settings",
+        "fr": "Modifier les couleurs de la grille de planification",
+        "it": "Modifica i colori della griglia di pianificazione"
+      },
+      "version": 5
     },
     {
       "name": "get_openroute_settings",
@@ -37334,7 +39806,13 @@
           "da quale tragitto si conteggia"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Fahrzeit-Einstellungen (Routing)",
+        "en": "Travel-time routing settings",
+        "fr": "Paramètres de temps de trajet (routage)",
+        "it": "Impostazioni tempi di percorrenza (routing)"
+      },
+      "version": 5
     },
     {
       "name": "update_openroute_settings",
@@ -37415,7 +39893,13 @@
           "salvare la chiave del servizio di percorso"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Fahrzeit-Einstellungen ändern",
+        "en": "Update travel-time settings",
+        "fr": "Modifier les paramètres de temps de trajet",
+        "it": "Modifica le impostazioni dei tempi di percorrenza"
+      },
+      "version": 5
     },
     {
       "name": "update_speech_settings",
@@ -37597,7 +40081,13 @@
           "attivare la lettura ad alta voce"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Spracheinstellungen ändern",
+        "en": "Update speech settings",
+        "fr": "Modifier les paramètres vocaux",
+        "it": "Modifica le impostazioni vocali"
+      },
+      "version": 5
     },
     {
       "name": "list_skill_relations",
@@ -37655,7 +40145,13 @@
           "collegamenti appresi tra capacita"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Skill-Verknüpfungen auflisten",
+        "en": "List skill relations",
+        "fr": "Lister les relations entre compétences",
+        "it": "Elenca le relazioni tra abilità"
+      },
+      "version": 5
     },
     {
       "name": "accept_skill_relation",
@@ -37712,7 +40208,13 @@
           "approvare il collegamento"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Vorgeschlagene Skill-Verknüpfung bestätigen",
+        "en": "Confirm a proposed skill relation",
+        "fr": "Confirmer une relation de compétences proposée",
+        "it": "Conferma una relazione tra abilità proposta"
+      },
+      "version": 5
     },
     {
       "name": "dismiss_skill_relation",
@@ -37769,7 +40271,13 @@
           "quel collegamento e sbagliato"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Vorgeschlagene Skill-Verknüpfung ablehnen",
+        "en": "Dismiss a proposed skill relation",
+        "fr": "Rejeter une relation de compétences proposée",
+        "it": "Rifiuta una relazione tra abilità proposta"
+      },
+      "version": 5
     },
     {
       "name": "get_whisper_plugin_status",
@@ -37817,7 +40325,13 @@
           "modello locale di riconoscimento vocale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Status der lokalen Spracherkennung",
+        "en": "Local speech recognition status",
+        "fr": "État de la reconnaissance vocale locale",
+        "it": "Stato del riconoscimento vocale locale"
+      },
+      "version": 5
     },
     {
       "name": "install_whisper_plugin",
@@ -37877,7 +40391,13 @@
           "installare il modello vocale locale"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Lokale Spracherkennung installieren",
+        "en": "Install local speech recognition",
+        "fr": "Installer la reconnaissance vocale locale",
+        "it": "Installa il riconoscimento vocale locale"
+      },
+      "version": 5
     },
     {
       "name": "uninstall_whisper_plugin",
@@ -37925,7 +40445,13 @@
           "disinstallare il modello vocale locale"
         ]
       },
-      "version": 5
+      "labels": {
+        "de": "Lokales Spracherkennungs-Modell deinstallieren",
+        "en": "Uninstall the local speech recognition model",
+        "fr": "Désinstaller le modèle de reconnaissance vocale local",
+        "it": "Disinstalla il modello di riconoscimento vocale locale"
+      },
+      "version": 6
     },
     {
       "name": "optimize_llm_models_for_klacksy",
@@ -37975,7 +40501,13 @@
           "provare i modelli e selezionarli"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "LLM-Modelle für Klacksy optimieren",
+        "en": "Optimize LLM models for Klacksy",
+        "fr": "Optimiser les modèles LLM pour Klacksy",
+        "it": "Ottimizza i modelli LLM per Klacksy"
+      },
+      "version": 5
     },
     {
       "name": "set_default_llm_model",
@@ -38033,7 +40565,13 @@
           "far usare questo modello all assistente"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "Standard-LLM-Modell festlegen",
+        "en": "Set the default LLM model",
+        "fr": "Définir le modèle LLM par défaut",
+        "it": "Imposta il modello LLM predefinito"
+      },
+      "version": 5
     },
     {
       "name": "list_llm_sync_log",
@@ -38091,7 +40629,13 @@
           "perche un modello e sparito"
         ]
       },
-      "version": 4
+      "labels": {
+        "de": "LLM-Katalog-Abgleich-Protokoll anzeigen",
+        "en": "View the LLM catalogue sync log",
+        "fr": "Consulter le journal de synchronisation du catalogue LLM",
+        "it": "Visualizza il registro di sincronizzazione del catalogo LLM"
+      },
+      "version": 5
     },
     {
       "name": "explain_scheduling_rules_model",
@@ -38186,7 +40730,13 @@
           "limite superato"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Planungsregeln-Modell erklären",
+        "en": "Explain the scheduling rules model",
+        "fr": "Expliquer le modèle des règles de planification",
+        "it": "Spiega il modello delle regole di pianificazione"
+      },
+      "version": 3
     },
     {
       "name": "explain_compliance_rules_model",
@@ -38282,7 +40832,13 @@
           "quanti turni notturni"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Compliance-Regelmodell erklären",
+        "en": "Explain the compliance rules model",
+        "fr": "Expliquer le modèle des règles de conformité",
+        "it": "Spiega il modello delle regole di conformità"
+      },
+      "version": 3
     },
     {
       "name": "explain_calendar_model",
@@ -38374,7 +40930,13 @@
           "festività cantonale"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Feiertagsmodell erklären",
+        "en": "Explain the public holiday model",
+        "fr": "Expliquer le modèle des jours fériés",
+        "it": "Spiega il modello dei giorni festivi"
+      },
+      "version": 3
     },
     {
       "name": "explain_active_industries",
@@ -38448,7 +41010,13 @@
           "qualifica mancante nell elenco"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Erklärung der aktiven Branchen",
+        "en": "Explanation of active industries",
+        "fr": "Explication des secteurs actifs",
+        "it": "Spiegazione dei settori attivi"
+      },
+      "version": 3
     },
     {
       "name": "explain_overtime_model",
@@ -38525,7 +41093,13 @@
           "perché nessuno straordinario"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Überstundenmodell erklären",
+        "en": "Explain the overtime model",
+        "fr": "Expliquer le modèle d'heures supplémentaires",
+        "it": "Spiega il modello degli straordinari"
+      },
+      "version": 3
     },
     {
       "name": "explain_identity_providers",
@@ -38605,7 +41179,13 @@
           "accesso con account aziendale"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Anmeldung über Verzeichnisdienst oder SSO",
+        "en": "Sign-in via directory service or SSO",
+        "fr": "Connexion via annuaire ou SSO",
+        "it": "Accesso tramite directory o SSO"
+      },
+      "version": 3
     },
     {
       "name": "explain_individual_periods",
@@ -38663,7 +41243,13 @@
           "definizione del periodo"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Individuelle Abrechnungsschemas erklären",
+        "en": "Explain individual period schemes",
+        "fr": "Expliquer les schémas de période individuels",
+        "it": "Spiega gli schemi di periodo individuali"
+      },
+      "version": 3
     },
     {
       "name": "explain_export_formats_model",
@@ -38748,7 +41334,13 @@
           "correzione esportazione"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Export-Formate für Lohn- und Buchhaltungsdaten erklären",
+        "en": "Explain payroll and bookkeeping export formats",
+        "fr": "Expliquer les formats d'export pour la paie et la comptabilité",
+        "it": "Spiega i formati di esportazione per paghe e contabilità"
+      },
+      "version": 3
     },
     {
       "name": "explain_report_designer",
@@ -38831,7 +41423,13 @@
           "modello predefinito"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Erklärung des Berichts-Designers",
+        "en": "Explanation of the report designer",
+        "fr": "Explication du concepteur de rapports",
+        "it": "Spiegazione del designer di report"
+      },
+      "version": 3
     },
     {
       "name": "explain_spam_rules",
@@ -38899,7 +41497,13 @@
           "cartella posta indesiderata"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Spam-Regeln erklären",
+        "en": "Explain spam rules",
+        "fr": "Expliquer les règles anti-spam",
+        "it": "Spiega le regole antispam"
+      },
+      "version": 3
     },
     {
       "name": "explain_surcharge_mode",
@@ -38979,7 +41583,13 @@
           "finestra notturna"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Zuschlagsmodus erklären",
+        "en": "Explain the surcharge mode",
+        "fr": "Expliquer le mode de majoration",
+        "it": "Spiega la modalità di maggiorazione"
+      },
+      "version": 3
     },
     {
       "name": "explain_software_updates",
@@ -39060,7 +41670,13 @@
           "canale beta"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Software-Updates erklären",
+        "en": "Explain software updates",
+        "fr": "Expliquer les mises à jour logicielles",
+        "it": "Spiega gli aggiornamenti software"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_speech_setup",
@@ -39146,7 +41762,13 @@
           "dizionario di trascrizione"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Sprachein- und -ausgabe von Klacksy erklären",
+        "en": "Explain Klacksy's speech setup",
+        "fr": "Expliquer la configuration vocale de Klacksy",
+        "it": "Spiega la configurazione vocale di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "explain_whisper_setup",
@@ -39211,7 +41833,13 @@
           "scaricare il modello"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Lokale Spracherkennung (Whisper) erklären",
+        "en": "Explain the local speech recognition setup",
+        "fr": "Expliquer la reconnaissance vocale locale (Whisper)",
+        "it": "Spiega il riconoscimento vocale locale (Whisper)"
+      },
+      "version": 3
     },
     {
       "name": "explain_klacksy_skill_relations",
@@ -39289,7 +41917,13 @@
           "rifiutare osservazione"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Skill-Verknüpfungen von Klacksy erklären",
+        "en": "Explain Klacksy's skill relations",
+        "fr": "Expliquer les relations entre compétences de Klacksy",
+        "it": "Spiega le relazioni tra abilità di Klacksy"
+      },
+      "version": 3
     },
     {
       "name": "set_my_theme",
@@ -39351,7 +41985,7 @@
           "colour scheme"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "dunkelmodus einschalten",
@@ -39381,6 +42015,12 @@
           "schermo troppo luminoso",
           "cambiare la combinazione di colori"
         ]
+      },
+      "labels": {
+        "de": "Eigenes Farbschema ändern",
+        "en": "Change my colour theme",
+        "fr": "Changer mon thème de couleur",
+        "it": "Cambia il mio tema colore"
       }
     },
     {
@@ -39435,7 +42075,7 @@
           "switch language"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "meine anzeigesprache umstellen",
@@ -39465,6 +42105,12 @@
           "mostrare i menu nella mia lingua",
           "modificare la lingua delle etichette"
         ]
+      },
+      "labels": {
+        "de": "Eigene Anzeigesprache ändern",
+        "en": "Change my display language",
+        "fr": "Changer ma langue d'affichage",
+        "it": "Cambia la mia lingua di visualizzazione"
       }
     },
     {
@@ -39511,7 +42157,7 @@
           "absences as pdf"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "ferienplan ausdrucken",
@@ -39537,6 +42183,12 @@
           "panoramica annuale delle assenze in pdf",
           "stampare il calendario delle assenze"
         ]
+      },
+      "labels": {
+        "de": "Absenzen-Jahresübersicht als PDF exportieren",
+        "en": "Export the yearly absence sheet as PDF",
+        "fr": "Exporter le calendrier annuel des absences en PDF",
+        "it": "Esporta il calendario annuale delle assenze in PDF"
       }
     },
     {
@@ -39584,7 +42236,7 @@
           "new folder"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "neuen e-mail-ordner erstellen",
@@ -39614,6 +42266,12 @@
           "aggiungere una cartella alla casella",
           "creare una cartella per le email"
         ]
+      },
+      "labels": {
+        "de": "Neuen E-Mail-Ordner anlegen",
+        "en": "Create a new email folder",
+        "fr": "Créer un nouveau dossier e-mail",
+        "it": "Crea una nuova cartella e-mail"
       }
     },
     {
@@ -39653,7 +42311,7 @@
           "remove folder"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "e-mail-ordner löschen",
@@ -39683,6 +42341,12 @@
           "cancellare una cartella della casella",
           "eliminare una vecchia cartella"
         ]
+      },
+      "labels": {
+        "de": "E-Mail-Ordner löschen",
+        "en": "Delete an email folder",
+        "fr": "Supprimer un dossier e-mail",
+        "it": "Elimina una cartella e-mail"
       }
     },
     {
@@ -39746,7 +42410,7 @@
           "emails from"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "mails von kunde",
@@ -39772,6 +42436,12 @@
           "corrispondenza con il cliente",
           "posta di questo contatto"
         ]
+      },
+      "labels": {
+        "de": "E-Mails eines Kunden auflisten",
+        "en": "List emails by customer",
+        "fr": "Lister les e-mails d'un client",
+        "it": "Elenca le e-mail di un cliente"
       }
     },
     {
@@ -39819,7 +42489,7 @@
           "group emails"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "mails vom team",
@@ -39845,6 +42515,12 @@
           "posta di questo reparto",
           "casella di questa sede"
         ]
+      },
+      "labels": {
+        "de": "E-Mails einer Gruppe auflisten",
+        "en": "List emails by group",
+        "fr": "Lister les e-mails d'un groupe",
+        "it": "Elenca le e-mail di un gruppo"
       }
     },
     {
@@ -39875,7 +42551,7 @@
           "unread overview"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "wo liegt unbearbeitete post",
@@ -39901,6 +42577,12 @@
           "dove si accumula la posta non letta",
           "panoramica della posta per gruppo"
         ]
+      },
+      "labels": {
+        "de": "Offene E-Mails je Gruppe und Kunde",
+        "en": "Unread email backlog by group and customer",
+        "fr": "E-mails en attente par groupe et client",
+        "it": "E-mail aperte per gruppo e cliente"
       }
     },
     {
@@ -39953,7 +42635,7 @@
           "work entries in the order"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "was steckt im auftrag",
@@ -39979,6 +42661,12 @@
           "ore dell'ordine",
           "turni nell'ordine"
         ]
+      },
+      "labels": {
+        "de": "Arbeitseinträge eines versiegelten Auftrags anzeigen",
+        "en": "Show work entries of a sealed order",
+        "fr": "Afficher les entrées de travail d'une commande scellée",
+        "it": "Mostra le voci di lavoro di un ordine sigillato"
       }
     },
     {
@@ -40043,7 +42731,7 @@
           "reclassify as"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "personentyp wechseln",
@@ -40069,6 +42757,12 @@
           "convertire in dipendente",
           "cambiare la categoria della persona"
         ]
+      },
+      "labels": {
+        "de": "Personentyp ändern",
+        "en": "Change a person's type",
+        "fr": "Modifier le type de personne",
+        "it": "Modifica il tipo di persona"
       }
     },
     {
@@ -40121,7 +42815,7 @@
           "unassign contract"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "vertrag beim mitarbeiter aufheben",
@@ -40147,6 +42841,12 @@
           "annullare l'assegnazione del contratto",
           "rimuovere il contratto assegnato"
         ]
+      },
+      "labels": {
+        "de": "Vertragszuordnung eines Mitarbeitenden entfernen",
+        "en": "Remove an employee's contract assignment",
+        "fr": "Retirer l'attribution de contrat d'un employé",
+        "it": "Rimuovi l'assegnazione del contratto di un dipendente"
       }
     },
     {
@@ -40199,7 +42899,7 @@
           "revoke certificate"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "qualifikation beim mitarbeiter entfernen",
@@ -40225,6 +42925,12 @@
           "revocare il certificato del dipendente",
           "annullare la competenza registrata"
         ]
+      },
+      "labels": {
+        "de": "Qualifikation einer Person entfernen",
+        "en": "Remove a person's qualification",
+        "fr": "Retirer la qualification d'une personne",
+        "it": "Rimuovi la qualifica di una persona"
       }
     },
     {
@@ -40255,7 +42961,7 @@
           "absence interrupts consecutive run"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "blockiert eine absenz die planung",
@@ -40286,6 +42992,12 @@
           "l assenza conta nel massimo settimanale",
           "l assenza interrompe la serie di giorni"
         ]
+      },
+      "labels": {
+        "de": "Planungssperre durch Absenzen erklären",
+        "en": "Explain how absences block planning",
+        "fr": "Expliquer le blocage de la planification par les absences",
+        "it": "Spiega come le assenze bloccano la pianificazione"
       }
     },
     {
@@ -40316,7 +43028,7 @@
           "where do absence hours come from"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "wert spalte stimmt nicht mit den stunden überein",
@@ -40344,6 +43056,12 @@
           "perché il calendario mostra un numero diverso",
           "il calendario sottrae i giorni festivi dal valore"
         ]
+      },
+      "labels": {
+        "de": "Absenz-Wert gegenüber Absenz-Stunden erklären",
+        "en": "Explain absence value versus absence hours",
+        "fr": "Expliquer la valeur d'absence par rapport aux heures",
+        "it": "Spiega il valore dell'assenza rispetto alle ore"
       }
     },
     {
@@ -40374,7 +43092,7 @@
           "duplicate absence"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "kann ich zwei überlappende ferien anlegen",
@@ -40404,6 +43122,12 @@
           "un assenza sovrapposta viene rifiutata",
           "malattia e ferie lo stesso giorno"
         ]
+      },
+      "labels": {
+        "de": "Ungeprüfte Absenz-Überschneidungen erklären",
+        "en": "Explain unchecked absence overlaps",
+        "fr": "Expliquer les chevauchements d'absences non bloqués",
+        "it": "Spiega le sovrapposizioni di assenze non bloccate"
       }
     },
     {
@@ -40434,7 +43158,7 @@
           "unpaid keeps unchecking"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "was bewirkt samstag wird berechnet",
@@ -40464,6 +43188,12 @@
           "perché non pagato si deseleziona da solo",
           "a cosa serve si applica anche al container"
         ]
+      },
+      "labels": {
+        "de": "Schalter einer Abwesenheitsart erklären",
+        "en": "Explain an absence type's flags",
+        "fr": "Expliquer les indicateurs d'un type d'absence",
+        "it": "Spiega gli interruttori di un tipo di assenza"
       }
     },
     {
@@ -40495,7 +43225,7 @@
           "inherit settings"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "vererbt sich das zahlungsintervall an untergruppen",
@@ -40527,6 +43257,12 @@
           "un'impostazione viene ereditata dai sottogruppi",
           "il bilancio ore include i sottogruppi"
         ]
+      },
+      "labels": {
+        "de": "Vererbung in der Gruppenhierarchie erklären",
+        "en": "Explain inheritance in the group hierarchy",
+        "fr": "Expliquer l'héritage dans la hiérarchie des groupes",
+        "it": "Spiega l'ereditarietà nella gerarchia dei gruppi"
       }
     },
     {
@@ -40557,7 +43293,7 @@
           "group-less still visible"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "was sieht ein benutzer ohne sichtbarkeitsbereich",
@@ -40587,6 +43323,12 @@
           "cosa succede se non configuro alcuna visibilità",
           "perché la dashboard è vuota ma la pianificazione no"
         ]
+      },
+      "labels": {
+        "de": "Blinde Flecken der Gruppen-Sichtbarkeit erklären",
+        "en": "Explain group visibility blind spots",
+        "fr": "Expliquer les angles morts de la visibilité des groupes",
+        "it": "Spiega i punti ciechi della visibilità dei gruppi"
       }
     },
     {
@@ -40617,7 +43359,7 @@
           "planner candidate pool"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "warum schlägt der planungs-assistent diese person nicht vor",
@@ -40647,6 +43389,12 @@
           "cosa succede ai turni già pianificati",
           "la validità dell'appartenenza controlla la pianificazione"
         ]
+      },
+      "labels": {
+        "de": "Gültigkeit der Gruppenmitgliedschaft erklären",
+        "en": "Explain group membership validity",
+        "fr": "Expliquer la validité de l'appartenance à un groupe",
+        "it": "Spiega la validità dell'appartenenza a un gruppo"
       }
     },
     {
@@ -40677,7 +43425,7 @@
           "legal entity must be customer"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "juristische person kunde pflicht",
@@ -40708,6 +43456,12 @@
           "casella persona giuridica",
           "tipo passa automaticamente a cliente"
         ]
+      },
+      "labels": {
+        "de": "Regel zur juristischen Person erklären",
+        "en": "Explain the legal entity rule",
+        "fr": "Expliquer la règle de la personne morale",
+        "it": "Spiega la regola della persona giuridica"
       }
     },
     {
@@ -40738,7 +43492,7 @@
           "re-entry"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "mitgliedschaft hat keine historie",
@@ -40765,6 +43519,12 @@
           "rientro sovrascrive la data di ingresso",
           "tipo di appartenenza senza effetto"
         ]
+      },
+      "labels": {
+        "de": "Einzeiliges Mitgliedschaftsmodell erklären",
+        "en": "Explain the single-row membership model",
+        "fr": "Expliquer le modèle d'affiliation à ligne unique",
+        "it": "Spiega il modello di affiliazione a riga singola"
       }
     },
     {
@@ -40795,7 +43555,7 @@
           "receive password"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "neuer benutzer bekommt keine mail",
@@ -40821,6 +43581,12 @@
           "come ottenere la prima password",
           "reimpostare da soli la password dimenticata"
         ]
+      },
+      "labels": {
+        "de": "Erstellungswege für Benutzerkonten",
+        "en": "Ways to create a user account",
+        "fr": "Façons de créer un compte utilisateur",
+        "it": "Modi per creare un account utente"
       }
     },
     {
@@ -40851,7 +43617,7 @@
           "token validity"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "token hat dieselben rechte wie login",
@@ -40875,6 +43641,12 @@
           "il token ha gli stessi diritti del login",
           "durata massima di validità di un token"
         ]
+      },
+      "labels": {
+        "de": "Erklärung zu persönlichen Zugriffstoken",
+        "en": "About personal access tokens",
+        "fr": "À propos des jetons d'accès personnels",
+        "it": "Informazioni sui token di accesso personali"
       }
     },
     {
@@ -40907,7 +43679,7 @@
           "sick leave from email"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "warum wurde automatisch eine krankmeldung angelegt",
@@ -40937,6 +43709,12 @@
           "l'email ha attivato un'azione di pianificazione",
           "richiesta di ferie via email non applicata"
         ]
+      },
+      "labels": {
+        "de": "E-Mail-Automatisierung erklären",
+        "en": "Explain email action automation",
+        "fr": "Expliquer l'automatisation des actions e-mail",
+        "it": "Spiega l'automazione delle azioni e-mail"
       }
     },
     {
@@ -40969,7 +43747,7 @@
           "email disappeared"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "ist die mail wirklich weg",
@@ -41001,6 +43779,12 @@
           "l'email eliminata esiste ancora nel database",
           "differenza tra server di posta e archivio klacks"
         ]
+      },
+      "labels": {
+        "de": "E-Mail-Speicherung und -Löschung erklären",
+        "en": "Explain email storage and deletion",
+        "fr": "Expliquer le stockage et la suppression des e-mails",
+        "it": "Spiega l'archiviazione e l'eliminazione delle e-mail"
       }
     },
     {
@@ -41034,7 +43818,7 @@
           "shift classification"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "wann gilt eine schicht als nachtschicht",
@@ -41059,6 +43843,12 @@
           "perché il mio turno mattutino è trattato come sera",
           "confine tra mattina e sera"
         ]
+      },
+      "labels": {
+        "de": "Klassifizierung früh/spät/nacht erklären",
+        "en": "Explain early/late/night shift classification",
+        "fr": "Expliquer la classification matin/après-midi/nuit des services",
+        "it": "Spiega la classificazione turni mattina/pomeriggio/notte"
       }
     },
     {
@@ -41091,7 +43881,7 @@
           "payroll add-on"
         ]
       },
-      "version": 2,
+      "version": 3,
       "synonyms": {
         "de": [
           "warum fehlt die lohndatei nach dem versiegeln",
@@ -41119,6 +43909,12 @@
           "il trasferimento paghe avviene una sola volta",
           "ottenere i dati corretti dopo la riapertura"
         ]
+      },
+      "labels": {
+        "de": "Automatische Lohn-Übergabe an Drittsysteme erklären",
+        "en": "Explain the automatic payroll export handoff",
+        "fr": "Expliquer la transmission automatique de la paie",
+        "it": "Spiega la trasmissione automatica delle paghe"
       }
     },
     {
@@ -41198,7 +43994,13 @@
           "voglio donare"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "Spenden-Zahlungslink erstellen",
+        "en": "Create a donation payment link",
+        "fr": "Créer un lien de paiement pour un don",
+        "it": "Crea un link di pagamento per una donazione"
+      },
+      "version": 2
     },
     {
       "name": "check_erp_drop_point_folder_health",
@@ -41253,7 +44055,13 @@
           "la cartella sopravvive a un riavvio"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "ERP-Übergabeordner-Zustand prüfen",
+        "en": "Check ERP drop point folder health",
+        "fr": "Vérifier l'état du dossier de dépôt ERP",
+        "it": "Verifica lo stato della cartella di consegna ERP"
+      },
+      "version": 2
     },
     {
       "name": "explain_plugin_architecture",
@@ -41315,7 +44123,13 @@
           "registrar del plugin"
         ]
       },
-      "version": 1
+      "labels": {
+        "de": "Plugin-Architektur erklären",
+        "en": "Explain the plugin architecture",
+        "fr": "Expliquer l'architecture des plugins",
+        "it": "Spiega l'architettura dei plugin"
+      },
+      "version": 2
     },
     {
       "name": "get_setup_guidance",
@@ -41419,7 +44233,13 @@
           "differenza tra ordine e servizio"
         ]
       },
-      "version": 2
+      "labels": {
+        "de": "Einrichtungsstatus der Installation",
+        "en": "Installation setup status",
+        "fr": "État de configuration de l'installation",
+        "it": "Stato di configurazione dell'installazione"
+      },
+      "version": 3
     }
   ]
 }
