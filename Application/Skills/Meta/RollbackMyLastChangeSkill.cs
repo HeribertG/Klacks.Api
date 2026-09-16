@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Phase 5 meta-skill — proposes a rollback path for the most recent mutating skill execution. Does
@@ -44,7 +44,7 @@ public class RollbackMyLastChangeSkill : BaseSkillImplementation
                 "Add an entry to InverseSkillRegistry when its inverse skill exists.");
         }
 
-        if (string.Equals(inverse.SkillName, InverseSkillRegistry.ManualMarker, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(inverse.SkillName, InverseSkillRegistry.ManualMarker, StringComparison.Ordinal))
         {
             return SkillResult.Error(
                 $"Skill '{execution.ToolName}' has no automatic rollback path: {inverse.ParamHint}. " +

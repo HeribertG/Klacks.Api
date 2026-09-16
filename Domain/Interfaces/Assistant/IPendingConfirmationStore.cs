@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Short-lived store for pending skill confirmations: Create issues a one-time token bound
@@ -11,6 +11,8 @@
 /// next, with no invocation parameters. Both kinds live in one table, told apart by their
 /// purpose (PendingConfirmationPurposes), and are read by two independent callers — the
 /// gate-replay path never sees a proposal hint and vice versa.
+/// A correction undo is written through the same Create with its own purpose and dropped again by
+/// DiscardCorrectionUndo, because it is the one token whose validity ends with the very next user turn.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -20,7 +22,11 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IPendingConfirmationStore
 {
-    string Create(Guid userId, string skillName, IReadOnlyDictionary<string, object> parameters);
+    string Create(
+        Guid userId,
+        string skillName,
+        IReadOnlyDictionary<string, object> parameters,
+        string purpose = PendingConfirmationPurposes.GateReplay);
 
     PendingConfirmation? Consume(string token, Guid userId, string? expectedSkillName = null);
 
@@ -32,4 +38,6 @@ public interface IPendingConfirmationStore
     void CreateProposalHint(Guid userId, string applySkillName);
 
     void DiscardProposalHints(Guid userId, string? applySkillName = null);
+
+    void DiscardCorrectionUndo(Guid userId);
 }

@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Orchestrates LLM streaming by preparing the context (agent, toolset via ISkillToolsetAssembler)
@@ -244,7 +244,11 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             try
             {
-                _pendingConfirmationStore.Create(userGuid, correction.Undo.SkillName, correction.Undo.Arguments);
+                _pendingConfirmationStore.Create(
+                    userGuid,
+                    correction.Undo.SkillName,
+                    correction.Undo.Arguments,
+                    PendingConfirmationPurposes.CorrectionUndo);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

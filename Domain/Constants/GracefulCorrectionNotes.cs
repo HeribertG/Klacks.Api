@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// The volatile system note of a correction turn. English and model-facing, exactly like
@@ -72,15 +72,18 @@ public static class GracefulCorrectionNotes
     public const string NamedLanguageTemplate = "the language '{0}'";
 
     /// <summary>
-    /// Placeholders: {0} what the previous turn changed, {1} the inverse skill that undoes it, {2} a full
-    /// PHRASE naming the language the question must be written in - the undo question is a question to
-    /// the user and falls under the same one-language rule as the clarification. {2} takes the same value
-    /// as {4} of CorrectionContextTemplate (TurnPreparationService.AnswerLanguage) and for the same
-    /// reason carries its own quotes, so this template adds none.
+    /// Placeholders: {0} what the previous turn changed, {1} a full PHRASE naming the language the
+    /// question must be written in - the undo question is a question to the user and falls under the same
+    /// one-language rule as the clarification. {1} takes the same value as {4} of
+    /// CorrectionContextTemplate (CorrectionOutcomeComposer.AnswerLanguage) and for the same reason
+    /// carries its own quotes, so this template adds none.
+    /// The inverse SKILL is deliberately NOT named: it is an internal snake_case identifier, the sentence
+    /// asked for here is user-facing, and the same composer refuses to leak such a name anywhere else.
+    /// The model does not need it either - the pending confirmation token carries the invocation.
     /// </summary>
     public const string UndoOfferTemplate =
-        " The previous turn already changed something ({0}), and it can be undone with '{1}'. After your " +
-        "answer, add exactly ONE short sentence in {2} offering that undo as a yes/no question. " +
+        " The previous turn already changed something ({0}), and it can be undone. After your " +
+        "answer, add exactly ONE short sentence in {1} offering that undo as a yes/no question. " +
         "Offer it once and never as a separate dialogue; if the user says yes, the pending confirmation " +
         "will carry it out.";
 

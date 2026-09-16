@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Turns a decided correction plan and the toolset that was re-assembled from it into what the chat loop
@@ -40,10 +40,13 @@ public static class CorrectionOutcomeComposer
     /// The undo is resolved by the caller and handed in already built, because resolving it needs a
     /// registry that lives in the Application layer while this class depends on nothing but its
     /// arguments. What is decided HERE is whether the offer is made at all: never alongside a
-    /// clarification. The turn is then already asking one question, and rule 3 allows exactly one yes/no
-    /// offer - two questions in one answer is the dialogue the rule forbids. Dropping it here rather than
-    /// in the caller is deliberate: the entry points write the confirmation token from Undo, so an offer
-    /// that is not made must not leave a redeemable token behind.
+    /// clarification, and never when the corrected intent guaranteed no candidate - the note then already
+    /// tells the model to ask for the missing detail. Either way the turn is already asking one question,
+    /// and rule 3 allows exactly one yes/no offer; two questions in one answer is the dialogue the rule
+    /// forbids, the affirmation that follows is ambiguous, and the token it would redeem carries a
+    /// gate-bypassing write. Dropping it here rather than in the caller is deliberate: the entry points
+    /// write the confirmation token from Undo, so an offer that is not made must not leave a redeemable
+    /// token behind.
     /// </summary>
     /// <param name="plan">The correction the planning decided on, with the previous action it anchors to</param>
     /// <param name="assembledFunctions">The toolset re-assembled from the corrected intent</param>
@@ -100,7 +103,7 @@ public static class CorrectionOutcomeComposer
                     .ToList());
         }
 
-        if (undo == null)
+        if (undo == null || candidates.Count == 0)
         {
             return new GracefulCorrectionOutcome(note, null, []);
         }
@@ -111,7 +114,6 @@ public static class CorrectionOutcomeComposer
             System.Globalization.CultureInfo.InvariantCulture,
             GracefulCorrectionNotes.UndoOfferTemplate,
             undoneLabel ?? GracefulCorrectionNotes.UnnamedPreviousActionLabel,
-            undo.SkillName,
             AnswerLanguage(language));
 
         return new GracefulCorrectionOutcome(note, null, [], undo, undoneLabel);

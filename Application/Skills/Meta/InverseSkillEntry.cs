@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// One entry of InverseSkillRegistry. The first two members are the original, prose half, read by
@@ -37,5 +37,7 @@ public sealed record InverseSkillEntry(
     string? ResultIdArgument = null,
     bool UndoOnly = false)
 {
-    public IReadOnlyList<string> CopiedArguments => CopiedArgumentNames ?? [];
+    private static readonly IReadOnlyList<string> NoCopiedArguments = [];
+
+    public IReadOnlyList<string> CopiedArguments => CopiedArgumentNames ?? NoCopiedArguments;
 }

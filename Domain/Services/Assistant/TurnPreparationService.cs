@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Everything both chat entry points have to settle BEFORE the model is called, and the one thing they
@@ -87,17 +87,33 @@ public class TurnPreparationService : ITurnPreparationService
     /// asked. Vetoing it here made the model re-call the skill, which produced a fresh hold and a
     /// confirmation loop. Only the first iteration is narrowed, so any additional request in the same
     /// message is still served once the token is redeemed.
+    /// The correction undo of rule 3 is redeemed through the same seam but expires differently: the offer
+    /// is made once, inside one answer and never as a separate dialogue, so its token belongs to the turn
+    /// that immediately follows it. Any message that does not affirm therefore DISCARDS it - without that,
+    /// a "ja" to whatever the model asked next would redeem the undo instead and carry out a
+    /// gate-bypassing write the user never confirmed. It is read before the gate-replay row because it is
+    /// the more recent offer by construction, and reading it first also guarantees no undo row survives an
+    /// affirming turn: if one existed, it won.
     /// </summary>
     internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
     {
-        if (!AffirmationDetector.IsAffirmation(context.Message)
-            || !Guid.TryParse(context.UserId, out var userGuid))
+        if (!Guid.TryParse(context.UserId, out var userGuid))
         {
             return (false, null, null);
         }
 
-        var pending = _pendingConfirmationStore.PeekLatestForUser(
-            userGuid, TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds));
+        if (!AffirmationDetector.IsAffirmation(context.Message))
+        {
+            _pendingConfirmationStore.DiscardCorrectionUndo(userGuid);
+            return (false, null, null);
+        }
+
+        var forceWindow = TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds);
+        var pending =
+            _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo)
+            ?? _pendingConfirmationStore.PeekLatestForUser(
+                userGuid, forceWindow, PendingConfirmationPurposes.GateReplay);
         if (pending == null)
         {
             return (false, null, null);

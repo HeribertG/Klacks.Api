@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Text.Json;
 using Klacks.Api.Domain.Models.Assistant;
@@ -157,6 +157,14 @@ public static class InverseSkillRegistry
         return true;
     }
 
+    /// <summary>
+    /// One scalar property of a stored JSON object, or null. Only String, Number, True and False are
+    /// values an argument can carry: a JSON null is an ABSENT value, and passing its raw text on would
+    /// put the four letters of "null" into the call, while an object or an array would leak a raw JSON
+    /// fragment. Both are a missing mapping, and a missing mapping means no undo at all (rule 3).
+    /// </summary>
+    /// <param name="json">The stored arguments or result data of the call being undone.</param>
+    /// <param name="propertyName">The property to read, matched case-insensitively.</param>
     private static string? ReadString(string? json, string propertyName)
     {
         if (string.IsNullOrWhiteSpace(json))
@@ -179,9 +187,13 @@ public static class InverseSkillRegistry
                     continue;
                 }
 
-                var value = property.Value.ValueKind == JsonValueKind.String
-                    ? property.Value.GetString()
-                    : property.Value.GetRawText();
+                var value = property.Value.ValueKind switch
+                {
+                    JsonValueKind.String => property.Value.GetString(),
+                    JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False =>
+                        property.Value.GetRawText(),
+                    _ => null
+                };
                 return string.IsNullOrWhiteSpace(value) ? null : value;
             }
         }

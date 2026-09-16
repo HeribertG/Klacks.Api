@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// EF-backed store for one-time skill-confirmation tokens, so a confirmation held by the autonomy gate
@@ -17,6 +17,9 @@
 /// would make a fresh hint look stale immediately), and are instead bounded by the shorter maxAge the
 /// reader passes. They are dropped again via DiscardProposalHints, which reuses the existing
 /// GetActiveForUser/Consume repository calls rather than adding a second persistence path.
+/// A correction-undo row is a third purpose in the same table, written through Create and dropped by
+/// DiscardCorrectionUndo; both discards share one loop because they differ only in the purpose they
+/// match and in whether they narrow by skill name.
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
 
@@ -44,13 +47,13 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         _scopeFactory = scopeFactory;
     }
 
-    public string Create(Guid userId, string skillName, IReadOnlyDictionary<string, object> parameters)
+    public string Create(
+        Guid userId,
+        string skillName,
+        IReadOnlyDictionary<string, object> parameters,
+        string purpose = PendingConfirmationPurposes.GateReplay)
     {
-        return CreateRow(
-            userId,
-            skillName,
-            JsonSerializer.Serialize(parameters, JsonOptions),
-            PendingConfirmationPurposes.GateReplay);
+        return CreateRow(userId, skillName, JsonSerializer.Serialize(parameters, JsonOptions), purpose);
     }
 
     public void CreateProposalHint(Guid userId, string applySkillName)
@@ -61,19 +64,29 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 
     public void DiscardProposalHints(Guid userId, string? applySkillName = null)
     {
+        DiscardRows(userId, PendingConfirmationPurposes.ProposalHint, applySkillName);
+    }
+
+    public void DiscardCorrectionUndo(Guid userId)
+    {
+        DiscardRows(userId, PendingConfirmationPurposes.CorrectionUndo, null);
+    }
+
+    private void DiscardRows(Guid userId, string purpose, string? skillName)
+    {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IPendingConfirmationRepository>();
         var rows = repository.GetActiveForUserAsync(userId, DateTime.UtcNow).GetAwaiter().GetResult();
 
         foreach (var row in rows)
         {
-            if (!HasPurpose(row, PendingConfirmationPurposes.ProposalHint))
+            if (!HasPurpose(row, purpose))
             {
                 continue;
             }
 
-            if (applySkillName != null
-                && !string.Equals(row.SkillName, applySkillName, StringComparison.OrdinalIgnoreCase))
+            if (skillName != null
+                && !string.Equals(row.SkillName, skillName, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }

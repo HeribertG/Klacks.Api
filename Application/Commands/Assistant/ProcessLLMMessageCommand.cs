@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Command to process an LLM chat message with intelligent skill filtering.
@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
@@ -186,7 +187,11 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         {
             try
             {
-                _pendingConfirmationStore.Create(userGuid, correction.Undo.SkillName, correction.Undo.Arguments);
+                _pendingConfirmationStore.Create(
+                    userGuid,
+                    correction.Undo.SkillName,
+                    correction.Undo.Arguments,
+                    PendingConfirmationPurposes.CorrectionUndo);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
