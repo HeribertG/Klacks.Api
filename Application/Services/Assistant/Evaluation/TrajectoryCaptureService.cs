@@ -200,7 +200,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             return;
         }
 
-        await MarkImplicitCorrectionAsync(agentId, previous);
+        await MarkImplicitCorrectionAsync(agentId, previous, context.GracefulCorrectionApplied);
     }
 
     // A bare negation answers the assistant's own question and says the recipe trigger was too broad; a
@@ -247,10 +247,11 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     // The WasCorrected guard in the caller is what keeps this to one case per corrected turn. The cluster
     // key is the stored hash of the preceding message, never a hash of its excerpt: for anything longer
     // than the excerpt limit the two differ and would split one wish across two clusters.
-    private async Task MarkImplicitCorrectionAsync(Guid agentId, SkillSelectionTrajectory previous)
+    private async Task MarkImplicitCorrectionAsync(
+        Guid agentId, SkillSelectionTrajectory previous, bool wasRerouted)
     {
         previous.WasCorrected = true;
-        previous.CorrectionType = CorrectionTypes.Implicit;
+        previous.CorrectionType = wasRerouted ? CorrectionTypes.GracefulRerouted : CorrectionTypes.Implicit;
         previous.UpdateTime = DateTime.UtcNow;
         await _repository.UpdateAsync(previous);
 
