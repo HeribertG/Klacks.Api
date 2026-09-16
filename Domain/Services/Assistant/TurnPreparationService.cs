@@ -469,6 +469,8 @@ public class TurnPreparationService : ITurnPreparationService
     ///
     /// The rule, explicitly, because it is the one judgement call of this feature:
     ///   - fewer than two candidates    -> no question, because a question offers exactly two options;
+    ///   - no captured previous label   -> no question, because rule 1 obliges it to name the
+    ///                                     misunderstanding and the stand-in names nothing (see below);
     ///   - both candidates carry a retrieval score and the gap is at most
     ///     CorrectionAmbiguityTolerance -> ask, the ranking does not separate them;
     ///   - neither carries a score      -> ask, nothing ranks them at all (a keyword guarantee is a
@@ -483,10 +485,12 @@ public class TurnPreparationService : ITurnPreparationService
     ///
     /// No question is asked when an option cannot be named without leaking an internal snake_case skill
     /// name, none when both options would be named identically - two CRUD descriptions can share a first
-    /// sentence, and "do you mean X or X?" is a question the user cannot answer - and none when the
-    /// installation's language has no authored sentence: an English question in a non-English
-    /// installation breaks the one-language rule, so the turn falls back to an ordinary answer with the
-    /// note instead.
+    /// sentence, and "do you mean X or X?" is a question the user cannot answer - none when the previous
+    /// turn captured no display label, because UnnamedPreviousActionLabel is English and MODEL-facing
+    /// and a question carrying it would both name nothing and break the one-language rule - and none
+    /// when the installation's language has no authored sentence: an English question in a non-English
+    /// installation breaks that same rule, so the turn falls back to an ordinary answer with the note
+    /// instead.
     /// </summary>
     /// <param name="orderedCandidates">Deterministic candidates, best retrieval score first</param>
     /// <param name="previousLabel">User-facing label of what the previous turn did (rule 1)</param>
@@ -494,7 +498,9 @@ public class TurnPreparationService : ITurnPreparationService
     private static string? BuildClarification(
         IReadOnlyList<LLMFunction> orderedCandidates, string previousLabel, string? language)
     {
-        if (orderedCandidates.Count < GracefulCorrectionDefaults.ClarificationCandidateCount)
+        if (orderedCandidates.Count < GracefulCorrectionDefaults.ClarificationCandidateCount
+            || string.Equals(
+                previousLabel, GracefulCorrectionNotes.UnnamedPreviousActionLabel, StringComparison.Ordinal))
         {
             return null;
         }

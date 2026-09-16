@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Constants;
 
 public static class LanguagePluginConstants
@@ -28,5 +30,13 @@ public static class LanguagePluginConstants
     public const string PhoneticsCoreFileName = "phonetics-core.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";
 
-    public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];
+    /// <summary>
+    /// The languages Klacks ships in itself, i.e. the ones a language plugin never supplies. Single
+    /// source with GracefulCorrectionTexts.CoreLanguages rather than a second literal list: the two must
+    /// agree, because a core language that the correction catalogue does not know would resolve its
+    /// user-facing question to English and break the one-language rule, while a core language a loader
+    /// does not know would let a plugin overwrite what the application ships. The list lives in Domain
+    /// because Application may depend on Domain and not the other way round.
+    /// </summary>
+    public static readonly IReadOnlyList<string> CoreLanguages = GracefulCorrectionTexts.CoreLanguages;
 }

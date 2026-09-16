@@ -44,10 +44,15 @@ public static class GracefulCorrectionNotes
 
     /// <summary>
     /// Stands in for the previous action when the turn that made the call captured no display label.
-    /// English like the rest of this file, because it is substituted into a MODEL-facing note, not shown
-    /// to a user: MutationGuardConstants.RedactedInternalIdentifier is the user-facing redaction and is
-    /// German, so putting it here would drop a German fragment into an English instruction and invite the
-    /// model to answer in the wrong language. The internal snake_case name is never an option either.
+    /// English like the rest of this file, because it is substituted into a MODEL-facing note:
+    /// MutationGuardConstants.RedactedInternalIdentifier is the user-facing redaction and is German, so
+    /// putting it here would drop a German fragment into an English instruction and invite the model to
+    /// answer in the wrong language. The internal snake_case name is never an option either.
+    /// MODEL-FACING ONLY. It reaches a user solely as whatever the model makes of it while writing its
+    /// own answer, never verbatim in server-authored user-facing text: the clarification question
+    /// refuses to be built at all when this stand-in is the only label available (TurnPreparationService
+    /// .BuildClarification), because a question carrying an English "the tool it used" would name nothing
+    /// and break the one-language rule at the same time.
     /// </summary>
     public const string UnnamedPreviousActionLabel = "the tool it used";
 
@@ -67,13 +72,15 @@ public static class GracefulCorrectionNotes
     public const string NamedLanguageTemplate = "the language '{0}'";
 
     /// <summary>
-    /// Placeholders: {0} what the previous turn changed, {1} the inverse skill that undoes it, {2} the
-    /// language the question must be written in - the undo question is a question to the user and falls
-    /// under the same one-language rule as the clarification.
+    /// Placeholders: {0} what the previous turn changed, {1} the inverse skill that undoes it, {2} a full
+    /// PHRASE naming the language the question must be written in - the undo question is a question to
+    /// the user and falls under the same one-language rule as the clarification. {2} takes the same value
+    /// as {4} of CorrectionContextTemplate (TurnPreparationService.AnswerLanguage) and for the same
+    /// reason carries its own quotes, so this template adds none.
     /// </summary>
     public const string UndoOfferTemplate =
         " The previous turn already changed something ({0}), and it can be undone with '{1}'. After your " +
-        "answer, add exactly ONE short sentence in language '{2}' offering that undo as a yes/no question. " +
+        "answer, add exactly ONE short sentence in {2} offering that undo as a yes/no question. " +
         "Offer it once and never as a separate dialogue; if the user says yes, the pending confirmation " +
         "will carry it out.";
 
