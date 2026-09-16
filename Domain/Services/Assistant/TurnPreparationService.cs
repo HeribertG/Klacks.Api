@@ -99,12 +99,14 @@ public class TurnPreparationService : ITurnPreparationService
     /// immediately before the model call this method runs inside, so the offering turn would otherwise
     /// see its own row: it would discard it (the correction message is not an affirmation, and the offer
     /// would be dead before the user ever read it) or, for a correction that opens with "ja, ich meinte
-    /// ...", redeem it and carry the undo out before it was offered at all. GracefulCorrectionApplied is
-    /// already on the context by then and says exactly that. The residue: a correction that follows
-    /// another correction leaves the older row untouched for one more turn. When it makes an offer of its
-    /// own, Create drops the predecessor and nothing is left over; when it makes none, the older row stays
-    /// redeemable until the force window closes. That is the smaller evil - the alternative kills every
-    /// fresh offer on the turn that makes it.
+    /// ...", redeem it and carry the undo out before it was offered at all. The gate is
+    /// CorrectionUndoOffered, which is true only when THIS turn's Create actually stored a row - not the
+    /// wider GracefulCorrectionApplied: a correction that engages but offers no undo (no inverse, zero
+    /// candidates, a clarification, or a store write that threw) finds a PREDECESSOR's row, and that one
+    /// has to be settled like on any other turn. The invariant is therefore without exception: an undo
+    /// token is either redeemed or discarded on the very next turn after the one that wrote it.
+    /// The cost is one DiscardCorrectionUndo call - a single indexed GetActiveForUserAsync round-trip -
+    /// on every non-affirming chat turn, accepted because rule 3 is otherwise only correct by luck.
     /// </summary>
     internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
     {
@@ -113,7 +115,7 @@ public class TurnPreparationService : ITurnPreparationService
             return (false, null, null);
         }
 
-        var undoIsOfferedThisTurn = context.GracefulCorrectionApplied;
+        var undoIsOfferedThisTurn = context.CorrectionUndoOffered;
 
         if (!AffirmationDetector.IsAffirmation(context.Message))
         {

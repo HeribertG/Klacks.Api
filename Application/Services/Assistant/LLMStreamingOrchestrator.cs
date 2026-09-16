@@ -240,6 +240,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        var undoWasHeld = false;
         if (correction?.Undo != null && userGuid != Guid.Empty)
         {
             try
@@ -249,6 +250,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                     correction.Undo.SkillName,
                     correction.Undo.Arguments,
                     PendingConfirmationPurposes.CorrectionUndo);
+                undoWasHeld = true;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -276,7 +278,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             ToolsetAssemblyMs = toolset.AssemblyMs,
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
-            GracefulCorrectionApplied = correction != null
+            GracefulCorrectionApplied = correction != null,
+            CorrectionUndoOffered = undoWasHeld
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

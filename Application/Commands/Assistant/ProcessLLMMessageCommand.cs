@@ -183,6 +183,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
+        var undoWasHeld = false;
         if (correction?.Undo != null && userGuid != Guid.Empty)
         {
             try
@@ -192,6 +193,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
                     correction.Undo.SkillName,
                     correction.Undo.Arguments,
                     PendingConfirmationPurposes.CorrectionUndo);
+                undoWasHeld = true;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -219,7 +221,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             ToolsetAssemblyMs = toolset.AssemblyMs,
             CorrectionNote = correction?.ContextNote,
             CorrectionClarificationReply = correction?.ClarificationReply,
-            GracefulCorrectionApplied = correction != null
+            GracefulCorrectionApplied = correction != null,
+            CorrectionUndoOffered = undoWasHeld
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

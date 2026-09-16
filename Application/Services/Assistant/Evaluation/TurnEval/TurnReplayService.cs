@@ -121,7 +121,12 @@ public class TurnReplayService : ITurnReplayService
             Language = item.Locale,
             PageContext = item.CurrentRoute == null ? null : new AssistantPageContext { CurrentRoute = item.CurrentRoute },
             AvailableFunctions = toolset.Functions,
-            HasDomainSkillContext = toolset.HasDomainSkillContext
+            HasDomainSkillContext = toolset.HasDomainSkillContext,
+            GracefulCorrectionApplied = correction != null,
+
+            // A replay resolves the undo as data and never holds a token, so it must never claim to
+            // have offered one - that flag suppresses the settlement of an outstanding row.
+            CorrectionUndoOffered = false
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

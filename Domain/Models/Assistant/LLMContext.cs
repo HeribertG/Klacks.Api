@@ -144,9 +144,22 @@ public class LLMContext
     public string? CorrectionClarificationReply { get; set; }
 
     /// <summary>
-    /// True when the graceful-correction path engaged this turn. Read by the trajectory capture so the
-    /// learning loop can tell "user corrected and we re-routed" from "user corrected and nothing
-    /// happened" (CorrectionTypes.GracefulRerouted vs. Implicit).
+    /// True when the graceful-correction path engaged this turn. Written by all three context builders
+    /// and, since the pending-confirmation gate moved to <see cref="CorrectionUndoOffered"/>, read by
+    /// nothing in production: it is retained for the trajectory capture of task 7, which will use it to
+    /// tell "user corrected and we re-routed" from "user corrected and nothing happened"
+    /// (CorrectionTypes.GracefulRerouted vs. Implicit). Not dead code - unread on purpose, for now.
     /// </summary>
     public bool GracefulCorrectionApplied { get; set; }
+
+    /// <summary>
+    /// True only when this turn actually HELD a correction-undo token, i.e. the entry point's
+    /// Create call returned without throwing. Deliberately narrower than
+    /// <see cref="GracefulCorrectionApplied"/>: a correction turn that offers no undo (no inverse,
+    /// zero candidates, a clarification, or a failed store write) leaves no fresh row of its own,
+    /// so TurnPreparationService.ResolvePendingConfirmation must still settle whatever token an
+    /// earlier turn left behind. Reading the wider flag there let a predecessor's undo survive a
+    /// correction turn and be redeemed by an unrelated "yes" one turn later.
+    /// </summary>
+    public bool CorrectionUndoOffered { get; set; }
 }
