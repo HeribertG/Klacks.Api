@@ -13,8 +13,8 @@
 ///     depend on the model inventing one - the model may rephrase it, never drop it;
 /// (3) it explicitly permits calling the excluded skill again with corrected arguments, because a
 ///     correction that only concerns the arguments is TP3 and must not be forced into a wrong skill.
-/// Every placeholder is asserted by GracefulCorrectionTextGuardTests: string.Format ignores a surplus
-/// argument silently, so a lost placeholder drops a value without any error.
+/// Every placeholder will be asserted by GracefulCorrectionTextGuardTests (Task 5a): string.Format
+/// ignores a surplus argument silently, so a lost placeholder drops a value without any error.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -29,9 +29,10 @@ public static class GracefulCorrectionNotes
         "CORRECTION — Your previous turn called {0} with {1}. The user is correcting that, not making " +
         "a new request: \"{2}\" The tools for this turn were re-selected from the corrected intent, and " +
         "that skill is not offered again. Answer in language '{4}'. You MUST open your answer by naming " +
-        "the new understanding; start from this sentence and rephrase it if it reads better, but never " +
-        "leave it out: \"{3}\" If the correction only changes an argument and the previous skill was in " +
-        "fact the right one, say so and ask for the corrected value instead of calling a different tool.";
+        "the new understanding; start from this sentence, translated into '{4}', and rephrase it if it " +
+        "reads better, but never leave it out: \"{3}\" If the correction only changes an argument and the " +
+        "previous skill was in fact the right one, say so and ask for the corrected value instead of " +
+        "calling a different tool.";
 
     /// <summary>Placeholder: {0} a user-facing label for what the previous turn did.</summary>
     public const string OpeningSentenceTemplate =

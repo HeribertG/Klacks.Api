@@ -27,6 +27,9 @@
 ///                   sondern Dienstag eintragen"), it is a self-contained request and is served as one.
 ///
 /// Evaluate returns the gate that rejected instead of a bool, so the caller can log which one did.
+/// The production caller passes correctionRoutesAlone: false for gates G0-G4 and only runs the G5 probe
+/// - then applies its verdict itself - once those cheaper gates already passed, so the (comparatively
+/// expensive) probe is never paid for a message that was going to be rejected anyway.
 /// </summary>
 /// <param name="message">The raw user message that started this turn.</param>
 /// <param name="lastAction">The previous-action record, or null when none was stored.</param>
@@ -70,7 +73,7 @@ public static class GracefulCorrectionDetector
         }
 
         if (RecipeTopicSwitchDetector.IsTopicSwitch(message)
-            || RecipeTopicSwitchDetector.IsTopicSwitch(DeclineDetector.StripNegationLead(message!)))
+            || RecipeTopicSwitchDetector.IsTopicSwitch(DeclineDetector.StripNegationLead(message)))
         {
             return GracefulCorrectionGate.TopicSwitch;
         }

@@ -144,8 +144,13 @@ public static class DeclineDetector
     /// multi-word plugin phrase - a phrase has no single token boundary to strip at.
     /// </summary>
     /// <param name="message">The raw user message that started the turn.</param>
-    internal static string StripNegationLead(string message)
+    internal static string StripNegationLead(string? message)
     {
+        if (string.IsNullOrEmpty(message))
+        {
+            return string.Empty;
+        }
+
         var match = WordPattern.Match(message);
         if (!match.Success)
         {

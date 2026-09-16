@@ -202,7 +202,12 @@ public class RecipeEngineService
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);
         var match = triggerMatch?.Recipe ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
-        var hasCompetingSkillIntent = triggerMatch != null
+
+        // Skipped, not just discarded, when allowSemanticFallback is false: the G5 probe never reads this
+        // flag, and both the legacy detector and the shadow-mode margin evaluator would otherwise embed
+        // and rerank - and write calibration records - for a call whose only purpose is checking whether
+        // the message routes on its own.
+        var hasCompetingSkillIntent = allowSemanticFallback && triggerMatch != null
             && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, userRights, cancellationToken);
 
         if (allowSemanticFallback)

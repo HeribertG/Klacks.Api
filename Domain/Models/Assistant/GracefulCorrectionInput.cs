@@ -10,7 +10,7 @@ namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record GracefulCorrectionInput(
     Agent? Agent,
-    List<string> UserRights,
+    IReadOnlyList<string> UserRights,
     string Message,
     string? ConversationId,
     string UserId,

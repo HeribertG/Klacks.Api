@@ -7,6 +7,10 @@
 /// says whether a message routes by itself and both are the expensive half of an assembly.
 /// The interface lives in Domain and its implementation in Application: the probe needs the skill cache,
 /// and Domain must not depend on Application.
+/// Throws on failure rather than degrading to an empty result: an empty result means "does not route
+/// alone", which OPENS the correction path, so swallowing an exception here would silently bias every
+/// probe failure towards repairing instead of a fresh request. The caller (TurnPreparationService,
+/// which owns gates G0-G5 end to end) decides the fail-closed policy for a broken probe.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Assistant;
@@ -17,7 +21,7 @@ public interface IDeterministicRouteProbe
 {
     Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
         Agent? agent,
-        List<string> userRights,
+        IReadOnlyList<string> userRights,
         string message,
         string? language,
         CancellationToken cancellationToken = default);
