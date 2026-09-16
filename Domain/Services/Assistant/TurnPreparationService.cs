@@ -337,8 +337,8 @@ public class TurnPreparationService : ITurnPreparationService
         var sentenceEnd = function.Description.IndexOf('.');
         var label = (sentenceEnd > 0 ? function.Description[..sentenceEnd] : function.Description).Trim();
 
-        return label.Length <= GracefulCorrectionDefaults.OptionLabelMaxLength
+        return label.Length <= GracefulCorrectionDefaults.SkillDisplayLabelMaxLength
             ? label
-            : label[..GracefulCorrectionDefaults.OptionLabelMaxLength].TrimEnd();
+            : label[..GracefulCorrectionDefaults.SkillDisplayLabelMaxLength].TrimEnd();
     }
 }

@@ -32,10 +32,22 @@ public sealed class AssistantLastActionCall
     public string ResultDataJson { get; set; } = Constants.GracefulCorrectionDefaults.EmptyJsonObject;
 
     /// <summary>
-    /// Whether the call was read-only, resolved from ReadOnlySkillPrefixes - the same source the
-    /// multi-turn loop uses to decide whether a skill may repeat. The undo offer needs nothing finer.
+    /// Whether the call was read-only by the NAME PREFIX rule of ReadOnlySkillPrefixes - the same rule
+    /// the multi-turn loop applies in RejectRepeatedWriteCalls, deliberately not the category-first rule
+    /// of SkillRiskClassifier. The classifier lets a write category (Crud/Action) override a read-only
+    /// prefix, so the two can disagree: a write-category skill whose name starts with a read-only prefix
+    /// reads as read-only here and as a write there. The undo offer needs nothing finer - the divergence
+    /// can only make it OFFER LESS, never undo something it should not have. Which skills may diverge is
+    /// pinned by ReadOnlyPrefixWriteCategoryGuardTests, so the set can shrink but not silently grow.
     /// </summary>
     public bool IsReadOnly { get; set; }
 
+    /// <summary>
+    /// Whether the call itself succeeded. A FAILED call is recorded too: the user corrects what the
+    /// assistant did, and a failed attempt is just as much a wrong interpretation as a successful one.
+    /// This flag is what keeps that safe downstream - the undo path offers a rollback only for a write
+    /// that actually landed (spec section 4.6), so a failed call anchors a correction without ever
+    /// producing an undo offer for something that never happened.
+    /// </summary>
     public bool Success { get; set; }
 }
