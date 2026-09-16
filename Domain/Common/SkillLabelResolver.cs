@@ -28,18 +28,40 @@ public static class SkillLabelResolver
             return null;
         }
 
-        if (TryTake(labels, language!, out var exact))
+        var tag = language!.Trim();
+
+        if (TryTake(labels, tag, out var exact))
         {
             return exact;
         }
 
-        var baseLanguage = LanguageTag.BaseLanguage(language);
+        var baseLanguage = LanguageTag.BaseLanguage(tag);
 
         return baseLanguage != null
-               && !string.Equals(baseLanguage, language!.Trim(), StringComparison.OrdinalIgnoreCase)
+               && !string.Equals(baseLanguage, tag, StringComparison.OrdinalIgnoreCase)
                && TryTake(labels, baseLanguage, out var fallback)
             ? fallback
             : null;
+    }
+
+    /// <summary>
+    /// The same lookup, cut to a maximum length. A separate overload rather than an optional parameter,
+    /// because an optional parameter appended to an existing signature rebinds positional arguments
+    /// without failing to compile (the 2026-09-14 overload trap ISkillToolsetAssembler documents).
+    /// Both consumers of a label cap it - the clarification's two option slots and its previous-action
+    /// slot - and they keep their own, deliberately different constants, so the length stays the
+    /// caller's decision while the cutting rule lives in one place. The cut end is trimmed: a slice
+    /// through a word gap would otherwise leave the label ending in whitespace.
+    /// </summary>
+    /// <param name="labels">Authored labels of one skill, keyed by language tag; null when the skill has none</param>
+    /// <param name="language">Active language tag of the turn, such as "de", "de-CH" or "zh-TW"</param>
+    /// <param name="maxLength">Maximum number of characters the caller's slot can carry</param>
+    public static string? Resolve(
+        IReadOnlyDictionary<string, string>? labels, string? language, int maxLength)
+    {
+        var label = Resolve(labels, language);
+
+        return label == null || label.Length <= maxLength ? label : label[..maxLength].TrimEnd();
     }
 
     private static bool TryTake(IReadOnlyDictionary<string, string> labels, string key, out string? label)
@@ -48,7 +70,7 @@ public static class SkillLabelResolver
 
         foreach (var entry in labels)
         {
-            if (!string.Equals(entry.Key, key.Trim(), StringComparison.OrdinalIgnoreCase)
+            if (!string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
                 || string.IsNullOrWhiteSpace(entry.Value))
             {
                 continue;

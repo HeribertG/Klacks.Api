@@ -13,16 +13,31 @@ public sealed class AssistantLastActionCall
     public string SkillName { get; set; } = string.Empty;
 
     /// <summary>
-    /// User-facing label of the skill, captured from the toolset of the turn that made the call. The
-    /// correction note and the clarification name this instead of the internal snake_case name - and it
-    /// has to be captured HERE, because by the time the correction turn runs the skill is excluded from
-    /// the toolset and can no longer be looked up. Null when the turn had no description for it; the
-    /// caller then falls back to GracefulCorrectionNotes.UnnamedPreviousActionLabel, never to the name.
+    /// The skill's authored label (AgentSkill.Labels) as SkillLabelResolver resolved it FOR THE TURN THAT
+    /// MADE THE CALL - i.e. the noun the assistant itself used in the answer the user is now correcting.
+    /// Read by the model-facing correction note, which quotes what was said rather than re-translating
+    /// it. Null when no label was authored for that turn's language; the caller then falls back to
+    /// GracefulCorrectionNotes.UnnamedPreviousActionLabel, never to the internal snake_case name.
     /// That stand-in is English because the note it lands in is model-facing - the German user-facing
     /// redaction (MutationGuardConstants.RedactedInternalIdentifier) belongs in front of a user, not in
     /// an English instruction.
+    /// NOT what the user-facing clarification names the previous action with: that one resolves from
+    /// SkillLabels in the CORRECTION turn's language.
     /// </summary>
     public string? SkillDisplayLabel { get; set; }
+
+    /// <summary>
+    /// The skill's authored labels per language tag (AgentSkill.Labels -> LLMFunction.Labels), copied
+    /// from the toolset of the turn that made the call. They have to be captured HERE, because by the
+    /// time the correction turn runs the skill is excluded from that turn's toolset and can no longer be
+    /// looked up. Carrying the whole dictionary rather than only the resolved label is what binds the
+    /// clarification to the language of the CORRECTION rather than to the language of the action: a user
+    /// who switches UI language inside the two-minute window is asked in the language they switched to,
+    /// which is the one-language rule (spec section 1 rule 4). Null or empty when the skill carries no
+    /// authored labels at all - the correction then asks no question rather than naming the
+    /// misunderstanding in a foreign language.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? SkillLabels { get; set; }
 
     /// <summary>Serialized invocation arguments, capped at GracefulCorrectionDefaults.CallJsonMaxLength.</summary>
     public string ArgumentsJson { get; set; } = Constants.GracefulCorrectionDefaults.EmptyJsonObject;

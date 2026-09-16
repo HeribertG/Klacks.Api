@@ -475,33 +475,35 @@ public class TurnPreparationService : ITurnPreparationService
         return (null, null);
     }
 
-    private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call) => new()
+    private static AssistantLastActionCall ToLastActionCall(LLMContext context, LLMFunctionCall call)
     {
-        SkillName = call.FunctionName,
-        SkillDisplayLabel = DescribeCalledSkill(context, call.FunctionName),
-        ArgumentsJson = System.Text.Json.JsonSerializer.Serialize(call.Parameters),
-        ResultDataJson = call.DataJson.Count > 0 ? call.DataJson[0] : GracefulCorrectionDefaults.EmptyJsonObject,
-        IsReadOnly = ReadOnlySkillPrefixes.HasReadOnlyPrefix(call.FunctionName),
-        Success = call.Success
-    };
+        var labels = LabelsOfCalledSkill(context, call.FunctionName);
+
+        return new AssistantLastActionCall
+        {
+            SkillName = call.FunctionName,
+            SkillDisplayLabel = SkillLabelResolver.Resolve(
+                labels, context.Language, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength),
+            SkillLabels = labels,
+            ArgumentsJson = System.Text.Json.JsonSerializer.Serialize(call.Parameters),
+            ResultDataJson = call.DataJson.Count > 0 ? call.DataJson[0] : GracefulCorrectionDefaults.EmptyJsonObject,
+            IsReadOnly = ReadOnlySkillPrefixes.HasReadOnlyPrefix(call.FunctionName),
+            Success = call.Success
+        };
+    }
 
     /// <summary>
-    /// The user-facing label of a skill, taken from THIS turn's toolset - the last moment it is
-    /// available. The next turn excludes that skill, so a lookup there returns nothing and the note
-    /// would have to fall back to the internal name, which must never reach a user.
-    /// Resolved in the language the calling turn ran in, because that is the language the user will be
-    /// asked in; a skill without an authored label for it yields null, the note then uses its English
-    /// model-facing stand-in and the question is not asked at all (rule 1 has nothing left to name).
+    /// The authored labels of a skill, taken from THIS turn's toolset - the last moment they are
+    /// available. The next turn excludes that skill, so a lookup there returns nothing and the note would
+    /// have to fall back to the internal name, which must never reach a user.
+    /// The WHOLE dictionary travels with the record, not just the entry for this turn's language: the
+    /// correction turn resolves the noun of its question from it in ITS OWN language, so a user who
+    /// switches UI language inside the correction window is still asked in one language (rule 4). The
+    /// resolved label is stored alongside it for the model-facing note, which quotes what the assistant
+    /// said rather than re-translating it.
     /// </summary>
-    private static string? DescribeCalledSkill(LLMContext context, string functionName)
-    {
-        var function = context.AvailableFunctions.FirstOrDefault(
-            f => string.Equals(f.Name, functionName, StringComparison.OrdinalIgnoreCase));
-
-        var label = SkillLabelResolver.Resolve(function?.Labels, context.Language);
-
-        return label == null || label.Length <= GracefulCorrectionDefaults.SkillDisplayLabelMaxLength
-            ? label
-            : label[..GracefulCorrectionDefaults.SkillDisplayLabelMaxLength].TrimEnd();
-    }
+    private static IReadOnlyDictionary<string, string>? LabelsOfCalledSkill(
+        LLMContext context, string functionName) =>
+        context.AvailableFunctions.FirstOrDefault(
+            f => string.Equals(f.Name, functionName, StringComparison.OrdinalIgnoreCase))?.Labels;
 }

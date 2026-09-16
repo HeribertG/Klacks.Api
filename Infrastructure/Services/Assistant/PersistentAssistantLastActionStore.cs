@@ -8,8 +8,9 @@
 /// on the same request thread, so a shared context would race. The interface is synchronous because the
 /// caller (LLMService, both chat entry points) invokes it synchronously; the short single-row repository
 /// calls are awaited via GetAwaiter().GetResult(), which cannot deadlock without a synchronization
-/// context. Every free-text field (user message, answer excerpt, call arguments/result, skill display
-/// label) is capped here, not only in the column configuration; the conversation id is not capped here
+/// context. Every free-text field (user message, answer excerpt, call arguments/result, the resolved
+/// skill display label and every entry of the authored label dictionary) is capped here, not only in the
+/// column configuration; the conversation id is not capped here
 /// on purpose - it is validated at the request boundary (LLMRequest.ConversationId), because capping it
 /// here would silently truncate the key Peek/Mutate later query with, missing the row instead of
 /// throwing.
@@ -144,11 +145,35 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
                 SkillDisplayLabel = call.SkillDisplayLabel == null
                     ? null
                     : Cap(call.SkillDisplayLabel, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength),
+                SkillLabels = CapLabels(call.SkillLabels),
                 ArgumentsJson = Cap(call.ArgumentsJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 ResultDataJson = Cap(call.ResultDataJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 IsReadOnly = call.IsReadOnly,
                 Success = call.Success
             });
+        }
+
+        return capped;
+    }
+
+    /// <summary>
+    /// Every authored label of one call, capped individually at the same length as the resolved one. The
+    /// dictionary is written into the same unbounded CallsJson column as the rest of the call, so what
+    /// keeps the row small is this per-entry cap and the five-minute TTL, not a column limit.
+    /// </summary>
+    /// <param name="labels">Authored labels of the called skill, null when it carries none</param>
+    private static IReadOnlyDictionary<string, string>? CapLabels(
+        IReadOnlyDictionary<string, string>? labels)
+    {
+        if (labels == null || labels.Count == 0)
+        {
+            return null;
+        }
+
+        var capped = new Dictionary<string, string>(labels.Count, StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in labels)
+        {
+            capped[entry.Key] = Cap(entry.Value, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength);
         }
 
         return capped;

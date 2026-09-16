@@ -37,7 +37,11 @@ public static class GracefulCorrectionDefaults
     /// <summary>Cap for the stored assistant answer excerpt, the text the note quotes back.</summary>
     public const int AnswerExcerptMaxLength = 120;
 
-    /// <summary>User-facing label of the called skill, sized like the answer excerpt.</summary>
+    /// <summary>
+    /// Authored label of the called skill, sized like the answer excerpt. Applies to the label the
+    /// previous turn resolved for itself AND to every entry of the authored label dictionary the record
+    /// carries, so no single language can inflate the stored row.
+    /// </summary>
     public const int SkillDisplayLabelMaxLength = 120;
 
     /// <summary>Cap for one call's serialized arguments and for its serialized result data.</summary>
@@ -55,7 +59,11 @@ public static class GracefulCorrectionDefaults
     /// <summary>Number of options the clarification question may offer. Exactly two, never a menu.</summary>
     public const int ClarificationCandidateCount = 2;
 
-    /// <summary>Maximum characters of a skill description used as its user-facing option label.</summary>
+    /// <summary>
+    /// Maximum characters of a skill's authored label (AgentSkill.Labels, resolved by SkillLabelResolver)
+    /// when it is offered as one of the two options of the clarification. Shorter than
+    /// SkillDisplayLabelMaxLength on purpose: two options and the previous action share one sentence.
+    /// </summary>
     public const int OptionLabelMaxLength = 80;
 
     /// <summary>Column length of the conversation key, shared by the row configuration and the store.</summary>

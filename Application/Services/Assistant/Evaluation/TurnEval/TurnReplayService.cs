@@ -302,6 +302,7 @@ public class TurnReplayService : ITurnReplayService
                 {
                     SkillName = item.PreviousTurn.CalledSkill,
                     SkillDisplayLabel = item.PreviousTurn.SkillDisplayLabel,
+                    SkillLabels = ReplayLabels(item),
                     ArgumentsJson = JsonSerializer.Serialize(item.PreviousTurn.Arguments),
                     ResultDataJson = JsonSerializer.Serialize(item.PreviousTurn.ResultData),
                     IsReadOnly = ReadOnlySkillPrefixes.HasReadOnlyPrefix(item.PreviousTurn.CalledSkill),
@@ -310,6 +311,22 @@ public class TurnReplayService : ITurnReplayService
             ]
         };
     }
+
+    /// <summary>
+    /// The goldset authors ONE label per item, in the item's own locale, so the replay presents it as the
+    /// authored label for exactly that locale. Without this the clarification would never be reached in a
+    /// replay: the question resolves the previous action from the authored labels, and a goldset item
+    /// carries no label dictionary of its own. A replay runs the correction in the item's locale, so this
+    /// reproduces the production case where the action and the correction share a language.
+    /// </summary>
+    /// <param name="item">The goldset item, whose PreviousTurn carries the corrected call and its label.</param>
+    private static IReadOnlyDictionary<string, string>? ReplayLabels(TurnGoldsetItem item) =>
+        string.IsNullOrWhiteSpace(item.PreviousTurn?.SkillDisplayLabel) || string.IsNullOrWhiteSpace(item.Locale)
+            ? null
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [item.Locale!] = item.PreviousTurn!.SkillDisplayLabel!
+            };
 
     private async Task<string?> FindMatchingEngineRecipeNameAsync(
         string message, string? language, CancellationToken cancellationToken)

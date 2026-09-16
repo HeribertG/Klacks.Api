@@ -45,7 +45,6 @@ public static class CorrectionOutcomeComposer
         AssistantLastActionCall? undoneCall)
     {
         var correctedCall = plan.LastAction.Calls.FirstOrDefault();
-        var previousLabel = LabelOf(correctedCall);
         var previousArguments = correctedCall?.ArgumentsJson ?? GracefulCorrectionDefaults.EmptyJsonObject;
 
         var candidates = DeterministicCandidates(assembledFunctions)
@@ -53,9 +52,9 @@ public static class CorrectionOutcomeComposer
             .ThenByDescending(f => f.RetrievalScore ?? 0.0)
             .ToList();
 
-        var clarification = BuildClarification(candidates, previousLabel, language);
+        var clarification = BuildClarification(candidates, QuestionLabelOf(correctedCall, language), language);
 
-        var noteLabel = previousLabel ?? GracefulCorrectionNotes.UnnamedPreviousActionLabel;
+        var noteLabel = LabelOf(correctedCall) ?? GracefulCorrectionNotes.UnnamedPreviousActionLabel;
 
         var openingSentence = string.Format(
             System.Globalization.CultureInfo.InvariantCulture,
@@ -104,16 +103,34 @@ public static class CorrectionOutcomeComposer
     }
 
     /// <summary>
-    /// A label for what a recorded call did, or null when the turn that made the call captured none. Never
-    /// the internal snake_case name: the label was captured from the toolset of the turn that made the
-    /// call (AssistantLastActionCall), because by the time the correction turn runs that skill is excluded
-    /// from the toolset and cannot be looked up any more. Null rather than the stand-in, so that each
-    /// caller decides for itself what a missing label means - the note substitutes an English
-    /// model-facing stand-in, the question refuses to be asked at all.
+    /// A label for what a recorded call did AS THE TURN THAT MADE IT PUT IT, or null when that turn
+    /// resolved none. Never the internal snake_case name. This is the note's label: the note is
+    /// model-facing and quotes what the assistant actually told the user, so re-translating it would make
+    /// the note disagree with the answer the user is correcting. Null rather than the stand-in, so the
+    /// caller decides what a missing label means - the note substitutes an English model-facing stand-in.
     /// </summary>
     /// <param name="call">The recorded call of the previous turn, or null when it made none</param>
     internal static string? LabelOf(AssistantLastActionCall? call) =>
         string.IsNullOrWhiteSpace(call?.SkillDisplayLabel) ? null : call!.SkillDisplayLabel!;
+
+    /// <summary>
+    /// The noun the QUESTION names the misunderstanding with, resolved from the authored labels the
+    /// record carries (AssistantLastActionCall.SkillLabels) in THIS turn's language - not the label the
+    /// previous turn resolved for itself. The two differ exactly when the user switched UI language
+    /// inside the two-minute correction window, and taking the stored one would then put, say, a German
+    /// noun into a French sentence: the same substance violation of the one-language rule (spec section 1
+    /// rule 4) that the authored labels replaced the English descriptions for.
+    /// The labels are read from the record rather than looked up live because the corrected skill is
+    /// excluded from this turn's toolset by construction, and TurnPreparationService (Domain) has no
+    /// catalogue dependency that could answer for it.
+    /// Null when the correction's language has no authored label - the question is then not asked at all,
+    /// which costs one round trip and never a wrong action.
+    /// </summary>
+    /// <param name="call">The recorded call of the previous turn, or null when it made none</param>
+    /// <param name="language">Active language of the CORRECTION turn, the one the user is asked in</param>
+    internal static string? QuestionLabelOf(AssistantLastActionCall? call, string? language) =>
+        SkillLabelResolver.Resolve(
+            call?.SkillLabels, language, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength);
 
     /// <summary>
     /// The correction as the note quotes it. The message is LIVE user input and, unlike the anchor's own
@@ -150,7 +167,8 @@ public static class CorrectionOutcomeComposer
     ///
     /// The rule, explicitly, because it is the one judgement call of this feature:
     ///   - fewer than two candidates    -> no question, because a question offers exactly two options;
-    ///   - no captured previous label   -> no question, because rule 1 obliges it to name the
+    ///   - no previous label in THIS turn's language
+    ///                                  -> no question, because rule 1 obliges it to name the
     ///                                     misunderstanding and there is nothing left to name it with;
     ///   - both candidates carry a retrieval score and the gap is at most
     ///     CorrectionAmbiguityTolerance -> ask, the ranking does not separate them;
@@ -164,8 +182,10 @@ public static class CorrectionOutcomeComposer
     /// The two boundary cases are measured by correction-v1 (cr-de-005-ambiguous, cr-de-007-clear-winner)
     /// before the tolerance is calibrated.
     ///
-    /// The three nouns the question puts into its translated frame are AUTHORED labels (AgentSkill.Labels
-    /// -> LLMFunction.Labels), resolved for this turn's language by SkillLabelResolver. There is no
+    /// The three nouns the question puts into its translated frame are AUTHORED labels (AgentSkill.Labels),
+    /// resolved for THIS turn's language by SkillLabelResolver - the two options from LLMFunction.Labels of
+    /// the re-assembled toolset, the previous action from AssistantLastActionCall.SkillLabels of the
+    /// record, because that skill is excluded from this turn's toolset. There is no
     /// English fallback: a language for which no label was authored yields none, and the turn then asks
     /// nothing rather than putting an English noun into a translated sentence (spec §1 rule 4). Until the
     /// 21 language packs ship their own skill-labels.json, that is the state of every plugin language -
@@ -179,7 +199,10 @@ public static class CorrectionOutcomeComposer
     /// has no authored sentence at all.
     /// </summary>
     /// <param name="orderedCandidates">Deterministic candidates, scored ones first, best score first</param>
-    /// <param name="previousLabel">User-facing label of what the previous turn did, null when none was captured</param>
+    /// <param name="previousLabel">
+    /// Authored label of what the previous turn did, resolved in THIS turn's language by QuestionLabelOf;
+    /// null when the correction's language has no authored label for it
+    /// </param>
     /// <param name="language">Active language of the turn the question would be asked in</param>
     internal static string? BuildClarification(
         IReadOnlyList<LLMFunction> orderedCandidates, string? previousLabel, string? language)
@@ -232,14 +255,9 @@ public static class CorrectionOutcomeComposer
     /// </summary>
     /// <param name="function">The candidate whose authored label is used as an option label</param>
     /// <param name="language">Active language of the turn the question would be asked in</param>
-    internal static string? DescribeFunction(LLMFunction function, string? language)
-    {
-        var label = SkillLabelResolver.Resolve(function.Labels, language);
-
-        return label == null || label.Length <= GracefulCorrectionDefaults.OptionLabelMaxLength
-            ? label
-            : label[..GracefulCorrectionDefaults.OptionLabelMaxLength].TrimEnd();
-    }
+    internal static string? DescribeFunction(LLMFunction function, string? language) =>
+        SkillLabelResolver.Resolve(
+            function.Labels, language, GracefulCorrectionDefaults.OptionLabelMaxLength);
 
     /// <summary>
     /// The whole phrase the note substitutes for its language slot. Never empty: a blank slot would read
