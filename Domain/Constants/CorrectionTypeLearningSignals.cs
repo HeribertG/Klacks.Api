@@ -20,7 +20,14 @@ public static class CorrectionTypeLearningSignals
             [CorrectionTypes.RepeatedRequest] = null,
             [CorrectionTypes.WrongSkill] = SkillLearningSignals.WrongSkill,
             [CorrectionTypes.NoneNeeded] = SkillLearningSignals.NoneNeeded,
-            [CorrectionTypes.Implicit] = SkillLearningSignals.Implicit
+            [CorrectionTypes.Implicit] = SkillLearningSignals.Implicit,
+
+            // A graceful re-route IS a confirmed "the chosen skill was wrong" - more confident than plain
+            // Implicit, because the pipeline itself found and applied the corrected skill in the same turn
+            // rather than only inferring a negation. It shares WrongSkill's signal rather than Implicit's:
+            // TrajectoryCaptureService.MarkImplicitCorrectionAsync exists precisely so this case is no
+            // longer read as "the skill description was ambiguous" (Implicit's implication).
+            [CorrectionTypes.GracefulRerouted] = SkillLearningSignals.WrongSkill
         };
 
     /// <summary>
