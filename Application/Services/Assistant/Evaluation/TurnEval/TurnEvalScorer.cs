@@ -136,14 +136,16 @@ public static class TurnEvalScorer
 
     /// <summary>
     /// The three TP1 verdicts. Only an item that declares a previousTurn is measured: without an anchor
-    /// the pipeline could not have repaired anything, so "was not repaired" would be a vacuous pass.
+    /// the pipeline could not have repaired anything, so "was not repaired" would be a vacuous pass. A
+    /// failed replay or an excluded item is likewise left unmeasured (mirrors the SelectionHit rule
+    /// above) - an outage or a recipe hijack is not evidence the correction path did or did not engage.
     /// A correction item's Passed is tightened rather than replaced - reaching the right skill without
     /// the correction path having engaged is luck, not a repair, and must not score as one.
     /// </summary>
     private static void ApplyCorrectionVerdicts(
         TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
     {
-        if (item.PreviousTurn == null)
+        if (item.PreviousTurn == null || !replay.Success || result.Excluded)
         {
             return;
         }
@@ -154,7 +156,7 @@ public static class TurnEvalScorer
                 ? replay.CorrectionClarificationOffered
                 : result.ToolHit == true || result.RecipeHit == true;
 
-            result.CorrectionHit = replay.Success && replay.CorrectionApplied && reached;
+            result.CorrectionHit = replay.CorrectionApplied && reached;
         }
         else
         {

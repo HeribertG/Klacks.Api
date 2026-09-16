@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The assistant turn a goldset item corrects. The replay builds an in-memory AssistantLastAction from
-/// it (never a table row) and seeds the conversation history with it, so a correction item measures the
-/// same anchor the live pipeline would have had.
+/// The assistant turn a goldset item corrects. From Task 3 on, the replay will build an in-memory
+/// AssistantLastAction from it (never a table row) and seed the conversation history with it, so a
+/// correction item measures the same anchor the live pipeline would have had.
 /// </summary>
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
@@ -20,8 +20,7 @@ public class TurnGoldsetPreviousTurn
     public Dictionary<string, string> Arguments { get; set; } = new();
 
     /// <summary>
-    /// Result data of that call as the skill returned it (PascalCase property names, the shape
-    /// LLMFunctionExecutor serializes). Carries the created entity id for a create/delete undo pair.
+    /// Flattened scalar fields of the call's result (for example the created entity id).
     /// </summary>
     public Dictionary<string, string> ResultData { get; set; } = new();
 

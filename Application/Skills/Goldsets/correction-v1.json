@@ -157,7 +157,7 @@
       "previousTurn": {
         "message": "Put all employees into the Zurich group.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Searches matching customers",
         "arguments": { "searchString": "Zurich" },
         "assistantAnswerExcerpt": "I searched for matching customers."
       },
@@ -175,7 +175,7 @@
       "previousTurn": {
         "message": "Mets tous les collaborateurs dans le groupe Zurich.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Recherche des clients correspondants",
         "arguments": { "searchString": "Zurich" },
         "assistantAnswerExcerpt": "J'ai cherché des clients correspondants."
       },
@@ -193,7 +193,7 @@
       "previousTurn": {
         "message": "Inserisci tutti i collaboratori nel gruppo Zurigo.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Cerca clienti corrispondenti",
         "arguments": { "searchString": "Zurigo" },
         "assistantAnswerExcerpt": "Ho cercato i clienti corrispondenti."
       },
@@ -211,7 +211,7 @@
       "previousTurn": {
         "message": "Pon a todos los empleados en el grupo Zúrich.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Busca clientes coincidentes",
         "arguments": { "searchString": "Zúrich" },
         "assistantAnswerExcerpt": "He buscado clientes coincidentes."
       },
@@ -229,7 +229,7 @@
       "previousTurn": {
         "message": "Dodaj wszystkich pracowników do grupy Zurych.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Wyszukuje pasujących klientów",
         "arguments": { "searchString": "Zurych" },
         "assistantAnswerExcerpt": "Wyszukałem pasujących klientów."
       },
@@ -247,7 +247,7 @@
       "previousTurn": {
         "message": "把所有员工加入苏黎世组。",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "搜索匹配的客户",
         "arguments": { "searchString": "苏黎世" },
         "assistantAnswerExcerpt": "我搜索了匹配的客户。"
       },

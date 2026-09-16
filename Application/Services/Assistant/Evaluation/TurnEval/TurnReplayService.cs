@@ -22,6 +22,9 @@ namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 
 public class TurnReplayService : ITurnReplayService
 {
+    private const string UserRole = "user";
+    private const string AssistantRole = "assistant";
+
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
@@ -184,22 +187,31 @@ public class TurnReplayService : ITurnReplayService
     }
 
     /// <summary>
-    /// Seeds the replay with the turn a correction item refers to. Only role and text are persisted in
-    /// production history too (LLMConversationManager), so this is the exact shape the live turn sees.
-    /// An item without a previousTurn replays with an empty history, as before.
+    /// Seeds the replay with the turn a correction item refers to, in the same role/content shape
+    /// production history uses (LLMConversationManager) - production also sets Timestamp and sanitizes
+    /// tool-call markup, neither of which the replay needs. The assistant entry is omitted when the
+    /// excerpt is blank: Anthropic drops whitespace-only history messages while OpenAI-compatible
+    /// providers do not, and the replay must behave identically regardless of provider. An item without
+    /// a previousTurn replays with an empty history, as before.
     /// </summary>
-    private static List<Domain.Services.Assistant.Providers.LLMMessage> BuildReplayHistory(TurnGoldsetItem item)
+    internal static List<Domain.Services.Assistant.Providers.LLMMessage> BuildReplayHistory(TurnGoldsetItem item)
     {
         if (item.PreviousTurn == null)
         {
             return new List<Domain.Services.Assistant.Providers.LLMMessage>();
         }
 
-        return
-        [
-            new() { Role = "user", Content = item.PreviousTurn.Message },
-            new() { Role = "assistant", Content = item.PreviousTurn.AssistantAnswerExcerpt ?? string.Empty }
-        ];
+        var history = new List<Domain.Services.Assistant.Providers.LLMMessage>
+        {
+            new() { Role = UserRole, Content = item.PreviousTurn.Message }
+        };
+
+        if (!string.IsNullOrWhiteSpace(item.PreviousTurn.AssistantAnswerExcerpt))
+        {
+            history.Add(new() { Role = AssistantRole, Content = item.PreviousTurn.AssistantAnswerExcerpt });
+        }
+
+        return history;
     }
 
     private async Task<string?> FindMatchingEngineRecipeNameAsync(
