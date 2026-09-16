@@ -8,7 +8,11 @@
 /// on the same request thread, so a shared context would race. The interface is synchronous because the
 /// caller (LLMService, both chat entry points) invokes it synchronously; the short single-row repository
 /// calls are awaited via GetAwaiter().GetResult(), which cannot deadlock without a synchronization
-/// context. Every stored text is capped here, not only in the column configuration.
+/// context. Every free-text field (user message, answer excerpt, call arguments/result, skill display
+/// label) is capped here, not only in the column configuration; the conversation id is not capped here
+/// on purpose - it is validated at the request boundary (LLMRequest.ConversationId), because capping it
+/// here would silently truncate the key Peek/Mutate later query with, missing the row instead of
+/// throwing.
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
 
@@ -22,8 +26,6 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 public class PersistentAssistantLastActionStore : IAssistantLastActionStore
 {
-    private const string EmptyJsonArray = GracefulCorrectionDefaults.EmptyJsonArray;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -90,7 +92,7 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
 
     public void MarkSuperseded(Guid userId, string conversationId)
     {
-        Mutate(userId, conversationId, createWhenMissing: false, row => row.SupersededAtUtc = DateTime.UtcNow);
+        Mutate(userId, conversationId, row => row.SupersededAtUtc = DateTime.UtcNow);
     }
 
     /// <summary>
@@ -102,7 +104,7 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
     public void SaveClarificationCandidates(Guid userId, string conversationId, IReadOnlyList<string> skillNames)
     {
         var json = JsonSerializer.Serialize(skillNames, JsonOptions);
-        Mutate(userId, conversationId, createWhenMissing: false, row =>
+        Mutate(userId, conversationId, row =>
         {
             row.ClarificationSkillsJson = json;
             row.SupersededAtUtc = DateTime.UtcNow;
@@ -111,32 +113,20 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
 
     /// <summary>
     /// Read-modify-write inside ONE scope, so the row EF hands back is the very instance that is written
-    /// again - a second scope would produce a detached copy and an identity conflict on save.
+    /// again - a second scope would produce a detached copy and an identity conflict on save. Never
+    /// creates a row: both callers only ever act on a record Save already wrote (a mark-superseded or a
+    /// clarification always follows a correction that had an anchor), so "no row" means the caller is
+    /// wrong rather than that a row is missing, and this silently does nothing.
     /// </summary>
-    private void Mutate(Guid userId, string conversationId, bool createWhenMissing, Action<AssistantLastActionRow> mutate)
+    private void Mutate(Guid userId, string conversationId, Action<AssistantLastActionRow> mutate)
     {
-        var now = DateTime.UtcNow;
-
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAssistantLastActionRepository>();
 
         var row = repository.GetAsync(userId, conversationId).GetAwaiter().GetResult();
         if (row == null)
         {
-            if (!createWhenMissing)
-            {
-                return;
-            }
-
-            row = new AssistantLastActionRow
-            {
-                UserId = userId,
-                ConversationId = conversationId,
-                CallsJson = EmptyJsonArray,
-                ClarificationSkillsJson = EmptyJsonArray,
-                CreateTimeUtc = now,
-                ExpiresAtUtc = now.AddMinutes(GracefulCorrectionDefaults.LastActionTtlMinutes)
-            };
+            return;
         }
 
         mutate(row);
