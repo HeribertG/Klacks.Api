@@ -31,4 +31,15 @@ public class LLMFunction
     /// </summary>
     [JsonIgnore]
     public double? RetrievalScore { get; set; }
+
+    /// <summary>
+    /// The skill's authored, user-facing labels per language tag, copied from AgentSkill by the toolset
+    /// assembler. Never part of the provider payload - every provider maps LLMFunction explicitly onto
+    /// its own tool schema - and read by exactly one consumer: the correction clarification, which is the
+    /// only sentence Klacksy sends without a model call and therefore the only one that has to carry its
+    /// own translation. Empty for functions built by LLMSkillBridge from a SkillDescriptor; those never
+    /// reach the clarification, which only ever sees the assembler's output.
+    /// </summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, string>? Labels { get; set; }
 }

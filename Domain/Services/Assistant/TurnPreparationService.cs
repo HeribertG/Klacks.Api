@@ -25,6 +25,7 @@
 /// <param name="inverseResolver">The inverse call of a write the corrected turn made, when one exists.</param>
 /// <param name="logger">Logger for the recipe lifecycle lines this block already emitted.</param>
 
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -486,13 +487,19 @@ public class TurnPreparationService : ITurnPreparationService
     /// The user-facing label of a skill, taken from THIS turn's toolset - the last moment it is
     /// available. The next turn excludes that skill, so a lookup there returns nothing and the note
     /// would have to fall back to the internal name, which must never reach a user.
+    /// Resolved in the language the calling turn ran in, because that is the language the user will be
+    /// asked in; a skill without an authored label for it yields null, the note then uses its English
+    /// model-facing stand-in and the question is not asked at all (rule 1 has nothing left to name).
     /// </summary>
     private static string? DescribeCalledSkill(LLMContext context, string functionName)
     {
         var function = context.AvailableFunctions.FirstOrDefault(
             f => string.Equals(f.Name, functionName, StringComparison.OrdinalIgnoreCase));
 
-        return CorrectionOutcomeComposer.FirstSentenceLabel(
-            function?.Description, GracefulCorrectionDefaults.SkillDisplayLabelMaxLength);
+        var label = SkillLabelResolver.Resolve(function?.Labels, context.Language);
+
+        return label == null || label.Length <= GracefulCorrectionDefaults.SkillDisplayLabelMaxLength
+            ? label
+            : label[..GracefulCorrectionDefaults.SkillDisplayLabelMaxLength].TrimEnd();
     }
 }

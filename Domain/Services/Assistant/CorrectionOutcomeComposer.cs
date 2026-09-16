@@ -19,22 +19,6 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public static class CorrectionOutcomeComposer
 {
     /// <summary>
-    /// The language the skill descriptions the option labels are taken from are authored in. Not a
-    /// fallback and not a default: it is a statement of fact about the seed data, and the interim gate in
-    /// BuildClarification exists only as long as it stays true.
-    /// </summary>
-    private const string SkillDescriptionLanguage = "en";
-
-    /// <summary>
-    /// Shortest run of letters that may precede a sentence terminator for it to end a sentence. Two, so
-    /// that the last piece of an abbreviation ("e.g.", "z.B.") is not read as the end of the sentence it
-    /// sits inside.
-    /// </summary>
-    private const int MinimumWordLengthBeforeSentenceEnd = 2;
-
-    private static readonly char[] SentenceTerminators = ['.', '!', '?'];
-
-    /// <summary>
     /// Composes the outcome of a correction turn.
     ///
     /// The undo is resolved by the caller and handed in already built, because resolving it needs a
@@ -180,15 +164,14 @@ public static class CorrectionOutcomeComposer
     /// The two boundary cases are measured by correction-v1 (cr-de-005-ambiguous, cr-de-007-clear-winner)
     /// before the tolerance is calibrated.
     ///
-    /// INTERIM RESTRICTION (pending the owner's decision): the question is asked ONLY when the turn's
-    /// base language is English. Its frame is translated into all 25 languages, but the three nouns it
-    /// puts inside that frame - the previous action and the two options - are skill descriptions, and
-    /// those exist in English only. A German frame around English nouns satisfies rule 4 in form and
-    /// breaks it in substance, so outside English the turn fails CLOSED and proceeds without asking; a
-    /// turn carrying no language at all cannot be shown to be English and is treated the same way. The
-    /// recorded options for lifting this: use the per-language skill synonyms as labels, ship per-pack
-    /// skill descriptions, or carve the labels out of rule 4 explicitly. The 25 authored sentences and
-    /// the pack loader stay in place because whichever option wins will use them.
+    /// The three nouns the question puts into its translated frame are AUTHORED labels (AgentSkill.Labels
+    /// -> LLMFunction.Labels), resolved for this turn's language by SkillLabelResolver. There is no
+    /// English fallback: a language for which no label was authored yields none, and the turn then asks
+    /// nothing rather than putting an English noun into a translated sentence (spec §1 rule 4). Until the
+    /// 21 language packs ship their own skill-labels.json, that is the state of every plugin language -
+    /// the owner-accepted gap this replaced the earlier English-only gate with. The difference is which
+    /// way the refusal points: the gate refused every language BUT English, this refuses only what is
+    /// genuinely unauthored, and the four core languages are authored in skill-seeds.json.
     ///
     /// No question is asked either when an option cannot be named without leaking an internal snake_case
     /// skill name, when both options would be named identically - two CRUD descriptions can share a first
@@ -202,9 +185,7 @@ public static class CorrectionOutcomeComposer
         IReadOnlyList<LLMFunction> orderedCandidates, string? previousLabel, string? language)
     {
         if (orderedCandidates.Count < GracefulCorrectionDefaults.ClarificationCandidateCount
-            || string.IsNullOrWhiteSpace(previousLabel)
-            || !string.Equals(
-                LanguageTag.BaseLanguage(language), SkillDescriptionLanguage, StringComparison.OrdinalIgnoreCase))
+            || string.IsNullOrWhiteSpace(previousLabel))
         {
             return null;
         }
@@ -221,8 +202,8 @@ public static class CorrectionOutcomeComposer
             return null;
         }
 
-        var firstLabel = DescribeFunction(orderedCandidates[0]);
-        var secondLabel = DescribeFunction(orderedCandidates[1]);
+        var firstLabel = DescribeFunction(orderedCandidates[0], language);
+        var secondLabel = DescribeFunction(orderedCandidates[1], language);
         if (firstLabel == null || secondLabel == null
             || string.Equals(firstLabel, secondLabel, StringComparison.OrdinalIgnoreCase))
         {
@@ -242,13 +223,23 @@ public static class CorrectionOutcomeComposer
     }
 
     /// <summary>
-    /// A user-facing label for a candidate: the first sentence of its description, capped. Never the
+    /// A user-facing label for a candidate in the turn's language: its authored label, capped. Never the
     /// internal snake_case name - InternalIdentifierRedactor exists precisely because those must not
-    /// reach a user. Null when the skill carries no description.
+    /// reach a user - and, since 2026-09-16, never the raw skill description either: measured against
+    /// skill-seeds.json, 321 of 470 first description sentences are longer than OptionLabelMaxLength and
+    /// were being cut mid-sentence, on top of only existing in English. The cap stays as a belt-and-braces
+    /// guard for pack-authored labels, which no seed guard can reach.
     /// </summary>
-    /// <param name="function">The candidate whose description is turned into an option label</param>
-    internal static string? DescribeFunction(LLMFunction function) =>
-        FirstSentenceLabel(function.Description, GracefulCorrectionDefaults.OptionLabelMaxLength);
+    /// <param name="function">The candidate whose authored label is used as an option label</param>
+    /// <param name="language">Active language of the turn the question would be asked in</param>
+    internal static string? DescribeFunction(LLMFunction function, string? language)
+    {
+        var label = SkillLabelResolver.Resolve(function.Labels, language);
+
+        return label == null || label.Length <= GracefulCorrectionDefaults.OptionLabelMaxLength
+            ? label
+            : label[..GracefulCorrectionDefaults.OptionLabelMaxLength].TrimEnd();
+    }
 
     /// <summary>
     /// The whole phrase the note substitutes for its language slot. Never empty: a blank slot would read
@@ -266,63 +257,4 @@ public static class CorrectionOutcomeComposer
                 System.Globalization.CultureInfo.InvariantCulture,
                 GracefulCorrectionNotes.NamedLanguageTemplate,
                 language);
-
-    /// <summary>
-    /// The shared shape of both user-facing labels: the first sentence of a skill description, trimmed
-    /// and capped. The two callers differ only in their cap - the stored label of a recorded call is
-    /// sized like the answer excerpt, an option label like the question it has to fit into - so the cap
-    /// is a parameter rather than a second copy of this code.
-    ///
-    /// A sentence ends at '.', '!' or '?' that whitespace or the end of the text follows AND that a word
-    /// of at least MinimumWordLengthBeforeSentenceEnd letters precedes. Both halves are needed: without
-    /// the first, "e.g" ends the label after five characters; without the second, "Adds e.g. contracts"
-    /// still ends it at "Adds e.g." because that dot is followed by a space. Not a sentence splitter -
-    /// "etc. and so on" and "No. 5" are still cut, and an ordinal like "3. Schritt" is not; the point is
-    /// that the common abbreviations in a skill description no longer truncate its label to a stump.
-    /// </summary>
-    /// <param name="description">Skill description the label is taken from</param>
-    /// <param name="maxLength">Maximum number of characters the label may have</param>
-    internal static string? FirstSentenceLabel(string? description, int maxLength)
-    {
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return null;
-        }
-
-        var sentenceEnd = FirstSentenceEnd(description);
-        var label = (sentenceEnd > 0 ? description[..sentenceEnd] : description).Trim();
-
-        return label.Length <= maxLength ? label : label[..maxLength].TrimEnd();
-    }
-
-    private static int FirstSentenceEnd(string description)
-    {
-        for (var index = 0; index < description.Length; index++)
-        {
-            if (Array.IndexOf(SentenceTerminators, description[index]) < 0
-                || !FollowedByWhitespaceOrEnd(description, index)
-                || WordLengthBefore(description, index) < MinimumWordLengthBeforeSentenceEnd)
-            {
-                continue;
-            }
-
-            return index;
-        }
-
-        return -1;
-    }
-
-    private static bool FollowedByWhitespaceOrEnd(string description, int index) =>
-        index + 1 >= description.Length || char.IsWhiteSpace(description[index + 1]);
-
-    private static int WordLengthBefore(string description, int index)
-    {
-        var length = 0;
-        for (var cursor = index - 1; cursor >= 0 && char.IsLetter(description[cursor]); cursor--)
-        {
-            length++;
-        }
-
-        return length;
-    }
 }

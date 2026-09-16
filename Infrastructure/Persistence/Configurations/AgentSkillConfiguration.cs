@@ -28,6 +28,8 @@ public class AgentSkillConfiguration : IEntityTypeConfiguration<AgentSkill>
             .ValueGeneratedNever();
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
+        builder.Property(e => e.Labels)
+            .HasJsonbConversionWithComparer<Dictionary<string, string>>();
 
         builder.HasOne(s => s.Agent)
             .WithMany(a => a.Skills)

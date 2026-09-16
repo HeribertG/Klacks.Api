@@ -44,6 +44,17 @@ public class AgentSkill : BaseEntity
 
     public Dictionary<string, List<string>>? Synonyms { get; set; }
 
+    /// <summary>
+    /// Short, user-facing name of this skill per language tag, authored by hand (spec §1 rule 4). The
+    /// counterpart of Synonyms and its exact storage twin - a jsonb dictionary - but the opposite
+    /// direction: Synonyms are INPUT vocabulary that decides whether this skill is selected, Labels are
+    /// OUTPUT text that names it back to the user, and they must therefore never reach the matching or
+    /// retrieval path. Core languages come from skill-seeds.json, the other 21 from each language pack's
+    /// skill-labels.json. Null or a missing language means the assistant names this skill in no question
+    /// at all; it never substitutes English.
+    /// </summary>
+    public Dictionary<string, string>? Labels { get; set; }
+
     public virtual Agent Agent { get; set; } = null!;
 
     public virtual ICollection<AgentSkillExecution> Executions { get; set; } = new List<AgentSkillExecution>();
