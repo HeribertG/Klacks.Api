@@ -23,12 +23,11 @@ public class LLMService : ILLMService
     private readonly IAgentRepository _agentRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
-    private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly RecipeEngineService _recipeEngine;
     private readonly IRecipeRunRecorder _recipeRunRecorder;
-    private readonly RecipeSlotExtractor _slotExtractor;
     private readonly ISuggestionEntityNameReader _suggestionEntityNameReader;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
+    private readonly ITurnPreparationService _turnPreparation;
 
     private const int MaxHistoryMessages = 20;
 
@@ -83,12 +82,11 @@ public class LLMService : ILLMService
         IAgentRepository agentRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
         ILLMBackgroundTaskService backgroundTaskService,
-        IPendingConfirmationStore pendingConfirmationStore,
         RecipeEngineService recipeEngine,
         IRecipeRunRecorder recipeRunRecorder,
-        RecipeSlotExtractor slotExtractor,
         ISuggestionEntityNameReader suggestionEntityNameReader,
-        IContextBudgetPolicy contextBudgetPolicy)
+        IContextBudgetPolicy contextBudgetPolicy,
+        ITurnPreparationService turnPreparation)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -99,12 +97,11 @@ public class LLMService : ILLMService
         _agentRepository = agentRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _backgroundTaskService = backgroundTaskService;
-        _pendingConfirmationStore = pendingConfirmationStore;
         _recipeEngine = recipeEngine;
         _recipeRunRecorder = recipeRunRecorder;
-        _slotExtractor = slotExtractor;
         _suggestionEntityNameReader = suggestionEntityNameReader;
         _contextBudgetPolicy = contextBudgetPolicy;
+        _turnPreparation = turnPreparation;
     }
 
     /// <summary>
@@ -128,49 +125,6 @@ public class LLMService : ILLMService
         }
 
         response.Suggestions = SuggestionGroundingFilter.Filter(response.Suggestions, realNames);
-    }
-
-    /// <summary>
-    /// Decides whether the current turn should be forced to confirm an outstanding pending action.
-    /// Fires only when the user message is a clear affirmation AND the user still has an un-consumed
-    /// confirmation in the store AND confirm_pending_action is in scope. Returns the (always-on)
-    /// confirm function to narrow the tool scope to, plus a context note that resurfaces the token
-    /// (which is lost from conversation history because only user/assistant text is persisted).
-    /// A pending gate-replay row deliberately overrides a mutation intent in the same message: a reply
-    /// that restates the action ("yes, delete the user") is still an answer to the question the gate
-    /// asked. Vetoing it here made the model re-call the skill, which produced a fresh hold and a
-    /// confirmation loop. Only the first iteration is narrowed, so any additional request in the same
-    /// message is still served once the token is redeemed.
-    /// </summary>
-    internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
-    {
-        if (!AffirmationDetector.IsAffirmation(context.Message)
-            || !Guid.TryParse(context.UserId, out var userGuid))
-        {
-            return (false, null, null);
-        }
-
-        var pending = _pendingConfirmationStore.PeekLatestForUser(
-            userGuid, TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds));
-        if (pending == null)
-        {
-            return (false, null, null);
-        }
-
-        var confirmFunction = context.AvailableFunctions.FirstOrDefault(
-            f => string.Equals(f.Name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase));
-        if (confirmFunction == null)
-        {
-            return (false, null, null);
-        }
-
-        var note = string.Format(
-            System.Globalization.CultureInfo.InvariantCulture,
-            MutationGuardConstants.PendingConfirmationContextTemplate,
-            pending.SkillName,
-            pending.Token);
-
-        return (true, confirmFunction, note);
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context, CancellationToken cancellationToken = default)
@@ -211,6 +165,8 @@ public class LLMService : ILLMService
                 toolChoiceRequested: ctx.ToolChoiceRequested,
                 toolChoiceSupported: ctx.Provider.SupportsToolChoice,
                 toolCallReturned: allFunctionCalls.Count > 0);
+
+            _turnPreparation.RecordLastAction(context, responseContent, allFunctionCalls, ctx.RecipePausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -283,15 +239,18 @@ public class LLMService : ILLMService
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(context.Message);
-        var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
 
         // Emitted unconditionally, not only when a recipe turns out to be active: the resolve itself
         // runs on every turn (recipe table read, trigger matching, semantic fallback and slot
         // extraction — the last of which is a model call), so the wait is real regardless of outcome.
         yield return SseChunk.Status(SseStatusStages.ResolvingRecipe, ElapsedMsFor(context));
 
-        var enginePlan = await ResolveOrResumeRecipeAsync(
-            context, provider!, model!, conversation!.ConversationId, cancellationToken);
+        var preparation = await _turnPreparation.PrepareAsync(
+            new TurnPreparationRequest(context, provider!, model!, conversation!.ConversationId), cancellationToken);
+        var forceConfirmation = preparation.ForceConfirm;
+        var confirmFunction = preparation.ConfirmFunction;
+        var pendingNote = preparation.VolatileNote;
+        var enginePlan = preparation.Plan;
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
 
@@ -757,6 +716,8 @@ public class LLMService : ILLMService
                 toolChoiceSupported: provider!.SupportsToolChoice,
                 toolCallReturned: allFunctionCalls.Count > 0);
 
+            _turnPreparation.RecordLastAction(context, responseContent, allFunctionCalls, recipePausedOnAsk);
+
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
         }
@@ -907,9 +868,13 @@ public class LLMService : ILLMService
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(ctx.Context.Message);
-        var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
-        var enginePlan = await ResolveOrResumeRecipeAsync(
-            ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, ctx.CancellationToken);
+        var preparation = await _turnPreparation.PrepareAsync(
+            new TurnPreparationRequest(ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId),
+            ctx.CancellationToken);
+        var forceConfirmation = preparation.ForceConfirm;
+        var confirmFunction = preparation.ConfirmFunction;
+        var pendingNote = preparation.VolatileNote;
+        var enginePlan = preparation.Plan;
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
 
@@ -1246,6 +1211,8 @@ public class LLMService : ILLMService
                 allFunctionCalls.Count, iterationsUsed);
         }
 
+        ctx.RecipePausedOnAsk = recipePausedOnAsk;
+
         return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot);
     }
 
@@ -1368,166 +1335,6 @@ public class LLMService : ILLMService
                 call.Parameters[injection.Key] = injection.Value;
             }
         }
-    }
-
-    // Data-driven recipe engine entry point (shared by both loops): resume a recipe paused on an ask by
-    // raw-filling the current ask slot from the user's message, otherwise match a fresh recipe and
-    // pre-fill its slots from the opening message via one structured extraction call. In both cases
-    // advance past any already-satisfied steps so the loop sees the next ask (pause) or push (force).
-    // A recipe paused on the confirmation gate (semantic match) is a third resume shape: an affirmation
-    // clears the gate and proceeds, anything else (rejection, off-topic reply, a question) discards the
-    // pending recipe and falls through to a fresh match on the current message instead.
-    internal async Task<RecipeExecutionPlan?> ResolveOrResumeRecipeAsync(
-        LLMContext context,
-        ILLMProvider provider,
-        LLMModel model,
-        string conversationId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParse(context.UserId, out var userGuid))
-        {
-            return null;
-        }
-
-        var resumed = await _recipeEngine.ResumeAsync(userGuid, conversationId, cancellationToken);
-        if (resumed != null)
-        {
-            if (resumed.NeedsConfirmation)
-            {
-                if (!AffirmationDetector.IsAffirmation(context.Message))
-                {
-                    await _recipeRunRecorder.AbortRunningAsync(
-                        resumed.Name, userGuid, conversationId, "confirmation declined", cancellationToken);
-                    _recipeEngine.Clear(userGuid, conversationId);
-                    resumed = null;
-                }
-                else
-                {
-                    resumed.ConfirmAndProceed();
-                    resumed.AdvanceOverSatisfied();
-                    return resumed;
-                }
-            }
-            else
-            {
-                var step = resumed.CurrentStep;
-                if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
-                {
-                    // An explicit abort ("abbrechen", "vergiss es", "cancel") must end the recipe, not be
-                    // raw-filled into the slot as if it were the answer to the ask question.
-                    if (RecipeCancellationDetector.IsCancellation(context.Message))
-                    {
-                        await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId, "cancelled during ask step", cancellationToken);
-                        _recipeEngine.Clear(userGuid, conversationId);
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);
-                        return null;
-                    }
-
-                    // An independent question ("Wie kann ich die XML einbinden?") is not an answer to the
-                    // pending slot either — raw-filling it would silence every skill the tool-less ask-step
-                    // call could otherwise have used to answer it. Leave the slot unfilled and let the loop
-                    // run this one turn with its full toolset instead; the recipe stays on this same ask
-                    // step and is re-asked once that turn's own answer is done.
-                    if (RecipeTopicSwitchDetector.IsTopicSwitch(context.Message))
-                    {
-                        resumed.MarkTopicSwitchThisTurn();
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' ask step (slot {Slot}) bypassed for one turn: message reads " +
-                            "as an independent question, running a normal full-tool turn and re-asking afterwards",
-                            resumed.Name, step!.Slot);
-                    }
-                    // Checked after the topic switch, not before it. A topic switch requires a question
-                    // mark, an interrogative lead and two words, so it is the more specific finding — and
-                    // the recoverable one, since it answers the question and re-asks the same slot on the
-                    // next turn. A message satisfying both ("Nein, nicht so — wie finde ich heraus, welche
-                    // Gruppen ein Mitarbeiter schon hat?") is far more likely an independent question, and
-                    // aborting for it would trade a recoverable turn for a lost recipe. The correction this
-                    // branch exists for carries no question mark, so the ordering costs it nothing.
-                    else if (RecipeCorrectionDetector.IsStrongCorrection(context.Message, resumed))
-                    {
-                        await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId, RecipeAbortReasons.CorrectedDuringAskStep, cancellationToken);
-                        _recipeEngine.Clear(userGuid, conversationId);
-                        _logger.LogInformation(
-                            "Recipe '{Recipe}' aborted during ask step (slot {Slot}): message reads as a " +
-                            "correction of the recipe", resumed.Name, step!.Slot);
-
-                        return await ResolveAfterCorrectionAsync(
-                            resumed.Name, resumed.TriggerMessage, context, provider, model, cancellationToken);
-                    }
-                    else
-                    {
-                        resumed.FillSlot(step!.Slot!, context.Message);
-                    }
-                }
-
-                resumed.AdvanceOverSatisfied();
-                return resumed;
-            }
-        }
-
-        var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, context.UserRights, cancellationToken);
-        if (fresh != null)
-        {
-            var extracted = await _slotExtractor.ExtractAsync(
-                provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
-            fresh.PrefillSlots(extracted);
-            fresh.AdvanceOverSatisfied();
-            _logger.LogInformation(
-                "Recipe '{Recipe}' engaged: prefilled slots [{Slots}]", fresh.Name, string.Join(", ", fresh.Slots.Keys));
-        }
-
-        return fresh;
-    }
-
-    /// <summary>
-    /// Re-engages a recipe after the pending one was aborted because the user corrected it.
-    ///
-    /// Only a plan that stops on an ask is handed back. This turn's toolset was assembled before
-    /// LLMService ran and guaranteed the step skills of the recipe that was just aborted, so a plan whose
-    /// first open step forces a skill cannot be driven: ResolveRecipeIteration finds the skill missing and
-    /// the forcing silently no-ops, leaving an active plan that never pauses on an ask and is therefore
-    /// never persisted. An ask step needs no tool at all, so it is the one shape this turn can still
-    /// execute. Re-engaging a push-first recipe belongs to the assembler, which is where the composite
-    /// intent message has to be built anyway.
-    ///
-    /// A fresh plan for the recipe that was just aborted cannot occur: it is excluded from the match
-    /// rather than discarded afterwards, because re-matching it would restart at step 0 with every slot
-    /// the user already supplied thrown away, which is worse than the raw-fill this branch prevented.
-    /// </summary>
-    private async Task<RecipeExecutionPlan?> ResolveAfterCorrectionAsync(
-        string abortedRecipeName,
-        string? triggerMessage,
-        LLMContext context,
-        ILLMProvider provider,
-        LLMModel model,
-        CancellationToken cancellationToken)
-    {
-        // The composite, not the correction. On its own the correction usually resolves to nothing: it
-        // opens with a negation and carries no mutation verb, so the engine suppresses the semantic
-        // fallback - correctly, because such a message is not a standalone request. The intent sits in the
-        // message that triggered the recipe, which PendingRecipe.TriggerMessage now carries across turns.
-        // Composed through RecipeCorrectionComposer because the toolset assembler produces the same bytes:
-        // FindMatchingRecipeAsync memoizes on (message, language, excluded), so identical composition and
-        // identical exclusion mean this call reuses the entry GuaranteedSkillNamesAsync already warmed for
-        // this turn instead of paying for a second embedding round.
-        var composite = RecipeCorrectionComposer.Compose(triggerMessage, context.Message);
-
-        var fresh = await _recipeEngine.ResolveAsync(
-            composite, context.Language, context.UserRights, cancellationToken, abortedRecipeName);
-        if (fresh == null)
-        {
-            return null;
-        }
-
-        var extracted = await _slotExtractor.ExtractAsync(
-            provider, model, composite, fresh.AskSlotHints(), cancellationToken);
-        fresh.PrefillSlots(extracted);
-        fresh.AdvanceOverSatisfied();
-
-        return fresh.CurrentIsAsk ? fresh : null;
     }
 
     // Execution-time replacement for the former per-iteration toolset shrinking: read-only skills

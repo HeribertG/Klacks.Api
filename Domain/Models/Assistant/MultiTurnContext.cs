@@ -34,4 +34,12 @@ public record MultiTurnContext(
     /// read by the usage tracker so llm_usage can measure whether the provider honoured the request.
     /// </summary>
     public bool ToolChoiceRequested { get; set; }
+
+    /// <summary>
+    /// Set by the turn loop when it ends with a recipe waiting on an ask or confirmation step, and read
+    /// by ProcessAsync so the previous-action record can be marked superseded: the user's next message
+    /// answers the recipe question and is never a correction of this turn. Carried the same way as
+    /// ToolChoiceRequested rather than widening the loop's already five-wide return tuple.
+    /// </summary>
+    public bool RecipePausedOnAsk { get; set; }
 }
