@@ -13,7 +13,7 @@
       "previousTurn": {
         "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Passende Kunden auflisten",
         "arguments": { "searchString": "Zürich" },
         "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
       },
@@ -30,7 +30,7 @@
       "previousTurn": {
         "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Passende Kunden auflisten",
         "arguments": { "searchString": "Zürich" },
         "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
       },
@@ -47,7 +47,7 @@
       "previousTurn": {
         "message": "Trag alle Mitarbeitenden in die Gruppe Zürich ein.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Passende Kunden auflisten",
         "arguments": { "searchString": "Zürich" },
         "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
       },
@@ -64,7 +64,7 @@
       "previousTurn": {
         "message": "Leg mir bitte einen Dienst an.",
         "calledSkill": "create_shift",
-        "skillDisplayLabel": "Legt einen Dienst an",
+        "skillDisplayLabel": "Neue Schicht erstellen",
         "arguments": { "name": "Nachtdienst" },
         "assistantAnswerExcerpt": "Der Dienst wurde angelegt."
       },
@@ -82,7 +82,7 @@
       "previousTurn": {
         "message": "Zeig mir die Zürcher.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Passende Kunden auflisten",
         "arguments": { "searchString": "Zürich" },
         "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
       },
@@ -101,7 +101,7 @@
       "previousTurn": {
         "message": "Nimm das in die Gruppe Zürich auf.",
         "calledSkill": "add_shift_to_group",
-        "skillDisplayLabel": "Ordnet einen Dienst einer Gruppe zu",
+        "skillDisplayLabel": "Schicht einer Gruppe zuordnen",
         "arguments": {
           "shiftId": "6f0f1f7a-0000-4000-8000-000000000001",
           "groupId": "6f0f1f7a-0000-4000-8000-000000000002"
@@ -122,7 +122,7 @@
       "previousTurn": {
         "message": "Zeig mir die Zürcher.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Sucht passende Kunden",
+        "skillDisplayLabel": "Passende Kunden auflisten",
         "arguments": { "searchString": "Zürich" },
         "assistantAnswerExcerpt": "Ich habe nach passenden Kunden gesucht."
       },
@@ -139,7 +139,7 @@
       "previousTurn": {
         "message": "Nimm alle Zürcher in eine Gruppe auf.",
         "calledSkill": "search_employees",
-        "skillDisplayLabel": "Sucht Mitarbeitende",
+        "skillDisplayLabel": "Mitarbeitende suchen",
         "arguments": { "canton": "ZH" },
         "assistantAnswerExcerpt": "In welche Gruppe sollen sie?"
       },
@@ -157,7 +157,7 @@
       "previousTurn": {
         "message": "Put all employees into the Zurich group.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Searches matching customers",
+        "skillDisplayLabel": "List matching customers",
         "arguments": { "searchString": "Zurich" },
         "assistantAnswerExcerpt": "I searched for matching customers."
       },
@@ -175,7 +175,7 @@
       "previousTurn": {
         "message": "Mets tous les collaborateurs dans le groupe Zurich.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Recherche des clients correspondants",
+        "skillDisplayLabel": "Lister les clients correspondants",
         "arguments": { "searchString": "Zurich" },
         "assistantAnswerExcerpt": "J'ai cherché des clients correspondants."
       },
@@ -193,7 +193,7 @@
       "previousTurn": {
         "message": "Inserisci tutti i collaboratori nel gruppo Zurigo.",
         "calledSkill": "find_customer_candidates",
-        "skillDisplayLabel": "Cerca clienti corrispondenti",
+        "skillDisplayLabel": "Elenca i clienti corrispondenti",
         "arguments": { "searchString": "Zurigo" },
         "assistantAnswerExcerpt": "Ho cercato i clienti corrispondenti."
       },
