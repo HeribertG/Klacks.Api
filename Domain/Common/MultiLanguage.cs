@@ -5,6 +5,7 @@
 /// Core languages (de/en/fr/it) have explicit properties for code access.
 /// All languages (core + plugin) are serialized dynamically via MultiLanguageSystemTextJsonConverter.
 /// </summary>
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Domain.Common;
@@ -18,13 +19,14 @@ public class MultiLanguage
     /// The languages Klacks ships itself, i.e. the ones no language plugin supplies. The single source
     /// for that list: LanguagePluginConstants.CoreLanguages (which pack directories a loader skips) and
     /// GracefulCorrectionTexts.CoreLanguages (which languages must carry an authored assistant sentence)
-    /// both point at this array rather than repeating it. A static readonly array rather than a property
-    /// returning a fresh one, so the three names are one object - no caller mutates it.
+    /// both point at this array rather than repeating it. ImmutableArray rather than a plain array, so
+    /// the three names sharing one value cannot be mutated through any of them - a plain
+    /// "static readonly string[]" only prevents reassigning the reference, not writing an element.
     /// </summary>
-    public static readonly string[] CoreLanguages = ["de", "en", "fr", "it"];
+    public static readonly ImmutableArray<string> CoreLanguages = ["de", "en", "fr", "it"];
 
     [Obsolete("Use CoreLanguages or LanguageConfig.SupportedLanguages instead")]
-    public static string[] SupportedLanguages => CoreLanguages;
+    public static string[] SupportedLanguages => CoreLanguages.ToArray();
 
     [JsonIgnore]
     public string? De

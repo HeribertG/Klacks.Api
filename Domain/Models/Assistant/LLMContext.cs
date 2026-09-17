@@ -144,11 +144,10 @@ public class LLMContext
     public string? CorrectionClarificationReply { get; set; }
 
     /// <summary>
-    /// True when the graceful-correction path engaged this turn. Written by all three context builders
-    /// and, since the pending-confirmation gate moved to <see cref="CorrectionUndoOffered"/>, read by
-    /// nothing in production: it is retained for the trajectory capture of task 7, which will use it to
-    /// tell "user corrected and we re-routed" from "user corrected and nothing happened"
-    /// (CorrectionTypes.GracefulRerouted vs. Implicit). Not dead code - unread on purpose, for now.
+    /// True when the graceful-correction path engaged this turn. Written by all three context builders;
+    /// read by TrajectoryCaptureService.MarkImplicitCorrectionAsync to tell "user corrected and we
+    /// re-routed" from "user corrected and nothing happened" (CorrectionTypes.GracefulRerouted vs.
+    /// Implicit) - the pending-confirmation gate itself reads <see cref="CorrectionUndoOffered"/> instead.
     /// </summary>
     public bool GracefulCorrectionApplied { get; set; }
 
