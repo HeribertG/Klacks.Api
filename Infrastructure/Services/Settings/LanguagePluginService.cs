@@ -157,13 +157,12 @@ public class LanguagePluginService : ILanguagePluginService
     /// <summary>
     /// Shared skeleton behind every "reapply this per installed code" backfill above: snapshot the
     /// installed codes under lock, return without opening a scope when there are none, then run
-    /// <paramref name="install"/> once per code inside a single shared scope - some installers rely on
-    /// that sharing (e.g. InstallCountryAsync and InstallStatesAsync, or InstallRecipeVetoesAsync running
-    /// in the same scope InstallRecipeSynonymsAsync already attached rows in). <paramref name="afterAll"/>
-    /// exists only for BackfillDocsAsync, whose installer stages entities on the plain DataBaseContext
-    /// without committing; every other installer here commits itself per call, so afterAll stays null for
-    /// them. A failure anywhere logs <paramref name="failureMessage"/> and swallows, matching each
-    /// installer method's own catch/log-and-continue behavior: one broken pack must not stop the others.
+    /// <paramref name="install"/> once per code inside a single shared scope, as BackfillCountriesAsync
+    /// needs for its InstallCountryAsync/InstallStatesAsync pair. <paramref name="afterAll"/> exists only
+    /// for BackfillDocsAsync, whose installer stages entities on the plain DataBaseContext without
+    /// committing; every other installer here commits itself per call, so afterAll stays null for them.
+    /// A failure anywhere logs <paramref name="failureMessage"/> and swallows, matching each installer
+    /// method's own catch/log-and-continue behavior: one broken pack must not stop the others.
     /// </summary>
     private async Task RunForEachInstalledCodeAsync(
         Func<IServiceScope, string, Task> install,
