@@ -203,7 +203,7 @@
   "find_absence_capacity_windows": "Znajdź odpowiednie okna czasowe dla nieobecności",
   "find_customer_candidates": "Wyświetl listę odpowiednich klientów",
   "find_replacement": "Znaleźć zastępstwo na jedną zmianę",
-  "find_split_shift_candidates": "Sprawdzić, czy istniejące warstwy częściowe nadają się do ponownego wykorzystani",
+  "find_split_shift_candidates": "Znajdź istniejące zmiany dzielone do ponownego wykorzystania",
   "generate_period_summary": "Utworzenie podsumowania okresu",
   "geocode_location_groups": "Automatyczne geokodowanie grup lokalizacji",
   "get_active_industries_settings": "Ustawienia aktywnych branż",

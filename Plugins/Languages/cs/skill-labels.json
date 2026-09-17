@@ -203,7 +203,7 @@
   "find_absence_capacity_windows": "Najít vhodné časové okno pro nepřítomnost",
   "find_customer_candidates": "Zobrazit vhodné zákazníky",
   "find_replacement": "Najít náhradníka na jednu směnu",
-  "find_split_shift_candidates": "Zkontrolovat stávající dílčí vrstvy z hlediska možnosti jejich opětovného použit",
+  "find_split_shift_candidates": "Vyhledat stávající kandidáty na dělené směny pro opětovné použití",
   "generate_period_summary": "Vytvořit souhrn za určité období",
   "geocode_location_groups": "Automatické geokódování skupin lokalit",
   "get_active_industries_settings": "Aktivní nastavení pro jednotlivá odvětví",
