@@ -42,57 +42,32 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ILLMService _llmService;
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillCacheService _skillCacheService;
-    private readonly ISkillToolsetAssembler _toolsetAssembler;
+    private readonly ICorrectionTurnPreparer _correctionTurnPreparer;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
-    private readonly IAssistantLastActionStore _lastActionStore;
-    private readonly IPendingRecipeStore _pendingRecipeStore;
-    private readonly ITurnPreparationService _turnPreparation;
-
-    /// <summary>
-    /// Holds the one-time token of an undo offer. Written HERE and in LLMStreamingOrchestrator only,
-    /// never in the turn preparation: a headless replay resolves the same undo as data and must leave no
-    /// redeemable token behind. The token carries PendingConfirmationPurposes.GateReplay because it is
-    /// redeemed exactly like any other held invocation - an affirmation narrows the next turn to
-    /// confirm_pending_action, which replays these arguments. Known limitation, not introduced here:
-    /// PeekLatestForUser looks up the latest token PER USER, not per conversation, so an affirmation in
-    /// another conversation of the same user that is open at the same time can redeem this one. TP1
-    /// narrows the window (the token exists only on the non-ambiguous path and only when an offer was
-    /// actually made); conversation-scoped confirmations are TP2 work.
-    /// </summary>
-    private readonly IPendingConfirmationStore _pendingConfirmationStore;
-
     private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
-        ISkillToolsetAssembler toolsetAssembler,
+        ICorrectionTurnPreparer correctionTurnPreparer,
         IPlanningScopeEnricher planningScopeEnricher,
         IEntityCandidateGrounder entityCandidateGrounder,
         LLMProviderOrchestrator providerOrchestrator,
         IContextBudgetPolicy contextBudgetPolicy,
-        IAssistantLastActionStore lastActionStore,
-        IPendingRecipeStore pendingRecipeStore,
-        ITurnPreparationService turnPreparation,
-        IPendingConfirmationStore pendingConfirmationStore,
         ILogger<ProcessLLMMessageCommandHandler> logger)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
-        _toolsetAssembler = toolsetAssembler;
+        _correctionTurnPreparer = correctionTurnPreparer;
         _planningScopeEnricher = planningScopeEnricher;
         _entityCandidateGrounder = entityCandidateGrounder;
         _providerOrchestrator = providerOrchestrator;
         _contextBudgetPolicy = contextBudgetPolicy;
-        _lastActionStore = lastActionStore;
-        _pendingRecipeStore = pendingRecipeStore;
-        _turnPreparation = turnPreparation;
-        _pendingConfirmationStore = pendingConfirmationStore;
         _logger = logger;
     }
 
@@ -116,91 +91,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             : KnowledgeIndexConstants.MaxToolsForProvider;
         var effectiveModelId = earlyModel?.ModelId ?? request.ModelId;
 
-        Guid.TryParse(request.UserId, out var userGuid);
-        var hasConversation = userGuid != Guid.Empty && !string.IsNullOrEmpty(request.ConversationId);
-
-        AssistantLastAction? lastAction = null;
-        GracefulCorrectionPlan? correctionPlan = null;
-        try
-        {
-            if (hasConversation)
-            {
-                lastAction = _lastActionStore.Peek(userGuid, request.ConversationId!);
-            }
-
-            var recipeIsActive = lastAction?.CanAnchorCorrection(DateTime.UtcNow) == true
-                && _pendingRecipeStore.Peek(userGuid, request.ConversationId!) != null;
-
-            correctionPlan = await _turnPreparation.PlanCorrectionAsync(
-                new GracefulCorrectionInput(
-                    agent, request.UserRights, request.Message, request.ConversationId, request.UserId,
-                    request.Language, lastAction, recipeIsActive),
-                cancellationToken);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex,
-                "Graceful correction planning failed for user {UserId}; continuing as an ordinary turn.",
-                request.UserId);
-        }
-
-        var toolset = await _toolsetAssembler.AssembleAsync(
-            agent, request.UserRights, correctionPlan?.CompositeMessage ?? request.Message,
-            request.ConversationId, request.PageContext?.CurrentRoute, request.UserId, request.Language,
-            maxToolsForProvider, applyLearnedPhraseGuarantee: true,
-            excludedSkillNames: correctionPlan?.ExcludedSkillNames,
-            pinnedSkillNames: lastAction?.ClarificationSkillNames,
-            cancellationToken: cancellationToken);
-
-        GracefulCorrectionOutcome? correction = null;
-        if (correctionPlan != null)
-        {
-            try
-            {
-                correction = _turnPreparation.CompleteCorrection(
-                    correctionPlan, toolset.Functions, request.Language);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogWarning(ex,
-                    "Completing the graceful correction failed for user {UserId}; continuing as an ordinary turn.",
-                    request.UserId);
-            }
-        }
-
-        if (correction is { ClarificationReply.Length: > 0, ClarificationSkillNames.Count: > 0 } && hasConversation)
-        {
-            try
-            {
-                _lastActionStore.SaveClarificationCandidates(
-                    userGuid, request.ConversationId!, correction.ClarificationSkillNames);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogWarning(ex,
-                    "Could not pin the clarification candidates for user {UserId}; the follow-up turn runs without them.",
-                    request.UserId);
-            }
-        }
-
-        var undoWasHeld = false;
-        if (correction?.Undo != null && userGuid != Guid.Empty)
-        {
-            try
-            {
-                _pendingConfirmationStore.Create(
-                    userGuid,
-                    correction.Undo.SkillName,
-                    correction.Undo.Arguments,
-                    PendingConfirmationPurposes.CorrectionUndo);
-                undoWasHeld = true;
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogWarning(ex,
-                    "Could not register the undo offer for skill {Skill}", correction.Undo.SkillName);
-            }
-        }
+        var (toolset, correction, undoWasHeld) = await _correctionTurnPreparer.PrepareAsync(
+            agent, request.UserRights, request.Message, request.ConversationId, request.UserId,
+            request.Language, request.PageContext?.CurrentRoute, maxToolsForProvider, cancellationToken);
 
         var context = new LLMContext
         {
