@@ -34,5 +34,14 @@ public interface ILanguagePluginService
     /// </summary>
     Task ApplyInstalledRecipeVetoesAsync();
 
+    /// <summary>
+    /// Writes the user-facing skill labels of every installed language pack into the enabled skills.
+    /// A startup backfill for the same reason as ApplyInstalledRecipeVetoesAsync: a pack only reaches
+    /// the skills that exist at the moment it is installed, so a label column added after the packs were
+    /// installed stays empty on every existing installation. Deliberately NOT called from
+    /// InitializeAsync - it depends on the skill rows the chained
+    /// InitializeFeaturePluginsThenLoadSkillSeedsAsync branch creates, which is a parallel branch of the
+    /// same Task.WhenAll in Program.cs, so callers must invoke it only after that batch completed.
+    /// </summary>
     Task ApplyInstalledSkillLabelsAsync();
 }

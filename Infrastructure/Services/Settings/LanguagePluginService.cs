@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Facade for language plugin management: discovery, installation, uninstallation and translations.
-/// Delegates geo data operations to <see cref="LanguagePluginGeoDataInstaller"/>
-/// and content operations to <see cref="LanguagePluginContentInstaller"/>.
+/// Delegates geo data operations to <see cref="LanguagePluginGeoDataInstaller"/>,
+/// content operations to <see cref="LanguagePluginContentInstaller"/>
+/// and skill label operations to <see cref="LanguagePluginSkillLabelInstaller"/>.
 /// </summary>
 /// <param name="scopeFactory">Factory for DI scopes in database operations</param>
 /// <param name="configuration">App configuration for the plugin directory</param>
@@ -37,6 +38,7 @@ public class LanguagePluginService : ILanguagePluginService
 
     private readonly LanguagePluginGeoDataInstaller _geoDataInstaller;
     private readonly LanguagePluginContentInstaller _contentInstaller;
+    private readonly LanguagePluginSkillLabelInstaller _skillLabelInstaller;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -60,6 +62,7 @@ public class LanguagePluginService : ILanguagePluginService
 
         _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
+        _skillLabelInstaller = new LanguagePluginSkillLabelInstaller(_pluginDirectory, _logger);
     }
 
     public async Task InitializeAsync()
@@ -76,27 +79,9 @@ public class LanguagePluginService : ILanguagePluginService
 
     private async Task BackfillDefaultGeoTranslationsAsync()
     {
-        string[] codes;
-        lock (_installedLock)
-        {
-            codes = _installedCodes.ToArray();
-        }
-
-        if (codes.Length == 0)
-            return;
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            foreach (var code in codes)
-            {
-                await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to backfill default geo translations for installed language plugins");
-        }
+        await RunForEachInstalledCodeAsync(
+            _contentInstaller.MergeDefaultGeoTranslationsAsync,
+            "Failed to backfill default geo translations for installed language plugins");
     }
 
     /// <summary>
@@ -113,27 +98,9 @@ public class LanguagePluginService : ILanguagePluginService
     {
         await InitializeAsync();
 
-        string[] codes;
-        lock (_installedLock)
-        {
-            codes = _installedCodes.ToArray();
-        }
-
-        if (codes.Length == 0)
-            return;
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            foreach (var code in codes)
-            {
-                await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to backfill recipe vetoes for installed language plugins");
-        }
+        await RunForEachInstalledCodeAsync(
+            _contentInstaller.InstallRecipeVetoesAsync,
+            "Failed to backfill recipe vetoes for installed language plugins");
     }
 
     /// <summary>
@@ -149,27 +116,9 @@ public class LanguagePluginService : ILanguagePluginService
     {
         await InitializeAsync();
 
-        string[] codes;
-        lock (_installedLock)
-        {
-            codes = _installedCodes.ToArray();
-        }
-
-        if (codes.Length == 0)
-            return;
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            foreach (var code in codes)
-            {
-                await _contentInstaller.InstallSkillLabelsAsync(scope, code);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to backfill skill labels for installed language plugins");
-        }
+        await RunForEachInstalledCodeAsync(
+            (scope, code) => _skillLabelInstaller.InstallSkillLabelsAsync(scope, code),
+            "Failed to backfill skill labels for installed language plugins");
     }
 
     /// <summary>
@@ -179,30 +128,14 @@ public class LanguagePluginService : ILanguagePluginService
     /// </summary>
     private async Task BackfillDocsAsync()
     {
-        string[] codes;
-        lock (_installedLock)
-        {
-            codes = _installedCodes.ToArray();
-        }
-
-        if (codes.Length == 0)
-            return;
-
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            foreach (var code in codes)
+        await RunForEachInstalledCodeAsync(
+            _contentInstaller.InstallDocsAsync,
+            "Failed to backfill docs for installed language plugins",
+            afterAll: async scope =>
             {
-                await _contentInstaller.InstallDocsAsync(scope, code);
-            }
-
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            await unitOfWork.CompleteAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to backfill docs for installed language plugins");
-        }
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                await unitOfWork.CompleteAsync();
+            });
     }
 
     /// <summary>
@@ -211,6 +144,31 @@ public class LanguagePluginService : ILanguagePluginService
     /// was originally installed.
     /// </summary>
     private async Task BackfillCountriesAsync()
+    {
+        await RunForEachInstalledCodeAsync(
+            async (scope, code) =>
+            {
+                await _contentInstaller.InstallCountryAsync(scope, code);
+                await _contentInstaller.InstallStatesAsync(scope, code);
+            },
+            "Failed to backfill countries for installed language plugins");
+    }
+
+    /// <summary>
+    /// Shared skeleton behind every "reapply this per installed code" backfill above: snapshot the
+    /// installed codes under lock, return without opening a scope when there are none, then run
+    /// <paramref name="install"/> once per code inside a single shared scope - some installers rely on
+    /// that sharing (e.g. InstallCountryAsync and InstallStatesAsync, or InstallRecipeVetoesAsync running
+    /// in the same scope InstallRecipeSynonymsAsync already attached rows in). <paramref name="afterAll"/>
+    /// exists only for BackfillDocsAsync, whose installer stages entities on the plain DataBaseContext
+    /// without committing; every other installer here commits itself per call, so afterAll stays null for
+    /// them. A failure anywhere logs <paramref name="failureMessage"/> and swallows, matching each
+    /// installer method's own catch/log-and-continue behavior: one broken pack must not stop the others.
+    /// </summary>
+    private async Task RunForEachInstalledCodeAsync(
+        Func<IServiceScope, string, Task> install,
+        string failureMessage,
+        Func<IServiceScope, Task>? afterAll = null)
     {
         string[] codes;
         lock (_installedLock)
@@ -226,13 +184,17 @@ public class LanguagePluginService : ILanguagePluginService
             using var scope = _scopeFactory.CreateScope();
             foreach (var code in codes)
             {
-                await _contentInstaller.InstallCountryAsync(scope, code);
-                await _contentInstaller.InstallStatesAsync(scope, code);
+                await install(scope, code);
+            }
+
+            if (afterAll != null)
+            {
+                await afterAll(scope);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to backfill countries for installed language plugins");
+            _logger.LogError(ex, failureMessage);
         }
     }
 
@@ -355,7 +317,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _geoDataInstaller.InstallGeoDataAsync(scope, code);
         await _contentInstaller.InstallDocsAsync(scope, code);
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
-        await _contentInstaller.InstallSkillLabelsAsync(scope, code);
+        await _skillLabelInstaller.InstallSkillLabelsAsync(scope, code);
         await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
         await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
@@ -395,7 +357,7 @@ public class LanguagePluginService : ILanguagePluginService
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
-        await _contentInstaller.UninstallSkillLabelsAsync(scope, code);
+        await _skillLabelInstaller.UninstallSkillLabelsAsync(scope, code);
         await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
         await _contentInstaller.UninstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
@@ -504,7 +466,7 @@ public class LanguagePluginService : ILanguagePluginService
         foreach (var code in codes)
         {
             await _contentInstaller.InstallSkillSynonymsAsync(scope, code, skillNames);
-            await _contentInstaller.InstallSkillLabelsAsync(scope, code, skillNames);
+            await _skillLabelInstaller.InstallSkillLabelsAsync(scope, code, skillNames);
         }
     }
 
