@@ -846,8 +846,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILLMModelSyncService, LLMModelSyncService>();
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
-        services.AddScoped<Application.Interfaces.Assistant.IRetrievalQueryBuilder, Application.Services.Assistant.RetrievalQueryBuilder>();
-        services.AddScoped<Application.Interfaces.Assistant.ISkillToolsetAssembler, Application.Services.Assistant.SkillToolsetAssembler>();
+        services.AddSkillToolsetServices();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
