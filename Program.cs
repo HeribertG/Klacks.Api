@@ -702,6 +702,11 @@ await Task.WhenAll(
 // batch it would race the seeder and silently skip every recipe that did not exist yet.
 await app.BackfillRecipeVetoesAsync();
 
+// Depends on the same batch: the installed language codes from InitializeLanguagePluginsAsync and the
+// skill rows from the chained feature-plugin/skill-seed branch. A pack installed before this column
+// existed carries its labels only in its file until this runs.
+await app.BackfillSkillLabelsAsync();
+
 // Both depend on the default agent that LoadSkillSeedsAsync creates on a fresh database
 // (EnsureDefaultAgentAsync); running them inside the batch above races that creation and
 // silently skips the seed on first startup, so they run only after it has completed.

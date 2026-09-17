@@ -27,4 +27,19 @@ public static class LanguagePluginExtensions
 
         return app;
     }
+
+    /// <summary>
+    /// Backfills the user-facing skill labels of every installed language pack. Same ordering constraint
+    /// as BackfillRecipeVetoesAsync, one branch further along: it needs the installed-codes list from
+    /// InitializeLanguagePluginsAsync AND the skill rows from the chained
+    /// InitializeFeaturePluginsThenLoadSkillSeedsAsync branch, and both are parallel branches of one
+    /// Task.WhenAll.
+    /// </summary>
+    public static async Task<IApplicationBuilder> BackfillSkillLabelsAsync(this IApplicationBuilder app)
+    {
+        var service = app.ApplicationServices.GetRequiredService<ILanguagePluginService>();
+        await service.ApplyInstalledSkillLabelsAsync();
+
+        return app;
+    }
 }

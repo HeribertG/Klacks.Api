@@ -15,6 +15,7 @@ public static class LanguagePluginConstants
     public const string DefaultGeoTranslationsFileName = "default-geo-translations.json";
     public const string CalendarRulesFileName = "calendar-rules.json";
     public const string SkillSynonymsFileName = "skill-synonyms.json";
+    public const string SkillLabelsFileName = "skill-labels.json";
     public const string RecipeSynonymsFileName = "recipe-synonyms.json";
     public const string RecipeVetoesFileName = "recipe-vetoes.json";
     public const string SentimentKeywordsFileName = "sentiment-keywords.json";

@@ -137,6 +137,42 @@ public class LanguagePluginService : ILanguagePluginService
     }
 
     /// <summary>
+    /// Writes the labels of every installed pack into the enabled skills on startup. Without this the
+    /// column stays empty on every existing installation for exactly the reason
+    /// ApplyInstalledRecipeVetoesAsync gives: a pack only reaches the skills that exist at the moment it
+    /// is installed, so a column added later would need all 21 packs uninstalled and reinstalled by hand.
+    /// Deliberately NOT called from InitializeAsync - it depends on the skill rows the chained
+    /// InitializeFeaturePluginsThenLoadSkillSeedsAsync branch creates, which is a parallel branch of the
+    /// same Task.WhenAll, so Program.cs calls this only after that batch completed.
+    /// </summary>
+    public async Task ApplyInstalledSkillLabelsAsync()
+    {
+        await InitializeAsync();
+
+        string[] codes;
+        lock (_installedLock)
+        {
+            codes = _installedCodes.ToArray();
+        }
+
+        if (codes.Length == 0)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var code in codes)
+            {
+                await _contentInstaller.InstallSkillLabelsAsync(scope, code);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill skill labels for installed language plugins");
+        }
+    }
+
+    /// <summary>
     /// Re-syncs manual docs from the plugin directory into the database for every already-installed
     /// language on each startup, so manuals added to a plugin after its initial install are picked up
     /// without requiring an uninstall/reinstall cycle.
@@ -319,6 +355,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _geoDataInstaller.InstallGeoDataAsync(scope, code);
         await _contentInstaller.InstallDocsAsync(scope, code);
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.InstallSkillLabelsAsync(scope, code);
         await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
         await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
@@ -358,6 +395,7 @@ public class LanguagePluginService : ILanguagePluginService
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
+        await _contentInstaller.UninstallSkillLabelsAsync(scope, code);
         await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
         await _contentInstaller.UninstallRecipeVetoesAsync(scope, code);
         await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
@@ -466,6 +504,7 @@ public class LanguagePluginService : ILanguagePluginService
         foreach (var code in codes)
         {
             await _contentInstaller.InstallSkillSynonymsAsync(scope, code, skillNames);
+            await _contentInstaller.InstallSkillLabelsAsync(scope, code, skillNames);
         }
     }
 

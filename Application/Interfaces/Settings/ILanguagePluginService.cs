@@ -33,4 +33,6 @@ public interface ILanguagePluginService
     /// recipe seeding have completed - in Program.cs those two are parallel branches of one batch.
     /// </summary>
     Task ApplyInstalledRecipeVetoesAsync();
+
+    Task ApplyInstalledSkillLabelsAsync();
 }
