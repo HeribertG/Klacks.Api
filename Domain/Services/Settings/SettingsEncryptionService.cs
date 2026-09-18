@@ -49,6 +49,12 @@ public class SettingsEncryptionService : ISettingsEncryptionService
 
     private const string EncryptedPrefix = "ENC:";
 
+    private const string UndecryptableValueMessage =
+        "Failed to decrypt an ENC:-prefixed setting value. The DataProtection key used to encrypt it is no longer in the key ring. Re-save the affected setting to re-encrypt it with the current key. Treating the value as not configured.";
+
+    private const string DisposedDependencyMessage =
+        "Failed to decrypt an ENC:-prefixed setting value because a DataProtection dependency was already disposed. This is an infrastructure failure, not a missing key, and must not be degraded to an unconfigured value.";
+
     public SettingsEncryptionService(
         IDataProtectionProvider dataProtectionProvider,
         ILogger<SettingsEncryptionService> logger)
@@ -100,10 +106,28 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex,
-                "Failed to decrypt an ENC:-prefixed setting value. The DataProtection key used to encrypt it is no longer in the key ring. Re-save the affected setting to re-encrypt it with the current key. Treating the value as not configured.");
+            if (HasDisposedDependencyCause(ex))
+            {
+                _logger.LogError(ex, DisposedDependencyMessage);
+                throw;
+            }
+
+            _logger.LogWarning(ex, UndecryptableValueMessage);
             return string.Empty;
         }
+    }
+
+    private static bool HasDisposedDependencyCause(Exception? exception)
+    {
+        for (var current = exception; current != null; current = current.InnerException)
+        {
+            if (current is ObjectDisposedException)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public string ProcessForStorage(string type, string value)
