@@ -98,6 +98,9 @@ public static class LLMSeed
             (gen_random_uuid(), 'gemma-4-31b', 'Gemma 4 31B', 'gemma-4-31b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
 
+        SeedModelIfMissing(migrationBuilder, now, "deepseek-flash", "DeepSeek V4.1 Flash", "deepseek-flash", "deepseek", 0.000300, 0.001200, 8192, 128000, "balanced");
+        SeedModelIfMissing(migrationBuilder, now, "deepseek-v4-pro", "DeepSeek V4 Pro", "deepseek-v4-pro", "deepseek", 0.001320, 0.003960, 8192, 128000, "powerful");
+
         SeedModelIfMissing(migrationBuilder, now, "gpt-oss-120b-cerebras", "GPT-OSS 120B (Cerebras)", "gpt-oss-120b", "cerebras", 0.00035, 0.00075, 32768, 131072, "balanced");
         SeedModelIfMissing(migrationBuilder, now, "gemma-4-31b-cerebras", "Gemma 4 31B (Cerebras)", "gemma-4-31b", "cerebras", 0.001, 0.0015, 8192, 131072, "powerful");
         SeedModelIfMissing(migrationBuilder, now, "qwen3-32b-cerebras", "Qwen3 32B (Cerebras)", "qwen-3-32b", "cerebras", 0.0004, 0.0008, 8192, 131072, "fast");
