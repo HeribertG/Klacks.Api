@@ -41,7 +41,7 @@
     Exit contract (a scheduled task must be able to see a broken apparatus):
         0 - every model produced exactly one new eval_runs row and no composite regressed.
         2 - at least one model regressed beyond -RegressionThreshold.
-        3 - APPARATUS FAILURE: a model was skipped, dotnet test returned non-zero, no test ran, or
+        3 - APPARATUS FAILURE: a model was skipped, the build failed, dotnet test returned non-zero, no test ran, or
             the run did not add exactly one eval_runs row. A run that measured nothing is a failure,
             not a warning - the previous version exited 0 here, which is why five months of "green"
             nightlies contained no measurement at all.
@@ -167,6 +167,15 @@ $PsqlDefaultPath      = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
 $ExitOk               = 0
 $ExitRegression       = 2
 $ExitApparatusFailure = 3
+$BuildConfiguration   = "Release"
+$DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention")
+$BackgroundServiceEnvPrefix = "BackgroundServices__"
+$BackgroundServiceOffValue  = "false"
+$EfCommandLogEnvVar   = "Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command"
+$EfCommandLogLevel    = "Warning"
+$EvalHostEnvOverrides = [ordered]@{}
+foreach ($service in $DisabledBackgroundServices) { $EvalHostEnvOverrides["$BackgroundServiceEnvPrefix$service"] = $BackgroundServiceOffValue }
+$EvalHostEnvOverrides[$EfCommandLogEnvVar] = $EfCommandLogLevel
 
 # --- Resolve paths and run scope ---------------------------------------------
 # The scheduled task's action has no WorkingDirectory (verified 2026-09-03 on
@@ -212,6 +221,18 @@ function Invoke-PsqlScalar {
     }
 }
 
+function Invoke-DotnetLogged {
+    param([string[]]$Arguments, [string]$LogPath)
+    $prevPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & dotnet @Arguments 2>&1 | Out-File -FilePath $LogPath -Append -Encoding utf8
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $prevPreference
+    }
+}
+
 function Write-Line {
     param([string]$Text, [System.IO.StreamWriter]$Writer, [string]$Color)
     if ($Color) { Write-Host $Text -ForegroundColor $Color } else { Write-Host $Text }
@@ -251,6 +272,24 @@ try {
     Write-Line "DB reachable:         $dbReachable" $sw
     Write-Line "" $sw
 
+    if (-not $DryRun) {
+        $buildLogPath = Join-Path $OutputDir "turneval-build-$Timestamp.log"
+        Set-Content -Path $buildLogPath -Value "" -Encoding UTF8
+        Write-Host "  Building $IntegrationProjectRelative ($BuildConfiguration) ..." -ForegroundColor Cyan
+        $buildExitCode = Invoke-DotnetLogged -Arguments @("build", $IntegrationProject, "--configuration", $BuildConfiguration) -LogPath $buildLogPath
+        try { & dotnet build-server shutdown *>> $buildLogPath } catch { }
+        Write-Line "Build exit code:      $buildExitCode (log: $buildLogPath)" $sw
+        if ($buildExitCode -ne 0) {
+            Write-Line "FAILURE: dotnet build returned $buildExitCode - nothing was measured. See $buildLogPath." $sw "Red"
+            $anyFailure = $true
+            Write-Line "RESULT: APPARATUS FAILURE - the build failed, no eval was run." $sw "Red"
+            $sw.Flush()
+            $sw.Close()
+            exit $ExitApparatusFailure
+        }
+        Write-Line "" $sw
+    }
+
     foreach ($model in $ModelList) {
         Write-Line "## Model: $model" $sw
 
@@ -278,7 +317,7 @@ try {
         }
 
         $envText = "$ModelEnvVar=$model $GoldsetEnvVar=$Goldset $MaxItemsEnvVar=$EffectiveMaxItems"
-        $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release (env $envText)"
+        $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release (env $envText) after: dotnet build $IntegrationProject --configuration $BuildConfiguration; dotnet build-server shutdown (test runs with --no-build)"
 
         if ($DryRun) {
             Write-Line "  [dry-run] would run: $cmd" $sw
@@ -308,25 +347,33 @@ try {
         $env:TURNEVAL_MODEL_ID  = $model
         $env:TURNEVAL_GOLDSET   = $Goldset
         $env:TURNEVAL_MAX_ITEMS = "$EffectiveMaxItems"
+        $prevHostEnv = @{}
+        foreach ($name in $EvalHostEnvOverrides.Keys) {
+            $prevHostEnv[$name] = [Environment]::GetEnvironmentVariable($name)
+            [Environment]::SetEnvironmentVariable($name, $EvalHostEnvOverrides[$name])
+        }
         $testExitCode = -1
+        # The full console output is the only place a provider failure is visible, and losing it is
+        # what made the 01.09. empty nightly undiagnosable. It is streamed to the log, never buffered.
+        Set-Content -Path $logPath -Value "" -Encoding UTF8
         try {
-            $testOutput = & dotnet test $IntegrationProject `
-                --filter $TestFilter `
-                --configuration Release `
-                --logger "trx;LogFileName=turneval-$model-$Timestamp.trx" 2>&1 | Out-String
-            $testExitCode = $LASTEXITCODE
+            $testExitCode = Invoke-DotnetLogged -LogPath $logPath -Arguments @(
+                "test", $IntegrationProject,
+                "--no-build",
+                "--filter", $TestFilter,
+                "--configuration", $BuildConfiguration,
+                "--logger", "trx;LogFileName=turneval-$model-$Timestamp.trx")
         } catch {
-            $testOutput = "$($_.Exception.Message)"
+            Add-Content -Path $logPath -Value "$($_.Exception.Message)" -Encoding UTF8
             $testExitCode = -1
         } finally {
             $env:TURNEVAL_MODEL_ID  = $prevModel
             $env:TURNEVAL_GOLDSET   = $prevGoldset
             $env:TURNEVAL_MAX_ITEMS = $prevMaxItems
+            foreach ($name in $prevHostEnv.Keys) {
+                [Environment]::SetEnvironmentVariable($name, $prevHostEnv[$name])
+            }
         }
-
-        # The full console output is the only place a build error or a provider failure is visible,
-        # and losing it is what made the 01.09. empty nightly undiagnosable. Always keep it.
-        Set-Content -Path $logPath -Value $testOutput -Encoding UTF8
 
         # -- Guard: exactly one new row. Locale-independent, unlike scraping the vstest summary
         #    (a German SDK prints "erfolgreich:", so every English "Passed: 0" heuristic is blind).
@@ -340,7 +387,7 @@ try {
         Write-Line "  test log:              $logPath" $sw
 
         if ($testExitCode -ne 0) {
-            Write-Line "  FAILURE: dotnet test returned $testExitCode - the eval did not complete cleanly. See the log above." $sw "Red"
+            Write-Line "  FAILURE: dotnet test returned $testExitCode - the eval did not complete cleanly. See the test log." $sw "Red"
             $anyFailure = $true
         }
 
