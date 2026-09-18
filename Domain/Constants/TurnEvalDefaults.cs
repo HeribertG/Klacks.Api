@@ -37,6 +37,26 @@ public static class TurnEvalDefaults
     public const string ReplayStepLimitExceededMessage =
         "A turn replay recorded more provider calls than the two-step replay limit allows.";
 
+    /// <summary>
+    /// How many leading items may fail before the runner gives up. When the first items in a row all
+    /// errored and not one of them succeeded, the apparatus is broken (an unresolvable provider, a dead
+    /// database) and every further item would only burn wall-clock time on the same failure. The runner
+    /// aborts and persists nothing, because a run of nothing but infrastructure errors is not a
+    /// measurement of the model.
+    /// </summary>
+    public const int InitialErrorAbortThreshold = 10;
+
+    public const string InitialItemsAllErroredMessageFormat =
+        "A turn eval run was aborted: the first {0} replayed items all failed without a single successful replay, which indicates a broken apparatus rather than a model weakness. Nothing was persisted. First error: {1}";
+
+    /// <summary>
+    /// The share of measured (non-excluded) items that may error before a run loses its full-run status.
+    /// A run at or above this share is persisted with IsPartial = true, which removes it from every
+    /// baseline and gate query (GetBestBaselineAsync, GetLatestFullRunAsync, ListRecentFullRunsAsync)
+    /// and from the nightly script's "LATEST FULL RUN" figure.
+    /// </summary>
+    public const double MaxErroredShareOfFullRun = 0.5;
+
     public const int ResponseTextMaxLength = 4000;
 
     public const string SyntheticLookupEntityId = "00000000-0000-4000-8000-00000000e7a1";

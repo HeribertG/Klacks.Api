@@ -13,9 +13,15 @@
 /// number and the two causes behind a miss cannot be told apart after the fact.
 /// Items are replayed with the lookup follow-up, so a run reports both the strict first-choice verdict
 /// and whether the expected tool was reached.
+///
+/// A run whose items all fail at the start measures the apparatus, not the model: after
+/// TurnEvalDefaults.InitialErrorAbortThreshold leading errors without a single success the runner throws
+/// and persists nothing, and a run that still ends at or above TurnEvalDefaults.MaxErroredShareOfFullRun
+/// errored items is persisted with IsPartial = true so it can never become a baseline.
 /// </summary>
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -71,7 +77,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         CancellationToken cancellationToken = default)
     {
         var items = maxItems.HasValue ? allItems.Take(maxItems.Value).ToList() : allItems.ToList();
-        var isPartial = items.Count != allItems.Count;
+        var isCapped = items.Count != allItems.Count;
 
         var runId = Guid.NewGuid();
         var runStopwatch = Stopwatch.StartNew();
@@ -91,6 +97,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             var scored = TurnEvalScorer.ScoreItem(item, replay, resolvedNameSlots);
             itemResults.Add(scored);
             itemRows.Add(BuildItemRow(runId, item, replay, scored));
+            AbortWhenTheApparatusIsDead(itemResults);
         }
 
         runStopwatch.Stop();
@@ -98,8 +105,11 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var dimensions = TurnEvalScorer.Aggregate(itemResults);
         var composite = TurnEvalScorer.ComputeComposite(dimensions);
 
-        // A partial run covers a different population than any completed run, so it has no
-        // comparable baseline at all and must not report a regression against one.
+        // IsPartial means "not comparable to a completed run", for either of two reasons: the run was
+        // capped and covers a different population, or so many items errored that the numbers measure
+        // the apparatus rather than the model. Neither may serve as, or be judged against, a baseline.
+        var isPartial = isCapped || IsErrorDegraded(itemResults);
+
         var baseline = isPartial
             ? null
             : await _evalRunRepository.GetBestBaselineAsync(
@@ -145,6 +155,33 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             Dimensions = dimensions,
             Items = itemResults
         };
+    }
+
+    private static void AbortWhenTheApparatusIsDead(IReadOnlyList<TurnEvalItemResult> itemResults)
+    {
+        if (itemResults.Count != TurnEvalDefaults.InitialErrorAbortThreshold
+            || !itemResults.All(i => i.Errored))
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(string.Format(
+            CultureInfo.InvariantCulture,
+            TurnEvalDefaults.InitialItemsAllErroredMessageFormat,
+            TurnEvalDefaults.InitialErrorAbortThreshold,
+            itemResults.Select(i => i.Error).FirstOrDefault(e => !string.IsNullOrEmpty(e)) ?? string.Empty));
+    }
+
+    private static bool IsErrorDegraded(IReadOnlyList<TurnEvalItemResult> itemResults)
+    {
+        var measured = itemResults.Count(i => !i.Excluded);
+        if (measured == 0)
+        {
+            return false;
+        }
+
+        var errored = itemResults.Count(i => !i.Excluded && i.Errored);
+        return (double)errored / measured >= TurnEvalDefaults.MaxErroredShareOfFullRun;
     }
 
     private static EvalRunItem BuildItemRow(
