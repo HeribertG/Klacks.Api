@@ -50,7 +50,8 @@
 .PARAMETER Models
     Comma-separated llm_models.model_id values to evaluate. Default is the production model only,
     per owner decision 2026-08-30 (D1: "Prod-Modell + Haiku 4.5, nicht mehr"; claude-haiku-45 is
-    disabled in the current dev DB, so only deepseek-v4-pro runs until it is re-enabled).
+    disabled in the current dev DB, so only the prod-default model runs until it is re-enabled).
+    Prod default switched from deepseek-v4-pro to deepseek-flash per owner decision 2026-09-18.
     Verify availability yourself before trusting a default: the live catalog differs per machine.
     Query:  SELECT model_id, is_default, cost_per_input_token FROM llm_models WHERE is_enabled AND NOT is_deleted;
 
@@ -134,7 +135,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Models = "deepseek-v4-pro",
+    [string]$Models = "deepseek-flash",
     [string]$Goldset = "turn-selection-v1",
     [ValidateSet("daily", "weekly")]
     [string]$Profile = "daily",
