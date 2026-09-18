@@ -168,6 +168,10 @@ $ExitOk               = 0
 $ExitRegression       = 2
 $ExitApparatusFailure = 3
 $BuildConfiguration   = "Release"
+$TestResultsFolderName = "TestResults"
+$TrxNamespaceUri      = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
+$TrxStdOutXPath       = "//t:UnitTestResult/t:Output/t:StdOut"
+$TrxSectionSeparator  = "===== Test StdOut (from TRX) ====="
 $DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention")
 $BackgroundServiceEnvPrefix = "BackgroundServices__"
 $BackgroundServiceOffValue  = "false"
@@ -231,6 +235,26 @@ function Invoke-DotnetLogged {
     } finally {
         $ErrorActionPreference = $prevPreference
     }
+}
+
+function Add-TrxStdOutToLog {
+    param([string]$TrxPath, [string]$LogPath)
+    if (-not (Test-Path -LiteralPath $TrxPath -PathType Leaf)) { return }
+    try {
+        $xml = New-Object System.Xml.XmlDocument
+        $xml.Load($TrxPath)
+        $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+        $ns.AddNamespace("t", $TrxNamespaceUri)
+        $writer = [System.IO.StreamWriter]::new($LogPath, $true, [System.Text.UTF8Encoding]::new($false))
+        try {
+            $writer.WriteLine($TrxSectionSeparator)
+            foreach ($node in $xml.SelectNodes($TrxStdOutXPath, $ns)) {
+                $writer.WriteLine($node.InnerText)
+            }
+        } finally {
+            $writer.Dispose()
+        }
+    } catch { }
 }
 
 function Write-Line {
@@ -373,6 +397,11 @@ try {
             foreach ($name in $prevHostEnv.Keys) {
                 [Environment]::SetEnvironmentVariable($name, $prevHostEnv[$name])
             }
+        }
+
+        if ($testExitCode -eq 0) {
+            $trxPath = Join-Path (Join-Path (Split-Path -Parent $IntegrationProject) $TestResultsFolderName) "turneval-$model-$Timestamp.trx"
+            Add-TrxStdOutToLog -TrxPath $trxPath -LogPath $logPath
         }
 
         # -- Guard: exactly one new row. Locale-independent, unlike scraping the vstest summary

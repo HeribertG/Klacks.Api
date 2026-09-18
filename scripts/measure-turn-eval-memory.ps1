@@ -50,6 +50,10 @@ $ErrorActionPreference = "Stop"
 $DefaultIntervalSeconds   = 1
 $DefaultProcessNames      = @("testhost*", "dotnet", "MSBuild", "VBCSCompiler", "Klacks.Api", "node", "postgres")
 $TesthostNamePattern      = "testhost*"
+$TesthostCommandLinePattern = '(?i)(^|[\\/\s"])testhost[^\\/\s"]*\.dll'
+$TesthostCandidateFilter  = "Name = 'dotnet.exe' OR Name LIKE 'testhost%'"
+$TesthostRole             = "testhost"
+$PostTestLogWaitSeconds   = 20
 $DefaultOutputRelative    = "artifacts\turn-eval"
 $OutputFilePrefix         = "memory-"
 $OutputFileExtension      = ".csv"
@@ -64,12 +68,12 @@ $RoundDigits              = 1
 $LogCheckEverySamples     = 3
 $LogChunkBytes            = 2MB
 $LineFeedByte             = 10
-$MarkerDetailMaxChars     = 200
+$MarkerDetailMaxChars     = 300
 $CounterAvailablePath     = "\Memory\Available MBytes"
 $CounterCommittedPath     = "\Memory\Committed Bytes"
 $CounterAvailableSuffix   = "*\available mbytes"
 $CounterCommittedSuffix   = "*\committed bytes"
-$CsvHeader                = "Timestamp,Name,Id,WorkingSetMB,PrivateMB,PeakWorkingSetMB,SysAvailableMB,SysCommittedMB"
+$CsvHeader                = "Timestamp,Name,Id,WorkingSetMB,PrivateMB,PeakWorkingSetMB,SysAvailableMB,SysCommittedMB,Role"
 $MarkersCsvHeader         = "Timestamp,Marker,ItemCount,Detail"
 $MarkerDefinitions = @(
     @{ Name = "BuildOutput";        Pattern = "Klacks.Api ->";            EveryNth = 0 },
@@ -108,6 +112,23 @@ function Open-AppendWriter {
 function ConvertTo-CsvField {
     param([string]$Text)
     return '"' + $Text.Replace('"', '""') + '"'
+}
+
+function Test-IsTesthost {
+    param([string]$Name, [string]$CommandLine)
+    if ($Name -like $TesthostNamePattern) { return $true }
+    if ([string]::IsNullOrEmpty($CommandLine)) { return $false }
+    return [regex]::IsMatch($CommandLine, $TesthostCommandLinePattern)
+}
+
+function Get-TesthostIds {
+    $ids = [System.Collections.Generic.HashSet[int]]::new()
+    try {
+        foreach ($proc in @(Get-CimInstance -ClassName Win32_Process -Filter $TesthostCandidateFilter -ErrorAction Stop)) {
+            if (Test-IsTesthost -Name $proc.Name -CommandLine $proc.CommandLine) { [void]$ids.Add([int]$proc.ProcessId) }
+        }
+    } catch { }
+    return ,$ids
 }
 
 function ConvertTo-Mb {
@@ -229,7 +250,7 @@ $watch = [System.Diagnostics.Stopwatch]::new()
 Write-Host "Sampling every ${IntervalSeconds}s -> $OutputPath" -ForegroundColor Cyan
 if ($LogPath) { Write-Host "Markers from '$LogPath' -> $MarkersPath" -ForegroundColor Cyan }
 if ($fixedEnd) { Write-Host "Fixed duration: $DurationMinutes min." -ForegroundColor Cyan }
-else { Write-Host "Waiting for the test host ($TesthostNamePattern); stops when it is gone. Ctrl+C to stop earlier." -ForegroundColor Cyan }
+else { Write-Host "Waiting for the test host (command line matching testhost*.dll); stops when it is gone. Ctrl+C to stop earlier." -ForegroundColor Cyan }
 
 try {
     while ($true) {
@@ -240,6 +261,7 @@ try {
         $testhostCommitSum = 0.0
         $testhostCount = 0
 
+        $testhostIds = Get-TesthostIds
         $processes = @(Get-Process -Name $ProcessNames -ErrorAction SilentlyContinue)
         foreach ($p in $processes) {
             try {
@@ -253,7 +275,9 @@ try {
             } finally {
                 $p.Dispose()
             }
-            $writer.WriteLine("$stamp,$name,$procId,$(ConvertTo-Mb $ws),$(ConvertTo-Mb $commit),$(ConvertTo-Mb $peak),$($sys.Available),$($sys.Committed)")
+            $isTesthost = $testhostIds.Contains([int]$procId)
+            $role = if ($isTesthost) { $TesthostRole } else { "" }
+            $writer.WriteLine("$stamp,$name,$procId,$(ConvertTo-Mb $ws),$(ConvertTo-Mb $commit),$(ConvertTo-Mb $peak),$($sys.Available),$($sys.Committed),$role")
 
             if (-not $stats.ContainsKey($name)) {
                 $stats[$name] = @{ MaxWs = 0.0; MaxWsAt = $stamp; MaxCommit = 0.0; MaxCommitAt = $stamp }
@@ -262,7 +286,7 @@ try {
             if ($ws -gt $entry.MaxWs) { $entry.MaxWs = $ws; $entry.MaxWsAt = $stamp }
             if ($commit -gt $entry.MaxCommit) { $entry.MaxCommit = $commit; $entry.MaxCommitAt = $stamp }
 
-            if ($name -like $TesthostNamePattern) {
+            if ($isTesthost) {
                 $testhostCount++
                 $testhostCommitSum += $commit
             }
@@ -284,7 +308,16 @@ try {
         if ($fixedEnd) {
             if ($now -ge $fixedEnd) { $stopReason = "duration elapsed"; break }
         } elseif ($testhostSeen -and $testhostGone -ge $TesthostGoneSamples) {
-            $stopReason = "test host exited"; break
+            $stopReason = "test host exited"
+            if ($markerWriter) {
+                Write-Host "Test host gone - waiting ${PostTestLogWaitSeconds}s for the log to complete ..." -ForegroundColor Cyan
+                $logWaitEnd = (Get-Date).AddSeconds($PostTestLogWaitSeconds)
+                while ((Get-Date) -lt $logWaitEnd) {
+                    Read-LogMarkers -MarkerWriter $markerWriter
+                    Start-Sleep -Seconds 1
+                }
+            }
+            break
         } elseif (-not $testhostSeen -and $now -ge $waitDeadline) {
             $stopReason = "test host did not appear within $TesthostWaitTimeoutSeconds s"; break
         }
