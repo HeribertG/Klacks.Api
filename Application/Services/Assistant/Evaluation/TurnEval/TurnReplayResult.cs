@@ -22,10 +22,16 @@ public class TurnReplayResult
 
     public long LatencyMs { get; set; }
 
+    /// <summary>
+    /// Sums across every provider call the replay made - one step on an ordinary replay, two when a
+    /// follow-up ran - unlike LatencyMs, which stays the first step's own duration only.
+    /// </summary>
     public decimal Cost { get; set; }
 
+    /// <summary>Sums across every provider call the replay made, same scope as <see cref="Cost"/>.</summary>
     public int InputTokens { get; set; }
 
+    /// <summary>Sums across every provider call the replay made, same scope as <see cref="Cost"/>.</summary>
     public int OutputTokens { get; set; }
 
     public bool RecipeWouldForce { get; set; }
@@ -62,4 +68,20 @@ public class TurnReplayResult
     /// TP1: inverse skill the turn offered as an undo, null when none was offered.
     /// </summary>
     public string? UndoOfferedSkill { get; set; }
+
+    /// <summary>
+    /// Every provider call the replay made, in order. One entry on an ordinary replay; two when the
+    /// first choice was a lookup in front of an expected mutation and the replay followed it up. Empty
+    /// when no provider was called at all (deterministic clarification, unavailable model).
+    /// </summary>
+    public List<TurnReplayStep> Steps { get; set; } = new();
+
+    /// <summary>Whether the replay asked the model a second time on a synthetic lookup result.</summary>
+    public bool FollowUpAttempted { get; set; }
+
+    /// <summary>
+    /// Whether that second call failed at the provider. The first step stays fully valid; only the
+    /// reached verdict is left unmeasured.
+    /// </summary>
+    public bool FollowUpFailed { get; set; }
 }

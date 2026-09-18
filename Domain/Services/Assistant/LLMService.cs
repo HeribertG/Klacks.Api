@@ -620,7 +620,7 @@ public class LLMService : ILLMService
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
             var assistantContent = string.IsNullOrEmpty(accumulator.AccumulatedContent)
-                ? "[Executing function calls]"
+                ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
                 : accumulator.AccumulatedContent;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
             currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars);
@@ -1219,7 +1219,7 @@ public class LLMService : ILLMService
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
             var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
-                ? "[Executing function calls]"
+                ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
                 : lastResponse.Content;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
             currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars);

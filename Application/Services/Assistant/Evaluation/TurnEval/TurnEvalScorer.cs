@@ -29,6 +29,11 @@
 /// were added (CorrectionHit, FalseRepair, UndoOfferedWhenExpected). They change no weight and enter no
 /// composite, but the version is the key a baseline is looked up under, so a bump is what stops a
 /// version 3 baseline from being compared against a run scored under different per-item rules.
+///
+/// Scorer version 5 (2026-09-18) adds ReachedHit and LookupDetourRate. SelectionHit is computed
+/// bit-identically to version 4 - the bump only keeps a baseline from being looked up across runs with
+/// a different set of per-item verdicts. A replay that followed a first-step lookup with a second
+/// provider call reports it on TurnReplayResult; this type only reads the recorded steps.
 /// </summary>
 
 using System.Text.Json;
@@ -43,7 +48,7 @@ public static class TurnEvalScorer
     /// scored under different rules are never compared. Bump whenever a weight, a dimension or a
     /// per-item verdict changes.
     /// </summary>
-    public const int ScorerVersion = 4;
+    public const int ScorerVersion = 5;
 
     /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
     public const string HonestyModeMustAbstain = "must-abstain";
@@ -116,14 +121,12 @@ public static class TurnEvalScorer
             return result;
         }
 
-        var toolHit = replay.Success
-            && replay.ChosenTool != null
-            && (string.Equals(replay.ChosenTool, item.ExpectedTool, StringComparison.OrdinalIgnoreCase)
-                || item.AlternativeTools.Any(t => string.Equals(replay.ChosenTool, t, StringComparison.OrdinalIgnoreCase)));
+        var toolHit = replay.Success && IsAcceptableTool(item, replay.ChosenTool);
         result.ToolHit = toolHit;
         result.SelectionHit = retrievalHit == true && replay.Success && !result.Excluded
             ? toolHit
             : null;
+        ApplyReachedVerdict(item, replay, result);
 
         if (toolHit)
         {
@@ -132,6 +135,37 @@ public static class TurnEvalScorer
 
         result.Passed = !result.Excluded && toolHit && (result.SlotScore ?? 1.0) >= 1.0;
         return result;
+    }
+
+    internal static bool IsAcceptableTool(TurnGoldsetItem item, string? tool) =>
+        tool != null
+        && item.ExpectedTool != null
+        && (string.Equals(tool, item.ExpectedTool, StringComparison.OrdinalIgnoreCase)
+            || item.AlternativeTools.Any(t => string.Equals(tool, t, StringComparison.OrdinalIgnoreCase)));
+
+    /// <summary>
+    /// ReachedHit shares SelectionHit's population and equals it whenever no second replay step ran. A
+    /// first-step miss that the replay followed up on turns into a hit only if the second step landed on
+    /// an acceptable tool; a failed second call leaves the verdict unmeasured instead of scoring the miss
+    /// the first step already recorded on SelectionHit.
+    /// </summary>
+    private static void ApplyReachedVerdict(
+        TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
+    {
+        if (result.SelectionHit != false || !replay.FollowUpAttempted)
+        {
+            result.ReachedHit = result.SelectionHit;
+            return;
+        }
+
+        if (replay.FollowUpFailed)
+        {
+            result.ReachedHit = null;
+            return;
+        }
+
+        result.ReachedHit = IsAcceptableTool(item, replay.Steps[^1].Tool);
+        result.ReachedViaFollowUp = result.ReachedHit == true;
     }
 
     /// <summary>
@@ -184,6 +218,8 @@ public static class TurnEvalScorer
         var slotItems = toolItems.Where(i => i.ToolHit == true && i.SlotScore != null).ToList();
         var retrievalItems = active.Where(i => i.RetrievalHit != null).ToList();
         var selectionItems = active.Where(i => i.SelectionHit != null).ToList();
+        var reachedItems = active.Where(i => i.ReachedHit != null).ToList();
+        var reachedCount = reachedItems.Count(i => i.ReachedHit == true);
         var correctionItems = active.Where(i => i.CorrectionHit != null).ToList();
         var falseRepairItems = active.Where(i => i.FalseRepair != null).ToList();
         var undoItems = active.Where(i => i.UndoOfferedWhenExpected != null).ToList();
@@ -210,7 +246,11 @@ public static class TurnEvalScorer
             ItemsTotal: items.Count,
             ItemsPassed: active.Count(i => i.Passed),
             ItemsExcluded: items.Count(i => i.Excluded),
-            ItemsErrored: items.Count(i => i.Errored));
+            ItemsErrored: items.Count(i => i.Errored),
+            ReachedHit: reachedItems.Count == 0 ? null : (double)reachedCount / reachedItems.Count,
+            LookupDetourRate: reachedCount == 0
+                ? null
+                : (double)reachedItems.Count(i => i.ReachedViaFollowUp) / reachedCount);
     }
 
     /// <summary>

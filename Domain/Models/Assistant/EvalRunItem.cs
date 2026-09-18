@@ -30,6 +30,14 @@ public class EvalRunItem : BaseEntity
 
     public bool? SelectionHit { get; set; }
 
+    public bool? ReachedHit { get; set; }
+
+    public string? ChosenArgsJson { get; set; }
+
+    public string? ResponseText { get; set; }
+
+    public string ToolSequenceJson { get; set; } = "[]";
+
     public bool Passed { get; set; }
 
     public int LatencyMs { get; set; }

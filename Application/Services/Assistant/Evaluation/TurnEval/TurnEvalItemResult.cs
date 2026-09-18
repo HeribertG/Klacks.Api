@@ -63,6 +63,17 @@ public class TurnEvalItemResult
     public bool? SelectionHit { get; set; }
 
     /// <summary>
+    /// Whether the model arrived at the expected tool within the replay's two steps. Same population
+    /// as <see cref="SelectionHit"/> and identical to it whenever no second step ran; additionally null
+    /// when the second provider call failed. SelectionHit stays the strict first-choice verdict the
+    /// learning loop reads - this one answers whether the turn would have ended correctly.
+    /// </summary>
+    public bool? ReachedHit { get; set; }
+
+    /// <summary>True when <see cref="ReachedHit"/> is true only because of the second step.</summary>
+    public bool ReachedViaFollowUp { get; set; }
+
+    /// <summary>
     /// Legacy name of <see cref="RetrievalHit"/>, kept because the live scorecard of the integration
     /// eval prints it on every MISS line. Always the identical value; never computed twice.
     /// </summary>

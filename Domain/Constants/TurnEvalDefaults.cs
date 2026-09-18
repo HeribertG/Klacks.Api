@@ -23,4 +23,16 @@ public static class TurnEvalDefaults
     public const int LocaleMaxLength = 8;
 
     public const int ToolNameMaxLength = 128;
+
+    /// <summary>
+    /// A replay asks the model at most twice: the first choice and, when that was a lookup in front of
+    /// an expected mutation, one more choice on a synthetic lookup result.
+    /// </summary>
+    public const int MaxReplaySteps = 2;
+
+    public const int ResponseTextMaxLength = 4000;
+
+    public const string SyntheticLookupEntityId = "00000000-0000-4000-8000-00000000e7a1";
+
+    public const string SyntheticLookupFallbackName = "match";
 }

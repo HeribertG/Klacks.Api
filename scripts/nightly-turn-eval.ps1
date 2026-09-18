@@ -354,7 +354,7 @@ try {
         }
 
         # -- Read the authoritative scorecard back from eval_runs ------------
-        $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider, scorer_version, is_partial, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a') FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
+        $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider, scorer_version, is_partial, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
         $row = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatest
         if (-not $row.Ok -or [string]::IsNullOrWhiteSpace($row.Value)) {
             Write-Line "  FAILURE: could not read the persisted $EvalRunsTable row for '$model'." $sw "Red"
@@ -373,6 +373,8 @@ try {
         $isPartial     = if ($cols.Count -gt 6) { $cols[6].Trim() } else { "?" }
         $retrieval     = if ($cols.Count -gt 7) { $cols[7].Trim() } else { "n/a" }
         $selection     = if ($cols.Count -gt 8) { $cols[8].Trim() } else { "n/a" }
+        $reached       = if ($cols.Count -gt 9) { $cols[9].Trim() } else { "n/a" }
+        $detour        = if ($cols.Count -gt 10) { $cols[10].Trim() } else { "n/a" }
 
         Write-Line "  provider:       $provider" $sw
         Write-Line "  scorer version: $scorerVersion (composites are comparable only within one version)" $sw
@@ -381,12 +383,12 @@ try {
         # comparable baseline, so printing it as "the" score is what made five months of daily
         # numbers look like a measurement of the product instead of a smoke test of the apparatus.
         if ($isPartial -eq "t") {
-            Write-Line "  THIS RUN (PARTIAL - NOT the score): composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, items=$itemsPass/$itemsTotal" $sw "Yellow"
+            Write-Line "  THIS RUN (PARTIAL - NOT the score): composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw "Yellow"
         } else {
-            Write-Line "  THIS RUN (full):                    composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, items=$itemsPass/$itemsTotal" $sw
+            Write-Line "  THIS RUN (full):                    composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw
         }
 
-        $sqlLatestFull = "SELECT composite_score, items_total, items_passed, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), create_time FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false AND is_partial = false AND scorer_version = $scorerVersion ORDER BY create_time DESC LIMIT 1;"
+        $sqlLatestFull = "SELECT composite_score, items_total, items_passed, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), create_time, coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false AND is_partial = false AND scorer_version = $scorerVersion ORDER BY create_time DESC LIMIT 1;"
         $fullRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatestFull
         if ($fullRow.Ok -and -not [string]::IsNullOrWhiteSpace($fullRow.Value)) {
             $fullCols = $fullRow.Value.Split("|")
@@ -396,7 +398,9 @@ try {
             $fullRetrieval = if ($fullCols.Count -gt 3) { $fullCols[3].Trim() } else { "n/a" }
             $fullSelection = if ($fullCols.Count -gt 4) { $fullCols[4].Trim() } else { "n/a" }
             $fullAt        = if ($fullCols.Count -gt 5) { $fullCols[5].Trim() } else { "?" }
-            Write-Line "  LATEST FULL RUN (the score):        composite=$fullComposite, retrievalHit=$fullRetrieval, selectionHit=$fullSelection, items=$fullPassed/$fullTotal, at=$fullAt" $sw
+            $fullReached   = if ($fullCols.Count -gt 6) { $fullCols[6].Trim() } else { "n/a" }
+            $fullDetour    = if ($fullCols.Count -gt 7) { $fullCols[7].Trim() } else { "n/a" }
+            Write-Line "  LATEST FULL RUN (the score):        composite=$fullComposite, retrievalHit=$fullRetrieval, selectionHit=$fullSelection, reachedHit=$fullReached, lookupDetour=$fullDetour, items=$fullPassed/$fullTotal, at=$fullAt" $sw
         } else {
             Write-Line "  LATEST FULL RUN (the score):        none yet for scorer version $scorerVersion - run with -Profile weekly." $sw "Yellow"
         }

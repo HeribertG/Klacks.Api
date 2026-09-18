@@ -10,7 +10,8 @@
 /// UndoOfferedWhenExpected (TP1) are reported the same way and are likewise outside the composite:
 /// the correction goldset is a separate file, so mixing its rates into a weighted mean of a different
 /// goldset's dimensions would compare two populations. Both are optional parameters so a run
-/// persisted before they existed still deserializes.
+/// persisted before they existed still deserializes. ReachedHit and LookupDetourRate (scorer version 5)
+/// are reported the same way and stay outside the composite.
 /// </summary>
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
@@ -32,4 +33,6 @@ public sealed record TurnEvalDimensions(
     double? SelectionHit = null,
     double? CorrectionHit = null,
     double? FalseRepairRate = null,
-    double? UndoOfferedWhenExpected = null);
+    double? UndoOfferedWhenExpected = null,
+    double? ReachedHit = null,
+    double? LookupDetourRate = null);

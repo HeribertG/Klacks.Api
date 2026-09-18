@@ -23,6 +23,9 @@ public class EvalRunItemConfiguration : IEntityTypeConfiguration<EvalRunItem>
         builder.Property(p => p.ExpectedTool).HasMaxLength(TurnEvalDefaults.ToolNameMaxLength);
         builder.Property(p => p.ChosenTool).HasMaxLength(TurnEvalDefaults.ToolNameMaxLength);
         builder.Property(p => p.ToolsetNamesJson).HasColumnType("jsonb");
+        builder.Property(p => p.ChosenArgsJson).HasColumnType("jsonb");
+        builder.Property(p => p.ResponseText).HasMaxLength(TurnEvalDefaults.ResponseTextMaxLength);
+        builder.Property(p => p.ToolSequenceJson).HasColumnType("jsonb").HasDefaultValueSql("'[]'::jsonb");
 
         builder.HasIndex(p => p.EvalRunId);
         builder.HasIndex(p => new { p.EvalRunId, p.RetrievalHit, p.SelectionHit, p.LearningConsumedAtUtc });
