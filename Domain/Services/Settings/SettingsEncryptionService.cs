@@ -119,15 +119,22 @@ public class SettingsEncryptionService : ISettingsEncryptionService
 
     private static bool HasDisposedDependencyCause(Exception? exception)
     {
-        for (var current = exception; current != null; current = current.InnerException)
+        if (exception == null)
         {
-            if (current is ObjectDisposedException)
-            {
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        if (exception is ObjectDisposedException)
+        {
+            return true;
+        }
+
+        // AggregateException.InnerException is only the FIRST of its inner exceptions. Following that
+        // one link would miss a disposed dependency reported as a later sibling, and the value would be
+        // degraded to empty - exactly the silent data loss this check exists to prevent.
+        return exception is AggregateException aggregate
+            ? aggregate.InnerExceptions.Any(HasDisposedDependencyCause)
+            : HasDisposedDependencyCause(exception.InnerException);
     }
 
     public string ProcessForStorage(string type, string value)

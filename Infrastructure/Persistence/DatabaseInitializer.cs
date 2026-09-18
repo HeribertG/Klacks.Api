@@ -33,6 +33,9 @@ public class DatabaseInitializer : IDatabaseInitializer
 {
     private const string FakeWithFakeConfigKey = "Fake:WithFake";
 
+    private const string LegacySecretBackfillFailedMessage =
+        "Encrypting legacy identity provider secrets failed. Startup continues because this is a one-time migration, not a boot requirement; it is idempotent and will be retried on the next start. Affected secrets stay in their current form until then.";
+
     private readonly DataBaseContext _context;
     private readonly ILogger<DatabaseInitializer> _logger;
     private readonly IConfiguration _configuration;
@@ -115,7 +118,7 @@ public class DatabaseInitializer : IDatabaseInitializer
 
             await _storedProcedureInitializer.InitializeAsync();
 
-            await _identityProviderSecretBackfill.EncryptLegacySecretsAsync();
+            await RunLegacySecretBackfillAsync();
 
             await SeedDataAsync();
 
@@ -125,6 +128,26 @@ public class DatabaseInitializer : IDatabaseInitializer
         {
             _logger.LogError(ex, "Error during database initialization");
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Runs the legacy secret backfill without letting it abort the boot. The backfill is a one-time
+    /// migration, not a boot requirement, and it materializes encrypted columns - so a transient
+    /// infrastructure fault such as an already disposed DataProtection dependency, which the settings
+    /// decryption now rethrows instead of degrading to an empty value, would otherwise take the whole
+    /// application down. It is idempotent and keeps no completion marker: it re-reads the rows that are
+    /// still plaintext on every start, so a swallowed failure is simply retried on the next one.
+    /// </summary>
+    internal async Task RunLegacySecretBackfillAsync()
+    {
+        try
+        {
+            await _identityProviderSecretBackfill.EncryptLegacySecretsAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, LegacySecretBackfillFailedMessage);
         }
     }
 

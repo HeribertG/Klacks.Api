@@ -83,13 +83,18 @@ public sealed class KlacksyModelCheckService
         return Sort(results);
     }
 
-    private async Task<Dictionary<string, decimal>> LoadEvalScoresAsync(CancellationToken cancellationToken)
+    internal async Task<Dictionary<string, decimal>> LoadEvalScoresAsync(CancellationToken cancellationToken)
     {
         try
         {
             var latestRuns = await _evalRunRepository.GetLatestPerModelAsync(EvalGoldsetName, cancellationToken);
+
+            // GetLatestPerModelAsync is a history query and returns partial runs too (see
+            // TurnEvalDefaults.MaxErroredShareOfFullRun). A capped or error-degraded run measures the
+            // apparatus, not the model, so scoring one here would rank a model by a number that is not
+            // about it. Without a full run a model counts as never evaluated, which is the honest tier.
             return latestRuns
-                .Where(r => r.Model != null)
+                .Where(r => r.Model != null && !r.IsPartial)
                 .ToDictionary(r => r.Model!, r => r.CompositeScore, StringComparer.OrdinalIgnoreCase);
         }
         catch (Exception ex)

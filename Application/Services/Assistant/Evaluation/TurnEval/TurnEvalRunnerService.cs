@@ -14,10 +14,11 @@
 /// Items are replayed with the lookup follow-up, so a run reports both the strict first-choice verdict
 /// and whether the expected tool was reached.
 ///
-/// A run whose items all fail at the start measures the apparatus, not the model: after
-/// TurnEvalDefaults.InitialErrorAbortThreshold leading errors without a single success the runner throws
-/// and persists nothing, and a run that still ends at or above TurnEvalDefaults.MaxErroredShareOfFullRun
-/// errored items is persisted with IsPartial = true so it can never become a baseline.
+/// A run whose items all fail measures the apparatus, not the model: once
+/// TurnEvalDefaults.InitialErrorAbortThreshold measured items have errored without a single success the
+/// runner throws and persists nothing. A run that still ends at or above
+/// TurnEvalDefaults.MaxErroredShareOfFullRun errored items, and a run that measured nothing at all, are
+/// persisted with IsPartial = true so neither can become a baseline.
 /// </summary>
 
 using System.Diagnostics;
@@ -106,9 +107,10 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         var composite = TurnEvalScorer.ComputeComposite(dimensions);
 
         // IsPartial means "not comparable to a completed run", for either of two reasons: the run was
-        // capped and covers a different population, or so many items errored that the numbers measure
-        // the apparatus rather than the model. Neither may serve as, or be judged against, a baseline.
-        var isPartial = isCapped || IsErrorDegraded(itemResults);
+        // capped and covers a different population, or it is no measurement of the model - too many
+        // items errored, or nothing was measured at all. Neither may serve as, or be judged against,
+        // a baseline.
+        var isPartial = isCapped || IsDegradedMeasurement(itemResults);
 
         var baseline = isPartial
             ? null
@@ -157,10 +159,18 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         };
     }
 
+    /// <summary>
+    /// Aborts as soon as InitialErrorAbortThreshold measured items have errored without one of them
+    /// having succeeded first. The verdict is recomputed over all results so far rather than tested at
+    /// one fixed item count: a single excluded item among the leading ones used to shift every later
+    /// item past that one checkpoint and disable the abort for the rest of the run. An excluded item
+    /// counts as neither a success nor an error - the apparatus was never asked about it.
+    /// </summary>
     private static void AbortWhenTheApparatusIsDead(IReadOnlyList<TurnEvalItemResult> itemResults)
     {
-        if (itemResults.Count != TurnEvalDefaults.InitialErrorAbortThreshold
-            || !itemResults.All(i => i.Errored))
+        var measured = itemResults.Where(i => !i.Excluded).ToList();
+        if (measured.Any(i => !i.Errored)
+            || measured.Count(i => i.Errored) < TurnEvalDefaults.InitialErrorAbortThreshold)
         {
             return;
         }
@@ -169,15 +179,22 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             CultureInfo.InvariantCulture,
             TurnEvalDefaults.InitialItemsAllErroredMessageFormat,
             TurnEvalDefaults.InitialErrorAbortThreshold,
-            itemResults.Select(i => i.Error).FirstOrDefault(e => !string.IsNullOrEmpty(e)) ?? string.Empty));
+            measured.Select(i => i.Error).FirstOrDefault(e => !string.IsNullOrEmpty(e)) ?? string.Empty));
     }
 
-    private static bool IsErrorDegraded(IReadOnlyList<TurnEvalItemResult> itemResults)
+    /// <summary>
+    /// Whether the numbers describe the apparatus instead of the model, for either of two reasons.
+    /// A run that measured nothing at all - every item excluded, or an empty goldset - is degraded by
+    /// definition: its composite is the zero that ComputeComposite returns for an empty weight total,
+    /// not a measured score, and persisting that as a full run would offer a fabricated figure as the
+    /// latest full run of the goldset. Otherwise the errored share of the measured items decides.
+    /// </summary>
+    private static bool IsDegradedMeasurement(IReadOnlyList<TurnEvalItemResult> itemResults)
     {
         var measured = itemResults.Count(i => !i.Excluded);
         if (measured == 0)
         {
-            return false;
+            return true;
         }
 
         var errored = itemResults.Count(i => !i.Excluded && i.Errored);

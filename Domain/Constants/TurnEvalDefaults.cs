@@ -38,22 +38,31 @@ public static class TurnEvalDefaults
         "A turn replay recorded more provider calls than the two-step replay limit allows.";
 
     /// <summary>
-    /// How many leading items may fail before the runner gives up. When the first items in a row all
-    /// errored and not one of them succeeded, the apparatus is broken (an unresolvable provider, a dead
-    /// database) and every further item would only burn wall-clock time on the same failure. The runner
-    /// aborts and persists nothing, because a run of nothing but infrastructure errors is not a
-    /// measurement of the model.
+    /// How many measured items may error before the runner gives up, as long as not one measured item
+    /// has succeeded yet. When they all errored and not one of them succeeded, the apparatus is broken
+    /// (an unresolvable provider, a dead database) and every further item would only burn wall-clock
+    /// time on the same failure. The runner aborts and persists nothing, because a run of nothing but
+    /// infrastructure errors is not a measurement of the model. Excluded items count neither way, so a
+    /// recipe-hijacked item among the first ones cannot disable the guard for the rest of the run.
+    /// A goldset or an item cap smaller than this threshold can never reach it; such a run is caught
+    /// by MaxErroredShareOfFullRun instead and persisted as partial.
     /// </summary>
     public const int InitialErrorAbortThreshold = 10;
 
     public const string InitialItemsAllErroredMessageFormat =
-        "A turn eval run was aborted: the first {0} replayed items all failed without a single successful replay, which indicates a broken apparatus rather than a model weakness. Nothing was persisted. First error: {1}";
+        "A turn eval run was aborted: {0} measured items errored without a single successful replay, which indicates a broken apparatus rather than a model weakness. Nothing was persisted. First error: {1}";
 
     /// <summary>
     /// The share of measured (non-excluded) items that may error before a run loses its full-run status.
-    /// A run at or above this share is persisted with IsPartial = true, which removes it from every
-    /// baseline and gate query (GetBestBaselineAsync, GetLatestFullRunAsync, ListRecentFullRunsAsync)
-    /// and from the nightly script's "LATEST FULL RUN" figure.
+    /// A run at or above this share - and likewise a run that measured nothing at all - is persisted with
+    /// IsPartial = true.
+    ///
+    /// IsPartial filters the baseline and gate queries, NOT the history views: GetBestBaselineAsync,
+    /// GetLatestFullRunAsync and ListRecentFullRunsAsync skip partial runs (as does the nightly script's
+    /// "LATEST FULL RUN" figure), while GetLatestAsync, GetLatestPerModelAsync and GetHistoryAsync
+    /// deliberately still return them, because a degraded run has to stay visible in the run history.
+    /// Anything that RANKS or DECIDES on top of those three unfiltered methods has to exclude partial
+    /// runs itself - see KlacksyModelCheckService.LoadEvalScoresAsync.
     /// </summary>
     public const double MaxErroredShareOfFullRun = 0.5;
 
