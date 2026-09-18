@@ -63,6 +63,25 @@ public class EvalRunRepository : IEvalRunRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<List<decimal>> GetComparableCompositesAsync(
+        string goldset,
+        string model,
+        int itemsTotal,
+        int scorerVersion,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.EvalRuns
+            .AsNoTracking()
+            .Where(r => r.Goldset == goldset
+                && r.Model == model
+                && r.ItemsTotal == itemsTotal
+                && r.ScorerVersion == scorerVersion
+                && !r.IsPartial
+                && r.ItemsTotal > 0)
+            .Select(r => r.CompositeScore)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<EvalRun>> GetLatestPerModelAsync(string goldset, CancellationToken cancellationToken = default)
     {
         var runs = await _context.EvalRuns

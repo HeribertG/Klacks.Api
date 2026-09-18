@@ -31,6 +31,18 @@ public interface IEvalRunRepository
         int scorerVersion,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Composites of every comparable completed run of the same goldset, model, item count and scorer
+    /// version: non-partial, non-deleted, with a measured population. The run being scored must not be
+    /// persisted yet, so it can never be part of its own baseline. Empty when nothing matches.
+    /// </summary>
+    Task<List<decimal>> GetComparableCompositesAsync(
+        string goldset,
+        string model,
+        int itemsTotal,
+        int scorerVersion,
+        CancellationToken cancellationToken = default);
+
     Task<List<EvalRun>> GetLatestPerModelAsync(string goldset, CancellationToken cancellationToken = default);
 
     Task<List<EvalRun>> GetHistoryAsync(string goldset, int limit, CancellationToken cancellationToken = default);

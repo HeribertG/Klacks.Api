@@ -72,7 +72,7 @@
     Item cap; 0 means "use the profile". Exported as TURNEVAL_MAX_ITEMS.
 
 .PARAMETER RegressionThreshold
-    Composite drop (vs. the best comparable baseline run) that triggers exit code 2. Positive
+    Composite drop (vs. the MEDIAN of the comparable baseline runs) that triggers exit code 2. Positive
     number; a regression_vs_baseline of -0.03 with threshold 0.02 fires. Default: 0.02.
 
 .PARAMETER OutputDir
@@ -166,6 +166,7 @@ $DbPassword           = "admin"
 $PsqlDefaultPath      = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
 $ExitOk               = 0
 $ExitRegression       = 2
+$MinBaselineRuns      = 3
 $ExitApparatusFailure = 3
 $BuildConfiguration   = "Release"
 $TestResultsFolderName = "TestResults"
@@ -282,6 +283,7 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $sw = [System.IO.StreamWriter]::new($ScorecardOut, $false, [System.Text.UTF8Encoding]::new($false))
 
 $anyRegression = $false
+$anyInsufficientBaseline = $false
 $anyFailure    = $false
 
 try {
@@ -291,7 +293,7 @@ try {
     Write-Line "Goldset:              $Goldset" $sw
     Write-Line "Profile:              $Profile -> $ScopeText" $sw
     Write-Line "Models:               $($ModelList -join ', ')" $sw
-    Write-Line "Regression threshold: -$RegressionThreshold (composite vs. best comparable baseline)" $sw
+    Write-Line "Regression threshold: -$RegressionThreshold (composite vs. median of comparable baseline runs, at least $MinBaselineRuns runs)" $sw
     Write-Line "Mode:                 $modeText" $sw
     Write-Line "DB reachable:         $dbReachable" $sw
     Write-Line "" $sw
@@ -483,6 +485,25 @@ try {
 
         Write-Line "  regression:     $regression" $sw
 
+        $baselineText = "n/a"
+        if ($isPartial -ne "t") {
+            $sqlBaseline = "SELECT count(*), coalesce(round(percentile_cont(0.5) WITHIN GROUP (ORDER BY composite_score)::numeric, 4)::text, 'n/a') FROM $EvalRunsTable b WHERE b.goldset = '$Goldset' AND b.model = '$model' AND b.is_deleted = false AND b.is_partial = false AND b.items_total > 0 AND b.items_total = $itemsTotal AND b.scorer_version = $scorerVersion AND b.id <> (SELECT id FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1);"
+            $baselineRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlBaseline
+            if ($baselineRow.Ok -and -not [string]::IsNullOrWhiteSpace($baselineRow.Value)) {
+                $baselineCols = $baselineRow.Value.Split("|")
+                $baselineN = [int]$baselineCols[0].Trim()
+                $baselineMedian = $baselineCols[1].Trim()
+                if ($baselineN -ge $MinBaselineRuns) {
+                    Write-Line "  baseline:       median $baselineMedian of n=$baselineN comparable full runs" $sw
+                } else {
+                    Write-Line "  baseline:       insufficient baseline (n<$MinBaselineRuns): n=$baselineN comparable full run(s) - NO regression verdict, this is not a pass" $sw "Yellow"
+                    $anyInsufficientBaseline = $true
+                }
+            } else {
+                Write-Line "  baseline:       could not read the baseline runs from $EvalRunsTable" $sw "Yellow"
+            }
+        }
+
         $regValue = 0.0
         if ([double]::TryParse($regression, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$regValue)) {
             if ($regValue -le (-1 * $RegressionThreshold)) {
@@ -492,7 +513,7 @@ try {
         } elseif ($isPartial -eq "t") {
             Write-Line "  (no regression figure: partial runs have no comparable baseline by design)" $sw
         } else {
-            Write-Line "  (no regression figure: no comparable baseline of the same size and scorer version yet)" $sw
+            Write-Line "  (no regression figure: fewer than $MinBaselineRuns comparable full runs of the same size and scorer version)" $sw
         }
         Write-Line "" $sw
     }
@@ -505,7 +526,11 @@ try {
     } elseif ($anyRegression) {
         Write-Line "RESULT: REGRESSION DETECTED - review the models flagged above." $sw "Red"
     } else {
-        Write-Line "RESULT: OK - every model produced exactly one run, none regressed beyond the threshold." $sw "Green"
+        if ($anyInsufficientBaseline) {
+            Write-Line "RESULT: OK, BUT NOT CHECKED - every model produced exactly one run, yet at least one had an insufficient baseline (n<$MinBaselineRuns), so no regression verdict exists for it." $sw "Yellow"
+        } else {
+            Write-Line "RESULT: OK - every model produced exactly one run, none regressed beyond the threshold." $sw "Green"
+        }
     }
     Write-Line "Scorecard: $ScorecardOut" $sw
 }

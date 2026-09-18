@@ -4,9 +4,11 @@
 /// Orchestrates a turn-selection eval run: loads the goldset, replays every item
 /// sequentially against the requested model, resolves name slots deterministically,
 /// aggregates the scorecard and persists one EvalRun per model. The regression is measured
-/// against the BEST completed run of the same goldset, model, item count and scorer version
-/// - never against the latest run (which would let quality ratchet down by the tolerance on
-/// every run) and never against a run over a different number of items.
+/// against the MEDIAN composite of the completed runs of the same goldset, model, item count and scorer
+/// version (see TurnEvalBaseline) - never against the latest run (which would let quality ratchet down by
+/// the tolerance on every run), never against the maximum (identical runs spread by about 0.04, so the
+/// maximum turns noise into regressions) and never against a run over a different number of items. With
+/// fewer than TurnEvalDefaults.MinBaselineRuns such runs there is no regression figure.
 ///
 /// Every replayed item is additionally persisted as an eval_run_items row, written in one batch after
 /// the run itself because the rows carry a foreign key to it. Without those rows a run is a single
@@ -112,11 +114,12 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         // a baseline.
         var isPartial = isCapped || IsDegradedMeasurement(itemResults);
 
-        var baseline = isPartial
-            ? null
-            : await _evalRunRepository.GetBestBaselineAsync(
+        var baselineComposites = isPartial
+            ? []
+            : await _evalRunRepository.GetComparableCompositesAsync(
                 goldset, modelId, dimensions.ItemsTotal, TurnEvalScorer.ScorerVersion, cancellationToken);
-        decimal? regression = baseline == null ? null : (decimal)composite - baseline.CompositeScore;
+        var baselineMedian = TurnEvalBaseline.ComputeMedian(baselineComposites);
+        decimal? regression = baselineMedian == null ? null : (decimal)composite - baselineMedian;
 
         var evalRun = new EvalRun
         {
@@ -141,7 +144,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         await _evalRunItemRepository.AddRangeAsync(itemRows, cancellationToken);
 
         _logger.LogInformation(
-            "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, retrievalHit={RetrievalHit:F3}, selectionHit={SelectionHit:F3}, reachedHit={ReachedHit:F3}, lookupDetour={LookupDetour:F3}, regression={Regression}",
+            "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, retrievalHit={RetrievalHit:F3}, selectionHit={SelectionHit:F3}, reachedHit={ReachedHit:F3}, lookupDetour={LookupDetour:F3}, regression={Regression}, baselineMedian={BaselineMedian}, baselineRuns={BaselineRuns}",
             goldset.ForLog(), modelId.ForLog(), TurnEvalScorer.ScorerVersion, isPartial, composite,
             dimensions.ToolAccuracy ?? -1, dimensions.SlotAccuracy ?? -1,
             dimensions.NoToolAccuracy ?? -1, dimensions.RecipeAccuracy ?? -1,
@@ -149,7 +152,8 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             dimensions.AvgLatencyMs,
             dimensions.ItemsTotal, dimensions.ItemsExcluded, dimensions.ItemsErrored,
             dimensions.TotalCost, dimensions.RetrievalHit ?? -1, dimensions.SelectionHit ?? -1,
-            dimensions.ReachedHit ?? -1, dimensions.LookupDetourRate ?? -1, regression);
+            dimensions.ReachedHit ?? -1, dimensions.LookupDetourRate ?? -1, regression,
+            baselineMedian, baselineComposites.Count);
 
         return new TurnEvalRunResult
         {

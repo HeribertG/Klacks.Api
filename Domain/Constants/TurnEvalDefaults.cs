@@ -66,6 +66,13 @@ public static class TurnEvalDefaults
     /// </summary>
     public const double MaxErroredShareOfFullRun = 0.5;
 
+    /// <summary>
+    /// Fewest comparable completed runs the regression baseline needs. The baseline is the MEDIAN of their
+    /// composites; below this count the run reports no regression at all, because a median of one or two
+    /// noisy full runs (the spread between identical runs is about 0.04) cannot separate a real drop from noise.
+    /// </summary>
+    public const int MinBaselineRuns = 3;
+
     public const int ResponseTextMaxLength = 4000;
 
     public const string SyntheticLookupEntityId = "00000000-0000-4000-8000-00000000e7a1";
