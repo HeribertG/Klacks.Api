@@ -67,7 +67,7 @@ public class LanguagePluginSkillLabelInstaller
                 : new HashSet<string>(onlySkillNames, StringComparer.OrdinalIgnoreCase);
 
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
             var count = 0;
 
             foreach (var skill in allSkills)
@@ -114,7 +114,7 @@ public class LanguagePluginSkillLabelInstaller
         try
         {
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
             var count = 0;
 
             foreach (var skill in allSkills)

@@ -115,7 +115,7 @@ public class LanguagePluginContentInstaller
 
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
             var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
             var count = 0;
 
             foreach (var skill in allSkills)
@@ -159,7 +159,7 @@ public class LanguagePluginContentInstaller
 
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
             var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
-            var allSkills = await skillRepo.GetAllEnabledAsync();
+            var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
             var count = 0;
 
             foreach (var skill in allSkills)
