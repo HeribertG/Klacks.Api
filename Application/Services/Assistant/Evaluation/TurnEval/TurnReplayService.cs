@@ -206,7 +206,10 @@ public class TurnReplayService : ITurnReplayService
             await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
         }
 
-        Debug.Assert(result.Steps.Count <= TurnEvalDefaults.MaxReplaySteps, "A replay must never exceed the two-step limit.");
+        if (result.Steps.Count > TurnEvalDefaults.MaxReplaySteps)
+        {
+            throw new InvalidOperationException(TurnEvalDefaults.ReplayStepLimitExceededMessage);
+        }
 
         _logger.LogInformation(
             "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",

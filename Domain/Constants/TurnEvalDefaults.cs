@@ -26,9 +26,14 @@ public static class TurnEvalDefaults
 
     /// <summary>
     /// A replay asks the model at most twice: the first choice and, when that was a lookup in front of
-    /// an expected mutation, one more choice on a synthetic lookup result.
+    /// an expected mutation, one more choice on a synthetic lookup result. Enforced as a post-condition
+    /// in TurnReplayService, in every build configuration - a replay that recorded more steps has broken
+    /// an invariant the cost estimate and the reached verdict both rest on, and must not report a result.
     /// </summary>
     public const int MaxReplaySteps = 2;
+
+    public const string ReplayStepLimitExceededMessage =
+        "A turn replay recorded more provider calls than the two-step replay limit allows.";
 
     public const int ResponseTextMaxLength = 4000;
 
