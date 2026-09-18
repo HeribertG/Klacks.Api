@@ -106,6 +106,129 @@ public class TurnReplayService : ITurnReplayService
             return new TurnReplayResult { Success = false, Error = error ?? "Model or provider not available." };
         }
 
+        var prep = await PrepareReplayPromptAsync(
+            item, modelId, userId, userRights, model, provider, cancellationToken);
+
+        if (prep.Correction?.ClarificationReply is { Length: > 0 } replayClarification)
+        {
+            _logger.LogInformation(
+                "TurnReplay item {ItemId}: correction ended in the deterministic clarification, no provider call",
+                item.Id);
+
+            return new TurnReplayResult
+            {
+                Success = true,
+                ChosenTool = null,
+                Content = replayClarification,
+                AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
+                RecipeWouldForce = prep.RecipeWouldForce,
+                EngineRecipeWouldTrigger = prep.EngineRecipeWouldTrigger,
+                ForcedRecipeName = prep.ForcingPlan?.Name,
+                TriggeredRecipeName = prep.TriggeredRecipeName,
+                ToolChoiceRequired = prep.ToolChoiceRequired,
+                ProviderId = model.ProviderId,
+                ApiModelId = model.ApiModelId,
+                LatencyMs = stopwatch.ElapsedMilliseconds,
+                CorrectionApplied = true,
+                CorrectionClarificationOffered = true,
+                UndoOfferedSkill = prep.Correction?.Undo?.SkillName
+            };
+        }
+
+        stopwatch.Restart();
+        var response = await ProcessWithTransientRetryAsync(provider, prep.Request, cancellationToken);
+        stopwatch.Stop();
+
+        var firstCall = response.FunctionCalls.FirstOrDefault();
+
+        var result = new TurnReplayResult
+        {
+            Success = response.Success,
+            Error = response.Error,
+            ChosenTool = firstCall?.FunctionName,
+            ToolParameters = firstCall?.Parameters ?? new Dictionary<string, object>(),
+            Content = response.Content,
+            LatencyMs = stopwatch.ElapsedMilliseconds,
+            Cost = response.Usage.Cost,
+            InputTokens = response.Usage.InputTokens,
+            OutputTokens = response.Usage.OutputTokens,
+            RecipeWouldForce = prep.RecipeWouldForce,
+            EngineRecipeWouldTrigger = prep.EngineRecipeWouldTrigger,
+            ForcedRecipeName = prep.ForcingPlan?.Name,
+            TriggeredRecipeName = prep.TriggeredRecipeName,
+            AvailableToolNames = prep.Context.AvailableFunctions.Select(f => f.Name).ToList(),
+            ToolChoiceRequired = prep.ToolChoiceRequired,
+            ProviderId = model.ProviderId,
+            ApiModelId = model.ApiModelId,
+            CorrectionApplied = prep.Correction != null,
+            CorrectionClarificationOffered = false,
+            UndoOfferedSkill = prep.Correction?.Undo?.SkillName
+        };
+
+        result.Steps.Add(new TurnReplayStep
+        {
+            Tool = result.ChosenTool,
+            Parameters = result.ToolParameters,
+            Content = result.Content,
+            LatencyMs = result.LatencyMs,
+            Success = result.Success,
+            Error = result.Error
+        });
+
+        if (followUpLookups && firstCall != null
+            && await QualifiesForFollowUpAsync(item, result, cancellationToken))
+        {
+            firstCall.Result = SyntheticLookupResultFactory.Build(firstCall.Parameters);
+
+            var followUpHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(prep.ReplayHistory)
+            {
+                new() { Role = LLMMessageRoles.User, Content = item.Message },
+                new()
+                {
+                    Role = LLMMessageRoles.Assistant,
+                    Content = string.IsNullOrEmpty(response.Content)
+                        ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
+                        : response.Content
+                }
+            };
+
+            var followUpRequest = BuildProviderRequest(
+                model, prep.SystemPrompt, prep.VolatilePrompt, prep.Context,
+                LLMService.FormatFunctionResults([firstCall], prep.BudgetProfile.MaxToolResultChars),
+                followUpHistory,
+                ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe: false,
+                    isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
+                    isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
+                    forceConfirmation: false,
+                    toolCallCount: 1));
+
+            await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
+        }
+
+        _logger.LogInformation(
+            "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
+            item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Everything a replay needs before it can talk to the provider: agent, planning scope, graceful
+    /// correction, the assembled toolset, the system/volatile prompt and the first-step request. Split out
+    /// of <see cref="ReplayCoreAsync"/> purely to keep that method's own body under the project's method
+    /// size ceiling - no behavior changes; the returned <see cref="ReplayPromptPreparation"/> carries
+    /// everything ReplayCoreAsync used to hold in locals.
+    /// </summary>
+    private async Task<ReplayPromptPreparation> PrepareReplayPromptAsync(
+        TurnGoldsetItem item,
+        string modelId,
+        string userId,
+        List<string> userRights,
+        LLMModel model,
+        Domain.Services.Assistant.Providers.ILLMProvider provider,
+        CancellationToken cancellationToken)
+    {
         var agent = await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
         var budgetProfile = _contextBudgetPolicy.Resolve(provider, model);
 
@@ -171,10 +294,8 @@ public class TurnReplayService : ITurnReplayService
         var temporalContext = await _promptBuilder.BuildTemporalContextAsync(context, cancellationToken);
 
         var forcingPlan = RecipeForcingResolver.Resolve(item.Message);
-        var recipeWouldForce = forcingPlan != null;
         var triggeredRecipeName = await FindMatchingEngineRecipeNameAsync(
             item.Message, item.Locale, cancellationToken);
-        var engineRecipeWouldTrigger = triggeredRecipeName != null;
         var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
@@ -185,128 +306,56 @@ public class TurnReplayService : ITurnReplayService
                     LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
                 correction?.ContextNote));
 
-        LLMProviderRequest BuildRequest(
-            string message, List<Domain.Services.Assistant.Providers.LLMMessage> history, string? toolChoice) => new()
-        {
-            Message = message,
-            SystemPrompt = systemPrompt,
-            VolatileSystemPrompt = volatilePrompt,
-            ModelId = model.ApiModelId,
-            ConversationHistory = history,
-            AvailableFunctions = context.AvailableFunctions,
-            Temperature = TurnEvalDefaults.ReplayTemperature,
-            MaxTokens = model.MaxTokens,
-            SupportedParameters = model.SupportedParameters,
-            CostPerInputToken = model.CostPerInputToken,
-            CostPerOutputToken = model.CostPerOutputToken,
-            ToolChoice = toolChoice
-        };
-
-        var request = BuildRequest(
+        var request = BuildProviderRequest(
+            model, systemPrompt, volatilePrompt, context,
             item.Message, replayHistory, toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null);
 
-        if (correction?.ClarificationReply is { Length: > 0 } replayClarification)
-        {
-            _logger.LogInformation(
-                "TurnReplay item {ItemId}: correction ended in the deterministic clarification, no provider call",
-                item.Id);
-
-            return new TurnReplayResult
-            {
-                Success = true,
-                ChosenTool = null,
-                Content = replayClarification,
-                AvailableToolNames = context.AvailableFunctions.Select(f => f.Name).ToList(),
-                RecipeWouldForce = recipeWouldForce,
-                EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
-                ForcedRecipeName = forcingPlan?.Name,
-                TriggeredRecipeName = triggeredRecipeName,
-                ToolChoiceRequired = toolChoiceRequired,
-                ProviderId = model.ProviderId,
-                ApiModelId = model.ApiModelId,
-                LatencyMs = stopwatch.ElapsedMilliseconds,
-                CorrectionApplied = true,
-                CorrectionClarificationOffered = true,
-                UndoOfferedSkill = correction?.Undo?.SkillName
-            };
-        }
-
-        stopwatch.Restart();
-        var response = await ProcessWithTransientRetryAsync(provider, request, cancellationToken);
-        stopwatch.Stop();
-
-        var firstCall = response.FunctionCalls.FirstOrDefault();
-
-        var result = new TurnReplayResult
-        {
-            Success = response.Success,
-            Error = response.Error,
-            ChosenTool = firstCall?.FunctionName,
-            ToolParameters = firstCall?.Parameters ?? new Dictionary<string, object>(),
-            Content = response.Content,
-            LatencyMs = stopwatch.ElapsedMilliseconds,
-            Cost = response.Usage.Cost,
-            InputTokens = response.Usage.InputTokens,
-            OutputTokens = response.Usage.OutputTokens,
-            RecipeWouldForce = recipeWouldForce,
-            EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
-            ForcedRecipeName = forcingPlan?.Name,
-            TriggeredRecipeName = triggeredRecipeName,
-            AvailableToolNames = context.AvailableFunctions.Select(f => f.Name).ToList(),
-            ToolChoiceRequired = toolChoiceRequired,
-            ProviderId = model.ProviderId,
-            ApiModelId = model.ApiModelId,
-            CorrectionApplied = correction != null,
-            CorrectionClarificationOffered = false,
-            UndoOfferedSkill = correction?.Undo?.SkillName
-        };
-
-        result.Steps.Add(new TurnReplayStep
-        {
-            Tool = result.ChosenTool,
-            Parameters = result.ToolParameters,
-            Content = result.Content,
-            LatencyMs = result.LatencyMs,
-            Success = result.Success,
-            Error = result.Error
-        });
-
-        if (followUpLookups && firstCall != null
-            && await QualifiesForFollowUpAsync(item, result, cancellationToken))
-        {
-            firstCall.Result = SyntheticLookupResultFactory.Build(firstCall.Parameters);
-
-            var followUpHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(replayHistory)
-            {
-                new() { Role = LLMMessageRoles.User, Content = item.Message },
-                new()
-                {
-                    Role = LLMMessageRoles.Assistant,
-                    Content = string.IsNullOrEmpty(response.Content)
-                        ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
-                        : response.Content
-                }
-            };
-
-            var followUpRequest = BuildRequest(
-                LLMService.FormatFunctionResults([firstCall], budgetProfile.MaxToolResultChars),
-                followUpHistory,
-                ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe: false,
-                    isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
-                    isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
-                    forceConfirmation: false,
-                    toolCallCount: 1));
-
-            await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
-        }
-
-        _logger.LogInformation(
-            "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
-            item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
-
-        return result;
+        return new ReplayPromptPreparation(
+            context, correction, replayHistory, forcingPlan, forcingPlan != null, triggeredRecipeName,
+            triggeredRecipeName != null, toolChoiceRequired, budgetProfile, systemPrompt, volatilePrompt, request);
     }
+
+    private static LLMProviderRequest BuildProviderRequest(
+        LLMModel model,
+        string systemPrompt,
+        string? volatilePrompt,
+        LLMContext context,
+        string message,
+        List<Domain.Services.Assistant.Providers.LLMMessage> history,
+        string? toolChoice) => new()
+    {
+        Message = message,
+        SystemPrompt = systemPrompt,
+        VolatileSystemPrompt = volatilePrompt,
+        ModelId = model.ApiModelId,
+        ConversationHistory = history,
+        AvailableFunctions = context.AvailableFunctions,
+        Temperature = TurnEvalDefaults.ReplayTemperature,
+        MaxTokens = model.MaxTokens,
+        SupportedParameters = model.SupportedParameters,
+        CostPerInputToken = model.CostPerInputToken,
+        CostPerOutputToken = model.CostPerOutputToken,
+        ToolChoice = toolChoice
+    };
+
+    /// <summary>
+    /// Everything <see cref="ReplayCoreAsync"/> needs after <see cref="PrepareReplayPromptAsync"/> has run:
+    /// the assembled context, the graceful-correction outcome, the seeded history and the pieces a
+    /// follow-up request is rebuilt from.
+    /// </summary>
+    private sealed record ReplayPromptPreparation(
+        LLMContext Context,
+        GracefulCorrectionOutcome? Correction,
+        List<Domain.Services.Assistant.Providers.LLMMessage> ReplayHistory,
+        RecipeForcingPlan? ForcingPlan,
+        bool RecipeWouldForce,
+        string? TriggeredRecipeName,
+        bool EngineRecipeWouldTrigger,
+        bool ToolChoiceRequired,
+        ContextBudgetProfile BudgetProfile,
+        string SystemPrompt,
+        string? VolatilePrompt,
+        LLMProviderRequest Request);
 
     /// <summary>
     /// Seeds the replay with the turn a correction item refers to, in the same role/content shape

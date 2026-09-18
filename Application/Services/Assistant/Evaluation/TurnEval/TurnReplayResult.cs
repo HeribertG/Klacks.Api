@@ -22,10 +22,16 @@ public class TurnReplayResult
 
     public long LatencyMs { get; set; }
 
+    /// <summary>
+    /// Sums across every provider call the replay made - one step on an ordinary replay, two when a
+    /// follow-up ran - unlike LatencyMs, which stays the first step's own duration only.
+    /// </summary>
     public decimal Cost { get; set; }
 
+    /// <summary>Sums across every provider call the replay made, same scope as <see cref="Cost"/>.</summary>
     public int InputTokens { get; set; }
 
+    /// <summary>Sums across every provider call the replay made, same scope as <see cref="Cost"/>.</summary>
     public int OutputTokens { get; set; }
 
     public bool RecipeWouldForce { get; set; }
