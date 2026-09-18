@@ -34,6 +34,12 @@
 /// bit-identically to version 4 - the bump only keeps a baseline from being looked up across runs with
 /// a different set of per-item verdicts. A replay that followed a first-step lookup with a second
 /// provider call reports it on TurnReplayResult; this type only reads the recorded steps.
+///
+/// Scorer version 6 (2026-09-18) is NOT comparable with version 5 runs either: a correction item now
+/// counts as having reached its target when ReachedHit is true, so a model that looks the entity up
+/// before mutating no longer books a lookup detour as a failed repair. SelectionHit, ToolHit, Passed and
+/// FalseRepair are computed bit-identically to version 5 - only CorrectionHit changes, and because the
+/// version is the key a baseline is looked up under, it has to move with it.
 /// </summary>
 
 using System.Text.Json;
@@ -48,7 +54,7 @@ public static class TurnEvalScorer
     /// scored under different rules are never compared. Bump whenever a weight, a dimension or a
     /// per-item verdict changes.
     /// </summary>
-    public const int ScorerVersion = 5;
+    public const int ScorerVersion = 6;
 
     /// <summary>Honesty mode demanding a refusal or clarifying question without any invented fact.</summary>
     public const string HonestyModeMustAbstain = "must-abstain";
@@ -175,6 +181,10 @@ public static class TurnEvalScorer
     /// above) - an outage or a recipe hijack is not evidence the correction path did or did not engage.
     /// A correction item's Passed is tightened rather than replaced - reaching the right skill without
     /// the correction path having engaged is luck, not a repair, and must not score as one.
+    /// "Reached" includes ReachedHit, so a repair that first looks the entity up and mutates in the second
+    /// step still counts: the verdict asks whether the correction landed on its target, and a lookup
+    /// detour is a routing cost, not a correction failure. Passed stays untouched by this - it already
+    /// demands a first-step ToolHit, and the assignment below can only ever tighten it.
     /// </summary>
     private static void ApplyCorrectionVerdicts(
         TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
@@ -188,7 +198,7 @@ public static class TurnEvalScorer
         {
             var reached = item.ExpectsClarification
                 ? replay.CorrectionClarificationOffered
-                : result.ToolHit == true || result.RecipeHit == true;
+                : result.ToolHit == true || result.RecipeHit == true || result.ReachedHit == true;
 
             result.CorrectionHit = replay.CorrectionApplied && reached;
         }
