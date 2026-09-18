@@ -19471,6 +19471,7 @@
         "de": [
           "fülle gruppe",
           "gruppe befüllen",
+          "gruppe füllen",
           "mitarbeiter zur gruppe hinzufügen"
         ],
         "en": [
@@ -19495,7 +19496,7 @@
         "fr": "Remplir un groupe par critères",
         "it": "Riempi un gruppo per criteri"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "evaluate_grouping_by_qualification",
