@@ -29,6 +29,8 @@ public static class TurnEvalDefaults
     /// an expected mutation, one more choice on a synthetic lookup result. Enforced as a post-condition
     /// in TurnReplayService, in every build configuration - a replay that recorded more steps has broken
     /// an invariant the cost estimate and the reached verdict both rest on, and must not report a result.
+    /// The guard is fail-fast by design: TurnEvalRunnerService does not catch the resulting exception, so
+    /// a violation aborts the whole run instead of persisting rows scored under a broken replay contract.
     /// </summary>
     public const int MaxReplaySteps = 2;
 
