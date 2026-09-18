@@ -4,9 +4,10 @@
 /// Headless single-turn replay against a configurable model. Mirrors the production
 /// assembly path (agent, toolset, planning scope, soul/memory prompt, system prompt, the
 /// graceful correction and the first-iteration tool-choice forcing) but performs at most one
-/// provider call and returns the model's first tool choice - a correction that ends in the
-/// deterministic clarification returns that question and calls no provider at all, exactly as
-/// production does. It never executes tools, never creates a conversation, never reads or writes
+/// provider call - two when the caller asks for the lookup follow-up and the first choice was a
+/// plain lookup in front of an expected mutation - and returns the model's tool choices - a
+/// correction that ends in the deterministic clarification returns that question and calls no
+/// provider at all, exactly as production does. It never executes tools, never creates a conversation, never reads or writes
 /// the previous-action record and never triggers background telemetry, so replays cannot pollute
 /// production data; the only intended persistence is the EvalRun written by the runner.
 /// LatencyMs keeps its established meaning on an ordinary replay - the provider call alone, so model
@@ -73,12 +74,29 @@ public class TurnReplayService : ITurnReplayService
         _logger = logger;
     }
 
-    public async Task<TurnReplayResult> ReplayAsync(
+    public Task<TurnReplayResult> ReplayAsync(
         TurnGoldsetItem item,
         string modelId,
         string userId,
         List<string> userRights,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ReplayCoreAsync(item, modelId, userId, userRights, followUpLookups: false, cancellationToken);
+
+    public Task<TurnReplayResult> ReplayWithLookupFollowUpAsync(
+        TurnGoldsetItem item,
+        string modelId,
+        string userId,
+        List<string> userRights,
+        CancellationToken cancellationToken = default) =>
+        ReplayCoreAsync(item, modelId, userId, userRights, followUpLookups: true, cancellationToken);
+
+    private async Task<TurnReplayResult> ReplayCoreAsync(
+        TurnGoldsetItem item,
+        string modelId,
+        string userId,
+        List<string> userRights,
+        bool followUpLookups,
+        CancellationToken cancellationToken)
     {
         var stopwatch = Stopwatch.StartNew();
 
@@ -160,26 +178,32 @@ public class TurnReplayService : ITurnReplayService
         var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
-        var request = new LLMProviderRequest
-        {
-            Message = item.Message,
-            SystemPrompt = systemPrompt,
-            VolatileSystemPrompt = LLMService.CombineVolatile(
-                temporalContext,
+        var volatilePrompt = LLMService.CombineVolatile(
+            temporalContext,
+            LLMService.CombineVolatile(
                 LLMService.CombineVolatile(
-                    LLMService.CombineVolatile(
-                        LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
-                    correction?.ContextNote)),
+                    LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
+                correction?.ContextNote));
+
+        LLMProviderRequest BuildRequest(
+            string message, List<Domain.Services.Assistant.Providers.LLMMessage> history, string? toolChoice) => new()
+        {
+            Message = message,
+            SystemPrompt = systemPrompt,
+            VolatileSystemPrompt = volatilePrompt,
             ModelId = model.ApiModelId,
-            ConversationHistory = replayHistory,
+            ConversationHistory = history,
             AvailableFunctions = context.AvailableFunctions,
             Temperature = TurnEvalDefaults.ReplayTemperature,
             MaxTokens = model.MaxTokens,
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
-            ToolChoice = toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null
+            ToolChoice = toolChoice
         };
+
+        var request = BuildRequest(
+            item.Message, replayHistory, toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null);
 
         if (correction?.ClarificationReply is { Length: > 0 } replayClarification)
         {
@@ -236,6 +260,46 @@ public class TurnReplayService : ITurnReplayService
             CorrectionClarificationOffered = false,
             UndoOfferedSkill = correction?.Undo?.SkillName
         };
+
+        result.Steps.Add(new TurnReplayStep
+        {
+            Tool = result.ChosenTool,
+            Parameters = result.ToolParameters,
+            Content = result.Content,
+            LatencyMs = result.LatencyMs,
+            Success = result.Success,
+            Error = result.Error
+        });
+
+        if (followUpLookups && firstCall != null
+            && await QualifiesForFollowUpAsync(item, result, cancellationToken))
+        {
+            firstCall.Result = SyntheticLookupResultFactory.Build(firstCall.Parameters);
+
+            var followUpHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(replayHistory)
+            {
+                new() { Role = LLMMessageRoles.User, Content = item.Message },
+                new()
+                {
+                    Role = LLMMessageRoles.Assistant,
+                    Content = string.IsNullOrEmpty(response.Content)
+                        ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
+                        : response.Content
+                }
+            };
+
+            var followUpRequest = BuildRequest(
+                LLMService.FormatFunctionResults([firstCall], budgetProfile.MaxToolResultChars),
+                followUpHistory,
+                ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe: false,
+                    isMutationIntent: MutationIntentDetector.IsMutationIntent(item.Message),
+                    isNavigationIntent: NavigationIntentDetector.IsNavigationIntent(item.Message),
+                    forceConfirmation: false,
+                    toolCallCount: 1));
+
+            await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
+        }
 
         _logger.LogInformation(
             "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
@@ -327,6 +391,67 @@ public class TurnReplayService : ITurnReplayService
             {
                 [item.Locale!] = item.PreviousTurn!.SkillDisplayLabel!
             };
+
+    /// <summary>
+    /// Whether the first step qualifies for the lookup follow-up: it must be a genuine miss against an
+    /// available, non-hijacked expectation, and the chosen skill must be a plain read-only lookup ahead
+    /// of an expected mutation - <see cref="ReplayFollowUpPolicy"/> holds the exact skill-shape rule.
+    /// </summary>
+    private async Task<bool> QualifiesForFollowUpAsync(
+        TurnGoldsetItem item, TurnReplayResult firstStep, CancellationToken cancellationToken)
+    {
+        if (!firstStep.Success
+            || item.ExpectedTool == null
+            || firstStep.RecipeWouldForce
+            || firstStep.EngineRecipeWouldTrigger
+            || TurnEvalScorer.IsAcceptableTool(item, firstStep.ChosenTool)
+            || !firstStep.AvailableToolNames.Any(name => TurnEvalScorer.IsAcceptableTool(item, name)))
+        {
+            return false;
+        }
+
+        var skills = await _skillCacheService.GetAllEnabledSkillsAsync(cancellationToken);
+        AgentSkill? Find(string? name) => skills.FirstOrDefault(
+            skill => string.Equals(skill.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        return ReplayFollowUpPolicy.ShouldFollowUp(Find(firstStep.ChosenTool), Find(item.ExpectedTool));
+    }
+
+    /// <summary>
+    /// Runs the second provider call and records it as a step, never letting a provider failure surface
+    /// as an exception - only as FollowUpFailed on the already-valid first-step result.
+    /// </summary>
+    private async Task RunFollowUpStepAsync(
+        Domain.Services.Assistant.Providers.ILLMProvider provider,
+        LLMProviderRequest request,
+        TurnReplayResult result,
+        CancellationToken cancellationToken)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var response = await ProcessWithTransientRetryAsync(provider, request, cancellationToken);
+        stopwatch.Stop();
+
+        var call = response.FunctionCalls.FirstOrDefault();
+        result.FollowUpAttempted = true;
+        result.FollowUpFailed = !response.Success;
+        result.Cost += response.Usage.Cost;
+        result.InputTokens += response.Usage.InputTokens;
+        result.OutputTokens += response.Usage.OutputTokens;
+        result.Steps.Add(new TurnReplayStep
+        {
+            Tool = call?.FunctionName,
+            Parameters = call?.Parameters ?? new Dictionary<string, object>(),
+            Content = response.Content,
+            LatencyMs = stopwatch.ElapsedMilliseconds,
+            Success = response.Success,
+            Error = response.Error
+        });
+
+        if (!response.Success)
+        {
+            _logger.LogWarning("TurnReplay follow-up step failed: {Error}", response.Error);
+        }
+    }
 
     private async Task<string?> FindMatchingEngineRecipeNameAsync(
         string message, string? language, CancellationToken cancellationToken)
