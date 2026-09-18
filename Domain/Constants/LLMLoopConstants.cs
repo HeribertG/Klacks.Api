@@ -30,4 +30,6 @@ public static class LLMLoopConstants
     public const string RepeatedWriteCallRejectedResult =
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";
+
+    public const string ExecutingFunctionCallsPlaceholder = "[Executing function calls]";
 }
