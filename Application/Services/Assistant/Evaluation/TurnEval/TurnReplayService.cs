@@ -206,6 +206,8 @@ public class TurnReplayService : ITurnReplayService
             await RunFollowUpStepAsync(provider, followUpRequest, result, cancellationToken);
         }
 
+        Debug.Assert(result.Steps.Count <= TurnEvalDefaults.MaxReplaySteps, "A replay must never exceed the two-step limit.");
+
         _logger.LogInformation(
             "TurnReplay item {ItemId} model {Model}: tool={Tool}, latency={LatencyMs}ms, success={Success}",
             item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
