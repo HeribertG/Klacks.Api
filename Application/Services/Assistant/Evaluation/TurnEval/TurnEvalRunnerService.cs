@@ -11,10 +11,13 @@
 /// Every replayed item is additionally persisted as an eval_run_items row, written in one batch after
 /// the run itself because the rows carry a foreign key to it. Without those rows a run is a single
 /// number and the two causes behind a miss cannot be told apart after the fact.
+/// Items are replayed with the lookup follow-up, so a run reports both the strict first-choice verdict
+/// and whether the expected tool was reached.
 /// </summary>
 
 using System.Diagnostics;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
@@ -80,7 +83,8 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var replay = await _replayService.ReplayAsync(item, modelId, userId, userRights, cancellationToken);
+            var replay = await _replayService.ReplayWithLookupFollowUpAsync(
+                item, modelId, userId, userRights, cancellationToken);
             providerId ??= replay.ProviderId;
 
             var resolvedNameSlots = await ResolveNameSlotsAsync(item, replay, cancellationToken);
@@ -125,14 +129,15 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         await _evalRunItemRepository.AddRangeAsync(itemRows, cancellationToken);
 
         _logger.LogInformation(
-            "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, regression={Regression}",
+            "TurnEvalRun {Goldset} model {Model} scorerVersion={ScorerVersion} partial={Partial}: composite={Composite:F4}, tool={Tool:F2}, slot={Slot:F2}, noTool={NoTool:F2}, recipe={Recipe:F2}, honesty={Honesty:F2}, nameRes={NameRes:F2}, avgLatencyMs={AvgLatencyMs:F0}, items={Items}, excluded={Excluded}, errored={Errored}, cost={Cost:F4}, retrievalHit={RetrievalHit:F3}, selectionHit={SelectionHit:F3}, reachedHit={ReachedHit:F3}, lookupDetour={LookupDetour:F3}, regression={Regression}",
             goldset.ForLog(), modelId.ForLog(), TurnEvalScorer.ScorerVersion, isPartial, composite,
             dimensions.ToolAccuracy ?? -1, dimensions.SlotAccuracy ?? -1,
             dimensions.NoToolAccuracy ?? -1, dimensions.RecipeAccuracy ?? -1,
             dimensions.HonestyAccuracy ?? -1, dimensions.NameResolutionAccuracy ?? -1,
             dimensions.AvgLatencyMs,
             dimensions.ItemsTotal, dimensions.ItemsExcluded, dimensions.ItemsErrored,
-            dimensions.TotalCost, regression);
+            dimensions.TotalCost, dimensions.RetrievalHit ?? -1, dimensions.SelectionHit ?? -1,
+            dimensions.ReachedHit ?? -1, dimensions.LookupDetourRate ?? -1, regression);
 
         return new TurnEvalRunResult
         {
@@ -155,10 +160,22 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             ToolsetNamesJson = JsonSerializer.Serialize(replay.AvailableToolNames),
             RetrievalHit = scored.RetrievalHit,
             SelectionHit = scored.SelectionHit,
+            ReachedHit = scored.ReachedHit,
+            ChosenArgsJson = replay.ToolParameters.Count == 0 ? null : JsonSerializer.Serialize(replay.ToolParameters),
+            ResponseText = Truncate(replay.Content),
+            ToolSequenceJson = JsonSerializer.Serialize(
+                replay.Steps.Select(step => new { tool = step.Tool, parameters = step.Parameters })),
             Passed = scored.Passed,
             LatencyMs = (int)Math.Min(scored.LatencyMs, int.MaxValue),
             CreateTime = DateTime.UtcNow
         };
+
+    private static string? Truncate(string? text) =>
+        string.IsNullOrEmpty(text)
+            ? null
+            : text.Length <= TurnEvalDefaults.ResponseTextMaxLength
+                ? text
+                : text[..TurnEvalDefaults.ResponseTextMaxLength];
 
     private async Task<IReadOnlyDictionary<string, bool>?> ResolveNameSlotsAsync(
         TurnGoldsetItem item,
