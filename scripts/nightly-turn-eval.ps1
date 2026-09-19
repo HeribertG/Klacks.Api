@@ -84,6 +84,10 @@
 .PARAMETER MemoryProbe
     Exports TURNEVAL_MEMORY_PROBE=1 for the test run: the runner logs one "TurnEval memory probe" line at
     item 1 and every 25th item, including a FORCED full GC (slightly slows the run). Off by default.
+.PARAMETER DisableThinking
+    Exports LLM__DeepSeek__DisableThinking=true for the test run: DeepSeekProvider sends "thinking":{"type":"disabled"}
+    so tool_choice=required is honoured. Only affects DeepSeek models. Off by default; the scorecard header
+    shows the setting so runs stay distinguishable.
 .PARAMETER DryRun
     Validate prerequisites and PRINT the exact per-model commands that would run, WITHOUT
     invoking dotnet test and WITHOUT any LLM call or cost.
@@ -147,7 +151,8 @@ param(
     [string]$OutputDir,
     [string]$RepoRoot,
     [switch]$DryRun,
-    [switch]$MemoryProbe
+    [switch]$MemoryProbe,
+    [switch]$DisableThinking
 )
 
 Set-StrictMode -Version Latest
@@ -159,6 +164,10 @@ $GoldsetEnvVar        = "TURNEVAL_GOLDSET"
 $MaxItemsEnvVar       = "TURNEVAL_MAX_ITEMS"
 $MemoryProbeEnvVar    = "TURNEVAL_MEMORY_PROBE"
 $MemoryProbeOnValue   = "1"
+$DisableThinkingEnvVar = "LLM__DeepSeek__DisableThinking"
+$DisableThinkingOnValue = "true"
+$ThinkingSettingDisabledText = "thinking: disabled (DeepSeek)"
+$ThinkingSettingDefaultText = "thinking: provider default"
 $IntegrationProjectRelative = "Klacks.IntegrationTest/Klacks.IntegrationTest.csproj"
 $TestFullName         = "Klacks.IntegrationTest.Assistant.TurnSelectionGoldenSetTests.TurnSelectionGoldset_ReplaysAllItemsAndReportsScorecard"
 $TestFilter           = "FullyQualifiedName=$TestFullName"
@@ -179,7 +188,7 @@ $TestResultsFolderName = "TestResults"
 $TrxNamespaceUri      = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 $TrxStdOutXPath       = "//t:UnitTestResult/t:Output/t:StdOut"
 $TrxSectionSeparator  = "===== Test StdOut (from TRX) ====="
-$DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention")
+$DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention", "LLMModelSync", "InboundMessagePolling", "MessageRetention", "SkillRelationLearning", "KlacksyLearning", "GoalReflection")
 $BackgroundServiceEnvPrefix = "BackgroundServices__"
 $BackgroundServiceOffValue  = "false"
 $EfCommandLogEnvVar   = "Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command"
@@ -190,6 +199,8 @@ $EvalHostEnvOverrides = [ordered]@{}
 foreach ($service in $DisabledBackgroundServices) { $EvalHostEnvOverrides["$BackgroundServiceEnvPrefix$service"] = $BackgroundServiceOffValue }
 $EvalHostEnvOverrides[$EfCommandLogEnvVar] = $EfCommandLogLevel
 $EvalHostEnvOverrides[$ProviderLogEnvVar] = $ProviderLogLevel
+if ($DisableThinking) { $EvalHostEnvOverrides[$DisableThinkingEnvVar] = $DisableThinkingOnValue }
+$ThinkingSettingText = if ($DisableThinking) { $ThinkingSettingDisabledText } else { $ThinkingSettingDefaultText }
 
 # --- Resolve paths and run scope ---------------------------------------------
 # The scheduled task's action has no WorkingDirectory (verified 2026-09-03 on
@@ -302,6 +313,7 @@ try {
     Write-Line "Goldset:              $Goldset" $sw
     Write-Line "Profile:              $Profile -> $ScopeText" $sw
     Write-Line "Models:               $($ModelList -join ', ')" $sw
+    Write-Line "Thinking:             $ThinkingSettingText" $sw
     Write-Line "Regression threshold: -$RegressionThreshold (composite vs. median of comparable baseline runs, at least $MinBaselineRuns runs)" $sw
     Write-Line "Mode:                 $modeText" $sw
     Write-Line "DB reachable:         $dbReachable" $sw

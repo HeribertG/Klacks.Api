@@ -3,7 +3,7 @@
 /// <summary>
 /// Heuristic id-substring denylist that identifies provider models which are not
 /// chat/completions capable (embeddings, speech-to-text, text-to-speech, image, moderation,
-/// realtime and legacy base-completion models). The model sync uses it to skip the
+/// realtime, OCR, search-preview, Responses-API-only and legacy base-completion models). The model sync uses it to skip the
 /// chat-completion probe for models that would predictably return an incompatibility error,
 /// so they are represented as disabled rows without emitting a failed-probe log on every cycle.
 /// The list is derived from the OpenAI model ecosystem (whose GET /models response carries no
@@ -30,6 +30,13 @@ public static class NonChatModelPatterns
     private const string Realtime = "realtime";
     private const string Davinci = "davinci";
     private const string Babbage = "babbage";
+    private const string InstructCompletion = "gpt-3.5-turbo-instruct";
+    private const string SearchPreview = "search-preview";
+    private const string Ocr = "-ocr";
+    private const string Labs = "labs-";
+    private const string Orpheus = "orpheus";
+    private const string ResponsesOnlyO1Pro = "o1-pro";
+    private const string ResponsesOnlyO3Pro = "o3-pro";
 
     private static readonly string[] ExcludedSubstrings =
     [
@@ -44,6 +51,13 @@ public static class NonChatModelPatterns
         Realtime,
         Davinci,
         Babbage,
+        InstructCompletion,
+        SearchPreview,
+        Ocr,
+        Labs,
+        Orpheus,
+        ResponsesOnlyO1Pro,
+        ResponsesOnlyO3Pro,
     ];
 
     public static bool IsLikelyNonChatModel(string? apiModelId)

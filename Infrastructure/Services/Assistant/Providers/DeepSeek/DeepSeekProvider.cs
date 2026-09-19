@@ -7,6 +7,8 @@
 /// so a rejected forcing request is retried once with auto instead of failing the turn.
 /// </summary>
 
+using System.Collections.Concurrent;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -24,7 +26,13 @@ public class DeepSeekProvider : BaseHttpProvider
 {
     private const string ToolChoiceAuto = "auto";
     private const string ToolChoiceUnsupportedErrorMarker = "does not support this tool_choice";
+    private const string ThinkingTypeDisabled = "disabled";
     private const int RawChannelLogLength = 1000;
+
+    private readonly bool _disableThinking;
+    private int _thinkingDisabledLogged;
+
+    private static readonly ConcurrentDictionary<string, byte> ModelsRejectingRequiredToolChoice = new(StringComparer.OrdinalIgnoreCase);
 
     public override string ProviderId => _providerConfig!.ProviderId;
 
@@ -46,6 +54,7 @@ public class DeepSeekProvider : BaseHttpProvider
     public DeepSeekProvider(HttpClient httpClient, ILogger<DeepSeekProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
     {
+        _disableThinking = bool.TryParse(configuration[DeepSeekProviderConfigKeys.DisableThinking], out var disableThinking) && disableThinking;
     }
 
     public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
@@ -60,15 +69,18 @@ public class DeepSeekProvider : BaseHttpProvider
             return CreateErrorResponse("The provider for the selected model is not available.");
         }
 
+        var toolChoice = ResolveToolChoice(request);
+
         try
         {
-            return await ProcessCoreAsync(request, request.ToolChoice, cancellationToken);
+            return await ProcessCoreAsync(request, toolChoice, cancellationToken);
         }
-        catch (InvalidOperationException ex) when (IsRequiredToolChoice(request.ToolChoice) && IsToolChoiceRejection(ex))
+        catch (InvalidOperationException ex) when (IsRequiredToolChoice(toolChoice) && IsToolChoiceRejection(ex))
         {
             _logger.LogWarning(
                 "{Provider} rejected tool_choice=required (thinking mode, model {Model}); retrying once with auto",
                 ProviderName, request.ModelId);
+            RememberRequiredToolChoiceRejection(request.ModelId);
 
             try
             {
@@ -96,6 +108,48 @@ public class DeepSeekProvider : BaseHttpProvider
         }
     }
 
+    private string? ResolveToolChoice(LLMProviderRequest request)
+    {
+        if (!_disableThinking
+            && IsRequiredToolChoice(request.ToolChoice)
+            && !string.IsNullOrWhiteSpace(request.ModelId)
+            && ModelsRejectingRequiredToolChoice.ContainsKey(request.ModelId))
+        {
+            return ToolChoiceAuto;
+        }
+
+        return request.ToolChoice;
+    }
+
+    private void RememberRequiredToolChoiceRejection(string? modelId)
+    {
+        if (_disableThinking || string.IsNullOrWhiteSpace(modelId))
+        {
+            return;
+        }
+
+        if (ModelsRejectingRequiredToolChoice.TryAdd(modelId, 0))
+        {
+            _logger.LogInformation(
+                "Model {Model} rejects tool_choice=required; using auto from now on", modelId);
+        }
+    }
+
+    private OpenAIThinkingOptions? ResolveThinking()
+    {
+        if (!_disableThinking)
+        {
+            return null;
+        }
+
+        if (Interlocked.Exchange(ref _thinkingDisabledLogged, 1) == 0)
+        {
+            _logger.LogInformation("Thinking disabled by configuration.");
+        }
+
+        return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
+    }
+
     private static string TruncateForLog(string? value)
     {
         if (string.IsNullOrEmpty(value))
@@ -117,7 +171,8 @@ public class DeepSeekProvider : BaseHttpProvider
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
-            Stop = LLMStopSequences.Merge(request.StopSequences)
+            Stop = LLMStopSequences.Merge(request.StopSequences),
+            Thinking = ResolveThinking()
         };
 
         var endpoint = "chat/completions";
@@ -195,8 +250,10 @@ public class DeepSeekProvider : BaseHttpProvider
             throw new InvalidOperationException("The provider for the selected model is not available.");
         }
 
-        var source = StreamCoreAsync(request, request.ToolChoice, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        var toolChoice = ResolveToolChoice(request);
+        var source = StreamCoreAsync(request, toolChoice, cancellationToken).GetAsyncEnumerator(cancellationToken);
         var downgraded = false;
+        var rejectedWithBadRequest = false;
         var anyChunkYielded = false;
 
         try
@@ -208,8 +265,9 @@ public class DeepSeekProvider : BaseHttpProvider
                 {
                     moved = await source.MoveNextAsync();
                 }
-                catch (InvalidOperationException) when (!downgraded && !anyChunkYielded && IsRequiredToolChoice(request.ToolChoice))
+                catch (InvalidOperationException ex) when (!downgraded && !anyChunkYielded && IsRequiredToolChoice(toolChoice))
                 {
+                    rejectedWithBadRequest = ex is LLMProviderHttpException { StatusCode: HttpStatusCode.BadRequest };
                     _logger.LogWarning(
                         "{Provider} stream rejected tool_choice=required (model {Model}); retrying once with auto",
                         ProviderName, request.ModelId);
@@ -222,6 +280,11 @@ public class DeepSeekProvider : BaseHttpProvider
                 if (!moved)
                 {
                     break;
+                }
+
+                if (downgraded && !anyChunkYielded && rejectedWithBadRequest)
+                {
+                    RememberRequiredToolChoiceRejection(request.ModelId);
                 }
 
                 anyChunkYielded = true;
@@ -249,7 +312,8 @@ public class DeepSeekProvider : BaseHttpProvider
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
             Stream = true,
             StreamOptions = ResolveStreamOptions(request),
-            Stop = LLMStopSequences.Merge(request.StopSequences)
+            Stop = LLMStopSequences.Merge(request.StopSequences),
+            Thinking = ResolveThinking()
         };
 
         var endpoint = "chat/completions";
