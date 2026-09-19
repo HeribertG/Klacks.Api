@@ -81,6 +81,9 @@
 .PARAMETER RepoRoot
     Klacks.Api repo root. Default: the parent of this script's folder.
 
+.PARAMETER MemoryProbe
+    Exports TURNEVAL_MEMORY_PROBE=1 for the test run: the runner logs one "TurnEval memory probe" line at
+    item 1 and every 25th item, including a FORCED full GC (slightly slows the run). Off by default.
 .PARAMETER DryRun
     Validate prerequisites and PRINT the exact per-model commands that would run, WITHOUT
     invoking dotnet test and WITHOUT any LLM call or cost.
@@ -143,7 +146,8 @@ param(
     [double]$RegressionThreshold = 0.02,
     [string]$OutputDir,
     [string]$RepoRoot,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$MemoryProbe
 )
 
 Set-StrictMode -Version Latest
@@ -153,6 +157,8 @@ $ErrorActionPreference = "Stop"
 $ModelEnvVar          = "TURNEVAL_MODEL_ID"
 $GoldsetEnvVar        = "TURNEVAL_GOLDSET"
 $MaxItemsEnvVar       = "TURNEVAL_MAX_ITEMS"
+$MemoryProbeEnvVar    = "TURNEVAL_MEMORY_PROBE"
+$MemoryProbeOnValue   = "1"
 $IntegrationProjectRelative = "Klacks.IntegrationTest/Klacks.IntegrationTest.csproj"
 $TestFullName         = "Klacks.IntegrationTest.Assistant.TurnSelectionGoldenSetTests.TurnSelectionGoldset_ReplaysAllItemsAndReportsScorecard"
 $TestFilter           = "FullyQualifiedName=$TestFullName"
@@ -373,9 +379,11 @@ try {
         $prevModel    = $env:TURNEVAL_MODEL_ID
         $prevGoldset  = $env:TURNEVAL_GOLDSET
         $prevMaxItems = $env:TURNEVAL_MAX_ITEMS
+        $prevMemoryProbe = [Environment]::GetEnvironmentVariable($MemoryProbeEnvVar)
         $env:TURNEVAL_MODEL_ID  = $model
         $env:TURNEVAL_GOLDSET   = $Goldset
         $env:TURNEVAL_MAX_ITEMS = "$EffectiveMaxItems"
+        if ($MemoryProbe) { [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $MemoryProbeOnValue) }
         $prevHostEnv = @{}
         foreach ($name in $EvalHostEnvOverrides.Keys) {
             $prevHostEnv[$name] = [Environment]::GetEnvironmentVariable($name)
@@ -399,6 +407,7 @@ try {
             $env:TURNEVAL_MODEL_ID  = $prevModel
             $env:TURNEVAL_GOLDSET   = $prevGoldset
             $env:TURNEVAL_MAX_ITEMS = $prevMaxItems
+            [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $prevMemoryProbe)
             foreach ($name in $prevHostEnv.Keys) {
                 [Environment]::SetEnvironmentVariable($name, $prevHostEnv[$name])
             }

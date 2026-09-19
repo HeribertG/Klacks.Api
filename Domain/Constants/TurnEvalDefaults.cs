@@ -78,4 +78,19 @@ public static class TurnEvalDefaults
     public const string SyntheticLookupEntityId = "00000000-0000-4000-8000-00000000e7a1";
 
     public const string SyntheticLookupFallbackName = "match";
+
+    public const string MemoryProbeEnvironmentVariable = "TURNEVAL_MEMORY_PROBE";
+
+    public const string MemoryProbeEnabledValue = "1";
+
+    public const int MemoryProbeEveryItems = 25;
+
+    public const int LargeObjectHeapGenerationIndex = 3;
+
+    public const string MemoryProbeLogPrefix = "TurnEval memory probe";
+
+    public const string MemoryProbeLogTemplate = MemoryProbeLogPrefix +
+        " item={Item} | before GC: residentMB={ResidentMb:F1}, managedHeapMB={ManagedMb:F1}, nativeMB={NativeMb:F1}, allocatedMB={AllocatedMb:F1}" +
+        " | after full GC: retainedManagedMB={RetainedMb:F1}, heapMB={HeapMb:F1}, fragmentedMB={FragmentedMb:F1}, committedMB={CommittedMb:F1}, lohMB={LohMb:F1}, residentMB={ResidentAfterMb:F1}, nativeMB={NativeAfterMb:F1}" +
+        " | collections gen0={Gen0}, gen1={Gen1}, gen2={Gen2}";
 }

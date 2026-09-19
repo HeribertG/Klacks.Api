@@ -68,7 +68,7 @@ $RoundDigits              = 1
 $LogCheckEverySamples     = 3
 $LogChunkBytes            = 2MB
 $LineFeedByte             = 10
-$MarkerDetailMaxChars     = 300
+$MarkerDetailMaxChars     = 600
 $CounterAvailablePath     = "\Memory\Available MBytes"
 $CounterCommittedPath     = "\Memory\Committed Bytes"
 $CounterAvailableSuffix   = "*\available mbytes"
@@ -80,7 +80,8 @@ $MarkerDefinitions = @(
     @{ Name = "OnnxEmbeddingReady"; Pattern = "ONNX warm-up: embedding";  EveryNth = 0 },
     @{ Name = "OnnxRerankerReady";  Pattern = "ONNX warm-up: reranker";   EveryNth = 0 },
     @{ Name = "FirstRetrieval";     Pattern = "[retrieval]";              EveryNth = 0 },
-    @{ Name = "TurnReplayItem";     Pattern = "TurnReplay item";          EveryNth = 10 }
+    @{ Name = "TurnReplayItem";     Pattern = "TurnReplay item";          EveryNth = 10 },
+    @{ Name = "MemoryProbe";        Pattern = "TurnEval memory probe";    EveryNth = 1 }
 )
 
 # --- Resolve parameters ------------------------------------------------------

@@ -41,6 +41,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
     private readonly IEvalRunRepository _evalRunRepository;
     private readonly IEvalRunItemRepository _evalRunItemRepository;
     private readonly ILogger<TurnEvalRunnerService> _logger;
+    private readonly TurnEvalMemoryProbe _memoryProbe;
 
     public TurnEvalRunnerService(
         ITurnGoldsetLoader goldsetLoader,
@@ -48,7 +49,8 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         ISlotEntityResolver slotEntityResolver,
         IEvalRunRepository evalRunRepository,
         IEvalRunItemRepository evalRunItemRepository,
-        ILogger<TurnEvalRunnerService> logger)
+        ILogger<TurnEvalRunnerService> logger,
+        TurnEvalMemoryProbe? memoryProbe = null)
     {
         _goldsetLoader = goldsetLoader;
         _replayService = replayService;
@@ -56,6 +58,7 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         _evalRunRepository = evalRunRepository;
         _evalRunItemRepository = evalRunItemRepository;
         _logger = logger;
+        _memoryProbe = memoryProbe ?? TurnEvalMemoryProbe.FromEnvironment();
     }
 
     public async Task<TurnEvalRunResult> RunAsync(
@@ -100,6 +103,11 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
             var scored = TurnEvalScorer.ScoreItem(item, replay, resolvedNameSlots);
             itemResults.Add(scored);
             itemRows.Add(BuildItemRow(runId, item, replay, scored));
+            if (_memoryProbe.ShouldProbe(itemResults.Count))
+            {
+                _memoryProbe.Write(_logger, itemResults.Count);
+            }
+
             AbortWhenTheApparatusIsDead(itemResults);
         }
 
