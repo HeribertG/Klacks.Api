@@ -178,9 +178,12 @@ $BackgroundServiceEnvPrefix = "BackgroundServices__"
 $BackgroundServiceOffValue  = "false"
 $EfCommandLogEnvVar   = "Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command"
 $EfCommandLogLevel    = "Warning"
+$ProviderLogEnvVar     = "Logging__LogLevel__Klacks.Api.Infrastructure.Services.Assistant.Providers"
+$ProviderLogLevel      = "Warning"
 $EvalHostEnvOverrides = [ordered]@{}
 foreach ($service in $DisabledBackgroundServices) { $EvalHostEnvOverrides["$BackgroundServiceEnvPrefix$service"] = $BackgroundServiceOffValue }
 $EvalHostEnvOverrides[$EfCommandLogEnvVar] = $EfCommandLogLevel
+$EvalHostEnvOverrides[$ProviderLogEnvVar] = $ProviderLogLevel
 
 # --- Resolve paths and run scope ---------------------------------------------
 # The scheduled task's action has no WorkingDirectory (verified 2026-09-03 on
