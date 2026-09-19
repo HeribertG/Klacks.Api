@@ -90,7 +90,7 @@ public static class TurnEvalDefaults
     public const string MemoryProbeLogPrefix = "TurnEval memory probe";
 
     public const string MemoryProbeLogTemplate = MemoryProbeLogPrefix +
-        " item={Item} | before GC: residentMB={ResidentMb:F1}, managedHeapMB={ManagedMb:F1}, nativeMB={NativeMb:F1}, allocatedMB={AllocatedMb:F1}" +
-        " | after full GC: retainedManagedMB={RetainedMb:F1}, heapMB={HeapMb:F1}, fragmentedMB={FragmentedMb:F1}, committedMB={CommittedMb:F1}, lohMB={LohMb:F1}, residentMB={ResidentAfterMb:F1}, nativeMB={NativeAfterMb:F1}" +
+        " item={Item} | before GC: residentMB={ResidentMb:F1}, managedHeapMB={ManagedMb:F1}, nativeMB={NativeMb:F1}, allocatedMB={AllocatedMb:F1}, privateMB={PrivateMb:F1}, threads={Threads}, handles={Handles}" +
+        " | after full GC: retainedManagedMB={RetainedMb:F1}, heapMB={HeapMb:F1}, fragmentedMB={FragmentedMb:F1}, committedMB={CommittedMb:F1}, lohMB={LohMb:F1}, residentMB={ResidentAfterMb:F1}, nativeMB={NativeAfterMb:F1}, privateMB={PrivateAfterMb:F1}, threads={ThreadsAfter}, handles={HandlesAfter}" +
         " | collections gen0={Gen0}, gen1={Gen1}, gen2={Gen2}";
 }
