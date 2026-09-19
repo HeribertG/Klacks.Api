@@ -48,6 +48,10 @@ public class OpenAIToolsRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public OpenAIStreamOptions? StreamOptions { get; set; }
 
+    [JsonPropertyName("thinking")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public OpenAIThinkingOptions? Thinking { get; set; }
+
     [JsonPropertyName("stop")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<string>? Stop { get; set; }

@@ -119,6 +119,15 @@ public abstract class BaseHttpProvider : ILLMProvider
     // subclass value. DeepSeek's tool_choice support was invisible that way.
     public virtual bool SupportsToolChoice => false;
 
+    private static readonly AsyncLocal<bool> ModelProbeActive = new();
+
+    private static readonly HashSet<HttpStatusCode> ProbeRejectionStatusCodes =
+    [
+        HttpStatusCode.BadRequest,
+        HttpStatusCode.Forbidden,
+        HttpStatusCode.NotFound,
+    ];
+
     public virtual IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
         CancellationToken cancellationToken = default)
@@ -145,7 +154,11 @@ public abstract class BaseHttpProvider : ILLMProvider
             var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
             _logger.LogError("{Provider} streaming API error: {StatusCode} - {Error}",
                 ProviderName, response.StatusCode, errorBody);
-            throw new InvalidOperationException($"{ProviderName} API error: {response.StatusCode}");
+            throw new LLMProviderHttpException(
+                $"{ProviderName} API error: {response.StatusCode}",
+                response.StatusCode,
+                false,
+                IsTransientStatusCode(response.StatusCode));
         }
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -186,7 +199,17 @@ public abstract class BaseHttpProvider : ILLMProvider
             };
 
             using var testCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            var responseTask = ProcessAsync(request, testCts.Token);
+            Task<LLMProviderResponse> responseTask;
+            ModelProbeActive.Value = true;
+            try
+            {
+                responseTask = ProcessAsync(request, testCts.Token);
+            }
+            finally
+            {
+                ModelProbeActive.Value = false;
+            }
+
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(15));
             var completed = await Task.WhenAny(responseTask, timeoutTask);
             sw.Stop();
@@ -260,8 +283,14 @@ public abstract class BaseHttpProvider : ILLMProvider
             var errorMessage = ExtractErrorMessage(responseJson, response.StatusCode);
             var isExpectedModelIncompatibility = LLMProviderErrorMarkers.IsNonChatModelError(responseJson);
             var isTransient = IsTransientStatusCode(response.StatusCode);
+            var isProbeRejection = ModelProbeActive.Value && ProbeRejectionStatusCodes.Contains(response.StatusCode);
 
-            if (isExpectedModelIncompatibility)
+            if (isProbeRejection)
+            {
+                _logger.LogWarning("{Provider} model probe rejected for model {Model} ({StatusCode}): {Error}",
+                    ProviderName, loggedModelId, response.StatusCode, errorMessage);
+            }
+            else if (isExpectedModelIncompatibility)
             {
                 _logger.LogWarning("{Provider} model {Model} is not chat/completions compatible ({StatusCode}): {Error}",
                     ProviderName, loggedModelId, response.StatusCode, errorMessage);
@@ -280,7 +309,7 @@ public abstract class BaseHttpProvider : ILLMProvider
             throw new LLMProviderHttpException(
                 $"{ProviderName} API error for model {loggedModelId}: {errorMessage}",
                 response.StatusCode,
-                isExpectedModelIncompatibility,
+                isExpectedModelIncompatibility || isProbeRejection,
                 isTransient);
         }
 
