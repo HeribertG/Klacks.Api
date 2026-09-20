@@ -274,9 +274,9 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
 
             if (governance.ResponsibleOwnerUserId is not Guid ownerUserId || ownerUserId == Guid.Empty)
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     "Condition {ConditionId} of kind {Kind} is executable but its governance names no "
-                    + "responsible owner, so there is no identity to act under",
+                    + "responsible owner, so the execute step is skipped",
                     condition.Id, triggerKind);
                 tally.SkippedNoOwner++;
                 continue;

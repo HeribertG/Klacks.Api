@@ -2,13 +2,10 @@
 
 /// <summary>
 /// Writes one governance rule, the global kill switch and/or the global autonomy level, then answers
-/// with the complete new picture. Validation runs on the MERGED row, never on the incoming patch: raising MaxAction to
-/// Prepare on a row that has no responsible owner, and clearing the owner of a row that already sits
-/// at Prepare, are the same violation and both have to fail. The rule is that from Prepare upwards a
-/// human must be named, because Etappe 4d issues an internal token for exactly that account and acts
-/// under their current roles - an action with nobody accountable for it must not be reachable. It is
-/// enforced here rather than as a database CHECK because it spans two columns and has to fail with a
-/// readable message.
+/// with the complete new picture. Validation runs on the MERGED row, never on the incoming patch. The
+/// responsible owner is optional: a Prepare or Execute rule without one is accepted, and the Execute
+/// path simply skips such rows. An owner that is stored or supplied from Prepare upwards must still
+/// resolve to an existing user, because Etappe 4d issues an internal token for exactly that account.
 /// </summary>
 /// <param name="repository">Stores the governance rules.</param>
 /// <param name="settingsRepository">Persists the global kill-switch setting row.</param>
@@ -195,9 +192,7 @@ public class SetProactiveGovernanceCommandHandler
 
         if (merged.ResponsibleOwnerUserId is not Guid ownerUserId)
         {
-            throw new InvalidRequestException(
-                $"A responsible owner is required from maxAction {nameof(ProactiveMaxAction.Prepare)} " +
-                "upwards, because the prepared action runs under that person's identity.");
+            return;
         }
 
         var owner = await _userManager.FindByIdAsync(ownerUserId.ToString());

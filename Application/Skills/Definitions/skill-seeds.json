@@ -22834,7 +22834,7 @@
         },
         {
           "name": "responsible_owner_user_id",
-          "description": "The account under whose rights a prepared or executed action runs. Mandatory from Prepare upwards",
+          "description": "The account under whose rights a prepared or executed action runs. Optional; without one, Prepare and Execute rules are stored but no action is executed",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -22842,7 +22842,7 @@
         },
         {
           "name": "clear_responsible_owner",
-          "description": "True removes the accountable person again; only valid while this finding type reports only",
+          "description": "True removes the accountable person again; optional; the rule keeps working, but without an owner no action is executed",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
