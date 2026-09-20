@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "ชื่อจริง",
   "client.export.column.name": "นามสกุล",
   "client.export.column.birthdate": "วันเกิด",
-  "client.export.column.type": "ประเภท"
+  "client.export.column.type": "ประเภท",
+  "grid.cellActions": "การดำเนินการสำหรับเซลล์ที่เลือก"
 }

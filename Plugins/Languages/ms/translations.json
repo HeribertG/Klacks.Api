@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Nama pertama",
   "client.export.column.name": "Nama keluarga",
   "client.export.column.birthdate": "Tarikh lahir",
-  "client.export.column.type": "Jenis"
+  "client.export.column.type": "Jenis",
+  "grid.cellActions": "Tindakan untuk sel yang dipilih"
 }

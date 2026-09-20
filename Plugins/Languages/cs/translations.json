@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Jméno",
   "client.export.column.name": "Příjmení",
   "client.export.column.birthdate": "Datum narození",
-  "client.export.column.type": "Typ"
+  "client.export.column.type": "Typ",
+  "grid.cellActions": "Akce pro vybranou buňku"
 }

@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Όνομα",
   "client.export.column.name": "Επώνυμο",
   "client.export.column.birthdate": "Ημερομηνία γέννησης",
-  "client.export.column.type": "Τύπος"
+  "client.export.column.type": "Τύπος",
+  "grid.cellActions": "Ενέργειες για το επιλεγμένο κελί"
 }

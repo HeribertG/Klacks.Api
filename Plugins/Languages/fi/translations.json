@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Etunimi",
   "client.export.column.name": "Sukunimi",
   "client.export.column.birthdate": "Syntymäpäivä",
-  "client.export.column.type": "Tyyppi"
+  "client.export.column.type": "Tyyppi",
+  "grid.cellActions": "Valitun solun toiminnot"
 }

@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "이름",
   "client.export.column.name": "성",
   "client.export.column.birthdate": "생년월일",
-  "client.export.column.type": "유형"
+  "client.export.column.type": "유형",
+  "grid.cellActions": "선택한 셀의 작업"
 }

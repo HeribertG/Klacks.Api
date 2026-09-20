@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Tên",
   "client.export.column.name": "Họ",
   "client.export.column.birthdate": "Ngày sinh",
-  "client.export.column.type": "Loại"
+  "client.export.column.type": "Loại",
+  "grid.cellActions": "Hành động cho ô đã chọn"
 }

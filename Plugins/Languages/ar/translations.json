@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "الاسم الأول",
   "client.export.column.name": "اسم العائلة",
   "client.export.column.birthdate": "تاريخ الميلاد",
-  "client.export.column.type": "النوع"
+  "client.export.column.type": "النوع",
+  "grid.cellActions": "إجراءات الخلية المحددة"
 }

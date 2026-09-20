@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Nombre",
   "client.export.column.name": "Apellido",
   "client.export.column.birthdate": "Fecha de nacimiento",
-  "client.export.column.type": "Tipo"
+  "client.export.column.type": "Tipo",
+  "grid.cellActions": "Acciones para la celda seleccionada"
 }

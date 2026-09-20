@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "שם פרטי",
   "client.export.column.name": "שם משפחה",
   "client.export.column.birthdate": "תאריך לידה",
-  "client.export.column.type": "סוג"
+  "client.export.column.type": "סוג",
+  "grid.cellActions": "פעולות עבור התא הנבחר"
 }

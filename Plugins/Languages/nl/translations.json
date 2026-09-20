@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Voornaam",
   "client.export.column.name": "Achternaam",
   "client.export.column.birthdate": "Geboortedatum",
-  "client.export.column.type": "Type"
+  "client.export.column.type": "Type",
+  "grid.cellActions": "Acties voor de geselecteerde cel"
 }

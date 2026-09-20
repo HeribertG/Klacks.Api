@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Prenume",
   "client.export.column.name": "Nume",
   "client.export.column.birthdate": "Data nașterii",
-  "client.export.column.type": "Tip"
+  "client.export.column.type": "Tip",
+  "grid.cellActions": "Acțiuni pentru celula selectată"
 }

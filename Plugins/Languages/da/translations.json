@@ -4101,5 +4101,6 @@
   "client.export.column.first-name": "Fornavn",
   "client.export.column.name": "Efternavn",
   "client.export.column.birthdate": "Fødselsdato",
-  "client.export.column.type": "Type"
+  "client.export.column.type": "Type",
+  "grid.cellActions": "Handlinger for den valgte celle"
 }
