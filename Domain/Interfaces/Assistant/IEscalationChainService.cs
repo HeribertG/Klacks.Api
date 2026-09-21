@@ -9,6 +9,12 @@ public interface IEscalationChainService
     /// even at max stage length - too early to be worth waking anyone yet.</summary>
     Task<Guid?> StartChainAsync(StartEscalationChainRequest request, CancellationToken cancellationToken = default);
 
+    /// <summary>Creates a ProactiveApproval chain from a roster and deadline the caller already resolved,
+    /// freezes the roster into stages in the given order and delivers the first wave. No urgency gate: the
+    /// caller owns the deadline. Returns null without creating anything when a chain is already Running
+    /// for this ConditionId.</summary>
+    Task<Guid?> StartConditionApprovalChainAsync(StartConditionApprovalChainRequest request, CancellationToken cancellationToken = default);
+
     /// <summary>Called by the sweep after a stage's expiry won; advances to the next wave or exhausts the chain.</summary>
     Task AdvanceAsync(Guid chainId, CancellationToken cancellationToken = default);
 
@@ -22,4 +28,10 @@ public interface IEscalationChainService
 
     /// <summary>Owner decision B7: admins and any roster member of THIS chain may cancel, with a mandatory reason.</summary>
     Task<bool> CancelAsync(Guid chainId, string userId, string userName, string reason, CancellationToken cancellationToken = default);
+
+    /// <summary>Ends the Running ProactiveApproval chain of this condition, if there is one, as Superseded
+    /// with the given reason and cancels its remaining stages, so the roster is no longer woken for a
+    /// question somebody has already answered elsewhere (a delegation). Returns whether a chain was
+    /// superseded by THIS call; false when none is running or another instance ended it first.</summary>
+    Task<bool> SupersedeConditionApprovalChainAsync(Guid conditionId, string reason, CancellationToken cancellationToken = default);
 }

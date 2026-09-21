@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.Klacksy;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence.Configurations;
@@ -514,8 +515,7 @@ public class DataBaseContext : IdentityDbContext
             }
 
             var now = DateTime.UtcNow;
-            const string defaultUser = "Anonymous";
-            string currentUserName = defaultUser;
+            string currentUserName = AuditActorNames.Anonymous;
 
             try
             {

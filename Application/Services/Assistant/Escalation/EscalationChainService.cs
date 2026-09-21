@@ -5,12 +5,19 @@
 /// and drive waves of notification through IEscalationNotifier. AdvanceAsync is the one method
 /// called from two places - right after chain creation and again by the background sweep once a
 /// stage's expiry wins - so a wave computed at 03:00 and a wave computed after A's 03:20 expiry run
-/// through identical logic (docs/ENTWURF-eskalationskette-2026-08-16.md §5/§6).
+/// through identical logic (docs/ENTWURF-eskalationskette-2026-08-16.md §5/§6). The two start paths
+/// differ only in how the chain row and its roster come about: the absence path derives both here
+/// (group roster, shift start minus prep buffer, urgency gate), the approval path receives both from
+/// the caller and skips that arithmetic; from the AddAsync onwards they share one code path. They part
+/// again at the acknowledgement: on a ProactiveApproval chain the acknowledgement IS the approval, so
+/// once the chain-level compare-and-swap is won the approver is stamped onto the condition through the
+/// ledger - never executed here, the tick does that under the stamped identity within its own window.
 /// </summary>
 /// <param name="chainRepository">Persistence and the conditional-update surface for chains/stages.</param>
-/// <param name="rosterService">Resolves the ordered call list for a chain's group.</param>
+/// <param name="rosterService">Resolves the ordered call list for an absence chain's group.</param>
 /// <param name="notifier">The narrow delivery path; never AgentTriggerService.</param>
 /// <param name="settingsReader">Source for the three configurable time-budget caps.</param>
+/// <param name="ledgerService">Stamps the approval onto the condition once an approval chain is acknowledged.</param>
 /// <param name="timeProvider">Injected clock so a test can advance time without waiting on it.</param>
 /// <param name="logger">Logs an unreachable-roster or an already-resolved race, never throws out of a sweep tick.</param>
 
@@ -28,10 +35,18 @@ public class EscalationChainService : IEscalationChainService
     private const string ExhaustedDeadlineReason = "deadline passed without acknowledgement";
     private const int MaxAdvanceRounds = 64;
 
+    private const string ApprovalNotStampedMessage =
+        "Approval chain {ChainId} was acknowledged by {UserId} but condition {ConditionId} no longer accepts an "
+        + "approval (moved on, or already approved); nothing will be executed for this acknowledgement";
+
+    private const string ApproverNotAGuidMessage =
+        "Approval chain {ChainId} was acknowledged by {UserId}, which is not a user id; no approval stamped";
+
     private readonly IEscalationChainRepository _chainRepository;
     private readonly IEscalationRosterService _rosterService;
     private readonly IEscalationNotifier _notifier;
     private readonly ISettingsReader _settingsReader;
+    private readonly IAgentConditionLedgerService _ledgerService;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<EscalationChainService> _logger;
 
@@ -40,6 +55,7 @@ public class EscalationChainService : IEscalationChainService
         IEscalationRosterService rosterService,
         IEscalationNotifier notifier,
         ISettingsReader settingsReader,
+        IAgentConditionLedgerService ledgerService,
         TimeProvider timeProvider,
         ILogger<EscalationChainService> logger)
     {
@@ -47,6 +63,7 @@ public class EscalationChainService : IEscalationChainService
         _rosterService = rosterService;
         _notifier = notifier;
         _settingsReader = settingsReader;
+        _ledgerService = ledgerService;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -76,6 +93,7 @@ public class EscalationChainService : IEscalationChainService
         {
             Id = Guid.NewGuid(),
             Status = EscalationChainStatus.Running,
+            Purpose = EscalationChainPurpose.AbsenceCoverage,
             WorkId = request.WorkId,
             GroupId = request.GroupId,
             ShiftStartUtc = request.ShiftStartUtc,
@@ -85,6 +103,28 @@ public class EscalationChainService : IEscalationChainService
             DeadlineUtc = deadlineUtc
         };
 
+        return await CreateAndStartAsync(chain, roster, request.WorkId, cancellationToken);
+    }
+
+    public async Task<Guid?> StartConditionApprovalChainAsync(
+        StartConditionApprovalChainRequest request, CancellationToken cancellationToken = default)
+    {
+        var chain = new EscalationChain
+        {
+            Id = Guid.NewGuid(),
+            Status = EscalationChainStatus.Running,
+            Purpose = EscalationChainPurpose.ProactiveApproval,
+            ConditionId = request.ConditionId,
+            GroupId = request.GroupId,
+            DeadlineUtc = request.DeadlineUtc
+        };
+
+        return await CreateAndStartAsync(chain, request.Roster, request.ConditionId, cancellationToken);
+    }
+
+    private async Task<Guid?> CreateAndStartAsync(
+        EscalationChain chain, IReadOnlyList<EscalationRosterCandidate> roster, Guid purposeKey, CancellationToken cancellationToken)
+    {
         var rank = 1;
         foreach (var candidate in roster)
         {
@@ -102,17 +142,20 @@ public class EscalationChainService : IEscalationChainService
         var added = await _chainRepository.AddAsync(chain, cancellationToken);
         if (!added)
         {
-            // A Running chain already exists for this WorkId (partial unique index) - e.g. CoverAbsence
-            // was re-run on a shift that is already escalating. Leave the existing chain untouched.
+            // A Running chain already exists for this purpose key (partial unique index) - e.g.
+            // CoverAbsence was re-run on a shift that is already escalating, or the tick asked for an
+            // approval a previous tick already asked for. Leave the existing chain untouched.
             _logger.LogInformation(
-                "Escalation chain not started for work {WorkId}: a chain is already running for this shift.",
-                request.WorkId);
+                "Escalation chain ({Purpose}) not started for key {PurposeKey}: a chain is already running for it.",
+                chain.Purpose, purposeKey);
             return null;
         }
 
         if (chain.Stages.Count == 0)
         {
-            _logger.LogWarning("Escalation chain {ChainId} started with an empty roster for group {GroupId}", chain.Id, request.GroupId);
+            _logger.LogWarning(
+                "Escalation chain {ChainId} ({Purpose}) started with an empty roster for group {GroupId}",
+                chain.Id, chain.Purpose, chain.GroupId);
             await _chainRepository.TryExhaustChainAsync(chain.Id, ExhaustedNoRosterReason, cancellationToken);
             return chain.Id;
         }
@@ -233,6 +276,8 @@ public class EscalationChainService : IEscalationChainService
             return true;
         }
 
+        await StampApprovalIfApprovalChainAsync(stage.Chain!, stage, cancellationToken);
+
         var previouslyNotified = (await _chainRepository.GetStagesByChainAsync(stage.EscalationChainId, cancellationToken))
             .Where(s => s.Id != stage.Id && s.NotifiedAtUtc != null)
             .ToList();
@@ -241,6 +286,33 @@ public class EscalationChainService : IEscalationChainService
         await _notifier.NotifyHandoffAsync(stage.Chain!, stage, previouslyNotified, cancellationToken);
 
         return true;
+    }
+
+    /// <summary>
+    /// The approval itself, taken only after the chain-level compare-and-swap was won, so at most one
+    /// acknowledgement per chain ever reaches the ledger; the ledger's own guard (Reported, not yet
+    /// approved) makes a replay across two chains a no-op too. A stamp that fails is logged, not thrown:
+    /// the chain is honestly Acknowledged either way, and the finding has simply moved on.
+    /// </summary>
+    private async Task StampApprovalIfApprovalChainAsync(
+        EscalationChain chain, EscalationStage stage, CancellationToken cancellationToken)
+    {
+        if (chain.Purpose != EscalationChainPurpose.ProactiveApproval || chain.ConditionId is not Guid conditionId)
+        {
+            return;
+        }
+
+        if (!Guid.TryParse(stage.UserId, out var approverUserId))
+        {
+            _logger.LogWarning(ApproverNotAGuidMessage, chain.Id, stage.UserId);
+            return;
+        }
+
+        var stamped = await _ledgerService.TryApproveAsync(conditionId, approverUserId, cancellationToken);
+        if (!stamped)
+        {
+            _logger.LogWarning(ApprovalNotStampedMessage, chain.Id, stage.UserId, conditionId);
+        }
     }
 
     public async Task<bool> CancelAsync(
@@ -259,6 +331,26 @@ public class EscalationChainService : IEscalationChainService
         }
 
         return won;
+    }
+
+    public async Task<bool> SupersedeConditionApprovalChainAsync(
+        Guid conditionId, string reason, CancellationToken cancellationToken = default)
+    {
+        var latest = await _chainRepository.GetLatestChainForConditionAsync(conditionId, cancellationToken);
+        if (latest is null
+            || latest.Status != EscalationChainStatus.Running
+            || latest.Purpose != EscalationChainPurpose.ProactiveApproval)
+        {
+            return false;
+        }
+
+        if (!await _chainRepository.TrySupersedeChainAsync(latest.Id, reason, cancellationToken))
+        {
+            return false;
+        }
+
+        await _chainRepository.CancelRemainingStagesAsync(latest.Id, Guid.Empty, cancellationToken);
+        return true;
     }
 
     private static bool IsUndeliverable(OfflineMessengerDeliveryOutcome outcome) =>

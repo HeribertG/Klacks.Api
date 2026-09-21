@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// One governance rule for a proactive trigger kind: how far Klacksy may act on that kind by itself,
-/// under whose identity it acts, and how often. A row with a null GroupId is the installation-wide
+/// One governance rule for a proactive trigger kind: how far Klacksy may act on that kind by itself and
+/// how often. Under whose identity an action runs is not stored here: since the approval chain (design
+/// 2026-09-20) the human who acknowledges the chain - or delegates the condition - is the approver, and
+/// the action borrows that person's rights. A row with a null GroupId is the installation-wide
 /// rule for its kind; a row carrying a GroupId is the scope exception that overrides it for that group
 /// alone (the column exists from the start so Etappe 6 needs no second migration). Only a human writes
 /// these rows - the setting skill is classified Sensitive precisely so the heartbeat can never grant
@@ -30,14 +32,6 @@ public class AgentTriggerGovernance : BaseEntity
     /// suppresses the notification itself, which stays governed by the per-user mute and snooze gates.
     /// </summary>
     public bool Enabled { get; set; } = ProactiveGovernanceDefaults.Enabled;
-
-    /// <summary>
-    /// The human under whose current roles a prepared or executed action runs (Etappe 4d issues an
-    /// internal token for this user). Required from MaxAction Prepare upwards, enforced in the command
-    /// handler rather than by a database constraint. Deliberately no foreign key: AppUser is the one
-    /// entity without soft-delete, so a constraint would hard-fail on user deletion.
-    /// </summary>
-    public Guid? ResponsibleOwnerUserId { get; set; }
 
     public int DailyActionBudget { get; set; } = ProactiveGovernanceDefaults.DailyActionBudget;
 

@@ -298,6 +298,31 @@ public interface IAgentConditionRepository
     Task<AgentConditionEvent> InsertEventAsync(AgentConditionEvent conditionEvent, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Stamps the approval chain's answer onto a row that is still Reported and carries no approval yet:
+    /// ApprovedByUserId and ApprovedAtUtc in one conditional UPDATE, no status change. The compare-and-swap
+    /// is on both conditions, so a second acknowledgement - a replayed reply, a chain resolved twice on two
+    /// instances - finds the stamp already there and returns false without touching it. A row that has
+    /// moved on (claimed, resolved, rejected) returns false too: the approval then refers to a finding that
+    /// no longer stands as approved.
+    /// </summary>
+    Task<bool> TryStampApprovalAsync(
+        Guid id,
+        Guid approverUserId,
+        DateTime approvedAtUtc,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Withdraws an approval that was never acted on: clears ApprovedByUserId and ApprovedAtUtc on a row
+    /// that is still Reported and still carries exactly <paramref name="approverUserId"/>'s stamp. Guarded
+    /// on the approver so a stamp written by a later acknowledgement can never be wiped by a tick that
+    /// decided on the earlier one. Returns whether a row was updated.
+    /// </summary>
+    Task<bool> TryClearApprovalAsync(
+        Guid id,
+        Guid approverUserId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns up to <paramref name="take"/> planner-relevant open conditions (Detected, Reported,
     /// Prepared, Escalated - deliberately NOT AgentConditionStateMachine.OpenStatuses, which excludes
     /// Escalated, see that type's remarks) with High or Medium severity, for the per-turn context block

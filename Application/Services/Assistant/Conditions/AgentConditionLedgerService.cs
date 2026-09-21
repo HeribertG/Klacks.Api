@@ -202,6 +202,60 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         return true;
     }
 
+    public async Task<bool> TryApproveAsync(
+        Guid conditionId,
+        Guid approverUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
+
+        var stamped = await _repository.TryStampApprovalAsync(conditionId, approverUserId, nowUtc, cancellationToken);
+        if (!stamped)
+        {
+            return false;
+        }
+
+        await _repository.InsertEventAsync(
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = AgentConditionEventTypes.Approved,
+                AtUtc = nowUtc,
+                UserId = approverUserId
+            },
+            cancellationToken);
+
+        return true;
+    }
+
+    public async Task<bool> TryWithdrawApprovalAsync(
+        Guid conditionId,
+        Guid approverUserId,
+        string detail,
+        CancellationToken cancellationToken = default)
+    {
+        var cleared = await _repository.TryClearApprovalAsync(conditionId, approverUserId, cancellationToken);
+        if (!cleared)
+        {
+            return false;
+        }
+
+        await _repository.InsertEventAsync(
+            new AgentConditionEvent
+            {
+                Id = Guid.NewGuid(),
+                ConditionId = conditionId,
+                EventType = AgentConditionEventTypes.ApprovalWithdrawn,
+                AtUtc = _timeProvider.GetUtcNow().UtcDateTime,
+                UserId = approverUserId,
+                Detail = detail
+            },
+            cancellationToken);
+
+        return true;
+    }
+
     public async Task<bool> TryReclaimStaleAsync(
         Guid conditionId,
         TimeSpan staleAfter,

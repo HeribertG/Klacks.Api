@@ -62,4 +62,15 @@ public interface IWorkRepository : IBaseRepository<Work>
     /// </summary>
     /// <param name="work">The tracked, soft-deleted Work.</param>
     Task RestoreAsync(Work work);
+
+    /// <summary>
+    /// The audit actor of the most recent touch (create, update or soft delete) on any non-scenario Work
+    /// under this shift, soft-deleted rows included - for an empty container the last person who removed an
+    /// assignment IS the last planner, and a live-rows-only query would never find them. Returns the raw
+    /// audit string (a user id, or the Anonymous/System sentinels) or null when no Work was ever recorded;
+    /// the caller decides what counts as a person. No tracking.
+    /// </summary>
+    /// <param name="shiftId">Shift whose Work rows are inspected.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<string?> GetLastPlannerAuditActorForShiftAsync(Guid shiftId, CancellationToken cancellationToken = default);
 }

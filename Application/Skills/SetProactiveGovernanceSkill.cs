@@ -24,8 +24,6 @@ public class SetProactiveGovernanceSkill : BaseSkillImplementation
     private const string GroupIdParameter = "group_id";
     private const string MaxActionParameter = "max_action";
     private const string EnabledParameter = "enabled";
-    private const string ResponsibleOwnerParameter = "responsible_owner_user_id";
-    private const string ClearResponsibleOwnerParameter = "clear_responsible_owner";
     private const string DailyActionBudgetParameter = "daily_action_budget";
     private const string WindowActionLimitParameter = "window_action_limit";
     private const string WindowMinutesParameter = "window_minutes";
@@ -77,8 +75,6 @@ public class SetProactiveGovernanceSkill : BaseSkillImplementation
             GroupId: GetParameter<Guid?>(parameters, GroupIdParameter),
             MaxAction: maxAction,
             Enabled: GetParameter<bool?>(parameters, EnabledParameter),
-            ResponsibleOwnerUserId: GetParameter<Guid?>(parameters, ResponsibleOwnerParameter),
-            ClearResponsibleOwner: GetParameter<bool?>(parameters, ClearResponsibleOwnerParameter) ?? false,
             DailyActionBudget: GetParameter<int?>(parameters, DailyActionBudgetParameter),
             WindowActionLimit: GetParameter<int?>(parameters, WindowActionLimitParameter),
             WindowMinutes: GetParameter<int?>(parameters, WindowMinutesParameter),

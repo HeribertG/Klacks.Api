@@ -144,15 +144,43 @@ public interface IAgentConditionLedgerService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Records that <paramref name="approverUserId"/> released the remediation of this Reported row by
+    /// acknowledging its approval chain: stamps ApprovedByUserId/ApprovedAtUtc and appends an Approved
+    /// event carrying the approver as UserId, so the audit trail names the human whose authority the
+    /// later execution runs on. Exactly one approval per row is ever recorded - a second call finds the
+    /// stamp in place and returns false without writing an event. Nothing is executed here; the action
+    /// dispatcher picks the stamped row up on its next tick. False also for a row that is no longer
+    /// Reported, in which case the approval refers to a finding that has moved on and is dropped.
+    /// </summary>
+    Task<bool> TryApproveAsync(
+        Guid conditionId,
+        Guid approverUserId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Withdraws an approval the dispatcher decided not to act on - the stale-claim window passed before a
+    /// tick reached the row, or the approver no longer holds the rights the remediation needs - and
+    /// appends an ApprovalWithdrawn event carrying <paramref name="detail"/>. The row stays Reported and
+    /// unapproved, so a fresh chain may be asked for it on a later company day. Guarded on the approver:
+    /// only the stamp this decision was taken on is cleared. Returns whether the stamp was cleared.
+    /// </summary>
+    Task<bool> TryWithdrawApprovalAsync(
+        Guid conditionId,
+        Guid approverUserId,
+        string detail,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Records a human's one-off "handle this yourself" grant for a single condition row (Etappe 4e).
     /// Only ever narrows what MaxAction the row may reach beyond the kind's own governance for exactly
     /// this row - it never widens governance, and it never touches Status. Returns false when the row
     /// does not exist or is no longer AgentConditionPlannerRelevantStatuses.Values: delegating a
     /// resolved, rejected or executed finding has nothing left to act on. Whether
     /// <paramref name="delegatingUserId"/> is even allowed to request <paramref name="maxAction"/> - both
-    /// their role tier and whether this condition is within their own group-visibility scope - is the
-    /// caller's responsibility (DelegateConditionCommandHandler); by the time this runs, the grant is
-    /// already authorised.
+    /// the remediation skill's permissions and whether this condition is within their own group-visibility
+    /// scope - is the caller's responsibility (DelegateConditionCommandHandler); by the time this runs, the
+    /// grant is already authorised. A delegation of a Reported row is also its approval - the caller stamps
+    /// that separately through <see cref="TryApproveAsync"/>.
     /// </summary>
     Task<bool> TryDelegateAsync(
         Guid conditionId,

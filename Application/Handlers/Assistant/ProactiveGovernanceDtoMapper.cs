@@ -38,7 +38,6 @@ public static class ProactiveGovernanceDtoMapper
             EffectiveMaxAction = (int)decision.EffectiveMaxAction,
             GlobalAutonomyCap = (int)decision.GlobalAutonomyCap,
             Enabled = decision.Enabled,
-            ResponsibleOwnerUserId = decision.ResponsibleOwnerUserId,
             DailyActionBudget = decision.DailyActionBudget,
             WindowActionLimit = decision.WindowActionLimit,
             WindowMinutes = decision.WindowMinutes,

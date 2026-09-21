@@ -13,9 +13,13 @@
 /// <param name="SkippedCascade">Rows a Klacksy execution is suspected to have caused, which are never auto-handled.</param>
 /// <param name="SkippedQuiet">Rows inside a quiet window; deliberately NOT counted as an attempt.</param>
 /// <param name="SkippedUnbindable">Rows whose payload cannot produce the remediation's required arguments.</param>
-/// <param name="SkippedNoOwner">Rows whose kind has no responsible owner, so no identity could be borrowed.</param>
+/// <param name="SkippedNoApprover">Claimed (Prepared) rows that carry no approval stamp, so there is no identity to resume them under; they are left to age into escalation.</param>
 /// <param name="SkippedClaimLost">Claims another instance won, or a compare-and-swap that reported a false negative.</param>
 /// <param name="LeftForBudget">Rows left open because the daily budget or the circuit breaker was reached.</param>
+/// <param name="ApprovalsRequested">Approval chains this tick opened; the row stays Reported until somebody acknowledges.</param>
+/// <param name="AwaitingApproval">Rows passed over because a chain is already Running for them or ended earlier on the same company day.</param>
+/// <param name="ApprovalsUnavailable">Rows for which no chain could be opened - no eligible approver, or the start was declined - and which therefore stay unhandled (fail closed).</param>
+/// <param name="ApprovalsWithdrawn">Approvals the tick withdrew without executing: the stale-claim window had passed or the approver no longer qualified.</param>
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -27,6 +31,10 @@ public sealed record AgentConditionActionTickResult(
     int SkippedCascade,
     int SkippedQuiet,
     int SkippedUnbindable,
-    int SkippedNoOwner,
+    int SkippedNoApprover,
     int SkippedClaimLost,
-    int LeftForBudget);
+    int LeftForBudget,
+    int ApprovalsRequested = 0,
+    int AwaitingApproval = 0,
+    int ApprovalsUnavailable = 0,
+    int ApprovalsWithdrawn = 0);

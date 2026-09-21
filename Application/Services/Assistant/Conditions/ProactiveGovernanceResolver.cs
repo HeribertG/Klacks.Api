@@ -142,7 +142,6 @@ public sealed class ProactiveGovernanceResolver : IProactiveGovernanceResolver
             ConfiguredMaxAction: configuredMaxAction,
             Enabled: enabled,
             KillSwitchActive: killSwitchActive,
-            ResponsibleOwnerUserId: stored?.ResponsibleOwnerUserId,
             DailyActionBudget: stored?.DailyActionBudget ?? ProactiveGovernanceDefaults.DailyActionBudget,
             WindowActionLimit: stored?.WindowActionLimit ?? ProactiveGovernanceDefaults.WindowActionLimit,
             WindowMinutes: stored?.WindowMinutes ?? ProactiveGovernanceDefaults.WindowMinutes,

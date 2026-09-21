@@ -14,8 +14,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IEscalationChainRepository
 {
-    /// <summary>Returns false without throwing when the partial unique index on (WorkId) where
-    /// Status=Running already holds a chain for this shift - a second CoverAbsence on the same shift.</summary>
+    /// <summary>Returns false without throwing when one of the partial unique indexes (WorkId or
+    /// ConditionId, each where Status=Running) already holds a chain for this key - a second CoverAbsence
+    /// on the same shift, or a second approval request for a condition still awaiting its answer.</summary>
     Task<bool> AddAsync(EscalationChain chain, CancellationToken cancellationToken = default);
 
     Task<EscalationChain?> GetByIdWithStagesAsync(Guid chainId, CancellationToken cancellationToken = default);
@@ -35,6 +36,11 @@ public interface IEscalationChainRepository
     Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithStagesAsync(CancellationToken cancellationToken = default);
 
     Task<bool> IsBreakDeletedAsync(Guid breakId, CancellationToken cancellationToken = default);
+
+    /// <summary>The most recently created chain for this condition whatever its status, or null - what the
+    /// tick consults before asking for an approval: Running means the question is already out, and a
+    /// chain created on the current company day means it was answered (or not) today already.</summary>
+    Task<EscalationChain?> GetLatestChainForConditionAsync(Guid conditionId, CancellationToken cancellationToken = default);
 
     /// <summary>The stage this user is currently Notified on, if any - the reply path's lookup, chain id not known in advance.</summary>
     Task<EscalationStage?> FindNotifiedStageForUserAsync(string userId, CancellationToken cancellationToken = default);

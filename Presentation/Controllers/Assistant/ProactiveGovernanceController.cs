@@ -70,8 +70,6 @@ public class ProactiveGovernanceController : ControllerBase
             GroupId: request.GroupId,
             MaxAction: maxAction,
             Enabled: request.Enabled,
-            ResponsibleOwnerUserId: request.ResponsibleOwnerUserId,
-            ClearResponsibleOwner: request.ClearResponsibleOwner,
             DailyActionBudget: request.DailyActionBudget,
             WindowActionLimit: request.WindowActionLimit,
             WindowMinutes: request.WindowMinutes,

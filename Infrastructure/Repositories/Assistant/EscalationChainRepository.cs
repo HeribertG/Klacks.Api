@@ -37,9 +37,10 @@ public class EscalationChainRepository : IEscalationChainRepository
         }
         catch (DbUpdateException)
         {
-            // The partial unique index on (WorkId) where Status=Running caught a second chain for a
-            // shift that already has one running (e.g. CoverAbsence re-run on the same shift). Detach
-            // so the failed insert does not poison the next SaveChangesAsync on this context instance.
+            // One of the partial unique indexes (WorkId or ConditionId, each where Status=Running)
+            // caught a second chain for a key that already has one running (e.g. CoverAbsence re-run on
+            // the same shift, or the tick re-requesting an approval). Detach so the failed insert does
+            // not poison the next SaveChangesAsync on this context instance.
             _context.Entry(chain).State = EntityState.Detached;
             return false;
         }
@@ -89,6 +90,15 @@ public class EscalationChainRepository : IEscalationChainRepository
             .Where(c => c.Status == EscalationChainStatus.Running)
             .OrderBy(c => c.DeadlineUtc)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<EscalationChain?> GetLatestChainForConditionAsync(Guid conditionId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .Where(c => c.ConditionId == conditionId)
+            .OrderByDescending(c => c.CreateTime)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<bool> IsBreakDeletedAsync(Guid breakId, CancellationToken cancellationToken = default)

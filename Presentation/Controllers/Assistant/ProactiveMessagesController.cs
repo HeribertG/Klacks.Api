@@ -177,17 +177,17 @@ public class ProactiveMessagesController : ControllerBase
             return Unauthorized();
         }
 
-        var outcome = await _mediator.Send(new DelegateConditionCommand
+        var result = await _mediator.Send(new DelegateConditionCommand
         {
             MessageId = id,
             DelegatingUserId = delegatingUserId,
             MaxAction = (ProactiveMaxAction)request.MaxAction
         }, cancellationToken);
 
-        return outcome switch
+        return result.Outcome switch
         {
             DelegateConditionOutcome.Delegated => NoContent(),
-            DelegateConditionOutcome.Forbidden => Forbid(JwtBearerDefaults.AuthenticationScheme),
+            DelegateConditionOutcome.Forbidden => Problem(detail: result.Reason, statusCode: StatusCodes.Status403Forbidden),
             _ => NotFound()
         };
     }

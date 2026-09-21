@@ -358,6 +358,43 @@ public class AgentConditionRepository : IAgentConditionRepository
         return affected > 0;
     }
 
+    public async Task<bool> TryStampApprovalAsync(
+        Guid id,
+        Guid approverUserId,
+        DateTime approvedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.AgentConditions
+            .Where(c => c.Id == id
+                && c.Status == AgentConditionStatus.Reported
+                && c.ApprovedByUserId == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.ApprovedByUserId, approverUserId)
+                    .SetProperty(c => c.ApprovedAtUtc, approvedAtUtc),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
+    public async Task<bool> TryClearApprovalAsync(
+        Guid id,
+        Guid approverUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var affected = await _context.AgentConditions
+            .Where(c => c.Id == id
+                && c.Status == AgentConditionStatus.Reported
+                && c.ApprovedByUserId == approverUserId)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.ApprovedByUserId, (Guid?)null)
+                    .SetProperty(c => c.ApprovedAtUtc, (DateTime?)null),
+                cancellationToken);
+
+        return affected > 0;
+    }
+
     public async Task<AgentConditionEvent> InsertEventAsync(AgentConditionEvent conditionEvent, CancellationToken cancellationToken = default)
     {
         await _context.AgentConditionEvents.AddAsync(conditionEvent, cancellationToken);

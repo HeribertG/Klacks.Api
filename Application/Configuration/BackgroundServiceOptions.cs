@@ -271,15 +271,16 @@ public class BackgroundServiceOptions
     public bool AnswerGroundingSentinel { get; set; } = true;
 
     /// <summary>
-    /// Enables the escalation-chain sweep (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Default
-    /// OFF: it ships dark, same rationale as Wizard4, until the reference-case test and a real
-    /// messenger round-trip both hold. UNLIKE most services in this file it is safe to run on EVERY
-    /// instance once enabled: it carries no in-process state and every transition is a conditional
-    /// ExecuteUpdate, so a second instance racing the same tick loses cleanly instead of double-firing.
-    /// Deliberately not pinned, because a single point of failure at 03:00 defeats the chain's purpose.
-    /// Override via env <c>BackgroundServices__EscalationChain=true</c>.
+    /// Enables the escalation-chain sweep (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Default ON
+    /// since the proactive approval chain (design 2026-09-20) depends on it: without the sweep no stage
+    /// ever expires, so an unanswered approval request would neither advance to the next planner nor end
+    /// Exhausted. UNLIKE most services in this file it is safe to run on EVERY instance: it carries no
+    /// in-process state and every transition is a conditional ExecuteUpdate, so a second instance racing
+    /// the same tick loses cleanly instead of double-firing. Deliberately NOT pinned to one instance,
+    /// because a single point of failure at 03:00 defeats the chain's purpose. Switch off via env
+    /// <c>BackgroundServices__EscalationChain=false</c> (the eval host does, like its siblings).
     /// </summary>
-    public bool EscalationChain { get; set; } = false;
+    public bool EscalationChain { get; set; } = true;
 
     /// <summary>
     /// Cadence in seconds between escalation-chain sweeps. 30s by default (the Entwurf's documented

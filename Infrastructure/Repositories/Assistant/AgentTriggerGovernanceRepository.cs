@@ -58,7 +58,6 @@ public class AgentTriggerGovernanceRepository : IAgentTriggerGovernanceRepositor
 
         existing.MaxAction = governance.MaxAction;
         existing.Enabled = governance.Enabled;
-        existing.ResponsibleOwnerUserId = governance.ResponsibleOwnerUserId;
         existing.DailyActionBudget = governance.DailyActionBudget;
         existing.WindowActionLimit = governance.WindowActionLimit;
         existing.WindowMinutes = governance.WindowMinutes;

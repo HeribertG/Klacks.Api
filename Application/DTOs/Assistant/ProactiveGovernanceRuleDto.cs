@@ -19,8 +19,6 @@ public class ProactiveGovernanceRuleDto
 
     public bool Enabled { get; set; }
 
-    public Guid? ResponsibleOwnerUserId { get; set; }
-
     public int DailyActionBudget { get; set; }
 
     public int WindowActionLimit { get; set; }

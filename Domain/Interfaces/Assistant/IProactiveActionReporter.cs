@@ -13,11 +13,15 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface IProactiveActionReporter
 {
     /// <summary>
-    /// Stashes one report for one recipient and pushes it live when possible. Never throws: the report
-    /// is the last step of an action that has already happened, so failing to deliver it must not
-    /// unwind the tick. Returns whether the note was persisted.
+    /// Delivers one report to everybody an approved action concerns: the approver, plus the planning
+    /// audience of the finding's group, or the admins when the finding has no group (Owner decision
+    /// 2026-09-20). Each recipient gets their own stashed note; a recipient that cannot be resolved or
+    /// stashed is logged and skipped, never allowed to unwind the tick. Returns how many notes were
+    /// persisted.
     /// </summary>
-    /// <param name="recipientUserId">The responsible owner from the kind's governance rule.</param>
+    /// <param name="approverUserId">The human who released the action, always among the recipients; null before any approval exists, in which case the audience alone is told.</param>
+    /// <param name="groupId">The finding's group, or null for a finding without one.</param>
     /// <param name="message">Report body; already composed, never a translation key.</param>
-    Task<bool> ReportAsync(Guid recipientUserId, string message, CancellationToken cancellationToken = default);
+    Task<int> ReportToApprovalAudienceAsync(
+        Guid? approverUserId, Guid? groupId, string message, CancellationToken cancellationToken = default);
 }

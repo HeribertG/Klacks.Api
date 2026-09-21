@@ -10,11 +10,12 @@
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 
-public class DelegateConditionCommand : IRequest<DelegateConditionOutcome>
+public class DelegateConditionCommand : IRequest<DelegateConditionResult>
 {
     public Guid MessageId { get; set; }
 

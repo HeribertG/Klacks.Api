@@ -188,7 +188,7 @@ $TestResultsFolderName = "TestResults"
 $TrxNamespaceUri      = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 $TrxStdOutXPath       = "//t:UnitTestResult/t:Output/t:StdOut"
 $TrxSectionSeparator  = "===== Test StdOut (from TRX) ====="
-$DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention", "LLMModelSync", "InboundMessagePolling", "MessageRetention", "SkillRelationLearning", "KlacksyLearning", "GoalReflection")
+$DisabledBackgroundServices = @("SlackOwnerBridge", "Wizard4", "AgentTrigger", "EmailPolling", "Embedding", "RegionPackageUpdate", "MemoryCleanup", "DataRetention", "LLMModelSync", "InboundMessagePolling", "MessageRetention", "SkillRelationLearning", "KlacksyLearning", "GoalReflection", "EscalationChain")
 $BackgroundServiceEnvPrefix = "BackgroundServices__"
 $BackgroundServiceOffValue  = "false"
 $EfCommandLogEnvVar   = "Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command"

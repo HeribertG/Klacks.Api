@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The two short sentences EscalationNotifier sends outside the wake-up path: a confirmation back to
-/// whoever just acknowledged a chain, and a quiet note to the stage that was notified before them.
-/// Deliberately separate from MessengerProactiveTexts, whose own test enforces a strict 1:1 with
-/// MessengerWakeUpPolicy - neither of these two messages is a wake-up alert, so they do not belong
-/// in that bijection.
+/// The short sentences EscalationNotifier sends outside the wake-up path, one pair per chain purpose: a
+/// confirmation back to whoever just acknowledged a chain, and a quiet note to the stages that were
+/// notified before them. The absence pair speaks of a shift being covered, the approval pair of a
+/// remediation being released - both with the responder's name so nobody who was asked earlier acts a
+/// second time. Deliberately separate from MessengerProactiveTexts, whose own test enforces a strict 1:1
+/// with MessengerWakeUpPolicy - none of these messages is a wake-up alert, so they do not belong in that
+/// bijection.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -21,6 +23,8 @@ public static class EscalationHandoffTexts
 
     public const string AcknowledgedConfirmation = "escalation.acknowledgedConfirmation";
     public const string HandoffQuietNote = "escalation.handoffQuietNote";
+    public const string ApprovalAcknowledgedConfirmation = "escalation.approvalAcknowledgedConfirmation";
+    public const string ApprovalHandoffQuietNote = "escalation.approvalHandoffQuietNote";
 
     private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Texts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
@@ -38,6 +42,20 @@ public static class EscalationHandoffTexts
                 [English] = "{{responder}} has taken over the {{date}} shift for {{employee}}.",
                 [French] = "{{responder}} a repris le service du {{date}} pour {{employee}}.",
                 [Italian] = "{{responder}} ha rilevato il turno del {{date}} per {{employee}}."
+            },
+            [ApprovalAcknowledgedConfirmation] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Danke, du hast die Massnahme {{action}} zur Feststellung {{finding}} freigegeben. Klacksy führt sie in Kürze unter deinen Rechten aus und berichtet dir das Ergebnis.",
+                [English] = "Thanks, you approved the action {{action}} for the finding {{finding}}. Klacksy will carry it out shortly under your rights and report the result to you.",
+                [French] = "Merci, tu as approuvé l'action {{action}} pour le constat {{finding}}. Klacksy va l'exécuter sous peu avec tes droits et te communiquer le résultat.",
+                [Italian] = "Grazie, hai approvato l'azione {{action}} per la rilevazione {{finding}}. Klacksy la eseguirà a breve con i tuoi diritti e ti comunicherà il risultato."
+            },
+            [ApprovalHandoffQuietNote] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "{{responder}} hat die Massnahme {{action}} zur Feststellung {{finding}} freigegeben; du musst nichts mehr tun.",
+                [English] = "{{responder}} has approved the action {{action}} for the finding {{finding}}; nothing is left for you to do.",
+                [French] = "{{responder}} a approuvé l'action {{action}} pour le constat {{finding}} ; tu n'as plus rien à faire.",
+                [Italian] = "{{responder}} ha approvato l'azione {{action}} per la rilevazione {{finding}}; non devi fare altro."
             }
         };
 

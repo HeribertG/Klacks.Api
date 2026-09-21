@@ -22833,22 +22833,6 @@
           "enumValues": null
         },
         {
-          "name": "responsible_owner_user_id",
-          "description": "The account under whose rights a prepared or executed action runs. Optional; without one, Prepare and Execute rules are stored but no action is executed",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "clear_responsible_owner",
-          "description": "True removes the accountable person again; optional; the rule keeps working, but without an owner no action is executed",
-          "type": "Boolean",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
           "name": "daily_action_budget",
           "description": "How many actions Klacksy may take for this finding type per day",
           "type": "Integer",
@@ -22951,7 +22935,7 @@
         "fr": "Modifier une règle de gouvernance proactive",
         "it": "Modifica una regola di governance proattiva"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "evaluate_autonomy_level_change",

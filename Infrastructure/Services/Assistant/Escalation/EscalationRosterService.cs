@@ -27,6 +27,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -196,10 +197,5 @@ public class EscalationRosterService : IEscalationRosterService
         return !absentUserIds.Contains(user.Id) && !string.IsNullOrWhiteSpace(user.PhoneNumber);
     }
 
-    private static string BuildDisplayName(AppUser user)
-    {
-        var name = $"{user.FirstName} {user.LastName}".Trim();
-        var userName = user.UserName ?? user.Id;
-        return name.Length > 0 ? $"{name} ({userName})" : userName;
-    }
+    private static string BuildDisplayName(AppUser user) => EscalationCandidateDisplayName.Build(user);
 }

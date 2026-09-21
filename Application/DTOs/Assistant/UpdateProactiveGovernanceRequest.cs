@@ -12,14 +12,6 @@ public class UpdateProactiveGovernanceRequest
 
     public bool? Enabled { get; set; }
 
-    public Guid? ResponsibleOwnerUserId { get; set; }
-
-    /// <summary>
-    /// Distinguishes "leave the responsible owner untouched" (false, the default) from "remove the
-    /// owner" - which a null ResponsibleOwnerUserId alone cannot express in a patch request.
-    /// </summary>
-    public bool ClearResponsibleOwner { get; set; }
-
     public int? DailyActionBudget { get; set; }
 
     public int? WindowActionLimit { get; set; }

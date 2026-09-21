@@ -6,11 +6,15 @@ public class EscalationChainSummaryResource
 {
     public Guid Id { get; set; }
 
-    public Guid WorkId { get; set; }
+    public string Purpose { get; set; } = string.Empty;
+
+    public Guid? WorkId { get; set; }
+
+    public Guid? ConditionId { get; set; }
 
     public string AbsentClientName { get; set; } = string.Empty;
 
-    public DateTime ShiftStartUtc { get; set; }
+    public DateTime? ShiftStartUtc { get; set; }
 
     public DateTime DeadlineUtc { get; set; }
 

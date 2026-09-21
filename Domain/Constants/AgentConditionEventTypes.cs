@@ -15,4 +15,10 @@ public static class AgentConditionEventTypes
 
     /// <summary>An abandoned Prepared claim was taken over after the stale-claim window elapsed.</summary>
     public const string Reclaimed = "Reclaimed";
+
+    /// <summary>A roster candidate acknowledged the approval chain; UserId names the approver, the row stays Reported until the tick executes it.</summary>
+    public const string Approved = "Approved";
+
+    /// <summary>An approval was withdrawn again without executing: the stale-claim window passed or the approver no longer qualifies.</summary>
+    public const string ApprovalWithdrawn = "ApprovalWithdrawn";
 }

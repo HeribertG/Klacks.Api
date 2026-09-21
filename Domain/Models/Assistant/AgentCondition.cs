@@ -62,14 +62,24 @@ public class AgentCondition : BaseEntity
     public Guid? RejectedByUserId { get; set; }
 
     /// <summary>
-    /// The human who released Klacksy's prepared remediation, stamped when accepting its scenario moved
-    /// this row to Executed. It exists because the row otherwise records only that a remediation happened,
-    /// never on whose authority: CurrentUserUpdated is BaseEntity audit noise that the next write to the
-    /// row overwrites, and RejectedByUserId is by definition the opposite decision. Null on every row that
-    /// reached Executed through the autonomous action dispatcher, which is the honest answer - nobody
-    /// approved those - and on every row still open.
+    /// The human on whose authority Klacksy's remediation runs or ran. Stamped in three situations: when
+    /// accepting a prepared scenario moved this row to Executed, when a roster candidate acknowledged the
+    /// ProactiveApproval chain for this row while it was still Reported, and when a planner delegated the
+    /// row ("mach du") while it was still Reported. In the latter two the stamp precedes the execution:
+    /// the tick reads it, borrows this person's rights and executes under them, so the row records on
+    /// whose authority the action happened rather than merely that it happened. CurrentUserUpdated is
+    /// BaseEntity audit noise that the next write to the row overwrites, and RejectedByUserId is by
+    /// definition the opposite decision. Null on every row still waiting for an approval.
     /// </summary>
     public Guid? ApprovedByUserId { get; set; }
+
+    /// <summary>
+    /// When the approval was stamped. The tick executes an approved row only while this lies within
+    /// AgentConditionActionDefaults.ApprovalExecutionWindowMinutes; an older approval is withdrawn instead
+    /// of executed, because the finding may no longer be what the approver looked at. Cleared together
+    /// with ApprovedByUserId on withdrawal.
+    /// </summary>
+    public DateTime? ApprovedAtUtc { get; set; }
 
     /// <summary>
     /// Set when this row was itself caused by an earlier Klacksy remediation (Etappe 5 cascade guard:

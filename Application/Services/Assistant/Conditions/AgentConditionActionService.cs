@@ -1,4 +1,4 @@
-﻿// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
 /// Default <see cref="IAgentConditionActionService"/> - the Etappe 5b action dispatcher, the first place
@@ -16,31 +16,35 @@
 /// (4) an absolute per-kind-per-tick cap that no governance value can widen - checked before the budget
 ///     because it costs no query;
 /// (5) the daily budget and the circuit breaker, counted in the database from the claims' own audit
-///     events so several API instances share one budget instead of one each, and counted PER GROUP,
-///     because that is the scope an admin configures them in. An exhausted group is skipped, not
-///     returned from: the candidates behind it may belong to groups that have spent nothing.
+///     events so several API instances share one budget instead of one each, and counted PER GROUP.
+///
+/// Since the approval chain (design 2026-09-20, Owner decisions final) "Execute" means EXECUTE AFTER
+/// APPROVAL. A Reported row that passes the gates and carries no approval gets an approval chain asked
+/// for it (IConditionApprovalChainStarter) and nothing else; the acknowledging candidate - or the planner
+/// who delegated the condition - is stamped onto the row as its approver, and a LATER tick executes the
+/// stamped row under the approver's own rights - within ApprovalExecutionWindowMinutes of the stamp, with
+/// the approver's account, roles and the skill's permissions re-checked at that moment. Nobody
+/// acknowledges: the chain exhausts, nothing runs, no retry before the next company day. There is no
+/// unattended stage and no stored owner: nothing executes without a human's stamp on the row.
 ///
 /// Claim BEFORE act, always. The claim is a compare-and-swap that raises AttemptCount in the same
 /// UPDATE, so a run that dies between claim and outcome still counts as an attempt and the row escalates
-/// instead of retrying forever. A lost claim means SKIP THIS ROW - never "the budget was not consumed":
-/// TryTransitionAsync can report false after a successful commit when the retrying execution strategy
-/// replays a committed transaction, and the audit event that the budget is counted from is written
-/// inside that same transaction, so the budget is right even when the boolean is not.
+/// instead of retrying forever. A lost claim means SKIP THIS ROW - never "the budget was not consumed".
 /// </summary>
 /// <param name="repository">Ledger reads: candidates, budget counts, recent executions for the cascade guard.</param>
-/// <param name="ledgerService">Ledger writes: claims, reclaims, transitions, attempt and provenance events.</param>
-/// <param name="governanceResolver">Per-kind, per-scope MaxAction, owner and budget values (Etappe 4a).</param>
+/// <param name="ledgerService">Ledger writes: claims, reclaims, transitions, approvals, attempt and provenance events.</param>
+/// <param name="governanceResolver">Per-kind, per-scope MaxAction and budget values (Etappe 4a).</param>
 /// <param name="registry">Code-only map from kind to remediation; absence caps the kind at Hint.</param>
 /// <param name="quietWindow">Answers whether now is a bad moment to touch this condition's target.</param>
-/// <param name="identityProvider">Borrows the responsible owner's rights under Klacksy's own name (Etappe 4d).</param>
+/// <param name="identityProvider">Borrows the approver's rights under Klacksy's own name.</param>
 /// <param name="skillExecutor">Runs the remediation skill.</param>
 /// <param name="reporter">Mandatory post-action report, never subject to the notification rate limit.</param>
-/// <param name="timeProvider">Clock, injected so the stale-claim window is testable.</param>
+/// <param name="approvalStarter">Opens the approval chain for an executable row that nobody has approved yet.</param>
+/// <param name="timeProvider">Clock, injected so the approval and stale-claim windows are testable.</param>
 /// <param name="companyClock">Resolves the company's time zone, so the daily action budget resets at the company's midnight rather than the UTC calendar day's.</param>
 /// <param name="logger">Structured log per kind and per skipped row - the counterpart of "no silent caps".</param>
 
 using System.Globalization;
-using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -57,6 +61,8 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private const string ExecutedDetail = "executed {0}";
     private const string FailedDetail = "attempt failed: {0}";
     private const string EscalatedDetail = "ineffective after {0} attempt(s)";
+    private const string ApprovalExpiredDetail = "approval older than {0} minute(s) when the tick reached the row";
+    private const string ApprovalRefusedDetail = "approver no longer qualifies: {0}";
 
     private const string ExecutedReportFormat =
         "I have carried out a remediation on my own.\n\n"
@@ -75,9 +81,10 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         "I stopped acting on '{0}' for now: {1}.\n"
         + "{2} further finding(s) of this kind stay open and unhandled until the limit frees up again.";
 
-    private const string DailyBudgetReason = "the daily action budget of {0} is used up";
-    private const string WindowBudgetReason =
-        "the circuit breaker tripped - {0} action(s) are allowed per {1} minute(s)";
+    private const string ApprovalWithdrawnReportFormat =
+        "An approved remediation was NOT carried out.\n\n"
+        + "Finding: {0} (condition {1})\nAction: {2}\nReason: {3}\n"
+        + "The finding stays open; I will ask for approval again on the next company day at the earliest.";
 
     private const string TickCapReason =
         "the absolute cap of {0} action(s) per kind per scan is reached";
@@ -88,16 +95,15 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
 
     private const string NoResultMessage = "no message";
 
-    private const string PayloadChangedDuringClaimMessage =
-        "Condition {ConditionId} had its payload refreshed between the pre-flight binding and the claim; "
-        + "re-binding {Skill} against the current one";
-
     private const string UnbindableAfterClaimReason =
         "the condition's payload changed after the claim and no longer supplies the remediation's arguments";
 
     private const string UnbindableAfterClaimMessage =
         "Condition {ConditionId} no longer binds {Skill} after the claim, so nothing was executed; the row "
         + "stays claimed and is left to the stale-claim reclaim";
+
+    private const string NoApproverForClaimedRowMessage =
+        "Condition {ConditionId} of kind {Kind} is claimed but carries no approval, so it is left to escalate";
 
     private static readonly AgentConditionActionTickResult EmptyResult = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -109,9 +115,11 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private readonly IProactiveActionIdentityProvider _identityProvider;
     private readonly ISkillExecutor _skillExecutor;
     private readonly IProactiveActionReporter _reporter;
+    private readonly IConditionApprovalChainStarter _approvalStarter;
     private readonly TimeProvider _timeProvider;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<AgentConditionActionService> _logger;
+    private readonly ConditionRemediationArgumentBinder _argumentBinder;
 
     public AgentConditionActionService(
         IAgentConditionRepository repository,
@@ -122,6 +130,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         IProactiveActionIdentityProvider identityProvider,
         ISkillExecutor skillExecutor,
         IProactiveActionReporter reporter,
+        IConditionApprovalChainStarter approvalStarter,
         TimeProvider timeProvider,
         ICompanyClock companyClock,
         ILogger<AgentConditionActionService> logger)
@@ -134,9 +143,11 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         _identityProvider = identityProvider;
         _skillExecutor = skillExecutor;
         _reporter = reporter;
+        _approvalStarter = approvalStarter;
         _timeProvider = timeProvider;
         _companyClock = companyClock;
         _logger = logger;
+        _argumentBinder = new ConditionRemediationArgumentBinder(repository, logger);
     }
 
     public async Task<AgentConditionActionTickResult> RunAsync(CancellationToken cancellationToken = default)
@@ -149,7 +160,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
 
         var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
         var companyDayStartUtc = await ResolveCompanyDayStartUtcAsync(nowUtc, cancellationToken);
-        var tally = new ActionTally();
+        var tally = new ConditionActionTally();
         var recentExecutions = await _repository.GetExecutedSinceAsync(
             nowUtc.AddMinutes(-AgentConditionActionDefaults.CascadeWindowMinutes), cancellationToken);
 
@@ -173,22 +184,22 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         _logger.LogInformation(
             "Proactive action tick: {Considered} considered, {Executed} executed, {Failed} failed, "
             + "{Escalated} escalated, {SkippedCascade} cascade, {SkippedQuiet} quiet, "
-            + "{SkippedUnbindable} unbindable, {SkippedNoOwner} without owner, {SkippedClaimLost} claim lost, "
-            + "{LeftForBudget} left for budget",
+            + "{SkippedUnbindable} unbindable, {SkippedNoApprover} claimed without approver, {SkippedClaimLost} claim lost, "
+            + "{LeftForBudget} left for budget, {ApprovalsRequested} approvals requested, "
+            + "{AwaitingApproval} awaiting approval, {ApprovalsUnavailable} approvals unavailable, "
+            + "{ApprovalsWithdrawn} approvals withdrawn",
             result.Considered, result.Executed, result.Failed, result.Escalated, result.SkippedCascade,
-            result.SkippedQuiet, result.SkippedUnbindable, result.SkippedNoOwner, result.SkippedClaimLost,
-            result.LeftForBudget);
+            result.SkippedQuiet, result.SkippedUnbindable, result.SkippedNoApprover, result.SkippedClaimLost,
+            result.LeftForBudget, result.ApprovalsRequested, result.AwaitingApproval, result.ApprovalsUnavailable,
+            result.ApprovalsWithdrawn);
 
         return result;
     }
 
     /// <summary>
     /// The UTC instant the company's own calendar day began "today" - NOT the UTC calendar day's own
-    /// midnight. The daily action budget is counted against this, because CountActionClaimsAsync compares
-    /// it to the audit events' real UTC instants: for a positive-offset zone (e.g. Pacific/Auckland,
-    /// UTC+12/+13) the UTC calendar day starts many hours before the company's day does, so using it
-    /// would count part of the company's PREVIOUS day's claims as "today", exhausting the budget early.
-    /// Derives "today" from the same <paramref name="nowUtc"/> snapshot the rest of the tick uses -
+    /// midnight. The daily action budget and the "no second chain today" rule are both measured against
+    /// it. Derives "today" from the same <paramref name="nowUtc"/> snapshot the rest of the tick uses -
     /// ICompanyClock is consulted only for the time zone - so a single tick can never straddle two
     /// different "now" reads across the DST/UTC-offset conversion and the rest of its own logic.
     /// </summary>
@@ -204,7 +215,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         DateTime nowUtc,
         DateTime companyDayStartUtc,
         IReadOnlyList<AgentCondition> recentExecutions,
-        ActionTally tally,
+        ConditionActionTally tally,
         CancellationToken cancellationToken)
     {
         if (!_registry.TryGetEntry(triggerKind, out var entry) || entry is null)
@@ -219,136 +230,258 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return;
         }
 
-        var budget = new ActionBudget(_repository, triggerKind, nowUtc, companyDayStartUtc);
-        var governanceCache = new GovernanceCache();
-        var actionsThisTick = 0;
+        var run = new KindRun(
+            triggerKind,
+            entry,
+            nowUtc,
+            companyDayStartUtc,
+            recentExecutions,
+            candidates,
+            new ConditionActionBudget(_repository, triggerKind, nowUtc, companyDayStartUtc),
+            tally);
 
         for (var index = 0; index < candidates.Count; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            var condition = candidates[index];
             tally.Considered++;
 
-            var governance = await ResolveGovernanceAsync(governanceCache, condition, cancellationToken);
-            var maxAction = EffectiveMaxActionFor(governance, condition);
-            if (maxAction < ProactiveMaxAction.Execute)
+            if (await ProcessCandidateAsync(run, index, cancellationToken))
             {
-                if (maxAction == ProactiveMaxAction.Prepare && !entry.IsScenarioCapable)
-                {
-                    _logger.LogDebug(
-                        PrepareWithoutScenarioMessage, triggerKind, entry.RemediationSkillName, condition.Id);
-                }
-
-                continue;
-            }
-
-            if (await IsCascadeAsync(condition, recentExecutions, cancellationToken))
-            {
-                tally.SkippedCascade++;
-                continue;
-            }
-
-            if (condition.AttemptCount >= AgentConditionActionDefaults.MaxAttemptsBeforeEscalation)
-            {
-                if (await EscalateAsync(condition, governance, cancellationToken))
-                {
-                    tally.Escalated++;
-                }
-
-                continue;
-            }
-
-            if (await _quietWindow.IsQuietForAsync(condition, cancellationToken))
-            {
-                tally.SkippedQuiet++;
-                continue;
-            }
-
-            var arguments = TryBindArguments(entry, condition);
-            if (arguments is null)
-            {
-                tally.SkippedUnbindable++;
-                continue;
-            }
-
-            if (governance.ResponsibleOwnerUserId is not Guid ownerUserId || ownerUserId == Guid.Empty)
-            {
-                _logger.LogDebug(
-                    "Condition {ConditionId} of kind {Kind} is executable but its governance names no "
-                    + "responsible owner, so the execute step is skipped",
-                    condition.Id, triggerKind);
-                tally.SkippedNoOwner++;
-                continue;
-            }
-
-            if (actionsThisTick >= AgentConditionActionDefaults.MaxExecutionsPerKindPerTick)
-            {
-                await ReportBudgetStopAsync(
-                    triggerKind,
-                    ownerUserId,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        TickCapReason,
-                        AgentConditionActionDefaults.MaxExecutionsPerKindPerTick),
-                    candidates.Count - index,
-                    actionsThisTick,
-                    cancellationToken);
-                tally.LeftForBudget += candidates.Count - index;
                 return;
             }
+        }
+    }
 
-            var blockedReason = await budget.DescribeBlockAsync(
-                condition.GroupId, governance, cancellationToken);
-            if (blockedReason is not null)
+    /// <summary>
+    /// One candidate through the gates. Returns true when the kind must stop for this tick (the absolute
+    /// per-tick cap), false to walk on to the next row - including after a group's budget block, because
+    /// the candidates behind it may belong to groups that have spent nothing.
+    /// </summary>
+    private async Task<bool> ProcessCandidateAsync(KindRun run, int index, CancellationToken cancellationToken)
+    {
+        var condition = run.Candidates[index];
+        var governance = await ResolveGovernanceAsync(run.GovernanceCache, condition, cancellationToken);
+        var maxAction = EffectiveMaxActionFor(governance, condition);
+        if (maxAction < ProactiveMaxAction.Execute)
+        {
+            if (maxAction == ProactiveMaxAction.Prepare && !run.Entry.IsScenarioCapable)
             {
-                // Walk on instead of returning: the budget belongs to this condition's group, and the
-                // candidates behind it may belong to groups that have spent nothing. Returning here would
-                // let one busy group silence every other group for the rest of the tick.
-                if (budget.TryMarkStopReported(condition.GroupId))
-                {
-                    var leftInGroup = candidates
-                        .Skip(index)
-                        .Count(remaining => remaining.GroupId == condition.GroupId);
-
-                    await ReportBudgetStopAsync(
-                        triggerKind, ownerUserId, blockedReason, leftInGroup, actionsThisTick, cancellationToken);
-                    tally.LeftForBudget += leftInGroup;
-                }
-
-                continue;
+                _logger.LogDebug(
+                    PrepareWithoutScenarioMessage, run.TriggerKind, run.Entry.RemediationSkillName, condition.Id);
             }
 
-            if (!await TryClaimAsync(condition, entry, nowUtc, cancellationToken))
+            return false;
+        }
+
+        if (await IsCascadeAsync(condition, run.RecentExecutions, cancellationToken))
+        {
+            run.Tally.SkippedCascade++;
+            return false;
+        }
+
+        var approver = ResolveApprover(condition);
+
+        if (condition.AttemptCount >= AgentConditionActionDefaults.MaxAttemptsBeforeEscalation)
+        {
+            if (await EscalateAsync(condition, approver, cancellationToken))
             {
-                tally.SkippedClaimLost++;
-                continue;
+                run.Tally.Escalated++;
             }
 
-            budget.RecordClaim(condition.GroupId);
-            actionsThisTick++;
+            return false;
+        }
 
-            var claimedArguments = await RebindAfterClaimAsync(entry, condition, arguments, cancellationToken);
-            if (claimedArguments is null)
+        if (await _quietWindow.IsQuietForAsync(condition, cancellationToken))
+        {
+            run.Tally.SkippedQuiet++;
+            return false;
+        }
+
+        var arguments = _argumentBinder.TryBind(run.Entry, condition);
+        if (arguments is null)
+        {
+            run.Tally.SkippedUnbindable++;
+            return false;
+        }
+
+        if (approver is Guid freshApprover
+            && condition.Status == AgentConditionStatus.Reported
+            && await WithdrawIfApprovalIsStaleAsync(run, condition, freshApprover, cancellationToken))
+        {
+            return false;
+        }
+
+        if (run.ActionsThisTick >= AgentConditionActionDefaults.MaxExecutionsPerKindPerTick)
+        {
+            var remaining = run.Candidates.Count - index;
+            await ReportBudgetStopAsync(
+                run, condition, approver,
+                string.Format(CultureInfo.InvariantCulture, TickCapReason, AgentConditionActionDefaults.MaxExecutionsPerKindPerTick),
+                remaining, cancellationToken);
+            run.Tally.LeftForBudget += remaining;
+            return true;
+        }
+
+        var blockedReason = await run.Budget.DescribeBlockAsync(condition.GroupId, governance, cancellationToken);
+        if (blockedReason is not null)
+        {
+            if (run.Budget.TryMarkStopReported(condition.GroupId))
             {
-                // Reported like every other post-claim failure, not merely logged: the claim has already
-                // spent an attempt and a slot of the budget, so staying silent here would let a
-                // remediation burn its three attempts without the owner ever hearing why.
-                _logger.LogWarning(UnbindableAfterClaimMessage, condition.Id, entry.RemediationSkillName);
-                await RecordFailureAsync(
-                    condition, entry, ownerUserId, UnbindableAfterClaimReason, cancellationToken);
-                tally.Failed++;
-                continue;
+                var leftInGroup = run.Candidates.Skip(index).Count(remaining => remaining.GroupId == condition.GroupId);
+                await ReportBudgetStopAsync(run, condition, approver, blockedReason, leftInGroup, cancellationToken);
+                run.Tally.LeftForBudget += leftInGroup;
             }
 
-            if (await ExecuteAsync(condition, entry, claimedArguments, ownerUserId, cancellationToken))
+            return false;
+        }
+
+        if (approver is not Guid approverUserId)
+        {
+            await AskForApprovalOrSkipAsync(run, condition, cancellationToken);
+            return false;
+        }
+
+        await ClaimAndExecuteAsync(run, condition, approverUserId, arguments, cancellationToken);
+        return false;
+    }
+
+    /// <summary>
+    /// Whose rights this row would run under: the stamped approver - the approval chain's or the
+    /// delegation's answer - or null when nobody has released it yet.
+    /// </summary>
+    private static Guid? ResolveApprover(AgentCondition condition) =>
+        condition.ApprovedByUserId is Guid approverUserId && approverUserId != Guid.Empty ? approverUserId : null;
+
+    /// <summary>
+    /// A Reported row with nobody behind it gets its approval chain asked for; a Prepared row with nobody
+    /// behind it is a claim this regime cannot resume (no approval to run under) and is left to age into
+    /// escalation. Every non-Started outcome of the starter is fail closed: counted, logged by the starter
+    /// itself, and never retried within this tick. A started chain counts against the per-tick cap so one
+    /// busy kind cannot flood a planner's inbox with requests in a single scan.
+    /// </summary>
+    private async Task AskForApprovalOrSkipAsync(KindRun run, AgentCondition condition, CancellationToken cancellationToken)
+    {
+        if (condition.Status != AgentConditionStatus.Reported)
+        {
+            _logger.LogDebug(NoApproverForClaimedRowMessage, condition.Id, condition.TriggerKind);
+            run.Tally.SkippedNoApprover++;
+            return;
+        }
+
+        var outcome = await _approvalStarter.TryStartAsync(condition, run.Entry, run.CompanyDayStartUtc, cancellationToken);
+        switch (outcome)
+        {
+            case ConditionApprovalStartOutcome.Started:
+                run.Tally.ApprovalsRequested++;
+                run.ActionsThisTick++;
+                break;
+            case ConditionApprovalStartOutcome.ChainAlreadyRunning:
+            case ConditionApprovalStartOutcome.WaitingForNextCompanyDay:
+                run.Tally.AwaitingApproval++;
+                break;
+            default:
+                run.Tally.ApprovalsUnavailable++;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// The execution window of a fresh approval: a stamp older than ApprovalExecutionWindowMinutes when
+    /// the tick reaches the row is withdrawn rather than acted on, because the finding may no longer be
+    /// what the approver looked at. The window is measured in scan intervals, not in the stale-claim
+    /// minutes: an approval is answered by a LATER tick, so it must survive at least the one tick that may
+    /// legitimately pass the row over. Returns true when the row was withdrawn (or the withdrawal was lost
+    /// to a concurrent tick), in which case the caller must not act on it.
+    /// </summary>
+    private async Task<bool> WithdrawIfApprovalIsStaleAsync(
+        KindRun run, AgentCondition condition, Guid approverUserId, CancellationToken cancellationToken)
+    {
+        var freshAfterUtc = run.NowUtc.AddMinutes(-AgentConditionActionDefaults.ApprovalExecutionWindowMinutes);
+        if (condition.ApprovedAtUtc is { } approvedAtUtc && approvedAtUtc >= freshAfterUtc)
+        {
+            return false;
+        }
+
+        await WithdrawApprovalAsync(
+            run, condition, approverUserId,
+            string.Format(
+                CultureInfo.InvariantCulture, ApprovalExpiredDetail, AgentConditionActionDefaults.ApprovalExecutionWindowMinutes),
+            cancellationToken);
+        return true;
+    }
+
+    private async Task WithdrawApprovalAsync(
+        KindRun run, AgentCondition condition, Guid approverUserId, string reason, CancellationToken cancellationToken)
+    {
+        var withdrawn = await _ledgerService.TryWithdrawApprovalAsync(condition.Id, approverUserId, reason, cancellationToken);
+        if (!withdrawn)
+        {
+            return;
+        }
+
+        run.Tally.ApprovalsWithdrawn++;
+        await ReportAsync(
+            condition, approverUserId,
+            string.Format(
+                CultureInfo.InvariantCulture, ApprovalWithdrawnReportFormat,
+                condition.TriggerKind, condition.Id, run.Entry.RemediationSkillName, reason),
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Claim, re-bind, execute. On a fresh approval the identity is resolved BEFORE the claim so an
+    /// approver who lost their account, role or the skill's permission since acknowledging costs no
+    /// attempt: the approval is withdrawn, reported, and the finding waits for a new chain. On a resumed
+    /// claim (Prepared) the identity is resolved after the claim, so a refusal there consumes an attempt
+    /// and the row escalates instead of spinning.
+    /// </summary>
+    private async Task ClaimAndExecuteAsync(
+        KindRun run,
+        AgentCondition condition,
+        Guid approverUserId,
+        IReadOnlyDictionary<string, object?> arguments,
+        CancellationToken cancellationToken)
+    {
+        ProactiveActionIdentity? identity = null;
+        if (condition.Status == AgentConditionStatus.Reported)
+        {
+            identity = await _identityProvider.ResolveForSkillAsync(
+                approverUserId, condition.Id, run.Entry.RemediationSkillName, cancellationToken);
+            if (!identity.Success || identity.Context is null)
             {
-                tally.Executed++;
+                await WithdrawApprovalAsync(
+                    run, condition, approverUserId,
+                    string.Format(CultureInfo.InvariantCulture, ApprovalRefusedDetail, identity.Reason ?? string.Empty),
+                    cancellationToken);
+                return;
             }
-            else
-            {
-                tally.Failed++;
-            }
+        }
+
+        if (!await TryClaimAsync(condition, run.Entry, approverUserId, run.NowUtc, cancellationToken))
+        {
+            run.Tally.SkippedClaimLost++;
+            return;
+        }
+
+        run.Budget.RecordClaim(condition.GroupId);
+        run.ActionsThisTick++;
+
+        var claimedArguments = await _argumentBinder.RebindAfterClaimAsync(run.Entry, condition, arguments, cancellationToken);
+        if (claimedArguments is null)
+        {
+            _logger.LogWarning(UnbindableAfterClaimMessage, condition.Id, run.Entry.RemediationSkillName);
+            await RecordFailureAsync(condition, run.Entry, approverUserId, UnbindableAfterClaimReason, cancellationToken);
+            run.Tally.Failed++;
+            return;
+        }
+
+        if (await ExecuteAsync(condition, run.Entry, claimedArguments, approverUserId, identity, cancellationToken))
+        {
+            run.Tally.Executed++;
+        }
+        else
+        {
+            run.Tally.Failed++;
         }
     }
 
@@ -357,10 +490,8 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// capped by the remediation registry. Precedence is not negotiable in three places: the global kill
     /// switch and a disabled kind pin the result at Hint BEFORE the delegation is looked at, because a
     /// human's earlier "you handle this one" grant must never survive the emergency stop; the global
-    /// autonomy level caps the delegation too (Owner decision 2026-08-28) - a delegation can raise past
-    /// governance.EffectiveMaxAction, which is already level-capped, so the level is applied again here
-    /// against the raised value; and the registry cap applies LAST, so no delegation can steer a kind
-    /// that has no remediation past Hint.
+    /// autonomy level caps the delegation too (Owner decision 2026-08-28); and the registry cap applies
+    /// LAST, so no delegation can steer a kind that has no remediation past Hint.
     /// </summary>
     private ProactiveMaxAction EffectiveMaxActionFor(ProactiveGovernanceDecision governance, AgentCondition condition)
     {
@@ -379,7 +510,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     }
 
     private async Task<ProactiveGovernanceDecision> ResolveGovernanceAsync(
-        GovernanceCache cache,
+        ConditionGovernanceCache cache,
         AgentCondition condition,
         CancellationToken cancellationToken)
     {
@@ -399,13 +530,9 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// True when this row must never be auto-handled because Klacksy itself may have produced it: either
     /// it already carries a provenance link, or it was detected after a Klacksy execution on the same
     /// entity within one scan interval - in which case the link is written now, so the attribution
-    /// survives this tick.
-    ///
-    /// Matching is on EntityId when the candidate has one and falls back to GroupId only when it does
-    /// not. Matching every row of a group would suppress genuinely unrelated findings for an hour AND
-    /// stamp a false provenance claim into the ledger, which is worse than a missed automation: the
-    /// cascade guard exists to catch "my fix broke the thing I touched", not "something happened
-    /// nearby".
+    /// survives this tick. Matching is on EntityId when the candidate has one and falls back to GroupId
+    /// only when it does not: the cascade guard exists to catch "my fix broke the thing I touched", not
+    /// "something happened nearby".
     /// </summary>
     private async Task<bool> IsCascadeAsync(
         AgentCondition condition,
@@ -466,106 +593,15 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     }
 
     /// <summary>
-    /// The arguments to actually execute with, re-derived from the row as it stands AFTER the claim, or
-    /// null when it no longer binds.
-    ///
-    /// The pre-flight binding runs BEFORE the claim on purpose, so an unbindable row costs neither an
-    /// attempt nor a slot of the daily budget. That makes it a decision taken on a snapshot loaded at the
-    /// top of the tick - and since the payload refresh of 2026-08-26, PayloadJson is no longer write-once:
-    /// any detector tick can rewrite it while this row sits between that snapshot and the claim, because
-    /// Prepared is not a terminal status. This design explicitly expects several API instances to share the
-    /// budget, so that tick need not even be this process's. The compare-and-swap that claims the row
-    /// guards Status alone and would not notice. Executing the pre-flight arguments could therefore write a
-    /// container template from a definition a human has since corrected, silently discarding the correction.
-    ///
-    /// Re-reading closes that window: GetByIdAsync reads AsNoTracking, so this sees what the database holds
-    /// now rather than the snapshot instance the change tracker would hand back. The payload is compared
-    /// first because it is unchanged in almost every claim, and re-binding is pure work over the same
-    /// dictionary shape. A row that stopped binding is deliberately left claimed rather than pushed to a
-    /// terminal status - the stale-claim reclaim exists for exactly this, and the next tick binds it from
-    /// the payload that made it change.
-    /// </summary>
-    private async Task<IReadOnlyDictionary<string, object?>?> RebindAfterClaimAsync(
-        ConditionRemediationEntry entry,
-        AgentCondition condition,
-        IReadOnlyDictionary<string, object?> preflightArguments,
-        CancellationToken cancellationToken)
-    {
-        var claimed = await _repository.GetByIdAsync(condition.Id, cancellationToken);
-        if (claimed is null)
-        {
-            return null;
-        }
-
-        if (string.Equals(claimed.PayloadJson, condition.PayloadJson, StringComparison.Ordinal))
-        {
-            return preflightArguments;
-        }
-
-        _logger.LogInformation(PayloadChangedDuringClaimMessage, condition.Id, entry.RemediationSkillName);
-
-        return TryBindArguments(entry, claimed);
-    }
-
-    /// <summary>
-    /// The remediation's arguments, or null when this condition cannot produce them. Null is NOT a
-    /// failure to be retried, which is why the check runs before the claim: an unbindable row must cost
-    /// neither an attempt nor a slot of the daily action budget.
-    ///
-    /// Since 2026-08-26 a row CAN become bindable while it stays open - a re-observation refreshes
-    /// PayloadJson, so a binder that gains a required field reaches the existing backlog on the next tick
-    /// that still reports it. What stays permanently unbindable is a row whose underlying entity simply
-    /// does not carry what the binder needs (see EmptyContainerRemediationBinder's weekday and
-    /// end-after-start cases); those are skipped quietly on every tick, by design.
-    /// </summary>
-    private IReadOnlyDictionary<string, object?>? TryBindArguments(
-        ConditionRemediationEntry entry, AgentCondition condition)
-    {
-        Dictionary<string, object?>? payload;
-        try
-        {
-            payload = JsonSerializer.Deserialize<Dictionary<string, object?>>(condition.PayloadJson);
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogWarning(
-                ex, "Condition {ConditionId} carries a payload that is not valid JSON and cannot be remediated",
-                condition.Id);
-            return null;
-        }
-
-        if (payload is null)
-        {
-            return null;
-        }
-
-        var arguments = entry.ParameterBinder.Bind(payload);
-        var missing = entry.RequiredArguments
-            .Where(name => !arguments.TryGetValue(name, out var value) || value is null)
-            .ToList();
-
-        if (missing.Count == 0)
-        {
-            return arguments;
-        }
-
-        _logger.LogInformation(
-            "Condition {ConditionId} cannot be remediated by {Skill}: the payload yields no {Missing}. "
-            + "It stays reported and visible to planners, and costs neither an attempt nor action budget",
-            condition.Id, entry.RemediationSkillName, string.Join(", ", missing));
-
-        return null;
-    }
-
-    /// <summary>
     /// Takes the row for this run. A Reported row is moved to Prepared; a Prepared row is a claim
     /// somebody else made, and is taken over only when it has gone stale - both raise AttemptCount and
-    /// stamp LastAttemptAtUtc inside the same conditional UPDATE. Nothing here reads the row first to
-    /// decide: the read-then-decide version is precisely the race two instances would lose.
+    /// stamp LastAttemptAtUtc inside the same conditional UPDATE. The claim event names the approver as
+    /// UserId, so the audit trail shows on whose authority the row was taken.
     /// </summary>
     private async Task<bool> TryClaimAsync(
         AgentCondition condition,
         ConditionRemediationEntry entry,
+        Guid approverUserId,
         DateTime nowUtc,
         CancellationToken cancellationToken)
     {
@@ -582,7 +618,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
                 condition.Id,
                 AgentConditionStatus.Reported,
                 AgentConditionStatus.Prepared,
-                userId: null,
+                userId: approverUserId,
                 detail: detail,
                 fields: new AgentConditionTransitionFields(
                     LastAttemptAtUtc: nowUtc,
@@ -601,15 +637,16 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         AgentCondition condition,
         ConditionRemediationEntry entry,
         IReadOnlyDictionary<string, object?> arguments,
-        Guid ownerUserId,
+        Guid approverUserId,
+        ProactiveActionIdentity? preResolvedIdentity,
         CancellationToken cancellationToken)
     {
-        var identity = await _identityProvider.ResolveForSkillAsync(
-            ownerUserId, condition.Id, entry.RemediationSkillName, cancellationToken);
+        var identity = preResolvedIdentity ?? await _identityProvider.ResolveForSkillAsync(
+            approverUserId, condition.Id, entry.RemediationSkillName, cancellationToken);
 
         if (!identity.Success || identity.Context is null)
         {
-            await RecordFailureAsync(condition, entry, ownerUserId, identity.Reason ?? string.Empty, cancellationToken);
+            await RecordFailureAsync(condition, entry, approverUserId, identity.Reason ?? string.Empty, cancellationToken);
             return false;
         }
 
@@ -635,14 +672,14 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         {
             _logger.LogError(
                 ex, "Remediation {Skill} threw on condition {ConditionId}", entry.RemediationSkillName, condition.Id);
-            await RecordFailureAsync(condition, entry, ownerUserId, ex.Message, cancellationToken);
+            await RecordFailureAsync(condition, entry, approverUserId, ex.Message, cancellationToken);
             return false;
         }
 
         var message = string.IsNullOrWhiteSpace(result.Message) ? NoResultMessage : result.Message!;
         if (!result.Success)
         {
-            await RecordFailureAsync(condition, entry, ownerUserId, message, cancellationToken);
+            await RecordFailureAsync(condition, entry, approverUserId, message, cancellationToken);
             return false;
         }
 
@@ -650,32 +687,26 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             condition.Id,
             AgentConditionStatus.Prepared,
             AgentConditionStatus.Executed,
-            userId: null,
+            userId: approverUserId,
             detail: Outcome(string.Format(CultureInfo.InvariantCulture, ExecutedDetail, entry.RemediationSkillName)),
-            fields: new AgentConditionTransitionFields(HandlingKind: AgentConditionHandlingKind.Executed),
+            fields: new AgentConditionTransitionFields(
+                HandlingKind: AgentConditionHandlingKind.Executed,
+                ApprovedByUserId: approverUserId),
             cancellationToken);
 
         if (!recorded)
         {
-            // The remediation HAPPENED; only its bookkeeping lost the swap - a concurrent Resolve or
-            // Reject moved the row first. The report below still goes out, because the human-facing
-            // trail must not depend on which write won, but the ledger keeps no Executed event,
-            // HandledAtUtc or HandlingKind for it, so the gap is named here rather than left silent.
             _logger.LogWarning(
                 "Remediation {Skill} on condition {ConditionId} succeeded but the row had already been "
                 + "moved by somebody else; the execution is not recorded on the ledger",
                 entry.RemediationSkillName, condition.Id);
         }
 
-        await _reporter.ReportAsync(
-            ownerUserId,
+        await ReportAsync(
+            condition, approverUserId,
             string.Format(
-                CultureInfo.InvariantCulture,
-                ExecutedReportFormat,
-                condition.TriggerKind,
-                condition.Id,
-                entry.RemediationSkillName,
-                message),
+                CultureInfo.InvariantCulture, ExecutedReportFormat,
+                condition.TriggerKind, condition.Id, entry.RemediationSkillName, message),
             cancellationToken);
 
         return true;
@@ -690,7 +721,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private async Task RecordFailureAsync(
         AgentCondition condition,
         ConditionRemediationEntry entry,
-        Guid ownerUserId,
+        Guid approverUserId,
         string reason,
         CancellationToken cancellationToken)
     {
@@ -702,17 +733,12 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             Outcome(string.Format(CultureInfo.InvariantCulture, FailedDetail, reason)),
             cancellationToken);
 
-        await _reporter.ReportAsync(
-            ownerUserId,
+        await ReportAsync(
+            condition, approverUserId,
             string.Format(
-                CultureInfo.InvariantCulture,
-                FailedReportFormat,
-                condition.TriggerKind,
-                condition.Id,
-                entry.RemediationSkillName,
-                reason,
-                attempt,
-                AgentConditionActionDefaults.MaxAttemptsBeforeEscalation),
+                CultureInfo.InvariantCulture, FailedReportFormat,
+                condition.TriggerKind, condition.Id, entry.RemediationSkillName, reason,
+                attempt, AgentConditionActionDefaults.MaxAttemptsBeforeEscalation),
             cancellationToken);
     }
 
@@ -721,14 +747,13 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// escalated it: a lost compare-and-swap means another instance got there first, and counting it
     /// anyway would over-report the one number a planner reads to spot a stuck kind.
     /// </summary>
-    private async Task<bool> EscalateAsync(
-        AgentCondition condition, ProactiveGovernanceDecision governance, CancellationToken cancellationToken)
+    private async Task<bool> EscalateAsync(AgentCondition condition, Guid? approverUserId, CancellationToken cancellationToken)
     {
         var escalated = await _ledgerService.TryTransitionAsync(
             condition.Id,
             condition.Status,
             AgentConditionStatus.Escalated,
-            userId: null,
+            userId: approverUserId,
             detail: Outcome(string.Format(CultureInfo.InvariantCulture, EscalatedDetail, condition.AttemptCount)),
             cancellationToken: cancellationToken);
 
@@ -737,53 +762,52 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return false;
         }
 
-        if (governance.ResponsibleOwnerUserId is Guid ownerUserId && ownerUserId != Guid.Empty)
-        {
-            await _reporter.ReportAsync(
-                ownerUserId,
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    EscalatedReportFormat,
-                    condition.TriggerKind,
-                    condition.Id,
-                    condition.AttemptCount),
-                cancellationToken);
-        }
+        await ReportAsync(
+            condition, approverUserId,
+            string.Format(
+                CultureInfo.InvariantCulture, EscalatedReportFormat,
+                condition.TriggerKind, condition.Id, condition.AttemptCount),
+            cancellationToken);
 
         return true;
     }
 
     /// <summary>
-    /// A budget stop is never silent: it is logged on EVERY tick it happens, which is what makes the
-    /// difference between "nothing to do" and "not allowed to do it" visible in operations.
-    ///
-    /// The durable note to the owner is deliberately narrower - only on a tick that actually acted. Once
-    /// a day's budget is spent, every remaining tick of that day stops on its first candidate, and
-    /// reporting each one would put nineteen identical notes in the owner's inbox for one exhausted
-    /// budget. The tick on which the budget ran out is the one that carries the information.
+    /// A budget stop is never silent: it is logged on EVERY tick it happens. The durable note is
+    /// deliberately narrower - only on a tick that actually acted - because once a day's budget is spent
+    /// every remaining tick of that day stops on its first candidate, and the tick on which the budget
+    /// ran out is the one that carries the information.
     /// </summary>
     private async Task ReportBudgetStopAsync(
-        string triggerKind,
-        Guid ownerUserId,
+        KindRun run,
+        AgentCondition condition,
+        Guid? approverUserId,
         string reason,
         int remaining,
-        int actionsThisTick,
         CancellationToken cancellationToken)
     {
         _logger.LogWarning(
             "Proactive actions on {Kind} stopped: {Reason}. {Remaining} finding(s) stay open this tick",
-            triggerKind, reason, remaining);
+            run.TriggerKind, reason, remaining);
 
-        if (actionsThisTick == 0)
+        if (run.ActionsThisTick == 0)
         {
             return;
         }
 
-        await _reporter.ReportAsync(
-            ownerUserId,
-            string.Format(CultureInfo.InvariantCulture, BudgetReportFormat, triggerKind, reason, remaining),
+        await ReportAsync(
+            condition, approverUserId,
+            string.Format(CultureInfo.InvariantCulture, BudgetReportFormat, run.TriggerKind, reason, remaining),
             cancellationToken);
     }
+
+    /// <summary>
+    /// Who hears about this row (Owner decision 2026-09-20): the approver plus the finding's planning
+    /// audience (or the admins without a group); before any approval exists the audience alone.
+    /// </summary>
+    private Task ReportAsync(
+        AgentCondition condition, Guid? approverUserId, string message, CancellationToken cancellationToken) =>
+        _reporter.ReportToApprovalAudienceAsync(approverUserId, condition.GroupId, message, cancellationToken);
 
     private static string Outcome(string detail) =>
         string.Format(
@@ -792,174 +816,46 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             AgentConditionActionDefaults.ActionOutcomeDetailPrefix,
             detail);
 
-    /// <summary>
-    /// Governance decisions already resolved in this tick, per scope. A plain dictionary keyed by
-    /// Guid? cannot express this - Dictionary's key is constrained to notnull - and "no group" is a real,
-    /// distinct scope here (the installation-wide rule), not an absent one, so it gets its own slot
-    /// rather than a Guid.Empty sentinel that a real group id could one day collide with.
-    /// </summary>
-    private sealed class GovernanceCache
+    private sealed class KindRun
     {
-        private readonly Dictionary<Guid, ProactiveGovernanceDecision> _byGroup = new();
-        private ProactiveGovernanceDecision? _installationWide;
-
-        public bool TryGet(Guid? groupId, out ProactiveGovernanceDecision? decision)
+        public KindRun(
+            string triggerKind,
+            ConditionRemediationEntry entry,
+            DateTime nowUtc,
+            DateTime companyDayStartUtc,
+            IReadOnlyList<AgentCondition> recentExecutions,
+            IReadOnlyList<AgentCondition> candidates,
+            ConditionActionBudget budget,
+            ConditionActionTally tally)
         {
-            if (groupId is not { } scopedGroupId)
-            {
-                decision = _installationWide;
-                return _installationWide is not null;
-            }
-
-            return _byGroup.TryGetValue(scopedGroupId, out decision);
+            TriggerKind = triggerKind;
+            Entry = entry;
+            NowUtc = nowUtc;
+            CompanyDayStartUtc = companyDayStartUtc;
+            RecentExecutions = recentExecutions;
+            Candidates = candidates;
+            Budget = budget;
+            Tally = tally;
         }
 
-        public void Set(Guid? groupId, ProactiveGovernanceDecision decision)
-        {
-            if (groupId is { } scopedGroupId)
-            {
-                _byGroup[scopedGroupId] = decision;
-                return;
-            }
+        public string TriggerKind { get; }
 
-            _installationWide = decision;
-        }
-    }
+        public ConditionRemediationEntry Entry { get; }
 
-    private sealed class ActionTally
-    {
-        public int Considered { get; set; }
+        public DateTime NowUtc { get; }
 
-        public int Executed { get; set; }
+        public DateTime CompanyDayStartUtc { get; }
 
-        public int Failed { get; set; }
+        public IReadOnlyList<AgentCondition> RecentExecutions { get; }
 
-        public int Escalated { get; set; }
+        public IReadOnlyList<AgentCondition> Candidates { get; }
 
-        public int SkippedCascade { get; set; }
+        public ConditionActionBudget Budget { get; }
 
-        public int SkippedQuiet { get; set; }
+        public ConditionActionTally Tally { get; }
 
-        public int SkippedUnbindable { get; set; }
+        public ConditionGovernanceCache GovernanceCache { get; } = new();
 
-        public int SkippedNoOwner { get; set; }
-
-        public int SkippedClaimLost { get; set; }
-
-        public int LeftForBudget { get; set; }
-
-        public AgentConditionActionTickResult ToResult() => new(
-            Considered, Executed, Failed, Escalated, SkippedCascade, SkippedQuiet,
-            SkippedUnbindable, SkippedNoOwner, SkippedClaimLost, LeftForBudget);
-    }
-
-    /// <summary>
-    /// The daily budget and the circuit breaker for one kind in one tick. Both are counted in the
-    /// database from the claims' audit events, so several API instances share one budget; the claims
-    /// this tick has made itself are added on top, because the queries ran before them.
-    ///
-    /// Counted in the scope they are CONFIGURED in: one bucket per group, plus one for the conditions
-    /// that carry no group at all. Governance is resolved per group one gate earlier, so a per-kind count
-    /// would compare a group's own limit against every group's activity and let a busy group exhaust a
-    /// quiet one. Window counts are cached per window length within a bucket, because governance may
-    /// configure a different window per scope and the same length must not be re-queried per condition.
-    /// </summary>
-    private sealed class ActionBudget
-    {
-        private readonly IAgentConditionRepository _repository;
-        private readonly string _triggerKind;
-        private readonly DateTime _nowUtc;
-        private readonly DateTime _companyDayStartUtc;
-        private readonly Dictionary<Guid, GroupBudget> _byGroup = new();
-        private readonly GroupBudget _installationWide = new();
-
-        public ActionBudget(
-            IAgentConditionRepository repository, string triggerKind, DateTime nowUtc, DateTime companyDayStartUtc)
-        {
-            _repository = repository;
-            _triggerKind = triggerKind;
-            _nowUtc = nowUtc;
-            _companyDayStartUtc = companyDayStartUtc;
-        }
-
-        public void RecordClaim(Guid? groupId) => BudgetFor(groupId).ClaimsThisTick++;
-
-        /// <summary>Why this group may not act right now, or null when it may.</summary>
-        public async Task<string?> DescribeBlockAsync(
-            Guid? groupId, ProactiveGovernanceDecision governance, CancellationToken cancellationToken)
-        {
-            var budget = BudgetFor(groupId);
-
-            budget.TodayCount ??= await _repository.CountActionClaimsAsync(
-                _triggerKind, groupId, _companyDayStartUtc, cancellationToken);
-
-            if (budget.TodayCount.Value + budget.ClaimsThisTick >= governance.DailyActionBudget)
-            {
-                return string.Format(
-                    CultureInfo.InvariantCulture, DailyBudgetReason, governance.DailyActionBudget);
-            }
-
-            if (!budget.WindowCounts.TryGetValue(governance.WindowMinutes, out var windowCount))
-            {
-                windowCount = await _repository.CountActionClaimsAsync(
-                    _triggerKind, groupId, _nowUtc.AddMinutes(-governance.WindowMinutes), cancellationToken);
-                budget.WindowCounts[governance.WindowMinutes] = windowCount;
-            }
-
-            if (windowCount + budget.ClaimsThisTick >= governance.WindowActionLimit)
-            {
-                return string.Format(
-                    CultureInfo.InvariantCulture,
-                    WindowBudgetReason,
-                    governance.WindowActionLimit,
-                    governance.WindowMinutes);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// True the first time this group is blocked in this tick. The tick walks on to the other groups
-        /// after a block, so without this the same owner would get one budget report per remaining
-        /// candidate of their group.
-        /// </summary>
-        public bool TryMarkStopReported(Guid? groupId)
-        {
-            var budget = BudgetFor(groupId);
-            if (budget.StopReported)
-            {
-                return false;
-            }
-
-            budget.StopReported = true;
-            return true;
-        }
-
-        private GroupBudget BudgetFor(Guid? groupId)
-        {
-            if (groupId is not { } scopedGroupId)
-            {
-                return _installationWide;
-            }
-
-            if (!_byGroup.TryGetValue(scopedGroupId, out var budget))
-            {
-                budget = new GroupBudget();
-                _byGroup[scopedGroupId] = budget;
-            }
-
-            return budget;
-        }
-
-        private sealed class GroupBudget
-        {
-            public Dictionary<int, int> WindowCounts { get; } = new();
-
-            public int? TodayCount { get; set; }
-
-            public int ClaimsThisTick { get; set; }
-
-            public bool StopReported { get; set; }
-        }
+        public int ActionsThisTick { get; set; }
     }
 }

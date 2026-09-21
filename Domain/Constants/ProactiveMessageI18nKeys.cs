@@ -32,6 +32,14 @@ public static class ProactiveMessageI18nKeys
     public const string MuteSuggestion = "assistant.proactive.muteSuggestion";
     public const string PlanPausedForApproval = "assistant.proactive.planPausedForApproval";
     public const string EscalationStageAlert = "assistant.proactive.escalationStageAlert";
+
+    /// <summary>
+    /// The wake-up sentence of a ProactiveApproval chain stage: which finding, what Klacksy would do about
+    /// it, by when and where to approve. Its parameters are finding (the trigger kind), action (the
+    /// remediation skill) and dueTime. Inbox and live push only - deliberately absent from
+    /// MessengerProactiveTexts, because an approval request never goes out over the messenger.
+    /// </summary>
+    public const string EscalationApprovalRequest = "assistant.proactive.escalationApprovalRequest";
     public const string OpenOrder = "assistant.proactive.openOrder";
     public const string UncutFulldayShift = "assistant.proactive.uncutFulldayShift";
     public const string EmptyContainer = "assistant.proactive.emptyContainer";

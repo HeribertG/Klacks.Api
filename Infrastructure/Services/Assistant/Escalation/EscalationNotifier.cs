@@ -3,14 +3,20 @@
 /// <summary>
 /// Concrete narrow delivery path for the escalation chain (see IEscalationNotifier). Reuses the same
 /// primitives AgentTriggerService.OnEventAsync delivers through, but calls them directly instead of
-/// going through that method, so mute/daily-budget/dedup never see this traffic (decision B5).
+/// going through that method, so mute/daily-budget/dedup never see this traffic (decision B5). The two
+/// chain purposes differ in channel and wording: an absence stage is written to the inbox, live-pushed
+/// and ALWAYS also sent over the messenger (Owner decision A1), while a ProactiveApproval stage reaches
+/// the inbox and the live push only (Owner decision 2026-09-20 - nobody is woken at night for a
+/// container template) and speaks of the finding and the remediation instead of a shift.
 /// </summary>
 /// <param name="dispatchRepository">Writes the inbox row every notification and handoff note leaves behind.</param>
 /// <param name="notificationService">Live SignalR push and connection lookup for connected recipients.</param>
-/// <param name="offlineMessengerNotifier">The loud channel; tried unconditionally per Owner decision A1.</param>
-/// <param name="messengerTextComposer">Renders the wake-up sentence in the installation language.</param>
-/// <param name="settingsReader">Reads DEFAULT_LANGUAGE for the two handoff sentences, mirroring ProactiveMessengerTextComposer.</param>
+/// <param name="offlineMessengerNotifier">The loud channel; tried unconditionally for absence stages, never for approvals.</param>
+/// <param name="messengerTextComposer">Renders the absence wake-up sentence in the installation language.</param>
+/// <param name="settingsReader">Reads DEFAULT_LANGUAGE for the handoff sentences, mirroring ProactiveMessengerTextComposer.</param>
 /// <param name="companyClock">Resolves the company's configured time zone for rendering shift/due times.</param>
+/// <param name="conditionRepository">Names the finding an approval chain is about.</param>
+/// <param name="remediationRegistry">Names the remediation an approval chain would release.</param>
 /// <param name="logger">Logs a delivery failure without ever aborting the caller's sweep.</param>
 
 using System.Globalization;
@@ -18,6 +24,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant.Escalation;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -27,12 +34,18 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Escalation;
 
 public class EscalationNotifier : IEscalationNotifier
 {
+    private const string UnknownFinding = "unknown finding";
+    private const string UnknownAction = "unknown action";
+    private const string HandoffDedupPrefix = "escalation-handoff:";
+
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IAssistantNotificationService _notificationService;
     private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
     private readonly IProactiveMessengerTextComposer _messengerTextComposer;
     private readonly ISettingsReader _settingsReader;
     private readonly ICompanyClock _companyClock;
+    private readonly IAgentConditionRepository _conditionRepository;
+    private readonly IConditionRemediationRegistry _remediationRegistry;
     private readonly ILogger<EscalationNotifier> _logger;
 
     public EscalationNotifier(
@@ -42,6 +55,8 @@ public class EscalationNotifier : IEscalationNotifier
         IProactiveMessengerTextComposer messengerTextComposer,
         ISettingsReader settingsReader,
         ICompanyClock companyClock,
+        IAgentConditionRepository conditionRepository,
+        IConditionRemediationRegistry remediationRegistry,
         ILogger<EscalationNotifier> logger)
     {
         _dispatchRepository = dispatchRepository;
@@ -50,6 +65,8 @@ public class EscalationNotifier : IEscalationNotifier
         _messengerTextComposer = messengerTextComposer;
         _settingsReader = settingsReader;
         _companyClock = companyClock;
+        _conditionRepository = conditionRepository;
+        _remediationRegistry = remediationRegistry;
         _logger = logger;
     }
 
@@ -57,22 +74,17 @@ public class EscalationNotifier : IEscalationNotifier
         EscalationChain chain, EscalationStage stage, DateTime dueAtUtc, CancellationToken cancellationToken = default)
     {
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+
+        if (chain.Purpose == EscalationChainPurpose.ProactiveApproval)
+        {
+            return await NotifyApprovalStageAsync(chain, stage, dueAtUtc, companyTimeZone, cancellationToken);
+        }
+
         var triggerEvent = new EscalationStageAlertTriggerEvent(
-            stage.Id, stage.UserId, chain.AbsentClientName, chain.ShiftStartUtc, dueAtUtc, companyTimeZone);
+            stage.Id, stage.UserId, chain.AbsentClientName, ResolveAnchorUtc(chain), dueAtUtc, companyTimeZone);
 
         var messengerText = await ComposeSafelyAsync(triggerEvent, cancellationToken);
-        var dispatchRowId = Guid.NewGuid();
-
-        await _dispatchRepository.RecordAsync(new ProactiveTriggerDispatchRow
-        {
-            Id = dispatchRowId,
-            UserId = stage.UserId,
-            TriggerKind = triggerEvent.Kind,
-            DedupKey = triggerEvent.DedupKey,
-            ContentKey = triggerEvent.Summary,
-            ContentParamsJson = JsonSerializer.Serialize(triggerEvent.SummaryParams),
-            Severity = triggerEvent.Severity
-        }, cancellationToken);
+        var dispatchRowId = await RecordInboxAsync(stage.UserId, triggerEvent, cancellationToken);
 
         await TryLivePushIfConnectedAsync(stage.UserId, messengerText, triggerEvent, dispatchRowId, cancellationToken);
 
@@ -83,6 +95,29 @@ public class EscalationNotifier : IEscalationNotifier
         return new EscalationNotificationResult(result.Outcome, dispatchRowId, result.Channel);
     }
 
+    /// <summary>
+    /// Inbox row plus live push, no messenger. The inbox row IS the delivery, so the result reports Sent
+    /// over the inbox channel - anything else would make the chain service skip the stage as undeliverable
+    /// and walk straight past every candidate.
+    /// </summary>
+    private async Task<EscalationNotificationResult> NotifyApprovalStageAsync(
+        EscalationChain chain,
+        EscalationStage stage,
+        DateTime dueAtUtc,
+        TimeZoneInfo companyTimeZone,
+        CancellationToken cancellationToken)
+    {
+        var (finding, action) = await DescribeApprovalSubjectAsync(chain, cancellationToken);
+        var triggerEvent = new EscalationApprovalRequestTriggerEvent(
+            stage.Id, stage.UserId, chain.ConditionId ?? Guid.Empty, finding, action, dueAtUtc, companyTimeZone);
+
+        var dispatchRowId = await RecordInboxAsync(stage.UserId, triggerEvent, cancellationToken);
+        await TryLivePushIfConnectedAsync(stage.UserId, triggerEvent.Summary, triggerEvent, dispatchRowId, cancellationToken);
+
+        return new EscalationNotificationResult(
+            OfflineMessengerDeliveryOutcome.Sent, dispatchRowId, EscalationDeliveryChannels.Inbox);
+    }
+
     public async Task NotifyHandoffAsync(
         EscalationChain chain,
         EscalationStage acknowledgedStage,
@@ -90,33 +125,37 @@ public class EscalationNotifier : IEscalationNotifier
         CancellationToken cancellationToken = default)
     {
         var language = await ResolveLanguageAsync(cancellationToken);
-        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
-        var dateText = TimeZoneInfo.ConvertTimeFromUtc(chain.ShiftStartUtc, companyTimeZone)
-            .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture);
+        var isApproval = chain.Purpose == EscalationChainPurpose.ProactiveApproval;
+        var parameters = isApproval
+            ? await ApprovalHandoffParametersAsync(chain, cancellationToken)
+            : await AbsenceHandoffParametersAsync(chain, cancellationToken);
 
-        if (EscalationHandoffTexts.TryGetText(EscalationHandoffTexts.AcknowledgedConfirmation, language, out var confirmTemplate))
+        var confirmationKey = isApproval
+            ? EscalationHandoffTexts.ApprovalAcknowledgedConfirmation
+            : EscalationHandoffTexts.AcknowledgedConfirmation;
+        var quietNoteKey = isApproval
+            ? EscalationHandoffTexts.ApprovalHandoffQuietNote
+            : EscalationHandoffTexts.HandoffQuietNote;
+
+        if (EscalationHandoffTexts.TryGetText(confirmationKey, language, out var confirmTemplate))
         {
-            var confirmText = Substitute(confirmTemplate, new Dictionary<string, string>
-            {
-                ["date"] = dateText,
-                ["employee"] = chain.AbsentClientName
-            });
-
+            var confirmText = Substitute(confirmTemplate, parameters);
             await RecordInboxOnlyAsync(acknowledgedStage.UserId, confirmText, cancellationToken);
-            await TrySendMessengerAsync(acknowledgedStage.UserId, confirmText, AgentTriggerKinds.EscalationStageAlert, cancellationToken);
+
+            if (!isApproval)
+            {
+                await TrySendMessengerAsync(
+                    acknowledgedStage.UserId, confirmText, AgentTriggerKinds.EscalationStageAlert, cancellationToken);
+            }
         }
 
-        if (!EscalationHandoffTexts.TryGetText(EscalationHandoffTexts.HandoffQuietNote, language, out var noteTemplate))
+        if (!EscalationHandoffTexts.TryGetText(quietNoteKey, language, out var noteTemplate))
         {
             return;
         }
 
-        var noteText = Substitute(noteTemplate, new Dictionary<string, string>
-        {
-            ["date"] = dateText,
-            ["employee"] = chain.AbsentClientName,
-            ["responder"] = acknowledgedStage.UserDisplayName
-        });
+        parameters["responder"] = acknowledgedStage.UserDisplayName;
+        var noteText = Substitute(noteTemplate, parameters);
 
         foreach (var previous in previouslyNotifiedStages)
         {
@@ -131,6 +170,84 @@ public class EscalationNotifier : IEscalationNotifier
         }
     }
 
+    private async Task<Dictionary<string, string>> AbsenceHandoffParametersAsync(
+        EscalationChain chain, CancellationToken cancellationToken)
+    {
+        var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+        var dateText = TimeZoneInfo.ConvertTimeFromUtc(ResolveAnchorUtc(chain), companyTimeZone)
+            .ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture);
+
+        return new Dictionary<string, string>
+        {
+            ["date"] = dateText,
+            ["employee"] = chain.AbsentClientName
+        };
+    }
+
+    private async Task<Dictionary<string, string>> ApprovalHandoffParametersAsync(
+        EscalationChain chain, CancellationToken cancellationToken)
+    {
+        var (finding, action) = await DescribeApprovalSubjectAsync(chain, cancellationToken);
+
+        return new Dictionary<string, string>
+        {
+            [EscalationApprovalRequestTriggerEvent.FindingParameter] = finding,
+            [EscalationApprovalRequestTriggerEvent.ActionParameter] = action
+        };
+    }
+
+    /// <summary>
+    /// The finding's kind and the remediation skill an approval chain is about, read off the ledger row
+    /// and the code-only registry. A row that has vanished or a kind without remediation yields neutral
+    /// placeholders rather than an exception - the notification must still go out.
+    /// </summary>
+    private async Task<(string Finding, string Action)> DescribeApprovalSubjectAsync(
+        EscalationChain chain, CancellationToken cancellationToken)
+    {
+        if (chain.ConditionId is not Guid conditionId)
+        {
+            return (UnknownFinding, UnknownAction);
+        }
+
+        try
+        {
+            var condition = await _conditionRepository.GetByIdAsync(conditionId, cancellationToken);
+            if (condition is null)
+            {
+                return (UnknownFinding, UnknownAction);
+            }
+
+            var action = _remediationRegistry.TryGetEntry(condition.TriggerKind, out var entry) && entry is not null
+                ? entry.RemediationSkillName
+                : UnknownAction;
+
+            return (condition.TriggerKind, action);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not describe condition {ConditionId} for approval chain {ChainId}", conditionId, chain.Id);
+            return (UnknownFinding, UnknownAction);
+        }
+    }
+
+    private async Task<Guid> RecordInboxAsync(string userId, IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken)
+    {
+        var dispatchRowId = Guid.NewGuid();
+
+        await _dispatchRepository.RecordAsync(new ProactiveTriggerDispatchRow
+        {
+            Id = dispatchRowId,
+            UserId = userId,
+            TriggerKind = triggerEvent.Kind,
+            DedupKey = triggerEvent.DedupKey,
+            ContentKey = triggerEvent.Summary,
+            ContentParamsJson = JsonSerializer.Serialize(triggerEvent.SummaryParams),
+            Severity = triggerEvent.Severity
+        }, cancellationToken);
+
+        return dispatchRowId;
+    }
+
     private async Task RecordInboxOnlyAsync(string userId, string message, CancellationToken cancellationToken)
     {
         try
@@ -140,7 +257,7 @@ public class EscalationNotifier : IEscalationNotifier
                 Id = Guid.NewGuid(),
                 UserId = userId,
                 TriggerKind = AgentTriggerKinds.EscalationStageAlert,
-                DedupKey = $"escalation-handoff:{Guid.NewGuid()}",
+                DedupKey = HandoffDedupPrefix + Guid.NewGuid(),
                 ContentKey = message,
                 Severity = AgentTriggerSeverity.Medium
             }, cancellationToken);
@@ -161,7 +278,7 @@ public class EscalationNotifier : IEscalationNotifier
     private async Task TryLivePushIfConnectedAsync(
         string userId,
         string message,
-        EscalationStageAlertTriggerEvent triggerEvent,
+        IAgentTriggerEvent triggerEvent,
         Guid dispatchRowId,
         CancellationToken cancellationToken)
     {
@@ -182,7 +299,7 @@ public class EscalationNotifier : IEscalationNotifier
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Escalation stage live push failed for user {UserId}; the inbox row and messenger attempt stand", userId);
+            _logger.LogWarning(ex, "Escalation stage live push failed for user {UserId}; the inbox row stands", userId);
         }
     }
 
@@ -232,6 +349,9 @@ public class EscalationNotifier : IEscalationNotifier
 
         return LanguageConfig.DefaultLanguageFallback;
     }
+
+    /// <summary>The moment the absence texts refer to: the shift start, or the deadline for a chain without one.</summary>
+    private static DateTime ResolveAnchorUtc(EscalationChain chain) => chain.ShiftStartUtc ?? chain.DeadlineUtc;
 
     private static string Substitute(string template, IReadOnlyDictionary<string, string> parameters)
     {

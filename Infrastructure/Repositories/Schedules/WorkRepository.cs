@@ -461,5 +461,35 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
                         && w.LockLevel != WorkLockLevel.None, cancellationToken);
     }
 
+    public async Task<string?> GetLastPlannerAuditActorForShiftAsync(Guid shiftId, CancellationToken cancellationToken = default)
+    {
+        var lastTouch = await context.Work
+            .AsNoTracking()
+            .IgnoreQueryFilters()
+            .Where(w => w.ShiftId == shiftId && w.AnalyseToken == null)
+            .OrderByDescending(w => w.DeletedTime ?? w.UpdateTime ?? w.CreateTime)
+            .Select(w => new
+            {
+                w.IsDeleted,
+                w.UpdateTime,
+                w.CurrentUserCreated,
+                w.CurrentUserUpdated,
+                w.CurrentUserDeleted
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (lastTouch is null)
+        {
+            return null;
+        }
+
+        if (lastTouch.IsDeleted)
+        {
+            return lastTouch.CurrentUserDeleted;
+        }
+
+        return lastTouch.UpdateTime is not null ? lastTouch.CurrentUserUpdated : lastTouch.CurrentUserCreated;
+    }
+
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
 }

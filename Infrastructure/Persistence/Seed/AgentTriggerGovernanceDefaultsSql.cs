@@ -49,12 +49,12 @@ namespace Klacks.Api.Data.Seed
             var maxAction = ProactiveGovernanceDefaults.SeededMaxActionFor(triggerKind);
             return $@"
 INSERT INTO {TableName} (
-    id, trigger_kind, group_id, max_action, enabled, responsible_owner_user_id,
+    id, trigger_kind, group_id, max_action, enabled,
     daily_action_budget, window_action_limit, window_minutes,
     create_time, current_user_created, is_deleted)
 SELECT
     gen_random_uuid(), '{triggerKind}', NULL, {(int)maxAction},
-    {(ProactiveGovernanceDefaults.Enabled ? "true" : "false")}, NULL,
+    {(ProactiveGovernanceDefaults.Enabled ? "true" : "false")},
     {ProactiveGovernanceDefaults.DailyActionBudget}, {ProactiveGovernanceDefaults.WindowActionLimit},
     {ProactiveGovernanceDefaults.WindowMinutes},
     NOW(), '{SeedUser}', false

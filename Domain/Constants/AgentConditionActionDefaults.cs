@@ -29,6 +29,24 @@ public static class AgentConditionActionDefaults
     public const int StaleClaimMinutes = 30;
 
     /// <summary>
+    /// How many scan intervals an approval stays executable. Two, not one: an approval given right after
+    /// a tick is first seen by the next tick a full interval later, and that tick may legitimately pass
+    /// the row over (budget, quiet window, per-tick cap), so the window has to reach the tick after it as
+    /// well - otherwise about half of all approvals would be withdrawn instead of executed.
+    /// </summary>
+    private const int ApprovalExecutionWindowScanIntervals = 2;
+
+    /// <summary>
+    /// Minutes after the approval stamp within which a tick may still execute the approved remediation;
+    /// an older stamp is withdrawn and reported instead of acted on, because the finding may no longer be
+    /// what the approver looked at. Derived from <see cref="ProactiveHeartbeat.ScanIntervalMinutes"/> and
+    /// pinned to at least two intervals by AgentConditionActionDefaultsGuardTests. Distinct from
+    /// <see cref="StaleClaimMinutes"/>, which measures an abandoned CLAIM and must stay below one interval.
+    /// </summary>
+    public const int ApprovalExecutionWindowMinutes =
+        ProactiveHeartbeat.ScanIntervalMinutes * ApprovalExecutionWindowScanIntervals;
+
+    /// <summary>
     /// Absolute number of executions one trigger kind may reach in one tick, independent of what
     /// governance configured. A misconfigured DailyActionBudget cannot widen it.
     /// </summary>

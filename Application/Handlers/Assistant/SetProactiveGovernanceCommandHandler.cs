@@ -2,16 +2,14 @@
 
 /// <summary>
 /// Writes one governance rule, the global kill switch and/or the global autonomy level, then answers
-/// with the complete new picture. Validation runs on the MERGED row, never on the incoming patch. The
-/// responsible owner is optional: a Prepare or Execute rule without one is accepted, and the Execute
-/// path simply skips such rows. An owner that is stored or supplied from Prepare upwards must still
-/// resolve to an existing user, because Etappe 4d issues an internal token for exactly that account.
+/// with the complete new picture. Validation runs on the MERGED row, never on the incoming patch. A
+/// rule names no person: who releases an Execute rule's remediation is decided per finding by the
+/// approval chain (design 2026-09-20), never stored here.
 /// </summary>
 /// <param name="repository">Stores the governance rules.</param>
 /// <param name="settingsRepository">Persists the global kill-switch setting row.</param>
 /// <param name="unitOfWork">Spans both writes in one transaction; see the remarks.</param>
 /// <param name="resolver">Reads back the effective governance for the answer.</param>
-/// <param name="userManager">Verifies that a named responsible owner really exists.</param>
 /// <remarks>
 /// The two writes follow the project's two different SaveChanges conventions: ISettingsRepository is
 /// stage-only and never saves by itself, while IAgentTriggerGovernanceRepository commits on its own.
@@ -31,9 +29,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.AspNetCore.Identity;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
@@ -49,20 +45,17 @@ public class SetProactiveGovernanceCommandHandler
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProactiveGovernanceResolver _resolver;
-    private readonly UserManager<AppUser> _userManager;
 
     public SetProactiveGovernanceCommandHandler(
         IAgentTriggerGovernanceRepository repository,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
-        IProactiveGovernanceResolver resolver,
-        UserManager<AppUser> userManager)
+        IProactiveGovernanceResolver resolver)
     {
         _repository = repository;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _resolver = resolver;
-        _userManager = userManager;
     }
 
     public async Task<ProactiveGovernanceDto> Handle(
@@ -124,7 +117,7 @@ public class SetProactiveGovernanceCommandHandler
             ?? new AgentTriggerGovernance { TriggerKind = triggerKind, GroupId = request.GroupId };
 
         ApplyPatch(merged, request);
-        await ValidateMergedAsync(merged, cancellationToken);
+        ValidateMerged(merged);
 
         await _repository.UpsertAsync(merged, cancellationToken);
     }
@@ -139,15 +132,6 @@ public class SetProactiveGovernanceCommandHandler
         if (request.Enabled is bool enabled)
         {
             merged.Enabled = enabled;
-        }
-
-        if (request.ClearResponsibleOwner)
-        {
-            merged.ResponsibleOwnerUserId = null;
-        }
-        else if (request.ResponsibleOwnerUserId is Guid ownerUserId)
-        {
-            merged.ResponsibleOwnerUserId = ownerUserId;
         }
 
         if (request.DailyActionBudget is int dailyActionBudget)
@@ -166,8 +150,7 @@ public class SetProactiveGovernanceCommandHandler
         }
     }
 
-    private async Task ValidateMergedAsync(
-        AgentTriggerGovernance merged, CancellationToken cancellationToken)
+    private static void ValidateMerged(AgentTriggerGovernance merged)
     {
         if (!Enum.IsDefined(merged.MaxAction))
         {
@@ -183,23 +166,6 @@ public class SetProactiveGovernanceCommandHandler
         if (merged.WindowMinutes < MinimumWindowMinutes)
         {
             throw new InvalidRequestException($"windowMinutes must be at least {MinimumWindowMinutes}.");
-        }
-
-        if (merged.MaxAction < ProactiveMaxAction.Prepare)
-        {
-            return;
-        }
-
-        if (merged.ResponsibleOwnerUserId is not Guid ownerUserId)
-        {
-            return;
-        }
-
-        var owner = await _userManager.FindByIdAsync(ownerUserId.ToString());
-        if (owner is null)
-        {
-            throw new InvalidRequestException(
-                $"The responsible owner '{ownerUserId}' does not exist.");
         }
     }
 }

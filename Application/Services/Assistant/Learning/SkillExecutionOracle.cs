@@ -338,8 +338,8 @@ public class SkillExecutionOracle : ISkillExecutionOracle
         return constants;
     }
 
-    private static Guid? ParseOwner(string? ownerUserId) =>
-        Guid.TryParse(ownerUserId, out var parsed) ? parsed : null;
+    private static Guid ParseOwner(string? ownerUserId) =>
+        Guid.TryParse(ownerUserId, out var parsed) ? parsed : Guid.Empty;
 
     private sealed record StaticStep(
         string Skill, SkillRiskClass RiskClass, bool HasSlotReferences, Dictionary<string, object> Constants);

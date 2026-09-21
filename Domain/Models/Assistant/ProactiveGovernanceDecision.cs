@@ -22,7 +22,6 @@ public sealed record ProactiveGovernanceDecision(
     ProactiveMaxAction ConfiguredMaxAction,
     bool Enabled,
     bool KillSwitchActive,
-    Guid? ResponsibleOwnerUserId,
     int DailyActionBudget,
     int WindowActionLimit,
     int WindowMinutes,

@@ -157,6 +157,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at_utc");
+
                     b.Property<Guid?>("ApprovedByUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("approved_by_user_id");
@@ -1355,10 +1359,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("max_action");
 
-                    b.Property<Guid?>("ResponsibleOwnerUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("responsible_owner_user_id");
-
                     b.Property<string>("TriggerKind")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -1617,7 +1617,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("absence_break_id");
 
-                    b.Property<Guid>("AbsentClientId")
+                    b.Property<Guid?>("AbsentClientId")
                         .HasColumnType("uuid")
                         .HasColumnName("absent_client_id");
 
@@ -1654,6 +1654,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("cancelled_by_user_name");
 
+                    b.Property<Guid?>("ConditionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("condition_id");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -1678,7 +1682,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid")
                         .HasColumnName("group_id");
 
@@ -1690,7 +1694,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("outcome_reason");
 
-                    b.Property<DateTime>("ShiftStartUtc")
+                    b.Property<int>("Purpose")
+                        .HasColumnType("integer")
+                        .HasColumnName("purpose");
+
+                    b.Property<DateTime?>("ShiftStartUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("shift_start_utc");
 
@@ -1702,7 +1710,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
-                    b.Property<Guid>("WorkId")
+                    b.Property<Guid?>("WorkId")
                         .HasColumnType("uuid")
                         .HasColumnName("work_id");
 
@@ -1712,13 +1720,18 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasIndex("AbsenceBreakId")
                         .HasDatabaseName("ix_escalation_chains_absence_break_id");
 
+                    b.HasIndex("ConditionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_escalation_chains_condition_id")
+                        .HasFilter("\"condition_id\" IS NOT NULL AND \"is_deleted\" = false AND \"status\" = 0");
+
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_escalation_chains_status");
 
                     b.HasIndex("WorkId")
                         .IsUnique()
                         .HasDatabaseName("ix_escalation_chains_work_id")
-                        .HasFilter("\"is_deleted\" = false AND \"status\" = 0");
+                        .HasFilter("\"work_id\" IS NOT NULL AND \"is_deleted\" = false AND \"status\" = 0");
 
                     b.ToTable("escalation_chains", (string)null);
                 });

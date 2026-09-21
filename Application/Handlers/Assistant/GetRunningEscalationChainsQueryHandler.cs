@@ -32,7 +32,9 @@ public class GetRunningEscalationChainsQueryHandler : IRequestHandler<GetRunning
         return chains.Select(chain => new EscalationChainSummaryResource
         {
             Id = chain.Id,
+            Purpose = chain.Purpose.ToString(),
             WorkId = chain.WorkId,
+            ConditionId = chain.ConditionId,
             AbsentClientName = chain.AbsentClientName,
             ShiftStartUtc = chain.ShiftStartUtc,
             DeadlineUtc = chain.DeadlineUtc,
