@@ -10,7 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Associations;
 
-public class GroupItemsController(IMediator mediator, ILogger<GroupItemsController> logger) : InputBaseController<GroupItemResource>(mediator, logger)
+/// <summary>
+/// Group membership links. Deliberately on SupervisorDeletableController: removing a membership is a
+/// supervisor action (spec 2.3 pins RemoveByClientAndGroup that way), and the skills
+/// remove_client_from_group (CanEditClients) and remove_shift_from_group (CanEditShifts) delete by id
+/// through the self API under the caller's own token, so an Admin-only DELETE would refuse them.
+/// </summary>
+/// <param name="mediator">Dispatches the group-item commands and queries</param>
+public class GroupItemsController(IMediator mediator, ILogger<GroupItemsController> logger) : SupervisorDeletableController<GroupItemResource>(mediator, logger)
 {
     /// <summary>
     /// Creates several group items in one transaction. Exists so a caller that needs the batch to be

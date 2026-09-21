@@ -11,6 +11,25 @@ public interface IKnowledgeIndexRepository
     Task DeleteAsync(IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys, CancellationToken ct);
 
     /// <summary>
+    /// The two stored columns that gate retrieval rather than describe it: the permission
+    /// FindNearestAsync and FindLexicalAsync put into their WHERE clause, and the endpoint key
+    /// KnowledgeRetrievalService reads off a candidate. Neither is part of the embedding text, so
+    /// neither shows up in the text hash the synchronizer diffs on — they need a diff of their own.
+    /// </summary>
+    /// <param name="ct">Cancellation token</param>
+    Task<IReadOnlyDictionary<(KnowledgeEntryKind Kind, string SourceId), (string? RequiredPermission, string? ExposedEndpointKey)>>
+        GetAllRetrievalGatesAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Writes those two columns of existing rows and nothing else. Separate from UpsertAsync because an
+    /// entry whose text is unchanged has no new embedding to write: re-running it through the upsert
+    /// would either need a vector the caller does not have or re-embed a text that did not change.
+    /// </summary>
+    /// <param name="entries">Entries whose permission or endpoint key drifted from the stored row</param>
+    /// <param name="ct">Cancellation token</param>
+    Task UpdateRetrievalGatesAsync(IReadOnlyList<KnowledgeEntry> entries, CancellationToken ct);
+
+    /// <summary>
     /// Semantic KNN candidate search. When <paramref name="kindFilter"/> is set, the predicate runs
     /// inside the query: the index holds ~450 skills against ~24 recipes, so a kind-blind top-N is
     /// almost always all skills — a recipe caller filtering afterwards would usually be left with

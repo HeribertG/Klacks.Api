@@ -1127,7 +1127,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditContracts"
       ],
       "parameters": [
         {
@@ -1241,7 +1241,7 @@
         "fr": "Attribuer un contrat à un employé",
         "it": "Assegna un contratto a un dipendente"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "create_branch",
@@ -15784,7 +15784,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditSettings"
+        "CanCreateGroups"
       ],
       "parameters": [
         {
@@ -15907,7 +15907,7 @@
         "fr": "Créer un nouveau groupe",
         "it": "Crea un nuovo gruppo"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_group",
@@ -15916,7 +15916,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditSettings"
+        "CanEditGroups"
       ],
       "parameters": [
         {
@@ -16033,7 +16033,7 @@
         "fr": "Modifier un groupe",
         "it": "Modifica un gruppo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "get_group_details",
@@ -16191,7 +16191,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditSettings"
+        "CanEditGroups"
       ],
       "parameters": [
         {
@@ -16270,7 +16270,7 @@
         "fr": "Déplacer un groupe dans l'arborescence",
         "it": "Sposta un gruppo nell'albero"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_group",
@@ -20293,7 +20293,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditContracts"
       ],
       "parameters": [
         {
@@ -20387,7 +20387,7 @@
         "fr": "Attribuer un contrat par nom",
         "it": "Assegna un contratto per nome"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "set_group_location",
@@ -20396,7 +20396,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditSettings"
+        "CanEditGroups"
       ],
       "parameters": [
         {
@@ -20447,7 +20447,7 @@
         "fr": "Définir les coordonnées d'un groupe",
         "it": "Imposta le coordinate di un gruppo"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "evaluate_location_group_candidates",
@@ -42757,7 +42757,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "Admin"
+        "CanEditContracts"
       ],
       "parameters": [
         {
@@ -42800,7 +42800,7 @@
           "unassign contract"
         ]
       },
-      "version": 4,
+      "version": 5,
       "synonyms": {
         "de": [
           "vertrag beim mitarbeiter aufheben",

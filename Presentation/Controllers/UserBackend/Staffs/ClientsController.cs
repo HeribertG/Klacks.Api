@@ -4,8 +4,9 @@
 /// CRUD for clients. Deliberately not an InputBaseController: the note card of edit-address saves its
 /// annotations through the client aggregate (PUT api/backend/Clients), so Put has to be reachable by a
 /// caller without any role (Planer), and an attribute on an override is AND-combined with the base
-/// method's rather than replacing it — the restriction could not be lifted by overriding. Post and
-/// Delete keep the Admin/Authorised restriction; Put is open to every authenticated caller and gated
+/// method's rather than replacing it — the restriction could not be lifted by overriding. Post keeps the
+/// Admin/Authorised restriction and Delete is Admin-only, because Authorised holds no CanDelete* right
+/// and the client list hides the delete behind CanDeleteClients; Put is open to every authenticated caller and gated
 /// in the body: CanEditClients writes the whole client, CanEditClientNotes alone writes the notes out
 /// of the sent resource and nothing else. A note-only caller cannot be refused for a field they never
 /// touched, and cannot reach one either.
@@ -107,7 +108,7 @@ public class ClientsController : BaseController, ICrudResourceController<ClientR
     }
 
     [HttpDelete("{id}")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<ActionResult<ClientResource>> Delete(Guid id)
     {
         var model = await _mediator.Send(new DeleteCommand<ClientResource>(id));

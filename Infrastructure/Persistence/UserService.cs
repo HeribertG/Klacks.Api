@@ -99,6 +99,23 @@ public class UserService : IUserService
         }
     }
 
+    public IReadOnlyList<string> GetRights()
+    {
+        try
+        {
+            var roles = httpContextAccessor.HttpContext?.User?
+                .FindAll(ClaimTypes.Role)
+                .Select(claim => claim.Value) ?? Array.Empty<string>();
+
+            return Permissions.ExpandRoles(roles);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving user rights from claims");
+            return Permissions.PlannerFloor;
+        }
+    }
+
     public async Task<bool> IsAdmin()
     {
         var userId = GetIdString();

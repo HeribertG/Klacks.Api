@@ -38,6 +38,50 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         return result;
     }
 
+    public async Task<IReadOnlyDictionary<(KnowledgeEntryKind Kind, string SourceId), (string? RequiredPermission, string? ExposedEndpointKey)>>
+        GetAllRetrievalGatesAsync(CancellationToken ct)
+    {
+        const string sql = "SELECT kind, source_id, required_permission, exposed_endpoint_key FROM knowledge_index;";
+        await using var cmd = _connection.CreateCommand();
+        cmd.CommandText = sql;
+
+        var result = new Dictionary<(KnowledgeEntryKind, string), (string?, string?)>();
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            var kind = (KnowledgeEntryKind)(short)reader["kind"];
+            var sourceId = (string)reader["source_id"];
+            result[(kind, sourceId)] =
+                (reader["required_permission"] as string, reader["exposed_endpoint_key"] as string);
+        }
+
+        return result;
+    }
+
+    public async Task UpdateRetrievalGatesAsync(IReadOnlyList<KnowledgeEntry> entries, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE knowledge_index
+               SET required_permission = @requiredPermission,
+                   exposed_endpoint_key = @exposedEndpointKey,
+                   updated_at = @updatedAt
+             WHERE kind = @kind AND source_id = @sourceId;
+            """;
+
+        foreach (var entry in entries)
+        {
+            await using var cmd = _connection.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("requiredPermission", (object?)entry.RequiredPermission ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("exposedEndpointKey", (object?)entry.ExposedEndpointKey ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("updatedAt", entry.UpdatedAt);
+            cmd.Parameters.AddWithValue("kind", (short)entry.Kind);
+            cmd.Parameters.AddWithValue("sourceId", entry.SourceId);
+
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+    }
+
     public async Task UpsertAsync(IReadOnlyList<KnowledgeEntry> entries, CancellationToken ct)
     {
         foreach (var entry in entries)

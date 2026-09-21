@@ -85,8 +85,11 @@ public class GetUserPermissionsSkill : BaseSkillImplementation
         if (permissions.Contains(Permissions.CanViewGroups))
             actions.Add("View groups and organizational units");
 
-        if (permissions.Contains(Permissions.CanEditGroups) || permissions.Contains(Permissions.CanCreateGroups))
-            actions.Add("Manage group memberships");
+        if (permissions.Contains(Permissions.CanCreateGroups))
+            actions.Add("Create new groups and organizational units");
+
+        if (permissions.Contains(Permissions.CanEditGroups))
+            actions.Add("Edit groups and manage group memberships");
 
         if (permissions.Contains(Permissions.CanViewContracts))
             actions.Add("View contracts");

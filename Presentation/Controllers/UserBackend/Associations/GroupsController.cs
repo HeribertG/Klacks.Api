@@ -27,7 +27,7 @@ public class GroupsController : InputBaseController<GroupResource>
     /// </summary>
     /// <param name="id">The group whose subtree is removed</param>
     [HttpDelete("{id}/subtree")]
-    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<DeleteGroupSubtreeResponse>> DeleteSubtree(Guid id)
     {
         var response = await Mediator.Send(new DeleteGroupSubtreeCommand(id));

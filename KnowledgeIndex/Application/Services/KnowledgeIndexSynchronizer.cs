@@ -62,6 +62,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         var stopwatch = Stopwatch.StartNew();
 
         var existingHashes = await _repository.GetAllHashesAsync(cancellationToken);
+        var existingGates = await _repository.GetAllRetrievalGatesAsync(cancellationToken);
         var recipes = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
 
         // One query for all owners: this loop covers every registered skill and every enabled recipe,
@@ -112,6 +113,23 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
             await _repository.UpsertAsync(entries, cancellationToken);
         }
 
+        // A skill whose required permission (or exposed endpoint key) changes keeps its embedding text,
+        // and therefore its hash, so the diff above cannot see it and the stored row would keep gating
+        // retrieval on the old right - measured live when create_group moved from CanEditSettings to
+        // CanCreateGroups. Written in place without an embedding: the text did not change, so the
+        // vector did not either, and a row already upserted above carries the new values anyway.
+        var embeddedKeys = toEmbed.Select(x => (x.Entry.Kind, x.Entry.SourceId)).ToHashSet();
+        var gateDrift = current
+            .Where(x => !embeddedKeys.Contains((x.Entry.Kind, x.Entry.SourceId)))
+            .Where(x => existingGates.TryGetValue((x.Entry.Kind, x.Entry.SourceId), out var stored)
+                        && (stored.RequiredPermission != x.Entry.RequiredPermission
+                            || stored.ExposedEndpointKey != x.Entry.ExposedEndpointKey))
+            .Select(x => x.Entry)
+            .ToList();
+
+        if (gateDrift.Count > 0)
+            await _repository.UpdateRetrievalGatesAsync(gateDrift, cancellationToken);
+
         var currentKeys = current.Select(x => (x.Entry.Kind, x.Entry.SourceId)).ToHashSet();
         var orphans = existingHashes.Keys.Where(k => !currentKeys.Contains(k)).ToList();
         if (orphans.Count > 0)
@@ -119,11 +137,12 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 
         stopwatch.Stop();
         _logger.LogInformation(
-            "Knowledge index sync: {Total} entries, {Unchanged} unchanged, {FromSnapshot} restored from snapshot, {Embedded} embedded, {Orphans} orphans removed, {ElapsedMs} ms",
+            "Knowledge index sync: {Total} entries, {Unchanged} unchanged, {FromSnapshot} restored from snapshot, {Embedded} embedded, {GatesUpdated} permission/endpoint updates, {Orphans} orphans removed, {ElapsedMs} ms",
             current.Count,
-            current.Count - toEmbed.Count,
+            current.Count - toEmbed.Count - gateDrift.Count,
             restoredFromSnapshot,
             toEmbed.Count - restoredFromSnapshot,
+            gateDrift.Count,
             orphans.Count,
             stopwatch.ElapsedMilliseconds);
     }
