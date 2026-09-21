@@ -27,6 +27,16 @@
 /// acknowledges: the chain exhausts, nothing runs, no retry before the next company day. There is no
 /// unattended stage and no stored owner: nothing executes without a human's stamp on the row.
 ///
+/// Since the standing approval (Owner decisions 2026-09-21) that stamp may also come from an
+/// administrator's ADVANCE consent instead of from an answer to this finding: when a grant covers the
+/// kind and the row's exact scope, has not expired or been revoked and still has budget for the company
+/// day, the dispatcher stamps the granting administrator onto the row itself and executes in the same
+/// tick - so no approval chain is ever started for such a row. Nothing else is relaxed. Every gate above
+/// runs first and unchanged, the grant's own daily budget is a SECOND, tighter ceiling on the same claim
+/// count, and the granting administrator's account, roles and the skill's permissions are re-checked at
+/// execution time BEFORE the stamp is written, so a grant from somebody who has since lost the rights
+/// leaves no stamp behind and the finding falls back to the normal chain.
+///
 /// Claim BEFORE act, always. The claim is a compare-and-swap that raises AttemptCount in the same
 /// UPDATE, so a run that dies between claim and outcome still counts as an attempt and the row escalates
 /// instead of retrying forever. A lost claim means SKIP THIS ROW - never "the budget was not consumed".
@@ -40,6 +50,7 @@
 /// <param name="skillExecutor">Runs the remediation skill.</param>
 /// <param name="reporter">Mandatory post-action report, never subject to the notification rate limit.</param>
 /// <param name="approvalStarter">Opens the approval chain for an executable row that nobody has approved yet.</param>
+/// <param name="standingApprovals">An administrator's advance approval for the kind and scope, which replaces that chain while it lasts.</param>
 /// <param name="timeProvider">Clock, injected so the approval and stale-claim windows are testable.</param>
 /// <param name="companyClock">Resolves the company's time zone, so the daily action budget resets at the company's midnight rather than the UTC calendar day's.</param>
 /// <param name="logger">Structured log per kind and per skipped row - the counterpart of "no silent caps".</param>
@@ -57,6 +68,8 @@ namespace Klacks.Api.Application.Services.Assistant.Conditions;
 public sealed class AgentConditionActionService : IAgentConditionActionService
 {
     private const string ClaimDetailFormat = "{0}skill={1} attempt={2}";
+    private const string StandingApprovalClaimSuffixFormat = " standing-approval={0}";
+    private const string StandingApprovalDetailFormat = "standingApprovalId={0} grantedByUserId={1}";
     private const string OutcomeDetailFormat = "{0}{1}";
     private const string ExecutedDetail = "executed {0}";
     private const string FailedDetail = "attempt failed: {0}";
@@ -67,6 +80,14 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private const string ExecutedReportFormat =
         "I have carried out a remediation on my own.\n\n"
         + "Finding: {0} (condition {1})\nAction: {2}\nResult: {3}";
+
+    private const string ExecutedUnderStandingApprovalReportFormat =
+        "I have carried out a remediation under a standing approval, without asking anybody about this "
+        + "finding.\n\n"
+        + "Finding: {0} (condition {1})\nAction: {2}\nResult: {3}\n"
+        + "Standing approval {4} of user {5}, valid until {6:u}.\n"
+        + "If this should not have happened: revoke the standing approval to stop further runs, and ask me "
+        + "to roll this change back - there is no one-click undo on this report.";
 
     private const string FailedReportFormat =
         "A remediation I attempted on my own did not work.\n\n"
@@ -120,6 +141,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<AgentConditionActionService> _logger;
     private readonly ConditionRemediationArgumentBinder _argumentBinder;
+    private readonly ConditionStandingApprovalGate _standingApprovalGate;
 
     public AgentConditionActionService(
         IAgentConditionRepository repository,
@@ -131,6 +153,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         ISkillExecutor skillExecutor,
         IProactiveActionReporter reporter,
         IConditionApprovalChainStarter approvalStarter,
+        IStandingApprovalRepository standingApprovals,
         TimeProvider timeProvider,
         ICompanyClock companyClock,
         ILogger<AgentConditionActionService> logger)
@@ -148,6 +171,8 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         _companyClock = companyClock;
         _logger = logger;
         _argumentBinder = new ConditionRemediationArgumentBinder(repository, logger);
+        _standingApprovalGate = new ConditionStandingApprovalGate(
+            standingApprovals, identityProvider, ledgerService, logger);
     }
 
     public async Task<AgentConditionActionTickResult> RunAsync(CancellationToken cancellationToken = default)
@@ -335,13 +360,25 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return false;
         }
 
-        if (approver is not Guid approverUserId)
+        if (approver is Guid approverUserId)
         {
-            await AskForApprovalOrSkipAsync(run, condition, cancellationToken);
+            await ClaimAndExecuteAsync(
+                run, condition, new ConditionExecutionAuthority(approverUserId), arguments, cancellationToken);
             return false;
         }
 
-        await ClaimAndExecuteAsync(run, condition, approverUserId, arguments, cancellationToken);
+        var standing = await _standingApprovalGate.TryApplyAsync(
+            condition, run.Entry, run.Budget, run.NowUtc, cancellationToken);
+
+        if (standing.Authority is { } grantedAuthority)
+        {
+            await ClaimAndExecuteAsync(run, condition, grantedAuthority, arguments, cancellationToken);
+        }
+        else if (standing.AskForApproval)
+        {
+            await AskForApprovalOrSkipAsync(run, condition, cancellationToken);
+        }
+
         return false;
     }
 
@@ -433,17 +470,20 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// approver who lost their account, role or the skill's permission since acknowledging costs no
     /// attempt: the approval is withdrawn, reported, and the finding waits for a new chain. On a resumed
     /// claim (Prepared) the identity is resolved after the claim, so a refusal there consumes an attempt
-    /// and the row escalates instead of spinning.
+    /// and the row escalates instead of spinning. Under a standing approval the identity arrives already
+    /// resolved - the approval-free path has to know before it stamps anything whether the granting
+    /// administrator can still act - so neither branch re-mints a token for it.
     /// </summary>
     private async Task ClaimAndExecuteAsync(
         KindRun run,
         AgentCondition condition,
-        Guid approverUserId,
+        ConditionExecutionAuthority authority,
         IReadOnlyDictionary<string, object?> arguments,
         CancellationToken cancellationToken)
     {
-        ProactiveActionIdentity? identity = null;
-        if (condition.Status == AgentConditionStatus.Reported)
+        var approverUserId = authority.UserId;
+        var identity = authority.Identity;
+        if (identity is null && condition.Status == AgentConditionStatus.Reported)
         {
             identity = await _identityProvider.ResolveForSkillAsync(
                 approverUserId, condition.Id, run.Entry.RemediationSkillName, cancellationToken);
@@ -457,7 +497,8 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             }
         }
 
-        if (!await TryClaimAsync(condition, run.Entry, approverUserId, run.NowUtc, cancellationToken))
+        if (!await TryClaimAsync(
+            condition, run.Entry, approverUserId, authority.Grant?.Id, run.NowUtc, cancellationToken))
         {
             run.Tally.SkippedClaimLost++;
             return;
@@ -475,7 +516,7 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             return;
         }
 
-        if (await ExecuteAsync(condition, run.Entry, claimedArguments, approverUserId, identity, cancellationToken))
+        if (await ExecuteAsync(condition, run.Entry, claimedArguments, authority, identity, cancellationToken))
         {
             run.Tally.Executed++;
         }
@@ -597,11 +638,17 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
     /// somebody else made, and is taken over only when it has gone stale - both raise AttemptCount and
     /// stamp LastAttemptAtUtc inside the same conditional UPDATE. The claim event names the approver as
     /// UserId, so the audit trail shows on whose authority the row was taken.
+    ///
+    /// A claim made under a standing approval carries that grant's id in the same detail string. It has to
+    /// stay a SUFFIX: the budget and the circuit breaker recognise a budget-consuming event by the
+    /// AgentConditionActionDefaults.ActionClaimDetailPrefix at the START of Detail, so anything appended
+    /// is invisible to them while a changed prefix would silently stop the claim from counting.
     /// </summary>
     private async Task<bool> TryClaimAsync(
         AgentCondition condition,
         ConditionRemediationEntry entry,
         Guid approverUserId,
+        Guid? standingApprovalId,
         DateTime nowUtc,
         CancellationToken cancellationToken)
     {
@@ -611,6 +658,12 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
             AgentConditionActionDefaults.ActionClaimDetailPrefix,
             entry.RemediationSkillName,
             condition.AttemptCount + 1);
+
+        if (standingApprovalId is Guid grantId)
+        {
+            detail += string.Format(
+                CultureInfo.InvariantCulture, StandingApprovalClaimSuffixFormat, grantId);
+        }
 
         if (condition.Status == AgentConditionStatus.Reported)
         {
@@ -637,10 +690,11 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
         AgentCondition condition,
         ConditionRemediationEntry entry,
         IReadOnlyDictionary<string, object?> arguments,
-        Guid approverUserId,
+        ConditionExecutionAuthority authority,
         ProactiveActionIdentity? preResolvedIdentity,
         CancellationToken cancellationToken)
     {
+        var approverUserId = authority.UserId;
         var identity = preResolvedIdentity ?? await _identityProvider.ResolveForSkillAsync(
             approverUserId, condition.Id, entry.RemediationSkillName, cancellationToken);
 
@@ -702,14 +756,45 @@ public sealed class AgentConditionActionService : IAgentConditionActionService
                 entry.RemediationSkillName, condition.Id);
         }
 
-        await ReportAsync(
-            condition, approverUserId,
-            string.Format(
-                CultureInfo.InvariantCulture, ExecutedReportFormat,
-                condition.TriggerKind, condition.Id, entry.RemediationSkillName, message),
-            cancellationToken);
+        if (authority.Grant is { } standing)
+        {
+            await _ledgerService.RecordEventAsync(
+                condition.Id,
+                AgentConditionEventTypes.ExecutedUnderStandingApproval,
+                Outcome(string.Format(
+                    CultureInfo.InvariantCulture,
+                    StandingApprovalDetailFormat, standing.Id, standing.GrantedByUserId)),
+                cancellationToken);
+        }
+
+        await ReportAsync(condition, approverUserId, ExecutedReport(condition, entry, authority, message), cancellationToken);
 
         return true;
+    }
+
+    /// <summary>
+    /// The mandatory post-action report. Under a standing approval it is a DIFFERENT statement of fact,
+    /// not the same sentence with an extra line: nobody was asked about this finding, so the report has to
+    /// say under whose advance consent it happened, until when that consent runs, and that there is no
+    /// one-click undo on the note itself.
+    /// </summary>
+    private static string ExecutedReport(
+        AgentCondition condition,
+        ConditionRemediationEntry entry,
+        ConditionExecutionAuthority authority,
+        string message)
+    {
+        if (authority.Grant is not { } standing)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture, ExecutedReportFormat,
+                condition.TriggerKind, condition.Id, entry.RemediationSkillName, message);
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture, ExecutedUnderStandingApprovalReportFormat,
+            condition.TriggerKind, condition.Id, entry.RemediationSkillName, message,
+            standing.Id, standing.GrantedByUserId, standing.ExpiresAtUtc);
     }
 
     /// <summary>

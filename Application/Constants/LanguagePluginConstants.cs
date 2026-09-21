@@ -26,6 +26,9 @@ public static class LanguagePluginConstants
     public const string GroupingIntentFileName = "grouping-intent.json";
     public const string CompletionClaimFileName = "completion-claim.json";
     public const string ConversationSignalsFileName = "conversation-signals.json";
+    public const string ConversationSignalsCoreFileName = "conversation-signals-core.json";
+    public const string ApplicationDirectory = "Application";
+    public const string KlacksyDirectory = "Klacksy";
     public const string AssistantTextsFileName = "assistant-texts.json";
     public const string PhoneticsFileName = "phonetics.json";
     public const string PhoneticsCoreFileName = "phonetics-core.json";

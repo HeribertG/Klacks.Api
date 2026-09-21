@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Wires the escalation chain: its repository, the absence roster, the notifier, the reply observer,
-/// the chain service itself, the approval roster resolver and the approval chain starter for proactive
-/// conditions. Kept separate
+/// the chain service itself, the approval roster resolver, the approval chain starter for proactive
+/// conditions and the standing-approval store that lets a granted kind skip that chain. Kept separate
 /// from AddLLMCoreServices for the same reason AddSkillToolsetServices is - one cohesive group that
 /// keeps growing must not push that method, already the largest in ServiceCollectionExtensions, past
 /// its size-guard ceiling. Registration order of IInboundMessengerObserver is preserved by calling this
@@ -32,6 +32,7 @@ public static class EscalationServiceCollectionExtensions
         services.AddScoped<ISkillPermissionGate, SkillPermissionGate>();
         services.AddScoped<IConditionApprovalRosterResolver, ConditionApprovalRosterResolver>();
         services.AddScoped<IConditionApprovalChainStarter, ConditionApprovalChainStarter>();
+        services.AddScoped<IStandingApprovalRepository, StandingApprovalRepository>();
 
         return services;
     }

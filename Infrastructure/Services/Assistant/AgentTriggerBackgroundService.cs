@@ -244,7 +244,7 @@ public class AgentTriggerBackgroundService : BackgroundService
                 triggerEvent.Kind,
                 AgentConditionLedgerPolicy.FingerprintFor(triggerEvent),
                 triggerEvent.EntityId,
-                AgentConditionLedgerPolicy.LedgerGroupIdFor(triggerEvent),
+                AgentConditionLedgerPolicy.LedgerGroupIdsFor(triggerEvent),
                 triggerEvent.Severity,
                 JsonSerializer.Serialize(triggerEvent.Payload),
                 cancellationToken);

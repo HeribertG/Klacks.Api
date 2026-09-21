@@ -49,7 +49,11 @@ public sealed class PhoneticConfigProvider : IPhoneticConfigProvider
     {
         try
         {
-            var path = Path.Combine(AppContext.BaseDirectory, "Application", "Klacksy", LanguagePluginConstants.PhoneticsCoreFileName);
+            var path = Path.Combine(
+                AppContext.BaseDirectory,
+                LanguagePluginConstants.ApplicationDirectory,
+                LanguagePluginConstants.KlacksyDirectory,
+                LanguagePluginConstants.PhoneticsCoreFileName);
             if (!File.Exists(path))
                 return new Dictionary<string, PhoneticConfig>(StringComparer.OrdinalIgnoreCase);
 

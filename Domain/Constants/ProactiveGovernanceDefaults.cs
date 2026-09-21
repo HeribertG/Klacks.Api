@@ -68,6 +68,8 @@ public static class ProactiveGovernanceDefaults
         AgentTriggerKinds.ScenarioPending,
         AgentTriggerKinds.TargetHoursDrift,
         AgentTriggerKinds.UncutFulldayShift,
+        AgentTriggerKinds.UngroupedShifts,
+        AgentTriggerKinds.UngroupedWorkforce,
         AgentTriggerKinds.UnstaffedShift,
         AgentTriggerKinds.WorkDroppedByErpImport
     };

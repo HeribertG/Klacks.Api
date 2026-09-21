@@ -26,9 +26,28 @@ public static class ProactiveMessageI18nKeys
     public const string WorkDroppedByErpImport = "assistant.proactive.workDroppedByErpImport";
     public const string OrderImportFailed = "assistant.proactive.orderImportFailed";
     public const string AvailabilityGap = "assistant.proactive.availabilityGap";
+
+    /// <summary>
+    /// The aggregated form of <see cref="AvailabilityGap"/>: one sentence for everybody who has not
+    /// reported availability for one upcoming month. Its parameters are count, from, until and names -
+    /// deliberately no "name", because the aggregate names no single person. The per-employee key stays
+    /// in every catalogue: dispatch rows written before the aggregation still reference it.
+    /// </summary>
+    public const string AvailabilityGapSummary = "assistant.proactive.availabilityGapSummary";
     public const string PeriodOverdue = "assistant.proactive.periodOverdue";
     public const string ClientMissingAddress = "assistant.proactive.clientMissingAddress";
     public const string ClientMissingContact = "assistant.proactive.clientMissingContact";
+
+    /// <summary>
+    /// The aggregated forms of <see cref="ClientMissingAddress"/> and
+    /// <see cref="ClientMissingContact"/>: one sentence per missing field for everybody lacking it,
+    /// with the parameters count and names. Kept as two keys rather than one parameterised sentence
+    /// because a missing address and a missing way to be contacted are different statements of fact
+    /// and carry different severities. The per-employee keys stay in every catalogue: dispatch rows
+    /// written before the aggregation still reference them.
+    /// </summary>
+    public const string ClientMissingAddressSummary = "assistant.proactive.clientMissingAddressSummary";
+    public const string ClientMissingContactSummary = "assistant.proactive.clientMissingContactSummary";
     public const string MuteSuggestion = "assistant.proactive.muteSuggestion";
     public const string PlanPausedForApproval = "assistant.proactive.planPausedForApproval";
     public const string EscalationStageAlert = "assistant.proactive.escalationStageAlert";
@@ -83,4 +102,25 @@ public static class ProactiveMessageI18nKeys
     public const string SetupNothingYet = "assistant.proactive.setupNothingYet";
     public const string SetupOrdersButNoShifts = "assistant.proactive.setupOrdersButNoShifts";
     public const string SetupShiftsButNoWork = "assistant.proactive.setupShiftsButNoWork";
+
+    /// <summary>
+    /// A workforce of some size is already being planned, yet no group exists to scope, filter or
+    /// hand over any part of it. Its only parameter is count, because the recommendation is about the
+    /// SIZE of the workforce and names no single person. The sentence must stay an offer to show how
+    /// the workforce could be organised and must never suggest that creating a group takes visibility
+    /// away from anybody - GroupVisibilityPreservationService keeps the status quo when the first
+    /// group appears, so such a claim would be factually wrong.
+    /// </summary>
+    public const string UngroupedWorkforce = "assistant.proactive.ungroupedWorkforce";
+
+    /// <summary>
+    /// Plannable shifts exist that no group owns. Its only parameter is count, because the
+    /// recommendation is about how many shifts are concerned and names none of them. The sentence
+    /// states only the two consequences that were verified in the code - such a shift is never sealed
+    /// by the group-scoped period close (WorkRepository/SealedDayRepository) and appears in no
+    /// per-group payroll export (PayrollExportDataLoader) - and must claim nothing about who can see
+    /// the shift, because that depends on the show_ungrouped_shifts setting rather than on the
+    /// missing membership alone.
+    /// </summary>
+    public const string UngroupedShifts = "assistant.proactive.ungroupedShifts";
 }

@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Uppfattat — inte {previousAction}. Menar du {optionA} eller {optionB}?"
+  "assistant.correction.clarificationQuestion": "Uppfattat — inte {previousAction}. Menar du {optionA} eller {optionB}?",
+  "assistant.recipe.confirmYes": "Ja",
+  "assistant.recipe.confirmNo": "Nej"
 }

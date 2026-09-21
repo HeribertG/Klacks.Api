@@ -62,11 +62,18 @@ public sealed record TargetHoursDriftTriggerEvent(
         [ProactiveActionParamKeys.Period] = PeriodLabel
     };
 
+    /// <summary>
+    /// "clients" is capped at the number of names the sentence can show. Nothing reads it back - the
+    /// inbox and the reminder sweep both drop non-scalar payload entries - while the uncapped list was
+    /// written into PayloadJson on every detector tick and loaded again on every inbox poll, which for a
+    /// workforce-wide drift is the whole workforce carried through both paths for nobody. "count" stays
+    /// the full total, so the sentence keeps telling the truth about how many people are affected.
+    /// </summary>
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["periodLabel"] = PeriodLabel,
         ["count"] = AffectedClients.Count,
-        ["clients"] = AffectedClients
+        ["clients"] = AffectedClients.Take(MaxListedNames).ToList()
     };
 
     private decimal LargestAbsoluteDrift() =>

@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Begrepen — niet {previousAction}. Bedoel je {optionA} of {optionB}?"
+  "assistant.correction.clarificationQuestion": "Begrepen — niet {previousAction}. Bedoel je {optionA} of {optionB}?",
+  "assistant.recipe.confirmYes": "Ja",
+  "assistant.recipe.confirmNo": "Nee"
 }

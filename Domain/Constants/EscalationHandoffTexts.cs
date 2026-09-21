@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The short sentences EscalationNotifier sends outside the wake-up path, one pair per chain purpose: a
-/// confirmation back to whoever just acknowledged a chain, and a quiet note to the stages that were
-/// notified before them. The absence pair speaks of a shift being covered, the approval pair of a
-/// remediation being released - both with the responder's name so nobody who was asked earlier acts a
+/// The short sentences EscalationNotifier sends outside the wake-up path: per chain purpose a
+/// confirmation back to whoever just acknowledged a chain and a quiet note to the stages that were
+/// notified before them, plus - for the approval chain only - the note that closes a window nobody used.
+/// The absence pair speaks of a shift being covered, the approval texts of a remediation being released
+/// or not - both with the responder's name so nobody who was asked earlier acts a
 /// second time. Deliberately separate from MessengerProactiveTexts, whose own test enforces a strict 1:1
 /// with MessengerWakeUpPolicy - none of these messages is a wake-up alert, so they do not belong in that
 /// bijection.
@@ -25,6 +26,7 @@ public static class EscalationHandoffTexts
     public const string HandoffQuietNote = "escalation.handoffQuietNote";
     public const string ApprovalAcknowledgedConfirmation = "escalation.approvalAcknowledgedConfirmation";
     public const string ApprovalHandoffQuietNote = "escalation.approvalHandoffQuietNote";
+    public const string ApprovalExhaustedNote = "escalation.approvalExhaustedNote";
 
     private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Texts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
@@ -56,6 +58,13 @@ public static class EscalationHandoffTexts
                 [English] = "{{responder}} has approved the action {{action}} for the finding {{finding}}; nothing is left for you to do.",
                 [French] = "{{responder}} a approuvé l'action {{action}} pour le constat {{finding}} ; tu n'as plus rien à faire.",
                 [Italian] = "{{responder}} ha approvato l'azione {{action}} per la rilevazione {{finding}}; non devi fare altro."
+            },
+            [ApprovalExhaustedNote] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Niemand hat die Massnahme {{action}} zur Feststellung {{finding}} freigegeben; die Frist ist abgelaufen. Klacksy fragt am nächsten Firmentag erneut. Soll sie heute noch laufen, delegiere die Feststellung direkt.",
+                [English] = "Nobody approved the action {{action}} for the finding {{finding}}; the window has lapsed. Klacksy will ask again on the next company day. To still have it run today, delegate the finding directly.",
+                [French] = "Personne n'a approuvé l'action {{action}} pour le constat {{finding}} ; le délai est écoulé. Klacksy redemandera le prochain jour ouvré. Pour qu'elle s'exécute encore aujourd'hui, délègue directement le constat.",
+                [Italian] = "Nessuno ha approvato l'azione {{action}} per la rilevazione {{finding}}; il termine è scaduto. Klacksy lo richiederà il prossimo giorno aziendale. Se deve essere eseguita ancora oggi, delega direttamente la rilevazione."
             }
         };
 

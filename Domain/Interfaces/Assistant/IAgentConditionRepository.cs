@@ -27,6 +27,10 @@ public interface IAgentConditionRepository
     /// filtered by TriggerKind: the partial unique index is on Fingerprint alone, so a kind filter would
     /// hide a cross-kind collision from the lookup while the index still rejected the insert, leaving the
     /// caller in an unresolvable retry loop.
+    ///
+    /// The only read that carries <see cref="AgentCondition.Groups"/> with it. That is not a convenience:
+    /// this is the lookup a detector's re-observation goes through, so loading the stored group set here
+    /// lets the caller decide whether the set changed without a second query per open row per tick.
     /// </summary>
     Task<AgentCondition?> FindOpenByFingerprintAsync(string fingerprint, CancellationToken cancellationToken = default);
 
@@ -37,6 +41,23 @@ public interface IAgentConditionRepository
     /// is an answer it must be able to distinguish from "gone".
     /// </summary>
     Task<AgentCondition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The rows carrying any of these ids, whatever their status, in no guaranteed order. The batch form
+    /// of <see cref="GetByIdAsync"/> and nothing more: it exists because the inbox read renders a whole
+    /// page of dispatch rows from the current payload of the ledger row each one reports, and calling
+    /// GetByIdAsync per row would be one query per message in the list. Terminal rows are returned for
+    /// the same reason as in the single-id form - a caller has to be able to tell "already closed" from
+    /// "gone", and for the inbox those two answers mean the same thing only by coincidence.
+    ///
+    /// No group scope and no user scope, matching <see cref="GetByIdAsync"/>: every caller reaches this
+    /// through rows it is already entitled to see, and adding a scope here would duplicate a decision
+    /// that was made when those rows were selected.
+    /// </summary>
+    /// <param name="ids">Condition ids to resolve; an empty collection short-circuits without touching the database.</param>
+    Task<List<AgentCondition>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The row whose remediation is this AnalyseScenario, or null. Identity by scenario id rather than
@@ -65,9 +86,11 @@ public interface IAgentConditionRepository
     /// contract, same kind-dependent GroupId-null rule, same root-comparison against the group's Nested
     /// Set root (not a flattened subtree list) via the GroupId-to-Group join.
     /// </summary>
-    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
+    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of its groups.</param>
     /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise a row is
-    /// included when its group's Nested Set root is in this set, or its GroupId is null AND its TriggerKind is
+    /// included when the Nested Set root of ANY of its groups (agent_condition_groups, not the single primary
+    /// GroupId - a shift-borne finding concerns several and every one of their planners is entitled to it) is in
+    /// this set, or its GroupId is null AND its TriggerKind is
     /// not one of AgentTriggerGroupScopedKinds.Values - for those group-borne kinds a null GroupId means the
     /// group was not determined, so the row stays with Admins instead of reaching every planner. An empty set
     /// fails closed to those ungated rows only - the same semantics AgentConditionVisibilityScope.Restricted
@@ -104,12 +127,48 @@ public interface IAgentConditionRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Persists a freshly detected condition together with its first audit event in one SaveChangesAsync,
-    /// so a ledger row can never exist without the event that opened it. Returns null - not an exception -
-    /// when the partial unique index on Fingerprint rejected the insert because another instance opened a
-    /// row for the same fingerprint first; the caller is expected to re-read and treat it as known.
+    /// Persists a freshly detected condition together with its first audit event AND its group set in one
+    /// SaveChangesAsync, so a ledger row can never exist without the event that opened it nor without the
+    /// groups that decide who may see it. Returns null - not an exception - when the partial unique index
+    /// on Fingerprint rejected the insert because another instance opened a row for the same fingerprint
+    /// first; the caller is expected to re-read and treat it as known.
     /// </summary>
-    Task<AgentCondition?> InsertAsync(AgentCondition condition, AgentConditionEvent detectionEvent, CancellationToken cancellationToken = default);
+    /// <param name="groupIds">
+    /// Every group the finding concerns, which the scoped reads gate visibility on. Must be consistent
+    /// with <see cref="AgentCondition.GroupId"/>: empty exactly when that is null, and containing it
+    /// otherwise - see AgentConditionGroup for why the reads depend on that invariant. A set is required
+    /// rather than a collection so a duplicate pair cannot reach the composite key.
+    /// </param>
+    Task<AgentCondition?> InsertAsync(
+        AgentCondition condition,
+        AgentConditionEvent detectionEvent,
+        IReadOnlySet<Guid> groupIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Brings an existing row's group set to exactly <paramref name="groupIds"/> by inserting what is
+    /// missing and deleting what is no longer reported, and returns whether anything was written. An
+    /// unchanged set writes nothing at all, which is the normal case: a tick re-observes every open row
+    /// and almost none of them change groups.
+    ///
+    /// Idempotent and safe to run concurrently: the composite key is the whole concurrency control, so a
+    /// second instance racing the same insert loses it and this returns false instead of throwing. FALSE
+    /// THEREFORE MEANS ONLY "this call wrote nothing" - because the set was already what was asked for, or
+    /// because another instance got there first - and never "the stored set now equals
+    /// <paramref name="groupIds"/>". A caller that must know the stored set has to read it.
+    ///
+    /// It is NOT guarded on the row's status, unlike <see cref="TouchLastSeenAsync"/>: the group set says
+    /// who the finding concerns, which stays true of a row that has since moved on, and a terminal row's
+    /// set is never reached by a detector anyway.
+    ///
+    /// This deliberately writes no audit event. agent_condition_events is counted against the action
+    /// budget and circuit breaker (see <see cref="CountActionClaimsAsync"/>), so a per-tick membership
+    /// correction has no business appearing there.
+    /// </summary>
+    Task<bool> SyncGroupsAsync(
+        Guid conditionId,
+        IReadOnlySet<Guid> groupIds,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Atomically moves a row from <paramref name="fromStatus"/> to <paramref name="toStatus"/> and, in the
@@ -246,10 +305,11 @@ public interface IAgentConditionRepository
     /// reusing the same private helper rather than by copying it.
     /// </summary>
     /// <param name="entityIds">The entity ids currently on screen; matched against AgentCondition.EntityId.</param>
-    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of GroupId.</param>
+    /// <param name="isUnrestricted">True for an admin: every row is returned regardless of its groups.</param>
     /// <param name="visibleRootIds">Ignored when <paramref name="isUnrestricted"/> is true. Otherwise carries the
-    /// same contract as <see cref="GetOpenForScopeAsync"/>: a row is included when its group's Nested Set root is
-    /// in this set, or its GroupId is null AND its TriggerKind is not one of AgentTriggerGroupScopedKinds.Values.</param>
+    /// same contract as <see cref="GetOpenForScopeAsync"/>: a row is included when the Nested Set root of any of
+    /// its groups is in this set, or its GroupId is null AND its TriggerKind is not one of
+    /// AgentTriggerGroupScopedKinds.Values.</param>
     Task<List<AgentCondition>> GetExecutedForEntitiesAsync(
         IReadOnlyCollection<Guid> entityIds,
         bool isUnrestricted,
@@ -329,7 +389,7 @@ public interface IAgentConditionRepository
     /// (Etappe 3g). Never loads the full open set: severity, status and scope are filtered and the row
     /// count capped inside the database query itself, since this runs on every chat turn that carries a
     /// user id. <paramref name="isUnrestricted"/> true (Admin) skips the scope filter entirely; otherwise
-    /// only rows whose group's Nested Set root is in <paramref name="visibleRootIds"/>, plus rows with no
+    /// only rows one of whose groups has its Nested Set root in <paramref name="visibleRootIds"/>, plus rows with no
     /// GroupId whose TriggerKind is not one of AgentTriggerGroupScopedKinds.Values, are eligible - the same
     /// subtree-via-root comparison PlanningAudienceResolver already uses for notification audience
     /// (Etappe 3e), under the same RequiresGroupScope fallback. Ranking: rows whose GroupId equals
@@ -342,5 +402,18 @@ public interface IAgentConditionRepository
         IReadOnlySet<Guid> visibleRootIds,
         Guid? preferredGroupId,
         int take,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Soft-deletes finished condition rows that AgentLedgerRetentionPolicy.ConditionEligible selects, together
+    /// with their audit events. The events go first and the conditions second, both selected by the same
+    /// predicate, so a run that dies in between is simply repeated by the next one. Soft delete is done here
+    /// by bulk UPDATE because the physical cascade only fires on a hard delete. Returns the number of
+    /// condition rows and event rows affected.
+    /// </summary>
+    Task<(int Conditions, int Events)> SoftDeleteExpiredAsync(
+        DateTime shortLivedCutoffUtc,
+        DateTime longLivedCutoffUtc,
+        DateTime nowUtc,
         CancellationToken cancellationToken = default);
 }

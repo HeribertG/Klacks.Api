@@ -8,39 +8,57 @@
 /// the semantic recipe fallback: a decline carries no action intent, yet its embedding may land
 /// in the grey zone of a mutation recipe and hijack the turn into a confirmation gate ("I found
 /// two possible actions ..."). Only the first two word tokens are inspected, so a negation later
-/// in a genuine request ("kannst du nicht ...") never suppresses matching. Core languages
-/// (de/en/fr/it) are handled by hardcoded tokens. Plugin language entries are loaded at startup
-/// via Configure() from conversation-signals.json files in each language plugin.
+/// in a genuine request ("kannst du nicht ...") never suppresses matching. No language is named in
+/// this code: the core vocabulary arrives through ConfigureCore from conversation-signals-core.json,
+/// the plugin vocabulary through Configure from each language plugin's conversation-signals.json.
 /// </summary>
 /// <param name="message">The raw user message that started the turn.</param>
 
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public static class DeclineDetector
 {
-    private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
+    // One word is a letter followed by its combining marks, repeated. A bare \p{L}+ dropped the mark and
+    // split the word: the Thai refusal "ไม่" tokenized as "ไม", which matches no vocabulary entry at all,
+    // and the same held for every script that writes a word with combining marks (Devanagari, Arabic).
+    private static readonly Regex WordPattern = new(@"(?:\p{L}\p{M}*)+", RegexOptions.Compiled);
 
     private const int LeadingTokensInspected = 2;
 
     private const int BareNegationMaxTokens = 3;
 
-    private static readonly HashSet<string> LeadingNegationTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        // German
-        "nein", "nee", "nö", "noe", "nicht", "nichts", "kein", "keine", "keinen",
-        // English
-        "no", "nope", "nah", "not", "nothing",
-        // French
-        "non", "rien",
-        // Italian
-        "niente", "nulla",
-    };
-
     private static readonly object _configureLock = new();
+    private static HashSet<string> _coreNegationTokens = new(StringComparer.OrdinalIgnoreCase);
     private static string[] _pluginNegationEntries = [];
     private static string[] _pluginDeclineEntries = [];
+
+    /// <summary>
+    /// Installs the core-language negation vocabulary. Called once at startup by
+    /// ConversationSignalsPluginLoader after reading conversation-signals-core.json. Kept apart from the
+    /// plugin entries because a core entry is matched as a whole token only, never as a prefix: a short
+    /// core token matched by prefix would fire on every word that starts with it. Reset keeps it, so the
+    /// core vocabulary is installed once per process.
+    /// </summary>
+    public static void ConfigureCore(IEnumerable<string> negationTokens)
+    {
+        lock (_configureLock)
+        {
+            var merged = new HashSet<string>(_coreNegationTokens, StringComparer.OrdinalIgnoreCase);
+            foreach (var token in negationTokens)
+            {
+                var normalized = Normalize(token).Trim();
+                if (normalized.Length > 0)
+                {
+                    merged.Add(normalized);
+                }
+            }
+
+            _coreNegationTokens = merged;
+        }
+    }
 
     /// <summary>
     /// Extends detection with plugin language entries. Called once at startup by
@@ -50,15 +68,16 @@ public static class DeclineDetector
     {
         lock (_configureLock)
         {
-            _pluginNegationEntries = PluginPhraseMatcher.Merge(_pluginNegationEntries, negations);
-            _pluginDeclineEntries = PluginPhraseMatcher.Merge(_pluginDeclineEntries, declines);
+            _pluginNegationEntries = PluginPhraseMatcher.Merge(_pluginNegationEntries, negations.Select(Normalize));
+            _pluginDeclineEntries = PluginPhraseMatcher.Merge(_pluginDeclineEntries, declines.Select(Normalize));
         }
     }
 
     /// <summary>
-    /// Discards every entry Configure ever merged in and restores the core-only state the detector starts
-    /// in. Test-only: Configure writes process-wide static state additively, so without a way back a
-    /// fixture that loads a language pack would decide the outcome of every fixture running after it.
+    /// Discards every entry Configure ever merged in and restores the state the detector has once
+    /// ConfigureCore has run, i.e. the core vocabulary alone. Test-only: Configure writes process-wide
+    /// static state additively, so without a way back a fixture that loads a language pack would decide
+    /// the outcome of every fixture running after it.
     /// </summary>
     internal static void Reset()
     {
@@ -69,6 +88,22 @@ public static class DeclineDetector
         }
     }
 
+    /// <summary>
+    /// Discards the core vocabulary ConfigureCore installed. Test-only, and deliberately separate from
+    /// Reset, which keeps the core: a fixture measuring one language pack on its own has to clear the core
+    /// as well, or a core token of an unrelated language stands in for a pack entry that does not actually
+    /// match by itself - "nie" is a German core negation and a Polish pack entry, so the Polish pack would
+    /// pass on the German vocabulary. A caller that clears the core owns putting it back, through
+    /// ConversationSignalsPluginLoader.LoadCore, because every fixture afterwards shares this state.
+    /// </summary>
+    internal static void ResetCore()
+    {
+        lock (_configureLock)
+        {
+            _coreNegationTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        }
+    }
+
     public static bool LeadsWithNegation(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -76,14 +111,16 @@ public static class DeclineDetector
             return false;
         }
 
-        var lower = message.TrimStart().ToLowerInvariant();
+        var normalized = Normalize(message);
+        var lower = normalized.TrimStart().ToLowerInvariant();
 
-        var leadingTokens = WordPattern.Matches(message)
+        var leadingTokens = WordPattern.Matches(normalized)
             .Take(LeadingTokensInspected)
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
-        if (leadingTokens.Any(LeadingNegationTokens.Contains))
+        var coreTokens = _coreNegationTokens;
+        if (leadingTokens.Any(coreTokens.Contains))
         {
             return true;
         }
@@ -96,12 +133,13 @@ public static class DeclineDetector
     /// True when the message consists of nothing but negation words and punctuation — at most
     /// <c>BareNegationMaxTokens</c> of them. This is the shape of an answer to a yes/no question
     /// ("Nein.", "No"), as opposed to a negation that corrects course ("Nein, nimm stattdessen ...").
-    /// Core-language tokens and single-token plugin negations both count, so a language-pack refusal
-    /// ("nie", "لا", "아니요") answers the question just like the German "nein". What stays outside: a
-    /// multi-word plugin phrase, which cannot be matched token-by-token, and an entry whose script carries
-    /// combining marks, because the word pattern matches letters only (Thai "ไม่" tokenizes as "ไม"). A false
-    /// negative does not degrade into the ordinary correction path: the pending branch of the trajectory
-    /// capture returns either way, so the confirmation gate is simply never resolved.
+    /// Core tokens, single-token plugin negations and multi-word plugin phrases all count, so a
+    /// language-pack refusal ("nie", "لا", "아니요", "ahora no", "ไม่ ขอบคุณ") answers the question just like
+    /// "nein" does. A phrase has no token boundary to test, so it is matched as a prefix - but only when
+    /// what follows it carries no word at all, otherwise a refusal that then states a different wish
+    /// would read as a bare one. A false negative does not degrade into the ordinary correction path: the
+    /// pending branch of the trajectory capture returns either way, so the confirmation gate is simply
+    /// never resolved.
     /// </summary>
     /// <param name="message">The raw user message that started the turn.</param>
     public static bool IsBareNegation(string? message)
@@ -111,18 +149,63 @@ public static class DeclineDetector
             return false;
         }
 
-        var tokens = WordPattern.Matches(message)
+        var normalized = Normalize(message);
+
+        var tokens = WordPattern.Matches(normalized)
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
-        return tokens.Count > 0
+        if (tokens.Count > 0
             && tokens.Count <= BareNegationMaxTokens
-            && tokens.TrueForAll(IsNegationToken);
+            && tokens.TrueForAll(IsNegationToken))
+        {
+            return true;
+        }
+
+        var lower = normalized.Trim().ToLowerInvariant();
+        return IsNothingButPhrase(lower, _pluginNegationEntries)
+            || IsNothingButPhrase(lower, _pluginDeclineEntries);
+    }
+
+    private static bool IsNothingButPhrase(string lowerMessage, string[] entries)
+    {
+        foreach (var entry in entries)
+        {
+            if (lowerMessage.StartsWith(entry, StringComparison.Ordinal)
+                && !WordPattern.IsMatch(lowerMessage[entry.Length..]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsNegationToken(string token) =>
-        LeadingNegationTokens.Contains(token)
+        _coreNegationTokens.Contains(token)
         || Array.IndexOf(_pluginNegationEntries, token) >= 0;
+
+    /// <summary>
+    /// Composed (NFC) form of the text, so a message whose refusal arrives decomposed still matches the
+    /// composed vocabulary entry. Invalid surrogate input is passed through rather than thrown at: this
+    /// runs on every chat turn, and a malformed message must cost a detection, not the turn.
+    /// </summary>
+    private static string Normalize(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return value.Normalize(NormalizationForm.FormC);
+        }
+        catch (ArgumentException)
+        {
+            return value;
+        }
+    }
 
     /// <summary>
     /// Separators a negation lead may be followed by before the rest of the clause starts: ASCII comma,

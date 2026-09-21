@@ -280,29 +280,10 @@ public class LLMService : ILLMService
         // extraction — the last of which is a model call), so the wait is real regardless of outcome.
         yield return SseChunk.Status(SseStatusStages.ResolvingRecipe, ElapsedMsFor(context));
 
-        var preparation = await _turnPreparation.PrepareAsync(
-            new TurnPreparationRequest(context, provider!, model!, conversation!.ConversationId), cancellationToken);
-        var forceConfirmation = preparation.ForceConfirm;
-        var confirmFunction = preparation.ConfirmFunction;
-        var pendingNote = preparation.VolatileNote;
-        var enginePlan = preparation.Plan;
-        var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
-        IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
-
-        // W1.5: attribute both engine and cut plans — the recipe funnel needs the cut recipe's name on
-        // the trajectory just as much as a data-driven recipe's — and open the run row that carries the
-        // started → completed/aborted/expired lifecycle across turns.
-        context.ActiveRecipeName = recipePlan?.Name;
-        var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, recipePlan != null);
-        Guid.TryParse(context.UserId, out var recipeUserGuid);
-        var recipeRun = recipePlan != null && recipeUserGuid != Guid.Empty
-            ? await _recipeRunRecorder.BeginOrResumeAsync(
-                recipePlan.Name, recipeUserGuid, conversation!.ConversationId, context.TurnId, recipePlan.StepIndex, cancellationToken)
-            : null;
-        var recipePausedOnAsk = false;
-        var gateHoldEndedRecipe = false;
-        var recipeAbortedByGateHold = false;
-        string? askedSlot = null;
+        var recipe = await RecipeTurnState.BeginAsync(
+            _turnPreparation, _recipeRunRecorder, _recipeEngine, _logger,
+            context, provider!, model!, conversation!.ConversationId, cancellationToken);
+        var enginePlan = recipe.Plan;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -314,37 +295,20 @@ public class LLMService : ILLMService
             {
                 var confirmInstruction = enginePlan.ConfirmationInstruction;
                 yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
-                var confirmResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
-                {
-                    Message = currentMessage,
-                    SystemPrompt = systemPrompt!,
-                    VolatileSystemPrompt = CombineVolatile(volatilePrompt, confirmInstruction),
-                    ModelId = model!.ApiModelId,
-                    ConversationHistory = runningHistory,
-                    AvailableFunctions = new List<LLMFunction>(),
-                    Temperature = 0.7,
-                    MaxTokens = model.MaxTokens,
-                    SupportedParameters = model.SupportedParameters,
-                    CostPerInputToken = model.CostPerInputToken,
-                    CostPerOutputToken = model.CostPerOutputToken,
-                    CostPerCacheWriteToken = model.CostPerCacheWriteToken,
-                    CostPerCacheReadToken = model.CostPerCacheReadToken
-                }, cancellationToken);
+                var confirmResponse = await ProcessWithTransientRetryAsync(
+                    provider!,
+                    LLMProviderRequestFactory.ToolLess(
+                        model!, currentMessage, systemPrompt!,
+                        CombineVolatile(volatilePrompt, confirmInstruction), runningHistory),
+                    cancellationToken);
                 AccumulateUsage(totalUsage, confirmResponse.Usage);
-                var confirmText = RecipeReplyGuard.SafeConfirmation(
-                    confirmResponse.Success ? confirmResponse.Content : null,
-                    enginePlan.Goal, enginePlan.AlternativeGoal, context.Language,
-                    enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations);
+                var confirmText = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
+                    confirmResponse.Success ? confirmResponse.Content : null, enginePlan.Goal,
+                    enginePlan.AlternativeGoal, context.Language, enginePlan.GoalTranslations,
+                    enginePlan.AlternativeGoalTranslations), enginePlan.AlternativeGoal, context.Language);
                 fullResponseContent.Append(confirmText);
                 yield return SseChunk.Content(confirmText);
-                _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
-                recipePausedOnAsk = true;
-                context.RecipeAwaitingConfirmation = true;
-                if (recipeRun != null)
-                {
-                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
-                }
-                _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
+                await recipe.PauseForConfirmationAsync(cancellationToken);
                 break;
             }
 
@@ -354,37 +318,19 @@ public class LLMService : ILLMService
                     System.Globalization.CultureInfo.InvariantCulture,
                     RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
                 yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
-                var askResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
-                {
-                    Message = currentMessage,
-                    SystemPrompt = systemPrompt!,
-                    VolatileSystemPrompt = CombineVolatile(volatilePrompt, askInstruction),
-                    ModelId = model!.ApiModelId,
-                    ConversationHistory = runningHistory,
-                    AvailableFunctions = new List<LLMFunction>(),
-                    Temperature = 0.7,
-                    MaxTokens = model.MaxTokens,
-                    SupportedParameters = model.SupportedParameters,
-                    CostPerInputToken = model.CostPerInputToken,
-                    CostPerOutputToken = model.CostPerOutputToken,
-                    CostPerCacheWriteToken = model.CostPerCacheWriteToken,
-                    CostPerCacheReadToken = model.CostPerCacheReadToken
-                }, cancellationToken);
+                var askResponse = await ProcessWithTransientRetryAsync(
+                    provider!,
+                    LLMProviderRequestFactory.ToolLess(
+                        model!, currentMessage, systemPrompt!,
+                        CombineVolatile(volatilePrompt, askInstruction), runningHistory),
+                    cancellationToken);
                 AccumulateUsage(totalUsage, askResponse.Usage);
                 var askText = RecipeReplyGuard.SafeAsk(
                     askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
                     enginePlan.CurrentAskPromptTranslations, context.Language);
                 fullResponseContent.Append(askText);
                 yield return SseChunk.Content(askText);
-                askedSlot = enginePlan.CurrentStep?.Slot;
-                _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
-                recipePausedOnAsk = true;
-                if (recipeRun != null)
-                {
-                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
-                }
-                _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
-                    enginePlan.Name, askedSlot);
+                await recipe.PauseOnAskAsync(cancellationToken);
                 break;
             }
 
@@ -397,46 +343,31 @@ public class LLMService : ILLMService
             // is now rejected rather than silently executed.
             var iterationFunctions = context.AvailableFunctions;
 
-            var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
+            var confirmThisIteration = recipe.ForceConfirm && allFunctionCalls.Count == 0;
             if (confirmThisIteration)
             {
-                iterationFunctions = new List<LLMFunction> { confirmFunction! };
+                iterationFunctions = new List<LLMFunction> { recipe.ConfirmFunction! };
             }
 
             var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
-                recipePlan, confirmThisIteration, context.AvailableFunctions, iterationFunctions);
+                recipe.Forcing, confirmThisIteration, context.AvailableFunctions, iterationFunctions);
             iterationFunctions = recipeFunctions;
             if (forceRecipe)
             {
                 _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
-                    recipePlan!.Name, recipePlan.CurrentSkill, iteration);
+                    recipe.Forcing!.Name, recipe.Forcing.CurrentSkill, iteration);
             }
 
-            var providerRequest = new LLMProviderRequest
-            {
-                Message = currentMessage,
-                SystemPrompt = systemPrompt!,
-                VolatileSystemPrompt = CombineVolatile(volatilePrompt,
-                    confirmThisIteration ? pendingNote
-                        : forceRecipe ? recipeNote
-                        : suggestPlan && allFunctionCalls.Count == 0
-                            ? Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
-                            : null),
-                ModelId = model!.ApiModelId,
-                ConversationHistory = runningHistory,
-                AvailableFunctions = iterationFunctions,
-                Temperature = 0.7,
-                MaxTokens = model.MaxTokens,
-                Stream = true,
-                SupportedParameters = model.SupportedParameters,
-                CostPerInputToken = model.CostPerInputToken,
-                CostPerOutputToken = model.CostPerOutputToken,
-                CostPerCacheWriteToken = model.CostPerCacheWriteToken,
-                CostPerCacheReadToken = model.CostPerCacheReadToken,
-                ToolChoice = ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count),
-                OnStreamUsage = usage => AccumulateUsage(totalUsage, usage)
-            };
+            var providerRequest = LLMProviderRequestFactory.ForIteration(
+                model!, currentMessage, systemPrompt!,
+                CombineVolatile(volatilePrompt, IterationNotePolicy.Select(
+                    confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
+                    recipe.SuggestPlan, allFunctionCalls.Count)),
+                runningHistory, iterationFunctions,
+                ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count),
+                stream: true,
+                onStreamUsage: usage => AccumulateUsage(totalUsage, usage));
 
             if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
             {
@@ -450,92 +381,28 @@ public class LLMService : ILLMService
 
             if (provider!.SupportsStreaming)
             {
-                // Transient provider failures (rate limit, overload) typically kill the stream before
-                // the first token. Retrying is only safe while nothing of THIS provider call has reached
-                // the client — once content streamed, a retry would duplicate it, so the error surfaces.
-                var transientAttempt = 0;
-
-                while (true)
+                var reader = new ProviderStreamReader(_logger);
+                await foreach (var token in reader.ReadAsync(
+                                   provider, providerRequest, model!.ApiModelId, cancellationToken))
                 {
-                    accumulator = new StreamAccumulator();
-                    hasToolEnd = false;
-                    string? streamErrorMessage = null;
-                    var contentEmitted = false;
-                    var enumerator = provider.ProcessStreamAsync(providerRequest, cancellationToken).GetAsyncEnumerator(cancellationToken);
-
-                    while (true)
+                    if (!firstTokenLogged)
                     {
-                        string? token;
-                        try
-                        {
-                            if (!await enumerator.MoveNextAsync()) break;
-                            token = enumerator.Current;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Streaming provider error for model {ModelId}", model!.ApiModelId);
-                            // Kept raw for the transient-error classification and the retry log below;
-                            // the client only ever sees the generic text.
-                            streamErrorMessage = ex.Message;
-                            break;
-                        }
-
-                        if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
-                        {
-                            var toolJson = token[LLMStreamingTokens.ToolCallPrefix.Length..];
-                            try
-                            {
-                                var toolData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(toolJson);
-                                var index = toolData.TryGetProperty("index", out var idx) ? idx.GetInt32() : 0;
-                                var name = toolData.TryGetProperty("name", out var n) ? n.GetString() : null;
-                                var args = toolData.TryGetProperty("arguments", out var a) ? a.GetString() : null;
-                                accumulator.AppendToolCallDelta(index, name, args);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogWarning(ex, "Failed to parse tool-call delta from streaming token; token skipped");
-                            }
-                        }
-                        else if (token == LLMStreamingTokens.ToolCallEnd)
-                        {
-                            hasToolEnd = true;
-                        }
-                        else
-                        {
-                            if (!firstTokenLogged)
-                            {
-                                ttftMs = stopwatch.ElapsedMilliseconds;
-                                _logger.LogInformation("LLM TTFT: {Ms}ms turn={Turn}", ttftMs, TurnCorrelationFor(context));
-                                firstTokenLogged = true;
-                            }
-                            accumulator.AppendContent(token);
-                            contentEmitted = true;
-                            yield return SseChunk.Content(token);
-                        }
+                        ttftMs = stopwatch.ElapsedMilliseconds;
+                        _logger.LogInformation("LLM TTFT: {Ms}ms turn={Turn}", ttftMs, TurnCorrelationFor(context));
+                        firstTokenLogged = true;
                     }
 
-                    await enumerator.DisposeAsync();
+                    yield return SseChunk.Content(token);
+                }
 
-                    if (streamErrorMessage == null)
-                    {
-                        break;
-                    }
-
-                    if (!contentEmitted
-                        && transientAttempt < LLMRetryConstants.MaxTransientRetries
-                        && TransientProviderErrorDetector.IsTransient(streamErrorMessage))
-                    {
-                        transientAttempt++;
-                        _logger.LogWarning(
-                            "Transient streaming provider error (attempt {Attempt}/{Max}): {Error} - retrying",
-                            transientAttempt, LLMRetryConstants.MaxTransientRetries, streamErrorMessage);
-                        await Task.Delay(LLMRetryConstants.GetRetryDelay(transientAttempt), cancellationToken);
-                        continue;
-                    }
-
+                if (reader.Failed)
+                {
                     yield return SseChunk.Error(AssistantStreamErrorMessages.ProviderFailure);
                     yield break;
                 }
+
+                accumulator = reader.Accumulator;
+                hasToolEnd = reader.HasToolEnd;
             }
             else
             {
@@ -574,7 +441,7 @@ public class LLMService : ILLMService
 
             var functionCalls = accumulator.FunctionCalls.ToList();
             allFunctionCalls.AddRange(functionCalls);
-            ApplyRecipeInjections(recipePlan, functionCalls);
+            ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
             var executableCalls = RejectRepeatedWriteCalls(functionCalls, calledFunctionNames, forceRecipe);
 
@@ -587,15 +454,10 @@ public class LLMService : ILLMService
             yield return SseChunk.Status(SseStatusStages.ExecutingTool, ElapsedMsFor(context), toolIterationsRun);
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
-            recipePlan?.Observe(functionCalls);
+            recipe.Forcing?.Observe(functionCalls);
             if (functionCalls.Any(c => c.RequiresConfirmation))
             {
-                _logger.LogInformation(
-                    "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
-                gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
-                enginePlan?.DeactivateOnAutonomyGateHold();
-                recipePlan = null;
-                recipeAbortedByGateHold = gateHoldEndedRecipe;
+                recipe.ReleaseOnAutonomyGateHold();
             }
 
             if (_functionExecutor.NavigationRoute != null)
@@ -623,12 +485,8 @@ public class LLMService : ILLMService
                 ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
                 : accumulator.AccumulatedContent;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
-            currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars);
-            if (gateHoldEndedRecipe)
-            {
-                currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
-                gateHoldEndedRecipe = false;
-            }
+            currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars)
+                + recipe.TakeGateHoldNote();
         }
 
         // The turn above ran normally (full toolset) because the user's reply to the pending ask was
@@ -649,90 +507,29 @@ public class LLMService : ILLMService
             var reaskChunk = RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
             fullResponseContent.Append(reaskChunk);
             yield return SseChunk.Content(reaskChunk);
-            askedSlot = enginePlan.CurrentStep?.Slot;
-            _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
-            recipePausedOnAsk = true;
-            if (recipeRun != null)
-            {
-                await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, cancellationToken);
-            }
-            _logger.LogInformation(
-                "Recipe '{Recipe}' re-asked after answering an independent question mid-flow (slot {Slot})",
-                enginePlan.Name, askedSlot);
+            await recipe.PauseOnReaskAsync(cancellationToken);
         }
 
-        if (recipeRun != null && !recipePausedOnAsk)
-        {
-            if (recipeAbortedByGateHold)
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "autonomy gate hold ended the recipe", cancellationToken);
-            }
-            else if (enginePlan != null)
-            {
-                if (!enginePlan.IsActive)
-                {
-                    await _recipeRunRecorder.CompleteAsync(recipeRun, cancellationToken);
-                }
-                // else: still mid-flow — the run stays Running and the pending store carries it to the next turn.
-            }
-            else if (cutPlan is { IsDeactivated: true })
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "ambiguous customer match deactivated the cut recipe", cancellationToken);
-            }
-            else if (cutPlan is { IsActive: false })
-            {
-                await _recipeRunRecorder.CompleteAsync(recipeRun, cancellationToken);
-            }
-            else
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "turn ended before the cut recipe completed", cancellationToken);
-            }
-        }
-
-        if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
-        {
-            _recipeEngine.Clear(recipeUserGuid, conversation!.ConversationId);
-        }
+        await recipe.FinalizeAsync(cancellationToken);
 
         var responseContent = fullResponseContent.ToString();
 
-        // V1 (streaming): the lie is already on screen (content streams token-by-token before the
-        // loop ends), so it cannot be retracted — append an honest correction instead. A mutation
-        // request that produced zero tool calls means nothing happened, regardless of any prose claim.
-        // Also catch the case where intent detection missed the phrasing but the model emitted a
-        // text tool-call itself (e.g. "<function_calls>…" for a non-existent skill): that markup never
-        // executes, so a zero-real-tool-call turn that contains it is the same no-action lie.
-        // A clarifying question (or a [REPLIES:] affordance) is not a false success claim, so skip it —
-        // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
-        // A recipe deliberately paused on an ask is also not a no-action lie — bypass the notice.
-        var emittedTextToolCall = ToolCallMarkupSanitizer.ContainsMarkup(responseContent);
-        var claimsCompletion = CompletionClaimDetector.ClaimsCompletion(responseContent);
-        if (NoActionNoticePolicy.ShouldAppendNotice(
-                isMutationIntent, forceConfirmation, emittedTextToolCall, claimsCompletion,
-                allFunctionCalls.Count, recipePausedOnAsk, IsClarifyingResponse(responseContent)))
+        var noActionNotice = TurnClosingNotices.NoAction(
+            isMutationIntent, recipe.ForceConfirm, responseContent,
+            allFunctionCalls.Count, recipe.PausedOnAsk, IsClarifyingResponse(responseContent));
+        if (noActionNotice != null)
         {
-            yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
-            responseContent += MutationGuardConstants.NoActionStreamNotice;
+            yield return SseChunk.Content(noActionNotice);
+            responseContent += noActionNotice;
         }
 
-        // A forced recipe step (tool_choice=required) can fail every iteration until maxIterations is
-        // exhausted — e.g. a name-resolution skill rejecting the model's guess each time. Function-call
-        // turns typically carry no prose content, so responseContent stays blank and the user would see
-        // literally nothing. Surface the last failure's own message (already actionable, e.g. lists the
-        // real options) instead of leaving the chat hanging. This is the only user-visible text that
-        // bypasses the model entirely, so no prompt rule can strip internal names from it — redact them
-        // here and keep the raw message for the log.
-        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
-            && allFunctionCalls.All(c => !c.Success))
+        var failedCall = TurnClosingNotices.LastUnrecoveredFailure(allFunctionCalls, responseContent);
+        if (failedCall != null)
         {
-            // Prefer the last REAL failure: a rejected repeat carries only the generic rejection
-            // text, while the genuine failure from an earlier iteration is the actionable message.
-            var lastFailedCall = allFunctionCalls.LastOrDefault(c => !c.IsRejectedRepeat) ?? allFunctionCalls[^1];
             _logger.LogWarning(
                 "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
-                lastFailedCall.FunctionName, lastFailedCall.Result);
-            var lastFailureNotice = MutationGuardConstants.RecipeStepFailedNoticePrefix
-                + InternalIdentifierRedactor.Redact(lastFailedCall.Result);
+                failedCall.FunctionName, failedCall.Result);
+            var lastFailureNotice = TurnClosingNotices.StepFailed(failedCall);
             yield return SseChunk.Content(lastFailureNotice);
             responseContent += lastFailureNotice;
         }
@@ -752,7 +549,7 @@ public class LLMService : ILLMService
                 toolCallReturned: allFunctionCalls.Count > 0);
 
             _turnPreparation.RecordLastAction(
-                context, conversation!.ConversationId, responseContent, allFunctionCalls, recipePausedOnAsk);
+                context, conversation!.ConversationId, responseContent, allFunctionCalls, recipe.PausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -765,7 +562,7 @@ public class LLMService : ILLMService
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },
             conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute, navigationTarget);
-        await ApplySuggestionGroundingAsync(metadataResponse, askedSlot, cancellationToken);
+        await ApplySuggestionGroundingAsync(metadataResponse, recipe.AskedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();
@@ -968,32 +765,15 @@ public class LLMService : ILLMService
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(ctx.Context.Message);
-        var preparation = await _turnPreparation.PrepareAsync(
-            new TurnPreparationRequest(ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId),
-            ctx.CancellationToken);
-        var forceConfirmation = preparation.ForceConfirm;
-        var confirmFunction = preparation.ConfirmFunction;
-        var pendingNote = preparation.VolatileNote;
-        var enginePlan = preparation.Plan;
-        var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
-        IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
-
-        // Written onto the shared context object rather than returned: ProcessAsync holds the very same
-        // LLMContext instance and hands it to the post-turn hooks, so the name reaches trajectory capture
-        // without widening this method's already six-wide return tuple. W1.5: cut plans are attributed too,
-        // and the run row is opened/resumed here.
-        ctx.Context.ActiveRecipeName = recipePlan?.Name;
-        var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
-        Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
-        var recipeRun = recipePlan != null && recipeUserGuid != Guid.Empty
-            ? await _recipeRunRecorder.BeginOrResumeAsync(
-                recipePlan.Name, recipeUserGuid, ctx.Conversation.ConversationId, ctx.Context.TurnId, recipePlan.StepIndex, ctx.CancellationToken)
-            : null;
-        var recipePausedOnAsk = false;
-        var gateHoldEndedRecipe = false;
-        var recipeAbortedByGateHold = false;
+        // RecipeTurnState.BeginAsync writes the plan's name onto the shared context object rather than
+        // returning it: ProcessAsync holds the very same LLMContext instance and hands it to the post-turn
+        // hooks, so the name reaches trajectory capture without widening this method's already six-wide
+        // return tuple.
+        var recipe = await RecipeTurnState.BeginAsync(
+            _turnPreparation, _recipeRunRecorder, _recipeEngine, _logger,
+            ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, ctx.CancellationToken);
+        var enginePlan = recipe.Plan;
         var forcedRetryUsed = false;
-        string? askedSlot = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -1005,40 +785,20 @@ public class LLMService : ILLMService
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
                 var confirmInstruction = enginePlan.ConfirmationInstruction;
-                var confirmRequest = new LLMProviderRequest
-                {
-                    Message = currentMessage,
-                    SystemPrompt = ctx.SystemPrompt,
-                    VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt, confirmInstruction),
-                    ModelId = ctx.Model.ApiModelId,
-                    ConversationHistory = runningHistory,
-                    AvailableFunctions = new List<LLMFunction>(),
-                    Temperature = 0.7,
-                    MaxTokens = ctx.Model.MaxTokens,
-                    SupportedParameters = ctx.Model.SupportedParameters,
-                    CostPerInputToken = ctx.Model.CostPerInputToken,
-                    CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                    CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
-                    CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken
-                };
+                var confirmRequest = LLMProviderRequestFactory.ToolLess(
+                    ctx.Model, currentMessage, ctx.SystemPrompt,
+                    CombineVolatile(ctx.VolatilePrompt, confirmInstruction), runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest, ctx.CancellationToken);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
-                    responseContent = RecipeReplyGuard.SafeConfirmation(
+                    responseContent = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
                         lastResponse.Content, enginePlan.Goal, enginePlan.AlternativeGoal, ctx.Context.Language,
-                        enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations);
+                        enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations), enginePlan.AlternativeGoal, ctx.Context.Language);
                 }
 
-                _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
-                recipePausedOnAsk = true;
-                ctx.Context.RecipeAwaitingConfirmation = true;
-                if (recipeRun != null)
-                {
-                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
-                }
-                _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
+                await recipe.PauseForConfirmationAsync(ctx.CancellationToken);
                 break;
             }
 
@@ -1047,22 +807,9 @@ public class LLMService : ILLMService
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
                     RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
-                var askRequest = new LLMProviderRequest
-                {
-                    Message = currentMessage,
-                    SystemPrompt = ctx.SystemPrompt,
-                    VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt, askInstruction),
-                    ModelId = ctx.Model.ApiModelId,
-                    ConversationHistory = runningHistory,
-                    AvailableFunctions = new List<LLMFunction>(),
-                    Temperature = 0.7,
-                    MaxTokens = ctx.Model.MaxTokens,
-                    SupportedParameters = ctx.Model.SupportedParameters,
-                    CostPerInputToken = ctx.Model.CostPerInputToken,
-                    CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                    CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
-                    CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken
-                };
+                var askRequest = LLMProviderRequestFactory.ToolLess(
+                    ctx.Model, currentMessage, ctx.SystemPrompt,
+                    CombineVolatile(ctx.VolatilePrompt, askInstruction), runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest, ctx.CancellationToken);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
@@ -1073,15 +820,7 @@ public class LLMService : ILLMService
                         enginePlan.CurrentAskPromptTranslations, ctx.Context.Language);
                 }
 
-                askedSlot = enginePlan.CurrentStep?.Slot;
-                _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
-                recipePausedOnAsk = true;
-                if (recipeRun != null)
-                {
-                    await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
-                }
-                _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
-                    enginePlan.Name, askedSlot);
+                await recipe.PauseOnAskAsync(ctx.CancellationToken);
                 break;
             }
 
@@ -1089,44 +828,29 @@ public class LLMService : ILLMService
             // (prompt-prefix cache), repeats of write skills are rejected at execution time instead.
             var iterationFunctions = ctx.Context.AvailableFunctions;
 
-            var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
+            var confirmThisIteration = recipe.ForceConfirm && allFunctionCalls.Count == 0;
             if (confirmThisIteration)
             {
-                iterationFunctions = new List<LLMFunction> { confirmFunction! };
+                iterationFunctions = new List<LLMFunction> { recipe.ConfirmFunction! };
             }
 
             var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
-                recipePlan, confirmThisIteration, ctx.Context.AvailableFunctions, iterationFunctions);
+                recipe.Forcing, confirmThisIteration, ctx.Context.AvailableFunctions, iterationFunctions);
             iterationFunctions = recipeFunctions;
             if (forceRecipe)
             {
                 _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
-                    recipePlan!.Name, recipePlan.CurrentSkill, iteration);
+                    recipe.Forcing!.Name, recipe.Forcing.CurrentSkill, iteration);
             }
 
-            var providerRequest = new LLMProviderRequest
-            {
-                Message = currentMessage,
-                SystemPrompt = ctx.SystemPrompt,
-                VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt,
-                    confirmThisIteration ? pendingNote
-                        : forceRecipe ? recipeNote
-                        : suggestPlan && allFunctionCalls.Count == 0
-                            ? Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
-                            : null),
-                ModelId = ctx.Model.ApiModelId,
-                ConversationHistory = runningHistory,
-                AvailableFunctions = iterationFunctions,
-                Temperature = 0.7,
-                MaxTokens = ctx.Model.MaxTokens,
-                SupportedParameters = ctx.Model.SupportedParameters,
-                CostPerInputToken = ctx.Model.CostPerInputToken,
-                CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
-                CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken,
-                ToolChoice = ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
-            };
+            var providerRequest = LLMProviderRequestFactory.ForIteration(
+                ctx.Model, currentMessage, ctx.SystemPrompt,
+                CombineVolatile(ctx.VolatilePrompt, IterationNotePolicy.Select(
+                    confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
+                    recipe.SuggestPlan, allFunctionCalls.Count)),
+                runningHistory, iterationFunctions,
+                ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count));
 
             if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
             {
@@ -1162,10 +886,10 @@ public class LLMService : ILLMService
                 // allFunctionCalls is still empty) before giving up. Also trigger when intent detection
                 // missed the phrasing but the model emitted a text tool-call itself (never executes).
                 if (ForceToolNudgePolicy.ShouldForceToolNudge(
-                        isMutationIntent, forceConfirmation,
+                        isMutationIntent, recipe.ForceConfirm,
                         ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content),
                         CompletionClaimDetector.ClaimsCompletion(lastResponse.Content),
-                        allFunctionCalls.Count, recipePausedOnAsk, IsClarifyingResponse(lastResponse.Content))
+                        allFunctionCalls.Count, recipe.PausedOnAsk, IsClarifyingResponse(lastResponse.Content))
                     && !forcedRetryUsed
                     && iteration < maxIterations - 1)
                 {
@@ -1189,7 +913,7 @@ public class LLMService : ILLMService
                 iterationsUsed, lastResponse.FunctionCalls.Count);
 
             allFunctionCalls.AddRange(lastResponse.FunctionCalls);
-            ApplyRecipeInjections(recipePlan, lastResponse.FunctionCalls);
+            ApplyRecipeInjections(recipe.Forcing, lastResponse.FunctionCalls);
 
             var executableCalls = RejectRepeatedWriteCalls(
                 lastResponse.FunctionCalls, calledFunctionNames, forceRecipe);
@@ -1200,15 +924,10 @@ public class LLMService : ILLMService
             }
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
-            recipePlan?.Observe(lastResponse.FunctionCalls);
+            recipe.Forcing?.Observe(lastResponse.FunctionCalls);
             if (lastResponse.FunctionCalls.Any(c => c.RequiresConfirmation))
             {
-                _logger.LogInformation(
-                    "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
-                gateHoldEndedRecipe = enginePlan != null && enginePlan.IsActive;
-                enginePlan?.DeactivateOnAutonomyGateHold();
-                recipePlan = null;
-                recipeAbortedByGateHold = gateHoldEndedRecipe;
+                recipe.ReleaseOnAutonomyGateHold();
             }
 
             if (executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls)
@@ -1222,12 +941,8 @@ public class LLMService : ILLMService
                 ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
                 : lastResponse.Content;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
-            currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars);
-            if (gateHoldEndedRecipe)
-            {
-                currentMessage += RecipeEngineDefaults.GateHoldEndsRecipeNote;
-                gateHoldEndedRecipe = false;
-            }
+            currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars)
+                + recipe.TakeGateHoldNote();
         }
 
         // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
@@ -1245,64 +960,18 @@ public class LLMService : ILLMService
                 null, enginePlan.CurrentAskPrompt ?? string.Empty,
                 enginePlan.CurrentAskPromptTranslations, ctx.Context.Language);
             responseContent += RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
-            askedSlot = enginePlan.CurrentStep?.Slot;
-            _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
-            recipePausedOnAsk = true;
-            if (recipeRun != null)
-            {
-                await _recipeRunRecorder.UpdateStepAsync(recipeRun, enginePlan.StepIndex, ctx.CancellationToken);
-            }
-            _logger.LogInformation(
-                "Recipe '{Recipe}' re-asked after answering an independent question mid-flow (slot {Slot})",
-                enginePlan.Name, askedSlot);
+            await recipe.PauseOnReaskAsync(ctx.CancellationToken);
         }
 
-        if (recipeRun != null && !recipePausedOnAsk)
-        {
-            if (recipeAbortedByGateHold)
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "autonomy gate hold ended the recipe", ctx.CancellationToken);
-            }
-            else if (enginePlan != null)
-            {
-                if (!enginePlan.IsActive)
-                {
-                    await _recipeRunRecorder.CompleteAsync(recipeRun, ctx.CancellationToken);
-                }
-                // else: still mid-flow — the run stays Running and the pending store carries it to the next turn.
-            }
-            else if (cutPlan is { IsDeactivated: true })
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "ambiguous customer match deactivated the cut recipe", ctx.CancellationToken);
-            }
-            else if (cutPlan is { IsActive: false })
-            {
-                await _recipeRunRecorder.CompleteAsync(recipeRun, ctx.CancellationToken);
-            }
-            else
-            {
-                await _recipeRunRecorder.AbortAsync(recipeRun, "turn ended before the cut recipe completed", ctx.CancellationToken);
-            }
-        }
+        await recipe.FinalizeAsync(ctx.CancellationToken);
 
-        if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
+        var failedCall = TurnClosingNotices.LastUnrecoveredFailure(allFunctionCalls, responseContent);
+        if (failedCall != null)
         {
-            _recipeEngine.Clear(recipeUserGuid, ctx.Conversation.ConversationId);
-        }
-
-        // Mirrors the streaming loop's guard: a forced recipe step can fail every iteration until
-        // maxIterations is exhausted, leaving responseContent blank since function-call turns typically
-        // carry no prose. Surface the last failure's own message instead of returning nothing — redacted
-        // the same way, since this text also reaches the user without passing through the model.
-        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
-            && allFunctionCalls.All(c => !c.Success))
-        {
-            var lastFailedCall = allFunctionCalls.LastOrDefault(c => !c.IsRejectedRepeat) ?? allFunctionCalls[^1];
             _logger.LogWarning(
                 "All function calls failed in multi-turn loop; surfacing notice for {FunctionName}. Raw result: {RawResult}",
-                lastFailedCall.FunctionName, lastFailedCall.Result);
-            responseContent = MutationGuardConstants.RecipeStepFailedNoticePrefix
-                + InternalIdentifierRedactor.Redact(lastFailedCall.Result);
+                failedCall.FunctionName, failedCall.Result);
+            responseContent = TurnClosingNotices.StepFailed(failedCall);
         }
 
         if (allFunctionCalls.Count > 0)
@@ -1311,9 +980,9 @@ public class LLMService : ILLMService
                 allFunctionCalls.Count, iterationsUsed);
         }
 
-        ctx.RecipePausedOnAsk = recipePausedOnAsk;
+        ctx.RecipePausedOnAsk = recipe.PausedOnAsk;
 
-        return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot);
+        return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, recipe.AskedSlot);
     }
 
     // A clarifying question or an interactive reply affordance ("[REPLIES:date …]") is the assistant

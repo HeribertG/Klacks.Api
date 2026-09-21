@@ -35,12 +35,24 @@ public class EscalationChainService : IEscalationChainService
     private const string ExhaustedDeadlineReason = "deadline passed without acknowledgement";
     private const int MaxAdvanceRounds = 64;
 
+    /// <summary>
+    /// How far past its own DeadlineUtc a chain may still be advanced. It covers clock skew between
+    /// instances and the sweep's own tick boundary (BackgroundServiceOptions.EscalationChainSweepIntervalSeconds,
+    /// 30s by default) and nothing more: inside it, B4's last-chance parallel wave still applies, beyond it
+    /// the chain is stale and gets exhausted instead of waking its whole remaining roster at once.
+    /// </summary>
+    private const int DeadlineGraceMinutes = 1;
+
     private const string ApprovalNotStampedMessage =
         "Approval chain {ChainId} was acknowledged by {UserId} but condition {ConditionId} no longer accepts an "
         + "approval (moved on, or already approved); nothing will be executed for this acknowledgement";
 
     private const string ApproverNotAGuidMessage =
         "Approval chain {ChainId} was acknowledged by {UserId}, which is not a user id; no approval stamped";
+
+    private const string ChainAlreadyResolvedMessage =
+        "Escalation chain {ChainId} received an acknowledgement from {UserId} after the chain itself had already "
+        + "been resolved; the stage keeps the reply as a record, but nothing was released by it";
 
     private readonly IEscalationChainRepository _chainRepository;
     private readonly IEscalationRosterService _rosterService;
@@ -156,7 +168,7 @@ public class EscalationChainService : IEscalationChainService
             _logger.LogWarning(
                 "Escalation chain {ChainId} ({Purpose}) started with an empty roster for group {GroupId}",
                 chain.Id, chain.Purpose, chain.GroupId);
-            await _chainRepository.TryExhaustChainAsync(chain.Id, ExhaustedNoRosterReason, cancellationToken);
+            await ExhaustAsync(chain.Id, ExhaustedNoRosterReason, chain, cancellationToken);
             return chain.Id;
         }
 
@@ -188,13 +200,20 @@ public class EscalationChainService : IEscalationChainService
                 {
                     var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
                     var reason = nowUtc >= chain.DeadlineUtc ? ExhaustedDeadlineReason : ExhaustedNoRosterReason;
-                    await _chainRepository.TryExhaustChainAsync(chainId, reason, cancellationToken);
+                    await ExhaustAsync(chainId, reason, chain, cancellationToken);
                 }
 
                 return;
             }
 
             var now = _timeProvider.GetUtcNow().UtcDateTime;
+
+            if (now > chain.DeadlineUtc.AddMinutes(DeadlineGraceMinutes))
+            {
+                await ExhaustAsync(chainId, ExhaustedDeadlineReason, chain, cancellationToken);
+                return;
+            }
+
             var wave = EscalationWaveCalculator.ComputeNextWave(
                 now, chain.DeadlineUtc, pending.Count, budget.MinStageMinutes, budget.MaxStageMinutes);
 
@@ -228,52 +247,80 @@ public class EscalationChainService : IEscalationChainService
         _logger.LogError("Escalation chain {ChainId} advance loop hit its round cap; leaving it Running for the next sweep tick", chainId);
     }
 
-    public async Task<bool> AcknowledgeAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<EscalationAcknowledgeOutcome> AcknowledgeAsync(string userId, CancellationToken cancellationToken = default)
     {
         // Reply-path lookup: which chain isn't known in advance, so this takes whichever stage this
         // user currently holds Notified (most recent, if more than one - see FindNotifiedStageForUserAsync).
         var stage = await _chainRepository.FindNotifiedStageForUserAsync(userId, cancellationToken);
         if (stage is null || stage.Chain is null)
         {
-            return false;
+            return EscalationAcknowledgeOutcome.NoNotifiedStage;
+        }
+
+        if (stage.Chain.Status != EscalationChainStatus.Running)
+        {
+            // A Notified stage under an already-resolved chain: impossible for chains created since the
+            // exhaust started cancelling its stages, but rows left behind by the earlier behaviour still
+            // look like this, and answering them must not read as an approval that took effect.
+            _logger.LogInformation(ChainAlreadyResolvedMessage, stage.EscalationChainId, userId);
+            return EscalationAcknowledgeOutcome.ChainAlreadyResolved;
         }
 
         return await AcknowledgeStageAsync(stage, cancellationToken);
     }
 
-    public async Task<bool> AcknowledgeChainAsync(Guid chainId, string userId, CancellationToken cancellationToken = default)
+    public async Task<EscalationAcknowledgeOutcome> AcknowledgeChainAsync(
+        Guid chainId, string userId, CancellationToken cancellationToken = default)
     {
         // UI intervention-list path: the chain is known, so this must resolve the stage WITHIN that
         // chain specifically - unlike AcknowledgeAsync, a user simultaneously Notified on more than
         // one chain must not have the wrong one resolved by this call.
         var chain = await _chainRepository.GetByIdWithStagesAsync(chainId, cancellationToken);
-        var stage = chain?.Stages.FirstOrDefault(s => s.UserId == userId && s.Status == EscalationStageStatus.Notified);
-        if (chain is null || stage is null)
+        if (chain is null)
         {
-            return false;
+            return EscalationAcknowledgeOutcome.NoNotifiedStage;
+        }
+
+        if (chain.Status != EscalationChainStatus.Running)
+        {
+            // The chain ended before the click landed - the intervention row the user saw is stale. This is
+            // checked before the stage lookup on purpose: the exhaust cancels the stages along with the
+            // chain, so looking for a Notified stage first would report "nothing of yours here" and hide
+            // the only fact the user needs, namely that the deadline is gone.
+            _logger.LogInformation(ChainAlreadyResolvedMessage, chainId, userId);
+            return EscalationAcknowledgeOutcome.ChainAlreadyResolved;
+        }
+
+        var stage = chain.Stages.FirstOrDefault(s => s.UserId == userId && s.Status == EscalationStageStatus.Notified);
+        if (stage is null)
+        {
+            return EscalationAcknowledgeOutcome.NoNotifiedStage;
         }
 
         stage.Chain = chain;
         return await AcknowledgeStageAsync(stage, cancellationToken);
     }
 
-    private async Task<bool> AcknowledgeStageAsync(EscalationStage stage, CancellationToken cancellationToken)
+    private async Task<EscalationAcknowledgeOutcome> AcknowledgeStageAsync(EscalationStage stage, CancellationToken cancellationToken)
     {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var stageWon = await _chainRepository.TryAcknowledgeStageAsync(stage.Id, now, cancellationToken);
         if (!stageWon)
         {
-            // Lost the race - the same stage already expired or was cancelled on another instance.
-            return false;
+            // Lost the race - the stage already expired, or an exhaust/cancel/supersede cancelled it
+            // together with its chain. Either way this user no longer holds anything to acknowledge.
+            return EscalationAcknowledgeOutcome.NoNotifiedStage;
         }
 
         var chainWon = await _chainRepository.TryAcknowledgeChainAsync(
             stage.EscalationChainId, stage.UserId, stage.UserDisplayName, now, cancellationToken);
         if (!chainWon)
         {
-            // The chain itself was already resolved (e.g. Superseded by F3) while this reply was in
-            // flight; the stage stays Acknowledged, which is still an honest record of what happened.
-            return true;
+            // The chain itself was resolved between the stage guard and here. The stage stays
+            // Acknowledged as an honest record of the reply, but NOTHING follows from it: no approval is
+            // stamped, no handoff goes out. Reporting this as success is the bug this outcome replaces.
+            _logger.LogInformation(ChainAlreadyResolvedMessage, stage.EscalationChainId, stage.UserId);
+            return EscalationAcknowledgeOutcome.ChainAlreadyResolved;
         }
 
         await StampApprovalIfApprovalChainAsync(stage.Chain!, stage, cancellationToken);
@@ -285,6 +332,37 @@ public class EscalationChainService : IEscalationChainService
         await _chainRepository.CancelRemainingStagesAsync(stage.EscalationChainId, stage.Id, cancellationToken);
         await _notifier.NotifyHandoffAsync(stage.Chain!, stage, previouslyNotified, cancellationToken);
 
+        return EscalationAcknowledgeOutcome.Acknowledged;
+    }
+
+    public Task<bool> ForceExhaustAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default) =>
+        ExhaustAsync(chainId, outcomeReason, knownChain: null, cancellationToken);
+
+    /// <summary>
+    /// The single exhaust path: the repository ends the chain and cancels its remaining stages in one
+    /// transaction, and whoever won that transition then closes the inbox rows of the stages that were
+    /// still waiting. Doing it here rather than at each call site keeps the sweep's force-exhaust, the
+    /// deadline guard, the no-roster case and the all-stages-resolved case on identical behaviour.
+    /// </summary>
+    private async Task<bool> ExhaustAsync(
+        Guid chainId, string outcomeReason, EscalationChain? knownChain, CancellationToken cancellationToken)
+    {
+        var result = await _chainRepository.TryExhaustChainAsync(chainId, outcomeReason, cancellationToken);
+
+        // The ?? guards the default struct a bare test double returns, whose list is null.
+        var cancelledNotifiedStages = result.CancelledNotifiedStages ?? [];
+        if (!result.Exhausted || cancelledNotifiedStages.Count == 0)
+        {
+            return result.Exhausted;
+        }
+
+        var chain = knownChain ?? await _chainRepository.GetByIdWithStagesAsync(chainId, cancellationToken);
+        if (chain is null)
+        {
+            return true;
+        }
+
+        await _notifier.NotifyExhaustedAsync(chain, cancelledNotifiedStages, cancellationToken);
         return true;
     }
 

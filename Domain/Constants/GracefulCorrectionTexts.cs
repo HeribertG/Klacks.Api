@@ -30,6 +30,9 @@ public static class GracefulCorrectionTexts
 
     public const string ClarificationQuestion = "assistant.correction.clarificationQuestion";
 
+    public const string RecipeConfirmYes = "assistant.recipe.confirmYes";
+    public const string RecipeConfirmNo = "assistant.recipe.confirmNo";
+
     public const string PreviousActionPlaceholder = "{previousAction}";
     public const string FirstOptionPlaceholder = "{optionA}";
     public const string SecondOptionPlaceholder = "{optionB}";
@@ -42,11 +45,20 @@ public static class GracefulCorrectionTexts
     public static readonly IReadOnlyList<string> CoreLanguages = MultiLanguage.CoreLanguages;
 
     /// <summary>Every key a language pack has to ship. The coverage guard reads exactly this list.</summary>
-    public static readonly IReadOnlyList<string> RequiredKeys = [ClarificationQuestion];
+    public static readonly IReadOnlyList<string> RequiredKeys =
+        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo];
 
-    /// <summary>Every placeholder each key must contain, in every language.</summary>
+    /// <summary>Every placeholder the clarification question must contain, in every language.</summary>
     public static readonly IReadOnlyList<string> RequiredPlaceholders =
         [PreviousActionPlaceholder, FirstOptionPlaceholder, SecondOptionPlaceholder];
+
+    /// <summary>
+    /// The placeholders one key must contain in every language: those of the clarification question, none
+    /// for the plain button labels.
+    /// </summary>
+    /// <param name="key">Catalogue key whose placeholders are wanted</param>
+    public static IReadOnlyList<string> PlaceholdersFor(string key) =>
+        string.Equals(key, ClarificationQuestion, StringComparison.Ordinal) ? RequiredPlaceholders : [];
 
     private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> CoreTexts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
@@ -57,6 +69,20 @@ public static class GracefulCorrectionTexts
                 [English] = "Understood — not {previousAction}. Do you mean {optionA} or {optionB}?",
                 [French] = "Compris — pas {previousAction}. Veux-tu dire {optionA} ou {optionB} ?",
                 [Italian] = "Capito — non {previousAction}. Intendi {optionA} o {optionB}?"
+            },
+            [RecipeConfirmYes] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Ja",
+                [English] = "Yes",
+                [French] = "Oui",
+                [Italian] = "Sì"
+            },
+            [RecipeConfirmNo] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Nein",
+                [English] = "No",
+                [French] = "Non",
+                [Italian] = "No"
             }
         };
 

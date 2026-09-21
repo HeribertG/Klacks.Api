@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "فهمت — ليس {previousAction}. هل تقصد {optionA} أم {optionB}؟"
+  "assistant.correction.clarificationQuestion": "فهمت — ليس {previousAction}. هل تقصد {optionA} أم {optionB}؟",
+  "assistant.recipe.confirmYes": "نعم",
+  "assistant.recipe.confirmNo": "لا"
 }

@@ -170,10 +170,12 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     {
         var isCorrectionSignal = ImplicitCorrectionDetector.IsCorrectionSignal(context.Message);
         var isBareNegation = DeclineDetector.IsBareNegation(context.Message);
+        var confirmedGate = context.RecipeConfirmationAccepted;
+        var abandonedGate = context.RecipeConfirmationDeclined;
         var resumesRecipe = !context.RecipeAwaitingConfirmation
             && !string.IsNullOrWhiteSpace(context.ActiveRecipeName);
 
-        if (!isCorrectionSignal && !isBareNegation && !resumesRecipe)
+        if (!isCorrectionSignal && !isBareNegation && !resumesRecipe && !confirmedGate && !abandonedGate)
         {
             return;
         }
@@ -181,6 +183,36 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         var previous = await _repository.FindMostRecentByAgentAndUserAsync(agentId, context.UserId);
         if (previous == null || previous.WasCorrected)
         {
+            return;
+        }
+
+        // Before the window, and without asking the message anything: the engine itself cleared the gate
+        // this turn, so nothing has to be attributed by heuristic. The window bounds an attribution, not
+        // a fact, and the two clocks disagree - a user who reads the confirmation question and answers
+        // after two minutes still resumes the recipe (the pending store keeps it for
+        // RecipeEngineDefaults.PendingRecipeTtlMinutes), and the gate used to stay pending for good.
+        if (confirmedGate && string.Equals(previous.RecipeOutcome, RecipeOutcomes.Pending, StringComparison.Ordinal))
+        {
+            await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Confirmed);
+            return;
+        }
+
+        // Same reasoning as the confirmed gate one branch up, for its mirror image: the engine itself
+        // abandoned the gate this turn, so the outcome is a fact and needs neither the window nor a
+        // second reading of the message. What the message still decides is WHICH outcome - a plain
+        // refusal is a verdict on the trigger and keeps feeding the decline signal, while a reply that
+        // redirects the conversation says nothing about the recipe and must stay out of it, or every
+        // "nein, zeig mir stattdessen die Kunden" would teach the cluster policy that the trigger was
+        // wrong. Without this branch such a turn left the gate pending for good.
+        if (abandonedGate && string.Equals(previous.RecipeOutcome, RecipeOutcomes.Pending, StringComparison.Ordinal))
+        {
+            if (isBareNegation)
+            {
+                await MarkRecipeDeclinedAsync(agentId, previous);
+                return;
+            }
+
+            await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Redirected);
             return;
         }
 
@@ -209,24 +241,17 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     // is what LLMService acts on to clear the gate, and without it the same recipe re-triggering from a
     // rejection ("Nein, neue Gruppe anlegen" discards the pending recipe and is matched afresh) would book
     // a gate as confirmed that LLMService had just recorded as declined. The stored name went through
-    // Truncate, the name on the context did not, so the comparison has to truncate too.
+    // Truncate, the name on the context did not, so the comparison has to truncate too. This inference
+    // is the fallback only: a turn that carries one of the engine's own gate flags
+    // (RecipeConfirmationAccepted, RecipeConfirmationDeclined) was resolved by the caller before the
+    // window check and never reaches it. What still arrives here is a turn the engine never saw as a
+    // gate at all - a gated turn whose successor went down another chat path entirely.
     private async Task ResolvePendingRecipeAsync(
         Guid agentId, SkillSelectionTrajectory previous, LLMContext context, bool isBareNegation)
     {
         if (isBareNegation)
         {
-            await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Declined);
-
-            await _caseCollector.CollectRecipeDeclineAsync(new SkillLearningRecipeDecline(
-                agentId,
-                previous.UserMessageHash,
-                previous.IntentExcerpt,
-                previous.UserId,
-                previous.Locale,
-                previous.RecipeName,
-                previous.KnowledgeIndexCandidatesJson,
-                previous.Id));
-
+            await MarkRecipeDeclinedAsync(agentId, previous);
             return;
         }
 
@@ -235,6 +260,30 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         {
             await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Confirmed);
         }
+    }
+
+    /// <summary>
+    /// Books a refused gate as declined AND feeds the decline learning signal, which is the one pairing
+    /// that must never come apart: the outcome without the case makes the refusal invisible to
+    /// RecipeDeclineClusterPolicy, and the case without the outcome lets a later turn resolve the same
+    /// gate a second time. The two entry points reach it from different evidence - the engine's own flag
+    /// and the window-bounded inference - so it lives here rather than in either of them.
+    /// </summary>
+    /// <param name="agentId">Agent the decline is clustered under.</param>
+    /// <param name="previous">The trajectory of the turn that asked the confirmation question.</param>
+    private async Task MarkRecipeDeclinedAsync(Guid agentId, SkillSelectionTrajectory previous)
+    {
+        await MarkRecipeOutcomeAsync(previous, RecipeOutcomes.Declined);
+
+        await _caseCollector.CollectRecipeDeclineAsync(new SkillLearningRecipeDecline(
+            agentId,
+            previous.UserMessageHash,
+            previous.IntentExcerpt,
+            previous.UserId,
+            previous.Locale,
+            previous.RecipeName,
+            previous.KnowledgeIndexCandidatesJson,
+            previous.Id));
     }
 
     private async Task MarkRecipeOutcomeAsync(SkillSelectionTrajectory previous, string outcome)

@@ -11,6 +11,7 @@
 /// </summary>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -40,6 +41,10 @@ public static class RecipeReplyGuard
 
     private const string FallbackLanguage = "en";
 
+    private const string ConfirmationChipFormat = "{0} {1}{2} \"{3}={4}\" | \"{5}={6}\"]";
+
+    private static readonly char[] ChipReservedChars = { '"', '=', '|', ']', '[' };
+
     /// <summary>
     /// Returns the model's confirmation reply if it is a safe question; otherwise a deterministic
     /// localized confirmation built from the recipe goal (and an alternative goal when two flows
@@ -58,6 +63,41 @@ public static class RecipeReplyGuard
             ? sanitized
             : DeterministicConfirmation(goal, alternativeGoal, language, goalTranslations, alternativeGoalTranslations);
     }
+
+    /// <summary>
+    /// Appends the Yes/No answer chip to a single-recipe confirmation question so the reply reaches the
+    /// engine as the language-free tokens "yes"/"no" instead of a typed word. The text is returned
+    /// untouched when it already carries a REPLIES block, when two alternative flows were offered (the
+    /// question is then "which one", not yes/no), or when the language has no authored button labels -
+    /// the question itself still asks for Yes or No in that case.
+    /// </summary>
+    /// <param name="confirmText">The confirmation question as produced by SafeConfirmation</param>
+    /// <param name="alternativeGoal">Second matched flow, or null for a plain yes/no confirmation</param>
+    /// <param name="language">Active language of the turn, or null when the turn carries none</param>
+    public static string WithConfirmationChip(string confirmText, string? alternativeGoal, string? language)
+    {
+        if (string.IsNullOrWhiteSpace(confirmText)
+            || !string.IsNullOrWhiteSpace(alternativeGoal)
+            || confirmText.Contains(LlmRepliesFormat.BlockPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return confirmText;
+        }
+
+        if (!GracefulCorrectionTexts.TryGetText(GracefulCorrectionTexts.RecipeConfirmYes, language, out var yes)
+            || !GracefulCorrectionTexts.TryGetText(GracefulCorrectionTexts.RecipeConfirmNo, language, out var no)
+            || HasReservedChar(yes) || HasReservedChar(no))
+        {
+            return confirmText;
+        }
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            ConfirmationChipFormat,
+            confirmText.TrimEnd(), LlmRepliesFormat.BlockPrefix, LlmRepliesFormat.ModeSingle,
+            yes, LlmRepliesFormat.ConfirmYesValue, no, LlmRepliesFormat.ConfirmNoValue);
+    }
+
+    private static bool HasReservedChar(string label) => label.IndexOfAny(ChipReservedChars) >= 0;
 
     /// <summary>
     /// Returns the model's ask-step reply if it is a safe question; otherwise the localized ask

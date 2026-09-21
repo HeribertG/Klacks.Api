@@ -170,6 +170,60 @@ public class EscalationNotifier : IEscalationNotifier
         }
     }
 
+    public async Task NotifyExhaustedAsync(
+        EscalationChain chain,
+        IReadOnlyList<EscalationStage> notifiedStages,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var stage in notifiedStages)
+        {
+            await TryAcknowledgeDispatchRowAsync(stage, cancellationToken);
+        }
+
+        if (chain.Purpose != EscalationChainPurpose.ProactiveApproval || notifiedStages.Count == 0)
+        {
+            return;
+        }
+
+        var language = await ResolveLanguageAsync(cancellationToken);
+        if (!EscalationHandoffTexts.TryGetText(EscalationHandoffTexts.ApprovalExhaustedNote, language, out var template))
+        {
+            return;
+        }
+
+        var noteText = Substitute(template, await ApprovalHandoffParametersAsync(chain, cancellationToken));
+
+        foreach (var stage in notifiedStages)
+        {
+            await RecordInboxOnlyAsync(stage.UserId, noteText, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Ends the open inbox row a stage's notification left behind. These rows carry neither a ConditionId
+    /// nor a NextReminderAtUtc, so they were never part of the reminder loop
+    /// (IProactiveTriggerDispatchRepository.GetDueForReminderAsync requires both) - the acknowledgement is
+    /// the row's own "this question is closed" stamp, nothing is being stopped. Best-effort: the chain is
+    /// exhausted either way and a failed stamp must not abort the remaining stages.
+    /// </summary>
+    private async Task TryAcknowledgeDispatchRowAsync(EscalationStage stage, CancellationToken cancellationToken)
+    {
+        if (stage.DispatchRowId is not Guid dispatchRowId)
+        {
+            return;
+        }
+
+        try
+        {
+            await _dispatchRepository.AcknowledgeAsync(dispatchRowId, stage.UserId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex, "Acknowledging dispatch row {RowId} of an exhausted escalation stage failed", dispatchRowId);
+        }
+    }
+
     private async Task<Dictionary<string, string>> AbsenceHandoffParametersAsync(
         EscalationChain chain, CancellationToken cancellationToken)
     {

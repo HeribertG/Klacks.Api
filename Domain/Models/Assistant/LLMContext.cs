@@ -123,6 +123,26 @@ public class LLMContext
     public bool RecipeAwaitingConfirmation { get; set; }
 
     /// <summary>
+    /// True when THIS turn cleared a recipe's confirmation gate: the user affirmed the question the
+    /// previous turn asked and the engine resumed the paused plan (TurnPreparationService). Written by
+    /// the one place that makes that decision, so the learning pipeline no longer has to re-derive the
+    /// confirmation from the message and can never disagree with the engine about it. Read by
+    /// TrajectoryCaptureService, which resolves the preceding turn's pending gate as confirmed.
+    /// </summary>
+    public bool RecipeConfirmationAccepted { get; set; }
+
+    /// <summary>
+    /// True when THIS turn ABANDONED a recipe's confirmation gate: the user's reply to the question the
+    /// previous turn asked was not an affirmation, so the engine aborted the run
+    /// (TurnPreparationService). Mirror of <see cref="RecipeConfirmationAccepted"/> and carried for the
+    /// same reason - the engine is the only place that knows a gate was abandoned, and the message alone
+    /// cannot say it, since an ordinary turn that merely follows a gated one reads identically. Read by
+    /// TrajectoryCaptureService, which then tells a plain refusal (declined, a verdict on the trigger)
+    /// from a reply that took the conversation elsewhere (redirected, no verdict at all).
+    /// </summary>
+    public bool RecipeConfirmationDeclined { get; set; }
+
+    /// <summary>
     /// Volatile system note of a correction turn: what the previous turn called, what the user
     /// corrected, the language to answer in and the pre-formulated opening sentence the answer must
     /// carry. Null on every ordinary turn. Set by both chat entry points before ILLMService runs,

@@ -33,7 +33,9 @@ public interface IConditionRemediationRegistry
     /// ProactiveGovernanceDecision.EffectiveMaxAction, itself already folding in the kill switch and the
     /// Enabled flag) - this method folds in the registry on top, so the caller never has to remember to
     /// consult both gates separately. Hint always passes through unchanged: a kind that only reports and
-    /// waits needs no remediation to do that.
+    /// waits needs no remediation to do that. A configured Prepare is likewise capped at Hint when the
+    /// kind's entry is not scenario-capable, because there is no scenario that could be laid in front of
+    /// a human; Execute on such a kind stays Execute.
     /// </summary>
     ProactiveMaxAction TryGetEffectiveMaxAction(string triggerKind, ProactiveMaxAction configuredMaxAction);
 }

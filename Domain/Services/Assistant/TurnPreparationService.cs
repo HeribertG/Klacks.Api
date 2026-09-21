@@ -71,7 +71,7 @@ public class TurnPreparationService : ITurnPreparationService
         var (force, confirmFunction, note) = ResolvePendingConfirmation(request.Context);
 
         var plan = await ResolveOrResumeRecipeAsync(
-            request.Context, request.Provider, request.Model, request.ConversationId, cancellationToken);
+            request.Context, request.Provider, request.Model, request.ConversationId, force, cancellationToken);
 
         return new TurnPreparation(plan, force, confirmFunction, note);
     }
@@ -169,6 +169,7 @@ public class TurnPreparationService : ITurnPreparationService
         ILLMProvider provider,
         LLMModel model,
         string conversationId,
+        bool pendingConfirmationForced,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(context.UserId, out var userGuid))
@@ -183,13 +184,15 @@ public class TurnPreparationService : ITurnPreparationService
             {
                 if (!AffirmationDetector.IsAffirmation(context.Message))
                 {
+                    context.RecipeConfirmationDeclined = true;
                     await _recipeRunRecorder.AbortRunningAsync(
-                        resumed.Name, userGuid, conversationId, "confirmation declined", cancellationToken);
+                        resumed.Name, userGuid, conversationId, RecipeAbortReasons.ConfirmationDeclined, cancellationToken);
                     _recipeEngine.Clear(userGuid, conversationId);
                     resumed = null;
                 }
                 else
                 {
+                    context.RecipeConfirmationAccepted = true;
                     resumed.ConfirmAndProceed();
                     resumed.AdvanceOverSatisfied();
                     return resumed;
@@ -205,7 +208,8 @@ public class TurnPreparationService : ITurnPreparationService
                     if (RecipeCancellationDetector.IsCancellation(context.Message))
                     {
                         await _recipeRunRecorder.AbortRunningAsync(
-                            resumed.Name, userGuid, conversationId, "cancelled during ask step", cancellationToken);
+                            resumed.Name, userGuid, conversationId,
+                            RecipeAbortReasons.CancelledDuringAskStep, cancellationToken);
                         _recipeEngine.Clear(userGuid, conversationId);
                         _logger.LogInformation(
                             "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);
@@ -253,6 +257,22 @@ public class TurnPreparationService : ITurnPreparationService
                 resumed.AdvanceOverSatisfied();
                 return resumed;
             }
+        }
+
+        // The affirmation that redeems an outstanding confirmation is very often phrased with the action
+        // it confirms ("Ja, Gruppe so anlegen"), which is exactly the shape a recipe trigger matches. A
+        // fresh match on that message costs the redemption outright: the loop stops on the new recipe's
+        // first ask step BEFORE it ever narrows the turn to confirm_pending_action, so the turn answers
+        // with the recipe's opening question and the gate stays unredeemed - and the user's next "ja" is
+        // then raw-filled into that ask slot. The confirmation wins by the same rule the gate-replay row
+        // already follows above: a reply that restates the action is still an answer to the question the
+        // gate asked. Only the first iteration is narrowed, so a genuinely new request in the same message
+        // is still served by the full toolset once the token is redeemed.
+        if (pendingConfirmationForced)
+        {
+            _logger.LogInformation(
+                "Recipe matching skipped for this turn: the message redeems an outstanding confirmation");
+            return null;
         }
 
         var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, context.UserRights, cancellationToken);
@@ -436,9 +456,19 @@ public class TurnPreparationService : ITurnPreparationService
     public GracefulCorrectionOutcome CompleteCorrection(
         GracefulCorrectionPlan plan,
         IReadOnlyList<LLMFunction> assembledFunctions,
-        string? language)
+        string? language,
+        bool undoIsPermitted = true)
     {
         var (undo, undoneCall) = ResolveUndo(plan);
+
+        if (!undoIsPermitted && undo != null)
+        {
+            _logger.LogInformation(
+                "Graceful correction: withholding the offer to run '{Inverse}' - the caller may not release it",
+                undo.SkillName);
+            undo = null;
+        }
+
         var outcome = CorrectionOutcomeComposer.Compose(plan, assembledFunctions, language, undo, undoneCall);
 
         if (outcome.Undo != null && undoneCall != null)
@@ -450,6 +480,8 @@ public class TurnPreparationService : ITurnPreparationService
 
         return outcome;
     }
+
+    public SkillUndoInvocation? PeekUndo(GracefulCorrectionPlan plan) => ResolveUndo(plan).Undo;
 
     /// <summary>
     /// At most one undo per correction, for the FIRST reversible write the corrected turn made. Not one

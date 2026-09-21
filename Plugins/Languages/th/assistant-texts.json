@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "เข้าใจแล้ว — ไม่ใช่ {previousAction} คุณหมายถึง {optionA} หรือ {optionB}?"
+  "assistant.correction.clarificationQuestion": "เข้าใจแล้ว — ไม่ใช่ {previousAction} คุณหมายถึง {optionA} หรือ {optionB}?",
+  "assistant.recipe.confirmYes": "ใช่",
+  "assistant.recipe.confirmNo": "ไม่"
 }

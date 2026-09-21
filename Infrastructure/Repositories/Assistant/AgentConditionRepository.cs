@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -38,6 +39,7 @@ public class AgentConditionRepository : IAgentConditionRepository
 
         return await _context.AgentConditions
             .Where(c => c.Fingerprint == fingerprint && !terminalStatuses.Contains(c.Status))
+            .Include(c => c.Groups)
             .AsNoTracking()
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -47,6 +49,23 @@ public class AgentConditionRepository : IAgentConditionRepository
         return await _context.AgentConditions
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
+
+    public async Task<List<AgentCondition>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var requestedIds = ids as IList<Guid> ?? ids.ToList();
+
+        return await _context.AgentConditions
+            .Where(c => requestedIds.Contains(c.Id))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<AgentCondition?> FindByScenarioIdAsync(Guid scenarioId, CancellationToken cancellationToken = default)
@@ -69,12 +88,19 @@ public class AgentConditionRepository : IAgentConditionRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<AgentCondition?> InsertAsync(AgentCondition condition, AgentConditionEvent detectionEvent, CancellationToken cancellationToken = default)
+    public async Task<AgentCondition?> InsertAsync(
+        AgentCondition condition,
+        AgentConditionEvent detectionEvent,
+        IReadOnlySet<Guid> groupIds,
+        CancellationToken cancellationToken = default)
     {
         detectionEvent.ConditionId = condition.Id;
 
+        var groupRows = GroupRows(condition.Id, groupIds);
+
         await _context.AgentConditions.AddAsync(condition, cancellationToken);
         await _context.AgentConditionEvents.AddAsync(detectionEvent, cancellationToken);
+        await _context.AgentConditionGroups.AddRangeAsync(groupRows, cancellationToken);
 
         try
         {
@@ -84,11 +110,64 @@ public class AgentConditionRepository : IAgentConditionRepository
         catch (DbUpdateException exception) when (IsUniqueViolation(exception))
         {
             Detach(condition, detectionEvent);
+            Detach(groupRows);
             return null;
         }
         catch
         {
             Detach(condition, detectionEvent);
+            Detach(groupRows);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Tracked reads and RemoveRange/AddRange rather than this class's usual AsNoTracking plus
+    /// ExecuteUpdate: the set holds one to three rows, so nothing is gained by a bulk statement, and
+    /// ExecuteDeleteAsync would make the whole method unreachable for the unit tests, which run on the EF
+    /// InMemory provider. Both directions of the diff plus the audit-free single SaveChangesAsync are
+    /// therefore provable without a real database.
+    /// </summary>
+    public async Task<bool> SyncGroupsAsync(
+        Guid conditionId,
+        IReadOnlySet<Guid> groupIds,
+        CancellationToken cancellationToken = default)
+    {
+        var stored = await _context.AgentConditionGroups
+            .Where(g => g.ConditionId == conditionId)
+            .ToListAsync(cancellationToken);
+
+        var obsolete = stored.Where(row => !groupIds.Contains(row.GroupId)).ToArray();
+        var storedGroupIds = stored.Select(row => row.GroupId).ToHashSet();
+        var added = GroupRows(conditionId, groupIds.Where(groupId => !storedGroupIds.Contains(groupId)));
+
+        if (obsolete.Length == 0 && added.Length == 0)
+        {
+            return false;
+        }
+
+        _context.AgentConditionGroups.RemoveRange(obsolete);
+        await _context.AgentConditionGroups.AddRangeAsync(added, cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException exception) when (IsUniqueViolation(exception))
+        {
+            // Another instance inserted the same pair between this method's read and its write. The set
+            // it wrote is the set this call wanted, so the outcome is already correct - reverting both
+            // halves of the staged diff and reporting "nothing written" is the honest answer, and the
+            // composite key is what makes the retry unnecessary.
+            Detach(obsolete);
+            Detach(added);
+            return false;
+        }
+        catch
+        {
+            Detach(obsolete);
+            Detach(added);
             throw;
         }
     }
@@ -489,19 +568,36 @@ public class AgentConditionRepository : IAgentConditionRepository
 
     /// <summary>
     /// The group-visibility half of every scoped ledger read, independent of the statuses the caller is
-    /// after: when not unrestricted, the same GroupId-to-Group left join and root comparison
-    /// GetTopForContextAsync originally introduced. Extracted from ScopedPlannerRelevantQuery so a read of
-    /// terminal rows can reuse the proven scope rule without inheriting that method's open-only status
-    /// filter - one scope implementation, two status filters, rather than a second copy that could drift.
+    /// after. Extracted from ScopedPlannerRelevantQuery so a read of terminal rows can reuse the proven
+    /// scope rule without inheriting that method's open-only status filter - one scope implementation, two
+    /// status filters, rather than a second copy that could drift.
     ///
-    /// A null GroupId is ungated for a genuinely installation-wide kind (target_hours_drift and the other
-    /// client- or period-borne findings) and withheld for an AgentTriggerGroupScopedKinds.Values kind, where
-    /// it can only mean the group of a group-owned entity was not determined - historical rows predating the
-    /// live-push fix keep a null GroupId for as long as they stay open, because a re-detection refreshes only
-    /// LastSeenAtUtc and PayloadJson, never GroupId. Handing those to every scoped planner would leak exactly the
-    /// group-scoped detail the join below withholds, so they fall back to Admins, who take the isUnrestricted
-    /// branch and skip this filter entirely - the same fallback the live push applies via
-    /// IAgentTriggerEvent.RequiresGroupScope.
+    /// Visibility is decided on the FULL group set in agent_condition_groups, not on the single
+    /// AgentCondition.GroupId: a shift is a member of several groups at once, so a row whose primary group
+    /// is one of them was invisible to the planners of all the others even though the live push had
+    /// correctly reached them. A row is admitted as soon as ANY of its groups resolves to a root in
+    /// visibleRootIds - the union, matching what PlanningAudienceResolver does on the push path.
+    ///
+    /// AgentCondition.GroupId is still what decides whether a row is group-borne AT ALL, because it is
+    /// non-null exactly when the join set is non-empty (AgentConditionGroup documents the invariant) and
+    /// answering that off the row itself costs no join. A null GroupId is ungated for a genuinely
+    /// installation-wide kind (target_hours_drift and the other client- or period-borne findings) and
+    /// withheld for an AgentTriggerGroupScopedKinds.Values kind, where it can only mean the group of a
+    /// group-owned entity was not determined - historical rows predating the live-push fix keep a null
+    /// GroupId for as long as they stay open, because a re-detection refreshes only LastSeenAtUtc and
+    /// PayloadJson, never GroupId. Handing those to every scoped planner would leak exactly the
+    /// group-scoped detail this filter withholds, so they fall back to Admins, who take the isUnrestricted
+    /// branch and skip it entirely - the same fallback the live push applies via
+    /// IAgentTriggerEvent.RequiresGroupScope. The reverse case, a non-null GroupId whose join rows are
+    /// missing, lands in the same place rather than anywhere wider: no group resolves, so only Admins see
+    /// it.
+    ///
+    /// The root resolution stays a separate queryable whose own top-level Where carries
+    /// visibleRootIds.Contains, and the correlation to the outer row is a plain id-membership subquery.
+    /// That shape is deliberate: it keeps the parameterized-collection translation on the same footing the
+    /// previous LEFT JOIN had it on instead of pushing it into a correlated EXISTS, and it needs no
+    /// DefaultIfEmpty at all, so the null-outer-side case the EF InMemory provider used to throw on can no
+    /// longer arise.
     /// </summary>
     private IQueryable<AgentCondition> ApplyGroupScope(
         IQueryable<AgentCondition> query,
@@ -513,21 +609,21 @@ public class AgentConditionRepository : IAgentConditionRepository
             return query;
         }
 
-        // Deliberately a separate Where ahead of the join rather than an extra term inside its
-        // predicate: the join's "c.GroupId == null || ..." short circuits before the outer side's
-        // "g.Root ?? g.Id" is touched, and folding the kind test into that disjunction makes the
-        // GroupId-null rows reach the fallback with a null g - which real Postgres answers with SQL
-        // null semantics but the EF InMemory provider throws on. Filtering first keeps the proven join
-        // untouched and leaves no such row for it to see.
         var kindScoped = query.Where(c => c.GroupId != null || !AgentTriggerGroupScopedKinds.Values.Contains(c.TriggerKind));
 
-        return
-            from c in kindScoped
-            join g in _context.Group on c.GroupId equals g.Id into groupJoin
-            from g in groupJoin.DefaultIfEmpty()
-            where c.GroupId == null || visibleRootIds.Contains(g.Root ?? g.Id)
-            select c;
+        var visibleConditionIds =
+            from conditionGroup in _context.AgentConditionGroups
+            join g in _context.Group on conditionGroup.GroupId equals g.Id
+            where visibleRootIds.Contains(g.Root ?? g.Id)
+            select conditionGroup.ConditionId;
+
+        return kindScoped.Where(c => c.GroupId == null || visibleConditionIds.Contains(c.Id));
     }
+
+    private static AgentConditionGroup[] GroupRows(Guid conditionId, IEnumerable<Guid> groupIds) =>
+        groupIds
+            .Select(groupId => new AgentConditionGroup { ConditionId = conditionId, GroupId = groupId })
+            .ToArray();
 
     private static bool IsUniqueViolation(DbUpdateException exception) =>
         (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
@@ -538,5 +634,39 @@ public class AgentConditionRepository : IAgentConditionRepository
         {
             _context.Entry(entity).State = EntityState.Detached;
         }
+    }
+
+    /// <summary>
+    /// agent_condition_groups is deliberately absent here: those rows carry no IsDeleted to set, and they
+    /// are unreachable once the condition they belong to is soft-deleted, because every read of them goes
+    /// through AgentCondition's own query filter. The cascading foreign key removes them when
+    /// DataRetentionBackgroundService finally deletes the condition physically.
+    /// </summary>
+    public async Task<(int Conditions, int Events)> SoftDeleteExpiredAsync(
+        DateTime shortLivedCutoffUtc,
+        DateTime longLivedCutoffUtc,
+        DateTime nowUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var eligible = AgentLedgerRetentionPolicy.ConditionEligible(shortLivedCutoffUtc, longLivedCutoffUtc);
+        var eligibleIds = _context.AgentConditions.Where(eligible).Select(c => c.Id);
+
+        var events = await _context.AgentConditionEvents
+            .Where(e => eligibleIds.Contains(e.ConditionId))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(e => e.IsDeleted, true)
+                    .SetProperty(e => e.DeletedTime, nowUtc),
+                cancellationToken);
+
+        var conditions = await _context.AgentConditions
+            .Where(eligible)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(c => c.IsDeleted, true)
+                    .SetProperty(c => c.DeletedTime, nowUtc),
+                cancellationToken);
+
+        return (conditions, events);
     }
 }

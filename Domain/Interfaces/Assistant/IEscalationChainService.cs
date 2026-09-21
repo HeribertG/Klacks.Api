@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IEscalationChainService
@@ -18,13 +20,20 @@ public interface IEscalationChainService
     /// <summary>Called by the sweep after a stage's expiry won; advances to the next wave or exhausts the chain.</summary>
     Task AdvanceAsync(Guid chainId, CancellationToken cancellationToken = default);
 
-    /// <summary>Reply-path entry point: acknowledges the Notified stage this user currently holds, if any. Returns false if the user holds none.</summary>
-    Task<bool> AcknowledgeAsync(string userId, CancellationToken cancellationToken = default);
+    /// <summary>Ends a chain past its own deadline as Exhausted, cancels every stage still waiting on it and
+    /// closes their inbox rows. The sweep's entry point: it goes through the service rather than straight to
+    /// the repository so the notification side of an exhaust cannot be forgotten at one call site. Returns
+    /// whether THIS call won the transition.</summary>
+    Task<bool> ForceExhaustAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
+
+    /// <summary>Reply-path entry point: acknowledges the Notified stage this user currently holds, if any.</summary>
+    Task<EscalationAcknowledgeOutcome> AcknowledgeAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>Intervention-list entry point: acknowledges this user's Notified stage on THIS specific
     /// chain. Unlike AcknowledgeAsync, safe when the user holds a Notified stage on more than one chain
-    /// at once. Returns false if the user holds no Notified stage on this chain.</summary>
-    Task<bool> AcknowledgeChainAsync(Guid chainId, string userId, CancellationToken cancellationToken = default);
+    /// at once. Only Acknowledged means something was released; ChainAlreadyResolved means the reply
+    /// arrived after the chain had ended, so no approval was stamped and no handoff was sent.</summary>
+    Task<EscalationAcknowledgeOutcome> AcknowledgeChainAsync(Guid chainId, string userId, CancellationToken cancellationToken = default);
 
     /// <summary>Owner decision B7: admins and any roster member of THIS chain may cancel, with a mandatory reason.</summary>
     Task<bool> CancelAsync(Guid chainId, string userId, string userName, string reason, CancellationToken cancellationToken = default);

@@ -10,4 +10,6 @@ public static class LlmRepliesFormat
     public const string ModeDate = "date";
     public const string ModeNumber = "number";
     public const int MaxOptions = 10;
+    public const string ConfirmYesValue = "yes";
+    public const string ConfirmNoValue = "no";
 }

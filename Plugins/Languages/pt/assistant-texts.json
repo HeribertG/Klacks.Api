@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Entendido — não {previousAction}. Refere-se a {optionA} ou a {optionB}?"
+  "assistant.correction.clarificationQuestion": "Entendido — não {previousAction}. Refere-se a {optionA} ou a {optionB}?",
+  "assistant.recipe.confirmYes": "Sim",
+  "assistant.recipe.confirmNo": "Não"
 }

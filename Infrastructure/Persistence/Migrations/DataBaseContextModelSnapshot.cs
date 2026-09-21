@@ -373,6 +373,25 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("agent_condition_events", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentConditionGroup", b =>
+                {
+                    b.Property<Guid>("ConditionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("condition_id");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.HasKey("ConditionId", "GroupId")
+                        .HasName("pk_agent_condition_groups");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_agent_condition_groups_group_id");
+
+                    b.ToTable("agent_condition_groups", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5084,6 +5103,84 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_skill_usage_records_turn_id");
 
                     b.ToTable("skill_usage_records", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.StandingApproval", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<int>("DailyBudget")
+                        .HasColumnType("integer")
+                        .HasColumnName("daily_budget");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<DateTime>("GrantedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("granted_at_utc");
+
+                    b.Property<Guid>("GrantedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("granted_by_user_id");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at_utc");
+
+                    b.Property<Guid?>("RevokedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("revoked_by_user_id");
+
+                    b.Property<string>("TriggerKind")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("trigger_kind");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_agent_standing_approval");
+
+                    b.HasIndex("TriggerKind", "GroupId")
+                        .HasDatabaseName("ix_agent_standing_approval_trigger_kind_group");
+
+                    b.ToTable("agent_standing_approval", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.TranscriptionDictionaryEntry", b =>
@@ -13533,6 +13630,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_agent_condition_events_agent_conditions_condition_id");
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentConditionGroup", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Assistant.AgentCondition", null)
+                        .WithMany("Groups")
+                        .HasForeignKey("ConditionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_agent_condition_groups_agent_conditions_condition_id");
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>
                 {
                     b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", "Agent")
@@ -14645,6 +14752,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("Skills");
 
                     b.Navigation("SoulSections");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentCondition", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.AgentMemory", b =>

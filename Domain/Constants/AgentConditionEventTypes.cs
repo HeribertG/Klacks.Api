@@ -21,4 +21,13 @@ public static class AgentConditionEventTypes
 
     /// <summary>An approval was withdrawn again without executing: the stale-claim window passed or the approver no longer qualifies.</summary>
     public const string ApprovalWithdrawn = "ApprovalWithdrawn";
+
+    /// <summary>
+    /// A remediation ran without any human being asked for this finding, because an administrator's
+    /// standing approval covered its kind and scope. Written after the execution succeeded, next to the
+    /// Executed transition, and its Detail names the grant and the administrator who gave it - the
+    /// Approved stamp on such a row was written by the dispatcher on the grant's authority, not by a
+    /// person acting in that moment, and only this event says so.
+    /// </summary>
+    public const string ExecutedUnderStandingApproval = "ExecutedUnderStandingApproval";
 }

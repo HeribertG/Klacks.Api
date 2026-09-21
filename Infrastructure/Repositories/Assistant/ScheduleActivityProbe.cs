@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF-backed IScheduleActivityProbe. Every query is an existence check (AnyAsync) rather than a
-/// count, so a group with thousands of assignments costs the same as one with a single row.
+/// EF-backed IScheduleActivityProbe. The gate queries are existence checks (AnyAsync) rather than
+/// counts, so a group with thousands of assignments costs the same as one with a single row. The two
+/// exceptions are CountActiveEmployeesAsync and CountUngroupedPlannableShiftsAsync, whose callers need
+/// the size of a set and not merely its existence.
 ///
 /// Group scoping walks the nested set inclusively — Root equal, Lft/Rgt within the group's own
 /// bounds — so the group itself and every descendant are covered by ONE query instead of a
@@ -98,6 +100,48 @@ public class ScheduleActivityProbe : IScheduleActivityProbe
             .AnyAsync(group => !group.IsDeleted, cancellationToken);
 
         return new ScheduleSetupState(hasOrders, hasShifts, hasWork, hasCustomers, hasGroups);
+    }
+
+    /// <summary>
+    /// The membership window is spelled exactly as ClientCoreDataReadRepository spells it — ValidFrom
+    /// on or before the reference day, ValidUntil unset or on/after it — so "active person" means the
+    /// same thing in both scans. A client without any membership row is not counted: there is no day
+    /// on which such a record is employed.
+    /// </summary>
+    public async Task<int> CountActiveEmployeesAsync(
+        DateOnly referenceDate,
+        CancellationToken cancellationToken = default)
+    {
+        var reference = referenceDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        return await _context.Client
+            .Where(client => !client.IsDeleted && client.Type == EntityTypeEnum.Employee)
+            .Where(client => client.Membership != null
+                && client.Membership.ValidFrom <= reference
+                && (client.Membership.ValidUntil == null || client.Membership.ValidUntil >= reference))
+            .CountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// The anti-join is spelled against GroupItem directly rather than against Shift.GroupItems so the
+    /// scenario exclusion can be stated on the membership row as well: a what-if clone sets AnalyseToken
+    /// on both sides, and a scenario membership must not make a real duty look grouped. No nested-set
+    /// scoping here on purpose - the question is whether ANY group owns the duty, and scoping would
+    /// answer a different one. FromDate is deliberately not part of the window: a duty that starts in
+    /// the future is planned and therefore concerned, while one whose UntilDate has passed is history.
+    /// </summary>
+    public async Task<int> CountUngroupedPlannableShiftsAsync(
+        DateOnly referenceDate,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Shift
+            .Where(shift => !shift.IsDeleted && shift.AnalyseToken == null && shift.ScenarioSourceShiftId == null)
+            .Where(shift => ShiftStatuses.Contains(shift.Status))
+            .Where(shift => shift.ShiftType == ShiftType.IsTask)
+            .Where(shift => shift.UntilDate == null || shift.UntilDate >= referenceDate)
+            .Where(shift => !_context.GroupItem.Any(item =>
+                item.ShiftId == shift.Id && !item.IsDeleted && item.AnalyseToken == null))
+            .CountAsync(cancellationToken);
     }
 
     /// <summary>

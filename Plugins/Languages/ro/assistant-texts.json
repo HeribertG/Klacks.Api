@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Am înțeles — nu {previousAction}. Te referi la {optionA} sau la {optionB}?"
+  "assistant.correction.clarificationQuestion": "Am înțeles — nu {previousAction}. Te referi la {optionA} sau la {optionB}?",
+  "assistant.recipe.confirmYes": "Da",
+  "assistant.recipe.confirmNo": "Nu"
 }

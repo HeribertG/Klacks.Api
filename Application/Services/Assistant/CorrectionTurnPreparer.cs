@@ -35,6 +35,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
     /// </summary>
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
 
+    private readonly ISkillRegistry _skillRegistry;
+    private readonly ISkillPermissionGate _permissionGate;
     private readonly ILogger<CorrectionTurnPreparer> _logger;
 
     public CorrectionTurnPreparer(
@@ -43,6 +45,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         ITurnPreparationService turnPreparation,
         ISkillToolsetAssembler toolsetAssembler,
         IPendingConfirmationStore pendingConfirmationStore,
+        ISkillRegistry skillRegistry,
+        ISkillPermissionGate permissionGate,
         ILogger<CorrectionTurnPreparer> logger)
     {
         _lastActionStore = lastActionStore;
@@ -50,6 +54,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         _turnPreparation = turnPreparation;
         _toolsetAssembler = toolsetAssembler;
         _pendingConfirmationStore = pendingConfirmationStore;
+        _skillRegistry = skillRegistry;
+        _permissionGate = permissionGate;
         _logger = logger;
     }
 
@@ -114,9 +120,12 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         GracefulCorrectionOutcome? correction = null;
         if (correctionPlan != null)
         {
+            var undoIsPermitted = await UndoIsPermittedAsync(correctionPlan, userId, cancellationToken);
+
             try
             {
-                correction = _turnPreparation.CompleteCorrection(correctionPlan, toolset.Functions, language);
+                correction = _turnPreparation.CompleteCorrection(
+                    correctionPlan, toolset.Functions, language, undoIsPermitted);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -160,5 +169,50 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         }
 
         return new CorrectionTurnPreparation(toolset, correction, undoWasHeld);
+    }
+
+    /// <summary>
+    /// Whether this account may release the inverse skill the correction would offer to run. Asked HERE,
+    /// before the note is composed, because a refusal has to cost the offer as a whole: the sentence and
+    /// the redeemable token are one promise, and SkillExecutorService.ValidatePermissions would refuse the
+    /// redemption anyway - create_group is reversed by delete_group, which stays Admin-only, so a
+    /// Supervisor was offered an undo that was then denied. The success message is unaffected.
+    /// Fails closed on every uncertainty: no inverse, an inverse no longer in the registry (its
+    /// redemption would answer "skill not found"), or a gate that threw. The Admin bypass and the role
+    /// expansion are the gate's own, which is why the check is not repeated against the turn's rights.
+    /// </summary>
+    /// <param name="plan">The correction the planning decided on</param>
+    /// <param name="userId">The account behind this turn, as the chat entry point resolved it</param>
+    /// <param name="cancellationToken">Cancellation of the turn</param>
+    private async Task<bool> UndoIsPermittedAsync(
+        GracefulCorrectionPlan plan, string userId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            var undo = _turnPreparation.PeekUndo(plan);
+            if (undo == null)
+            {
+                return false;
+            }
+
+            var inverse = _skillRegistry.GetSkillByName(undo.SkillName);
+            if (inverse == null)
+            {
+                _logger.LogWarning(
+                    "Graceful correction: the inverse skill '{Inverse}' is not registered, so no undo is offered.",
+                    undo.SkillName);
+                return false;
+            }
+
+            return await _permissionGate.HoldsAsync(userId, inverse.RequiredPermissions);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex,
+                "Could not check whether user {UserId} may release the undo; no undo is offered.", userId);
+            return false;
+        }
     }
 }

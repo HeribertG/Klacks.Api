@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Selvä — ei {previousAction}. Tarkoitatko {optionA} vai {optionB}?"
+  "assistant.correction.clarificationQuestion": "Selvä — ei {previousAction}. Tarkoitatko {optionA} vai {optionB}?",
+  "assistant.recipe.confirmYes": "Joo",
+  "assistant.recipe.confirmNo": "Ei"
 }

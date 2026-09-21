@@ -3,7 +3,9 @@
 /// <summary>
 /// Admin REST API for the escalation intervention list: lists every Running chain (who was woken,
 /// who acknowledged, the remaining deadline) and lets the requesting user take one over or cancel it
-/// with a mandatory reason (Owner decision B7).
+/// with a mandatory reason (Owner decision B7). A take-over that arrives after the chain has already
+/// ended answers 409 with the outcome and the chain's status, never a 200 that would tell the caller
+/// their approval took effect when nothing was released by it.
 /// </summary>
 /// <param name="mediator">Dispatches the chain list query and the acknowledge/cancel commands.</param>
 
@@ -13,6 +15,7 @@ using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -40,10 +43,13 @@ public class EscalationChainsController : ControllerBase
     }
 
     [HttpPut("{id:guid}/acknowledge")]
-    public async Task<ActionResult<HttpResultResource>> Acknowledge(Guid id)
+    public async Task<ActionResult<EscalationAcknowledgeResultResource>> Acknowledge(Guid id)
     {
         var result = await _mediator.Send(new AcknowledgeEscalationChainCommand(id, CurrentUserId()));
-        return Ok(result);
+
+        return result.Outcome == EscalationAcknowledgeOutcome.Acknowledged
+            ? Ok(result)
+            : Conflict(result);
     }
 
     [HttpPut("{id:guid}/cancel")]

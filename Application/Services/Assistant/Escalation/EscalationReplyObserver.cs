@@ -12,6 +12,7 @@
 /// the remark above on why.</param>
 /// <param name="logger">Logs a resolved acknowledgement; a miss is not logged, it would fire on every ordinary reply.</param>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Plugin.Contracts;
@@ -44,11 +45,20 @@ public sealed class EscalationReplyObserver : IInboundMessengerObserver
         // message actually arrives, IMessagingService already exists, so no cycle is walked again.
         var chainService = _serviceProvider.GetRequiredService<IEscalationChainService>();
 
-        var acknowledged = await chainService.AcknowledgeAsync(message.UserId, cancellationToken);
-        if (acknowledged)
+        var outcome = await chainService.AcknowledgeAsync(message.UserId, cancellationToken);
+
+        switch (outcome)
         {
-            _logger.LogInformation(
-                "Escalation stage acknowledged by user {UserId} via message {MessageId}", message.UserId, message.MessageId);
+            case EscalationAcknowledgeOutcome.Acknowledged:
+                _logger.LogInformation(
+                    "Escalation stage acknowledged by user {UserId} via message {MessageId}", message.UserId, message.MessageId);
+                break;
+
+            case EscalationAcknowledgeOutcome.ChainAlreadyResolved:
+                _logger.LogInformation(
+                    "Escalation reply from user {UserId} via message {MessageId} arrived after the chain had ended; nothing was released by it",
+                    message.UserId, message.MessageId);
+                break;
         }
     }
 }

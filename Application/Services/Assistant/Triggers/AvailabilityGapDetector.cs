@@ -1,16 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Detects plannable clients (membership valid inside the window) without a single
-/// availability entry for the next calendar month and emits one AvailabilityGapTriggerEvent
-/// per client, capped at MaxFindingsPerTick. Stays silent while no availability entries
-/// exist in the system at all, so installations not using the feature never get spammed.
+/// Detects plannable clients (membership valid inside the window) without a single availability entry
+/// for the next calendar month and emits ONE aggregated AvailabilityGapSummaryTriggerEvent naming every
+/// affected client, never one event per client. Stays silent while no availability entries exist in the
+/// system at all, so installations not using the feature never get spammed.
+/// Deliberately carries no result cap any more: the aggregate reports a count, and a capped read would
+/// report the cap instead of the truth. Both paths therefore run the identical uncapped repository
+/// query - which is what the fingerprint scan alone already did before the aggregation.
 /// </summary>
 /// <param name="availabilityReadRepository">Read-only availability-gap scans.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves today and the next-month window in the company's own local day.</param>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Assistant;
@@ -19,8 +23,6 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFingerprintSource
 {
-    public const int MaxFindingsPerTick = 25;
-
     private const int UncappedResultCount = int.MaxValue;
 
     private readonly IClientAvailabilityReadRepository _availabilityReadRepository;
@@ -48,39 +50,37 @@ public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFin
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var clients = await _availabilityReadRepository.GetPlannableClientsWithoutAvailabilityAsync(
-            window.MonthStart, window.MonthEnd, MaxFindingsPerTick, cancellationToken);
+        var clients = await ScanAsync(window, cancellationToken);
         if (clients.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var daysUntilPeriodStart = window.MonthStart.DayNumber - window.Today.DayNumber;
-        var events = new List<IAgentTriggerEvent>();
-        foreach (var client in clients.Take(MaxFindingsPerTick))
-        {
-            var clientName = $"{client.FirstName} {client.Name}".Trim();
-            events.Add(new AvailabilityGapTriggerEvent(
-                client.ClientId,
-                string.IsNullOrEmpty(clientName) ? client.ClientId.ToString() : clientName,
-                window.MonthStart,
-                window.MonthEnd,
-                daysUntilPeriodStart));
-        }
+        var affected = clients
+            .Select(client => new ProactiveAffectedClient(client.ClientId, DisplayName(client)))
+            .ToList();
 
         _logger.LogInformation(
-            "AvailabilityGap scan: {Clients} client(s) without availability for {Month}, {Events} event(s) emitted",
-            clients.Count, $"{window.MonthStart:yyyy-MM}", events.Count);
+            "AvailabilityGap scan: {Clients} client(s) without availability for the month starting {Month}, one aggregated event emitted",
+            affected.Count, window.MonthStart);
 
-        return events;
+        return
+        [
+            new AvailabilityGapSummaryTriggerEvent(
+                affected,
+                window.MonthStart,
+                window.MonthEnd,
+                window.MonthStart.DayNumber - window.Today.DayNumber)
+        ];
     }
 
     /// <summary>
-    /// Calls the very same repository method over the very same window, only without the result cap, so
-    /// the two paths cannot drift apart in their predicates. The "no availability entry exists anywhere"
-    /// gate is shared as well: when the installation does not use the feature at all, DetectAsync stays
-    /// silent, and an empty fingerprint set correctly resolves whatever findings a previous, still
-    /// active period had left open.
+    /// Runs the identical scan over the identical window and folds it to the single fingerprint the
+    /// aggregate carries, so the two paths cannot drift apart in their predicates. The "no availability
+    /// entry exists anywhere" gate is shared as well: when the installation does not use the feature at
+    /// all, DetectAsync stays silent, and an empty fingerprint set correctly resolves whatever findings a
+    /// previous, still active period had left open. Zero findings must likewise yield an EMPTY set and
+    /// never the period fingerprint, or the row would stay open after the last gap was filled.
     /// </summary>
     public async Task<IReadOnlySet<string>> GetActiveFingerprintsAsync(CancellationToken cancellationToken = default)
     {
@@ -91,14 +91,29 @@ public class AvailabilityGapDetector : IAgentTriggerDetector, IAgentConditionFin
             return new HashSet<string>(StringComparer.Ordinal);
         }
 
-        var clients = await _availabilityReadRepository.GetPlannableClientsWithoutAvailabilityAsync(
+        var clients = await ScanAsync(window, cancellationToken);
+
+        return clients.Count == 0
+            ? new HashSet<string>(StringComparer.Ordinal)
+            : new HashSet<string>(
+                [
+                    AgentConditionLedgerPolicy.FingerprintFor(
+                        Kind, AvailabilityGapSummaryTriggerEvent.DedupKeyFor(window.MonthStart))
+                ],
+                StringComparer.Ordinal);
+    }
+
+    private async Task<List<PlannableClientInfo>> ScanAsync(
+        (DateOnly Today, DateOnly MonthStart, DateOnly MonthEnd) window,
+        CancellationToken cancellationToken) =>
+        await _availabilityReadRepository.GetPlannableClientsWithoutAvailabilityAsync(
             window.MonthStart, window.MonthEnd, UncappedResultCount, cancellationToken);
 
-        return clients
-            .Select(client => AgentConditionLedgerPolicy.FingerprintFor(
-                Kind,
-                AvailabilityGapTriggerEvent.DedupKeyFor(client.ClientId, window.MonthStart)))
-            .ToHashSet(StringComparer.Ordinal);
+    private static string DisplayName(PlannableClientInfo client)
+    {
+        var clientName = $"{client.FirstName} {client.Name}".Trim();
+
+        return string.IsNullOrEmpty(clientName) ? client.ClientId.ToString() : clientName;
     }
 
     private async Task<(DateOnly Today, DateOnly MonthStart, DateOnly MonthEnd)> BuildWindowAsync(CancellationToken cancellationToken)

@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Conditions;
 
@@ -42,7 +43,7 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         string triggerKind,
         string fingerprint,
         Guid? entityId,
-        Guid? groupId,
+        IReadOnlySet<Guid> groupIds,
         string severity,
         string payloadJson,
         CancellationToken cancellationToken = default)
@@ -52,11 +53,17 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
         var existing = await _repository.FindOpenByFingerprintAsync(fingerprint, cancellationToken);
         if (existing != null)
         {
-            return (await TouchAsync(existing, triggerKind, payloadJson, nowUtc, cancellationToken), false);
+            return (await TouchAsync(existing, triggerKind, groupIds, payloadJson, nowUtc, cancellationToken), false);
         }
 
+        var groupId = AgentConditionLedgerPolicy.PrimaryGroupIdFor(groupIds);
         var condition = NewCondition(triggerKind, fingerprint, entityId, groupId, severity, payloadJson, nowUtc);
-        var inserted = await _repository.InsertAsync(condition, DetectionEvent(condition.Id, nowUtc), cancellationToken);
+        var inserted = await _repository.InsertAsync(
+            condition,
+            DetectionEvent(condition.Id, nowUtc),
+            groupIds,
+            cancellationToken);
+
         if (inserted != null)
         {
             return (inserted, true);
@@ -69,7 +76,7 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
                 $"Opening a ledger row for fingerprint '{fingerprint}' was rejected as a duplicate, but no open row for it exists.");
         }
 
-        return (await TouchAsync(winner, triggerKind, payloadJson, nowUtc, cancellationToken), false);
+        return (await TouchAsync(winner, triggerKind, groupIds, payloadJson, nowUtc, cancellationToken), false);
     }
 
     public async Task<int> MarkResolvedAsync(
@@ -351,8 +358,19 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
     }
 
     /// <summary>
-    /// Re-observation of a row that is already open: LastSeenAtUtc moves forward, and PayloadJson is
-    /// rewritten when the detector now reports something different from what the row was opened with.
+    /// Re-observation of a row that is already open: LastSeenAtUtc moves forward, PayloadJson is
+    /// rewritten when the detector now reports something different from what the row was opened with, and
+    /// the group set is brought in step with what the detector now reports.
+    ///
+    /// The group set is compared before it is touched, for the same reason the payload is: a tick
+    /// re-observes every open row - roughly 2900 in the reference installation - and virtually none of
+    /// them change groups. The comparison is free because FindOpenByFingerprintAsync loaded the stored set
+    /// along with the row. A mismatch only means "worth asking the repository"; the repository re-reads
+    /// and diffs against what is actually stored, so a set this service never loaded (a fake, an older
+    /// caller) costs one query and still writes nothing when nothing changed.
+    ///
+    /// AgentCondition.GroupId is deliberately NOT rewritten here even when the smallest member of the set
+    /// changed - see that property for why the budget bucket has to stay put.
     ///
     /// The payload is compared before it is written rather than written unconditionally. A tick re-reports
     /// every open row of every kind - roughly 2900 in the reference installation - and almost none of them
@@ -365,6 +383,7 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
     private async Task<AgentCondition> TouchAsync(
         AgentCondition condition,
         string triggerKind,
+        IReadOnlySet<Guid> groupIds,
         string payloadJson,
         DateTime nowUtc,
         CancellationToken cancellationToken)
@@ -390,7 +409,38 @@ public class AgentConditionLedgerService : IAgentConditionLedgerService
             }
         }
 
+        await SyncGroupsIfChangedAsync(condition, groupIds, cancellationToken);
+
         return condition;
+    }
+
+    /// <summary>
+    /// The in-memory <see cref="AgentCondition.Groups"/> is only updated when the repository confirms it
+    /// wrote, and a false from it does NOT mean the stored set equals the requested one - it can also mean
+    /// another instance won the same insert (see IAgentConditionRepository.SyncGroupsAsync). The returned
+    /// object's group set can therefore be one tick stale after such a race. Deliberately not re-read: the
+    /// database is correct either way, no caller of UpsertDetectedAsync reads Groups off the result today
+    /// (AgentTriggerBackgroundService and NextPeriodAutoCommitService use Status and Id), and spending a
+    /// query per open row per tick to refresh a value nobody reads is exactly the cost this whole diff
+    /// exists to avoid.
+    /// </summary>
+    private async Task SyncGroupsIfChangedAsync(
+        AgentCondition condition,
+        IReadOnlySet<Guid> groupIds,
+        CancellationToken cancellationToken)
+    {
+        var storedGroupIds = condition.Groups.Select(group => group.GroupId).ToHashSet();
+        if (storedGroupIds.SetEquals(groupIds))
+        {
+            return;
+        }
+
+        if (await _repository.SyncGroupsAsync(condition.Id, groupIds, cancellationToken))
+        {
+            condition.Groups = groupIds
+                .Select(groupId => new AgentConditionGroup { ConditionId = condition.Id, GroupId = groupId })
+                .ToList();
+        }
     }
 
     /// <summary>

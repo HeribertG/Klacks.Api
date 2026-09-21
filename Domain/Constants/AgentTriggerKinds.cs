@@ -36,6 +36,8 @@ public static class AgentTriggerKinds
     public const string BulkSealOrdersFailed = "bulk_seal_orders_failed";
     public const string NoScheduleYet = "no_schedule_yet";
     public const string EvalRegression = "eval_regression";
+    public const string UngroupedWorkforce = "ungrouped_workforce";
+    public const string UngroupedShifts = "ungrouped_shifts";
 
     /// <summary>
     /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
@@ -78,7 +80,9 @@ public static class AgentTriggerKinds
         BulkSealOrdersCompleted,
         BulkSealOrdersFailed,
         NoScheduleYet,
-        EvalRegression
+        EvalRegression,
+        UngroupedWorkforce,
+        UngroupedShifts
     ];
 }
 

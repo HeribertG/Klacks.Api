@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "הבנתי — לא {previousAction}. התכוונת ל-{optionA} או ל-{optionB}?"
+  "assistant.correction.clarificationQuestion": "הבנתי — לא {previousAction}. התכוונת ל-{optionA} או ל-{optionB}?",
+  "assistant.recipe.confirmYes": "כן",
+  "assistant.recipe.confirmNo": "לא"
 }

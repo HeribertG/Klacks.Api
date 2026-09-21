@@ -42,4 +42,25 @@ public interface IScheduleActivityProbe
     /// Installation-wide setup snapshot along the order -> shift -> assignment chain.
     /// </summary>
     Task<ScheduleSetupState> GetSetupStateAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// How many employees are on the books on the reference date: type Employee, not soft-deleted, and
+    /// holding a membership valid on that day. A COUNT rather than an existence check because the
+    /// grouping recommendation is a judgement about workforce size, and the membership window is part
+    /// of the definition rather than a refinement of it — a number that included everybody who ever
+    /// worked here would put a wrong figure in front of the user and would fire the recommendation in
+    /// installations it does not apply to.
+    /// </summary>
+    /// <param name="referenceDate">The company's own day the membership window is evaluated against.</param>
+    Task<int> CountActiveEmployeesAsync(DateOnly referenceDate, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// How many staffable, still valid duties carry no group membership at all. Containers are out of
+    /// scope - only a task is planned against a group - and so are orders, whose group is assigned when
+    /// they are sealed into a shift. A COUNT rather than an existence check because the recommendation
+    /// built on it is a judgement about how many duties are concerned, and a single one is normal rather
+    /// than a finding.
+    /// </summary>
+    /// <param name="referenceDate">The company's own day an expired duty is measured against.</param>
+    Task<int> CountUngroupedPlannableShiftsAsync(DateOnly referenceDate, CancellationToken cancellationToken = default);
 }

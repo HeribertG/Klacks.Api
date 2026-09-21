@@ -17,9 +17,11 @@
 /// <param name="context">The database context.</param>
 /// <param name="timeProvider">Clock ReadAtUtc is stamped from, injected so a test can drive it.</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -259,5 +261,20 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
             .ToListAsync(cancellationToken);
 
         return acknowledged.ToHashSet();
+    }
+
+    public async Task<int> SoftDeleteExpiredAsync(DateTime cutoffUtc, DateTime nowUtc, CancellationToken cancellationToken = default)
+    {
+        var openStatuses = AgentConditionStateMachine.OpenStatuses;
+
+        return await _context.AgentTriggerDispatches
+            .Where(AgentLedgerRetentionPolicy.DispatchEligible(cutoffUtc))
+            .Where(d => d.ConditionId == null
+                || !_context.AgentConditions.Any(c => c.Id == d.ConditionId && openStatuses.Contains(c.Status)))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(d => d.IsDeleted, true)
+                    .SetProperty(d => d.DeletedTime, nowUtc),
+                cancellationToken);
     }
 }

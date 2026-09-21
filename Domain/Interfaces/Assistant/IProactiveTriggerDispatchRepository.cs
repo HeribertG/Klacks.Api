@@ -95,4 +95,11 @@ public interface IProactiveTriggerDispatchRepository
         string userId,
         IReadOnlyCollection<Guid> conditionIds,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Soft-deletes dispatch rows selected by AgentLedgerRetentionPolicy.DispatchEligible. A row still linked
+    /// to an open condition is kept: the dedup check (WasDispatchedAsync) reads only non-deleted rows, so
+    /// deleting it would let the next tick announce the same live finding to the same user again.
+    /// </summary>
+    Task<int> SoftDeleteExpiredAsync(DateTime cutoffUtc, DateTime nowUtc, CancellationToken cancellationToken = default);
 }

@@ -1,12 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Periodic sweep for the escalation chain (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Expires
-/// stages whose DueAtUtc has passed, hands each expiry to IEscalationChainService.AdvanceAsync for
-/// the next wave, force-exhausts any Running chain past its own DeadlineUtc as a drift safety net,
-/// and checks F3 (a chain's referenced Break got soft-deleted -> Superseded). Disabled by default via
-/// BackgroundServiceOptions.EscalationChain - see that flag's XML doc for why, unlike most services
-/// in this folder, it is meant to run on every instance once turned on.
+/// Periodic sweep for the escalation chain (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Force-exhausts
+/// any Running chain past its own DeadlineUtc FIRST, then expires stages whose DueAtUtc has passed and
+/// hands each expiry to IEscalationChainService.AdvanceAsync for the next wave, and finally checks F3
+/// (a chain's referenced Break got soft-deleted -> Superseded). The order is part of the contract: a
+/// chain that drifted past its deadline - a stalled sweep, a long restart - would otherwise have its
+/// expiry reach AdvanceAsync while still Running, and EscalationWaveCalculator answers a non-positive
+/// remaining budget with a PARALLEL wave, so one stale chain would wake every roster member left on it
+/// at once. Exhausting first leaves AdvanceAsync nothing to notify - and since an exhaust now cancels the
+/// chain's remaining Pending/Notified stages in its own transaction, a stale chain's stages are already
+/// terminal by the time the expiry step runs, so that step finds nothing due for them at all. The
+/// force-exhaust goes through IEscalationChainService rather than the repository so the inbox rows of the
+/// stages it cancels are closed as well. Enabled by default via
+/// BackgroundServiceOptions.EscalationChain because the proactive approval chain depends on it - see
+/// that flag's XML doc for why, unlike most services in this folder, it is meant to run on every instance.
 /// </summary>
 /// <param name="serviceProvider">Creates a scoped DI provider per sweep cycle.</param>
 /// <param name="timeProvider">Injected clock; RunCycleAsync takes "now" from here so a test can drive
@@ -22,7 +30,7 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Escalation;
 
 public class EscalationChainBackgroundService : BackgroundService
 {
-    private const string OverdueOutcomeReason = "deadline passed before every stage could be resolved";
+    internal const string OverdueOutcomeReason = "deadline passed before every stage could be resolved";
     private const string SupersededOutcomeReason = "the referenced absence report was cancelled";
 
     private readonly IServiceProvider _serviceProvider;
@@ -94,8 +102,8 @@ public class EscalationChainBackgroundService : BackgroundService
 
             var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
 
+            var overdueCount = await ExhaustOverdueChainsAsync(repository, chainService, nowUtc, cancellationToken);
             var expiredCount = await ExpireDueStagesAsync(repository, chainService, nowUtc, cancellationToken);
-            var overdueCount = await ExhaustOverdueChainsAsync(repository, nowUtc, cancellationToken);
             var supersededCount = await SupersedeCancelledReportsAsync(repository, cancellationToken);
 
             _logger.LogInformation(
@@ -129,14 +137,17 @@ public class EscalationChainBackgroundService : BackgroundService
     }
 
     private static async Task<int> ExhaustOverdueChainsAsync(
-        IEscalationChainRepository repository, DateTime nowUtc, CancellationToken cancellationToken)
+        IEscalationChainRepository repository,
+        IEscalationChainService chainService,
+        DateTime nowUtc,
+        CancellationToken cancellationToken)
     {
         var overdueChainIds = await repository.GetOverdueRunningChainIdsAsync(nowUtc, cancellationToken);
         var exhausted = 0;
 
         foreach (var chainId in overdueChainIds)
         {
-            if (await repository.TryExhaustChainAsync(chainId, OverdueOutcomeReason, cancellationToken))
+            if (await chainService.ForceExhaustAsync(chainId, OverdueOutcomeReason, cancellationToken))
             {
                 exhausted++;
             }

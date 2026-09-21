@@ -10,6 +10,7 @@
 /// <param name="settingsRepository">Persists the global kill-switch setting row.</param>
 /// <param name="unitOfWork">Spans both writes in one transaction; see the remarks.</param>
 /// <param name="resolver">Reads back the effective governance for the answer.</param>
+/// <param name="remediationRegistry">Says per kind whether a scenario could be prepared at all.</param>
 /// <remarks>
 /// The two writes follow the project's two different SaveChanges conventions: ISettingsRepository is
 /// stage-only and never saves by itself, while IAgentTriggerGovernanceRepository commits on its own.
@@ -45,17 +46,20 @@ public class SetProactiveGovernanceCommandHandler
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProactiveGovernanceResolver _resolver;
+    private readonly IConditionRemediationRegistry _remediationRegistry;
 
     public SetProactiveGovernanceCommandHandler(
         IAgentTriggerGovernanceRepository repository,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
-        IProactiveGovernanceResolver resolver)
+        IProactiveGovernanceResolver resolver,
+        IConditionRemediationRegistry remediationRegistry)
     {
         _repository = repository;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _resolver = resolver;
+        _remediationRegistry = remediationRegistry;
     }
 
     public async Task<ProactiveGovernanceDto> Handle(
@@ -100,7 +104,8 @@ public class SetProactiveGovernanceCommandHandler
         var killSwitchActive = await _resolver.IsKillSwitchActiveAsync(cancellationToken);
         var globalAutonomyLevel = await _resolver.GetGlobalAutonomyLevelAsync(cancellationToken);
         var decisions = await _resolver.ResolveAllAsync(cancellationToken);
-        return ProactiveGovernanceDtoMapper.ToDto(killSwitchActive, globalAutonomyLevel, decisions);
+        return ProactiveGovernanceDtoMapper.ToDto(
+            killSwitchActive, globalAutonomyLevel, decisions, _remediationRegistry);
     }
 
     private async Task WriteRuleAsync(

@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Baik — bukan {previousAction}. Maksud anda {optionA} atau {optionB}?"
+  "assistant.correction.clarificationQuestion": "Baik — bukan {previousAction}. Maksud anda {optionA} atau {optionB}?",
+  "assistant.recipe.confirmYes": "Ya",
+  "assistant.recipe.confirmNo": "Tak"
 }

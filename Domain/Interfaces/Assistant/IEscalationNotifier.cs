@@ -30,4 +30,17 @@ public interface IEscalationNotifier
         EscalationStage acknowledgedStage,
         IReadOnlyList<EscalationStage> previouslyNotifiedStages,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Closes out a chain nobody answered: acknowledges the inbox row of every stage that was still
+    /// waiting when the deadline won, so no open question is left behind for a chain that can no longer
+    /// be acknowledged, and - for an approval chain only - leaves one quiet, inbox-only note saying the
+    /// window lapsed and how to still get the action done today. An absence chain gets no such note: its
+    /// stages were woken over the messenger about a shift somebody still has to cover, and a note saying
+    /// "nobody answered" tells the very people who did not answer nothing they can act on.
+    /// </summary>
+    Task NotifyExhaustedAsync(
+        EscalationChain chain,
+        IReadOnlyList<EscalationStage> notifiedStages,
+        CancellationToken cancellationToken = default);
 }

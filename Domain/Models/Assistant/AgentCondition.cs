@@ -29,7 +29,26 @@ public class AgentCondition : BaseEntity
 
     public Guid? EntityId { get; set; }
 
+    /// <summary>
+    /// The row's PRIMARY group: the key the per-group action budget and the governance lookup are counted
+    /// in, and the only group a caller that needs exactly one may use. Written once, at detection, as the
+    /// smallest of the groups the detector reported then - a re-observation never rewrites it, because a
+    /// budget bucket that moved between ticks would be no budget at all. It is NOT the row's audience: a
+    /// shift-borne finding can concern several groups, and the whole set lives in <see cref="Groups"/>,
+    /// which is what every visibility-gated read joins against. Null means no group was known at detection,
+    /// and a scoped read then treats the row as not group-borne - see AgentConditionGroup for how the two
+    /// can drift apart and why that is safe.
+    /// </summary>
     public Guid? GroupId { get; set; }
+
+    /// <summary>
+    /// Every group this finding concerns, the visibility set behind
+    /// <see cref="GroupId"/>. Populated by the ledger service on detection and kept in step on every
+    /// re-observation. Only loaded where a caller asked for it (Include); an untouched collection here
+    /// means "not loaded", not "no groups", so never read emptiness off it to decide whether the finding
+    /// is group-borne - <see cref="GroupId"/> answers that without a join.
+    /// </summary>
+    public ICollection<AgentConditionGroup> Groups { get; set; } = [];
 
     /// <summary>See AgentTriggerSeverity (High/Medium/Low) - reused from the existing trigger pipeline.</summary>
     public string Severity { get; set; } = string.Empty;

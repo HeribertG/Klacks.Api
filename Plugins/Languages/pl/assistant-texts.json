@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Rozumiem — nie {previousAction}. Chodzi o {optionA} czy o {optionB}?"
+  "assistant.correction.clarificationQuestion": "Rozumiem — nie {previousAction}. Chodzi o {optionA} czy o {optionB}?",
+  "assistant.recipe.confirmYes": "Tak",
+  "assistant.recipe.confirmNo": "Nie"
 }

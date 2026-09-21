@@ -5,7 +5,9 @@
 /// scoped by the expected prior status, mirroring ScheduledTaskRepository.TryClaimAsync: the row
 /// only moves for the caller that observes the old status, so two sweep instances (this service is
 /// explicitly allowed to run on all of them, see the Entwurf §5) or a sweep racing an incoming reply
-/// resolve to exactly one winner without a distributed lock.
+/// resolve to exactly one winner without a distributed lock. TryExhaustChainAsync is the single
+/// exception to "one statement per method": it wraps its chain transition and the stage cancellation that
+/// must accompany it in one transaction of its own - see that method's own doc for why.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -51,6 +53,15 @@ public class EscalationChainRepository : IEscalationChainRepository
         return await _context.Set<EscalationChain>()
             .Include(c => c.Stages)
             .FirstOrDefaultAsync(c => c.Id == chainId, cancellationToken);
+    }
+
+    public async Task<EscalationChainStatus?> GetStatusAsync(Guid chainId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .AsNoTracking()
+            .Where(c => c.Id == chainId)
+            .Select(c => (EscalationChainStatus?)c.Status)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<EscalationStage>> GetStagesByChainAsync(Guid chainId, CancellationToken cancellationToken = default)
@@ -167,10 +178,19 @@ public class EscalationChainRepository : IEscalationChainRepository
         return affected > 0;
     }
 
+    /// <summary>
+    /// The chain-status half of the guard is written as an EXISTS subquery over the chain set rather than
+    /// as a filter on the Chain navigation: a navigation inside an ExecuteUpdateAsync predicate is the form
+    /// whose translation is not guaranteed, while a DbSet subquery becomes a plain WHERE EXISTS that
+    /// PostgreSQL accepts in an UPDATE. Same semantics, no reliance on join-into-UPDATE support.
+    /// </summary>
     public async Task<bool> TryAcknowledgeStageAsync(Guid stageId, DateTime respondedAtUtc, CancellationToken cancellationToken = default)
     {
         var affected = await _context.Set<EscalationStage>()
-            .Where(s => s.Id == stageId && s.Status == EscalationStageStatus.Notified)
+            .Where(s => s.Id == stageId
+                && s.Status == EscalationStageStatus.Notified
+                && _context.Set<EscalationChain>().Any(
+                    c => c.Id == s.EscalationChainId && c.Status == EscalationChainStatus.Running))
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(s => s.Status, EscalationStageStatus.Acknowledged)
                 .SetProperty(s => s.RespondedAtUtc, respondedAtUtc),
@@ -205,16 +225,54 @@ public class EscalationChainRepository : IEscalationChainRepository
                 cancellationToken);
     }
 
-    public async Task<bool> TryExhaustChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// The one method here that opens a transaction, and deliberately so: chain status and stage statuses
+    /// must move together, otherwise a won exhaust leaves Pending/Notified stages behind that a late reply
+    /// can still win. It commits immediately, like the other self-committing Assistant repositories, because
+    /// every caller is a sweep tick or a chain wave without a surrounding unit of work. Everything inside is
+    /// ExecuteUpdateAsync plus one read - deliberately no SaveChangesAsync, which would flush whatever a
+    /// stage-only repository staged earlier on this shared context.
+    /// The read runs AFTER the cancel, not before: a concurrent acknowledgement could otherwise flip a stage
+    /// between a pre-read and the cancel, and the caller would be handed a stage it never cancelled. Reading
+    /// Cancelled-with-a-NotifiedAtUtc afterwards is exact instead, because only a won transition out of
+    /// Running ever writes Cancelled - so a chain that was Running a statement ago carried none.
+    /// </summary>
+    public async Task<EscalationChainExhaustResult> TryExhaustChainAsync(
+        Guid chainId, string outcomeReason, CancellationToken cancellationToken = default)
     {
-        var affected = await _context.Set<EscalationChain>()
-            .Where(c => c.Id == chainId && c.Status == EscalationChainStatus.Running)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(c => c.Status, EscalationChainStatus.Exhausted)
-                .SetProperty(c => c.OutcomeReason, outcomeReason),
-                cancellationToken);
+        var strategy = _context.Database.CreateExecutionStrategy();
 
-        return affected > 0;
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
+            var affected = await _context.Set<EscalationChain>()
+                .Where(c => c.Id == chainId && c.Status == EscalationChainStatus.Running)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(c => c.Status, EscalationChainStatus.Exhausted)
+                    .SetProperty(c => c.OutcomeReason, outcomeReason),
+                    cancellationToken);
+
+            if (affected == 0)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return EscalationChainExhaustResult.Lost;
+            }
+
+            await CancelRemainingStagesAsync(chainId, Guid.Empty, cancellationToken);
+
+            var cancelledNotifiedStages = await _context.Set<EscalationStage>()
+                .AsNoTracking()
+                .Where(s => s.EscalationChainId == chainId
+                    && s.Status == EscalationStageStatus.Cancelled
+                    && s.NotifiedAtUtc != null)
+                .OrderBy(s => s.Rank)
+                .ToListAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return new EscalationChainExhaustResult(true, cancelledNotifiedStages);
+        });
     }
 
     public async Task<bool> TrySupersedeChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default)

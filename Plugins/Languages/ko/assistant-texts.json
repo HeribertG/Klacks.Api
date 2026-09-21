@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "알겠습니다 — {previousAction}이(가) 아니군요. {optionA}인가요, 아니면 {optionB}인가요?"
+  "assistant.correction.clarificationQuestion": "알겠습니다 — {previousAction}이(가) 아니군요. {optionA}인가요, 아니면 {optionB}인가요?",
+  "assistant.recipe.confirmYes": "네",
+  "assistant.recipe.confirmNo": "아니요"
 }

@@ -1,0 +1,36 @@
+{
+  "de": {
+    "negations": [
+      "nein",
+      "nee",
+      "nö",
+      "noe",
+      "nicht",
+      "nichts",
+      "kein",
+      "keine",
+      "keinen"
+    ]
+  },
+  "en": {
+    "negations": [
+      "no",
+      "nope",
+      "nah",
+      "not",
+      "nothing"
+    ]
+  },
+  "fr": {
+    "negations": [
+      "non",
+      "rien"
+    ]
+  },
+  "it": {
+    "negations": [
+      "niente",
+      "nulla"
+    ]
+  }
+}

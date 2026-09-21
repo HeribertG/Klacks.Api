@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Rozumím — ne {previousAction}. Myslíte {optionA}, nebo {optionB}?"
+  "assistant.correction.clarificationQuestion": "Rozumím — ne {previousAction}. Myslíte {optionA}, nebo {optionB}?",
+  "assistant.recipe.confirmYes": "Ano",
+  "assistant.recipe.confirmNo": "Ne"
 }

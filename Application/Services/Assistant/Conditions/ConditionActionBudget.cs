@@ -83,6 +83,30 @@ internal sealed class ConditionActionBudget
     }
 
     /// <summary>
+    /// Whether a standing approval with this daily budget may still be used in this group today. The
+    /// SAME count the governance daily budget is measured in - the day's claim events plus the claims
+    /// this tick has already made - so a grant is a second, tighter ceiling on one number rather than a
+    /// counter of its own that could drift from it. Including the tick's own claims is not cosmetic:
+    /// without them a single tick could overrun the grant by up to
+    /// AgentConditionActionDefaults.MaxExecutionsPerKindPerTick.
+    ///
+    /// Costs no query in practice: the governance budget for the same group is always asked one gate
+    /// earlier, so the day's count is already cached when this runs.
+    /// </summary>
+    /// <param name="groupId">The bucket the condition belongs to; null is the installation-wide one.</param>
+    /// <param name="dailyBudget">StandingApproval.DailyBudget of the grant being considered.</param>
+    public async Task<bool> WithinStandingApprovalBudgetAsync(
+        Guid? groupId, int dailyBudget, CancellationToken cancellationToken)
+    {
+        var budget = BudgetFor(groupId);
+
+        budget.TodayCount ??= await _repository.CountActionClaimsAsync(
+            _triggerKind, groupId, _companyDayStartUtc, cancellationToken);
+
+        return budget.TodayCount.Value + budget.ClaimsThisTick < dailyBudget;
+    }
+
+    /// <summary>
     /// True the first time this group is blocked in this tick. The tick walks on to the other groups
     /// after a block, so without this the same recipient would get one budget report per remaining
     /// candidate of their group.

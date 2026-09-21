@@ -8,6 +8,7 @@
 /// instead of a double delivery or a double acknowledgement.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
@@ -20,6 +21,10 @@ public interface IEscalationChainRepository
     Task<bool> AddAsync(EscalationChain chain, CancellationToken cancellationToken = default);
 
     Task<EscalationChain?> GetByIdWithStagesAsync(Guid chainId, CancellationToken cancellationToken = default);
+
+    /// <summary>This chain's status alone, or null when there is no such chain - what a caller needs who
+    /// only has to report where the chain ended up, without paying for its stages.</summary>
+    Task<EscalationChainStatus?> GetStatusAsync(Guid chainId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<EscalationStage>> GetStagesByChainAsync(Guid chainId, CancellationToken cancellationToken = default);
 
@@ -58,6 +63,10 @@ public interface IEscalationChainRepository
 
     Task<bool> TryExpireStageAsync(Guid stageId, CancellationToken cancellationToken = default);
 
+    /// <summary>Acknowledges a stage only while it is Notified AND its chain is still Running. The second
+    /// half is what keeps a late reply from writing an Acknowledged stage under a chain that has already
+    /// been exhausted, cancelled or superseded - a record that used to survive because the caller's next
+    /// compare-and-swap on the chain then failed and nothing rolled the stage back.</summary>
     Task<bool> TryAcknowledgeStageAsync(Guid stageId, DateTime respondedAtUtc, CancellationToken cancellationToken = default);
 
     Task<bool> TryAcknowledgeChainAsync(
@@ -66,7 +75,13 @@ public interface IEscalationChainRepository
     /// <summary>Cancels every OTHER stage still Pending or Notified once one stage has been acknowledged.</summary>
     Task<int> CancelRemainingStagesAsync(Guid chainId, Guid exceptStageId, CancellationToken cancellationToken = default);
 
-    Task<bool> TryExhaustChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
+    /// <summary>Ends the chain as Exhausted and, in the SAME transaction, cancels every stage still Pending
+    /// or Notified, so no stage is left in a state a late reply could still win. Unlike the other methods on
+    /// this interface it therefore commits a transaction of its own; every caller is a sweep tick or a chain
+    /// wave with no surrounding unit of work, and a half-applied exhaust is exactly the state this fixes.
+    /// The returned stages are the ones this call moved from Notified to Cancelled - their inbox rows are
+    /// still open and the caller is expected to close them.</summary>
+    Task<EscalationChainExhaustResult> TryExhaustChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
 
     Task<bool> TrySupersedeChainAsync(Guid chainId, string outcomeReason, CancellationToken cancellationToken = default);
 

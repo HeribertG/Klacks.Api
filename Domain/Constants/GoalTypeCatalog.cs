@@ -94,16 +94,16 @@ public static class GoalTypeCatalog
             [AgentTriggerKinds.AvailabilityGap] = Define(
                 AgentTriggerKinds.AvailabilityGap,
                 "availabilityGap",
-                "an employee has not entered any availability for the coming month",
+                "a coming month was reached with employees who had entered no availability for it at all",
                 "Close gaps in reported availability",
-                "A missing availability came up {0} time(s) in the last {1} days."),
+                "A month with unreported availability came up {0} time(s) in the last {1} days."),
 
             [AgentTriggerKinds.ClientMissingCoreData] = Define(
                 AgentTriggerKinds.ClientMissingCoreData,
                 "clientMissingCoreData",
-                "an active person record is missing an address or any way to be contacted",
+                "a piece of master data is absent from active person records - either an address or any way to be contacted",
                 "Complete missing master data",
-                "Missing master data came up {0} time(s) in the last {1} days."),
+                "A missing master data field came up {0} time(s) in the last {1} days."),
 
             [AgentTriggerKinds.PlanPausedForApproval] = Define(
                 AgentTriggerKinds.PlanPausedForApproval,
@@ -173,7 +173,21 @@ public static class GoalTypeCatalog
                 "evalRegression",
                 "Klacksy's answer quality, measured against its reference questions, fell behind the previous measurement",
                 "Keep Klacksy's answer quality from slipping",
-                "A drop in measured answer quality came up {0} time(s) in the last {1} days.")
+                "A drop in measured answer quality came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.UngroupedWorkforce] = Define(
+                AgentTriggerKinds.UngroupedWorkforce,
+                "ungroupedWorkforce",
+                "a workforce of some size is being planned without a single group to scope or hand over any part of it",
+                "Organise the workforce into groups",
+                "A workforce without any grouping came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.UngroupedShifts] = Define(
+                AgentTriggerKinds.UngroupedShifts,
+                "ungroupedShifts",
+                "plannable duties exist that belong to no group, so they stay outside the group-scoped period close and outside payroll by group",
+                "Assign duties to groups",
+                "Duties without a group came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>

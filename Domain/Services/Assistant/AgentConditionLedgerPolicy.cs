@@ -1,11 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The two rules that connect the proactive trigger pipeline to the condition ledger: which events
-/// become ledger rows, and how a row's fingerprint is spelled. They live here rather than inside the
-/// tick because later stages need the same answers - Etappe 3d maps a dismissed notification back to
-/// its condition through the identical fingerprint spelling, and Etappe 3f lists findings under the
-/// identical tracking rule.
+/// The rules that connect the proactive trigger pipeline to the condition ledger: which events become
+/// ledger rows, how a row's fingerprint is spelled, and which groups a row records - the whole set it
+/// concerns and the single primary one among them. They live here rather than inside the tick because
+/// later stages need the same answers - Etappe 3d maps a dismissed notification back to its condition
+/// through the identical fingerprint spelling, and Etappe 3f lists findings under the identical tracking
+/// rule.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -40,19 +41,24 @@ public static class AgentConditionLedgerPolicy
         FingerprintFor(triggerEvent.Kind, triggerEvent.DedupKey);
 
     /// <summary>
-    /// The single group a ledger row records for an event that may concern several. AgentCondition has
-    /// one GroupId column, while a shift-borne finding can name two or three groups; the first of the
-    /// ordered set is kept as a stable representative. The live audience of a notification is recomputed
-    /// from the full GroupIds set at dispatch time and never read back from this column, so narrowing it
-    /// here cannot widen anybody's reach on the push path. The ledger READ path does read the column
-    /// (AgentConditionRepository's planner-facing queries), and there this narrowing can only withhold: a
-    /// planner scoped to the second group of a multi-group shift will not find the row through
-    /// list_open_findings, the context block or the digest even though the live push correctly reached
-    /// them. Under-sharing, not a leak - closing it needs a join table this column cannot express.
+    /// Every group a ledger row concerns, deduplicated. This - not
+    /// <see cref="PrimaryGroupIdFor(IReadOnlySet{Guid})"/> - is what the row's visibility is decided on: a
+    /// shift-borne finding can name two or three groups, and the planner-facing reads admit it for a
+    /// planner scoped to ANY of them. Deduplicated because the set is persisted into
+    /// agent_condition_groups, whose composite key would reject a repeated pair, and because a duplicate
+    /// would be meaningless anyway.
     /// </summary>
-    public static Guid? LedgerGroupIdFor(IAgentTriggerEvent triggerEvent)
-    {
-        var groupIds = triggerEvent.GroupIds;
-        return groupIds.Count > 0 ? groupIds.First() : null;
-    }
+    public static IReadOnlySet<Guid> LedgerGroupIdsFor(IAgentTriggerEvent triggerEvent) =>
+        triggerEvent.GroupIds.ToHashSet();
+
+    /// <summary>
+    /// The row's PRIMARY group - the single value AgentCondition.GroupId keeps for the callers that need
+    /// exactly one: the per-group action budget and the governance lookup are counted in it, so the pick
+    /// must be stable across ticks and re-arms, which is why it is the smallest id rather than the first
+    /// one the event happens to enumerate. It is NOT the row's audience; see
+    /// <see cref="LedgerGroupIdsFor"/>. Null exactly when the set is empty, which is the invariant the
+    /// scope reads use to tell "concerns no group at all" apart from "concerns groups" without joining.
+    /// </summary>
+    public static Guid? PrimaryGroupIdFor(IReadOnlySet<Guid> groupIds) =>
+        groupIds.Count > 0 ? groupIds.Min() : null;
 }

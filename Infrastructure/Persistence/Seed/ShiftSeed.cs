@@ -529,10 +529,11 @@ INSERT INTO public.shift (
     '00:00:00', {employees}, 0, 1, 2
 );");
 
+                shiftIds.Add(split1Id);
                 TrackShiftGroups(split1Id, workflowGroups);
 
                 var split2Id = Guid.NewGuid();
-                var uniqueNameSpät = nameRegistry.UniqueName("Spätschicht-Teil", i);
+                var uniqueNameSpät =nameRegistry.UniqueName("Spätschicht-Teil", i);
                 var uniqueAbbrSpät = nameRegistry.UniqueAbbreviation("S", i);
 
                 script.AppendLine($@"
@@ -556,6 +557,7 @@ INSERT INTO public.shift (
     '00:00:00', {employees}, 0, 1, 2
 );");
 
+                shiftIds.Add(split2Id);
                 TrackShiftGroups(split2Id, workflowGroups);
 
                 var split3Id = Guid.NewGuid();
@@ -584,6 +586,7 @@ INSERT INTO public.shift (
     '00:00:00', {employees}, 0, 1, 2
 );");
 
+                shiftIds.Add(split3Id);
                 TrackShiftGroups(split3Id, workflowGroups);
             }
 

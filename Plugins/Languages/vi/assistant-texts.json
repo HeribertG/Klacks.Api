@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Đã hiểu — không phải {previousAction}. Bạn muốn nói {optionA} hay {optionB}?"
+  "assistant.correction.clarificationQuestion": "Đã hiểu — không phải {previousAction}. Bạn muốn nói {optionA} hay {optionB}?",
+  "assistant.recipe.confirmYes": "Có",
+  "assistant.recipe.confirmNo": "Không"
 }

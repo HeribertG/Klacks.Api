@@ -260,103 +260,28 @@ public sealed class ProactiveReminderService : IProactiveReminderService
     /// reminder rendered from the frozen copy therefore reports numbers that stopped being true, which
     /// is worse than not reminding at all.
     ///
-    /// The live values are MERGED over the frozen ones instead of replacing them, because the two sets
-    /// are not the same shape: the payload is what the detector captured (a period label, a count, the
-    /// affected rows), the frozen parameters are what the message's i18n string interpolates. Replacing
-    /// would silently drop every placeholder the payload happens not to carry and render the sentence
-    /// with holes in it. The worst case of the merge is therefore exactly today's behaviour.
-    ///
-    /// Only the CONTENT parameters are resolved this way. The action parameters stay the row's own:
-    /// they address the route the user lands on, and a payload key that happened to share their name
-    /// would silently redirect the click.
+    /// The merge itself lives in ProactiveContentParamMerge, shared with the inbox read: the same row
+    /// must not read differently depending on whether the user sees it as a live reminder or in the
+    /// list. The only thing that stays here is the log of an unreadable payload, because a silent
+    /// fallback on a background sweep is the kind of degradation nobody notices.
     /// </summary>
+    /// <param name="row">The claimed dispatch row, carrying the parameters frozen at first delivery.</param>
+    /// <param name="condition">The still-open ledger row, whose current payload supplies the live values.</param>
     private IReadOnlyDictionary<string, string>? ResolveContentParams(
         ProactiveTriggerDispatchRow row,
         AgentCondition condition)
     {
-        var frozenParams = ParseParams(row.ContentParamsJson);
-        var liveParams = ParseLivePayloadParams(condition.PayloadJson);
+        var resolved = ProactiveContentParamMerge.MergeLiveOverFrozen(
+            ParseParams(row.ContentParamsJson), condition.PayloadJson, out var payloadError);
 
-        if (liveParams is null || liveParams.Count == 0)
-        {
-            return frozenParams;
-        }
-
-        if (frozenParams is null || frozenParams.Count == 0)
-        {
-            return liveParams;
-        }
-
-        var merged = new Dictionary<string, string>(frozenParams, StringComparer.Ordinal);
-        foreach (var liveParam in liveParams)
-        {
-            merged[liveParam.Key] = liveParam.Value;
-        }
-
-        return merged;
-    }
-
-    /// <summary>
-    /// The scalar entries of a condition payload, as interpolation values. The payload is free-form per
-    /// detector kind and routinely nests objects and arrays; those are skipped rather than stringified,
-    /// because their raw JSON in a user-facing sentence is noise, not information. An unreadable payload
-    /// degrades to no live values at all, which leaves the frozen ones in place.
-    /// </summary>
-    private Dictionary<string, string>? ParseLivePayloadParams(string? payloadJson)
-    {
-        if (string.IsNullOrWhiteSpace(payloadJson))
-        {
-            return null;
-        }
-
-        try
-        {
-            var payload = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(payloadJson);
-            if (payload is null)
-            {
-                return null;
-            }
-
-            var scalars = new Dictionary<string, string>(StringComparer.Ordinal);
-            foreach (var entry in payload)
-            {
-                if (TryRenderScalar(entry.Value, out var rendered))
-                {
-                    scalars[entry.Key] = rendered;
-                }
-            }
-
-            return scalars;
-        }
-        catch (JsonException ex)
+        if (payloadError != null)
         {
             _logger.LogWarning(
-                ex,
+                payloadError,
                 "Condition payload is not valid JSON; the reminder falls back to the parameters frozen on the dispatch row");
-            return null;
         }
-    }
 
-    /// <summary>
-    /// A payload value as text, for the value kinds a message can interpolate. Numbers are taken from
-    /// their raw JSON text, which is culture-invariant by definition of the format.
-    /// </summary>
-    private static bool TryRenderScalar(JsonElement element, out string rendered)
-    {
-        switch (element.ValueKind)
-        {
-            case JsonValueKind.String:
-                rendered = element.GetString() ?? string.Empty;
-                return true;
-            case JsonValueKind.Number:
-            case JsonValueKind.True:
-            case JsonValueKind.False:
-                rendered = element.GetRawText();
-                return true;
-            default:
-                rendered = string.Empty;
-                return false;
-        }
+        return resolved;
     }
 
     /// <summary>

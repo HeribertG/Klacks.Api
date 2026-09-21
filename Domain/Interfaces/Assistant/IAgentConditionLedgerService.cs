@@ -38,12 +38,26 @@ public interface IAgentConditionLedgerService
     ///
     /// The write is skipped when the stored payload already equals the reported one, because a tick
     /// re-observes every open row and almost none of them have changed.
+    ///
+    /// THE GROUP SET IS ALSO KEPT IN STEP (2026-09-21), for the same class of reason. It is stored in
+    /// agent_condition_groups rather than in the single AgentCondition.GroupId column because a shift
+    /// belongs to several groups at once, and the planner-facing reads gate on the group: keeping one of
+    /// them denied the finding to the planners of every other group of the same shift, even though the
+    /// live push had correctly reached them. A re-observation adds what is now reported and removes what
+    /// is not, writing nothing when the set is unchanged. GroupId itself stays where detection put it -
+    /// the per-group action budget and the governance decision are counted in it.
     /// </summary>
+    /// <param name="groupIds">
+    /// Every group the finding concerns - AgentConditionLedgerPolicy.LedgerGroupIdsFor(triggerEvent) for a
+    /// caller holding a trigger event. Empty means the finding concerns no group, which for an
+    /// AgentTriggerGroupScopedKinds.Values kind means the group could not be determined and leaves the row
+    /// with Admins.
+    /// </param>
     Task<(AgentCondition Condition, bool IsNew)> UpsertDetectedAsync(
         string triggerKind,
         string fingerprint,
         Guid? entityId,
-        Guid? groupId,
+        IReadOnlySet<Guid> groupIds,
         string severity,
         string payloadJson,
         CancellationToken cancellationToken = default);

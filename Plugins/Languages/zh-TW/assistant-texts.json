@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "明白了——不是{previousAction}。您指的是{optionA}還是{optionB}？"
+  "assistant.correction.clarificationQuestion": "明白了——不是{previousAction}。您指的是{optionA}還是{optionB}？",
+  "assistant.recipe.confirmYes": "是",
+  "assistant.recipe.confirmNo": "否"
 }

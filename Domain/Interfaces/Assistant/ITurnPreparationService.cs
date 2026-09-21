@@ -71,8 +71,25 @@ public interface ITurnPreparationService
     /// <param name="plan">The plan PlanCorrectionAsync returned for this turn.</param>
     /// <param name="assembledFunctions">This turn's final toolset, the source of the deterministic candidates.</param>
     /// <param name="language">The single language tag the whole answer must be written in.</param>
+    /// <param name="undoIsPermitted">
+    /// False suppresses the undo half of the outcome - no offer sentence in the note and no invocation
+    /// for the caller to hold. The decision belongs to the caller because it needs the account behind
+    /// the turn, which this service does not read; a caller that persists nothing (the headless replay)
+    /// leaves it at true and keeps resolving the undo as data.
+    /// </param>
     GracefulCorrectionOutcome CompleteCorrection(
         GracefulCorrectionPlan plan,
         IReadOnlyList<LLMFunction> assembledFunctions,
-        string? language);
+        string? language,
+        bool undoIsPermitted = true);
+
+    /// <summary>
+    /// The inverse invocation CompleteCorrection would offer for this plan, or null when there is none.
+    /// Exists so a caller can answer "may this account release that skill" BEFORE the note is composed:
+    /// an offer the redemption would refuse must leave neither a sentence nor a token behind, and by the
+    /// time the outcome exists the sentence is already in it. Resolves the same way CompleteCorrection
+    /// does, reads nothing and persists nothing.
+    /// </summary>
+    /// <param name="plan">The plan PlanCorrectionAsync returned for this turn.</param>
+    SkillUndoInvocation? PeekUndo(GracefulCorrectionPlan plan);
 }

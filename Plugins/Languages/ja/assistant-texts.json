@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "承知しました。{previousAction} ではないのですね。{optionA} と {optionB} のどちらでしょうか？"
+  "assistant.correction.clarificationQuestion": "承知しました。{previousAction} ではないのですね。{optionA} と {optionB} のどちらでしょうか？",
+  "assistant.recipe.confirmYes": "はい",
+  "assistant.recipe.confirmNo": "いいえ"
 }

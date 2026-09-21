@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Κατάλαβα — όχι {previousAction}. Εννοείς {optionA} ή {optionB};"
+  "assistant.correction.clarificationQuestion": "Κατάλαβα — όχι {previousAction}. Εννοείς {optionA} ή {optionB};",
+  "assistant.recipe.confirmYes": "Ναι",
+  "assistant.recipe.confirmNo": "Όχι"
 }

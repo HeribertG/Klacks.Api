@@ -20,6 +20,11 @@
 /// <see cref="TryGetEffectiveMaxAction"/> regardless of its configured MaxAction or any Etappe-4e
 /// delegation - that is the second, code-only security gate this class exists to be, and only a
 /// reviewed code change can open it.
+///
+/// Since 2026-09-21 the same method also caps a configured Prepare at Hint for a kind whose entry is
+/// NOT scenario-capable. Prepare on such a kind was inert but not honest: governance reported Prepare,
+/// the settings card offered it, and the tick then did nothing but log. Execute is untouched - an
+/// Execute-only remediation is exactly what these entries are.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -54,6 +59,13 @@ public sealed class ConditionRemediationRegistry : IConditionRemediationRegistry
             return configuredMaxAction;
         }
 
-        return Entries.ContainsKey(triggerKind) ? configuredMaxAction : ProactiveMaxAction.Hint;
+        if (!Entries.TryGetValue(triggerKind, out var entry))
+        {
+            return ProactiveMaxAction.Hint;
+        }
+
+        return configuredMaxAction == ProactiveMaxAction.Prepare && !entry.IsScenarioCapable
+            ? ProactiveMaxAction.Hint
+            : configuredMaxAction;
     }
 }

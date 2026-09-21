@@ -1,3 +1,5 @@
 {
-  "assistant.correction.clarificationQuestion": "Forstått — ikke {previousAction}. Mener du {optionA} eller {optionB}?"
+  "assistant.correction.clarificationQuestion": "Forstått — ikke {previousAction}. Mener du {optionA} eller {optionB}?",
+  "assistant.recipe.confirmYes": "Ja",
+  "assistant.recipe.confirmNo": "Nei"
 }
