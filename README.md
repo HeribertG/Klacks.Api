@@ -1,6 +1,7 @@
 # Klacks API
 
 [DeepWiki documentation for this repository](https://deepwiki.com/HeribertG/Klacks.Api)
+[Klacks product website](https://klacks-software.ch)
 [![Tests](https://github.com/HeribertG/Klacks.Api/actions/workflows/tests.yml/badge.svg)](https://github.com/HeribertG/Klacks.Api/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/HeribertG/Klacks.Api/actions/workflows/codeql.yml/badge.svg)](https://github.com/HeribertG/Klacks.Api/actions/workflows/codeql.yml)
 
