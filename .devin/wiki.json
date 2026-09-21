@@ -1,0 +1,166 @@
+{
+  "repo_notes": [
+    {
+      "content": "Take every version from Klacks.Api.csproj in the current revision. That file declares TargetFramework net10.0, Microsoft.EntityFrameworkCore 10.0.11, Npgsql.EntityFrameworkCore.PostgreSQL 10.0.3, EFCore.NamingConventions 10.0.1, Riok.Mapperly 4.3.1, FluentValidation 12.1.1, Scalar.AspNetCore 2.17.1, ModelContextProtocol.AspNetCore 2.2.0, MailKit 4.17.0, ClosedXML 0.105.1, Stripe.net 52.3.0, Microsoft.ML.OnnxRuntime 1.29.0. Do not carry versions over from earlier documentation: the previous README and .claude/skills/architecture.md still say Mapperly 4.3.0, which is wrong.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Klacks is split across sibling repositories (no monorepo, no git submodules). Klacks.Api.csproj references Klacks.Docs, Klacks.ScheduleOptimizer, Klacks.ScheduleRecovery, Klacks.Api.SourceGenerators, Klacks.Plugin.Contracts and Klacks.Plugin.Messaging through relative paths, and Klacks.Api.sln additionally lists Klacks.UnitTest, Klacks.ApiTest, Klacks.IntegrationTest, Klacks.E2ETest and Klacks.Blazor. Those projects are NOT part of this repository and are not present in its tree: never present their files as source files of this repository and never cite them as evidence for something implemented here.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Cite files, classes, services, interfaces and symbols. Never cite line numbers or line ranges, and never quote a line number as a location: every commit invalidates them. Line-number citations were the largest single block of stale references in the previous generation of this wiki (62 of them).",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "This repository contains no test project. The test suites live in the sibling repositories Klacks.UnitTest (pure unit tests, InMemory provider and NSubstitute), Klacks.ApiTest (boots the real Program.cs via WebApplicationFactory against a live PostgreSQL), Klacks.IntegrationTest (live PostgreSQL) and Klacks.E2ETest; the frontend suite is in Klacks.Ui. CI is driven by .github/workflows/tests.yml. Do not claim unit tests, NUnit, FluentAssertions or NSubstitute suites inside this repository, and do not repeat a test count for this repo.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Hand-maintained in-repo documentation that this wiki should stay consistent with, and that is the better source when it disagrees with generated prose: .claude/skills/ (architecture.md, database-connection.md, deployment.md, identity-provider.md, macro-zuschlaege.md, multilanguage-jsonb.md, scripting-engine.md, signalr.md), docs/RELEASE-CHECKLIST.md, docs/diagnostics/shifts-without-macro.sql and Presentation/Mcp/README.md. Verify their statements against code as well; they have drifted before.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Scale of the codebase in this revision, all countable in the tree: 124 controllers under Presentation/Controllers (33 Assistant, 84 UserBackend, 2 Web, 2 OAuth, 1 Bots, 1 Plugins, 1 Internal), 7 SignalR hubs under Infrastructure/Hubs, 391 C# files under Application/Skills, 21 language plugin folders under Plugins/Languages, 31 BackgroundService implementations, 22 sections in appsettings.json, 112 EF Core migrations under Infrastructure/Persistence/Migrations.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "The in-product assistant is called Klacksy (code under Application/Klacksy, Application/Skills, Infrastructure/Services/Assistant, plus Assistant.* settings and background-service toggles such as KlacksyLearning in appsettings.json). Use that name when describing the assistant; the previous wiki generation never mentioned it at all.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "The code is written in English while the scheduling domain keeps German business terminology (Zuschlaege, Makros, Einsatzplanung, Personaleinsatzplanung). Keep both as they appear; do not translate identifiers and do not invent English synonyms for German domain terms that exist in the code.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "A dependency is not a feature. Do not derive capabilities from PackageReference entries or folder names: describe a subsystem only when code in this tree implements it, and state the implementing class or service. If something cannot be verified in this revision, leave it out instead of softening the claim.",
+      "author": "Hermes Agent"
+    },
+    {
+      "content": "Deployment target is a Hetzner Cloud server behind nginx; the container ports, URLs and server paths are documented in .claude/skills/deployment.md. The Docker build expects the sibling repositories next to this one because the Dockerfile copies their project files. Licensing: LICENSE states MIT (Copyright (c) 2025-2026 Heribert Gasparoli) while most source files carry a 'Copyright (c) Heribert Gasparoli Private. All rights reserved.' header. Report MIT when a licence is mentioned and do not resolve the discrepancy.",
+      "author": "Hermes Agent"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Klacks API - Project Overview",
+      "purpose": "Front page. State what this service is (the backend of the Klacks ecosystem for workforce scheduling and deployment planning, Personaleinsatzplanung), the runtime and framework versions from Klacks.Api.csproj, the CQRS-with-custom-mediator architecture, EF Core on PostgreSQL, SignalR, the Klacksy assistant, the MCP endpoint, and how the repository is laid out. Keep it a verified summary with links to the child pages, and mention that the project spans sibling repositories."
+    },
+    {
+      "title": "Technology Stack and Dependencies",
+      "purpose": "Enumerate the real dependency table from Klacks.Api.csproj (runtime, EF Core plus Npgsql provider, mapper, validation, SignalR, authentication, OpenAPI/Scalar, MCP, MailKit, ONNX runtime and tokenizers, ClosedXML, Stripe, Cronos, analyzers) with the declared versions, and explain what each is used for only where code shows the use."
+    },
+    {
+      "title": "Repository Layout and Multi-Repo Build",
+      "purpose": "Describe the top-level directories (Application, Domain, Infrastructure, Presentation, KnowledgeIndex, Plugins, GeoData, deploy, docs, scripts, .claude/skills) and the sibling-repository model: which projects Klacks.Api.csproj and Klacks.Api.sln reference by relative path, that they are absent from this tree, and how Dockerfile and CI check them out."
+    },
+    {
+      "title": "Getting Started and Local Setup",
+      "purpose": "Prerequisites (.NET SDK 10.0.x, PostgreSQL, sibling repositories, JWT secret handling), the local connection string (localhost:5434, database klacks_fresh), the launch profile ports 5000/5001 and the Scalar API reference at /scalar/v1, restore/build/run commands, EF Core migration commands, and how appsettings.json / appsettings.Development.json / appsettings.Production.json.template relate."
+    },
+    {
+      "title": "Layered Architecture and Cross-Cutting Concerns",
+      "purpose": "Explain the four layers (Presentation, Application, Domain, Infrastructure) plus the KnowledgeIndex module, what belongs in each, the dependency direction, and the cross-cutting pieces: middleware (SignalRQueryStringAuthMiddleware, SkillRequestLoggingMiddleware), startup checks (JwtSecretGuard, NativeLibraryCheck, PlatformDependencyHealthCheck), global exception handling and StyleCop configuration."
+    },
+    {
+      "title": "CQRS with the Custom Mediator",
+      "purpose": "Document that CQRS is implemented with an in-house mediator instead of MediatR: the interfaces and classes under Infrastructure/Mediator (IMediator, Mediator, IRequest, IRequestHandler, IPipelineBehavior, Unit, ServiceCollectionExtensions), how handlers are dispatched and registered, and the pipeline behaviours in use. State explicitly that MediatR is not used."
+    },
+    {
+      "title": "Persistence, EF Core, Migrations and Seeding",
+      "purpose": "Cover DataBaseContext, entity configurations, the repository layer, the Npgsql provider and naming conventions, the migration history under Infrastructure/Persistence/Migrations (112 migrations), the DataBaseContextModelSnapshot, seeding and Database.InitializeOnStartup, and the Handler-to-Repository-to-DataBaseContext rule that keeps DbContext out of handlers."
+    },
+    {
+      "title": "Object Mapping with Mapperly",
+      "purpose": "Describe compile-time mapping with Riok.Mapperly: where mappers live (Application/Mappers, including the ScheduleMapper partial classes), the mapper registration extension, and the relevant attributes ([Mapper], [MapperIgnoreTarget], [MapperIgnoreSource], [MapProperty]). State explicitly that AutoMapper is not used."
+    },
+    {
+      "title": "Scheduling Domain: Shifts and Schedule Entries",
+      "purpose": "Document the core scheduling model: shifts and shift cuts, schedule entries, work entries, containers and container templates, the shift cut facades, and the commands, queries and handlers that mutate them."
+    },
+    {
+      "title": "Breaks, Absences and Expenses",
+      "purpose": "Cover break placeholders and breaks, absence types and availability, expenses, and how these entities are created, filtered and validated (including the DTOs and filters used for them)."
+    },
+    {
+      "title": "Macro Engine and Surcharge Calculation",
+      "purpose": "Explain the macro engine: where macros and their rules live, how surcharges (Zuschlaege) are computed, how macros interact with shifts and work entries, and which services and background jobs recalculate them. Use .claude/skills/macro-zuschlaege.md as a cross-check, verified against code."
+    },
+    {
+      "title": "Schedule Timeline, Validation and Period Hours",
+      "purpose": "Describe the schedule timeline projection and its background service, schedule validation and collision rules, and period hours calculation including the full-recalculation request path and its background service."
+    },
+    {
+      "title": "Period Closing and Orders",
+      "purpose": "Document period closing workflows and the order subsystem (orders, sealing open orders, the sealing background service) and how they interact with period hours and exports."
+    },
+    {
+      "title": "Staff, Clients, Groups and Contracts",
+      "purpose": "Cover client master data and filtering, group structures with visibility and hierarchy, staff entities, contracts, memberships, associations, client availability schedules and client shift preferences, and the services that maintain them."
+    },
+    {
+      "title": "Route Optimization and Geocoding",
+      "purpose": "Explain route optimization and container autofill, the OpenRouteService integration from configuration, group geocoding and its background service, the geocoding service and the region data under GeoData/Regions."
+    },
+    {
+      "title": "Calendar Rules and Holiday Calculation",
+      "purpose": "Document calendar selections, holiday calculation (NagerDate holiday provider), work exemptions such as holiday work exemptions, DST-aware schedule handling, and the configuration that drives them."
+    },
+    {
+      "title": "Klacksy Assistant and Multi-Turn Execution",
+      "purpose": "Describe the assistant architecture: the planner/executor flow, multi-turn execution, intent classification, the Klacksy plugin loaders (navigation, grouping, mutation, completion-claim, assistant texts), wake-word variants and navigation guardrails, and the assistant controllers."
+    },
+    {
+      "title": "LLM Providers and Model Configuration",
+      "purpose": "Document the provider abstraction under Infrastructure/Services/Assistant/Providers (Anthropic, Azure, DeepSeek, Gemini, Mistral, OpenAI, generic, base HTTP provider, OpenAI-compatible base) and the speech-to-text providers, plus how providers and models are selected and where credentials come from."
+    },
+    {
+      "title": "Skills System and Skill Learning",
+      "purpose": "Explain the skills system under Application/Skills: what a skill is, how skills are discovered and invoked, skill relations and synonym learning, skill coverage and skill learning clusters, the skill request logging middleware, and the background services that learn from usage."
+    },
+    {
+      "title": "Assistant Memory, Agent Triggers and Escalation Chains",
+      "purpose": "Cover agent memory storage and its cleanup service, personal and AI memories, goal reflection (delivery, plan drafting, execution), agent triggers and their governance, escalation chains and answer grounding, plus the related Assistant.* configuration."
+    },
+    {
+      "title": "Knowledge Index and Embeddings",
+      "purpose": "Document the KnowledgeIndex module: knowledge entries and kinds, embedding generation with the ONNX runtime and the Gemini/OpenAI embedding providers, vector persistence (pgvector, see deploy/db-scripts/upgrade_to_pgvector.sql), retrieval, sync status, the snapshot reader/writer and the snapshot export script."
+    },
+    {
+      "title": "Model Context Protocol (MCP) Integration",
+      "purpose": "Describe both sides: the MCP server in Presentation/Mcp (endpoint POST /mcp over Streamable HTTP, OAuth 2.1 protected-resource metadata, JWT bearer and personal access tokens, tool/prompt/resource catalogs, skill exposure policy, principal capping, rate limiting) and the MCP client under Infrastructure/MCP. Point to Presentation/Mcp/README.md."
+    },
+    {
+      "title": "Authentication, Identity and Authorization",
+      "purpose": "Document JWT bearer authentication, ASP.NET Identity account management, LDAP/Active Directory and OAuth2 identity providers (including the OAuth controllers and identity-provider entities), personal access tokens, role and permission checks, password reset, and the guard that enforces a configured JWT secret. Cross-check with .claude/skills/identity-provider.md."
+    },
+    {
+      "title": "Email System: IMAP Polling, Folders and SMTP",
+      "purpose": "Cover the email subsystem: IMAP polling background service, email folders and folder mapping, received-email management and notifications, spam rules, email-to-client assignment, SMTP sending and the email test service, plus the email notification hub."
+    },
+    {
+      "title": "Plugins and Plugin Contracts",
+      "purpose": "Explain the plugin model: what lives in Plugins/Features (floor plan, messaging, payroll export DE), the plugin contracts and messaging plugin from the sibling repositories, how plugins are discovered and loaded at runtime, and the plugin-related controllers and configuration. Do not describe plugin internals as if they were files of this repository when they live in the sibling repos."
+    },
+    {
+      "title": "Localization and Language Plugins",
+      "purpose": "Document the localization subsystem: the 21 language plugin folders under Plugins/Languages, the language plugin manifest and info DTOs, the language plugin service, multi-language JSONB fields and translation services, language configuration controllers, and the supported-languages configuration. Cross-check with .claude/skills/multilanguage-jsonb.md."
+    },
+    {
+      "title": "Reports, Exports, Imports and ERP Integration",
+      "purpose": "Cover report templates and report controllers, floor plans and work markers, period and data exports with ClosedXML, imports, ERP order import and ERP object storage, and the Stripe-based donation controller."
+    },
+    {
+      "title": "API Layer, Controllers and SignalR Real-Time",
+      "purpose": "Describe the controller groups under Presentation/Controllers (Assistant, UserBackend with 84 controllers, Web, OAuth, Bots, Plugins, Internal), the base and CRUD controller abstractions, DTO usage, and the SignalR layer: the seven hubs, their client interfaces and connection trackers, the query-string auth middleware and the Redis backplane."
+    },
+    {
+      "title": "Configuration, Background Services and Deployment",
+      "purpose": "Summarize the 22 appsettings.json sections, the BackgroundServices toggles and the 31 background service implementations, then the deployment surface: the multi-stage Dockerfile, docker-compose.yml services, deploy/docker-compose-server.yml, nginx-proxy, db-scripts, the on-premise stack under deploy/onprem, the CI workflows, and the release checklist that gates tag-triggered production deploys. Server details are in .claude/skills/deployment.md."
+    },
+    {
+      "title": "Glossary",
+      "purpose": "Define the recurring domain and code terms used across this wiki: Klacksy, Einsatzplanung/Personaleinsatzplanung, Zuschlaege, Makro, Shift and Shift Cut, Container Template, Period Hours, Period Closing, Knowledge Index, Skill, Agent Trigger, Escalation Chain, Region Package, and the internal abstractions Mediator, Handler, Facade and Repository."
+    }
+  ]
+}

@@ -12,10 +12,9 @@ description: "Verwende als Referenz für Backend-Architektur, Layer-Struktur, Me
 | .NET 10.0 | Runtime |
 | Entity Framework Core | ORM |
 | PostgreSQL | Database |
-| Riok.Mapperly 4.3.0 | Object Mapping (compile-time) |
-| FluentValidation | Input Validation |
-| NUnit + FluentAssertions | Unit Testing |
-| NSubstitute | Mocking |
+| Riok.Mapperly 4.3.1 | Object Mapping (compile-time) |
+| FluentValidation 12.1.1 | Input Validation |
+| Unit Tests | eigenes Repo `Klacks.UnitTest` (nicht Teil dieses Repositories) |
 
 ## CQRS mit Custom Mediator
 
