@@ -28,6 +28,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Constants;
 
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 
@@ -44,6 +45,7 @@ public class CreateGroupSkill : BaseSkillImplementation
     private readonly GroupMapper _groupMapper;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupVisibilityPreservationService _visibilityPreservation;
 
     public CreateGroupSkill(
         IGroupRepository groupRepository,
@@ -51,7 +53,8 @@ public class CreateGroupSkill : BaseSkillImplementation
         ICalendarSelectionRepository calendarSelectionRepository,
         GroupMapper groupMapper,
         IKlacksSelfApiClient selfApi,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupVisibilityPreservationService visibilityPreservation)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
@@ -59,6 +62,7 @@ public class CreateGroupSkill : BaseSkillImplementation
         _groupMapper = groupMapper;
         _selfApi = selfApi;
         _companyClock = companyClock;
+        _visibilityPreservation = visibilityPreservation;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -144,7 +148,6 @@ public class CreateGroupSkill : BaseSkillImplementation
 
         var group = new Group
         {
-            Id = Guid.NewGuid(),
             Name = name,
             Description = description,
             Parent = parentId,
@@ -156,6 +159,9 @@ public class CreateGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
+        var usersKeepingFullVisibility =
+            await _visibilityPreservation.CountUsersKeepingFullVisibilityAsync(cancellationToken);
+
         var result = await _selfApi.PostAsync<GroupResource>(
             SelfApiRoutes.Groups, _groupMapper.ToGroupResource(group), context, SkillName, cancellationToken);
 
@@ -164,17 +170,27 @@ public class CreateGroupSkill : BaseSkillImplementation
             return SkillResult.Error(result.ErrorMessage!);
         }
 
+        if (result.Value == null)
+        {
+            return SkillResult.Error(
+                $"Creating the group '{name}' returned no result — the operation may have failed.");
+        }
+
+        var visibilityAdvisory = FirstGroupVisibilityAdvisory.For(usersKeepingFullVisibility);
+
         return SkillResult.SuccessResult(
             new
             {
-                GroupId = group.Id,
+                GroupId = result.Value.Id,
                 group.Name,
                 ParentId = parentId,
                 group.ValidFrom,
                 group.ValidUntil,
                 PaymentInterval = paymentInterval.ToString(),
-                CalendarSelectionId = calendarSelectionId
+                CalendarSelectionId = calendarSelectionId,
+                UsersKeepingFullVisibilityCount = usersKeepingFullVisibility
             },
-            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}." : " at root level."));
+            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}." : " at root level.")
+            + (visibilityAdvisory.Length > 0 ? " " + visibilityAdvisory : string.Empty));
     }
 }

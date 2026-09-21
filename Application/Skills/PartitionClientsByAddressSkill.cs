@@ -163,6 +163,8 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
                 $"'{result.Level}'. {BuildDiagnostics(result)} Nothing was changed.");
         }
 
+        var visibilityAdvisory = FirstGroupVisibilityAdvisory.For(result.UsersKeepingFullVisibilityCount);
+
         var groupNames = string.Join(", ",
             result.Groups.Take(MaxPreviewGroupNames)
                 .Select(g => $"{g.Name} ({g.ClientCount}{(g.Existed ? ", existing" : ", new")})"));
@@ -175,7 +177,7 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             result,
             $"Preview: {result.Groups.Count} group(s) planned at level '{result.Level}' ({newCount} new, " +
             $"{result.Groups.Count - newCount} reused): {groupNames}{moreGroups}. " +
-            $"{BuildDiagnostics(result)} Nothing was changed yet. " +
+            $"{BuildDiagnostics(result)} {visibilityAdvisory} Nothing was changed yet. " +
             "Ask the user to confirm, then call again with apply=true.");
     }
 
@@ -186,13 +188,14 @@ public class PartitionClientsByAddressSkill : BaseSkillImplementation
             : string.Empty;
         var newCount = result.Groups.Count(g => !g.Existed);
         var reusedCount = result.Groups.Count - newCount;
+        var visibilityAdvisory = FirstGroupVisibilityAdvisory.For(result.UsersKeepingFullVisibilityCount);
 
         return SkillResult.SuccessResult(
             result,
             $"Partitioned {result.TotalClients} {result.EntityType} client(s) at level '{result.Level}' into " +
             $"{result.Groups.Count} group(s) ({newCount} new, {reusedCount} reused), added {result.AssignedCount} " +
             $"membership(s) and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}. " +
-            $"{BuildDiagnostics(result)}");
+            $"{BuildDiagnostics(result)} {visibilityAdvisory}");
     }
 
     private static string BuildDiagnostics(PartitionClientsByAddressResult result)

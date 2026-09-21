@@ -4,6 +4,7 @@ using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Groups;
@@ -22,18 +23,21 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     private readonly IGroupServiceFacade groupServices;
     private readonly IGroupCacheService _groupCacheService;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupVisibilityPreservationService _visibilityPreservation;
 
     public GroupRepository(
         DataBaseContext context,
         IGroupServiceFacade groupServices,
         IGroupCacheService groupCacheService,
         ILogger<Group> logger,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupVisibilityPreservationService visibilityPreservation)
        : base(context, logger)
     {
         this.groupServices = groupServices;
         _groupCacheService = groupCacheService;
         _companyClock = companyClock;
+        _visibilityPreservation = visibilityPreservation;
     }
 
     public new async Task Add(Group model)
@@ -41,6 +45,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
         Logger.LogInformation("Adding new group: {GroupName}", model.Name);
         try
         {
+            var preserveVisibility = await _visibilityPreservation.RequiresPreservationAsync(model);
+
             if (model.Parent.HasValue)
             {
                 await groupServices.TreeService.AddChildNodeAsync(model.Parent.Value, model);
@@ -48,6 +54,11 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             else
             {
                 await groupServices.TreeService.AddRootNodeAsync(model);
+            }
+
+            if (preserveVisibility)
+            {
+                await _visibilityPreservation.PreserveForNewRootAsync(model);
             }
 
             await context.SaveChangesAsync();

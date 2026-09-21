@@ -37,6 +37,7 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="countryResolver">Supplies the company's default country for addresses without one.</param>
 /// <param name="stateRepository">Supplies state display names for the descriptions of state nodes.</param>
 /// <param name="settingsReader">Reads the installation-wide DEFAULT_LANGUAGE setting used to pick the state display name's language.</param>
+/// <param name="visibilityPreservation">Counts the users that keep access to everything when this run introduces the first group, for the advisory the preview shows.</param>
 public sealed class PartitionClientsByAddressCommandHandler
     : IRequestHandler<PartitionClientsByAddressCommand, PartitionClientsByAddressResult>
 {
@@ -53,6 +54,7 @@ public sealed class PartitionClientsByAddressCommandHandler
     private readonly ICountryResolver _countryResolver;
     private readonly IStateRepository _stateRepository;
     private readonly ISettingsReader _settingsReader;
+    private readonly IGroupVisibilityPreservationService _visibilityPreservation;
 
     public PartitionClientsByAddressCommandHandler(
         IClientRepository clientRepository,
@@ -63,7 +65,8 @@ public sealed class PartitionClientsByAddressCommandHandler
         ICountryRegionProvider regionProvider,
         ICountryResolver countryResolver,
         IStateRepository stateRepository,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        IGroupVisibilityPreservationService visibilityPreservation)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
@@ -74,6 +77,7 @@ public sealed class PartitionClientsByAddressCommandHandler
         _countryResolver = countryResolver;
         _stateRepository = stateRepository;
         _settingsReader = settingsReader;
+        _visibilityPreservation = visibilityPreservation;
     }
 
     public async Task<PartitionClientsByAddressResult> Handle(
@@ -86,6 +90,8 @@ public sealed class PartitionClientsByAddressCommandHandler
         }
 
         var existingGroups = (await _groupRepository.List()).ToList();
+        var usersKeepingFullVisibility =
+            await _visibilityPreservation.CountUsersKeepingFullVisibilityAsync(cancellationToken);
         var context = await BuildContextAsync(clients, request.ClusterSharePercent, cancellationToken);
 
         var plan = GroupPartitionPlanner.Plan(
@@ -94,7 +100,8 @@ public sealed class PartitionClientsByAddressCommandHandler
         if (!request.Apply)
         {
             return BuildResult(
-                request, plan, applied: false, groups: plan.Groups, assignedCount: 0, verifiedCount: 0, alreadyMemberCount: 0);
+                request, plan, applied: false, groups: plan.Groups, assignedCount: 0, verifiedCount: 0, alreadyMemberCount: 0,
+                usersKeepingFullVisibilityCount: usersKeepingFullVisibility);
         }
 
         var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
@@ -188,7 +195,8 @@ public sealed class PartitionClientsByAddressCommandHandler
 
         return BuildResult(
             request, plan, applied: true, groups: createdGroups,
-            assignedCount: assignedCount, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: outcome.AlreadyMemberCount);
+            assignedCount: assignedCount, verifiedCount: outcome.VerifiedCount, alreadyMemberCount: outcome.AlreadyMemberCount,
+            usersKeepingFullVisibilityCount: usersKeepingFullVisibility);
     }
 
     private async Task<GroupPartitionContext> BuildContextAsync(
@@ -252,7 +260,8 @@ public sealed class PartitionClientsByAddressCommandHandler
         IReadOnlyList<PlannedPartitionGroup> groups,
         int assignedCount,
         int verifiedCount,
-        int alreadyMemberCount) =>
+        int alreadyMemberCount,
+        int usersKeepingFullVisibilityCount) =>
         new(
             Applied: applied,
             Level: request.Level.ToString(),
@@ -265,7 +274,8 @@ public sealed class PartitionClientsByAddressCommandHandler
             AlreadyMemberCount: alreadyMemberCount,
             Groups: BuildSummaries(groups, request.RootGroupName),
             UnassignableSample: plan.Unassignable.Take(MaxUnassignableSample).ToList(),
-            Warnings: plan.Warnings);
+            Warnings: plan.Warnings,
+            UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount);
 
     private static List<PartitionGroupSummary> BuildSummaries(
         IReadOnlyList<PlannedPartitionGroup> groups, string? rootGroupName)

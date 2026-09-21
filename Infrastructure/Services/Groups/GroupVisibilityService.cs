@@ -44,6 +44,11 @@ namespace Klacks.Api.Infrastructure.Services.Groups
             return list;
         }
 
+        public async Task<bool> AnyGroupsExistAsync(CancellationToken cancellationToken = default)
+        {
+            return await context.Group.AnyAsync(g => !g.IsDeleted, cancellationToken);
+        }
+
         public async Task<GroupVisibilityScope> GetVisibilityScopeAsync()
         {
             if (await IsAdmin())
@@ -51,7 +56,7 @@ namespace Klacks.Api.Infrastructure.Services.Groups
                 return GroupVisibilityScope.Unrestricted();
             }
 
-            var anyGroupsExist = await context.Group.AnyAsync(g => !g.IsDeleted);
+            var anyGroupsExist = await AnyGroupsExistAsync();
             if (!anyGroupsExist)
             {
                 return GroupVisibilityScope.Unrestricted();
