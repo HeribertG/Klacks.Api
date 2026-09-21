@@ -9,6 +9,10 @@ on:
       - '**'
       - '!README.md'
       - '!docs/**'
+      # Docs-only trees: .devin/ steers the DeepWiki generation, .claude/ holds the agent notes.
+      # Neither ships with the application, so a docs-only merge must not run a test & deploy.
+      - '!.claude/**'
+      - '!.devin/**'
   workflow_dispatch:
 
 concurrency:
