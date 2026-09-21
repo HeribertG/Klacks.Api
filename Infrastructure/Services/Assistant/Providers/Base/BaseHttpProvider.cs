@@ -119,6 +119,12 @@ public abstract class BaseHttpProvider : ILLMProvider
     // subclass value. DeepSeek's tool_choice support was invisible that way.
     public virtual bool SupportsToolChoice => false;
 
+    // Abstract, not virtual with a default: the interface default would let a new provider inherit
+    // "NotSupported" without anyone deciding that, and the forcing behaviour is the one property a
+    // provider cannot be guessed into. Making it abstract turns a missing declaration into a compile
+    // error for every HTTP provider; ForcedToolChoiceSupportGuardTests covers the rest.
+    public abstract Domain.Enums.ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request);
+
     private static readonly AsyncLocal<bool> ModelProbeActive = new();
 
     private static readonly HashSet<HttpStatusCode> ProbeRejectionStatusCodes =

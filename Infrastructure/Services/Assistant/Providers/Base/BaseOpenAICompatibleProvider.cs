@@ -101,6 +101,11 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 
     public override bool SupportsStreaming => true;
 
+    // The legacy function_call format this base speaks hardcodes "auto" and has no equivalent of
+    // tool_choice=required, so every provider built on it (OpenAI, Azure OpenAI) cannot force a call.
+    public override ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request) =>
+        ForcedToolChoiceSupport.NotSupported;
+
     public override async IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)

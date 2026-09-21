@@ -25,6 +25,12 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
 
     public override bool SupportsStreaming => true;
 
+    // Both request builders pass request.ToolChoice straight into the OpenAI-style tool_choice field, so
+    // the forcing reaches the endpoint unchanged. What the endpoint behind a generic base URL then does
+    // with it is the operator's business - a refusal is handled by the caller's fallback, not guessed here.
+    public override Domain.Enums.ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request) =>
+        Domain.Enums.ForcedToolChoiceSupport.Native;
+
     private const string CodingAgentUserAgent = "claude-code/1.0";
 
     // Some Kimi (Moonshot AI) models reject any temperature other than exactly 1 ("invalid temperature:

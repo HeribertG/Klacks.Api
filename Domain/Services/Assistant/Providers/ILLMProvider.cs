@@ -16,6 +16,18 @@ public interface ILLMProvider
     /// </summary>
     bool SupportsToolChoice => false;
 
+    /// <summary>
+    /// How this provider handles a forced tool call for THIS request. Decided per request, so a provider
+    /// whose behaviour depends on the model or on its own configuration answers for the request at hand
+    /// instead of for a name on a list. The default is the weakest value: a provider that does not declare
+    /// is treated as unable to force, which engages the caller's fallback rather than silently dropping
+    /// the tool call. Every provider in this code base declares explicitly; the default exists for test
+    /// doubles implementing this interface directly.
+    /// </summary>
+    /// <param name="request">The request about to be sent, including its ToolChoice and model id</param>
+    Domain.Enums.ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request) =>
+        Domain.Enums.ForcedToolChoiceSupport.NotSupported;
+
     void Configure(Models.Assistant.LLMProvider providerConfig);
     Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default);
     Task<bool> ValidateApiKeyAsync(string apiKey);

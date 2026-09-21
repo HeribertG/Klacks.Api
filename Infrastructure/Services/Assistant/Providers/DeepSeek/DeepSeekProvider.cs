@@ -2,9 +2,16 @@
 
 /// <summary>
 /// LLM provider for DeepSeek API (OpenAI-compatible tools format).
-/// Includes parameter normalization for malformed DeepSeek function call outputs and a
-/// one-shot tool_choice fallback: DeepSeek v4 thinking models reject tool_choice=required,
-/// so a rejected forcing request is retried once with auto instead of failing the turn.
+/// Includes parameter normalization for malformed DeepSeek function call outputs and two layers of
+/// protection for a forced tool call. DeepSeek's thinking models refuse tool_choice=required with
+/// "Thinking mode does not support this tool_choice", so a request that forces a tool call turns
+/// thinking off for that one request, which the API then accepts. The older one-shot fallback (retry
+/// once with auto) stays as the net for a refusal that is not about thinking; with the pre-emptive
+/// switch it is no longer reached for the thinking refusal itself.
+/// Turning thinking off is scoped to forced requests on purpose: tool_choice is only forced on a
+/// mutation, navigation, pending-confirmation or recipe-step turn, and those are parameter-collecting
+/// steps whose answer is a tool call, not a line of reasoning. An unforced turn keeps thinking exactly
+/// as configured, so no ordinary answer loses quality and no cost profile changes.
 /// </summary>
 
 using System.Collections.Concurrent;
@@ -19,6 +26,7 @@ using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using LLMModelDiscovery = Klacks.Api.Domain.Models.Assistant.LLMModelDiscovery;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;
 
@@ -31,6 +39,7 @@ public class DeepSeekProvider : BaseHttpProvider
 
     private readonly bool _disableThinking;
     private int _thinkingDisabledLogged;
+    private int _thinkingDisabledForForcingLogged;
 
     private static readonly ConcurrentDictionary<string, byte> ModelsRejectingRequiredToolChoice = new(StringComparer.OrdinalIgnoreCase);
 
@@ -40,9 +49,17 @@ public class DeepSeekProvider : BaseHttpProvider
 
     public override bool SupportsStreaming => true;
 
-    // DeepSeek passes tool_choice through to its OpenAI-style API; thinking models can reject
-    // "required", and the one-shot fallback then retries with "auto".
+    // DeepSeek passes tool_choice through to its OpenAI-style API; thinking models reject "required",
+    // which is why a forced request sends thinking disabled and the one-shot fallback remains behind it.
     public override bool SupportsToolChoice => true;
+
+    // Measured 2026-09-19: thinking:{"type":"disabled"} together with tool_choice=required answers 200
+    // with a tool call, while the same request in thinking mode answers 400 "Thinking mode does not
+    // support this tool_choice". The declaration is unconditional because the API exposes no way to ask
+    // whether the model about to run is a thinking model, and disabling thinking on a model that has none
+    // is accepted and has no effect.
+    public override ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request) =>
+        ForcedToolChoiceSupport.RequiresThinkingDisabled;
 
     // DeepSeek bills a context-cache hit at roughly a tenth of the miss rate, well below the 0.5
     // default that covers OpenAI-style caching.
@@ -135,16 +152,34 @@ public class DeepSeekProvider : BaseHttpProvider
         }
     }
 
-    private OpenAIThinkingOptions? ResolveThinking()
+    /// <summary>
+    /// The thinking block for this request, or null to leave the field out entirely. Keyed on the
+    /// REQUESTED tool choice, never on the one ResolveToolChoice returns: that value can already have been
+    /// downgraded to auto, and reading it would turn "the turn wants a tool call" into "thinking stays on",
+    /// which is the very combination the API rejects.
+    /// </summary>
+    /// <param name="request">The request about to be sent; only its ToolChoice is read</param>
+    private OpenAIThinkingOptions? ResolveThinking(LLMProviderRequest request)
     {
-        if (!_disableThinking)
+        if (_disableThinking)
+        {
+            if (Interlocked.Exchange(ref _thinkingDisabledLogged, 1) == 0)
+            {
+                _logger.LogInformation("Thinking disabled by configuration.");
+            }
+
+            return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
+        }
+
+        if (!IsRequiredToolChoice(request.ToolChoice)
+            || ResolveForcedToolChoiceSupport(request) != ForcedToolChoiceSupport.RequiresThinkingDisabled)
         {
             return null;
         }
 
-        if (Interlocked.Exchange(ref _thinkingDisabledLogged, 1) == 0)
+        if (Interlocked.Exchange(ref _thinkingDisabledForForcingLogged, 1) == 0)
         {
-            _logger.LogInformation("Thinking disabled by configuration.");
+            _logger.LogInformation("Thinking disabled for this request because it forces a tool call.");
         }
 
         return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
@@ -172,7 +207,7 @@ public class DeepSeekProvider : BaseHttpProvider
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
             Stop = LLMStopSequences.Merge(request.StopSequences),
-            Thinking = ResolveThinking()
+            Thinking = ResolveThinking(request)
         };
 
         var endpoint = "chat/completions";
@@ -313,7 +348,7 @@ public class DeepSeekProvider : BaseHttpProvider
             Stream = true,
             StreamOptions = ResolveStreamOptions(request),
             Stop = LLMStopSequences.Merge(request.StopSequences),
-            Thinking = ResolveThinking()
+            Thinking = ResolveThinking(request)
         };
 
         var endpoint = "chat/completions";

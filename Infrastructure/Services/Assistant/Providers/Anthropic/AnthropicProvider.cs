@@ -82,6 +82,12 @@ public class AnthropicProvider : ILLMProvider
     // Anthropic maps tool_choice=required to {"type":"any"}, which forces a tool call when tools exist.
     public bool SupportsToolChoice => true;
 
+    // MapToolChoice turns "required" into {"type":"any"}, which the Messages API honours as it stands.
+    // Extended thinking is the one mode that would refuse it, and this provider never requests it: the
+    // AnthropicRequest built here carries no thinking block on any path, so none has to be suppressed.
+    public ForcedToolChoiceSupport ResolveForcedToolChoiceSupport(LLMProviderRequest request) =>
+        ForcedToolChoiceSupport.Native;
+
     private bool IsRequiredApiKeyMissing => (_providerConfig?.RequiresApiKey ?? true) && string.IsNullOrWhiteSpace(_apiKey);
 
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
