@@ -3,9 +3,11 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
+using Klacks.Api.Domain.Models.Inbound;
 using IEmailNotificationService = Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService;
 
 namespace Klacks.Api.Infrastructure.Email;
@@ -150,8 +152,8 @@ public class EmailPollingBackgroundService : BackgroundService
                 }
                 else
                 {
-                    var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
-                    await assignmentService.AssignNewEmailAsync(email);
+                    var newEmailAssignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
+                    await newEmailAssignmentService.AssignNewEmailAsync(email);
                 }
             }
 
@@ -162,8 +164,29 @@ public class EmailPollingBackgroundService : BackgroundService
                 return;
             }
 
-            var analysisService = scope.ServiceProvider.GetRequiredService<IEmailIntentAnalysisService>();
-            var analysis = await analysisService.AnalyzeAsync(email, stoppingToken);
+            var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
+            var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
+
+            var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
+            var emailAnalysisEnabled = emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
+
+            InboundAnalysis? analysis = null;
+            if (emailAnalysisEnabled)
+            {
+                var client = await assignmentService.ResolveClientAsync(email, stoppingToken);
+                if (client != null)
+                {
+                    var (clientId, clientType) = client.Value;
+                    var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
+                    var source = new InboundSource(
+                        email.Id, InboundSourceKind.Email, EmailConstants.InboundChannel,
+                        string.IsNullOrWhiteSpace(email.FromName) ? email.FromAddress : $"{email.FromName} ({email.FromAddress})",
+                        email.Subject, email.BodyText ?? email.BodyHtml ?? string.Empty, email.ReceivedDate);
+
+                    analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
+                }
+            }
+
             email.ProcessedAt = DateTime.UtcNow;
 
             if (analysis == null)

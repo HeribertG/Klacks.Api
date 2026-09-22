@@ -48,6 +48,7 @@ using Klacks.Api.Infrastructure.Services.Schedules;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Infrastructure.Email;
+using Klacks.Api.Infrastructure.Inbound;
 using Klacks.Api.Infrastructure.FileHandling;
 using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
@@ -249,7 +250,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IFeatureAvailabilityService, Klacks.Api.Infrastructure.Services.Plugins.FeatureAvailabilityService>();
         services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
-        services.AddScoped<IEmailIntentAnalysisService, EmailIntentAnalysisService>();
+        services.AddScoped<IInboundIntentAnalysisService, InboundIntentAnalysisService>();
         services.AddScoped<IEmailAnalysisNotifier, EmailAnalysisNotifier>();
         services.AddScoped<IInboundAnalysisRepository, InboundAnalysisRepository>();
         services.AddScoped<IEmailActionOrchestrator, EmailActionOrchestrator>();
