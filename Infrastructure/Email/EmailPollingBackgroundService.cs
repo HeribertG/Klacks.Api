@@ -125,7 +125,7 @@ public class EmailPollingBackgroundService : BackgroundService
     /// of the inbox folder) just skips that stage, which is what makes retry-from-any-interruption-point
     /// safe.
     /// </summary>
-    private async Task ProcessEmailAsync(
+    internal async Task ProcessEmailAsync(
         IServiceScope scope,
         IUnitOfWork unitOfWork,
         Domain.Models.Email.ReceivedEmail email,
@@ -259,7 +259,7 @@ public class EmailPollingBackgroundService : BackgroundService
         }
     }
 
-    private async Task<int> ClassifyFolderBatchedAsync(
+    internal async Task<int> ClassifyFolderBatchedAsync(
         IReceivedEmailRepository emailRepository,
         ISpamFilterService spamFilterService,
         IImapEmailService emailService,
