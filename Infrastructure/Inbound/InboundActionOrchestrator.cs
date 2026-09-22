@@ -539,7 +539,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
     private static InboundActionOutcome? CheckConfidenceGate(InboundAnalysis analysis, string suggestion) =>
         analysis.Confidence != EmailConfidence.High
             ? new InboundActionOutcome(false,
-                "The email content was ambiguous or not explicit enough to act on automatically. " + suggestion)
+                "The message content was ambiguous or not explicit enough to act on automatically. " + suggestion)
             : null;
 
     private static InboundActionOutcome? IssueOutcome(string? issue, string suggestion) =>
