@@ -216,6 +216,9 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
 
             if (client.Membership?.ValidFrom is { } validFrom)
                 resource.MemberSince = DateOnly.FromDateTime(validFrom);
+
+            if (client.Membership?.ValidUntil is { } validUntil)
+                resource.MemberUntil = DateOnly.FromDateTime(validUntil);
         }
     }
 
