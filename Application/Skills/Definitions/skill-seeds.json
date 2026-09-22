@@ -24096,7 +24096,7 @@
     {
       "name": "get_messenger_analysis",
       "area": "inbox",
-      "description": "Reports the pipeline's reading of an incoming chat message from a messenger channel such as Telegram: the recognised request (sick note, holiday wish, swap offer, availability change), a short recap, which employee it was matched to, the day or time span it names, and any reason the request was left unprocessed. A chat that has not run through the pipeline is reported as unprocessed.",
+      "description": "Reports the pipeline's reading of an incoming chat message from a messenger channel such as Telegram: the recognised request (sick note, holiday wish, shift preference, availability change), a short recap, which employee it was matched to, the day or time span it names, and any reason the request was left unprocessed. A chat that has not run through the pipeline is reported as unprocessed.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
