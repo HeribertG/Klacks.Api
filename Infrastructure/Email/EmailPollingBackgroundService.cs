@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
+using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Inbound;
 using IEmailNotificationService = Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService;
 
@@ -170,6 +171,11 @@ public class EmailPollingBackgroundService : BackgroundService
             var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
             var emailAnalysisEnabled = emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
 
+            // Built unconditionally (pure mapping over email, no side effects) so it is available both
+            // to the intent analysis below and to the action orchestrator further down, which needs the
+            // same InboundSource for its audit trail.
+            var source = ToInboundSource(email);
+
             InboundAnalysis? analysis = null;
             if (emailAnalysisEnabled)
             {
@@ -178,7 +184,6 @@ public class EmailPollingBackgroundService : BackgroundService
                 {
                     var (clientId, clientType) = client.Value;
                     var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
-                    var source = ToInboundSource(email);
 
                     analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
                 }
@@ -196,8 +201,8 @@ public class EmailPollingBackgroundService : BackgroundService
             await analysisRepository.AddAsync(analysis, stoppingToken);
             await unitOfWork.CompleteAsync();
 
-            var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IEmailActionOrchestrator>();
-            var actionOutcome = await actionOrchestrator.ExecuteAsync(email, analysis, stoppingToken);
+            var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();
+            var actionOutcome = await actionOrchestrator.ExecuteAsync(analysis.ClientId!.Value, source, analysis, stoppingToken);
 
             string? periodLoadSummary = null;
             if (analysis.ClientId != null && analysis.FromDate != null
@@ -209,8 +214,15 @@ public class EmailPollingBackgroundService : BackgroundService
                     analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
             }
 
+            // IEmailAnalysisNotifier still speaks the email-specific EmailActionOutcome; the notifier
+            // has not been generalized yet, so the channel-neutral InboundActionOutcome is adapted at
+            // this boundary until that follow-up task runs.
+            var notifierOutcome = actionOutcome == null
+                ? null
+                : new EmailActionOutcome(actionOutcome.Executed, actionOutcome.Description);
+
             var analysisNotifier = scope.ServiceProvider.GetRequiredService<IEmailAnalysisNotifier>();
-            await analysisNotifier.NotifyAsync(email, analysis, actionOutcome, periodLoadSummary, stoppingToken);
+            await analysisNotifier.NotifyAsync(email, analysis, notifierOutcome, periodLoadSummary, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {

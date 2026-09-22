@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Routes an analyzed employee/extern email intent to the matching planning action under the
-/// email-flow autonomy mapping, which is deliberately STRICTER than the regular skill gate because
-/// the trigger is an LLM reading of a third-party email, not a deliberate user request:
-/// FullyAutonomous executes everything; Autonomous executes only the cover-absence scenario
+/// Routes an analyzed employee/extern inbound-message intent to the matching planning action under the
+/// inbound-flow autonomy mapping, which is deliberately STRICTER than the regular skill gate because
+/// the trigger is an LLM reading of a third-party message (email or messenger), not a deliberate user
+/// request: FullyAutonomous executes everything; Autonomous executes only the cover-absence scenario
 /// (propose-only by design) and suggests the rest; Assisted/Propose only suggests. The three
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
 /// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
@@ -22,12 +22,12 @@
 /// NO scheduled shifts yet — they only execute automatically in periods that are not yet planned.
 /// Conversely, work cancellation (sickness/accident) is expected to hit an already-planned period
 /// and is only blocked when the period is already sealed. Executed skills run under the first
-/// admin's identity with the audit name "Klacksy email-analysis" and bypass the interactive autonomy
-/// gate, because no one is present to confirm. This mapping is therefore the FIRST gate for the flow,
-/// not the only one: every execution additionally passes IUnattendedSkillPolicy, the same fail-closed
-/// check the scheduled-task and proactive paths use. The mapping decides WHETHER an intent may act at
-/// all; the policy re-checks what the skill has since become — a skill reclassified as sensitive, or
-/// removed outright, is refused here even though this mapping would still allow it.
+/// admin's identity with the audit name "Klacksy {Channel} analysis" and bypass the interactive
+/// autonomy gate, because no one is present to confirm. This mapping is therefore the FIRST gate for
+/// the flow, not the only one: every execution additionally passes IUnattendedSkillPolicy, the same
+/// fail-closed check the scheduled-task and proactive paths use. The mapping decides WHETHER an
+/// intent may act at all; the policy re-checks what the skill has since become — a skill reclassified
+/// as sensitive, or removed outright, is refused here even though this mapping would still allow it.
 /// </summary>
 
 using Klacks.Api.Application.Configuration;
@@ -36,18 +36,17 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.Extensions.Options;
 
-namespace Klacks.Api.Infrastructure.Email;
+namespace Klacks.Api.Infrastructure.Inbound;
 
-public class EmailActionOrchestrator : IEmailActionOrchestrator
+public class InboundActionOrchestrator : IInboundActionOrchestrator
 {
-    private const string AuditUserName = "Klacksy email-analysis";
     private const int MinHour = 0;
     private const int MaxHour = 23;
     private const int MaxAvailabilityRangeDays = 92;
@@ -77,9 +76,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly IUnattendedSkillPolicy _unattendedSkillPolicy;
     private readonly IProactiveGovernanceResolver _governanceResolver;
     private readonly EmailAutomationOptions _automationOptions;
-    private readonly ILogger<EmailActionOrchestrator> _logger;
+    private readonly ILogger<InboundActionOrchestrator> _logger;
 
-    public EmailActionOrchestrator(
+    public InboundActionOrchestrator(
         IAdminAutonomyLevelAggregator adminAutonomy,
         ISkillExecutor skillExecutor,
         IGroupMembershipService groupMembershipService,
@@ -93,7 +92,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         IUnattendedSkillPolicy unattendedSkillPolicy,
         IProactiveGovernanceResolver governanceResolver,
         IOptions<EmailAutomationOptions> automationOptions,
-        ILogger<EmailActionOrchestrator> logger)
+        ILogger<InboundActionOrchestrator> logger)
     {
         _adminAutonomy = adminAutonomy;
         _skillExecutor = skillExecutor;
@@ -111,11 +110,10 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _logger = logger;
     }
 
-    public async Task<EmailActionOutcome?> ExecuteAsync(
-        ReceivedEmail email, InboundAnalysis analysis, CancellationToken cancellationToken = default)
+    public async Task<InboundActionOutcome?> ExecuteAsync(
+        Guid clientId, InboundSource source, InboundAnalysis analysis, CancellationToken cancellationToken = default)
     {
-        if (analysis.ClientId == null
-            || analysis.ClientType == EntityTypeEnum.Customer
+        if (analysis.ClientType == EntityTypeEnum.Customer
             || analysis.Intent is not (EmailIntent.WorkCancellation or EmailIntent.VacationRequest
                 or EmailIntent.DayOffWish or EmailIntent.AvailabilityAnnouncement or EmailIntent.ShiftPreference))
         {
@@ -124,12 +122,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (analysis.FromDate == null)
         {
-            return new EmailActionOutcome(false,
-                "No usable date range was detected in the email, so no planning action was prepared. " +
+            return new InboundActionOutcome(false,
+                "No usable date range was detected in the message, so no planning action was prepared. " +
                 "Ask Klacksy to place the action manually once the dates are known.");
         }
 
-        var clientId = analysis.ClientId.Value;
         var fromDate = analysis.FromDate.Value;
         var untilDate = analysis.UntilDate ?? fromDate;
 
@@ -140,29 +137,29 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return analysis.Intent switch
             {
                 EmailIntent.WorkCancellation => await HandleWorkCancellationAsync(
-                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, source, cancellationToken),
                 EmailIntent.VacationRequest => await HandleVacationRequestAsync(
-                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, source, cancellationToken),
                 EmailIntent.DayOffWish => await HandleDayOffWishAsync(
-                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, source, cancellationToken),
                 EmailIntent.AvailabilityAnnouncement => await HandleAvailabilityAnnouncementAsync(
-                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, source, cancellationToken),
                 EmailIntent.ShiftPreference => await HandleShiftPreferenceAsync(
-                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, source, cancellationToken),
                 _ => null
             };
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Email action orchestration failed for email {EmailId}", email.Id);
-            return new EmailActionOutcome(false,
+            _logger.LogWarning(ex, "Inbound action orchestration failed for {Channel} source {SourceId}", source.Channel, source.SourceId);
+            return new InboundActionOutcome(false,
                 $"Automatic action failed ({ex.Message}). Ask Klacksy to place the action manually.");
         }
     }
 
-    private async Task<EmailActionOutcome> HandleWorkCancellationAsync(
+    private async Task<InboundActionOutcome> HandleWorkCancellationAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
-        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+        Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
         var suggestion =
             $"Suggested action: create a cover scenario — ask Klacksy to run cover_absence for this " +
@@ -170,7 +167,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (level < AutonomyLevel.Autonomous || executingAdminId == null)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
@@ -186,7 +183,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         var groups = (await _groupMembershipService.GetClientGroupsAsync(clientId)).ToList();
         if (groups.Count != 1)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 groups.Count == 0
                     ? "The employee belongs to no group, so no cover scenario could be created automatically. " + suggestion
                     : $"The employee belongs to {groups.Count} groups ({string.Join(", ", groups.Select(g => g.Name))}) — " +
@@ -196,11 +193,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), SicknessKeywords);
         if (absence == null)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 "No unambiguous sickness absence type was found, so no cover scenario was created automatically. " + suggestion);
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "cover_absence", level,
+        var result = await ExecuteSkillAsync(executingAdminId.Value, source, "cover_absence", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -212,15 +209,15 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true, $"Cover scenario created automatically: {result.Message}")
-            : new EmailActionOutcome(false, $"Automatic cover scenario failed: {result.Message}. {suggestion}");
+            ? new InboundActionOutcome(true, $"Cover scenario created automatically: {result.Message}")
+            : new InboundActionOutcome(false, $"Automatic cover scenario failed: {result.Message}. {suggestion}");
     }
 
-    private async Task<EmailActionOutcome> HandleVacationRequestAsync(
+    private async Task<InboundActionOutcome> HandleVacationRequestAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
-        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+        Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
-        var wantsTraining = MentionsTraining(email, analysis);
+        var wantsTraining = MentionsTraining(source, analysis);
         var absenceKind = wantsTraining ? "training" : "vacation";
 
         var absence = ResolveAbsenceByKeywords(
@@ -238,12 +235,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         // placeholder is what consumes the reserve, and the planner is the one who may accept that.
         if (capacity.HasGap)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
@@ -258,37 +255,37 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (absence == null)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 $"No unambiguous {absenceKind} absence type was found, so the wish was not recorded automatically. " + suggestion);
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_break_placeholder", level,
+        var result = await ExecuteSkillAsync(executingAdminId.Value, source, "add_break_placeholder", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
                 ["absenceId"] = absence.Id,
                 ["fromDate"] = fromDate,
                 ["untilDate"] = untilDate,
-                ["information"] = $"From email: {email.Subject}"
+                ["information"] = $"From {source.Channel}: {source.Subject ?? source.SenderDisplay}"
             },
             cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true,
+            ? new InboundActionOutcome(true,
                 $"{char.ToUpperInvariant(absenceKind[0])}{absenceKind[1..]} wish recorded automatically: {result.Message}" +
                 (capacity.Evaluated ? Environment.NewLine + capacity.Note : string.Empty))
-            : new EmailActionOutcome(false, $"Automatic placeholder failed: {result.Message}. {suggestion}");
+            : new InboundActionOutcome(false, $"Automatic placeholder failed: {result.Message}. {suggestion}");
     }
 
-    private static bool MentionsTraining(ReceivedEmail email, InboundAnalysis analysis)
+    private static bool MentionsTraining(InboundSource source, InboundAnalysis analysis)
     {
-        var haystack = $"{email.Subject} {analysis.Summary}".ToLowerInvariant();
+        var haystack = $"{source.Subject} {analysis.Summary}".ToLowerInvariant();
         return TrainingKeywords.Any(k => haystack.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async Task<EmailActionOutcome> HandleDayOffWishAsync(
+    private async Task<InboundActionOutcome> HandleDayOffWishAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
-        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+        Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
         var dayOffPairs = new (string Positive, string Negative)[]
@@ -309,7 +306,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
@@ -319,7 +316,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (HasContradiction(dayOffKeywords, dayOffPairs))
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 $"The detected planning commands contradict each other ({string.Join(", ", dayOffKeywords)}), " +
                 "so nothing was placed automatically. " + suggestion);
         }
@@ -334,7 +331,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return contractOutcome;
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range", level,
+        var result = await ExecuteSkillAsync(executingAdminId.Value, source, "add_schedule_commands_range", level,
             new Dictionary<string, object>
             {
                 ["clientId"] = clientId,
@@ -345,13 +342,13 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true, $"{keyword} planning commands placed automatically: {result.Message}")
-            : new EmailActionOutcome(false, $"Automatic planning commands failed: {result.Message}. {suggestion}");
+            ? new InboundActionOutcome(true, $"{keyword} planning commands placed automatically: {result.Message}")
+            : new InboundActionOutcome(false, $"Automatic planning commands failed: {result.Message}. {suggestion}");
     }
 
-    private async Task<EmailActionOutcome> HandleAvailabilityAnnouncementAsync(
+    private async Task<InboundActionOutcome> HandleAvailabilityAnnouncementAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
-        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+        Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
         var hourWindow = analysis.StartHour != null || analysis.EndHour != null
             ? $", hours {analysis.StartHour ?? MinHour}-{analysis.EndHour ?? MaxHour}"
@@ -362,7 +359,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
@@ -383,7 +380,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
         if (rangeDays > MaxAvailabilityRangeDays)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 $"The announced period spans {rangeDays} days (maximum {MaxAvailabilityRangeDays}), " +
                 "so the availability was not recorded automatically. " + suggestion);
         }
@@ -404,7 +401,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
             if (dates.Count == 0)
             {
-                return new EmailActionOutcome(false,
+                return new InboundActionOutcome(false,
                     "The announced weekdays do not occur in the announced period, so the availability was " +
                     "not recorded automatically. " + suggestion);
             }
@@ -428,17 +425,17 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             parameters["endHour"] = analysis.EndHour.Value;
         }
 
-        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "set_client_availability", level,
+        var result = await ExecuteSkillAsync(executingAdminId.Value, source, "set_client_availability", level,
             parameters, cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true, $"Availability recorded automatically: {result.Message}")
-            : new EmailActionOutcome(false, $"Automatic availability recording failed: {result.Message}. {suggestion}");
+            ? new InboundActionOutcome(true, $"Availability recorded automatically: {result.Message}")
+            : new InboundActionOutcome(false, $"Automatic availability recording failed: {result.Message}. {suggestion}");
     }
 
-    private async Task<EmailActionOutcome> HandleShiftPreferenceAsync(
+    private async Task<InboundActionOutcome> HandleShiftPreferenceAsync(
         Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
-        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+        Guid? executingAdminId, InboundSource source, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
         var shiftSlotPairs = new (string Positive, string Negative)[]
@@ -456,7 +453,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (keywords.Count == 0)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 "A shift-slot preference was detected but no unambiguous planning command could be derived. " +
                 "Ask Klacksy to run add_schedule_commands_range manually once the restriction is clear.");
         }
@@ -468,7 +465,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
-            return new EmailActionOutcome(false, suggestion);
+            return new InboundActionOutcome(false, suggestion);
         }
 
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
@@ -478,7 +475,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
         if (HasContradiction(keywords, shiftSlotPairs))
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 $"The detected planning commands contradict each other ({keywordList}), so nothing was " +
                 "placed automatically. " + suggestion);
         }
@@ -496,7 +493,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
         if (rangeDays > MaxAvailabilityRangeDays)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 $"The announced period spans {rangeDays} days (maximum {MaxAvailabilityRangeDays}), " +
                 "so no planning commands were placed automatically. " + suggestion);
         }
@@ -504,7 +501,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         var ranges = BuildCommandDateRanges(fromDate, untilDate, ParseWeekdays(analysis.Weekdays), rangeDays);
         if (ranges.Count == 0)
         {
-            return new EmailActionOutcome(false,
+            return new InboundActionOutcome(false,
                 "The announced weekdays do not occur in the announced period, so no planning commands were " +
                 "placed automatically. " + suggestion);
         }
@@ -514,7 +511,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         {
             foreach (var (rangeFrom, rangeUntil) in ranges)
             {
-                var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range", level,
+                var result = await ExecuteSkillAsync(executingAdminId.Value, source, "add_schedule_commands_range", level,
                     new Dictionary<string, object>
                     {
                         ["clientId"] = clientId,
@@ -526,7 +523,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 
                 if (!result.Success)
                 {
-                    return new EmailActionOutcome(false,
+                    return new InboundActionOutcome(false,
                         $"Automatic planning commands failed at {keyword} ({result.Message}). {suggestion}");
                 }
 
@@ -534,19 +531,19 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             }
         }
 
-        return new EmailActionOutcome(true,
+        return new InboundActionOutcome(true,
             $"Planning commands {keywordList} placed automatically on {placedTotal / keywords.Count} day(s) " +
             $"between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}. Wizards will respect these constraints.");
     }
 
-    private static EmailActionOutcome? CheckConfidenceGate(InboundAnalysis analysis, string suggestion) =>
+    private static InboundActionOutcome? CheckConfidenceGate(InboundAnalysis analysis, string suggestion) =>
         analysis.Confidence != EmailConfidence.High
-            ? new EmailActionOutcome(false,
+            ? new InboundActionOutcome(false,
                 "The email content was ambiguous or not explicit enough to act on automatically. " + suggestion)
             : null;
 
-    private static EmailActionOutcome? IssueOutcome(string? issue, string suggestion) =>
-        issue is null ? null : new EmailActionOutcome(false, issue + suggestion);
+    private static InboundActionOutcome? IssueOutcome(string? issue, string suggestion) =>
+        issue is null ? null : new InboundActionOutcome(false, issue + suggestion);
 
     private static bool HasContradiction(IReadOnlyCollection<string> keywords, (string Positive, string Negative)[] pairs) =>
         pairs.Any(pair =>
@@ -640,7 +637,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<SkillResult> ExecuteSkillAsync(
-        Guid executingAdminId, ReceivedEmail email, string skillName, AutonomyLevel level,
+        Guid executingAdminId, InboundSource source, string skillName, AutonomyLevel level,
         Dictionary<string, object> parameters, CancellationToken cancellationToken)
     {
         // The automation acts under a configured service account when one is set, otherwise under the
@@ -652,8 +649,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (!token.Success)
         {
             _logger.LogWarning(
-                "E-mail automation skipped skill {SkillName} for email {EmailId}: {Reason}",
-                skillName, email.Id, token.Reason);
+                "Inbound automation skipped skill {SkillName} for {Channel} source {SourceId}: {Reason}",
+                skillName, source.Channel, source.SourceId, token.Reason);
             return SkillResult.Error(token.Reason!);
         }
 
@@ -671,8 +668,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (!decision.Allowed)
         {
             _logger.LogWarning(
-                "E-mail automation refused skill {SkillName} for email {EmailId} ({DenyReason}): {Reason}",
-                skillName, email.Id, decision.DenyReason, decision.Reason);
+                "Inbound automation refused skill {SkillName} for {Channel} source {SourceId} ({DenyReason}): {Reason}",
+                skillName, source.Channel, source.SourceId, decision.DenyReason, decision.Reason);
             return SkillResult.Error(decision.Reason!);
         }
 
@@ -680,10 +677,10 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         {
             UserId = actingUserId,
             TenantId = Guid.Empty,
-            UserName = AuditUserName,
+            UserName = $"Klacksy {source.Channel} analysis",
             UserPermissions = Permissions.ExpandRoles(token.Roles),
             AccessToken = token.Token,
-            SessionId = $"email-analysis:{email.Id}",
+            SessionId = $"{source.Channel.ToLowerInvariant()}-analysis:{source.SourceId}",
             BypassAutonomyGate = true
         };
 
