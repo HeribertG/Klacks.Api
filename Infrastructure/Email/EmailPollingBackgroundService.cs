@@ -138,6 +138,8 @@ public class EmailPollingBackgroundService : BackgroundService
     {
         try
         {
+            var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
+
             if (string.Equals(email.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase))
             {
                 var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
@@ -152,8 +154,7 @@ public class EmailPollingBackgroundService : BackgroundService
                 }
                 else
                 {
-                    var newEmailAssignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
-                    await newEmailAssignmentService.AssignNewEmailAsync(email);
+                    await assignmentService.AssignNewEmailAsync(email);
                 }
             }
 
@@ -164,7 +165,6 @@ public class EmailPollingBackgroundService : BackgroundService
                 return;
             }
 
-            var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
             var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
 
             var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
@@ -178,10 +178,7 @@ public class EmailPollingBackgroundService : BackgroundService
                 {
                     var (clientId, clientType) = client.Value;
                     var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
-                    var source = new InboundSource(
-                        email.Id, InboundSourceKind.Email, EmailConstants.InboundChannel,
-                        string.IsNullOrWhiteSpace(email.FromName) ? email.FromAddress : $"{email.FromName} ({email.FromAddress})",
-                        email.Subject, email.BodyText ?? email.BodyHtml ?? string.Empty, email.ReceivedDate);
+                    var source = ToInboundSource(email);
 
                     analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
                 }
@@ -226,6 +223,11 @@ public class EmailPollingBackgroundService : BackgroundService
                 email.Id, email.FromAddress);
         }
     }
+
+    private static InboundSource ToInboundSource(Domain.Models.Email.ReceivedEmail email) => new(
+        email.Id, InboundSourceKind.Email, EmailConstants.InboundChannel,
+        string.IsNullOrWhiteSpace(email.FromName) ? email.FromAddress : $"{email.FromName} ({email.FromAddress})",
+        email.Subject, email.BodyText ?? email.BodyHtml ?? string.Empty, email.ReceivedDate);
 
     private async Task InitialSyncAsync(CancellationToken stoppingToken)
     {
