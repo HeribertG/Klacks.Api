@@ -24094,6 +24094,67 @@
       "version": 4
     },
     {
+      "name": "get_messenger_analysis",
+      "area": "inbox",
+      "description": "Reports the pipeline's reading of an incoming chat message from a messenger channel such as Telegram: the recognised request (sick note, holiday wish, swap offer, availability change), a short recap, which employee it was matched to, the day or time span it names, and any reason the request was left unprocessed. A chat that has not run through the pipeline is reported as unprocessed.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "messageId",
+          "description": "UUID of the incoming chat message (from list_messages)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "chat auswertung",
+          "was hat klacksy im telegram chat erkannt"
+        ],
+        "en": [
+          "chat analysis result"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "chat-auswertung anzeigen",
+          "was wurde im telegram chat erkannt",
+          "auswertung der chat-nachricht zeigen"
+        ],
+        "en": [
+          "show the chat analysis",
+          "what was detected in the telegram chat",
+          "show messenger intelligence result"
+        ],
+        "fr": [
+          "afficher l'analyse du chat telegram",
+          "qu'a détecté le pipeline dans ce chat"
+        ],
+        "it": [
+          "mostrare l'analisi della chat telegram",
+          "cosa è stato rilevato nella chat"
+        ]
+      },
+      "labels": {
+        "de": "Chat-Analyse anzeigen",
+        "en": "Show chat analysis",
+        "fr": "Afficher l'analyse du chat",
+        "it": "Mostra l'analisi della chat"
+      },
+      "version": 1
+    },
+    {
       "name": "translate_email",
       "area": "inbox",
       "description": "Translates a received email into a target language via the mailbox translation service (the inbox translate button) and returns the translated subject and body text. Long bodies are truncated.",
