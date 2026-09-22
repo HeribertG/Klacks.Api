@@ -254,6 +254,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IInboundAnalysisNotifier, InboundAnalysisNotifier>();
         services.AddScoped<IInboundAnalysisRepository, InboundAnalysisRepository>();
         services.AddScoped<IInboundActionOrchestrator, InboundActionOrchestrator>();
+        services.AddScoped<Klacks.Plugin.Contracts.IInboundClientMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessengerIntentObserver>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailCapacityAdvisor, EmailCapacityAdvisor>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
