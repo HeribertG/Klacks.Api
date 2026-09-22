@@ -135,6 +135,14 @@ public class ClientRepository : IClientRepository
         return await Get(id);
     }
 
+    public async Task<EntityTypeEnum?> GetTypeAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Where(c => c.Id == id)
+            .Select(c => (EntityTypeEnum?)c.Type)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<LastChangeMetaData> LastChangeMetaData()
     {
         var result = await _changeTrackingService.GetLastChangeMetadataAsync();

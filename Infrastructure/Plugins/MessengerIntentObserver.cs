@@ -7,7 +7,7 @@
 /// MessagingPluginInboundMessageObserver, which reacts to messages resolved to an APP USER (escalation
 /// replies) — the two paths never overlap because a message resolves to exactly one or the other.
 /// </summary>
-/// <param name="clientRepository">Resolves the client behind an inbound message and its EntityTypeEnum</param>
+/// <param name="clientRepository">Resolves the EntityTypeEnum of the client behind an inbound message</param>
 /// <param name="settingsRepository">Reads the MESSENGER_ANALYSIS_ENABLED feature gate</param>
 /// <param name="intentAnalysisService">Runs the channel-neutral intent classification</param>
 /// <param name="actionOrchestrator">Executes the action the analysis calls for, if any</param>
@@ -18,6 +18,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Inbound;
@@ -66,8 +67,8 @@ public sealed class MessengerIntentObserver : IInboundClientMessengerObserver
             return;
         }
 
-        var client = await _clientRepository.GetNoTracking(message.ClientId);
-        if (client == null)
+        var clientType = await _clientRepository.GetTypeAsync(message.ClientId, cancellationToken);
+        if (clientType == null)
         {
             _logger.LogInformation(
                 "Skipping messenger intent analysis for message {MessageId}: client {ClientId} not found",
@@ -75,7 +76,7 @@ public sealed class MessengerIntentObserver : IInboundClientMessengerObserver
             return;
         }
 
-        var channelLabel = $"Messenger:{message.Channel}";
+        var channelLabel = $"{MessengerConstants.InboundChannelPrefix}{message.Channel}";
         var source = new InboundSource(
             message.MessageId,
             InboundSourceKind.Messenger,
@@ -85,7 +86,7 @@ public sealed class MessengerIntentObserver : IInboundClientMessengerObserver
             message.Content,
             message.ReceivedAt);
 
-        var analysis = await _intentAnalysisService.AnalyzeAsync(message.ClientId, client.Type, source, cancellationToken);
+        var analysis = await _intentAnalysisService.AnalyzeAsync(message.ClientId, clientType.Value, source, cancellationToken);
 
         await _analysisRepository.AddAsync(analysis, cancellationToken);
         await _unitOfWork.CompleteAsync();

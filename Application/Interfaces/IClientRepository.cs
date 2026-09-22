@@ -24,6 +24,14 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<List<Client>> SearchByNameAsync(string nameFragment, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Reads only the EntityTypeEnum of a client, without any of the navigation collections GetNoTracking
+    /// loads - for callers that need to classify a known ClientId and nothing else.
+    /// </summary>
+    /// <param name="id">Client whose type is read</param>
+    /// <returns>The client's type, or null when no client carries that id</returns>
+    Task<EntityTypeEnum?> GetTypeAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Loads the client with all update-relevant relations as a tracked entity, intended to be passed to
     /// <see cref="Put(Client, Client)"/> so update flows need only a single database load.
     /// </summary>
