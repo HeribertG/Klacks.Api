@@ -24105,7 +24105,7 @@
       "parameters": [
         {
           "name": "messageId",
-          "description": "UUID of the incoming chat message (from list_messages)",
+          "description": "UUID of the incoming chat message.",
           "type": "String",
           "required": true,
           "defaultValue": null,
