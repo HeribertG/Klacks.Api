@@ -19,7 +19,7 @@ namespace Klacks.Api.Infrastructure.Inbound;
 
 public class InboundAnalysisNotifier : IInboundAnalysisNotifier
 {
-    private const string NoteTopic = "email-analysis";
+    private const string NoteTopic = "inbound-analysis";
 
     private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly IAssistantNotificationService _notificationService;
@@ -187,13 +187,13 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
 
     private static string IntentLabel(EmailIntent intent) => intent switch
     {
-        EmailIntent.CustomerMessage => "Customer email",
+        EmailIntent.CustomerMessage => "Customer message",
         EmailIntent.WorkCancellation => "Work cancellation",
         EmailIntent.VacationRequest => "Vacation request",
         EmailIntent.DayOffWish => "Day-off wish",
         EmailIntent.AvailabilityAnnouncement => "Availability announcement",
         EmailIntent.ShiftPreference => "Shift preference",
-        _ => "Email received"
+        _ => "Message received"
     };
 
     private static string FormatWeekdays(string weekdays)

@@ -132,7 +132,7 @@ public class EmailPollingBackgroundService : BackgroundService
     internal async Task ProcessEmailAsync(
         IServiceScope scope,
         IUnitOfWork unitOfWork,
-        Domain.Models.Email.ReceivedEmail email,
+        ReceivedEmail email,
         string inboxFolder,
         string junkFolder,
         CancellationToken stoppingToken)
@@ -176,18 +176,22 @@ public class EmailPollingBackgroundService : BackgroundService
             // same InboundSource for its audit trail.
             var source = ToInboundSource(email);
 
-            InboundAnalysis? analysis = null;
+            (Guid ClientId, EntityTypeEnum ClientType)? client = null;
             if (emailAnalysisEnabled)
             {
-                var client = await assignmentService.ResolveClientAsync(email, stoppingToken);
-                if (client != null)
-                {
-                    var (clientId, clientType) = client.Value;
-                    var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
-
-                    analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
-                }
+                client = await assignmentService.ResolveClientAsync(email, stoppingToken);
             }
+
+            if (client == null)
+            {
+                email.ProcessedAt = DateTime.UtcNow;
+                await unitOfWork.CompleteAsync();
+                return;
+            }
+
+            var (clientId, clientType) = client.Value;
+            var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
+            var analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
 
             email.ProcessedAt = DateTime.UtcNow;
 
@@ -202,15 +206,19 @@ public class EmailPollingBackgroundService : BackgroundService
             await unitOfWork.CompleteAsync();
 
             var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();
-            var actionOutcome = await actionOrchestrator.ExecuteAsync(analysis.ClientId!.Value, source, analysis, stoppingToken);
+            // AnalyzeAsync always echoes the resolved clientId onto the analysis it returns (see
+            // InboundIntentAnalysisService), so analysis.ClientId is guaranteed set here; the ?? fallback
+            // to the already-resolved clientId avoids a null-forgiving operator on the nullable property
+            // without adding a branch that would never be taken.
+            var resolvedClientId = analysis.ClientId ?? clientId;
+            var actionOutcome = await actionOrchestrator.ExecuteAsync(resolvedClientId, source, analysis, stoppingToken);
 
             string? periodLoadSummary = null;
-            if (analysis.ClientId != null && analysis.FromDate != null
-                && analysis.ClientType != Domain.Enums.EntityTypeEnum.Customer)
+            if (analysis.FromDate != null && analysis.ClientType != EntityTypeEnum.Customer)
             {
                 var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
                 periodLoadSummary = await periodLoadService.BuildSummaryAsync(
-                    analysis.ClientId.Value, analysis.FromDate.Value,
+                    resolvedClientId, analysis.FromDate.Value,
                     analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
             }
 
@@ -229,7 +237,7 @@ public class EmailPollingBackgroundService : BackgroundService
         }
     }
 
-    private static InboundSource ToInboundSource(Domain.Models.Email.ReceivedEmail email) => new(
+    private static InboundSource ToInboundSource(ReceivedEmail email) => new(
         email.Id, InboundSourceKind.Email, EmailConstants.InboundChannel,
         string.IsNullOrWhiteSpace(email.FromName) ? email.FromAddress : $"{email.FromName} ({email.FromAddress})",
         email.Subject, email.BodyText ?? email.BodyHtml ?? string.Empty, email.ReceivedDate);
