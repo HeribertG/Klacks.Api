@@ -8,7 +8,12 @@
 /// (propose-only by design) and suggests the rest; Assisted/Propose only suggests. The three
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
 /// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
-/// contracts they are always suggested, never executed. The effective level is the MINIMUM over
+/// contracts they are always suggested, never executed. The shift-slot commands further require a
+/// contract that performs shift work: for a day worker a negative slot command (-EARLY) would
+/// silently block the only slot they can be planned in, so without shift work they are only
+/// suggested, with a pointer to set_client_availability as the likely intended action. Both contract
+/// gates run before the already-planned check because they are the cheaper, more fundamental
+/// tests. The effective level is the MINIMUM over
 /// all admin users via IAdminAutonomyLevelAggregator (no admins = suggest only), additionally capped
 /// by the global proactive autonomy level (KLACKSY_PROACTIVE_AUTONOMY_LEVEL), so from a global level
 /// below Autonomous nothing here executes automatically no matter what the admins chose. Before any
@@ -39,6 +44,7 @@ using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.Extensions.Options;
@@ -480,14 +486,21 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
                 "placed automatically. " + suggestion);
         }
 
+        var contract = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, fromDate);
+
+        if (IssueOutcome(DescribeZeroHourContractIssue(contract), suggestion) is { } contractOutcome)
+        {
+            return contractOutcome;
+        }
+
+        if (IssueOutcome(DescribeNoShiftWorkContractIssue(contract), suggestion) is { } shiftWorkOutcome)
+        {
+            return shiftWorkOutcome;
+        }
+
         if (IssueOutcome(await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } plannedOutcome)
         {
             return plannedOutcome;
-        }
-
-        if (IssueOutcome(await DescribeZeroHourContractIssueAsync(clientId, fromDate), suggestion) is { } contractOutcome)
-        {
-            return contractOutcome;
         }
 
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
@@ -553,6 +566,11 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
     private async Task<string?> DescribeZeroHourContractIssueAsync(Guid clientId, DateOnly fromDate)
     {
         var contract = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, fromDate);
+        return DescribeZeroHourContractIssue(contract);
+    }
+
+    private static string? DescribeZeroHourContractIssue(EffectiveContractData contract)
+    {
         if (contract.HasActiveContract && contract.GuaranteedHours == 0)
         {
             return null;
@@ -562,6 +580,19 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             ? $"The employee has a contract with {contract.GuaranteedHours} guaranteed hours — this action " +
               "is only executed automatically for zero-hour contracts. "
             : "The employee has no active contract for the announced period. ";
+    }
+
+    private static string? DescribeNoShiftWorkContractIssue(EffectiveContractData contract)
+    {
+        if (!contract.HasActiveContract || contract.PerformsShiftWork)
+        {
+            return null;
+        }
+
+        return "The employee's contract does not include shift work (early/late/night services), so a " +
+               "shift-slot command would block the only slot a day worker can be planned in — it was not " +
+               "placed automatically. If the employee meant a time of day rather than a shift category, " +
+               "record it as an availability window via set_client_availability instead. ";
     }
 
     private async Task<string?> DescribeAlreadyPlannedPeriodIssueAsync(
