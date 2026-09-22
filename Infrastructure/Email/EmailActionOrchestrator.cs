@@ -39,6 +39,7 @@ using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.Extensions.Options;
 
@@ -111,7 +112,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     public async Task<EmailActionOutcome?> ExecuteAsync(
-        ReceivedEmail email, EmailAnalysis analysis, CancellationToken cancellationToken = default)
+        ReceivedEmail email, InboundAnalysis analysis, CancellationToken cancellationToken = default)
     {
         if (analysis.ClientId == null
             || analysis.ClientType == EntityTypeEnum.Customer
@@ -160,7 +161,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleWorkCancellationAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var suggestion =
@@ -216,7 +217,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleVacationRequestAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var wantsTraining = MentionsTraining(email, analysis);
@@ -279,14 +280,14 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             : new EmailActionOutcome(false, $"Automatic placeholder failed: {result.Message}. {suggestion}");
     }
 
-    private static bool MentionsTraining(ReceivedEmail email, EmailAnalysis analysis)
+    private static bool MentionsTraining(ReceivedEmail email, InboundAnalysis analysis)
     {
         var haystack = $"{email.Subject} {analysis.Summary}".ToLowerInvariant();
         return TrainingKeywords.Any(k => haystack.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task<EmailActionOutcome> HandleDayOffWishAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
@@ -349,7 +350,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleAvailabilityAnnouncementAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var hourWindow = analysis.StartHour != null || analysis.EndHour != null
@@ -436,7 +437,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleShiftPreferenceAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, InboundAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
@@ -538,7 +539,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             $"between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}. Wizards will respect these constraints.");
     }
 
-    private static EmailActionOutcome? CheckConfidenceGate(EmailAnalysis analysis, string suggestion) =>
+    private static EmailActionOutcome? CheckConfidenceGate(InboundAnalysis analysis, string suggestion) =>
         analysis.Confidence != EmailConfidence.High
             ? new EmailActionOutcome(false,
                 "The email content was ambiguous or not explicit enough to act on automatically. " + suggestion)

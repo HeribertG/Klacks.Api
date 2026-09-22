@@ -10,7 +10,8 @@
 
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Attributes;
-using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -21,9 +22,9 @@ namespace Klacks.Api.Application.Skills;
 public class GetEmailAnalysisSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
-    private readonly IEmailAnalysisRepository _analysisRepository;
+    private readonly IInboundAnalysisRepository _analysisRepository;
 
-    public GetEmailAnalysisSkill(IMediator mediator, IEmailAnalysisRepository analysisRepository)
+    public GetEmailAnalysisSkill(IMediator mediator, IInboundAnalysisRepository analysisRepository)
     {
         _mediator = mediator;
         _analysisRepository = analysisRepository;
@@ -42,7 +43,7 @@ public class GetEmailAnalysisSkill : BaseSkillImplementation
             return SkillResult.Error($"Email '{emailId}' not found.");
         }
 
-        var analysis = await _analysisRepository.GetByReceivedEmailIdAsync(emailId, cancellationToken);
+        var analysis = await _analysisRepository.GetBySourceAsync(InboundSourceKind.Email, emailId, cancellationToken);
         if (analysis == null)
         {
             return SkillResult.SuccessResult(

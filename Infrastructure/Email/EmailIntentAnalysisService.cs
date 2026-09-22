@@ -15,12 +15,14 @@
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Infrastructure.Email;
@@ -60,7 +62,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         _logger = logger;
     }
 
-    public async Task<EmailAnalysis?> AnalyzeAsync(ReceivedEmail email, CancellationToken cancellationToken = default)
+    public async Task<InboundAnalysis?> AnalyzeAsync(ReceivedEmail email, CancellationToken cancellationToken = default)
     {
         if (!await IsEnabledAsync())
         {
@@ -74,9 +76,11 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         }
 
         var (clientId, clientType) = client.Value;
-        var analysis = new EmailAnalysis
+        var analysis = new InboundAnalysis
         {
-            ReceivedEmailId = email.Id,
+            SourceKind = InboundSourceKind.Email,
+            SourceId = email.Id,
+            Channel = EmailConstants.InboundChannel,
             ClientId = clientId,
             ClientType = clientType,
             AnalyzedAt = DateTime.UtcNow
@@ -185,7 +189,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
     }
 
     private static void ApplyParsedReply(
-        EmailAnalysis analysis, EntityTypeEnum clientType, LlmReply? parsed, string rawReply, ScheduleCommandKeywordSet keywords)
+        InboundAnalysis analysis, EntityTypeEnum clientType, LlmReply? parsed, string rawReply, ScheduleCommandKeywordSet keywords)
     {
         if (parsed == null)
         {

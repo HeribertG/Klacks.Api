@@ -5,6 +5,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Inbound;
 using IEmailNotificationService = Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService;
 
 namespace Klacks.Api.Infrastructure.Email;
@@ -171,7 +172,7 @@ public class EmailPollingBackgroundService : BackgroundService
                 return;
             }
 
-            var analysisRepository = scope.ServiceProvider.GetRequiredService<IEmailAnalysisRepository>();
+            var analysisRepository = scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>();
             await analysisRepository.AddAsync(analysis, stoppingToken);
             await unitOfWork.CompleteAsync();
 

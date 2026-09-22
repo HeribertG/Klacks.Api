@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
+using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
@@ -310,7 +311,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<ReceivedEmail> ReceivedEmails { get; set; }
     public DbSet<EmailFolder> EmailFolders { get; set; }
     public DbSet<SpamRule> SpamRules { get; set; }
-    public DbSet<EmailAnalysis> EmailAnalyses { get; set; }
+    public DbSet<InboundAnalysis> InboundAnalyses { get; set; }
 
     // Plugin DbSets
     public DbSet<PluginDoc> PluginDocs { get; set; }

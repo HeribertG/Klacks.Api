@@ -3,13 +3,15 @@
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 
-namespace Klacks.Api.Domain.Models.Email;
+namespace Klacks.Api.Domain.Models.Inbound;
 
-public class EmailAnalysis : BaseEntity
+public class InboundAnalysis : BaseEntity
 {
-    public Guid ReceivedEmailId { get; set; }
+    public InboundSourceKind SourceKind { get; set; }
 
-    public virtual ReceivedEmail? ReceivedEmail { get; set; }
+    public Guid SourceId { get; set; }
+
+    public string Channel { get; set; } = string.Empty;
 
     public Guid? ClientId { get; set; }
 

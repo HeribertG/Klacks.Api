@@ -14,6 +14,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Models.Inbound;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -43,7 +44,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
 
     public async Task NotifyAsync(
         ReceivedEmail email,
-        EmailAnalysis analysis,
+        InboundAnalysis analysis,
         EmailActionOutcome? actionOutcome = null,
         string? periodLoadSummary = null,
         CancellationToken cancellationToken = default)
@@ -131,7 +132,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
     }
 
     private static string BuildMessage(
-        ReceivedEmail email, EmailAnalysis analysis, EmailActionOutcome? actionOutcome, string? periodLoadSummary)
+        ReceivedEmail email, InboundAnalysis analysis, EmailActionOutcome? actionOutcome, string? periodLoadSummary)
     {
         var sender = string.IsNullOrWhiteSpace(email.FromName)
             ? email.FromAddress
