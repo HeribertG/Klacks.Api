@@ -251,7 +251,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
         services.AddScoped<IInboundIntentAnalysisService, InboundIntentAnalysisService>();
-        services.AddScoped<IEmailAnalysisNotifier, EmailAnalysisNotifier>();
+        services.AddScoped<IInboundAnalysisNotifier, InboundAnalysisNotifier>();
         services.AddScoped<IInboundAnalysisRepository, InboundAnalysisRepository>();
         services.AddScoped<IInboundActionOrchestrator, InboundActionOrchestrator>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();

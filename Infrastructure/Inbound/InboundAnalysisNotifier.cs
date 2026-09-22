@@ -1,24 +1,23 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Delivers an email analysis summary to every planner and admin. The summary is always stashed as a
-/// durable PendingUserNote first; a connected user additionally gets it live as a proactive chat
-/// message, and the note is then marked delivered so it is never relayed twice. An offline user — or
-/// one whose live send fails — keeps the note, which surfaces on their next chat turn. Delivery
-/// failures are logged per user and never abort the batch.
+/// Delivers an inbound (email or messenger) analysis summary to every planner and admin. The summary
+/// is always stashed as a durable PendingUserNote first; a connected user additionally gets it live as
+/// a proactive chat message, and the note is then marked delivered so it is never relayed twice. An
+/// offline user — or one whose live send fails — keeps the note, which surfaces on their next chat
+/// turn. Delivery failures are logged per user and never abort the batch.
 /// </summary>
 
 using System.Text;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Inbound;
 
-namespace Klacks.Api.Infrastructure.Email;
+namespace Klacks.Api.Infrastructure.Inbound;
 
-public class EmailAnalysisNotifier : IEmailAnalysisNotifier
+public class InboundAnalysisNotifier : IInboundAnalysisNotifier
 {
     private const string NoteTopic = "email-analysis";
 
@@ -26,14 +25,14 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
     private readonly IAssistantNotificationService _notificationService;
     private readonly IPendingUserNoteRepository _pendingNotes;
     private readonly IAgentRepository _agentRepository;
-    private readonly ILogger<EmailAnalysisNotifier> _logger;
+    private readonly ILogger<InboundAnalysisNotifier> _logger;
 
-    public EmailAnalysisNotifier(
+    public InboundAnalysisNotifier(
         IPlanningAudienceResolver audienceResolver,
         IAssistantNotificationService notificationService,
         IPendingUserNoteRepository pendingNotes,
         IAgentRepository agentRepository,
-        ILogger<EmailAnalysisNotifier> logger)
+        ILogger<InboundAnalysisNotifier> logger)
     {
         _audienceResolver = audienceResolver;
         _notificationService = notificationService;
@@ -43,9 +42,9 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
     }
 
     public async Task NotifyAsync(
-        ReceivedEmail email,
+        InboundSource source,
         InboundAnalysis analysis,
-        EmailActionOutcome? actionOutcome = null,
+        InboundActionOutcome? actionOutcome = null,
         string? periodLoadSummary = null,
         CancellationToken cancellationToken = default)
     {
@@ -57,7 +56,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
             return;
         }
 
-        var message = BuildMessage(email, analysis, actionOutcome, periodLoadSummary);
+        var message = BuildMessage(source, analysis, actionOutcome, periodLoadSummary);
 
         foreach (var userId in recipients)
         {
@@ -75,7 +74,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Email analysis notification failed for user {UserId}", userId);
+                _logger.LogWarning(ex, "Inbound analysis notification failed for user {UserId}", userId);
             }
         }
     }
@@ -90,7 +89,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
         if (agent is null)
         {
-            _logger.LogWarning("No default agent; cannot stash email analysis note for user {UserId}", userId);
+            _logger.LogWarning("No default agent; cannot stash inbound analysis note for user {UserId}", userId);
             return null;
         }
 
@@ -132,15 +131,16 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
     }
 
     private static string BuildMessage(
-        ReceivedEmail email, InboundAnalysis analysis, EmailActionOutcome? actionOutcome, string? periodLoadSummary)
+        InboundSource source, InboundAnalysis analysis, InboundActionOutcome? actionOutcome, string? periodLoadSummary)
     {
-        var sender = string.IsNullOrWhiteSpace(email.FromName)
-            ? email.FromAddress
-            : $"{email.FromName} ({email.FromAddress})";
-
+        var icon = source.SourceKind == InboundSourceKind.Email ? "📧" : "💬";
         var builder = new StringBuilder();
-        builder.AppendLine($"📧 **{IntentLabel(analysis.Intent)}** — {sender}");
-        builder.AppendLine($"Subject: {email.Subject}");
+        builder.AppendLine($"{icon} **{IntentLabel(analysis.Intent)}** — {source.SenderDisplay}");
+        if (!string.IsNullOrWhiteSpace(source.Subject))
+        {
+            builder.AppendLine($"Subject: {source.Subject}");
+        }
+
         if (analysis.FromDate != null)
         {
             var range = analysis.UntilDate != null && analysis.UntilDate != analysis.FromDate

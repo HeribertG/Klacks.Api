@@ -214,15 +214,8 @@ public class EmailPollingBackgroundService : BackgroundService
                     analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
             }
 
-            // IEmailAnalysisNotifier still speaks the email-specific EmailActionOutcome; the notifier
-            // has not been generalized yet, so the channel-neutral InboundActionOutcome is adapted at
-            // this boundary until that follow-up task runs.
-            var notifierOutcome = actionOutcome == null
-                ? null
-                : new EmailActionOutcome(actionOutcome.Executed, actionOutcome.Description);
-
-            var analysisNotifier = scope.ServiceProvider.GetRequiredService<IEmailAnalysisNotifier>();
-            await analysisNotifier.NotifyAsync(email, analysis, notifierOutcome, periodLoadSummary, stoppingToken);
+            var analysisNotifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
+            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {

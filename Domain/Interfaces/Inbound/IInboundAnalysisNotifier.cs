@@ -1,16 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Inbound;
 
-namespace Klacks.Api.Domain.Interfaces.Email;
+namespace Klacks.Api.Domain.Interfaces.Inbound;
 
-public interface IEmailAnalysisNotifier
+public interface IInboundAnalysisNotifier
 {
     Task NotifyAsync(
-        ReceivedEmail email,
+        InboundSource source,
         InboundAnalysis analysis,
-        EmailActionOutcome? actionOutcome = null,
+        InboundActionOutcome? actionOutcome = null,
         string? periodLoadSummary = null,
         CancellationToken cancellationToken = default);
 }
