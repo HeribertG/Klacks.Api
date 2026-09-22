@@ -73,6 +73,7 @@ namespace Klacks.Api.Application.Constants
         public const string SPAM_FILTER_LLM_ENABLED = "SPAM_FILTER_LLM_ENABLED";
 
         public const string EMAIL_ANALYSIS_ENABLED = "EMAIL_ANALYSIS_ENABLED";
+        public const string MESSENGER_ANALYSIS_ENABLED = "MESSENGER_ANALYSIS_ENABLED";
 
         public const string DEEPL_API_KEY = "DEEPL_API_KEY";
         public const string OPENROUTESERVICE_API_KEY = "OPENROUTESERVICE_API_KEY";
