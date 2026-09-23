@@ -236,6 +236,7 @@
   "get_group_details": "查看组详情",
   "get_group_hours_balance": "显示组的工时余额",
   "get_imap_settings": "查看IMAP设置",
+  "get_messenger_analysis": "显示聊天消息分析",
   "get_openroute_settings": "出行时间路线设置",
   "get_overtime_settings": "加班设置",
   "get_owner_address": "公司地址",

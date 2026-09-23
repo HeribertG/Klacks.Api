@@ -236,6 +236,7 @@
   "get_group_details": "グループ詳細を表示",
   "get_group_hours_balance": "グループの時間収支を表示",
   "get_imap_settings": "IMAP設定を表示",
+  "get_messenger_analysis": "チャットメッセージ分析を表示",
   "get_openroute_settings": "移動時間（ルート検索）の設定",
   "get_overtime_settings": "残業の設定",
   "get_owner_address": "会社の住所",

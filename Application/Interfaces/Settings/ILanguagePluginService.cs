@@ -44,4 +44,13 @@ public interface ILanguagePluginService
     /// same Task.WhenAll in Program.cs, so callers must invoke it only after that batch completed.
     /// </summary>
     Task ApplyInstalledSkillLabelsAsync();
+
+    /// <summary>
+    /// Writes the skill synonyms of every installed language pack into the enabled skills that carry no
+    /// synonyms of that language yet - skills seeded after the pack was installed, or added to the pack
+    /// file later. Skills that already have the language stay untouched, so the backfill is cheap enough
+    /// to run on every startup. Same ordering constraint as ApplyInstalledSkillLabelsAsync, and it must
+    /// complete before the knowledge index sync so the new phrases are embedded.
+    /// </summary>
+    Task ApplyInstalledSkillSynonymBackfillAsync();
 }

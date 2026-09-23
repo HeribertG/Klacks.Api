@@ -1594,6 +1594,10 @@
     "mailontvangst",
     "ontvangstserver"
   ],
+  "get_messenger_analysis": [
+    "analyse van dit chatbericht tonen",
+    "wat is er in het chatbericht herkend"
+  ],
   "get_openroute_settings": [
     "toon de reistijdinstellingen",
     "vanaf welke reistijd wordt er gerekend",

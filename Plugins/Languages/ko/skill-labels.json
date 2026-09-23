@@ -236,6 +236,7 @@
   "get_group_details": "그룹 상세 정보 보기",
   "get_group_hours_balance": "그룹 근무 시간 잔액 보기",
   "get_imap_settings": "IMAP 설정 보기",
+  "get_messenger_analysis": "채팅 메시지 분석 보기",
   "get_openroute_settings": "이동 시간 경로 설정 조회",
   "get_overtime_settings": "초과근무 설정 조회",
   "get_owner_address": "회사 주소",

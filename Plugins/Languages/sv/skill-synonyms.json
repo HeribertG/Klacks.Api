@@ -1574,6 +1574,10 @@
     "e-postmottagning",
     "mottagningsserver"
   ],
+  "get_messenger_analysis": [
+    "visa analysen av det här chattmeddelandet",
+    "vad upptäcktes i chattmeddelandet"
+  ],
   "get_openroute_settings": [
     "visa inställningar för restid",
     "vilka tröskelvärden gäller för restid",

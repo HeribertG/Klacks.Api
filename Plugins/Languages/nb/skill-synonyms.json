@@ -1556,6 +1556,10 @@
     "e-postmottak",
     "mottaksserver"
   ],
+  "get_messenger_analysis": [
+    "vis analysen av denne chatmeldingen",
+    "hva ble oppdaget i chatmeldingen"
+  ],
   "get_openroute_settings": [
     "vis innstillinger for reisetid",
     "hvilken reisetid regnes som minimum?",

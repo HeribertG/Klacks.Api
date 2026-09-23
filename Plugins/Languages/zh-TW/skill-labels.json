@@ -236,6 +236,7 @@
   "get_group_details": "顯示群組詳細資料",
   "get_group_hours_balance": "顯示群組工時結餘",
   "get_imap_settings": "顯示 IMAP 設定",
+  "get_messenger_analysis": "顯示聊天訊息分析",
   "get_openroute_settings": "行車時間路徑設定",
   "get_overtime_settings": "加班設定",
   "get_owner_address": "公司地址",

@@ -1596,6 +1596,10 @@
     "odbiór poczty",
     "serwer odbiorczy"
   ],
+  "get_messenger_analysis": [
+    "pokaż analizę tej wiadomości czatu",
+    "co system wykrył w wiadomości czatu"
+  ],
   "get_openroute_settings": [
     "pokaż ustawienia czasu podróży",
     "od jakiego czasu podróży liczą trasę",

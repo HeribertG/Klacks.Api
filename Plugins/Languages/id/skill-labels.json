@@ -236,6 +236,7 @@
   "get_group_details": "Tampilkan detail grup",
   "get_group_hours_balance": "Tampilkan saldo jam grup",
   "get_imap_settings": "Tampilkan pengaturan IMAP",
+  "get_messenger_analysis": "Tampilkan analisis pesan chat",
   "get_openroute_settings": "Pengaturan waktu tempuh (rute)",
   "get_overtime_settings": "Pengaturan lembur",
   "get_owner_address": "Alamat perusahaan",

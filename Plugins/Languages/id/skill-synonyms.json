@@ -1548,6 +1548,10 @@
     "cek konfigurasi imap",
     "tampilkan setelan kotak masuk"
   ],
+  "get_messenger_analysis": [
+    "tampilkan analisis pesan chat ini",
+    "apa yang terdeteksi dari pesan chat itu"
+  ],
   "get_openroute_settings": [
     "berapa ambang waktu perjalanan minimum yang dihitung?",
     "apakah ada kunci untuk layanan routing?",

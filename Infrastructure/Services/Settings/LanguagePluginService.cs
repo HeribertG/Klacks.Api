@@ -122,6 +122,31 @@ public class LanguagePluginService : ILanguagePluginService
     }
 
     /// <summary>
+    /// Writes the skill synonyms of every installed pack into the enabled skills that have none of that
+    /// language yet. A pack only reaches the skills that exist at the moment it is installed, so a skill
+    /// seeded later - or a skill added to a pack file later - otherwise kept only its core-language
+    /// synonyms until the pack was reinstalled by hand. Skills that already carry the language are not
+    /// written, so a normal boot costs one read per pack. Same ordering constraint as
+    /// ApplyInstalledSkillLabelsAsync, and it has to finish before the knowledge index sync at host start
+    /// so the new phrases get embedded.
+    /// The installed codes are lower-cased when they are loaded from the settings, while a fresh install
+    /// keys synonyms and skill_phrase rows by the manifest spelling (zh-CN) and the pack directory carries
+    /// that spelling too - on a case-sensitive file system the lower-cased path would not even be found.
+    /// The code is therefore mapped back to its manifest spelling before it reaches the installer.
+    /// </summary>
+    public async Task ApplyInstalledSkillSynonymBackfillAsync()
+    {
+        await InitializeAsync();
+
+        await RunForEachInstalledCodeAsync(
+            (scope, code) => _contentInstaller.BackfillMissingSkillSynonymsAsync(scope, ToManifestCode(code)),
+            "Failed to backfill skill synonyms for installed language plugins");
+    }
+
+    private string ToManifestCode(string code) =>
+        _manifests.TryGetValue(code, out var manifest) ? manifest.Code : code;
+
+    /// <summary>
     /// Re-syncs manual docs from the plugin directory into the database for every already-installed
     /// language on each startup, so manuals added to a plugin after its initial install are picked up
     /// without requiring an uninstall/reinstall cycle.

@@ -236,6 +236,7 @@
   "get_group_details": "Wyświetl szczegóły grupy",
   "get_group_hours_balance": "Pokaż bilans godzin grupy",
   "get_imap_settings": "Ustawienia IMAP",
+  "get_messenger_analysis": "Wyświetl analizę wiadomości czatu",
   "get_openroute_settings": "Ustawienia czasu dojazdu (routing)",
   "get_overtime_settings": "Ustawienia nadgodzin",
   "get_owner_address": "Adres firmy",

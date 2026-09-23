@@ -236,6 +236,7 @@
   "get_group_details": "Εμφάνιση λεπτομερειών ομάδας",
   "get_group_hours_balance": "Εμφάνιση του ισολογισμού ωρών μιας ομάδας",
   "get_imap_settings": "Ρυθμίσεις IMAP",
+  "get_messenger_analysis": "Προβολή ανάλυσης μηνύματος συνομιλίας",
   "get_openroute_settings": "Ρυθμίσεις χρόνου διαδρομής (χαρτογράφηση διαδρομής)",
   "get_overtime_settings": "Ρυθμίσεις υπερωριών",
   "get_owner_address": "Διεύθυνση εταιρείας",

@@ -236,6 +236,7 @@
   "get_group_details": "แสดงรายละเอียดกลุ่ม",
   "get_group_hours_balance": "แสดงสมดุลชั่วโมงของกลุ่ม",
   "get_imap_settings": "แสดงการตั้งค่า IMAP",
+  "get_messenger_analysis": "แสดงการวิเคราะห์ข้อความแชท",
   "get_openroute_settings": "การตั้งค่าเวลาการเดินทาง",
   "get_overtime_settings": "การตั้งค่าล่วงเวลา",
   "get_owner_address": "ที่อยู่บริษัท",

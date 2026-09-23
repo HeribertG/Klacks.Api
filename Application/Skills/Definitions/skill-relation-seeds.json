@@ -2432,6 +2432,16 @@
       "status": 1
     },
     {
+      "skillAName": "get_messenger_analysis",
+      "skillBName": "read_messages",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
       "skillAName": "update_transcription_dictionary_entry",
       "skillBName": "list_transcription_dictionary_entries",
       "type": 4,

@@ -1554,6 +1554,10 @@
     "tunjukkan tetapan imap",
     "baca konfigurasi imap"
   ],
+  "get_messenger_analysis": [
+    "papar analisis mesej chat ini",
+    "apa yang dikesan dalam mesej chat itu"
+  ],
   "get_openroute_settings": [
     "apa tetapan masa perjalanan sekarang?",
     "adakah kunci untuk perkhidmatan laluan disimpan?",

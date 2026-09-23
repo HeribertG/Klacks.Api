@@ -236,6 +236,7 @@
   "get_group_details": "Afișează detaliile grupului",
   "get_group_hours_balance": "Afișează bilanțul orelor unui grup",
   "get_imap_settings": "Setări IMAP",
+  "get_messenger_analysis": "Afișează analiza mesajului de chat",
   "get_openroute_settings": "Setări pentru timpii de deplasare (routing)",
   "get_overtime_settings": "Setări ore suplimentare",
   "get_owner_address": "Adresa companiei",

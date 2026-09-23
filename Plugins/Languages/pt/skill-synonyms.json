@@ -1586,6 +1586,10 @@
     "receção de email",
     "servidor de receção"
   ],
+  "get_messenger_analysis": [
+    "mostrar a análise desta mensagem de chat",
+    "o que foi detectado na mensagem de chat"
+  ],
   "get_openroute_settings": [
     "quais são as configurações de tempo de deslocamento",
     "mostrar as configurações de rota e tempo de viagem",

@@ -1545,6 +1545,10 @@
     "kiểm tra cấu hình email đến",
     "lấy thông tin máy chủ imap"
   ],
+  "get_messenger_analysis": [
+    "hiển thị phân tích của tin nhắn trò chuyện này",
+    "hệ thống phát hiện gì trong tin nhắn trò chuyện"
+  ],
   "get_openroute_settings": [
     "xem cài đặt thời gian di chuyển",
     "từ bao nhiêu phút thì tính thời gian đi lại",

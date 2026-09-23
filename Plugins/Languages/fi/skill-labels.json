@@ -236,6 +236,7 @@
   "get_group_details": "Näytä ryhmän tiedot",
   "get_group_hours_balance": "Ryhmän tuntitilastojen näyttäminen",
   "get_imap_settings": "IMAP-asetukset",
+  "get_messenger_analysis": "Näytä chat-viestin analyysi",
   "get_openroute_settings": "Matka-ajan asetukset (reitinlaskenta)",
   "get_overtime_settings": "Ylityötunnit-asetukset",
   "get_owner_address": "Yrityksen osoite",

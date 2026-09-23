@@ -1583,6 +1583,10 @@
     "mailmodtagelse",
     "modtagerserver"
   ],
+  "get_messenger_analysis": [
+    "vis analysen af denne chatbesked",
+    "hvad blev registreret i chatbeskeden"
+  ],
   "get_openroute_settings": [
     "vis rejsetidsindstillingerne",
     "hvad er tærskelværdierne for rejsetid",

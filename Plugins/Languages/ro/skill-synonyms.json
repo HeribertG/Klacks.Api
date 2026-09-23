@@ -1575,6 +1575,10 @@
     "primire mail",
     "server de primire"
   ],
+  "get_messenger_analysis": [
+    "afișează analiza acestui mesaj de chat",
+    "ce a detectat sistemul în mesajul de chat"
+  ],
   "get_openroute_settings": [
     "care sunt setările pentru timpii de deplasare?",
     "de la ce durată de deplasare se ia în calcul?",

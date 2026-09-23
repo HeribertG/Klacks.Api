@@ -1581,6 +1581,10 @@
     "recepción de correo",
     "servidor de recepción"
   ],
+  "get_messenger_analysis": [
+    "mostrar el análisis de este mensaje de chat",
+    "qué detectó el sistema en el mensaje de chat"
+  ],
   "get_openroute_settings": [
     "¿cuál es el tiempo mínimo de viaje que se cuenta?",
     "muéstrame los ajustes de tiempo de viaje",

@@ -98,41 +98,16 @@ public class LanguagePluginContentInstaller
     public async Task InstallSkillSynonymsAsync(
         IServiceScope scope, string code, IReadOnlyCollection<string>? onlySkillNames = null)
     {
-        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
-        if (!File.Exists(synonymsPath))
-            return;
+        var skillFilter = onlySkillNames == null
+            ? null
+            : new HashSet<string>(onlySkillNames, StringComparer.OrdinalIgnoreCase);
 
         try
         {
-            var json = File.ReadAllText(synonymsPath);
-            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
-            if (synonymMap == null || synonymMap.Count == 0)
+            var count = await WriteSkillSynonymsAsync(
+                scope, code, (skill, _) => skillFilter == null || skillFilter.Contains(skill.Name));
+            if (count == null)
                 return;
-
-            var skillFilter = onlySkillNames == null
-                ? null
-                : new HashSet<string>(onlySkillNames, StringComparer.OrdinalIgnoreCase);
-
-            var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
-            var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
-            var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
-            var count = 0;
-
-            foreach (var skill in allSkills)
-            {
-                if (skillFilter != null && !skillFilter.Contains(skill.Name))
-                    continue;
-
-                if (!synonymMap.TryGetValue(skill.Name, out var keywords))
-                    continue;
-
-                skill.Synonyms ??= new Dictionary<string, List<string>>();
-                skill.Synonyms[code] = await MergePackIntoMirrorAsync(
-                    phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms.GetValueOrDefault(code), keywords);
-                await skillRepo.UpdateAsync(skill);
-                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, keywords);
-                count++;
-            }
 
             _logger.LogInformation(
                 "Installed skill synonyms for language plugin '{Code}': {Count} skill(s) updated",
@@ -143,6 +118,79 @@ public class LanguagePluginContentInstaller
             _logger.LogError(ex, "Failed to install skill synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
+
+    /// <summary>
+    /// Startup backfill of the pack's skill synonyms. Writes only the skills that carry no synonyms of
+    /// this language yet - a skill seeded after the pack was installed, or one the pack file gained
+    /// later - and leaves every other skill without a write: IAgentSkillRepository.UpdateAsync commits
+    /// per call, so a full reinstall of every pack on every boot would rewrite hundreds of unchanged rows.
+    /// A written skill ends in the same state a fresh install produces (jsonb mirror plus skill_phrase
+    /// rows). The presence check ignores case so a key stored as zh-CN is not duplicated as zh-cn.
+    /// </summary>
+    /// <param name="scope">Scope providing the skill and phrase repositories</param>
+    /// <param name="code">Language code of the pack, spelled as in its manifest</param>
+    public async Task BackfillMissingSkillSynonymsAsync(IServiceScope scope, string code)
+    {
+        try
+        {
+            var count = await WriteSkillSynonymsAsync(
+                scope, code, (skill, keywords) => keywords is { Count: > 0 } && !HasSynonymsFor(skill, code));
+            if (count == null)
+                return;
+
+            _logger.LogInformation(
+                "Backfilled skill synonyms for language plugin '{Code}': {Count} skill(s) without that language updated",
+                code.ForLog(), count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill skill synonyms for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    /// <summary>
+    /// Shared core of install and backfill: writes the pack synonyms of every enabled skill the pack names
+    /// and <paramref name="include"/> accepts. Returns null when the pack has no skill synonym file or an
+    /// empty one, so the callers log nothing.
+    /// </summary>
+    /// <param name="include">Decides per skill, given the pack phrases for it, whether it is written</param>
+    private async Task<int?> WriteSkillSynonymsAsync(
+        IServiceScope scope, string code, Func<AgentSkill, List<string>, bool> include)
+    {
+        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.SkillSynonymsFileName);
+        if (!File.Exists(synonymsPath))
+            return null;
+
+        var json = File.ReadAllText(synonymsPath);
+        var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+        if (synonymMap == null || synonymMap.Count == 0)
+            return null;
+
+        var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+        var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
+        var allSkills = await skillRepo.GetAllEnabledTrackedAsync();
+        var count = 0;
+
+        foreach (var skill in allSkills)
+        {
+            if (!synonymMap.TryGetValue(skill.Name, out var keywords) || !include(skill, keywords))
+                continue;
+
+            skill.Synonyms ??= new Dictionary<string, List<string>>();
+            skill.Synonyms[code] = await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
+                phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms.GetValueOrDefault(code), keywords);
+            await skillRepo.UpdateAsync(skill);
+            await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, keywords);
+            count++;
+        }
+
+        return count;
+    }
+
+    private static bool HasSynonymsFor(AgentSkill skill, string code) =>
+        skill.Synonyms != null
+        && skill.Synonyms.Any(entry =>
+            string.Equals(entry.Key, code, StringComparison.OrdinalIgnoreCase) && entry.Value is { Count: > 0 });
 
     public async Task UninstallSkillSynonymsAsync(IServiceScope scope, string code)
     {
@@ -170,10 +218,10 @@ public class LanguagePluginContentInstaller
                 if (skill.Synonyms == null || !skill.Synonyms.ContainsKey(code))
                     continue;
 
-                SetOrRemove(skill.Synonyms, code, await MergePackIntoMirrorAsync(
+                LanguagePackPhraseMirror.SetOrRemove(skill.Synonyms, code, await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
                     phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, skill.Synonyms[code], []));
                 await skillRepo.UpdateAsync(skill);
-                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, []);
+                await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, []);
                 count++;
             }
 
@@ -211,10 +259,10 @@ public class LanguagePluginContentInstaller
                     continue;
 
                 recipe.Synonyms ??= new Dictionary<string, List<string>>();
-                recipe.Synonyms[code] = await MergePackIntoMirrorAsync(
+                recipe.Synonyms[code] = await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
                     phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, recipe.Synonyms.GetValueOrDefault(code), keywords);
                 await recipeRepo.UpdateAsync(recipe);
-                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, keywords);
+                await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, keywords);
                 count++;
             }
 
@@ -254,10 +302,10 @@ public class LanguagePluginContentInstaller
                 if (recipe.Synonyms == null || !recipe.Synonyms.ContainsKey(code))
                     continue;
 
-                SetOrRemove(recipe.Synonyms, code, await MergePackIntoMirrorAsync(
+                LanguagePackPhraseMirror.SetOrRemove(recipe.Synonyms, code, await LanguagePackPhraseMirror.MergePackIntoMirrorAsync(
                     phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, recipe.Synonyms[code], []));
                 await recipeRepo.UpdateAsync(recipe);
-                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, []);
+                await LanguagePackPhraseMirror.ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, []);
                 count++;
             }
 
@@ -373,65 +421,6 @@ public class LanguagePluginContentInstaller
         {
             _logger.LogError(ex, "Failed to uninstall recipe vetoes for language plugin '{Code}'", code.ForLog());
         }
-    }
-
-    /// <summary>
-    /// Writes the synonyms a language pack contributes into skill_phrase next to the legacy jsonb
-    /// dictionary. The replacement is restricted to the LanguagePack origin of exactly this language
-    /// code, so installing or removing a pack can neither delete the seeded core-language phrases nor
-    /// those of another installed pack. The code is used verbatim as the language key, because the
-    /// jsonb dictionary is keyed the same way and the two must stay comparable.
-    /// </summary>
-    /// <param name="phraseRepo">Repository writing the skill_phrase rows</param>
-    /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
-    /// <param name="ownerName">Business name of the skill or recipe</param>
-    /// <param name="code">Language code of the plugin being installed or uninstalled</param>
-    /// <param name="synonyms">The synonyms of that language; an empty list removes them</param>
-    // The legacy jsonb value of a language is not only the pack: an admin edit on the learning card
-    // (UpdateLearnedCapabilityCommandHandler) writes it directly, without a skill_phrase row. So a pack
-    // install or uninstall replaces exactly the pack's previous phrases - read from skill_phrase before
-    // ReplacePackPhrasesAsync overwrites them - and keeps every other entry of that language.
-    private static async Task<List<string>> MergePackIntoMirrorAsync(
-        ISkillPhraseRepository phraseRepo,
-        string ownerKind,
-        string ownerName,
-        string code,
-        IReadOnlyList<string>? currentMirror,
-        IReadOnlyList<string> packPhrases)
-    {
-        var previousPack = await phraseRepo.GetPhraseTextsBySourceAsync(
-            ownerKind, ownerName, SkillPhraseKinds.Synonym, SkillPhraseSources.LanguagePack, code);
-        var previousPackSet = new HashSet<string>(previousPack, StringComparer.Ordinal);
-        var retained = (currentMirror ?? []).Where(phrase => !previousPackSet.Contains(phrase));
-
-        return packPhrases.Concat(retained).Distinct(StringComparer.Ordinal).ToList();
-    }
-
-    private static void SetOrRemove(Dictionary<string, List<string>> mirror, string code, List<string> phrases)
-    {
-        if (phrases.Count == 0)
-        {
-            mirror.Remove(code);
-            return;
-        }
-
-        mirror[code] = phrases;
-    }
-
-    private static async Task ReplacePackPhrasesAsync(
-        ISkillPhraseRepository phraseRepo,
-        string ownerKind,
-        string ownerName,
-        string code,
-        IReadOnlyList<string> synonyms)
-    {
-        await phraseRepo.ReplaceForLanguageAsync(
-            ownerKind,
-            ownerName,
-            SkillPhraseKinds.Synonym,
-            SkillPhraseSources.LanguagePack,
-            code,
-            synonyms);
     }
 
     public async Task InstallSentimentKeywordsAsync(IServiceScope scope, string code)

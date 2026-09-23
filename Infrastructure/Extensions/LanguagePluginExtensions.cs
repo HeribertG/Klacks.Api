@@ -42,4 +42,19 @@ public static class LanguagePluginExtensions
 
         return app;
     }
+
+    /// <summary>
+    /// Backfills the skill synonyms of every installed language pack into the skills that have none of
+    /// that language yet. Same ordering constraint as BackfillSkillLabelsAsync (installed codes AND the
+    /// seeded skill rows), and it must run before InitializeSkillRegistryAsync and before app.Run():
+    /// the registry reads the synonyms, and KnowledgeIndexStartupService embeds the new phrases at host
+    /// start - a later placement would leave both on the old vocabulary until the next restart.
+    /// </summary>
+    public static async Task<IApplicationBuilder> BackfillSkillSynonymsAsync(this IApplicationBuilder app)
+    {
+        var service = app.ApplicationServices.GetRequiredService<ILanguagePluginService>();
+        await service.ApplyInstalledSkillSynonymBackfillAsync();
+
+        return app;
+    }
 }

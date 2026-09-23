@@ -1572,6 +1572,10 @@
     "sähköpostin vastaanotto",
     "vastaanottopalvelin"
   ],
+  "get_messenger_analysis": [
+    "näytä tämän chat-viestin analyysi",
+    "mitä järjestelmä tunnisti chat-viestistä"
+  ],
   "get_openroute_settings": [
     "näytä matka-aika-asetukset",
     "mikä on lyhin matka-aika",
