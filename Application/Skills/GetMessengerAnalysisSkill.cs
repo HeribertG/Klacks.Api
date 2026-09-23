@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Shows what the autonomous inbound-intelligence pipeline made of a received messenger message: the
-/// detected intent, the summary, the resolved client, the extracted date/time window and — when the
-/// analysis could not be acted on — the failure reason. Messages the pipeline has not analyzed yet
-/// report exactly that.
+/// detected intent, the summary, the resolved client, the extracted date/time window, the failure reason
+/// when the analysis could not be acted on, and - when Klacksy asked the employee back about it - the
+/// clarification question and its state. Messages the pipeline has not analyzed yet report exactly that.
 /// </summary>
 /// <param name="messageId">Required. UUID of the messenger message.</param>
 
@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
+using Klacks.Api.Domain.Services.Inbound;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -20,10 +21,14 @@ namespace Klacks.Api.Application.Skills;
 public class GetMessengerAnalysisSkill : BaseSkillImplementation
 {
     private readonly IInboundAnalysisRepository _analysisRepository;
+    private readonly IInboundClarificationRepository _clarificationRepository;
 
-    public GetMessengerAnalysisSkill(IInboundAnalysisRepository analysisRepository)
+    public GetMessengerAnalysisSkill(
+        IInboundAnalysisRepository analysisRepository,
+        IInboundClarificationRepository clarificationRepository)
     {
         _analysisRepository = analysisRepository;
+        _clarificationRepository = clarificationRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -41,6 +46,7 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
                 "This message has not been analyzed by the inbound-intelligence pipeline (yet).");
         }
 
+        var clarification = await _clarificationRepository.GetByAnalysisIdAsync(analysis.Id, cancellationToken);
         var outcome = string.IsNullOrWhiteSpace(analysis.FailureReason)
             ? "The analysis completed without a failure reason."
             : $"The analysis could not be acted on: {analysis.FailureReason}";
@@ -61,9 +67,11 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
                 analysis.Weekdays,
                 analysis.ScheduleCommands,
                 analysis.AnalyzedAt,
-                analysis.FailureReason
+                analysis.FailureReason,
+                Clarification = clarification == null ? null : ClarificationStatusText.ToSkillData(clarification)
             },
             $"Message was analyzed on {analysis.AnalyzedAt:yyyy-MM-dd HH:mm} UTC: " +
-            $"intent {analysis.Intent}, summary: {analysis.Summary} {outcome}");
+            $"intent {analysis.Intent}, summary: {analysis.Summary} {outcome}" +
+            (clarification == null ? string.Empty : ClarificationStatusText.Sentence(clarification)));
     }
 }
