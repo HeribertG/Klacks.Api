@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "明白了——不是{previousAction}。您指的是{optionA}还是{optionB}？",
   "assistant.recipe.confirmYes": "是",
-  "assistant.recipe.confirmNo": "否"
+  "assistant.recipe.confirmNo": "否",
+  "assistant.emptyAnswer.fallbackNotice": "我已执行所需的步骤，但无法给出回答。请重新提问。"
 }

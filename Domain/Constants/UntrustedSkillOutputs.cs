@@ -29,10 +29,16 @@ public static class UntrustedSkillOutputs
         "list_emails_by_group",
         // Derived from an e-mail body, so it inherits the sender's text (summary, quoted content).
         "get_email_analysis",
+        // Derived from a messenger message body, so it inherits the external sender's text.
+        "get_messenger_analysis",
         // Messaging plugin: message bodies written by other users or relayed from external channels.
         "read_messages",
         // Messaging plugin: setup diagnosis quotes unknown senders' display names and vendor error texts.
-        "diagnose_messaging_setup"
+        "diagnose_messaging_setup",
+        // Pending notes relay scheduled-task results and inbound-message notices (sender names, subjects).
+        "manage_pending_notes",
+        // Delivered notes carry the same relayed external text as pending notes.
+        "recall_delivered_notes"
     };
 
     public static bool Contains(string? skillName) =>

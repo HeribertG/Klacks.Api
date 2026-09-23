@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Am înțeles — nu {previousAction}. Te referi la {optionA} sau la {optionB}?",
   "assistant.recipe.confirmYes": "Da",
-  "assistant.recipe.confirmNo": "Nu"
+  "assistant.recipe.confirmNo": "Nu",
+  "assistant.emptyAnswer.fallbackNotice": "Am executat pașii solicitați, dar nu am putut formula un răspuns. Vă rog să întrebați din nou."
 }

@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Entendido — não {previousAction}. Refere-se a {optionA} ou a {optionB}?",
   "assistant.recipe.confirmYes": "Sim",
-  "assistant.recipe.confirmNo": "Não"
+  "assistant.recipe.confirmNo": "Não",
+  "assistant.emptyAnswer.fallbackNotice": "Executei os passos pedidos, mas não consegui formular uma resposta. Por favor, repete a pergunta."
 }

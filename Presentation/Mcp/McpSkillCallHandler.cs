@@ -6,11 +6,18 @@
 /// Skills that mutate state reach the REST API with a freshly minted token rather than the caller's own
 /// credential, because this channel also accepts personal access tokens which those endpoints reject.
 /// The minted token is capped at Authorised, matching the ceiling the rest of the MCP surface applies.
+/// Results carrying externally authored content (skills in UntrustedSkillOutputs or tainted results relayed
+/// by a wrapper skill) get the untrusted-content notice in front of their message AND their serialized data
+/// (the external bodies, e.g. an e-mail text, live in the data), delimiter-escaped and capped like a tool
+/// result of the chat loop, so the MCP client's model treats them as data. Such results carry no structured
+/// content: it would hand the same bodies to the client raw, and no tool declares an output schema that
+/// would make structured content mandatory. Trusted results keep the full response as structured content.
 /// </summary>
 /// <param name="request">MCP call parameters containing the tool name and JSON arguments</param>
 /// <param name="user">Claims principal of the authenticated caller; actions run with this user's permissions</param>
 
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Klacks.Api.Application.Commands.Assistant;
@@ -18,6 +25,7 @@ using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using ModelContextProtocol.Protocol;
 
@@ -31,6 +39,13 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
+
+    private static readonly JsonSerializerOptions UntrustedDataSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 
     private readonly IMediator _mediator;
@@ -97,7 +112,7 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         try
         {
             var response = await _mediator.Send(command, cancellationToken);
-            return ToCallToolResult(response);
+            return ToCallToolResult(request.Name, response);
         }
         catch (OperationCanceledException)
         {
@@ -127,33 +142,57 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         return parameters;
     }
 
-    private static CallToolResult ToCallToolResult(SkillExecuteResponse response)
+    private static CallToolResult ToCallToolResult(string skillName, SkillExecuteResponse response)
     {
         var isConfirmation = response.ResultType == SkillResultType.Confirmation;
+        var isUntrusted = response.ContainsExternalContent || UntrustedSkillOutputs.Contains(skillName);
+        var text = isConfirmation
+            ? BuildConfirmationText(response, isUntrusted)
+            : BuildResultText(response);
 
         return new CallToolResult
         {
             IsError = !response.Success && !isConfirmation,
-            Content = [new TextContentBlock { Text = BuildResultText(response, isConfirmation) }],
-            StructuredContent = JsonSerializer.SerializeToElement(response, ResultSerializerOptions)
+            Content = [new TextContentBlock { Text = isUntrusted && !isConfirmation ? FrameUntrusted(text, response.Data) : text }],
+            StructuredContent = isUntrusted
+                ? null
+                : JsonSerializer.SerializeToElement(response, ResultSerializerOptions)
         };
     }
 
-    private static string BuildResultText(SkillExecuteResponse response, bool isConfirmation)
+    private static string BuildConfirmationText(SkillExecuteResponse response, bool isUntrusted)
     {
-        if (isConfirmation)
+        var instruction = $"Confirmation required: call the '{AutonomyDefaults.ConfirmPendingActionSkillName}' tool " +
+                          $"with parameter '{AutonomyDefaults.ConfirmationTokenParameter}' set to '{ExtractConfirmationToken(response)}'.";
+
+        if (string.IsNullOrWhiteSpace(response.Message) && (!isUntrusted || response.Data == null))
         {
-            var prefix = string.IsNullOrWhiteSpace(response.Message) ? string.Empty : $"{response.Message} ";
-            return $"{prefix}Confirmation required: call the '{AutonomyDefaults.ConfirmPendingActionSkillName}' tool " +
-                   $"with parameter '{AutonomyDefaults.ConfirmationTokenParameter}' set to '{ExtractConfirmationToken(response)}'.";
+            return instruction;
         }
 
+        return isUntrusted
+            ? FrameUntrusted(response.Message ?? string.Empty, response.Data) + Environment.NewLine + instruction
+            : $"{response.Message} {instruction}";
+    }
+
+    private static string BuildResultText(SkillExecuteResponse response)
+    {
         if (!string.IsNullOrWhiteSpace(response.Message))
         {
             return response.Message;
         }
 
         return response.Success ? "Tool executed successfully." : "Tool execution failed.";
+    }
+
+    private static string FrameUntrusted(string text, object? data)
+    {
+        var body = data == null
+            ? text
+            : text + Environment.NewLine + JsonSerializer.Serialize(data, UntrustedDataSerializerOptions);
+
+        return ToolResultMarkers.UntrustedContentNotice + Environment.NewLine
+            + ToolResultFormatter.EscapeAndCap(body, LLMLoopConstants.DefaultMaxToolResultChars);
     }
 
     private static string ExtractConfirmationToken(SkillExecuteResponse response)

@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Baik — bukan {previousAction}. Maksud anda {optionA} atau {optionB}?",
   "assistant.recipe.confirmYes": "Ya",
-  "assistant.recipe.confirmNo": "Tak"
+  "assistant.recipe.confirmNo": "Tak",
+  "assistant.emptyAnswer.fallbackNotice": "Saya telah menjalankan langkah yang diminta, tetapi tidak dapat merangka jawapan. Sila tanya semula."
 }

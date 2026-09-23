@@ -18,6 +18,13 @@ public static class LLMLoopConstants
 
     public const int MaxPlanSteps = 15;
 
+    /// <summary>
+    /// Per-result character cap for a tool result handed to a model when no budget profile sets one: the
+    /// chat loop's fallback and the MCP text block of an untrusted result, so one huge payload cannot flood
+    /// the reading model's context.
+    /// </summary>
+    public const int DefaultMaxToolResultChars = 8_000;
+
     // A plan step runs a deterministic skill call (no LLM at runtime). A single retry recovers from
     // a transient backend hiccup (rate limit / gateway blip) without risking a double mutation on a
     // step that genuinely failed. Classification + backoff reuse LLMRetryConstants systematics.
@@ -31,5 +38,48 @@ public static class LLMLoopConstants
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";
 
+    /// <summary>
+    /// Former assistant stand-in for tool-call iterations. No longer written into the running history
+    /// (models copied it verbatim as their final answer); kept so an echo of it is still recognised.
+    /// </summary>
     public const string ExecutingFunctionCallsPlaceholder = "[Executing function calls]";
+
+    /// <summary>
+    /// Former assistant stand-in for a forced-retry iteration that produced no prose; retired like
+    /// ExecutingFunctionCallsPlaceholder and kept only so an echo of it is still recognised.
+    /// </summary>
+    public const string NoActionTakenPlaceholder = "[no action taken]";
+
+    /// <summary>
+    /// Former assistant stand-in of the read-only research loop for a tool-call iteration without prose;
+    /// retired like ExecutingFunctionCallsPlaceholder and kept only so an echo of it is still recognised.
+    /// </summary>
+    public const string GatheringDataPlaceholder = "[gathering data]";
+
+    /// <summary>
+    /// Every retired bracketed stand-in. None of them is written anymore, but an older stored answer may
+    /// still carry one, so a model echoing it is still caught.
+    /// </summary>
+    public static readonly IReadOnlyList<string> RetiredPlaceholders =
+    [
+        ExecutingFunctionCallsPlaceholder,
+        NoActionTakenPlaceholder,
+        GatheringDataPlaceholder
+    ];
+
+    /// <summary>
+    /// Assistant stand-in for a forced-retry iteration in which the model produced neither prose nor a
+    /// tool call: a plain sentence, like the tool-call note, instead of a bracketed status marker.
+    /// </summary>
+    public const string NoActionHistoryNote = "(No tool was called in this step.)";
+
+    /// <summary>
+    /// Start of the assistant stand-in for a tool-call iteration without prose: a plain sentence rather
+    /// than a bracketed status marker, so a model reading its own history has nothing marker-like to copy.
+    /// </summary>
+    public const string ToolCallHistoryNotePrefix = "(Called tools: ";
+
+    public const string ToolCallHistoryNoteSuffix = ". Their results follow.)";
+
+    public const string ToolCallHistoryNoteSeparator = ", ";
 }

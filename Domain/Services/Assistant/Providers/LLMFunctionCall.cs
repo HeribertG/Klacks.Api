@@ -23,4 +23,11 @@ public class LLMFunctionCall
     public Guid? UiActionTrackingId { get; set; }
     public LLMFunctionResultKind ResultKind { get; set; }
     public List<string> DataJson { get; set; } = new();
+
+    /// <summary>
+    /// True when the executed skill result carries text authored outside this system, including content
+    /// relayed by a wrapper skill under its own name. The tool-result formatter frames such results as
+    /// untrusted in addition to the skills listed by name in UntrustedSkillOutputs.
+    /// </summary>
+    public bool ContainsExternalContent { get; set; }
 }

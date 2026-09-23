@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Forstått — ikke {previousAction}. Mener du {optionA} eller {optionB}?",
   "assistant.recipe.confirmYes": "Ja",
-  "assistant.recipe.confirmNo": "Nei"
+  "assistant.recipe.confirmNo": "Nei",
+  "assistant.emptyAnswer.fallbackNotice": "Jeg utførte de forespurte trinnene, men klarte ikke å formulere et svar. Spør gjerne på nytt."
 }

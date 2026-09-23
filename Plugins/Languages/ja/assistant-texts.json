@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "承知しました。{previousAction} ではないのですね。{optionA} と {optionB} のどちらでしょうか？",
   "assistant.recipe.confirmYes": "はい",
-  "assistant.recipe.confirmNo": "いいえ"
+  "assistant.recipe.confirmNo": "いいえ",
+  "assistant.emptyAnswer.fallbackNotice": "ご依頼の手順を実行しましたが、回答をまとめることができませんでした。もう一度お尋ねください。"
 }

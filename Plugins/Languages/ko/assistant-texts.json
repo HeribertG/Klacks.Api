@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "알겠습니다 — {previousAction}이(가) 아니군요. {optionA}인가요, 아니면 {optionB}인가요?",
   "assistant.recipe.confirmYes": "네",
-  "assistant.recipe.confirmNo": "아니요"
+  "assistant.recipe.confirmNo": "아니요",
+  "assistant.emptyAnswer.fallbackNotice": "요청하신 단계를 실행했지만 답변을 작성하지 못했습니다. 다시 질문해 주세요."
 }

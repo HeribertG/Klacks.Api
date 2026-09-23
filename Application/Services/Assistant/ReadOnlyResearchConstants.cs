@@ -6,6 +6,8 @@
 /// service.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Services.Assistant;
 
 public static class ReadOnlyResearchConstants
@@ -39,7 +41,8 @@ public static class ReadOnlyResearchConstants
         "that answers the question directly. Rules: only use the provided tools; never claim to have " +
         "changed, created or deleted anything; do not navigate; if the tools cannot answer the question, " +
         "say so plainly and state what is missing. Keep the final answer short and factual — it will be " +
-        "handed back to the outer assistant as a tool result, so omit pleasantries and focus on findings.";
+        "handed back to the outer assistant as a tool result, so omit pleasantries and focus on findings." +
+        UntrustedToolContentPrompt.Guide;
 
     public const string SynthesisInstruction =
         "Stop calling tools now. Based only on the data gathered above, write the final compact English " +

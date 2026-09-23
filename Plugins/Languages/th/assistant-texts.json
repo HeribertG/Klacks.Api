@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "เข้าใจแล้ว — ไม่ใช่ {previousAction} คุณหมายถึง {optionA} หรือ {optionB}?",
   "assistant.recipe.confirmYes": "ใช่",
-  "assistant.recipe.confirmNo": "ไม่"
+  "assistant.recipe.confirmNo": "ไม่",
+  "assistant.emptyAnswer.fallbackNotice": "ฉันดำเนินการตามขั้นตอนที่ร้องขอแล้ว แต่ไม่สามารถสรุปคำตอบได้ กรุณาถามอีกครั้ง"
 }

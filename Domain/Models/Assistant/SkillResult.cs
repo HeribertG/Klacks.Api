@@ -20,6 +20,13 @@ public record SkillResult
     /// </summary>
     public Guid? UiActionTrackingId { get; init; }
 
+    /// <summary>
+    /// True when the result carries text authored outside this system. Set by the skill executor for
+    /// skills listed in UntrustedSkillOutputs and by wrappers (confirm_pending_action, run_analysis)
+    /// whose result relays such content under their own name, so the untrusted framing survives the relay.
+    /// </summary>
+    public bool ContainsExternalContent { get; init; }
+
     public static SkillResult SuccessResult(object? data, string? message = null)
         => new()
         {

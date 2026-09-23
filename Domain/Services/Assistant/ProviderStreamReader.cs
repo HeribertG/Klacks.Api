@@ -8,6 +8,9 @@
 /// once a content token was yielded, a retry would duplicate it on screen, so the failure is reported
 /// instead. Extracted from the streaming chat loop, where this was the single largest block.
 ///
+/// Content that is nothing but an echo of the tool-call stand-in text is held back and dropped
+/// (PlaceholderEchoFilter); a failure while content is still held back counts as "nothing emitted yet".
+///
 /// One instance reads exactly one provider call: <see cref="Accumulator"/>, <see cref="HasToolEnd"/> and
 /// <see cref="Failed"/> describe the call the enumeration just finished and are only valid after it ends.
 /// </summary>
@@ -62,6 +65,7 @@ internal sealed class ProviderStreamReader
             HasToolEnd = false;
             string? streamErrorMessage = null;
             var contentEmitted = false;
+            var echoFilter = new PlaceholderEchoFilter();
             var enumerator = provider.ProcessStreamAsync(request, cancellationToken).GetAsyncEnumerator(cancellationToken);
 
             while (true)
@@ -89,11 +93,11 @@ internal sealed class ProviderStreamReader
                 {
                     HasToolEnd = true;
                 }
-                else
+                else if (echoFilter.Push(token) is { Length: > 0 } visible)
                 {
-                    Accumulator.AppendContent(token);
+                    Accumulator.AppendContent(visible);
                     contentEmitted = true;
-                    yield return token;
+                    yield return visible;
                 }
             }
 
@@ -101,6 +105,12 @@ internal sealed class ProviderStreamReader
 
             if (streamErrorMessage == null)
             {
+                if (echoFilter.Flush() is { Length: > 0 } remainder)
+                {
+                    Accumulator.AppendContent(remainder);
+                    yield return remainder;
+                }
+
                 yield break;
             }
 

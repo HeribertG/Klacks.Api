@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Κατάλαβα — όχι {previousAction}. Εννοείς {optionA} ή {optionB};",
   "assistant.recipe.confirmYes": "Ναι",
-  "assistant.recipe.confirmNo": "Όχι"
+  "assistant.recipe.confirmNo": "Όχι",
+  "assistant.emptyAnswer.fallbackNotice": "Εκτέλεσα τα ζητούμενα βήματα, αλλά δεν μπόρεσα να διατυπώσω απάντηση. Ρωτήστε ξανά, παρακαλώ."
 }

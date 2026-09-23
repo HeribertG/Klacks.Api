@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Đã hiểu — không phải {previousAction}. Bạn muốn nói {optionA} hay {optionB}?",
   "assistant.recipe.confirmYes": "Có",
-  "assistant.recipe.confirmNo": "Không"
+  "assistant.recipe.confirmNo": "Không",
+  "assistant.emptyAnswer.fallbackNotice": "Tôi đã thực hiện các bước được yêu cầu, nhưng không thể đưa ra câu trả lời. Vui lòng hỏi lại."
 }

@@ -52,6 +52,23 @@ public class StreamAccumulator
         AppendToolCallDelta(0, name, arguments);
     }
 
+    /// <summary>
+    /// Adds the complete calls of a non-streaming response, each under its own index, and reports whether
+    /// there were any.
+    /// </summary>
+    /// <param name="functionCalls">The calls the provider returned in one piece.</param>
+    public bool AppendCompleteFunctionCalls(IEnumerable<LLMFunctionCall> functionCalls)
+    {
+        var any = false;
+        foreach (var call in functionCalls)
+        {
+            AppendToolCallDelta(_toolCalls.Count, call.FunctionName, JsonSerializer.Serialize(call.Parameters));
+            any = true;
+        }
+
+        return any;
+    }
+
     public void FinalizeFunctionCalls()
     {
         foreach (var (_, (nameBuf, argsBuf)) in _toolCalls.OrderBy(kv => kv.Key))

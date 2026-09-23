@@ -6,6 +6,8 @@
 /// data with read-only tools and returns ONE compact English synthesis; the outer turn receives only that
 /// synthesis (in the skill message), never the intermediate tool outputs, which is the whole point — it
 /// keeps the outer context small and off the premium model. Read-only, so it needs no confirmation.
+/// A synthesis built from externally authored tool results is tainted, so the outer loop frames it as
+/// untrusted exactly like the external results it was derived from.
 /// </summary>
 /// <param name="question">The natural-language analysis question to research and answer.</param>
 
@@ -46,6 +48,9 @@ public class RunAnalysisSkill : BaseSkillImplementation
             research.ModelAvailable
         };
 
-        return SkillResult.SuccessResult(summary, research.Synthesis);
+        return SkillResult.SuccessResult(summary, research.Synthesis) with
+        {
+            ContainsExternalContent = research.ContainsExternalContent
+        };
     }
 }

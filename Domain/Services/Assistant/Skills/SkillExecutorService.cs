@@ -207,7 +207,7 @@ public class SkillExecutorService : ISkillExecutor
                 await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
             }
 
-            return result;
+            return MarkExternalContent(descriptor.Name, result);
         }
         catch (SkillException ex)
         {
@@ -220,7 +220,7 @@ public class SkillExecutorService : ISkillExecutor
                 { SkillErrorKeys.SkillName, ex.SkillName }
             });
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
-            return result;
+            return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
         }
         catch (OperationCanceledException)
         {
@@ -241,8 +241,25 @@ public class SkillExecutorService : ISkillExecutor
                 { SkillErrorKeys.ExceptionType, ex.GetType().Name }
             });
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
+        }
+    }
+
+    /// <summary>
+    /// Taints the result of a skill listed in UntrustedSkillOutputs so its external content stays framed as
+    /// untrusted even when a wrapper skill relays it under its own name. An existing taint is never cleared,
+    /// because a wrapper (confirm_pending_action) returns the already tainted result of the inner skill.
+    /// </summary>
+    /// <param name="skillName">Canonical name of the skill that produced the result.</param>
+    /// <param name="result">Result as returned by the skill.</param>
+    private static SkillResult MarkExternalContent(string skillName, SkillResult result)
+    {
+        if (result.ContainsExternalContent || !UntrustedSkillOutputs.Contains(skillName))
+        {
             return result;
         }
+
+        return result with { ContainsExternalContent = true };
     }
 
     /// <summary>

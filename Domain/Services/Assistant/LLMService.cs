@@ -64,9 +64,6 @@ public class LLMService : ILLMService
     // on every single call. Internal so tests assert against this exact text instead of copying it.
     internal const string TruncationNotice = "[Earlier messages truncated.]";
 
-    // Per function-result cap fed back into the loop, so one huge tool payload cannot blow the budget.
-    private const int MaxToolResultChars = 8_000;
-
     private const int StageLogThresholdMs = 50;
 
     // Extra budget reserved for the wrapper markers around an injected conversation-summary system message.
@@ -284,10 +281,12 @@ public class LLMService : ILLMService
             _turnPreparation, _recipeRunRecorder, _recipeEngine, _logger,
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
         var enginePlan = recipe.Plan;
+        var lastCallStart = 0;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
             toolIterationsRun = iteration + 1;
+            lastCallStart = fullResponseContent.Length;
             FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
             enginePlan?.AdvanceOverSatisfied();
@@ -301,7 +300,7 @@ public class LLMService : ILLMService
                         model!, currentMessage, systemPrompt!,
                         CombineVolatile(volatilePrompt, confirmInstruction), runningHistory),
                     cancellationToken);
-                AccumulateUsage(totalUsage, confirmResponse.Usage);
+                LLMUsageAccumulator.Add(totalUsage, confirmResponse.Usage);
                 var confirmText = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
                     confirmResponse.Success ? confirmResponse.Content : null, enginePlan.Goal,
                     enginePlan.AlternativeGoal, context.Language, enginePlan.GoalTranslations,
@@ -324,7 +323,7 @@ public class LLMService : ILLMService
                         model!, currentMessage, systemPrompt!,
                         CombineVolatile(volatilePrompt, askInstruction), runningHistory),
                     cancellationToken);
-                AccumulateUsage(totalUsage, askResponse.Usage);
+                LLMUsageAccumulator.Add(totalUsage, askResponse.Usage);
                 var askText = RecipeReplyGuard.SafeAsk(
                     askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
                     enginePlan.CurrentAskPromptTranslations, context.Language);
@@ -339,7 +338,7 @@ public class LLMService : ILLMService
             // (the previous behaviour) changed the tool array mid-turn and invalidated the provider's
             // prompt-prefix cache on every follow-up call — for every provider with prefix caching,
             // not just one. The once-per-turn rule for write skills is enforced at execution time
-            // instead (RejectRepeatedWriteCalls), which is also stricter: a hallucinated repeat call
+            // instead (RepeatedWriteCallGuard), which is also stricter: a hallucinated repeat call
             // is now rejected rather than silently executed.
             var iterationFunctions = context.AvailableFunctions;
 
@@ -367,7 +366,7 @@ public class LLMService : ILLMService
                 ToolChoicePolicy.ResolveToolChoice(
                     forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count),
                 stream: true,
-                onStreamUsage: usage => AccumulateUsage(totalUsage, usage));
+                onStreamUsage: usage => LLMUsageAccumulator.Add(totalUsage, usage));
 
             if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
             {
@@ -407,7 +406,7 @@ public class LLMService : ILLMService
             else
             {
                 var response = await ProcessWithTransientRetryAsync(provider, providerRequest, cancellationToken);
-                AccumulateUsage(totalUsage, response.Usage);
+                LLMUsageAccumulator.Add(totalUsage, response.Usage);
 
                 if (!response.Success)
                 {
@@ -415,18 +414,10 @@ public class LLMService : ILLMService
                     yield break;
                 }
 
-                accumulator.AppendContent(response.Content);
-                yield return SseChunk.Content(response.Content);
-
-                if (response.FunctionCalls.Any())
-                {
-                    foreach (var fc in response.FunctionCalls)
-                    {
-                        accumulator.AppendToolCallDelta(accumulator.FunctionCalls.Count, fc.FunctionName,
-                            System.Text.Json.JsonSerializer.Serialize(fc.Parameters));
-                    }
-                    hasToolEnd = true;
-                }
+                var visibleContent = AnswerPlaceholder.Visible(response.Content);
+                accumulator.AppendContent(visibleContent);
+                yield return SseChunk.Content(visibleContent);
+                hasToolEnd = accumulator.AppendCompleteFunctionCalls(response.FunctionCalls);
             }
 
             if (hasToolEnd)
@@ -443,11 +434,10 @@ public class LLMService : ILLMService
             allFunctionCalls.AddRange(functionCalls);
             ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
-            var executableCalls = RejectRepeatedWriteCalls(functionCalls, calledFunctionNames, forceRecipe);
+            var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe);
 
             foreach (var call in functionCalls)
             {
-                calledFunctionNames.Add(call.FunctionName);
                 yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
             }
 
@@ -481,12 +471,16 @@ public class LLMService : ILLMService
                 break;
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
-            var assistantContent = string.IsNullOrEmpty(accumulator.AccumulatedContent)
-                ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
-                : accumulator.AccumulatedContent;
-            runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
+            runningHistory.Add(new Providers.LLMMessage
+                { Role = "assistant", Content = AnswerPlaceholder.ForToolCallTurn(accumulator.AccumulatedContent, functionCalls) });
             currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars)
                 + recipe.TakeGateHoldNote();
+        }
+
+        var recovery = RecoveryFor(provider!, totalUsage, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory, historyBudget, context.Language);
+        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, allFunctionCalls, fullResponseContent, lastCallStart, toolIterationsRun, cancellationToken))
+        {
+            yield return recoveryChunk;
         }
 
         // The turn above ran normally (full toolset) because the user's reply to the pending ask was
@@ -773,7 +767,7 @@ public class LLMService : ILLMService
                     CombineVolatile(ctx.VolatilePrompt, confirmInstruction), runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest, ctx.CancellationToken);
-                AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
+                LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
                     responseContent = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
@@ -795,7 +789,7 @@ public class LLMService : ILLMService
                     CombineVolatile(ctx.VolatilePrompt, askInstruction), runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest, ctx.CancellationToken);
-                AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
+                LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
                     responseContent = RecipeReplyGuard.SafeAsk(
@@ -841,7 +835,7 @@ public class LLMService : ILLMService
             }
 
             lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest, ctx.CancellationToken);
-            AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
+            LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
 
             if (!lastResponse.Success)
             {
@@ -882,7 +876,7 @@ public class LLMService : ILLMService
                     {
                         Role = "assistant",
                         Content = string.IsNullOrWhiteSpace(lastResponse.Content)
-                            ? "[no action taken]"
+                            ? LLMLoopConstants.NoActionHistoryNote
                             : lastResponse.Content
                     });
                     currentMessage = MutationGuardConstants.ForceToolNudge;
@@ -898,13 +892,8 @@ public class LLMService : ILLMService
             allFunctionCalls.AddRange(lastResponse.FunctionCalls);
             ApplyRecipeInjections(recipe.Forcing, lastResponse.FunctionCalls);
 
-            var executableCalls = RejectRepeatedWriteCalls(
+            var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(
                 lastResponse.FunctionCalls, calledFunctionNames, forceRecipe);
-
-            foreach (var call in lastResponse.FunctionCalls)
-            {
-                calledFunctionNames.Add(call.FunctionName);
-            }
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
             recipe.Forcing?.Observe(lastResponse.FunctionCalls);
@@ -920,13 +909,14 @@ public class LLMService : ILLMService
             }
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
-            var assistantContent = string.IsNullOrEmpty(lastResponse.Content)
-                ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
-                : lastResponse.Content;
-            runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
+            runningHistory.Add(new Providers.LLMMessage
+                { Role = "assistant", Content = AnswerPlaceholder.ForToolCallTurn(lastResponse.Content, lastResponse.FunctionCalls) });
             currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars)
                 + recipe.TakeGateHoldNote();
         }
+
+        responseContent = await RecoverAnswerAsync(
+            ctx, currentMessage, runningHistory, historyBudget, responseContent, lastResponse, allFunctionCalls);
 
         // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
         // to the pending ask was recognized as an independent question, not a slot answer. The plan is
@@ -981,68 +971,10 @@ public class LLMService : ILLMService
             || content.Contains("[REPLIES:", StringComparison.OrdinalIgnoreCase);
     }
 
-    // Prompt-injection containment. Tool results are fed back as a "user" message, so anything they
-    // contain reads to the model like input from this system. Three measures apply here:
-    // (1) every result gets its own [Result: name] … [/Result] frame, so a newline inside a result can
-    //     no longer forge a sibling entry the way the former "- name: result" line format allowed;
-    // (2) the skill name and the result body are escaped against all four delimiters, so content cannot
-    //     close its own frame or open a new one — this covers trusted skills too, because ERP-imported
-    //     and user-entered strings flow through ordinary read skills;
-    // (3) results from skills whose content is authored outside this system are flagged untrusted and
-    //     carry an explicit data-not-instructions notice, matched by the system prompt's
-    //     UNTRUSTED TOOL CONTENT rule.
-    // Internal (not private): covered by LLMServiceFormatFunctionResultsTests.
-    internal static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null)
-    {
-        var effectiveMaxToolResultChars = maxToolResultChars ?? MaxToolResultChars;
-        var sb = new StringBuilder();
-        sb.AppendLine(ToolResultMarkers.BlockHeader);
-        foreach (var call in functionCalls)
-        {
-            var isUntrusted = UntrustedSkillOutputs.Contains(call.FunctionName);
-
-            // Escape BEFORE capping: escaping replaces a 9-character delimiter with a 16-character
-            // placeholder, so capping first would let a result built from repeated forged delimiters
-            // grow ~1.8x past MaxToolResultChars — attacker-controlled history inflation, which is the
-            // very thing the cap exists to prevent.
-            var body = call.Result is null
-                ? ToolResultMarkers.EmptyResultPlaceholder
-                : CapToolResult(ToolResultSanitizer.EscapeDelimiters(call.Result), effectiveMaxToolResultChars)
-                  ?? ToolResultMarkers.EmptyResultPlaceholder;
-
-            sb.Append(ToolResultMarkers.ResultOpenPrefix);
-            sb.Append(ToolResultSanitizer.EscapeDelimiters(call.FunctionName));
-            if (isUntrusted)
-            {
-                sb.Append(ToolResultMarkers.ResultUntrustedFlag);
-            }
-
-            sb.AppendLine(ToolResultMarkers.ResultOpenSuffix);
-
-            if (isUntrusted)
-            {
-                sb.AppendLine(ToolResultMarkers.UntrustedContentNotice);
-            }
-
-            sb.AppendLine(body);
-            sb.AppendLine(ToolResultMarkers.ResultClose);
-        }
-
-        sb.AppendLine(ToolResultMarkers.BlockFooter);
-        return sb.ToString();
-    }
-
-    // A single skill can return a large payload (e.g. a long list). Fed back verbatim into the loop this
-    // would inflate the running history until the prompt exceeds the model's input limit. Cap it so the
-    // model still sees the head of the result plus an explicit truncation marker.
-    private static string? CapToolResult(string? result, int maxToolResultChars)
-    {
-        if (string.IsNullOrEmpty(result) || result.Length <= maxToolResultChars)
-            return result;
-
-        return result[..maxToolResultChars]
-            + $"\n[Result truncated: {result.Length} chars total, showing first {maxToolResultChars}.]";
-    }
+    // Prompt-injection containment lives in ToolResultFormatter, shared with the turn replay and the
+    // read-only research sub-loop. Internal (not private): covered by LLMServiceFormatFunctionResultsTests.
+    internal static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null) =>
+        ToolResultFormatter.Format(functionCalls, maxToolResultChars ?? LLMLoopConstants.DefaultMaxToolResultChars);
 
     // Recipe forcing spine (shared by both the streaming and non-streaming loops so a hook can never
     // land on only one path): while a recipe plan is active and a confirmation is not already being
@@ -1089,43 +1021,80 @@ public class LLMService : ILLMService
         }
     }
 
-    // Execution-time replacement for the former per-iteration toolset shrinking: read-only skills
-    // and navigation may repeat freely, a side-effecting skill already called in an EARLIER
-    // iteration must not run twice in one turn (multiple calls within the same batch stay allowed,
-    // matching the old semantics). Rejected calls keep flowing through the result pipeline with an
-    // instructive message so the model corrects itself on the next iteration. A recipe-forced
-    // iteration is exempt: the forcing spine may deliberately re-run a step skill and its calls are
-    // narrowed deterministically, not chosen by the model.
-    internal static List<LLMFunctionCall> RejectRepeatedWriteCalls(
-        List<LLMFunctionCall> functionCalls,
-        HashSet<string> previouslyCalledNames,
-        bool forceRecipe)
+    /// <summary>
+    /// Non-streaming side of the closing guard. A failed last response (a recipe confirmation or ask call)
+    /// turns the whole turn into an error response, so recovering its answer would be a wasted call.
+    /// </summary>
+    private async Task<string> RecoverAnswerAsync(
+        MultiTurnContext ctx, string currentMessage, List<Providers.LLMMessage> runningHistory, int historyBudget,
+        string responseContent, LLMProviderResponse? lastResponse, List<LLMFunctionCall> allFunctionCalls)
     {
-        if (forceRecipe || previouslyCalledNames.Count == 0)
+        if (lastResponse is { Success: false })
         {
-            return functionCalls;
+            return responseContent;
         }
 
-        var executable = new List<LLMFunctionCall>(functionCalls.Count);
-        foreach (var call in functionCalls)
-        {
-            var isReadOnlyOrNavigation =
-                ReadOnlySkillPrefixes.HasReadOnlyPrefix(call.FunctionName) ||
-                string.Equals(call.FunctionName, SkillNames.NavigateTo, StringComparison.OrdinalIgnoreCase);
+        return await RecoveryFor(
+                ctx.Provider, ctx.TotalUsage, ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
+                runningHistory, historyBudget, ctx.Context.Language)
+            .ResolveAsync(responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, ctx.CancellationToken);
+    }
 
-            if (!isReadOnlyOrNavigation && previouslyCalledNames.Contains(call.FunctionName))
-            {
-                call.Success = false;
-                call.IsRejectedRepeat = true;
-                call.Result = Klacks.Api.Domain.Constants.LLMLoopConstants.RepeatedWriteCallRejectedResult;
-            }
-            else
-            {
-                executable.Add(call);
-            }
+    /// <summary>
+    /// Streaming side of the closing guard. Decides from the LAST provider call only - everything streamed
+    /// from lastCallStart on - because narration streamed alongside an earlier tool call must not count as
+    /// the answer. Text already on screen stays: the recovered answer is appended below it and the same
+    /// text is appended to the turn's content, so the stored answer equals what the user saw. The recovery
+    /// call is announced with the same calling-model status as every loop call.
+    /// </summary>
+    /// <param name="recovery">The turn's closing guard.</param>
+    /// <param name="context">The turn context, source of the status clock.</param>
+    /// <param name="allFunctionCalls">Every call of the turn.</param>
+    /// <param name="streamedContent">Everything streamed so far; the appended text is added to it.</param>
+    /// <param name="lastCallStart">Offset in streamedContent where the last provider call's content starts.</param>
+    /// <param name="iteration">The loop's last iteration number, reported with the status.</param>
+    /// <param name="cancellationToken">Cancels the extra call.</param>
+    private async IAsyncEnumerable<SseChunk> StreamRecoveryAsync(
+        EmptyAnswerRecovery recovery, LLMContext context, List<LLMFunctionCall> allFunctionCalls,
+        StringBuilder streamedContent, int lastCallStart, int iteration,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var lastCallContent = streamedContent.ToString(lastCallStart, streamedContent.Length - lastCallStart);
+        if (!EmptyAnswerRecovery.NeedsRecovery(
+                lastCallContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly))
+        {
+            yield break;
         }
 
-        return executable;
+        yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), iteration);
+
+        var continuesEarlierContent = !string.IsNullOrWhiteSpace(streamedContent.ToString());
+        await foreach (var token in recovery.StreamAsync(allFunctionCalls.Count, continuesEarlierContent, cancellationToken))
+        {
+            yield return SseChunk.Content(token);
+        }
+
+        streamedContent.Append(recovery.AppendedText);
+    }
+
+    /// <summary>
+    /// Closing guard of both loops (EmptyAnswerRecovery). Its one extra call is tool-less and carries the
+    /// loop's final message - the last tool results - so it sees exactly what the model last saw. The
+    /// running history is fitted to the loop's history budget only when that call is actually built: the
+    /// last loop iteration grew it by one more exchange and a function-result message after the loop's
+    /// own last fit.
+    /// </summary>
+    private EmptyAnswerRecovery RecoveryFor(
+        ILLMProvider provider, Providers.LLMUsage totalUsage, LLMModel model, string currentMessage,
+        string systemPrompt, string? volatilePrompt, List<Providers.LLMMessage> runningHistory, int historyBudget,
+        string? language)
+    {
+        return new EmptyAnswerRecovery(_logger, provider, totalUsage, language, instruction =>
+        {
+            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
+            return LLMProviderRequestFactory.ToolLess(
+                model, currentMessage, systemPrompt, CombineVolatile(volatilePrompt, instruction), runningHistory);
+        });
     }
 
     private static int EstimateTokens(string? text) =>
@@ -1260,16 +1229,6 @@ public class LLMService : ILLMService
             total -= EstimateTokens(runningHistory[dropIndex].Content);
             runningHistory.RemoveAt(dropIndex);
         }
-    }
-
-
-    private static void AccumulateUsage(Providers.LLMUsage total, Providers.LLMUsage current)
-    {
-        total.InputTokens += current.InputTokens;
-        total.OutputTokens += current.OutputTokens;
-        total.CacheCreationInputTokens += current.CacheCreationInputTokens;
-        total.CacheReadInputTokens += current.CacheReadInputTokens;
-        total.Cost += current.Cost;
     }
 
     // W1.7: fills llm_usage.functions_called with the distinct function names this turn actually

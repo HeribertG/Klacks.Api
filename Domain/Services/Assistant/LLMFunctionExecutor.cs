@@ -77,6 +77,13 @@ public class LLMFunctionExecutor
     }
 
     public bool HasOnlyUiPassthroughCalls { get; private set; }
+
+    /// <summary>
+    /// True when the last executed batch was non-empty and consisted of UiPassthrough calls only, i.e. the
+    /// chat loop ended on it without asking the model for prose. Unlike HasOnlyUiPassthroughCalls it is
+    /// not vacuously true for an empty batch.
+    /// </summary>
+    public bool LastBatchWasUiPassthroughOnly { get; private set; }
     public string? NavigationRoute { get; private set; }
     public string? NavigationTarget { get; private set; }
 
@@ -114,6 +121,7 @@ public class LLMFunctionExecutor
         }
 
         HasOnlyUiPassthroughCalls = allUiPassthrough;
+        LastBatchWasUiPassthroughOnly = allUiPassthrough && functionCalls.Count > 0;
         return string.Join("\n", results);
     }
 
@@ -267,6 +275,7 @@ public class LLMFunctionExecutor
 
         var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext);
         call.Success = result.Success;
+        call.ContainsExternalContent = result.ContainsExternalContent;
         call.RequiresConfirmation =
             result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);
 

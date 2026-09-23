@@ -47,7 +47,8 @@ public partial class SkillMapper
             Data = result.Data,
             Message = result.Message,
             ResultType = result.Type,
-            Metadata = result.Metadata
+            Metadata = result.Metadata,
+            ContainsExternalContent = result.ContainsExternalContent
         };
     }
 

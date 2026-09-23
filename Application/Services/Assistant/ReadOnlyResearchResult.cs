@@ -7,4 +7,5 @@ public record ReadOnlyResearchResult(
     int IterationsUsed,
     int ToolCallCount,
     IReadOnlyList<string> ToolsUsed,
-    bool ModelAvailable);
+    bool ModelAvailable,
+    bool ContainsExternalContent = false);

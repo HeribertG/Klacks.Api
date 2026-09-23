@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Rozumiem — nie {previousAction}. Chodzi o {optionA} czy o {optionB}?",
   "assistant.recipe.confirmYes": "Tak",
-  "assistant.recipe.confirmNo": "Nie"
+  "assistant.recipe.confirmNo": "Nie",
+  "assistant.emptyAnswer.fallbackNotice": "Wykonałem wymagane kroki, ale nie udało się sformułować odpowiedzi. Proszę zapytać ponownie."
 }

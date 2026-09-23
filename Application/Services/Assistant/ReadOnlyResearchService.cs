@@ -7,16 +7,20 @@
 /// returned. The toolset is hard-filtered to read-only skills and every tool call is re-checked against
 /// that allow-list before execution, so no mutating skill can ever run here. It inherits the caller's
 /// <see cref="SkillExecutionContext"/> (user id, permissions), so it can read nothing the caller cannot.
+/// Tool results are framed by the shared ToolResultFormatter (untrusted flag and notice for external content)
+/// and the result is tainted when any executed tool returned external content. A tool-call iteration without
+/// prose is recorded in the history with the same neutral sentence the chat loop uses (AnswerPlaceholder),
+/// and a model echoing such a stand-in never becomes the returned synthesis.
 /// </summary>
 /// <param name="cheapestModelResolver">Resolves the cheapest enabled model and its provider.</param>
 /// <param name="skillRegistry">Source of the skills the caller is permitted to use.</param>
 /// <param name="toolsetFilter">Hard read-only filter applied to the permitted skills.</param>
 /// <param name="skillBridge">Executes read-only tool calls and exports skills as LLM functions.</param>
 
-using System.Text;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using ProviderMessage = Klacks.Api.Domain.Services.Assistant.Providers.LLMMessage;
@@ -28,7 +32,6 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
     private const string ToolChoiceAuto = "auto";
     private const string AssistantRole = "assistant";
     private const string UserRole = "user";
-    private const string GatheringDataPlaceholder = "[gathering data]";
     private const string ToolNotAvailableMarker = "not available (read-only research only)";
 
     private readonly ICheapestModelResolver _cheapestModelResolver;
@@ -71,6 +74,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
         var toolsUsed = new List<string>();
         var toolCallCount = 0;
         var iterationsUsed = 0;
+        var containsExternalContent = false;
         string lastContent = string.Empty;
 
         for (var iteration = 0; iteration < ReadOnlyResearchConstants.MaxIterations; iteration++)
@@ -88,25 +92,27 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
                 break;
             }
 
-            if (!string.IsNullOrWhiteSpace(response.Content))
+            if (AnswerPlaceholder.Visible(response.Content) is { Length: > 0 } visibleContent)
             {
-                lastContent = response.Content;
+                lastContent = visibleContent;
             }
 
             if (response.FunctionCalls.Count == 0)
             {
-                return BuildResult(lastContent, iterationsUsed, toolCallCount, toolsUsed);
+                return BuildResult(lastContent, iterationsUsed, toolCallCount, toolsUsed, containsExternalContent);
             }
 
             runningHistory.Add(new ProviderMessage { Role = UserRole, Content = currentMessage });
             runningHistory.Add(new ProviderMessage
             {
                 Role = AssistantRole,
-                Content = string.IsNullOrWhiteSpace(response.Content) ? GatheringDataPlaceholder : response.Content
+                Content = AnswerPlaceholder.ForToolCallTurn(response.Content, response.FunctionCalls)
             });
 
-            currentMessage = await ExecuteToolCallsAsync(
+            var (toolResults, executedExternalContent) = await ExecuteToolCallsAsync(
                 response.FunctionCalls, allowedNames, context, toolsUsed, cancellationToken);
+            containsExternalContent |= executedExternalContent;
+            currentMessage = ToolResultFormatter.Format(toolResults, ReadOnlyResearchConstants.MaxToolResultChars);
 
             toolCallCount = toolsUsed.Count;
 
@@ -121,7 +127,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
         var synthesis = await RunFinalSynthesisAsync(
             model, provider, currentMessage, runningHistory, lastContent, cancellationToken);
 
-        return BuildResult(synthesis, iterationsUsed, toolCallCount, toolsUsed);
+        return BuildResult(synthesis, iterationsUsed, toolCallCount, toolsUsed, containsExternalContent);
     }
 
     private (List<LLMFunction> Functions, HashSet<string> AllowedNames) BuildReadOnlyToolset(
@@ -141,15 +147,15 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
         return (functions, allowedNames);
     }
 
-    private async Task<string> ExecuteToolCallsAsync(
+    private async Task<(List<ToolResultEntry> Entries, bool ContainsExternalContent)> ExecuteToolCallsAsync(
         IReadOnlyList<LLMFunctionCall> calls,
         HashSet<string> allowedNames,
         SkillExecutionContext context,
         List<string> toolsUsed,
         CancellationToken cancellationToken)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("[Tool Results]");
+        var entries = new List<ToolResultEntry>();
+        var containsExternalContent = false;
 
         foreach (var call in calls)
         {
@@ -157,7 +163,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
             {
                 _logger.LogWarning(
                     "Read-only research blocked non-read-only tool call {FunctionName}", call.FunctionName);
-                sb.AppendLine($"- {call.FunctionName}: {ToolNotAvailableMarker}");
+                entries.Add(new ToolResultEntry(call.FunctionName, ToolNotAvailableMarker));
                 continue;
             }
 
@@ -167,11 +173,15 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
                 cancellationToken);
 
             toolsUsed.Add(call.FunctionName);
-            sb.AppendLine($"- {call.FunctionName}: {Cap(result.Message)}");
+            var entry = new ToolResultEntry(
+                call.FunctionName,
+                string.IsNullOrEmpty(result.Message) ? null : result.Message,
+                result.ContainsExternalContent);
+            containsExternalContent |= ToolResultFormatter.IsUntrusted(entry);
+            entries.Add(entry);
         }
 
-        sb.AppendLine("[/Tool Results]");
-        return sb.ToString();
+        return (entries, containsExternalContent);
     }
 
     private async Task<string> RunFinalSynthesisAsync(
@@ -186,9 +196,9 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
             BuildRequest(model, currentMessage, runningHistory, functions: [], forceSynthesis: true),
             cancellationToken);
 
-        if (response.Success && !string.IsNullOrWhiteSpace(response.Content))
+        if (response.Success && AnswerPlaceholder.Visible(response.Content) is { Length: > 0 } synthesis)
         {
-            return response.Content;
+            return synthesis;
         }
 
         return fallbackContent;
@@ -222,7 +232,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
     }
 
     private static ReadOnlyResearchResult BuildResult(
-        string synthesis, int iterationsUsed, int toolCallCount, List<string> toolsUsed)
+        string synthesis, int iterationsUsed, int toolCallCount, List<string> toolsUsed, bool containsExternalContent)
     {
         var text = string.IsNullOrWhiteSpace(synthesis)
             ? ReadOnlyResearchConstants.NoFindingsMessage
@@ -233,18 +243,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
             iterationsUsed,
             toolCallCount,
             toolsUsed.Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
-            ModelAvailable: true);
-    }
-
-    private static string Cap(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return "OK";
-        }
-
-        return value.Length <= ReadOnlyResearchConstants.MaxToolResultChars
-            ? value
-            : value[..ReadOnlyResearchConstants.MaxToolResultChars] + "…[truncated]";
+            ModelAvailable: true,
+            ContainsExternalContent: containsExternalContent);
     }
 }

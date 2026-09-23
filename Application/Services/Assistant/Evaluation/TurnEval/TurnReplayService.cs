@@ -186,15 +186,13 @@ public class TurnReplayService : ITurnReplayService
                 new()
                 {
                     Role = LLMMessageRoles.Assistant,
-                    Content = string.IsNullOrEmpty(response.Content)
-                        ? LLMLoopConstants.ExecutingFunctionCallsPlaceholder
-                        : response.Content
+                    Content = AnswerPlaceholder.ForToolCallTurn(response.Content, [firstCall])
                 }
             };
 
             var followUpRequest = BuildProviderRequest(
                 model, prep.SystemPrompt, prep.VolatilePrompt, prep.Context,
-                LLMService.FormatFunctionResults([firstCall], prep.BudgetProfile.MaxToolResultChars),
+                ToolResultFormatter.Format([firstCall], prep.BudgetProfile.MaxToolResultChars),
                 followUpHistory,
                 ToolChoicePolicy.ResolveToolChoice(
                     forceRecipe: false,

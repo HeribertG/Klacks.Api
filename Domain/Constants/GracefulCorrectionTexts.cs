@@ -1,20 +1,23 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The one user-facing sentence of the correction path that bypasses the model entirely: the two-option
-/// clarification of design rule 2. Because no model renders it, it is authored per language - and per
-/// the owner's one-language rule (spec §1 rule 4) an installed language never gets an English
-/// substitute. The four core languages live here; the 21 plugin languages are merged in at startup from
-/// each pack's assistant-texts.json by AssistantTextsPluginLoader, through the same additive
-/// Configure/Reset pattern the conversation-signal detectors use.
+/// User-facing sentences that reach the user without a model call: the two-option clarification of
+/// design rule 2, its Yes/No button labels, and the closing-guard notice EmptyAnswerRecovery falls back
+/// to when even the one tool-less recovery call ends without an answer. Because no model renders them,
+/// each is authored per language - and per the owner's one-language rule (spec §1 rule 4) an installed
+/// language never gets an English substitute. The four core languages live here; the 21 plugin languages
+/// are merged in at startup from each pack's assistant-texts.json by AssistantTextsPluginLoader, through
+/// the same additive Configure/Reset pattern the conversation-signal detectors use.
 /// English remains only for a tag that no pack claims - an unknown language, never an installed one. An
-/// installed language whose pack lacks the key resolves to nothing, so the turn falls back to the
-/// ordinary note path rather than asking in the wrong language; that state cannot ship, because
+/// installed language whose pack lacks the key resolves to nothing for the clarification question, so
+/// that turn falls back to the ordinary note path rather than asking in the wrong language; for the
+/// empty-answer notice the caller falls back to the English constant instead, because there the turn has
+/// already run its recovery call and has nothing else to fall back to. Both gaps cannot ship, because
 /// AssistantTextsPackCoverageTests fails on a missing key.
-/// The sentence carries rule 1 itself: it names the misunderstanding ({previousAction}) before offering
-/// the two options, so even a clarification turn tells the user what was understood wrongly.
-/// Placeholders are named rather than positional, so a translator can reorder them for a language whose
-/// syntax demands it without changing their meaning.
+/// The clarification sentence carries rule 1 itself: it names the misunderstanding ({previousAction})
+/// before offering the two options, so even a clarification turn tells the user what was understood
+/// wrongly. Placeholders are named rather than positional, so a translator can reorder them for a
+/// language whose syntax demands it without changing their meaning.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -33,6 +36,8 @@ public static class GracefulCorrectionTexts
     public const string RecipeConfirmYes = "assistant.recipe.confirmYes";
     public const string RecipeConfirmNo = "assistant.recipe.confirmNo";
 
+    public const string EmptyAnswerFallbackNotice = "assistant.emptyAnswer.fallbackNotice";
+
     public const string PreviousActionPlaceholder = "{previousAction}";
     public const string FirstOptionPlaceholder = "{optionA}";
     public const string SecondOptionPlaceholder = "{optionB}";
@@ -46,7 +51,7 @@ public static class GracefulCorrectionTexts
 
     /// <summary>Every key a language pack has to ship. The coverage guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys =
-        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo];
+        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo, EmptyAnswerFallbackNotice];
 
     /// <summary>Every placeholder the clarification question must contain, in every language.</summary>
     public static readonly IReadOnlyList<string> RequiredPlaceholders =
@@ -83,6 +88,16 @@ public static class GracefulCorrectionTexts
                 [English] = "No",
                 [French] = "Non",
                 [Italian] = "No"
+            },
+            [EmptyAnswerFallbackNotice] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Ich habe die angeforderten Schritte ausgeführt, konnte aber keine Antwort " +
+                    "formulieren. Bitte noch einmal fragen.",
+                [English] = "I ran the requested steps but could not formulate an answer. Please ask again.",
+                [French] = "J'ai exécuté les étapes demandées, mais je n'ai pas pu formuler de réponse. " +
+                    "Merci de reposer la question.",
+                [Italian] = "Ho eseguito i passaggi richiesti, ma non sono riuscito a formulare una risposta. " +
+                    "Si prega di ripetere la domanda."
             }
         };
 

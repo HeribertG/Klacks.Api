@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "فهمت — ليس {previousAction}. هل تقصد {optionA} أم {optionB}؟",
   "assistant.recipe.confirmYes": "نعم",
-  "assistant.recipe.confirmNo": "لا"
+  "assistant.recipe.confirmNo": "لا",
+  "assistant.emptyAnswer.fallbackNotice": "قمت بتنفيذ الخطوات المطلوبة، لكنني لم أتمكن من صياغة إجابة. يُرجى إعادة طرح السؤال."
 }

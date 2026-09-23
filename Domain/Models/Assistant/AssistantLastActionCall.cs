@@ -50,10 +50,13 @@ public sealed class AssistantLastActionCall
     public string ResultDataJson { get; set; } = Constants.GracefulCorrectionDefaults.EmptyJsonObject;
 
     /// <summary>
-    /// Whether the call was read-only by the NAME PREFIX rule of ReadOnlySkillPrefixes - the same rule
-    /// the multi-turn loop applies in RejectRepeatedWriteCalls, deliberately not the category-first rule
-    /// of SkillRiskClassifier. The two rules disagree in BOTH directions: a write-category skill whose
-    /// name starts with a read-only prefix reads as read-only here and as a write there - that set is
+    /// Whether the call was read-only by the NAME PREFIX rule of ReadOnlySkillPrefixes alone, deliberately
+    /// not the category-first rule of SkillRiskClassifier. RepeatedWriteCallGuard starts from the same
+    /// prefix rule but additionally treats navigate_to and the catalogued read-only actions of multi-action
+    /// skills (ReadOnlySkillActions, e.g. manage_pending_notes with action "read") as repeatable; this flag
+    /// does not, so such a call reads as a write here. The prefix rule and the category rule of
+    /// SkillRiskClassifier disagree in BOTH directions: a write-category skill whose name starts with a
+    /// read-only prefix reads as read-only here and as a write in SkillRiskClassifier - that set is
     /// pinned by ReadOnlyPrefixWriteCategoryGuardTests, so it can shrink but not silently grow - and a
     /// read-category skill whose name carries no read-only prefix (82 skills, e.g. navigate_to,
     /// web_search, select_group, every explain_*) reads as a write here and as read-only there - that

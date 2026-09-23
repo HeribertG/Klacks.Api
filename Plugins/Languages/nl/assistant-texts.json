@@ -1,5 +1,6 @@
 {
   "assistant.correction.clarificationQuestion": "Begrepen — niet {previousAction}. Bedoel je {optionA} of {optionB}?",
   "assistant.recipe.confirmYes": "Ja",
-  "assistant.recipe.confirmNo": "Nee"
+  "assistant.recipe.confirmNo": "Nee",
+  "assistant.emptyAnswer.fallbackNotice": "Ik heb de gevraagde stappen uitgevoerd, maar kon geen antwoord formuleren. Stel de vraag opnieuw."
 }
