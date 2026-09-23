@@ -3,7 +3,10 @@
 /// <summary>
 /// EF Core repository for InboundClarification rows. Self-committing (see IInboundClarificationRepository).
 /// TryAddOpenAsync relies on the partial unique index ix_inbound_clarifications_client_id_open and
-/// answers false instead of throwing when another Open row of the same client won the race.
+/// answers false instead of throwing when another Open row of the same client won the race; a unique
+/// or PK violation on any other constraint is rethrown instead of being mistaken for that race.
+/// AddAsync rejects Status == Open — Open rows must go through TryAddOpenAsync so the partial index is
+/// always the one deciding whether a client may get a new open question.
 /// TryResolveAsync is a single conditional ExecuteUpdate scoped by Status == Open, mirroring the
 /// escalation-chain transitions: when the expiry sweep and an incoming answer race for the same row,
 /// exactly one of them moves it.
@@ -14,6 +17,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -23,6 +27,7 @@ public class InboundClarificationRepository : IInboundClarificationRepository
 {
     private const string UniqueViolationSqlState = "23505";
     private const string TerminalStatusRequiredMessage = "A clarification can only be resolved to a terminal status.";
+    private const string OpenStatusNotAllowedMessage = "Open clarifications must be added via TryAddOpenAsync.";
 
     private readonly DataBaseContext _context;
 
@@ -123,8 +128,22 @@ public class InboundClarificationRepository : IInboundClarificationRepository
 
     public async Task AddAsync(InboundClarification clarification, CancellationToken cancellationToken = default)
     {
+        if (clarification.Status == InboundClarificationStatus.Open)
+        {
+            throw new ArgumentOutOfRangeException(nameof(clarification), clarification.Status, OpenStatusNotAllowedMessage);
+        }
+
         await _context.InboundClarifications.AddAsync(clarification, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            _context.Entry(clarification).State = EntityState.Detached;
+            throw;
+        }
     }
 
     public async Task<bool> TryResolveAsync(
@@ -152,6 +171,10 @@ public class InboundClarificationRepository : IInboundClarificationRepository
         return affected == 1;
     }
 
-    private static bool IsUniqueViolation(DbUpdateException exception) =>
-        (exception.InnerException as PostgresException)?.SqlState == UniqueViolationSqlState;
+    private static bool IsUniqueViolation(DbUpdateException exception)
+    {
+        var postgres = exception.InnerException as PostgresException;
+        return postgres?.SqlState == UniqueViolationSqlState
+            && postgres.ConstraintName == InboundClarificationConfiguration.OpenPerClientIndexName;
+    }
 }
