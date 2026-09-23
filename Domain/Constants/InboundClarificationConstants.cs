@@ -39,6 +39,18 @@ public static class InboundClarificationConstants
 
     public const int MaxNotifiedOriginalTextLength = 300;
 
+    /// <summary>
+    /// Column length of inbound_clarifications.shift_context; the shift name is unbounded, so the
+    /// coordinator truncates the composed context to this length before saving.
+    /// </summary>
+    public const int MaxShiftContextLength = 200;
+
+    /// <summary>
+    /// Column length of inbound_clarifications.email_message_id; a longer original message id is not
+    /// stored (truncating it would break the thread match anyway).
+    /// </summary>
+    public const int MaxStoredEmailMessageIdLength = 998;
+
     public const int MaxShiftCandidates = 10;
 
     public const int DefaultShiftLookaheadDays = 1;

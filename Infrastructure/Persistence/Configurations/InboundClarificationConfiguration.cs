@@ -10,6 +10,7 @@
 /// values like on inbound_analyses, because a messenger source row lives in a plugin-owned table.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Inbound;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,8 +26,8 @@ public class InboundClarificationConfiguration : IEntityTypeConfiguration<Inboun
     private const int RecipientMaxLength = 200;
     private const int SenderDisplayMaxLength = 300;
     private const int QuestionMaxLength = 1000;
-    private const int ShiftContextMaxLength = 200;
-    private const int EmailMessageIdMaxLength = 998;
+    private const int ShiftContextMaxLength = InboundClarificationConstants.MaxShiftContextLength;
+    private const int EmailMessageIdMaxLength = InboundClarificationConstants.MaxStoredEmailMessageIdLength;
 
     public void Configure(EntityTypeBuilder<InboundClarification> builder)
     {
