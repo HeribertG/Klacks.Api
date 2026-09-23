@@ -4,13 +4,13 @@
 /// Code-side guard rails for a clarification question before it is sent to an employee. The LLM is told
 /// the same rules, this guard enforces them: not empty, at most MaxQuestionLength characters, at most
 /// MaxQuestionSentences sentences, ending with the question mark of the language, no link, no "@" and no
-/// phone-number-like digit run (at least MinPhoneNumberDigits digits, with spaces, dashes, dots or plus
-/// signs allowed between them). A run is exempted from the phone check when it is itself made of one or
-/// more ISO dates (2026-09-23), dotted dates (24.09. or 24.09.2026) or times (14:00 or 14.00), separated
-/// only by whitespace or a dash, never a bare dot between tokens: that lets a shift date/time such as
-/// "2026-09-23 14.00-22.00" or "vom 24.09. - 26.09." through while still rejecting a dot-grouped digit run
-/// such as "06.12.34.56.78". A colon always breaks a run, so a time like 14:00-22:00 never reaches the
-/// threshold in the first place. A period only ends a sentence before whitespace or the end and never after a
+/// phone-number-like digit run (at least MinPhoneNumberDigits digits, with whitespace, dashes, dots,
+/// colons or plus signs allowed between them). A run is exempted from the phone check when it is itself
+/// made of one or more ISO dates (2026-09-23), dotted dates (24.09. or 24.09.2026) or times (14:00 or
+/// 14.00), separated only by whitespace or a dash, never a bare dot between tokens: that lets a shift
+/// date/time such as "2026-09-23 14:00-22:00" or "vom 24.09. - 26.09." through while still rejecting a
+/// dot-grouped digit run such as "06.12.34.56.78". A period only ends a sentence before whitespace or the
+/// end and never after a
 /// digit or a single letter, so a time (14.00), a date (24.09.) or an abbreviation (z. B.) does not count.
 /// The question must END with ?, the full-width ？ or the Arabic ؟;
 /// the Greek question mark (; or U+037E) only counts when the text contains Greek letters. For the
@@ -56,7 +56,7 @@ public static class ClarificationQuestionGuard
     private const int MinPhoneNumberDigits = 7;
 
     private static readonly Regex PhoneNumberDigitRun = new(
-        @"\d[\d\s\-.+]*\d",
+        @"\d[\d\s\-.:+]*\d",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private const string DateOrTimeToken =
