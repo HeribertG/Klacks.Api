@@ -94,10 +94,7 @@ public class EmailPollingBackgroundService : BackgroundService
                                 toProcess.Count, toProcess.Count - newEmails.Count);
                         }
 
-                        foreach (var email in toProcess)
-                        {
-                            await ProcessEmailAsync(scope, unitOfWork, email, inboxFolder, junkFolder, stoppingToken);
-                        }
+                        await ProcessBatchAsync(toProcess, inboxFolder, junkFolder, stoppingToken);
                     }
 
                     await emailService.SyncEmailStatesAsync(stoppingToken);
@@ -123,6 +120,35 @@ public class EmailPollingBackgroundService : BackgroundService
     }
 
     /// <summary>
+    /// Runs ProcessEmailAsync for every mail of one poll cycle, each in its OWN DI scope (and therefore
+    /// its own DataBaseContext/change tracker and its own IUnitOfWork), never the scope that fetched
+    /// toProcess. A single shared scope for the whole batch would let one mail's failed SaveChanges (an
+    /// entity stuck in the tracker, e.g. a duplicate-key insert) poison every later commit in the same
+    /// cycle, and a transient failure could let the next mail's own commit flush the previous mail's
+    /// still-staged, unrelated changes along with it. The mail handed to ProcessEmailAsync is reloaded
+    /// inside the new scope (GetByIdAsync) rather than reusing the instance tracked by the outer scope,
+    /// so writes to Folder/ProcessedAt land in the same context as that mail's own CompleteAsync calls;
+    /// a mail that no longer exists (deleted between the fetch and this loop) is skipped.
+    /// </summary>
+    internal async Task ProcessBatchAsync(
+        IReadOnlyList<ReceivedEmail> toProcess, string inboxFolder, string junkFolder, CancellationToken stoppingToken)
+    {
+        foreach (var email in toProcess)
+        {
+            using var mailScope = _scopeFactory.CreateScope();
+            var mailUnitOfWork = mailScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var mailEmail = await mailScope.ServiceProvider.GetRequiredService<IReceivedEmailRepository>()
+                .GetByIdAsync(email.Id);
+            if (mailEmail == null)
+            {
+                continue;
+            }
+
+            await ProcessEmailAsync(mailScope, mailUnitOfWork, mailEmail, inboxFolder, junkFolder, stoppingToken);
+        }
+    }
+
+    /// <summary>
     /// Runs the full per-email pipeline (spam-classify, client assignment, intent analysis) and marks
     /// ProcessedAt only on definitive completion — an unhandled exception leaves ProcessedAt null so
     /// GetUnprocessedAsync retries this email on the next poll cycle instead of dropping it silently.
@@ -138,6 +164,7 @@ public class EmailPollingBackgroundService : BackgroundService
     /// coordinator ask back once, handing on the in-memory analysis; when a question went out, the action
     /// orchestrator and the regular notification are skipped. Both hooks run through
     /// ClarificationDialogSafeGuard, so a failing clarification dialog degrades to the regular path.
+    /// Called once per mail from ProcessBatchAsync with a fresh per-mail scope, and directly by tests.
     /// </summary>
     internal async Task ProcessEmailAsync(
         IServiceScope scope,
@@ -186,12 +213,12 @@ public class EmailPollingBackgroundService : BackgroundService
             (Guid ClientId, EntityTypeEnum ClientType)? client = null;
             if (emailAnalysisEnabled)
             {
-                var existingAnalysis = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
-                    .GetBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);
-                if (existingAnalysis != null)
+                var alreadyAnalyzed = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
+                    .ExistsBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);
+                if (alreadyAnalyzed)
                 {
-                    _logger.LogInformation(
-                        "Email {EmailId} was already analyzed; marking it processed without a new analysis", email.Id);
+                    _logger.LogWarning(
+                        "message {SourceId} already analysed — skipped; delete the inbound_analyses row to reprocess", email.Id);
                     email.ProcessedAt = DateTime.UtcNow;
                     await unitOfWork.CompleteAsync();
                     return;

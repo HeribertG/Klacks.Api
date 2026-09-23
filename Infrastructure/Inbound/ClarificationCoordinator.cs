@@ -78,6 +78,14 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         _logger = logger;
     }
 
+    /// <summary>
+    /// Checks whether this message answers the client's open clarification round, independently of
+    /// INBOUND_CLARIFICATION_ENABLED: the setting is only read in AfterAnalysisAsync, before a NEW
+    /// question is asked. So flipping the setting off never orphans a round that is already Open —
+    /// the reply is still correlated, re-analyzed and resolved (Answered/Unresolved) normally; only
+    /// the ability to start a new round is gated. This is a deliberate controller decision, not an
+    /// oversight.
+    /// </summary>
     public async Task<ClarificationPreAnalysis> BeforeAnalysisAsync(ClarificationRequest request, CancellationToken cancellationToken = default)
     {
         if (request.ClientType == EntityTypeEnum.Customer)

@@ -73,10 +73,10 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
         }
 
         var analysisRepository = _serviceProvider.GetRequiredService<IInboundAnalysisRepository>();
-        if (await analysisRepository.GetBySourceAsync(InboundSourceKind.Messenger, message.MessageId, cancellationToken) != null)
+        if (await analysisRepository.ExistsBySourceAsync(InboundSourceKind.Messenger, message.MessageId, cancellationToken))
         {
-            _logger.LogInformation(
-                "Skipping messenger intent analysis for message {MessageId}: it was already analyzed", message.MessageId);
+            _logger.LogWarning(
+                "message {SourceId} already analysed — skipped; delete the inbound_analyses row to reprocess", message.MessageId);
             return;
         }
 

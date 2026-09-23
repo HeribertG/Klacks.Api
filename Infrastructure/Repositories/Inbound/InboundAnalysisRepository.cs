@@ -32,4 +32,13 @@ public class InboundAnalysisRepository : IInboundAnalysisRepository
         return await _context.InboundAnalyses
             .FirstOrDefaultAsync(a => a.SourceKind == sourceKind && a.SourceId == sourceId, cancellationToken);
     }
+
+    public async Task<bool> ExistsBySourceAsync(
+        InboundSourceKind sourceKind, Guid sourceId, CancellationToken cancellationToken = default)
+    {
+        return await _context.InboundAnalyses
+            .AsNoTracking()
+            .IgnoreQueryFilters()
+            .AnyAsync(a => a.SourceKind == sourceKind && a.SourceId == sourceId, cancellationToken);
+    }
 }
