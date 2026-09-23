@@ -8,8 +8,10 @@
 /// the end and never after a digit or a single letter, so a time (14.00), a date (24.09.) or an
 /// abbreviation (z. B.) does not count. The question must END with ?, the full-width ？ or the Arabic ؟;
 /// the Greek question mark (; or U+037E) only counts when the text contains Greek letters. For the
-/// health-term check only, every whole word that also occurs in the system-inserted context (shift,
-/// station or ward names such as "Frühdienst Chirurgie" or "Spital Nord") is removed first, and the fixed
+/// health-term check only, every whole word of the system-inserted context (shift, station or ward names
+/// such as "Frühdienst Chirurgie" or "Spital Nord") that would itself trigger a health term is removed
+/// from the question first (other context words such as "de" or "di" stay, so a multi-word term like
+/// "mal de tête" cannot be split apart by a shift name like "Service de nuit"), and the fixed
 /// sick-leave phrasings of ClarificationHealthTerms.AllowedAbsencePhrases (arrêt maladie, in malattia,
 /// krankheitsbedingt, sick leave, ...) are neutralised; German stems match inside compounds
 /// (Rückenschmerzen, Hausarzt). Any violation means no question is sent; the message then stays on the
@@ -17,7 +19,8 @@
 /// </summary>
 /// <param name="question">The composed question</param>
 /// <param name="systemInsertedContext">Text the system itself put into the prompt (the affected shift with
-/// its name, station and time); its words are ignored by the health-term check, null when there is none</param>
+/// its name, station and time); its words that contain a health term are ignored by the health-term check,
+/// null when there is none. Only system-built text belongs here, never the employee's message or a draft</param>
 /// <param name="violation">Why the question was rejected, empty when it passed</param>
 
 using System.Text.RegularExpressions;
@@ -144,7 +147,13 @@ public static class ClarificationQuestionGuard
 
         var contextWords = Word.Matches(systemInsertedContext.ToLowerInvariant())
             .Select(match => match.Value)
+            .Where(word => FindHealthTerm(word) != null)
             .ToHashSet(StringComparer.Ordinal);
+
+        if (contextWords.Count == 0)
+        {
+            return lowerText;
+        }
 
         return Word.Replace(
             lowerText,
