@@ -11,8 +11,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class ReceivedEmailConfiguration : IEntityTypeConfiguration<ReceivedEmail>
 {
-    private const int InReplyToMaxLength = 998;
-
     public void Configure(EntityTypeBuilder<ReceivedEmail> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
@@ -21,6 +19,5 @@ public class ReceivedEmailConfiguration : IEntityTypeConfiguration<ReceivedEmail
         builder.HasIndex(p => new { p.SourceImapFolder, p.ImapUid });
         builder.HasIndex(p => new { p.IsDeleted, p.IsRead });
         builder.HasIndex(p => new { p.IsDeleted, p.ReceivedDate });
-        builder.Property(p => p.InReplyTo).HasMaxLength(InReplyToMaxLength);
     }
 }
