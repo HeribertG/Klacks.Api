@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Meldingen sendes til {{count}} mottakere. Vil du fortsette?",
   "messaging.chat.broadcast-result-title": "Massemelding sendt",
   "messaging.chat.broadcast-result": "Sendt: {{sent}}, mislyktes: {{failed}}, hoppet over: {{skipped}}",
-  "messaging.chat.broadcast-error": "Massemeldingen kunne ikke sendes"
+  "messaging.chat.broadcast-error": "Massemeldingen kunne ikke sendes",
+  "messaging.setup-assistant.offer": "Meldinger er slått på, men ingen messenger er i drift ennå. Skal Klacksy veilede deg trinn for trinn gjennom idriftsettingen og sjekke hva som fortsatt mangler?",
+  "messaging.setup-assistant.offer-after-save": "Leverandøren er lagret, men er ikke helt driftsklar ennå. Skal Klacksy sjekke hva som mangler?",
+  "messaging.setup-assistant.accept": "Ja takk",
+  "messaging.setup-assistant.decline": "Senere",
+  "messaging.setup-assistant.trigger": "Sjekk idriftsettingen av messengeren"
 }

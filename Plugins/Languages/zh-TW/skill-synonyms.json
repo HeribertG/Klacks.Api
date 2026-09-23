@@ -774,6 +774,11 @@
     "查找加時違規",
     "確認連續天數限制"
   ],
+  "diagnose_messaging_setup": [
+    "檢查訊息管道運作狀態",
+    "為什麼收不到Telegram訊息",
+    "訊息管道能正常運作嗎"
+  ],
   "disable_feature_plugin": [
     "停用功能擴充模組",
     "關閉附加元件",

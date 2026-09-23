@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Meddelandet skickas till {{count}} mottagare. Fortsätta?",
   "messaging.chat.broadcast-result-title": "Utskick skickat",
   "messaging.chat.broadcast-result": "Skickat: {{sent}}, misslyckades: {{failed}}, hoppade över: {{skipped}}",
-  "messaging.chat.broadcast-error": "Utskicket kunde inte skickas"
+  "messaging.chat.broadcast-error": "Utskicket kunde inte skickas",
+  "messaging.setup-assistant.offer": "Meddelanden är påslagna, men ingen messenger är i drift ännu. Ska Klacksy guida dig steg för steg genom driftsättningen och kontrollera vad som fortfarande saknas?",
+  "messaging.setup-assistant.offer-after-save": "Leverantören är sparad men ännu inte helt driftklar. Ska Klacksy kontrollera vad som saknas?",
+  "messaging.setup-assistant.accept": "Ja tack",
+  "messaging.setup-assistant.decline": "Senare",
+  "messaging.setup-assistant.trigger": "Kolla driftsättningen av messengern"
 }

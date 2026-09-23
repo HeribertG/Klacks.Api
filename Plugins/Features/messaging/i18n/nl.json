@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Het bericht wordt verzonden naar {{count}} ontvangers. Doorgaan?",
   "messaging.chat.broadcast-result-title": "Broadcast verzonden",
   "messaging.chat.broadcast-result": "Verzonden: {{sent}}, mislukt: {{failed}}, overgeslagen: {{skipped}}",
-  "messaging.chat.broadcast-error": "Broadcast kon niet worden verzonden"
+  "messaging.chat.broadcast-error": "Broadcast kon niet worden verzonden",
+  "messaging.setup-assistant.offer": "Messaging is ingeschakeld, maar er is nog geen messenger in gebruik. Wilt u dat Klacksy u stap voor stap door de ingebruikname leidt en controleert wat er nog ontbreekt?",
+  "messaging.setup-assistant.offer-after-save": "De provider is opgeslagen, maar nog niet volledig operationeel. Wilt u dat Klacksy controleert wat er ontbreekt?",
+  "messaging.setup-assistant.accept": "Ja, graag",
+  "messaging.setup-assistant.decline": "Later",
+  "messaging.setup-assistant.trigger": "Ingebruikname van de messenger nakijken"
 }

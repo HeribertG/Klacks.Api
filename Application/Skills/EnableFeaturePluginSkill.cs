@@ -17,10 +17,14 @@ namespace Klacks.Api.Application.Skills;
 public class EnableFeaturePluginSkill : BaseSkillImplementation
 {
     private readonly IFeaturePluginService _featurePluginService;
+    private readonly IFeaturePluginAssistantSetupHintService _assistantSetupHintService;
 
-    public EnableFeaturePluginSkill(IFeaturePluginService featurePluginService)
+    public EnableFeaturePluginSkill(
+        IFeaturePluginService featurePluginService,
+        IFeaturePluginAssistantSetupHintService assistantSetupHintService)
     {
         _featurePluginService = featurePluginService;
+        _assistantSetupHintService = assistantSetupHintService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -63,6 +67,7 @@ public class EnableFeaturePluginSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             new { plugin.Name, plugin.DisplayName, IsEnabled = true },
-            $"Plugin '{plugin.DisplayName}' switched on.");
+            await _assistantSetupHintService.AppendHintAsync(
+                plugin.Name, $"Plugin '{plugin.DisplayName}' switched on.", context.UserLanguage));
     }
 }

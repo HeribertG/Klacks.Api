@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Wiadomość zostanie wysłana do {{count}} odbiorców. Kontynuować?",
   "messaging.chat.broadcast-result-title": "Wiadomość masowa wysłana",
   "messaging.chat.broadcast-result": "Wysłano: {{sent}}, nieudane: {{failed}}, pominięto: {{skipped}}",
-  "messaging.chat.broadcast-error": "Nie udało się wysłać wiadomości masowej"
+  "messaging.chat.broadcast-error": "Nie udało się wysłać wiadomości masowej",
+  "messaging.setup-assistant.offer": "Wiadomości są włączone, ale żaden komunikator jeszcze nie działa. Czy Klacksy ma przeprowadzić cię krok po kroku przez uruchomienie i sprawdzić, czego jeszcze brakuje?",
+  "messaging.setup-assistant.offer-after-save": "Dostawca został zapisany, ale nie jest jeszcze w pełni gotowy do pracy. Czy Klacksy ma sprawdzić, czego brakuje?",
+  "messaging.setup-assistant.accept": "Tak, poproszę",
+  "messaging.setup-assistant.decline": "Później",
+  "messaging.setup-assistant.trigger": "Sprawdź uruchomienie komunikatora"
 }

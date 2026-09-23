@@ -812,6 +812,11 @@
     "wykryj kolizje zmian",
     "przekroczenia czasu pracy i odpoczynku"
   ],
+  "diagnose_messaging_setup": [
+    "sprawdź uruchomienie komunikatora",
+    "dlaczego nie przychodzą wiadomości z telegrama",
+    "czy komunikator działa"
+  ],
   "disable_feature_plugin": [
     "wyłącz moduł rozszerzenia",
     "dezaktywuj wtyczkę",

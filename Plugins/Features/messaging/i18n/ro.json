@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Mesajul va fi trimis către {{count}} destinatari. Continuați?",
   "messaging.chat.broadcast-result-title": "Difuzare trimisă",
   "messaging.chat.broadcast-result": "Trimise: {{sent}}, nereușite: {{failed}}, omise: {{skipped}}",
-  "messaging.chat.broadcast-error": "Difuzarea nu a putut fi trimisă"
+  "messaging.chat.broadcast-error": "Difuzarea nu a putut fi trimisă",
+  "messaging.setup-assistant.offer": "Mesageria este activată, dar încă niciun messenger nu este în funcțiune. Doriți ca Klacksy să vă ghideze pas cu pas prin punerea în funcțiune și să verifice ce mai lipsește?",
+  "messaging.setup-assistant.offer-after-save": "Furnizorul este salvat, dar încă nu este complet funcțional. Doriți ca Klacksy să verifice ce lipsește?",
+  "messaging.setup-assistant.accept": "Da, vă rog",
+  "messaging.setup-assistant.decline": "Mai târziu",
+  "messaging.setup-assistant.trigger": "Verifică punerea în funcțiune a mesageriei"
 }

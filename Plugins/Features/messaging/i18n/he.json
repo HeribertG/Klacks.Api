@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "ההודעה תישלח ל-{{count}} נמענים. להמשיך?",
   "messaging.chat.broadcast-result-title": "השידור נשלח",
   "messaging.chat.broadcast-result": "נשלחו: {{sent}}, נכשלו: {{failed}}, נדלגו: {{skipped}}",
-  "messaging.chat.broadcast-error": "שליחת השידור נכשלה"
+  "messaging.chat.broadcast-error": "שליחת השידור נכשלה",
+  "messaging.setup-assistant.offer": "ההודעות מופעלות, אך עדיין אף מסנג׳ר אינו פעיל. האם Klacksy ילווה אותך שלב אחר שלב עד שיהיה מוכן לפעולה ויבדוק מה עוד חסר?",
+  "messaging.setup-assistant.offer-after-save": "הספק נשמר, אך עדיין אינו מוכן לפעולה במלואו. האם Klacksy יבדוק מה חסר?",
+  "messaging.setup-assistant.accept": "כן, בבקשה",
+  "messaging.setup-assistant.decline": "מאוחר יותר",
+  "messaging.setup-assistant.trigger": "בדיקת תקינות שירות ההודעות"
 }

@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Viesti lähetetään {{count}} vastaanottajalle. Jatketaanko?",
   "messaging.chat.broadcast-result-title": "Joukkoviesti lähetetty",
   "messaging.chat.broadcast-result": "Lähetetty: {{sent}}, epäonnistui: {{failed}}, ohitettu: {{skipped}}",
-  "messaging.chat.broadcast-error": "Joukkoviestin lähettäminen epäonnistui"
+  "messaging.chat.broadcast-error": "Joukkoviestin lähettäminen epäonnistui",
+  "messaging.setup-assistant.offer": "Viestintä on päällä, mutta mikään pikaviestin ei ole vielä toiminnassa. Haluatko, että Klacksy opastaa sinut vaihe vaiheelta toimintavalmiiksi ja tarkistaa, mitä vielä puuttuu?",
+  "messaging.setup-assistant.offer-after-save": "Palveluntarjoaja on tallennettu, mutta se ei ole vielä täysin toimintavalmis. Haluatko, että Klacksy tarkistaa, mitä puuttuu?",
+  "messaging.setup-assistant.accept": "Kyllä, kiitos",
+  "messaging.setup-assistant.decline": "Myöhemmin",
+  "messaging.setup-assistant.trigger": "Tarkista viestipalvelun toimintavalmius"
 }

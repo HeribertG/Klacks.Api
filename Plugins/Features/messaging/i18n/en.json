@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Message will be sent to {{count}} recipients. Continue?",
   "messaging.chat.broadcast-result-title": "Broadcast sent",
   "messaging.chat.broadcast-result": "Sent: {{sent}}, failed: {{failed}}, skipped: {{skipped}}",
-  "messaging.chat.broadcast-error": "Broadcast could not be sent"
+  "messaging.chat.broadcast-error": "Broadcast could not be sent",
+  "messaging.setup-assistant.offer": "Messaging is switched on, but no messenger is in operation yet. Should Klacksy guide you step by step through commissioning and check what is still missing?",
+  "messaging.setup-assistant.offer-after-save": "The provider is saved but not fully operational yet. Should Klacksy check what is missing?",
+  "messaging.setup-assistant.accept": "Yes, please",
+  "messaging.setup-assistant.decline": "Later",
+  "messaging.setup-assistant.trigger": "Check messenger commissioning"
 }

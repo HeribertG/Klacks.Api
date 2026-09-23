@@ -315,7 +315,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Both were verified to only read (ReadMessagesSkill queries messages, ListMessagingProvidersSkill
         // queries providers); the plugin's writer, send_message, is Sensitive instead.
         "read_messages",
-        "list_messaging_providers"
+        "list_messaging_providers",
+        // diagnose_messaging_setup only reads provider rows, stored messages and the in-memory inbound
+        // tracker, and calls vendor GET endpoints (getMe, auth.test, bot/info, ...); it never registers a
+        // webhook and never tests Teams, whose check would post. A confirmation here would stall exactly
+        // the untrained admin it exists for.
+        "diagnose_messaging_setup"
     };
 
     // Write skills deliberately allowed to run UNCONFIRMED at the factory-default autonomy level

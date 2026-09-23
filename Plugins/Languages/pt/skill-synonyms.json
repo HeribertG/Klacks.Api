@@ -814,6 +814,11 @@
     "conflitos na escala",
     "checar violações"
   ],
+  "diagnose_messaging_setup": [
+    "verificar a entrada em serviço das mensagens",
+    "porque é que não chegam mensagens do telegram",
+    "o serviço de mensagens está a funcionar"
+  ],
   "disable_feature_plugin": [
     "desligar módulo opcional",
     "desativar extensão",

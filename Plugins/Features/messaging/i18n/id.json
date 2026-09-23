@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Pesan akan dikirim ke {{count}} penerima. Lanjutkan?",
   "messaging.chat.broadcast-result-title": "Siaran terkirim",
   "messaging.chat.broadcast-result": "Terkirim: {{sent}}, gagal: {{failed}}, dilewati: {{skipped}}",
-  "messaging.chat.broadcast-error": "Siaran tidak dapat dikirim"
+  "messaging.chat.broadcast-error": "Siaran tidak dapat dikirim",
+  "messaging.setup-assistant.offer": "Pesan sudah diaktifkan, tetapi belum ada messenger yang beroperasi. Apakah Anda ingin Klacksy memandu Anda langkah demi langkah hingga siap beroperasi dan memeriksa apa yang masih kurang?",
+  "messaging.setup-assistant.offer-after-save": "Penyedia sudah disimpan, tetapi belum sepenuhnya siap beroperasi. Apakah Anda ingin Klacksy memeriksa apa yang kurang?",
+  "messaging.setup-assistant.accept": "Ya, silakan",
+  "messaging.setup-assistant.decline": "Nanti",
+  "messaging.setup-assistant.trigger": "Periksa kesiapan layanan pesan"
 }

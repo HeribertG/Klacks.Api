@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Zpráva bude odeslána {{count}} příjemcům. Pokračovat?",
   "messaging.chat.broadcast-result-title": "Hromadná zpráva odeslána",
   "messaging.chat.broadcast-result": "Odesláno: {{sent}}, neúspěšné: {{failed}}, vynecháno: {{skipped}}",
-  "messaging.chat.broadcast-error": "Hromadnou zprávu se nepodařilo odeslat"
+  "messaging.chat.broadcast-error": "Hromadnou zprávu se nepodařilo odeslat",
+  "messaging.setup-assistant.offer": "Zprávy jsou zapnuté, ale zatím není v provozu žádný messenger. Má vás Klacksy krok za krokem provést zprovozněním a zkontrolovat, co ještě chybí?",
+  "messaging.setup-assistant.offer-after-save": "Poskytovatel je uložen, ale ještě není plně funkční. Má Klacksy zkontrolovat, co chybí?",
+  "messaging.setup-assistant.accept": "Ano, prosím",
+  "messaging.setup-assistant.decline": "Později",
+  "messaging.setup-assistant.trigger": "Zkontrolovat zprovoznění messengeru"
 }

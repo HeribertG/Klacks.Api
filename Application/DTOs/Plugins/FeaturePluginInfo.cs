@@ -24,4 +24,5 @@ public class FeaturePluginInfo
     public bool IsEnabled { get; set; }
     public bool IsOperational { get; set; } = true;
     public PluginNavigationManifest? Navigation { get; set; }
+    public FeaturePluginAssistantSetup? AssistantSetup { get; set; }
 }

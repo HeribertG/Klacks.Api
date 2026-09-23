@@ -142,5 +142,32 @@
       "it": "Elenca i provider di messaggistica"
     },
     "version": 11
+  },
+  {
+    "name": "diagnose_messaging_setup",
+    "description": "Diagnose why a messaging provider (Telegram, Slack, WhatsApp, Viber, LINE, …) is not working yet and what the admin must do next to put it into operation. Returns a fixed checklist per provider with status and facts. Explain the findings in the user's language, propose only the NextStep of each provider as the concrete action, quote facts such as the webhook URL or an unknown sender id exactly, and never guess causes that are not in the result. Call this directly when the admin asks whether messaging works or why messages do not arrive.",
+    "category": "Communication",
+    "executionType": "Skill",
+    "requiredPermissions": ["CanEditSettings"],
+    "parameters": [],
+    "handlerConfig": null,
+    "handlerType": null,
+    "effect": "Read",
+    "isEnabled": true,
+    "alwaysOn": false,
+    "triggerKeywords": { "mul": ["telegram", "whatsapp", "slack", "viber", "messenger", "bot"], "und": ["inbetriebnahme", "commissioning", "webhook"] },
+    "synonyms": {
+      "de": ["messenger-inbetriebnahme prüfen", "warum kommen keine telegram-nachrichten an", "funktioniert der messenger"],
+      "en": ["check messenger commissioning", "why are no telegram messages arriving", "is the messenger working"],
+      "fr": ["vérifier la mise en service de la messagerie", "pourquoi les messages telegram n'arrivent pas", "la messagerie fonctionne-t-elle"],
+      "it": ["verificare la messa in servizio del messenger", "perché non arrivano i messaggi telegram", "il messenger funziona"]
+    },
+    "labels": {
+      "de": "Messenger-Inbetriebnahme prüfen",
+      "en": "Check messenger commissioning",
+      "fr": "Vérifier la mise en service de la messagerie",
+      "it": "Verificare la messa in servizio del messenger"
+    },
+    "version": 1
   }
 ]

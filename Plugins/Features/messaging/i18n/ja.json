@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "メッセージは{{count}}件の宛先に送信されます。続行しますか?",
   "messaging.chat.broadcast-result-title": "一斉送信を完了しました",
   "messaging.chat.broadcast-result": "送信: {{sent}}件、失敗: {{failed}}件、スキップ: {{skipped}}件",
-  "messaging.chat.broadcast-error": "一斉送信を送信できませんでした"
+  "messaging.chat.broadcast-error": "一斉送信を送信できませんでした",
+  "messaging.setup-assistant.offer": "メッセージングは有効になっていますが、まだ稼働中のメッセンジャーがありません。Klacksyが稼働までの手順を一つずつ案内し、足りないものを確認しましょうか?",
+  "messaging.setup-assistant.offer-after-save": "プロバイダーは保存されましたが、まだ完全には稼働していません。足りないものをKlacksyが確認しましょうか?",
+  "messaging.setup-assistant.accept": "はい、お願いします",
+  "messaging.setup-assistant.decline": "後で",
+  "messaging.setup-assistant.trigger": "メッセンジャーの稼働確認"
 }

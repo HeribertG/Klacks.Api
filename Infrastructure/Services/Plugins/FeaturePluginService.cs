@@ -84,25 +84,8 @@ public class FeaturePluginService : IFeaturePluginService
             var isInstalled = IsInstalled(manifest.Name);
             var isEnabled = IsEnabled(manifest.Name);
 
-            plugins.Add(new FeaturePluginInfo
-            {
-                Name = manifest.Name,
-                DisplayName = manifest.DisplayName,
-                Category = manifest.Category,
-                Version = manifest.Version,
-                Author = manifest.Author,
-                Description = manifest.Description,
-                MinKlacksVersion = manifest.MinKlacksVersion,
-                RequiredPermissions = manifest.RequiredPermissions,
-                ProvidedSkills = manifest.ProvidedSkills,
-                DefaultSettings = manifest.DefaultSettings,
-                IsInstalled = isInstalled,
-                IsEnabled = isEnabled,
-                IsOperational = isInstalled && isEnabled
-                    ? operationalChecks.GetValueOrDefault(manifest.Name, true)
-                    : true,
-                Navigation = manifest.Navigation
-            });
+            var isOperational = !isInstalled || !isEnabled || operationalChecks.GetValueOrDefault(manifest.Name, true);
+            plugins.Add(ToPluginInfo(manifest, isInstalled, isEnabled, isOperational));
         }
 
         return plugins;
@@ -123,24 +106,27 @@ public class FeaturePluginService : IFeaturePluginService
             isOperational = operationalChecks.GetValueOrDefault(name, true);
         }
 
-        return new FeaturePluginInfo
-        {
-            Name = manifest.Name,
-            DisplayName = manifest.DisplayName,
-            Category = manifest.Category,
-            Version = manifest.Version,
-            Author = manifest.Author,
-            Description = manifest.Description,
-            MinKlacksVersion = manifest.MinKlacksVersion,
-            RequiredPermissions = manifest.RequiredPermissions,
-            ProvidedSkills = manifest.ProvidedSkills,
-            DefaultSettings = manifest.DefaultSettings,
-            IsInstalled = isInstalled,
-            IsEnabled = isEnabled,
-            IsOperational = isOperational,
-            Navigation = manifest.Navigation
-        };
+        return ToPluginInfo(manifest, isInstalled, isEnabled, isOperational);
     }
+
+    private static FeaturePluginInfo ToPluginInfo(FeaturePluginManifest manifest, bool isInstalled, bool isEnabled, bool isOperational) => new()
+    {
+        Name = manifest.Name,
+        DisplayName = manifest.DisplayName,
+        Category = manifest.Category,
+        Version = manifest.Version,
+        Author = manifest.Author,
+        Description = manifest.Description,
+        MinKlacksVersion = manifest.MinKlacksVersion,
+        RequiredPermissions = manifest.RequiredPermissions,
+        ProvidedSkills = manifest.ProvidedSkills,
+        DefaultSettings = manifest.DefaultSettings,
+        IsInstalled = isInstalled,
+        IsEnabled = isEnabled,
+        IsOperational = isOperational,
+        Navigation = manifest.Navigation,
+        AssistantSetup = manifest.AssistantSetup
+    };
 
     public async Task<bool> InstallAsync(string name)
     {

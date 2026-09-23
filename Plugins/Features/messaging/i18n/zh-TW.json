@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "訊息將傳送給 {{count}} 位收件人。要繼續嗎?",
   "messaging.chat.broadcast-result-title": "群發已傳送",
   "messaging.chat.broadcast-result": "已傳送: {{sent}}, 失敗: {{failed}}, 已跳過: {{skipped}}",
-  "messaging.chat.broadcast-error": "群發訊息傳送失敗"
+  "messaging.chat.broadcast-error": "群發訊息傳送失敗",
+  "messaging.setup-assistant.offer": "訊息功能已開啟，但尚無任何訊息應用程式投入使用。要讓 Klacksy 一步步引導您投入使用，並檢查還缺少什麼嗎?",
+  "messaging.setup-assistant.offer-after-save": "提供者已儲存，但尚未完全可用。要讓 Klacksy 檢查缺少什麼嗎?",
+  "messaging.setup-assistant.accept": "好的，麻煩了",
+  "messaging.setup-assistant.decline": "稍後",
+  "messaging.setup-assistant.trigger": "檢查訊息管道運作狀態"
 }

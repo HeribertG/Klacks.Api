@@ -805,6 +805,11 @@
     "detecteer overtredingen in het rooster",
     "valideer de planning op fouten"
   ],
+  "diagnose_messaging_setup": [
+    "ingebruikname van de messenger nakijken",
+    "waarom komen er geen telegram-berichten binnen",
+    "werkt de messenger"
+  ],
   "disable_feature_plugin": [
     "schakel een optionele module uit",
     "deactiveer een uitbreiding",

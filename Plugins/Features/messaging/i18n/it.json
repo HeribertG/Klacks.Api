@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Il messaggio sarà inviato a {{count}} destinatari. Continuare?",
   "messaging.chat.broadcast-result-title": "Trasmissione inviata",
   "messaging.chat.broadcast-result": "Inviati: {{sent}}, falliti: {{failed}}, saltati: {{skipped}}",
-  "messaging.chat.broadcast-error": "La trasmissione non è stata inviata"
+  "messaging.chat.broadcast-error": "La trasmissione non è stata inviata",
+  "messaging.setup-assistant.offer": "La messaggistica è attiva, ma nessun messenger è ancora in funzione. Vuole che Klacksy la guidi passo dopo passo nella messa in servizio e verifichi cosa manca ancora?",
+  "messaging.setup-assistant.offer-after-save": "Il provider è salvato, ma non è ancora pienamente operativo. Vuole che Klacksy verifichi cosa manca?",
+  "messaging.setup-assistant.accept": "Sì, grazie",
+  "messaging.setup-assistant.decline": "Più tardi",
+  "messaging.setup-assistant.trigger": "Verificare la messa in servizio del messenger"
 }

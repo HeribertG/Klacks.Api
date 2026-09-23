@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "ข้อความจะถูกส่งถึงผู้รับ {{count}} คน ดำเนินการต่อหรือไม่?",
   "messaging.chat.broadcast-result-title": "ส่งข้อความกระจายแล้ว",
   "messaging.chat.broadcast-result": "ส่งแล้ว: {{sent}}, ล้มเหลว: {{failed}}, ข้าม: {{skipped}}",
-  "messaging.chat.broadcast-error": "ไม่สามารถส่งข้อความกระจายได้"
+  "messaging.chat.broadcast-error": "ไม่สามารถส่งข้อความกระจายได้",
+  "messaging.setup-assistant.offer": "เปิดการส่งข้อความแล้ว แต่ยังไม่มี Messenger ใดที่ใช้งานได้ ต้องการให้ Klacksy แนะนำทีละขั้นตอนจนพร้อมใช้งานและตรวจสอบว่ายังขาดอะไรอยู่หรือไม่?",
+  "messaging.setup-assistant.offer-after-save": "บันทึกผู้ให้บริการแล้ว แต่ยังไม่พร้อมใช้งานเต็มที่ ต้องการให้ Klacksy ตรวจสอบว่าขาดอะไรหรือไม่?",
+  "messaging.setup-assistant.accept": "ตกลง",
+  "messaging.setup-assistant.decline": "ภายหลัง",
+  "messaging.setup-assistant.trigger": "ตรวจสอบความพร้อมของช่องทางข้อความ"
 }

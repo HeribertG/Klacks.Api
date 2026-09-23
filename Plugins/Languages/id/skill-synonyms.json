@@ -795,6 +795,11 @@
     "validasi aturan shift",
     "apakah ada pelanggaran istirahat"
   ],
+  "diagnose_messaging_setup": [
+    "periksa kesiapan layanan pesan",
+    "kenapa pesan telegram tidak masuk",
+    "apakah layanan pesan berfungsi"
+  ],
   "disable_feature_plugin": [
     "nonaktifkan modul fitur",
     "matikan plugin",

@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "메시지가 수신자 {{count}}명에게 전송됩니다. 계속하시겠습니까?",
   "messaging.chat.broadcast-result-title": "일괄 발송 완료",
   "messaging.chat.broadcast-result": "전송: {{sent}}건, 실패: {{failed}}건, 건너뜀: {{skipped}}건",
-  "messaging.chat.broadcast-error": "일괄 발송을 보낼 수 없습니다"
+  "messaging.chat.broadcast-error": "일괄 발송을 보낼 수 없습니다",
+  "messaging.setup-assistant.offer": "메시징이 켜져 있지만 아직 작동 중인 메신저가 없습니다. Klacksy가 작동할 때까지 단계별로 안내하고 아직 부족한 것이 무엇인지 확인해 드릴까요?",
+  "messaging.setup-assistant.offer-after-save": "제공자가 저장되었지만 아직 완전히 작동하지 않습니다. Klacksy가 무엇이 부족한지 확인해 드릴까요?",
+  "messaging.setup-assistant.accept": "네, 부탁해요",
+  "messaging.setup-assistant.decline": "나중에",
+  "messaging.setup-assistant.trigger": "메신저 작동 상태 점검"
 }

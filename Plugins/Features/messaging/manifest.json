@@ -2,12 +2,18 @@
     "name": "messaging",
     "displayName": "Messaging",
     "category": "communication",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Klacks",
     "description": "Send and receive messages via Telegram, Slack, Viber, and LINE; send messages via Microsoft Teams, SMS, Signal, Threema, KakaoTalk, WeChat, and Zalo",
     "minKlacksVersion": "1.0.0",
     "requiredPermissions": ["CanViewSettings", "CanEditSettings"],
-    "providedSkills": ["send_message", "read_messages", "list_messaging_providers"],
+    "providedSkills": ["send_message", "read_messages", "list_messaging_providers", "diagnose_messaging_setup"],
+    "assistantSetup": {
+        "offerKey": "messaging.setup-assistant.offer",
+        "triggerPhraseKey": "messaging.setup-assistant.trigger",
+        "acceptKey": "messaging.setup-assistant.accept",
+        "declineKey": "messaging.setup-assistant.decline"
+    },
     "defaultSettings": {
         "MESSAGE_RETENTION_COUNT": "1000",
         "MESSAGING_WEBHOOK_BASE_URL": ""

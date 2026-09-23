@@ -19,4 +19,5 @@ public class FeaturePluginManifest
     public string[] ProvidedSkills { get; set; } = [];
     public Dictionary<string, string> DefaultSettings { get; set; } = new();
     public PluginNavigationManifest? Navigation { get; set; }
+    public FeaturePluginAssistantSetup? AssistantSetup { get; set; }
 }

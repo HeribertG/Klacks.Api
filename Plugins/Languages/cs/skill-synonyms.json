@@ -817,6 +817,11 @@
     "ověř dodržování předpisů",
     "jsou v plánu kolize"
   ],
+  "diagnose_messaging_setup": [
+    "zkontrolovat zprovoznění messengeru",
+    "proč z telegramu nic nepřichází",
+    "funguje messenger"
+  ],
   "disable_feature_plugin": [
     "vypnout modul",
     "deaktivovat rozšíření",

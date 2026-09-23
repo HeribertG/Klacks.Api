@@ -785,6 +785,11 @@
     "valider vaktplan",
     "se om det er overtidsbrudd"
   ],
+  "diagnose_messaging_setup": [
+    "sjekk idriftsettingen av messengeren",
+    "hvorfor kommer det ingen telegram-meldinger",
+    "fungerer messengeren"
+  ],
   "disable_feature_plugin": [
     "slå av modulen",
     "deaktiver utvidelsen",

@@ -799,6 +799,11 @@
     "hviletidsbrud i planen",
     "registrer overarbejde og kollisioner"
   ],
+  "diagnose_messaging_setup": [
+    "tjek ibrugtagningen af messengeren",
+    "hvorfor kommer der ingen telegram-beskeder",
+    "virker messengeren"
+  ],
   "disable_feature_plugin": [
     "deaktivér et udvidelsesmodul",
     "sluk for et modul",

@@ -30,7 +30,9 @@ public static class UntrustedSkillOutputs
         // Derived from an e-mail body, so it inherits the sender's text (summary, quoted content).
         "get_email_analysis",
         // Messaging plugin: message bodies written by other users or relayed from external channels.
-        "read_messages"
+        "read_messages",
+        // Messaging plugin: setup diagnosis quotes unknown senders' display names and vendor error texts.
+        "diagnose_messaging_setup"
     };
 
     public static bool Contains(string? skillName) =>

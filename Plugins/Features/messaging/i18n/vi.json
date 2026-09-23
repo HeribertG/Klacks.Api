@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Tin nhắn sẽ được gửi đến {{count}} người nhận. Tiếp tục?",
   "messaging.chat.broadcast-result-title": "Đã gửi đồng loạt",
   "messaging.chat.broadcast-result": "Đã gửi: {{sent}}, thất bại: {{failed}}, đã bỏ qua: {{skipped}}",
-  "messaging.chat.broadcast-error": "Không thể gửi đồng loạt"
+  "messaging.chat.broadcast-error": "Không thể gửi đồng loạt",
+  "messaging.setup-assistant.offer": "Tin nhắn đã được bật nhưng chưa có messenger nào hoạt động. Bạn có muốn Klacksy hướng dẫn từng bước cho đến khi sẵn sàng vận hành và kiểm tra những gì còn thiếu không?",
+  "messaging.setup-assistant.offer-after-save": "Nhà cung cấp đã được lưu nhưng chưa hoạt động đầy đủ. Bạn có muốn Klacksy kiểm tra những gì còn thiếu không?",
+  "messaging.setup-assistant.accept": "Có, giúp tôi",
+  "messaging.setup-assistant.decline": "Để sau",
+  "messaging.setup-assistant.trigger": "Kiểm tra kênh nhắn tin đã sẵn sàng chưa"
 }

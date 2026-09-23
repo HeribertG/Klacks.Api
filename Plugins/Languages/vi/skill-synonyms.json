@@ -786,6 +786,11 @@
     "xác định lỗi lịch",
     "rà soát vi phạm ca"
   ],
+  "diagnose_messaging_setup": [
+    "kiểm tra kênh nhắn tin đã sẵn sàng chưa",
+    "tại sao không nhận được tin nhắn telegram",
+    "kênh nhắn tin có hoạt động không"
+  ],
   "disable_feature_plugin": [
     "tắt plugin tính năng",
     "vô hiệu hóa mô-đun mở rộng",

@@ -1497,6 +1497,26 @@
       "comment": null
     },
     {
+      "id": "w05-messaging-diagnose-messaging-setup",
+      "message": "Ich habe dem Telegram-Bot geschrieben, aber in Klacks kommt nichts an",
+      "locale": "de",
+      "source": "w0.5-messaging",
+      "expectedTool": "diagnose_messaging_setup",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": null
+    },
+    {
+      "id": "w05-messaging-diagnose-messaging-setup-en",
+      "message": "I connected our Slack bot but nothing shows up in Klacks — what is missing?",
+      "locale": "en",
+      "source": "w0.5-messaging",
+      "expectedTool": "diagnose_messaging_setup",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": null
+    },
+    {
       "id": "w05-simulation-update-llm-model",
       "message": "Ändere das Modell auf Haiku",
       "locale": "de",

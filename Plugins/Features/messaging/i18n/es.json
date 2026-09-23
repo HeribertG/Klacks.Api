@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "El mensaje se enviará a {{count}} destinatarios. ¿Continuar?",
   "messaging.chat.broadcast-result-title": "Difusión enviada",
   "messaging.chat.broadcast-result": "Enviados: {{sent}}, fallidos: {{failed}}, omitidos: {{skipped}}",
-  "messaging.chat.broadcast-error": "No se pudo enviar la difusión"
+  "messaging.chat.broadcast-error": "No se pudo enviar la difusión",
+  "messaging.setup-assistant.offer": "La mensajería está activada, pero todavía no hay ningún messenger en funcionamiento. ¿Quiere que Klacksy le guíe paso a paso en la puesta en marcha y compruebe lo que aún falta?",
+  "messaging.setup-assistant.offer-after-save": "El proveedor está guardado, pero todavía no está plenamente operativo. ¿Quiere que Klacksy compruebe qué falta?",
+  "messaging.setup-assistant.accept": "Sí, por favor",
+  "messaging.setup-assistant.decline": "Más tarde",
+  "messaging.setup-assistant.trigger": "Comprobar la puesta en marcha de la mensajería"
 }

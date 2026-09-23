@@ -791,6 +791,11 @@
     "conflicte în program",
     "validează planul"
   ],
+  "diagnose_messaging_setup": [
+    "verifică punerea în funcțiune a mesageriei",
+    "de ce nu sosesc mesajele telegram",
+    "funcționează mesageria"
+  ],
   "disable_feature_plugin": [
     "dezactivează modulul x.",
     "oprește funcția suplimentară x.",

@@ -789,6 +789,11 @@
     "validoi vuorolista",
     "tarkista lepoaikojen noudattaminen"
   ],
+  "diagnose_messaging_setup": [
+    "tarkista viestipalvelun toimintavalmius",
+    "miksi telegram-viestejä ei tule perille",
+    "toimiiko viestipalvelu"
+  ],
   "disable_feature_plugin": [
     "ota lisäosa pois käytöstä",
     "deaktivoi laajennus",

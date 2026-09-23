@@ -793,6 +793,11 @@
     "vilka regler överträds",
     "hitta fel i planen"
   ],
+  "diagnose_messaging_setup": [
+    "kolla driftsättningen av messengern",
+    "varför kommer inga telegram-meddelanden fram",
+    "fungerar messengern"
+  ],
   "disable_feature_plugin": [
     "avaktivera en tilläggsmodul",
     "stäng av en funktionsmodul",

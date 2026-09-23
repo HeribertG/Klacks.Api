@@ -15,4 +15,6 @@ public static class FeaturePluginConstants
     public const string EnabledSuffix = "_ENABLED";
     public const string I18nDirectory = "i18n";
     public const string I18nFallbackLanguage = "en";
+    public const string AssistantSetupHintFormat =
+        " Guided commissioning help is available: tell the user they can say \"{0}\" to start it.";
 }

@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Nachricht wird an {{count}} Empfänger gesendet. Fortfahren?",
   "messaging.chat.broadcast-result-title": "Broadcast versendet",
   "messaging.chat.broadcast-result": "Gesendet: {{sent}}, fehlgeschlagen: {{failed}}, übersprungen: {{skipped}}",
-  "messaging.chat.broadcast-error": "Broadcast konnte nicht gesendet werden"
+  "messaging.chat.broadcast-error": "Broadcast konnte nicht gesendet werden",
+  "messaging.setup-assistant.offer": "Messaging ist eingeschaltet, aber noch kein Messenger in Betrieb. Soll Klacksy Sie Schritt für Schritt durch die Inbetriebnahme führen und prüfen, was noch fehlt?",
+  "messaging.setup-assistant.offer-after-save": "Der Anbieter ist gespeichert, aber noch nicht voll betriebsbereit. Soll Klacksy prüfen, was fehlt?",
+  "messaging.setup-assistant.accept": "Ja, bitte",
+  "messaging.setup-assistant.decline": "Später",
+  "messaging.setup-assistant.trigger": "Messenger-Inbetriebnahme prüfen"
 }

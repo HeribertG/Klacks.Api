@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Beskeden sendes til {{count}} modtagere. Vil du fortsætte?",
   "messaging.chat.broadcast-result-title": "Rundsendelse sendt",
   "messaging.chat.broadcast-result": "Sendt: {{sent}}, mislykkedes: {{failed}}, sprunget over: {{skipped}}",
-  "messaging.chat.broadcast-error": "Rundsendelsen kunne ikke sendes"
+  "messaging.chat.broadcast-error": "Rundsendelsen kunne ikke sendes",
+  "messaging.setup-assistant.offer": "Beskeder er slået til, men ingen messenger er i drift endnu. Skal Klacksy guide dig trin for trin gennem ibrugtagningen og tjekke, hvad der stadig mangler?",
+  "messaging.setup-assistant.offer-after-save": "Udbyderen er gemt, men er endnu ikke fuldt driftsklar. Skal Klacksy tjekke, hvad der mangler?",
+  "messaging.setup-assistant.accept": "Ja tak",
+  "messaging.setup-assistant.decline": "Senere",
+  "messaging.setup-assistant.trigger": "Tjek ibrugtagningen af messengeren"
 }

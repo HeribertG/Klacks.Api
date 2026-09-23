@@ -216,6 +216,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<ISettingsSecretResolver, SettingsSecretResolver>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
+        services.AddScoped<IFeaturePluginAssistantSetupHintService, Klacks.Api.Application.Services.Plugins.FeaturePluginAssistantSetupHintService>();
         services.AddScoped<RegionSetupService>();
         services.AddScoped<IRegionSetupService>(sp => sp.GetRequiredService<RegionSetupService>());
         services.AddScoped<IRegionEntityImportService>(sp => sp.GetRequiredService<RegionSetupService>());

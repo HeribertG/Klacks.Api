@@ -810,6 +810,11 @@
     "verificar reglas de descanso",
     "buscar problemas en la planificación"
   ],
+  "diagnose_messaging_setup": [
+    "comprobar la puesta en marcha de la mensajería",
+    "por qué no llegan los mensajes de telegram",
+    "funciona la mensajería"
+  ],
   "disable_feature_plugin": [
     "desactivar un módulo de funciones opcional",
     "apagar una extensión",

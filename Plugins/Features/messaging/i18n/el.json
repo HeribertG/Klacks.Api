@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Το μήνυμα θα σταλεί σε {{count}} παραλήπτες. Συνέχεια;",
   "messaging.chat.broadcast-result-title": "Η μετάδοση εστάλη",
   "messaging.chat.broadcast-result": "Εστάλησαν: {{sent}}, απέτυχαν: {{failed}}, παραλείφθηκαν: {{skipped}}",
-  "messaging.chat.broadcast-error": "Δεν ήταν δυνατή η αποστολή της μετάδοσης"
+  "messaging.chat.broadcast-error": "Δεν ήταν δυνατή η αποστολή της μετάδοσης",
+  "messaging.setup-assistant.offer": "Τα μηνύματα είναι ενεργοποιημένα, αλλά κανένα messenger δεν λειτουργεί ακόμη. Θέλετε το Klacksy να σας καθοδηγήσει βήμα προς βήμα στη θέση σε λειτουργία και να ελέγξει τι λείπει ακόμη;",
+  "messaging.setup-assistant.offer-after-save": "Ο πάροχος αποθηκεύτηκε, αλλά δεν είναι ακόμη πλήρως λειτουργικός. Θέλετε το Klacksy να ελέγξει τι λείπει;",
+  "messaging.setup-assistant.accept": "Ναι, παρακαλώ",
+  "messaging.setup-assistant.decline": "Αργότερα",
+  "messaging.setup-assistant.trigger": "Έλεγξε τη θέση σε λειτουργία του messenger"
 }

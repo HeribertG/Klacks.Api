@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "Le message sera envoyé à {{count}} destinataires. Continuer?",
   "messaging.chat.broadcast-result-title": "Diffusion envoyée",
   "messaging.chat.broadcast-result": "Envoyés: {{sent}}, échoués: {{failed}}, ignorés: {{skipped}}",
-  "messaging.chat.broadcast-error": "La diffusion n'a pas pu être envoyée"
+  "messaging.chat.broadcast-error": "La diffusion n'a pas pu être envoyée",
+  "messaging.setup-assistant.offer": "La messagerie est activée, mais aucun canal de messagerie n'est encore en service. Klacksy doit-il vous guider pas à pas dans la mise en service et vérifier ce qui manque encore?",
+  "messaging.setup-assistant.offer-after-save": "Le fournisseur est enregistré, mais n'est pas encore pleinement opérationnel. Klacksy doit-il vérifier ce qui manque?",
+  "messaging.setup-assistant.accept": "Oui, volontiers",
+  "messaging.setup-assistant.decline": "Plus tard",
+  "messaging.setup-assistant.trigger": "Vérifier la mise en service de la messagerie"
 }

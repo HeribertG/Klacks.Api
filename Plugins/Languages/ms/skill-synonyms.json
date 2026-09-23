@@ -783,6 +783,11 @@
     "periksa pelanggaran waktu rehat",
     "cari konflik dalam pelan ini"
   ],
+  "diagnose_messaging_setup": [
+    "semak kesediaan perkhidmatan mesej",
+    "kenapa mesej telegram tidak masuk",
+    "adakah perkhidmatan mesej berfungsi"
+  ],
   "disable_feature_plugin": [
     "matikan modul tambahan",
     "nyahaktifkan sambungan buat sementara",

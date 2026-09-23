@@ -105,5 +105,10 @@
   "messaging.chat.broadcast-confirm": "سيتم إرسال الرسالة إلى {{count}} مستلم. هل تريد المتابعة؟",
   "messaging.chat.broadcast-result-title": "تم إرسال البث",
   "messaging.chat.broadcast-result": "تم الإرسال: {{sent}}، فشل: {{failed}}، تم التجاوز: {{skipped}}",
-  "messaging.chat.broadcast-error": "تعذّر إرسال البث"
+  "messaging.chat.broadcast-error": "تعذّر إرسال البث",
+  "messaging.setup-assistant.offer": "المراسلة مفعّلة، لكن لا يعمل أي تطبيق مراسلة بعد. هل تريد أن يرشدك Klacksy خطوة بخطوة حتى يصبح جاهزًا للعمل ويتحقق مما لا يزال ناقصًا؟",
+  "messaging.setup-assistant.offer-after-save": "تم حفظ المزوّد، لكنه ليس جاهزًا للعمل بالكامل بعد. هل تريد أن يتحقق Klacksy مما ينقص؟",
+  "messaging.setup-assistant.accept": "نعم، من فضلك",
+  "messaging.setup-assistant.decline": "لاحقًا",
+  "messaging.setup-assistant.trigger": "افحص جاهزية تطبيق المراسلة"
 }
