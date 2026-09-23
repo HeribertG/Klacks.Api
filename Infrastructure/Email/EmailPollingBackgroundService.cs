@@ -223,7 +223,7 @@ public class EmailPollingBackgroundService : BackgroundService
             }
 
             var analysisNotifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
-            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, stoppingToken);
+            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, null, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {

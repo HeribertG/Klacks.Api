@@ -5,7 +5,10 @@
 /// is always stashed as a durable PendingUserNote first; a connected user additionally gets it live as
 /// a proactive chat message, and the note is then marked delivered so it is never relayed twice. An
 /// offline user — or one whose live send fails — keeps the note, which surfaces on their next chat
-/// turn. Delivery failures are logged per user and never abort the batch.
+/// turn. Delivery failures are logged per user and never abort the batch. NotifyMessageAsync delivers a
+/// ready-made text (the clarification dialog's start and expiry notices) through the same stash-then-live
+/// path; NotifyAsync appends an optional clarification context block (answer history, suggested question)
+/// after the period-load digest.
 /// </summary>
 
 using System.Text;
@@ -41,12 +44,26 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
         _logger = logger;
     }
 
-    public async Task NotifyAsync(
+    public Task NotifyAsync(
         InboundSource source,
         InboundAnalysis analysis,
         InboundActionOutcome? actionOutcome = null,
         string? periodLoadSummary = null,
+        string? clarificationContext = null,
         CancellationToken cancellationToken = default)
+    {
+        var message = BuildMessage(source, analysis, actionOutcome, periodLoadSummary, clarificationContext);
+        return DeliverAsync(message, cancellationToken);
+    }
+
+    public Task NotifyMessageAsync(string message, CancellationToken cancellationToken = default)
+    {
+        return string.IsNullOrWhiteSpace(message)
+            ? Task.CompletedTask
+            : DeliverAsync(message.Trim(), cancellationToken);
+    }
+
+    private async Task DeliverAsync(string message, CancellationToken cancellationToken)
     {
         var planners = await _audienceResolver.GetPlanningUserIdsAsync(cancellationToken);
         var admins = await _audienceResolver.GetAdminUserIdsAsync(cancellationToken);
@@ -55,8 +72,6 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
         {
             return;
         }
-
-        var message = BuildMessage(source, analysis, actionOutcome, periodLoadSummary);
 
         foreach (var userId in recipients)
         {
@@ -131,7 +146,11 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
     }
 
     private static string BuildMessage(
-        InboundSource source, InboundAnalysis analysis, InboundActionOutcome? actionOutcome, string? periodLoadSummary)
+        InboundSource source,
+        InboundAnalysis analysis,
+        InboundActionOutcome? actionOutcome,
+        string? periodLoadSummary,
+        string? clarificationContext)
     {
         var icon = source.SourceKind == InboundSourceKind.Email ? "📧" : "💬";
         var builder = new StringBuilder();
@@ -180,6 +199,13 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
             builder.AppendLine();
             builder.AppendLine();
             builder.Append(periodLoadSummary);
+        }
+
+        if (!string.IsNullOrWhiteSpace(clarificationContext))
+        {
+            builder.AppendLine();
+            builder.AppendLine();
+            builder.Append(clarificationContext);
         }
 
         return builder.ToString().Trim();

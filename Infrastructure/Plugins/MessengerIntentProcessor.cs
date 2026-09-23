@@ -83,7 +83,7 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
         }
 
         var analysisNotifier = _serviceProvider.GetRequiredService<IInboundAnalysisNotifier>();
-        await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, cancellationToken);
+        await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, null, cancellationToken);
     }
 
     private static InboundSource ToInboundSource(InboundClientMessengerMessage message, string clientDisplayName) => new(

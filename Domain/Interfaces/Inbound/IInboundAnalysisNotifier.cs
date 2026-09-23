@@ -11,5 +11,8 @@ public interface IInboundAnalysisNotifier
         InboundAnalysis analysis,
         InboundActionOutcome? actionOutcome = null,
         string? periodLoadSummary = null,
+        string? clarificationContext = null,
         CancellationToken cancellationToken = default);
+
+    Task NotifyMessageAsync(string message, CancellationToken cancellationToken = default);
 }
