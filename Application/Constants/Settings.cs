@@ -74,6 +74,7 @@ namespace Klacks.Api.Application.Constants
 
         public const string EMAIL_ANALYSIS_ENABLED = "EMAIL_ANALYSIS_ENABLED";
         public const string MESSENGER_ANALYSIS_ENABLED = "MESSENGER_ANALYSIS_ENABLED";
+        public const string INBOUND_CLARIFICATION_ENABLED = "INBOUND_CLARIFICATION_ENABLED";
 
         public const string DEEPL_API_KEY = "DEEPL_API_KEY";
         public const string OPENROUTESERVICE_API_KEY = "OPENROUTESERVICE_API_KEY";
