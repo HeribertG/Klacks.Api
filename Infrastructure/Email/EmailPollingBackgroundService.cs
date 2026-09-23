@@ -181,9 +181,6 @@ public class EmailPollingBackgroundService : BackgroundService
             var emailAnalysisSetting = await settingsRepository.GetSetting(Settings.EMAIL_ANALYSIS_ENABLED);
             var emailAnalysisEnabled = emailAnalysisSetting?.Value != null && bool.TryParse(emailAnalysisSetting.Value, out var enabled) && enabled;
 
-            // Built unconditionally (pure mapping over email, no side effects) so it is available both
-            // to the intent analysis below and to the action orchestrator further down, which needs the
-            // same InboundSource for its audit trail.
             var source = ToInboundSource(email);
 
             (Guid ClientId, EntityTypeEnum ClientType)? client = null;
