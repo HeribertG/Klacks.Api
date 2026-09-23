@@ -3,12 +3,21 @@
 /// <summary>
 /// Code-side guard rails for a clarification question before it is sent to an employee. The LLM is told
 /// the same rules, this guard enforces them: not empty, at most MaxQuestionLength characters, at most
-/// MaxQuestionSentences sentences (a period only ends a sentence before whitespace or the end, so a
-/// time like 14.00 does not count), phrased as a question (question mark of the language), no link, and
-/// no health term of any language from ClarificationHealthTerms. Any violation means no question is
-/// sent; the message then stays on the regular path.
+/// MaxQuestionSentences sentences, ending with the question mark of the language, no link, and no health
+/// term of any language from ClarificationHealthTerms. A period only ends a sentence before whitespace or
+/// the end and never after a digit or a single letter, so a time (14.00), a date (24.09.) or an
+/// abbreviation (z. B.) does not count. The question must END with ?, the full-width ？ or the Arabic ؟;
+/// the Greek question mark (; or U+037E) only counts when the text contains Greek letters. For the
+/// health-term check only, every whole word that also occurs in the system-inserted context (shift,
+/// station or ward names such as "Frühdienst Chirurgie" or "Spital Nord") is removed first, and the fixed
+/// sick-leave phrasings of ClarificationHealthTerms.AllowedAbsencePhrases (arrêt maladie, in malattia,
+/// krankheitsbedingt, sick leave, ...) are neutralised; German stems match inside compounds
+/// (Rückenschmerzen, Hausarzt). Any violation means no question is sent; the message then stays on the
+/// regular path.
 /// </summary>
 /// <param name="question">The composed question</param>
+/// <param name="systemInsertedContext">Text the system itself put into the prompt (the affected shift with
+/// its name, station and time); its words are ignored by the health-term check, null when there is none</param>
 /// <param name="violation">Why the question was rejected, empty when it passed</param>
 
 using System.Text.RegularExpressions;
@@ -25,15 +34,30 @@ public static class ClarificationQuestionGuard
     public const string LinkViolation = "the question contains a link";
     public const string HealthTermViolationPrefix = "the question contains the health term: ";
 
+    private const string RemovedTextReplacement = " ";
+
     private static readonly Regex SentenceTerminator = new(
-        @"[.!?;;](?=\s|$)|[。！？؟]",
+        @"(?<!\d)(?<!(?:^|[^\p{L}])\p{L})\.(?=\s|$)|[!?;\u037E](?=\s|$)|[。！？؟]",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private static readonly char[] QuestionMarks = ['?', '？', '؟', ';', ';'];
+    private static readonly Regex Word = new(
+        @"\p{L}+",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex GreekLetter = new(
+        @"(?=\p{L})[\u0370-\u03FF\u1F00-\u1FFF]",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly char[] QuestionMarks = ['?', '？', '؟'];
+
+    private static readonly char[] GreekQuestionMarks = [';', '\u037E'];
 
     private static readonly string[] LinkMarkers = ["://", "www."];
 
     public static bool IsAcceptable(string? question, out string violation)
+        => IsAcceptable(question, null, out violation);
+
+    public static bool IsAcceptable(string? question, string? systemInsertedContext, out string violation)
     {
         violation = string.Empty;
         if (string.IsNullOrWhiteSpace(question))
@@ -55,7 +79,7 @@ public static class ClarificationQuestionGuard
             return false;
         }
 
-        if (text.IndexOfAny(QuestionMarks) < 0)
+        if (!EndsWithQuestionMark(text))
         {
             violation = NotAQuestionViolation;
             return false;
@@ -68,7 +92,7 @@ public static class ClarificationQuestionGuard
             return false;
         }
 
-        var healthTerm = FindHealthTerm(lowerText);
+        var healthTerm = FindHealthTerm(RemoveContextWords(lowerText, systemInsertedContext));
         if (healthTerm != null)
         {
             violation = HealthTermViolationPrefix + healthTerm;
@@ -80,14 +104,16 @@ public static class ClarificationQuestionGuard
 
     public static string? FindHealthTerm(string lowerText)
     {
+        var text = RemoveAllowedAbsencePhrases(lowerText);
         foreach (var (language, terms) in ClarificationHealthTerms.ByLanguage)
         {
-            var substringMatch = ClarificationHealthTerms.SubstringMatchLanguages.Contains(language);
+            var substringMatch = ClarificationHealthTerms.SubstringMatchLanguages.Contains(language)
+                || ClarificationHealthTerms.CompoundSubstringMatchLanguages.Contains(language);
             foreach (var term in terms)
             {
                 var hit = substringMatch
-                    ? lowerText.Contains(term, StringComparison.Ordinal)
-                    : OccursAtWordStart(lowerText, term);
+                    ? text.Contains(term, StringComparison.Ordinal)
+                    : OccursAtWordStart(text, term);
                 if (hit)
                 {
                     return term;
@@ -96,6 +122,44 @@ public static class ClarificationQuestionGuard
         }
 
         return null;
+    }
+
+    private static bool EndsWithQuestionMark(string text)
+    {
+        var last = text[^1];
+        if (QuestionMarks.Contains(last))
+        {
+            return true;
+        }
+
+        return GreekQuestionMarks.Contains(last) && GreekLetter.IsMatch(text);
+    }
+
+    private static string RemoveContextWords(string lowerText, string? systemInsertedContext)
+    {
+        if (string.IsNullOrWhiteSpace(systemInsertedContext))
+        {
+            return lowerText;
+        }
+
+        var contextWords = Word.Matches(systemInsertedContext.ToLowerInvariant())
+            .Select(match => match.Value)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return Word.Replace(
+            lowerText,
+            match => contextWords.Contains(match.Value) ? RemovedTextReplacement : match.Value);
+    }
+
+    private static string RemoveAllowedAbsencePhrases(string lowerText)
+    {
+        var text = lowerText;
+        foreach (var phrase in ClarificationHealthTerms.AllowedAbsencePhrases)
+        {
+            text = text.Replace(phrase, RemovedTextReplacement, StringComparison.Ordinal);
+        }
+
+        return text;
     }
 
     private static bool OccursAtWordStart(string text, string term)

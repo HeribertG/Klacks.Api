@@ -6,8 +6,11 @@
 /// absent, never about their health. Generic words for "sick" (krank, sick, malade, malato and their
 /// equivalents) are deliberately NOT listed: "does that mean you are sick and cannot work your shift
 /// today?" is exactly the question the dialog is meant to ask. The guard checks a question against all
-/// languages at once. Languages without spaces between words (SubstringMatchLanguages) match anywhere
-/// in the text; all others match only at the start of a word.
+/// languages at once. Languages without spaces between words (SubstringMatchLanguages) and languages
+/// that glue nouns into closed compounds (CompoundSubstringMatchLanguages, German: Rückenschmerzen,
+/// Hausarzt, Arbeitsunfall) match anywhere in the text; all others match only at the start of a word.
+/// AllowedAbsencePhrases are fixed sick-leave phrasings that contain a listed term (maladie, malattia,
+/// krankheit) but only state an absence; they are removed from the text before the terms are matched.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -17,13 +20,21 @@ public static class ClarificationHealthTerms
     public static readonly IReadOnlySet<string> SubstringMatchLanguages =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ja", "th", "zh-CN", "zh-TW" };
 
+    public static readonly IReadOnlySet<string> CompoundSubstringMatchLanguages =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "de" };
+
+    public static readonly IReadOnlyList<string> AllowedAbsencePhrases =
+    [
+        "arrêt maladie", "congé maladie", "en maladie", "in malattia", "krankheitsbedingt", "sick leave"
+    ];
+
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> ByLanguage =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase)
         {
             ["de"] =
             [
                 "symptom", "diagnos", "befund", "fieber", "schmerz", "arzt", "ärzt", "grippe", "corona",
-                "covid", "erkältung", "husten", "migräne", "kopfweh", "kopfschmerz", "übelkeit", "erbrech",
+                "covid", "erkält", "husten", "migräne", "kopfweh", "kopfschmerz", "übelkeit", "erbrech",
                 "durchfall", "infekt", "entzündung", "verletz", "unfall", "operation", "schwanger", "psych",
                 "depress", "burnout", "medikament", "krankheit", "beschwerde", "attest", "spital",
                 "krankenhaus", "klinik", "therapie"
