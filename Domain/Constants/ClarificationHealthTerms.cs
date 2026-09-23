@@ -86,29 +86,30 @@ public static class ClarificationHealthTerms
             ["cs"] =
             [
                 "příznak", "diagnó", "horečk", "bolest", "bolí", "lékař", "doktor", "chřipk", "kašel",
-                "kašl", "migrén", "nevolnost", "zvrac", "průjem", "průjm", "infekc", "zánět", "zraněn",
-                "úraz", "nehod", "operace", "operací", "chirurg", "těhotn", "nemocnic", "klinik", "léky",
-                "léků", "léčb", "léčen", "deprese", "depresi", "onemocněn"
+                "kašl", "migrén", "nevoln", "zvrac", "průjem", "průjm", "infekc", "zánět", "zraněn", "úraz",
+                "nehod", "operace", "operací", "chirurg", "těhotn", "nemocnic", "klinik", "léky", "léků",
+                "léčb", "léčen", "deprese", "depresi", "onemocněn"
             ],
             ["da"] =
             [
                 "symptom", "diagnos", "feber", "smerte", "ondt i", "læge", "influenza", "forkøl", "hoster",
                 "migræne", "hovedpine", "kvalme", "opkast", "kaste op", "diarré", "infektion", "betændelse",
-                "skadet", "arbejdsskad", "ulykke", "opereret", "kirurg", "gravid", "hospital", "sygehus",
+                "skadet", "arbejdsskad", "ulykke", "operer", "kirurg", "gravid", "hospital", "sygehus",
                 "klinik", "medicin", "depression", "psyk", "sygdom"
             ],
             ["el"] =
             [
-                "σύμπτωμ", "διάγνωσ", "διαγνω", "πυρετ", "πόνο", "πονοκέφαλ", "πονά", "γιατρ", "γρίπη",
-                "βήχα", "ημικρανία", "ναυτία", "εμετ", "έμετ", "διάρροι", "λοίμωξ", "μόλυνσ", "φλεγμον",
-                "τραυματ", "ατύχημα", "χειρουργ", "επέμβασ", "έγκυος", "εγκυμοσ", "νοσοκομεί", "κλινική",
-                "φάρμακ", "κατάθλιψ", "ψυχολογ", "ψυχίατρ", "ασθένει"
+                "σύμπτωμ", "συμπτώμ", "διάγνωσ", "διαγνω", "πυρετ", "πόνο", "πονοκέφαλ", "πονά", "γιατρ",
+                "γρίπη", "βήχα", "ημικρανία", "ναυτία", "εμετ", "έμετ", "διάρροι", "λοίμωξ", "μόλυνσ",
+                "φλεγμον", "τραυματ", "ατύχημα", "χειρουργ", "επέμβασ", "έγκυος", "εγκυμοσ", "νοσοκομεί",
+                "κλινική", "φάρμακ", "κατάθλιψ", "ψυχολογ", "ψυχίατρ", "ασθένει"
             ],
             ["es"] =
             [
-                "síntoma", "diagnós", "fiebre", "dolor", "médico", "gripe", "cefalea", "náusea", "vómito",
-                "diarrea", "infección", "inflamación", "lesión", "lesionad", "herid", "accidente",
-                "cirugía", "operación", "embaraz", "clínica", "medicament", "enfermedad", "depresi"
+                "síntoma", "diagnós", "fiebre", "dolor", "médico", "gripe", "tienes tos", "con tos",
+                "toser", "tosiendo", "cefalea", "náusea", "vómito", "diarrea", "infección", "inflamación",
+                "lesión", "lesionad", "herid", "accidente", "cirugía", "operación", "operaron", "operarte",
+                "embaraz", "clínica", "medicament", "enfermedad", "depresi"
             ],
             ["fi"] =
             [
@@ -120,17 +121,17 @@ public static class ClarificationHealthTerms
             ],
             ["he"] =
             [
-                "תסמינ", "סימפטו", "אבחנ", "אבחון", "קדחת", "חום גבוה", "כאב", "כואב", "רופא", "שפעת",
-                "שיעול", "מיגרנה", "בחילה", "הקאה", "הקאות", "הקיא", "שלשול", "זיהום", "דלקת", "פציעה",
-                "פצוע", "תאונ", "ניתוח", "הריון", "היריון", "בית חולים", "קופת חולים", "מרפאה", "תרופ",
-                "דיכאון", "פסיכ", "מחלה", "מחלת"
+                "תסמינ", "סימפטו", "אבחנ", "אבחון", "קדחת", "חום גבוה", "יש לך חום", "כאב", "כואב", "רופא",
+                "שפעת", "שיעול", "מיגרנה", "בחילה", "הקאה", "הקאות", "הקיא", "שלשול", "זיהום", "דלקת",
+                "פציעה", "פצוע", "תאונ", "ניתוח", "הריון", "היריון", "בית חולים", "קופת חולים", "מרפאה",
+                "תרופ", "דיכאון", "פסיכ", "מחלה", "מחלת"
             ],
             ["id"] =
             [
                 "gejala", "diagnosis", "demam", "nyeri", "sakit kepala", "sakit perut", "dokter",
-                "influenza", "batuk", "pusing", "mual", "muntah", "diare", "infeksi", "radang", "cedera",
-                "terluka", "kecelakaan", "operasi", "hamil", "kehamilan", "rumah sakit", "klinik", "obat",
-                "depresi", "psikolog", "psikiat", "penyakit"
+                "kena flu", "terkena flu", "sedang flu", "influenza", "batuk", "pusing", "mual", "muntah",
+                "diare", "infeksi", "radang", "cedera", "terluka", "kecelakaan", "operasi", "hamil",
+                "kehamilan", "rumah sakit", "klinik", "obat", "depresi", "psikolog", "psikiat", "penyakit"
             ],
             ["ja"] =
             [
@@ -156,7 +157,7 @@ public static class ClarificationHealthTerms
                 "symptom", "diagnos", "feber", "smerte", "vondt i", "fastlege", "legevakt", "legekontor",
                 "doktor", "influensa", "forkjøl", "hoster", "migrene", "hodepine", "kvalme", "oppkast",
                 "kaste opp", "diaré", "infeksjon", "betennelse", "skadet", "arbeidsskad", "ulykke",
-                "operert", "operasjon", "kirurg", "gravid", "sykehus", "klinikk", "medisin", "depresjon",
+                "operer", "operasjon", "kirurg", "gravid", "sykehus", "klinikk", "medisin", "depresjon",
                 "psyk", "sykdom"
             ],
             ["nl"] =
@@ -179,9 +180,9 @@ public static class ClarificationHealthTerms
             [
                 "sintoma", "diagnóst", "tem febre", "tens febre", "com febre", "febril", "dor de cabeça",
                 "dores", "médico", "doutor", "gripe", "tosse", "enxaqueca", "náusea", "enjoo", "vômito",
-                "vómito", "diarreia", "infecç", "inflamaç", "lesão", "lesionad", "ferid", "acidente",
-                "cirurgi", "grávida", "gravidez", "clínica", "medicament", "remédio", "doença", "depressã",
-                "psicólog"
+                "vómito", "diarreia", "infecç", "infeç", "inflamaç", "lesão", "lesionad", "ferid",
+                "acidente", "cirurgi", "grávida", "gravidez", "clínica", "medicament", "remédio", "doença",
+                "depressã", "psicólog"
             ],
             ["ro"] =
             [
@@ -194,36 +195,37 @@ public static class ClarificationHealthTerms
             ["sv"] =
             [
                 "symptom", "diagnos", "feber", "smärt", "värk", "läkare", "doktor", "vårdcentral",
-                "influensa", "förkyl", "hostning", "hostar", "migrän", "illamå", "kräk", "diarré",
-                "infektion", "inflammation", "skadad", "arbetsskad", "olycka", "olyckan", "opererad",
-                "operera", "kirurg", "gravid", "sjukhus", "klinik", "medicin", "läkemedel", "psyk",
-                "sjukdom"
+                "influensa", "förkyl", "hostning", "hostar", "migrän", "illamå", "må illa", "mår illa",
+                "mår du illa", "kräk", "diarré", "infektion", "inflammation", "skadad", "arbetsskad",
+                "olycka", "olyckan", "opererad", "operera", "kirurg", "gravid", "sjukhus", "klinik",
+                "medicin", "läkemedel", "psyk", "sjukdom"
             ],
             ["th"] =
             [
                 "อาการ", "วินิจฉัย", "ไข้", "ปวด", "เจ็บปวด", "หมอ", "แพทย์", "เป็นหวัด", "ไอมาก", "ไอแห้ง",
-                "ไอหนัก", "คลื่นไส้", "อาเจียน", "ท้องเสีย", "ติดเชื้อ", "อักเสบ", "บาดเจ็บ", "อุบัติเหตุ",
-                "ผ่าตัด", "ตั้งครรภ์", "โรงพยาบาล", "คลินิก", "กินยา", "ทานยา", "ซึมเศร้า", "โรค"
+                "ไอหนัก", "ไอไหม", "ไอบ่อย", "คลื่นไส้", "อาเจียน", "ท้องเสีย", "ติดเชื้อ", "อักเสบ",
+                "บาดเจ็บ", "อุบัติเหตุ", "ผ่าตัด", "ตั้งครรภ์", "โรงพยาบาล", "คลินิก", "กินยา", "ทานยา",
+                "ซึมเศร้า", "โรค"
             ],
             ["vi"] =
             [
                 "triệu chứng", "chẩn đoán", "bị sốt", "sốt cao", "cơn sốt", "bị đau", "cơn đau", "đau đầu",
-                "nhức đầu", "đau bụng", "đau lưng", "bác sĩ", "bị cúm", "cảm cúm", "cơn ho", "buồn nôn",
-                "nôn mửa", "bị nôn", "tiêu chảy", "nhiễm trùng", "viêm", "chấn thương", "bị thương",
-                "tai nạn", "phẫu thuật", "ca mổ", "có thai", "mang thai", "bệnh viện", "nhập viện",
-                "phòng khám", "thuốc", "trầm cảm", "tâm thần", "căn bệnh"
+                "nhức đầu", "đau bụng", "đau lưng", "bác sĩ", "bị cúm", "cảm cúm", "cơn ho", "bị ho không",
+                "ho nhiều", "ho khan", "buồn nôn", "nôn mửa", "bị nôn", "tiêu chảy", "nhiễm trùng", "viêm",
+                "chấn thương", "bị thương", "tai nạn", "phẫu thuật", "ca mổ", "có thai", "mang thai",
+                "bệnh viện", "nhập viện", "phòng khám", "thuốc", "trầm cảm", "tâm thần", "căn bệnh"
             ],
             ["zh-CN"] =
             [
-                "症状", "诊断", "发烧", "发热", "疼痛", "头疼", "头痛", "肚子疼", "腹痛", "医生", "大夫", "看病", "流感", "感冒", "咳嗽",
-                "恶心", "呕吐", "腹泻", "拉肚子", "感染", "发炎", "受伤", "工伤", "事故", "手术", "怀孕", "医院", "住院", "吃药", "药物",
-                "抑郁", "心理", "疾病"
+                "症状", "诊断", "发烧", "发热", "疼痛", "头疼", "头痛", "肚子疼", "疼吗", "疼不疼", "很疼", "哪里疼", "痛吗", "腹痛", "医生",
+                "大夫", "看病", "流感", "感冒", "咳嗽", "恶心", "呕吐", "腹泻", "拉肚子", "感染", "发炎", "受伤", "工伤", "事故", "手术",
+                "怀孕", "医院", "住院", "吃药", "药物", "抑郁", "心理", "疾病"
             ],
             ["zh-TW"] =
             [
-                "症狀", "診斷", "發燒", "發熱", "疼痛", "頭疼", "頭痛", "肚子痛", "腹痛", "醫生", "醫師", "看病", "流感", "感冒", "咳嗽",
-                "噁心", "嘔吐", "腹瀉", "拉肚子", "感染", "發炎", "受傷", "工傷", "事故", "手術", "懷孕", "醫院", "住院", "吃藥", "藥物",
-                "憂鬱", "心理", "疾病"
+                "症狀", "診斷", "發燒", "發熱", "疼痛", "頭疼", "頭痛", "肚子痛", "疼嗎", "痛嗎", "很痛", "哪裡痛", "腹痛", "醫生", "醫師",
+                "看病", "流感", "感冒", "咳嗽", "噁心", "嘔吐", "腹瀉", "拉肚子", "感染", "發炎", "受傷", "工傷", "事故", "手術", "懷孕",
+                "醫院", "住院", "吃藥", "藥物", "憂鬱", "心理", "疾病"
             ]
         };
 }
