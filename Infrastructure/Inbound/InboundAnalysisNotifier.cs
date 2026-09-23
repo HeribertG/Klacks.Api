@@ -9,7 +9,9 @@
 /// ready-made text (the clarification dialog's start and expiry notices) through the same stash-then-live
 /// path; NotifyAsync appends an optional clarification context block (answer history, suggested question)
 /// after the period-load digest. A period whose start was defaulted to the received day (DateAssumed) is
-/// marked as assumed in the Period line.
+/// marked as assumed in the Period line: a single-day period is marked "(assumed: received day)", a
+/// range period is marked "(start assumed: received day)" since only its start, not the stated end, was
+/// defaulted.
 /// </summary>
 
 using System.Text;
@@ -25,6 +27,7 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
 {
     private const string NoteTopic = "inbound-analysis";
     private const string AssumedDateMarker = " (assumed: received day)";
+    private const string AssumedStartDateMarker = " (start assumed: received day)";
 
     private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly IAssistantNotificationService _notificationService;
@@ -164,10 +167,13 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
 
         if (analysis.FromDate != null)
         {
-            var range = analysis.UntilDate != null && analysis.UntilDate != analysis.FromDate
+            var isRange = analysis.UntilDate != null && analysis.UntilDate != analysis.FromDate;
+            var range = isRange
                 ? $"{analysis.FromDate:yyyy-MM-dd} – {analysis.UntilDate:yyyy-MM-dd}"
                 : $"{analysis.FromDate:yyyy-MM-dd}";
-            var assumedMarker = analysis.DateAssumed ? AssumedDateMarker : string.Empty;
+            var assumedMarker = analysis.DateAssumed
+                ? (isRange ? AssumedStartDateMarker : AssumedDateMarker)
+                : string.Empty;
             builder.AppendLine($"Period: {range}{assumedMarker}");
         }
 
