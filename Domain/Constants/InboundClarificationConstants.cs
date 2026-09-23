@@ -43,6 +43,12 @@ public static class InboundClarificationConstants
 
     public const int DefaultShiftLookaheadDays = 1;
 
+    /// <summary>
+    /// Days the shift search window reaches back before the company-local today, so a night shift that
+    /// started yesterday and is still running is found for a message sent after midnight.
+    /// </summary>
+    public const int RunningShiftLookbackDays = 1;
+
     public const string ReplySenderDisplayName = "Klacksy";
 
     public const string ReplySubjectPrefix = "Re: ";
