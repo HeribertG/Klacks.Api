@@ -6,6 +6,7 @@
 /// plugin-owned table with no FK relationship to core tables (the messaging plugin must stay
 /// uninstallable without leaving foreign-key cruft), so both channels are treated the same way here:
 /// SourceKind+SourceId are plain values, resolved by application code, not by the database.
+/// DateAssumed is a transient analysis flag and deliberately not mapped to a column.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Inbound;
@@ -23,5 +24,6 @@ public class InboundAnalysisConfiguration : IEntityTypeConfiguration<InboundAnal
         builder.HasIndex(p => new { p.IsDeleted, p.ClientId });
         builder.HasIndex(p => new { p.IsDeleted, p.Intent });
         builder.Property(p => p.ClarificationQuestion).HasMaxLength(InboundClarificationConstants.MaxDraftQuestionLength);
+        builder.Ignore(p => p.DateAssumed);
     }
 }

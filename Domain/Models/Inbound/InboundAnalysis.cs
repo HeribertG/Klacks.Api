@@ -42,4 +42,11 @@ public class InboundAnalysis : BaseEntity
     public bool NeedsClarification { get; set; }
 
     public string? ClarificationQuestion { get; set; }
+
+    /// <summary>
+    /// True when FromDate is not stated in the message but defaulted to the received day (undated work
+    /// cancellation). Not persisted: only the in-memory instance returned by the analysis service carries
+    /// it, a reloaded analysis always reads false.
+    /// </summary>
+    public bool DateAssumed { get; set; }
 }

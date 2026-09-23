@@ -12,7 +12,8 @@
 /// into the first admin's conversation history and auto-memory. The Date line handed to the model is
 /// the company-local calendar day of the received instant (via ICompanyClock). A work cancellation
 /// without any date ("I am sick") is assumed to concern that received day with low confidence, so the
-/// action orchestrator only suggests and never executes it. When only an until date parses (e.g. "sick
+/// action orchestrator only suggests and never executes it; such a result is flagged DateAssumed
+/// (not persisted) so the notifier and the clarification composer do not treat the day as stated. When only an until date parses (e.g. "sick
 /// until Friday"), a later-than-default until date is kept and the from date defaults to the received
 /// day; an until date before the default day is also defaulted, still with low confidence.
 /// AnalyzeAnswerAsync re-analyses an answered clarification from original message, question and answer;
@@ -330,6 +331,7 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
             analysis.FromDate = defaultDate;
             analysis.UntilDate = analysis.UntilDate >= defaultDate ? analysis.UntilDate : defaultDate;
             analysis.Confidence = EmailConfidence.Low;
+            analysis.DateAssumed = true;
         }
     }
 

@@ -8,7 +8,11 @@
 /// today and ends on/after yesterday) pulls its search start back to yesterday, so a night shift that
 /// started yesterday and is still running is found, while a period entirely before yesterday or entirely
 /// in the future is searched exactly as given so an earlier shift is never mistaken for the one the
-/// message is about. A single pipeline-free completion (IOneShotCompletionService, never ILLMService)
+/// message is about. A period whose start was only assumed (DateAssumed: an undated work cancellation
+/// defaulted to the received day) counts as no period: the search runs yesterday through tomorrow, or
+/// through a later stated until date, so "I am sick" sent late in the evening still finds tomorrow's early
+/// shift; the prompt then reports no analysed period, or the stated range with its start marked assumed.
+/// A single pipeline-free completion (IOneShotCompletionService, never ILLMService)
 /// phrases a short closed attendance question in the language of the message with that shift as context.
 /// The user message puts the system-built facts (today, the affected shift, the analysed period) before
 /// the employee's message and the analysis draft, which are wrapped in untrusted-data tags with any
@@ -67,6 +71,7 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
     private const string NoDraftMarker = "none";
     private const string NoShiftMarker = "none found in the plan";
     private const string NoPeriodMarker = "none";
+    private const string AssumedStartMarker = " (start assumed: received day)";
     private const char LineBreak = '\n';
 
     private static readonly Dictionary<char, char> QuotePairs = new()
@@ -115,7 +120,7 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
             var shift = ClarificationShiftSelector.SelectNext(shifts, nowUtc, companyTimeZone);
 
             var userMessage = BuildUserMessage(
-                request.Source.Body, analysis.ClarificationQuestion, shift?.Context, today, analysis.FromDate, analysis.UntilDate);
+                request.Source.Body, analysis.ClarificationQuestion, shift?.Context, today, analysis);
             var completion = await _completionService.CompleteAsync(SystemPrompt, userMessage, null, cancellationToken);
             if (!completion.Success)
             {
@@ -150,6 +155,13 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
     private static (DateOnly FromDate, DateOnly UntilDate) ResolveWindow(InboundAnalysis analysis, DateOnly today)
     {
         var runningShiftDate = today.AddDays(-InboundClarificationConstants.RunningShiftLookbackDays);
+        var defaultUntilDate = today.AddDays(InboundClarificationConstants.DefaultShiftLookaheadDays);
+        if (analysis.DateAssumed)
+        {
+            var searchUntil = analysis.UntilDate is { } statedUntil && statedUntil > defaultUntilDate ? statedUntil : defaultUntilDate;
+            return (runningShiftDate, searchUntil);
+        }
+
         if (analysis.FromDate is { } fromDate)
         {
             var untilDate = analysis.UntilDate is { } until && until >= fromDate ? until : fromDate;
@@ -158,11 +170,11 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
             return (searchFrom, untilDate);
         }
 
-        return (runningShiftDate, today.AddDays(InboundClarificationConstants.DefaultShiftLookaheadDays));
+        return (runningShiftDate, defaultUntilDate);
     }
 
     private static string BuildUserMessage(
-        string originalText, string? draftQuestion, string? shiftContext, DateOnly today, DateOnly? analysisFromDate, DateOnly? analysisUntilDate)
+        string originalText, string? draftQuestion, string? shiftContext, DateOnly today, InboundAnalysis analysis)
     {
         var body = originalText.Length > InboundClarificationConstants.MaxOriginalTextLength
             ? originalText[..InboundClarificationConstants.MaxOriginalTextLength]
@@ -171,21 +183,27 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
 
         return TodayLabel + InboundIntentAnalysisService.FormatDateLine(today) + LineBreak +
                AffectedShiftLabel + (shiftContext ?? NoShiftMarker) + LineBreak +
-               AnalysedPeriodLabel + FormatPeriod(analysisFromDate, analysisUntilDate) + LineBreak +
+               AnalysedPeriodLabel + FormatPeriod(analysis) + LineBreak +
                EmployeeMessageOpenTag + NeutralizeClosingTag(body, EmployeeMessageCloseTag) + EmployeeMessageCloseTag + LineBreak +
                DraftQuestionOpenTag + NeutralizeClosingTag(draft, DraftQuestionCloseTag) + DraftQuestionCloseTag;
     }
 
-    private static string FormatPeriod(DateOnly? fromDate, DateOnly? untilDate)
+    private static string FormatPeriod(InboundAnalysis analysis)
     {
-        if (fromDate is not { } from)
+        if (analysis.FromDate is not { } from)
         {
             return NoPeriodMarker;
         }
 
-        var until = untilDate is { } untilValue && untilValue >= from ? untilValue : from;
+        var until = analysis.UntilDate is { } untilValue && untilValue >= from ? untilValue : from;
+        if (analysis.DateAssumed && until == from)
+        {
+            return NoPeriodMarker;
+        }
+
         return from.ToString(PeriodDateFormat, CultureInfo.InvariantCulture) +
-               PeriodSeparator + until.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+               PeriodSeparator + until.ToString(PeriodDateFormat, CultureInfo.InvariantCulture) +
+               (analysis.DateAssumed ? AssumedStartMarker : string.Empty);
     }
 
     private static string NeutralizeClosingTag(string text, string closingTag) =>
