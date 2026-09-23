@@ -19,7 +19,10 @@
 /// sick-leave phrasings that contain a listed term but only state an absence (arrêt maladie, in malattia,
 /// ziekteverlof, sairausloma, إجازة مرضية, חופשת מחלה, ...); they are removed from the text before the terms
 /// are matched and are always full phrases, never stems, so they cannot mask a real health term. The
-/// non-core terms are LLM translations pending native-speaker review.
+/// non-core terms are LLM translations pending native-speaker review. Accepted false positives (the stem is
+/// kept because the health meaning is the common one in a shift question): German "verletz" also blocks
+/// "Verletzung der Ruhezeit", German "beschwerde" also blocks a complaint, Italian "influenza" also means
+/// influence, and the whole word "pain" also blocks the French "pain" (bread).
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -38,8 +41,31 @@ public static class ClarificationHealthTerms
         "concediu de boală", "concediu medical", "congé maladie", "en maladie", "in malattia",
         "krankheitsbedingt", "licença por doença", "sairausloma", "sairauspoissaolo", "sick leave",
         "ziekteverlof", "ziekteverzuim", "ziektewet", "חופשת מחלה", "יום מחלה", "ימי מחלה",
-        "إجازة مرضية", "اجازة مرضية", "الإجازة المرضية", "الاجازة المرضية"
+        "إجازة مرضية", "اجازة مرضية", "الإجازة المرضية", "الاجازة المرضية", "ziektemelding", "ziektedag",
+        "medical leave", "sygdomsfravær", "sairauspäivä", "krankheitstag"
     ];
+
+    /// <summary>
+    /// Deliberate everyday word parts that contain a health stem of some language but carry no health meaning
+    /// (unterbrechen contains erbrech, fevereiro contains fever, hospitality and ospitalità contain spital,
+    /// vanhusten contains husten, gravidade contains gravid, embarazoso contains embaraz, אירופא contains
+    /// רופא). They are neutralised as substrings before the terms are matched, in the same replace loop as
+    /// AllowedAbsencePhrases. Rule: if a stem needs more than two or three such exceptions, narrow the stem
+    /// instead of adding more exceptions.
+    /// </summary>
+    public static readonly IReadOnlyList<string> HarmlessWordParts =
+    [
+        "unterbrech", "unterbroch", "unterbrich", "unterbrach", "fevereiro", "hospitalit", "hospitalid",
+        "ospitalit", "vanhust", "gravidade", "embarazoso", "embarazosa", "אירופא"
+    ];
+
+    /// <summary>
+    /// Short health words that are only matched as a whole word (a maximal run of letters), because as a
+    /// stem they would occur inside countless harmless words: English flu, pain, pains; Spanish tos;
+    /// Portuguese dor; Polish ból. At least three characters each.
+    /// </summary>
+    public static readonly IReadOnlySet<string> WholeWordTerms =
+        new HashSet<string>(StringComparer.Ordinal) { "flu", "pain", "pains", "tos", "dor", "ból" };
 
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> ByLanguage =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase)
@@ -48,13 +74,14 @@ public static class ClarificationHealthTerms
             [
                 "symptom", "diagnos", "befund", "fieber", "schmerz", "arzt", "ärzt", "grippe", "corona",
                 "covid", "erkält", "husten", "migräne", "kopfweh", "kopfschmerz", "übelkeit", "erbrech",
+                "erbroch", "erbrich", "erbrach",
                 "durchfall", "infekt", "entzündung", "verletz", "unfall", "operation", "schwanger", "psych",
                 "depression", "depressiv", "burnout", "medikament", "krankheit", "beschwerde", "attest",
                 "spital", "krankenhaus", "klinik", "therapie"
             ],
             ["en"] =
             [
-                "symptom", "diagnos", "fever", "pain", "doctor", "physician", "influenza", "covid",
+                "symptom", "diagnos", "fever", "painful", "painkill", "doctor", "physician", "influenza", "covid",
                 "corona", "cough", "migraine", "headache", "nausea", "vomit", "diarrh", "infection",
                 "inflammation", "injur", "accident", "surgery", "operation", "pregnan", "psych",
                 "depressed", "depression", "depressive", "burnout", "medication", "medicine", "illness",
@@ -65,7 +92,7 @@ public static class ClarificationHealthTerms
                 "symptôme", "diagnos", "fièvre", "douleur", "médecin", "docteur", "grippe", "covid",
                 "corona", "toux", "migraine", "mal de tête", "nausée", "vomi", "diarrhée", "infection",
                 "inflammation", "blessure", "blessé", "accident", "chirurgi", "opération", "enceinte",
-                "grossesse", "psych", "dépress", "burnout", "médicament", "maladie", "hôpital", "clinique",
+                "grossesse", "psych", "dépress", "déprim", "burnout", "médicament", "maladie", "hôpital", "clinique",
                 "thérapie", "médical"
             ],
             ["it"] =
@@ -78,7 +105,7 @@ public static class ClarificationHealthTerms
             ],
             ["ar"] =
             [
-                "أعراض", "تشخيص", "حمى", "حمّى", "سخونة", "ألم", "آلام", "أوجاع", "الوجع", "طبيب", "دكتور",
+                "أعراض", "تشخيص", "حمى", "حمّى", "سخونة", "ألم في", "تتألم", "يؤلم", "تؤلم", "آلام", "أوجاع", "الوجع", "طبيب", "دكتور",
                 "إنفلونزا", "انفلونزا", "زكام", "سعال", "كحة", "صداع", "غثيان", "تقيؤ", "استفراغ", "إسهال",
                 "اسهال", "عدوى", "التهاب", "إصابة عمل", "جرح", "لحادث", "بحادث", "حادث عمل", "حادث سير",
                 "جراح", "حامل", "مستشفى", "عيادة", "دواء", "أدوية", "اكتئاب", "مرض"
@@ -87,7 +114,7 @@ public static class ClarificationHealthTerms
             [
                 "příznak", "diagnó", "horečk", "bolest", "bolí", "lékař", "doktor", "chřipk", "kašel",
                 "kašl", "migrén", "nevoln", "zvrac", "průjem", "průjm", "infekc", "zánět", "zraněn", "úraz",
-                "nehod", "operace", "operací", "chirurg", "těhotn", "nemocnic", "klinik", "léky", "léků",
+                "nehoda", "nehodu", "nehody", "nehodě", "nehodou", "operace", "operací", "chirurg", "těhotn", "nemocnic", "klinik", "léky", "léků",
                 "léčb", "léčen", "deprese", "depresi", "onemocněn"
             ],
             ["da"] =
@@ -106,17 +133,18 @@ public static class ClarificationHealthTerms
             ],
             ["es"] =
             [
-                "síntoma", "diagnós", "fiebre", "dolor", "médico", "gripe", "tienes tos", "con tos",
+                "síntoma", "diagnós", "fiebre", "dolor", "médico", "doctor", "hospital", "gripe",
                 "toser", "tosiendo", "cefalea", "náusea", "vómito", "diarrea", "infección", "inflamación",
                 "lesión", "lesionad", "herid", "accidente", "cirugía", "operación", "operaron", "operarte",
-                "embaraz", "clínica", "medicament", "enfermedad", "depresi"
+                "embaraz", "clínica", "medicament", "enfermedad", "depresi", "deprimid"
             ],
             ["fi"] =
             [
                 "oirei", "oireet", "oireen", "diagnoo", "kuume", "kipua", "kipuja", "kivu", "särky", "säry",
                 "lääkär", "lääke", "lääkit", "tohtori", "flunssa", "influenssa", "yskää", "yskän", "yskii",
                 "migreeni", "pahoinvoin", "oksent", "ripuli", "tulehdu", "infektio", "tartunt", "vamma",
-                "tapaturm", "onnettomuu", "kirurg", "operaatio", "raskaana", "raskaus", "sairaala",
+                "tapaturm", "onnettomuu", "kirurg", "operaatio", "leikkaukseen", "leikkauksessa",
+                "leikkauksesta", "raskaana", "raskaus", "sairaala",
                 "terveyskesku", "masennu", "psyyk", "sairaus"
             ],
             ["he"] =
@@ -130,7 +158,8 @@ public static class ClarificationHealthTerms
             [
                 "gejala", "diagnosis", "demam", "nyeri", "sakit kepala", "sakit perut", "dokter",
                 "kena flu", "terkena flu", "sedang flu", "influenza", "batuk", "pusing", "mual", "muntah",
-                "diare", "infeksi", "radang", "cedera", "terluka", "kecelakaan", "operasi", "hamil",
+                "diare", "infeksi", "radang", "cedera", "terluka", "kecelakaan", "dioperasi", "menjalani operasi",
+                "operasi medis", "hamil",
                 "kehamilan", "rumah sakit", "klinik", "obat", "depresi", "psikolog", "psikiat", "penyakit"
             ],
             ["ja"] =
@@ -141,14 +170,14 @@ public static class ClarificationHealthTerms
             ],
             ["ko"] =
             [
-                "증상", "진단", "열이 나", "열이 있", "열나", "발열", "고열", "통증", "두통", "복통", "요통", "의사", "병원", "진료",
-                "독감", "감기", "기침", "메스꺼", "구토", "설사", "감염", "염증", "부상", "다쳤", "사고", "산재", "수술", "임신", "입원",
+                "증상", "진단", "열이 나", "열이 있", "열나", "발열", "고열", "통증", "두통", "복통", "요통", "의사에게", "의사한테", "의사 선생님", "병원", "진료",
+                "독감", "감기", "기침", "메스꺼", "구토", "설사를", "설사가", "감염", "염증", "부상", "다쳤", "사고", "산재", "수술", "임신", "입원",
                 "약을 먹", "약 먹", "약물", "복용", "우울", "정신과", "질병", "질환"
             ],
             ["ms"] =
             [
                 "gejala", "diagnosis", "demam", "sakit kepala", "sakit perut", "doktor", "influenza",
-                "selesema", "batuk", "pening kepala", "loya", "muntah", "cirit", "jangkitan", "radang",
+                "selesema", "batuk", "pening kepala", "rasa loya", "loya tekak", "muntah", "cirit", "jangkitan", "radang",
                 "kecederaan", "cedera", "kemalangan", "pembedahan", "hamil", "klinik", "ubat", "depresi",
                 "kemurungan", "psikolog", "penyakit"
             ],
@@ -174,7 +203,7 @@ public static class ClarificationHealthTerms
                 "doktor", "gryp", "kaszel", "kaszl", "migren", "mdłoś", "nudnoś", "wymiot", "biegunk",
                 "infekcj", "zakażen", "zapaleni", "uraz", "kontuzj", "wypadek", "wypadk", "operacj",
                 "zabieg", "ciąż", "szpital", "przychodni", "leki", "leków", "depresj", "choroba", "chorobę",
-                "choroby", "chorobą"
+                "choroby", "chorobą", "odczuwasz ból", "czujesz ból"
             ],
             ["pt"] =
             [
@@ -182,11 +211,11 @@ public static class ClarificationHealthTerms
                 "dores", "médico", "doutor", "gripe", "tosse", "enxaqueca", "náusea", "enjoo", "vômito",
                 "vómito", "diarreia", "infecç", "infeç", "inflamaç", "lesão", "lesionad", "ferid",
                 "acidente", "cirurgi", "grávida", "gravidez", "clínica", "medicament", "remédio", "doença",
-                "depressã", "psicólog"
+                "depressã", "deprimid", "psicólog"
             ],
             ["ro"] =
             [
-                "simptom", "diagnos", "febră", "febra", "febril", "durere", "dureri", "gripă", "gripa",
+                "simptom", "diagnos", "febră", "febra", "febril", "durere", "dureri", "medic", "doctor", "gripă", "gripa",
                 "tuse", "migren", "greață", "greata", "vărsătur", "voma", "diaree", "infecț", "inflamaț",
                 "rănit", "rană", "accident", "operație", "operatie", "chirurg", "gravidă", "gravida",
                 "însărcinată", "insarcinata", "spital", "clinic", "medicament", "depresi", "psih", "boală",
@@ -209,7 +238,7 @@ public static class ClarificationHealthTerms
             ],
             ["vi"] =
             [
-                "triệu chứng", "chẩn đoán", "bị sốt", "sốt cao", "cơn sốt", "bị đau", "cơn đau", "đau đầu",
+                "triệu chứng", "chẩn đoán", "bị sốt", "có sốt", "đang sốt", "sốt cao", "cơn sốt", "bị đau", "cơn đau", "có đau", "đau không", "đau đầu",
                 "nhức đầu", "đau bụng", "đau lưng", "bác sĩ", "bị cúm", "cảm cúm", "cơn ho", "bị ho không",
                 "ho nhiều", "ho khan", "buồn nôn", "nôn mửa", "bị nôn", "tiêu chảy", "nhiễm trùng", "viêm",
                 "chấn thương", "bị thương", "tai nạn", "phẫu thuật", "ca mổ", "có thai", "mang thai",

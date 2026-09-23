@@ -13,10 +13,14 @@
 /// from the question first (other context words such as "de" or "di" stay, so a multi-word term like
 /// "mal de tête" cannot be split apart by a shift name like "Service de nuit"), and the fixed
 /// sick-leave phrasings of ClarificationHealthTerms.AllowedAbsencePhrases (arrêt maladie, in malattia,
-/// krankheitsbedingt, sick leave, ...) are neutralised; stems of the compound languages match inside
-/// compounds (Rückenschmerzen, Hausarzt, hoofdpijn, huvudvärk) and the match mode per language is defined
-/// by ClarificationHealthTerms. Any violation means no question is sent; the message then stays on the
-/// regular path.
+/// krankheitsbedingt, sick leave, ...) and the harmless word parts of
+/// ClarificationHealthTerms.HarmlessWordParts (unterbrechen, fevereiro, hospitality, ...) are neutralised;
+/// stems of the compound languages match inside compounds (Rückenschmerzen, Hausarzt, hoofdpijn, huvudvärk),
+/// the match mode per language is defined by ClarificationHealthTerms, and the short
+/// ClarificationHealthTerms.WholeWordTerms (flu, pain, tos, dor, ból) only match as whole words. Question,
+/// context and every text given to FindHealthTerm are normalised to Unicode NFC first, so a decomposed
+/// umlaut or accent cannot slip past a term. Any violation means no question is sent; the message then
+/// stays on the regular path.
 /// </summary>
 /// <param name="question">The composed question</param>
 /// <param name="systemInsertedContext">Text the system itself put into the prompt (the affected shift with
@@ -24,6 +28,7 @@
 /// null when there is none. Only system-built text belongs here, never the employee's message or a draft</param>
 /// <param name="violation">Why the question was rejected, empty when it passed</param>
 
+using System.Text;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 
@@ -70,7 +75,7 @@ public static class ClarificationQuestionGuard
             return false;
         }
 
-        var text = question.Trim();
+        var text = question.Trim().Normalize(NormalizationForm.FormC);
         if (text.Length > InboundClarificationConstants.MaxQuestionLength)
         {
             violation = TooLongViolation;
@@ -108,7 +113,7 @@ public static class ClarificationQuestionGuard
 
     public static string? FindHealthTerm(string lowerText)
     {
-        var text = RemoveAllowedAbsencePhrases(lowerText);
+        var text = RemoveNeutralisedParts(lowerText.Normalize(NormalizationForm.FormC));
         foreach (var (language, terms) in ClarificationHealthTerms.ByLanguage)
         {
             var substringMatch = ClarificationHealthTerms.SubstringMatchLanguages.Contains(language)
@@ -125,7 +130,9 @@ public static class ClarificationQuestionGuard
             }
         }
 
-        return null;
+        return Word.Matches(text)
+            .Select(match => match.Value)
+            .FirstOrDefault(ClarificationHealthTerms.WholeWordTerms.Contains);
     }
 
     private static bool EndsWithQuestionMark(string text)
@@ -146,7 +153,7 @@ public static class ClarificationQuestionGuard
             return lowerText;
         }
 
-        var contextWords = Word.Matches(systemInsertedContext.ToLowerInvariant())
+        var contextWords = Word.Matches(systemInsertedContext.Normalize(NormalizationForm.FormC).ToLowerInvariant())
             .Select(match => match.Value)
             .Where(word => FindHealthTerm(word) != null)
             .ToHashSet(StringComparer.Ordinal);
@@ -161,10 +168,10 @@ public static class ClarificationQuestionGuard
             match => contextWords.Contains(match.Value) ? RemovedTextReplacement : match.Value);
     }
 
-    private static string RemoveAllowedAbsencePhrases(string lowerText)
+    private static string RemoveNeutralisedParts(string lowerText)
     {
         var text = lowerText;
-        foreach (var phrase in ClarificationHealthTerms.AllowedAbsencePhrases)
+        foreach (var phrase in ClarificationHealthTerms.AllowedAbsencePhrases.Concat(ClarificationHealthTerms.HarmlessWordParts))
         {
             text = text.Replace(phrase, RemovedTextReplacement, StringComparison.Ordinal);
         }
