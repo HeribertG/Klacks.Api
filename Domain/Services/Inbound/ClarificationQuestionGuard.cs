@@ -3,10 +3,16 @@
 /// <summary>
 /// Code-side guard rails for a clarification question before it is sent to an employee. The LLM is told
 /// the same rules, this guard enforces them: not empty, at most MaxQuestionLength characters, at most
-/// MaxQuestionSentences sentences, ending with the question mark of the language, no link, and no health
-/// term of any language from ClarificationHealthTerms. A period only ends a sentence before whitespace or
-/// the end and never after a digit or a single letter, so a time (14.00), a date (24.09.) or an
-/// abbreviation (z. B.) does not count. The question must END with ?, the full-width ？ or the Arabic ؟;
+/// MaxQuestionSentences sentences, ending with the question mark of the language, no link, no "@" and no
+/// phone-number-like digit run (at least MinPhoneNumberDigits digits, with spaces, dashes, dots or plus
+/// signs allowed between them). A run is exempted from the phone check when it is itself made of one or
+/// more ISO dates (2026-09-23), dotted dates (24.09. or 24.09.2026) or times (14:00 or 14.00), separated
+/// only by whitespace or a dash, never a bare dot between tokens: that lets a shift date/time such as
+/// "2026-09-23 14.00-22.00" or "vom 24.09. - 26.09." through while still rejecting a dot-grouped digit run
+/// such as "06.12.34.56.78". A colon always breaks a run, so a time like 14:00-22:00 never reaches the
+/// threshold in the first place. A period only ends a sentence before whitespace or the end and never after a
+/// digit or a single letter, so a time (14.00), a date (24.09.) or an abbreviation (z. B.) does not count.
+/// The question must END with ?, the full-width ？ or the Arabic ؟;
 /// the Greek question mark (; or U+037E) only counts when the text contains Greek letters. For the
 /// health-term check only, every whole word of the system-inserted context (shift, station or ward names
 /// such as "Frühdienst Chirurgie" or "Spital Nord") that would itself trigger a health term is removed
@@ -41,9 +47,24 @@ public static class ClarificationQuestionGuard
     public const string TooManySentencesViolation = "the question has more sentences than allowed";
     public const string NotAQuestionViolation = "the text is not phrased as a question";
     public const string LinkViolation = "the question contains a link";
+    public const string EmailAddressViolation = "the question contains an email address";
+    public const string PhoneNumberViolation = "the question contains a phone number";
     public const string HealthTermViolationPrefix = "the question contains the health term: ";
 
     private const string RemovedTextReplacement = " ";
+    private const char EmailAtSign = '@';
+    private const int MinPhoneNumberDigits = 7;
+
+    private static readonly Regex PhoneNumberDigitRun = new(
+        @"\d[\d\s\-.+]*\d",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private const string DateOrTimeToken =
+        @"\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}(?:\.\d{2,4})?\.?|\d{1,2}[.:]\d{2}";
+
+    private static readonly Regex DateOrTimeRun = new(
+        $@"^(?:{DateOrTimeToken})(?:[\s\-]+(?:{DateOrTimeToken}))*$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private static readonly Regex SentenceTerminator = new(
         @"(?<!\d)(?<!(?:^|[^\p{L}])\p{L})\.(?=\s|$)|[!?;\u037E](?=\s|$)|[。！？؟]",
@@ -101,6 +122,18 @@ public static class ClarificationQuestionGuard
             return false;
         }
 
+        if (text.Contains(EmailAtSign))
+        {
+            violation = EmailAddressViolation;
+            return false;
+        }
+
+        if (ContainsPhoneNumberLikeDigitRun(text))
+        {
+            violation = PhoneNumberViolation;
+            return false;
+        }
+
         var healthTerm = FindHealthTerm(RemoveContextWords(lowerText, systemInsertedContext));
         if (healthTerm != null)
         {
@@ -134,6 +167,10 @@ public static class ClarificationQuestionGuard
             .Select(match => match.Value)
             .FirstOrDefault(ClarificationHealthTerms.WholeWordTerms.Contains);
     }
+
+    private static bool ContainsPhoneNumberLikeDigitRun(string text) =>
+        PhoneNumberDigitRun.Matches(text).Any(match =>
+            match.Value.Count(char.IsDigit) >= MinPhoneNumberDigits && !DateOrTimeRun.IsMatch(match.Value));
 
     private static bool EndsWithQuestionMark(string text)
     {
