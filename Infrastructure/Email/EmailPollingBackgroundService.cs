@@ -156,6 +156,7 @@ public class EmailPollingBackgroundService : BackgroundService
                     .GetByIdAsync(email.Id);
                 if (mailEmail == null)
                 {
+                    _logger.LogInformation("Mail {EmailId} vanished before processing; skipped", email.Id);
                     continue;
                 }
 
@@ -242,7 +243,7 @@ public class EmailPollingBackgroundService : BackgroundService
                 if (alreadyAnalyzed)
                 {
                     _logger.LogWarning(
-                        "message {SourceId} already analysed — skipped; delete the inbound_analyses row to reprocess", email.Id);
+                        "message {SourceId} already analyzed — skipped; hard-delete the inbound_analyses row to reprocess", email.Id);
                     email.ProcessedAt = DateTime.UtcNow;
                     await unitOfWork.CompleteAsync();
                     return;

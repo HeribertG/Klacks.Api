@@ -76,7 +76,7 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
         if (await analysisRepository.ExistsBySourceAsync(InboundSourceKind.Messenger, message.MessageId, cancellationToken))
         {
             _logger.LogWarning(
-                "message {SourceId} already analysed — skipped; delete the inbound_analyses row to reprocess", message.MessageId);
+                "message {SourceId} already analyzed — skipped; hard-delete the inbound_analyses row to reprocess", message.MessageId);
             return;
         }
 
