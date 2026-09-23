@@ -26,6 +26,19 @@ public class BackgroundServiceOptions
     public bool Embedding { get; set; } = true;
     public bool KlacksyLearning { get; set; } = true;
     public bool EmailPolling { get; set; } = true;
+
+    /// <summary>
+    /// Enables the messenger intent analysis consumer (MessengerIntentBackgroundService), which drains
+    /// the in-process IMessengerIntentQueue filled by MessengerIntentObserver and runs each message
+    /// through the inbound analysis kernel. Default ON: whether anything is analyzed is still decided by
+    /// the runtime setting MESSENGER_ANALYSIS_ENABLED (default off), so the consumer is inert per message
+    /// on installations that never opted in. The flag also gates the MessengerIntentObserver
+    /// registration, so an instance with it off never enqueues anything (no queue that fills up and
+    /// drops). Keep it on for every instance that receives messenger webhooks. Override via env
+    /// <c>BackgroundServices__MessengerIntentAnalysis=false</c>.
+    /// </summary>
+    public bool MessengerIntentAnalysis { get; set; } = true;
+
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;
     public bool LLMModelSync { get; set; } = true;

@@ -267,6 +267,7 @@ internal static class LLMCoreServiceCollectionExtensions
             });
         services.AddScoped<ILLMModelSyncService, LLMModelSyncService>();
         services.AddScoped<LLMProviderOrchestrator>();
+        services.AddScoped<IOneShotCompletionService, OneShotCompletionService>();
         services.AddScoped<LLMConversationManager>();
         services.AddSkillToolsetServices();
         services.AddScoped<LLMFunctionExecutor>();

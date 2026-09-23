@@ -254,7 +254,8 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IInboundAnalysisNotifier, InboundAnalysisNotifier>();
         services.AddScoped<IInboundAnalysisRepository, InboundAnalysisRepository>();
         services.AddScoped<IInboundActionOrchestrator, InboundActionOrchestrator>();
-        services.AddScoped<Klacks.Plugin.Contracts.IInboundClientMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessengerIntentObserver>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Plugins.IMessengerIntentQueue, Klacks.Api.Infrastructure.Plugins.MessengerIntentQueue>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Plugins.IMessengerIntentProcessor, Klacks.Api.Infrastructure.Plugins.MessengerIntentProcessor>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailCapacityAdvisor, EmailCapacityAdvisor>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
@@ -265,6 +266,12 @@ internal static class DomainServiceCollectionExtensions
 
         if (bgOptions.EmailPolling)
             services.AddHostedService<EmailPollingBackgroundService>();
+
+        if (bgOptions.MessengerIntentAnalysis)
+        {
+            services.AddScoped<Klacks.Plugin.Contracts.IInboundClientMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessengerIntentObserver>();
+            services.AddHostedService<Klacks.Api.Infrastructure.Plugins.MessengerIntentBackgroundService>();
+        }
 
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
         services.AddHttpClient<IRegionPackageMarketplaceClient, RegionPackageMarketplaceClient>();

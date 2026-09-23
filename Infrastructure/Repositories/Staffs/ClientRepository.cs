@@ -135,12 +135,21 @@ public class ClientRepository : IClientRepository
         return await Get(id);
     }
 
-    public async Task<EntityTypeEnum?> GetTypeAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ClientTypeAndDisplayName?> GetTypeAndDisplayNameAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await context.Client
+        var row = await context.Client
             .Where(c => c.Id == id)
-            .Select(c => (EntityTypeEnum?)c.Type)
+            .Select(c => new { c.Type, c.FirstName, c.Name, c.Company })
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (row == null)
+        {
+            return null;
+        }
+
+        var personName = $"{row.FirstName} {row.Name}".Trim();
+        var displayName = personName.Length > 0 ? personName : row.Company?.Trim() ?? string.Empty;
+        return new ClientTypeAndDisplayName(row.Type, displayName);
     }
 
     public async Task<LastChangeMetaData> LastChangeMetaData()

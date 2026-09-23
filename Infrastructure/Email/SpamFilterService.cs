@@ -1,34 +1,49 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Classifies a received email as spam or ham: active spam rules first (a match scores 1.0), then the
+/// configurable thresholds, and only for a score inside the uncertain band (and SPAM_FILTER_LLM_ENABLED)
+/// a single LLM verdict. The LLM call goes through IOneShotCompletionService, never through the Klacksy
+/// chat pipeline, so foreign mail text never reaches a user's conversation history or memory. A failed
+/// or empty LLM call falls back to the rule-based result with "(LLM fallback failed)" appended; it is
+/// never read as an LLM HAM verdict.
+/// </summary>
+/// <param name="spamRuleRepository">Supplies the active spam rules</param>
+/// <param name="settingsRepository">Supplies thresholds and the LLM switch</param>
+/// <param name="completionService">Runs the single tool-free LLM completion</param>
+/// <param name="logger">Logs LLM failures</param>
+
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
-using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
 
 namespace Klacks.Api.Infrastructure.Email;
 
 public class SpamFilterService : ISpamFilterService
 {
+    private const string LlmSystemPrompt =
+        "You classify emails as SPAM or HAM. Reply with only one word: SPAM or HAM.";
+
+    private const string SpamVerdict = "SPAM";
+    private const string LlmFallbackFailedSuffix = " (LLM fallback failed)";
+
     private readonly ISpamRuleRepository _spamRuleRepository;
     private readonly ISettingsRepository _settingsRepository;
-    private readonly ILLMService _llmService;
-    private readonly IPlanningAudienceResolver _audienceResolver;
+    private readonly IOneShotCompletionService _completionService;
     private readonly ILogger<SpamFilterService> _logger;
 
     public SpamFilterService(
         ISpamRuleRepository spamRuleRepository,
         ISettingsRepository settingsRepository,
-        ILLMService llmService,
-        IPlanningAudienceResolver audienceResolver,
+        IOneShotCompletionService completionService,
         ILogger<SpamFilterService> logger)
     {
         _spamRuleRepository = spamRuleRepository;
         _settingsRepository = settingsRepository;
-        _llmService = llmService;
-        _audienceResolver = audienceResolver;
+        _completionService = completionService;
         _logger = logger;
     }
 
@@ -137,17 +152,19 @@ public class SpamFilterService : ISpamFilterService
         try
         {
             var bodyExcerpt = TruncateBody(email.BodyText ?? email.BodyHtml ?? string.Empty);
+            var userMessage = $"From: {email.FromAddress}\nSubject: {email.Subject}\nBody: {bodyExcerpt}";
 
-            var context = new LLMContext
+            var completion = await _completionService.CompleteAsync(LlmSystemPrompt, userMessage, null, cancellationToken);
+            if (!completion.Success || string.IsNullOrWhiteSpace(completion.Content))
             {
-                Message = $"Classify this email as SPAM or HAM. Reply with only one word: SPAM or HAM.\n\nFrom: {email.FromAddress}\nSubject: {email.Subject}\nBody: {bodyExcerpt}",
-                UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken),
-                IsNonConversational = true
-            };
+                _logger.LogWarning(
+                    "LLM spam classification returned no verdict (success={Success}, error={Error}), falling back to rule-based score",
+                    completion.Success, completion.Error);
+                ruleResult.Reason += LlmFallbackFailedSuffix;
+                return ruleResult;
+            }
 
-            var response = await _llmService.ProcessAsync(context);
-
-            if (response.Message.Contains("SPAM", StringComparison.OrdinalIgnoreCase))
+            if (completion.Content.Contains(SpamVerdict, StringComparison.OrdinalIgnoreCase))
             {
                 return new SpamFilterResult
                 {
@@ -169,7 +186,7 @@ public class SpamFilterService : ISpamFilterService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "LLM classification failed, falling back to rule-based score");
-            ruleResult.Reason += " (LLM fallback failed)";
+            ruleResult.Reason += LlmFallbackFailedSuffix;
             return ruleResult;
         }
     }

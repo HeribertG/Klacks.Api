@@ -5,19 +5,28 @@
 /// Customer messages always classify as CustomerMessage (summary only); employee/extern messages run
 /// through the LLM to detect work cancellations, vacation requests, day-off wishes, availability
 /// announcements and shift-slot preferences, including the affected date range, hour window, weekday
-/// pattern and schedule command keywords. Client resolution and the enabled/disabled switch are the
-/// caller's responsibility (each channel has its own); this service always returns a result, never
-/// null — a failed or unparsable LLM reply degrades to Intent=Other/Confidence=Low with the failure
-/// recorded, never an exception.
+/// pattern and schedule command keywords. The LLM call goes through IOneShotCompletionService (a single
+/// pipeline-free completion) and deliberately NOT through ILLMService: the chat pipeline ran the recipe
+/// engine on this prompt (a recipe replaced the JSON reply with its own question) and wrote the foreign
+/// message into the first admin's conversation history and auto-memory. The Date line handed to the
+/// model is the company-local calendar day of the received instant (via ICompanyClock), so relative
+/// dates like "tomorrow" resolve against the operator's day, not the UTC day. Client resolution and the
+/// enabled/disabled switch are the caller's responsibility (each channel has its own); this service
+/// always returns a result, never null: a failed LLM call or an unparsable reply degrades to
+/// Intent=Other/Confidence=Low (customer: CustomerMessage/High) with the failure recorded, never an exception.
 /// </summary>
+/// <param name="completionService">Runs the single tool-free LLM completion</param>
+/// <param name="keywordProvider">Supplies the currently configured schedule command keywords</param>
+/// <param name="companyClock">Resolves the company time zone for the received date</param>
+/// <param name="logger">Logs every attempt with its raw reply and every failure</param>
 
+using System.Globalization;
 using System.Text.Json;
-using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Models.Schedules;
 
@@ -28,6 +37,8 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     private const int MaxBodyLengthForLlm = 4000;
     private const int MaxLlmAttempts = 2;
     private const int RawReplyLogLength = 1000;
+    private const string LlmCallFailedPrefix = "LLM call failed: ";
+    private const string ReceivedDateFormat = "yyyy-MM-dd";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -35,20 +46,20 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
     };
 
-    private readonly IPlanningAudienceResolver _audienceResolver;
-    private readonly ILLMService _llmService;
+    private readonly IOneShotCompletionService _completionService;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly ICompanyClock _companyClock;
     private readonly ILogger<InboundIntentAnalysisService> _logger;
 
     public InboundIntentAnalysisService(
-        IPlanningAudienceResolver audienceResolver,
-        ILLMService llmService,
+        IOneShotCompletionService completionService,
         IScheduleCommandKeywordProvider keywordProvider,
+        ICompanyClock companyClock,
         ILogger<InboundIntentAnalysisService> logger)
     {
-        _audienceResolver = audienceResolver;
-        _llmService = llmService;
+        _completionService = completionService;
         _keywordProvider = keywordProvider;
+        _companyClock = companyClock;
         _logger = logger;
     }
 
@@ -68,11 +79,25 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         try
         {
             var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+            var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
+            var receivedDate = ToCompanyLocalDate(source.ReceivedAt, companyTimeZone);
+            var prompt = BuildPrompt(source, clientType, TruncateBody(source.Body), receivedDate, configuredKeywords);
             var reply = string.Empty;
             LlmReply? parsed = null;
             for (var attempt = 1; attempt <= MaxLlmAttempts && parsed == null; attempt++)
             {
-                reply = await RunLlmAsync(source, clientType, configuredKeywords, cancellationToken);
+                var completion = await _completionService.CompleteAsync(
+                    prompt.SystemPrompt, prompt.UserMessage, null, cancellationToken);
+                if (!completion.Success)
+                {
+                    _logger.LogWarning(
+                        "Inbound intent analysis LLM call failed for {Channel} source {SourceId}: {Error}",
+                        source.Channel, source.SourceId, completion.Error);
+                    ApplyFailure(analysis, clientType, source, LlmCallFailedPrefix + completion.Error);
+                    return analysis;
+                }
+
+                reply = completion.Content;
                 parsed = ParseReply(reply);
                 _logger.LogInformation(
                     "Inbound intent analysis attempt {Attempt}/{Max} for {Channel} source {SourceId}: parsed={Parsed}, raw reply: {Reply}",
@@ -90,44 +115,60 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Inbound intent analysis failed for {Channel} source {SourceId}", source.Channel, source.SourceId);
-            analysis.Intent = clientType == EntityTypeEnum.Customer ? EmailIntent.CustomerMessage : EmailIntent.Other;
-            analysis.Confidence = clientType == EntityTypeEnum.Customer ? EmailConfidence.High : EmailConfidence.Low;
-            analysis.Summary = source.Subject ?? string.Empty;
-            analysis.FailureReason = ex.Message;
+            ApplyFailure(analysis, clientType, source, ex.Message);
         }
 
         return analysis;
     }
 
-    private async Task<string> RunLlmAsync(
-        InboundSource source, EntityTypeEnum clientType, ScheduleCommandKeywordSet keywords, CancellationToken cancellationToken)
+    /// <summary>
+    /// Converts the received instant to the company's local calendar day. A Kind=Unspecified value is
+    /// read as UTC (both channels store UTC; Npgsql returns timestamptz as UTC).
+    /// </summary>
+    /// <param name="receivedAt">The instant the message was received</param>
+    /// <param name="companyTimeZone">The company's configured time zone</param>
+    internal static DateOnly ToCompanyLocalDate(DateTime receivedAt, TimeZoneInfo companyTimeZone)
     {
-        var body = source.Body;
-        if (body.Length > MaxBodyLengthForLlm)
+        var utc = receivedAt.Kind switch
         {
-            body = body[..MaxBodyLengthForLlm];
-        }
-
-        var context = new LLMContext
-        {
-            Message = BuildPrompt(source, clientType, body, keywords),
-            UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken),
-            IsNonConversational = true
+            DateTimeKind.Utc => receivedAt,
+            DateTimeKind.Local => receivedAt.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(receivedAt, DateTimeKind.Utc)
         };
 
-        var response = await _llmService.ProcessAsync(context);
-        return response.Message;
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(utc, companyTimeZone));
     }
 
-    internal static string BuildPrompt(InboundSource source, EntityTypeEnum clientType, string body, ScheduleCommandKeywordSet keywords)
+    private static string TruncateBody(string body) =>
+        body.Length > MaxBodyLengthForLlm ? body[..MaxBodyLengthForLlm] : body;
+
+    private static void ApplyFailure(InboundAnalysis analysis, EntityTypeEnum clientType, InboundSource source, string failureReason)
+    {
+        analysis.Intent = clientType == EntityTypeEnum.Customer ? EmailIntent.CustomerMessage : EmailIntent.Other;
+        analysis.Confidence = clientType == EntityTypeEnum.Customer ? EmailConfidence.High : EmailConfidence.Low;
+        analysis.Summary = source.Subject ?? string.Empty;
+        analysis.FailureReason = failureReason;
+    }
+
+    /// <summary>
+    /// Builds the two halves of the extraction call: all instructions, the JSON schema and the rules go
+    /// into the system prompt; the user message carries only the inbound data (From/Date/Subject/Body).
+    /// </summary>
+    /// <param name="source">The inbound message whose sender, date and subject are rendered</param>
+    /// <param name="clientType">Customer or employee/extern, named in the instructions</param>
+    /// <param name="body">The (already truncated) message body</param>
+    /// <param name="receivedDate">Company-local calendar day the message was received (see ToCompanyLocalDate)</param>
+    /// <param name="keywords">The configured schedule command keywords the model may emit</param>
+    internal static (string SystemPrompt, string UserMessage) BuildPrompt(
+        InboundSource source, EntityTypeEnum clientType, string body, DateOnly receivedDate, ScheduleCommandKeywordSet keywords)
     {
         var senderKind = clientType == EntityTypeEnum.Customer ? "customer" : "employee";
         var subjectLine = string.IsNullOrWhiteSpace(source.Subject) ? string.Empty : $"Subject: {source.Subject}\n";
-        return
-            "Analyze this message sent to a workforce-planning system by a known " + senderKind + ".\n" +
+        var systemPrompt =
+            "Analyze the message in the user turn, sent to a workforce-planning system by a known " + senderKind + ".\n" +
             "This is a single non-conversational data-extraction call: there are no tools or functions " +
             "available to you here, nothing else reads a text reply, and no further turn will follow. " +
-            "Do not explain your reasoning, ask questions, mention tools, or add any text outside the " +
+            "Do not explain your reasoning, ask questions, mention tools, or write any text outside the " +
             "object. Your entire response must be exactly one JSON object and nothing else, in this " +
             "exact shape:\n" +
             "{\"intent\":\"CustomerMessage|WorkCancellation|VacationRequest|DayOffWish|AvailabilityAnnouncement|ShiftPreference|Other\"," +
@@ -164,8 +205,12 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
             "not applicable. confidence = high only when the message states a concrete, unambiguous " +
             "date/period, time window or shift-slot restriction as an actual statement of intent; use low " +
             "when the topic is only mentioned in passing, phrased as a question, hypothetical, or " +
-            "otherwise unclear. CustomerMessage is always high.\n\n" +
-            $"From: {source.SenderDisplay}\nDate: {source.ReceivedAt:yyyy-MM-dd}\n{subjectLine}Body: {body}";
+            "otherwise unclear. CustomerMessage is always high. Resolve relative date expressions (e.g. " +
+            "today, tomorrow, next Monday, in any language) against the Date line of the message, which " +
+            "is the day the message was received in the company's local time zone.";
+        var dateLine = $"{receivedDate.ToString(ReceivedDateFormat, CultureInfo.InvariantCulture)} ({receivedDate.DayOfWeek})";
+        var userMessage = $"From: {source.SenderDisplay}\nDate: {dateLine}\n{subjectLine}Body: {body}";
+        return (systemPrompt, userMessage);
     }
 
     private static void ApplyParsedReply(

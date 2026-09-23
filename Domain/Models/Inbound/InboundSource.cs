@@ -7,7 +7,7 @@ namespace Klacks.Api.Domain.Models.Inbound;
 /// <summary>
 /// Channel-neutral view of one inbound message (email or messenger), threaded through the shared
 /// intent-analysis/action-orchestration/notification kernel. Built by the channel-specific adapter
-/// (EmailPollingBackgroundService, MessengerIntentObserver) right before calling into the kernel.
+/// (EmailPollingBackgroundService, MessengerIntentProcessor) right before calling into the kernel.
 /// </summary>
 /// <param name="SourceId">Id of the underlying ReceivedEmail or messaging-plugin Message row</param>
 /// <param name="SourceKind">Which channel this came in on</param>

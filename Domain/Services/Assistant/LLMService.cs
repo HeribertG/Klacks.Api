@@ -619,26 +619,9 @@ public class LLMService : ILLMService
     /// <param name="provider">The LLM provider to call</param>
     /// <param name="request">The provider request to (re-)send</param>
     /// <param name="cancellationToken">Cancels the backoff delay between attempts</param>
-    internal async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(
-        ILLMProvider provider, LLMProviderRequest request, CancellationToken cancellationToken = default)
-    {
-        var response = await provider.ProcessAsync(request, cancellationToken);
-
-        for (var attempt = 1;
-             !response.Success
-                 && attempt <= LLMRetryConstants.MaxTransientRetries
-                 && TransientProviderErrorDetector.IsTransient(response.Error);
-             attempt++)
-        {
-            _logger.LogWarning(
-                "Transient provider error (attempt {Attempt}/{Max}): {Error} - retrying",
-                attempt, LLMRetryConstants.MaxTransientRetries, response.Error);
-            await Task.Delay(LLMRetryConstants.GetRetryDelay(attempt), cancellationToken);
-            response = await provider.ProcessAsync(request, cancellationToken);
-        }
-
-        return response;
-    }
+    internal Task<LLMProviderResponse> ProcessWithTransientRetryAsync(
+        ILLMProvider provider, LLMProviderRequest request, CancellationToken cancellationToken = default) =>
+        TransientProviderRetry.ProcessAsync(provider, request, _logger, cancellationToken);
 
     private async Task<(LLMModel? model, ILLMProvider? provider, string? error,
         LLMConversation? conversation, string? systemPrompt, string? volatilePrompt,
