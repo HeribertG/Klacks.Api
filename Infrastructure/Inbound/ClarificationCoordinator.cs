@@ -83,8 +83,8 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
     /// INBOUND_CLARIFICATION_ENABLED: the setting is only read in AfterAnalysisAsync, before a NEW
     /// question is asked. So flipping the setting off never orphans a round that is already Open —
     /// the reply is still correlated, re-analyzed and resolved (Answered/Unresolved) normally; only
-    /// the ability to start a new round is gated. This is a deliberate controller decision, not an
-    /// oversight.
+    /// the ability to start a new round is gated. This is a deliberate product decision by the person
+    /// steering this plan, not an oversight.
     /// </summary>
     public async Task<ClarificationPreAnalysis> BeforeAnalysisAsync(ClarificationRequest request, CancellationToken cancellationToken = default)
     {

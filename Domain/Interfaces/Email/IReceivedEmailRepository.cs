@@ -42,8 +42,13 @@ public interface IReceivedEmailRepository
 
     /// <summary>
     /// Tracked (not no-tracking) query for emails whose processing pipeline (spam-classify, client
-    /// assignment, intent analysis) never completed — ProcessedAt is null. Callers mutate and save
-    /// ProcessedAt on the returned entities directly.
+    /// assignment, intent analysis) never completed — ProcessedAt is null. The returned instances are
+    /// tracked by THIS call's DbContext only: EmailPollingBackgroundService.ProcessBatchAsync processes
+    /// each one in its own DI scope and reloads it there via GetByIdAsync instead of reusing these
+    /// instances, so a per-mail failure cannot poison later commits in the same poll cycle. Do not mutate
+    /// and save these returned entities directly from the scope that fetched them; do not run another
+    /// tracked query for the same Ids from that same scope afterwards either — EF's identity resolution
+    /// would hand back these now-stale instances instead of the current row.
     /// </summary>
     Task<List<ReceivedEmail>> GetUnprocessedAsync(int take);
 }

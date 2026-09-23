@@ -97,8 +97,20 @@ public class EmailPollingBackgroundService : BackgroundService
                         await ProcessBatchAsync(toProcess, inboxFolder, junkFolder, stoppingToken);
                     }
 
-                    await emailService.SyncEmailStatesAsync(stoppingToken);
-                    await unitOfWork.CompleteAsync();
+                    // Fresh scope: after ProcessBatchAsync the outer scope's context still holds the
+                    // toProcess instances with their pre-processing values (Folder/ProcessedAt), because
+                    // each mail was committed through its own per-mail scope instead. SyncEmailStatesAsync
+                    // loads received emails by Id (tracked) to update IsRead; on the outer context EF's
+                    // identity resolution would hand back those stale toProcess instances instead of the
+                    // current DB row, and the outer CompleteAsync below would then flush their stale
+                    // Folder/ProcessedAt back over what the per-mail scopes already committed.
+                    using (var syncScope = _scopeFactory.CreateScope())
+                    {
+                        var syncEmailService = syncScope.ServiceProvider.GetRequiredService<IImapEmailService>();
+                        var syncUnitOfWork = syncScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                        await syncEmailService.SyncEmailStatesAsync(stoppingToken);
+                        await syncUnitOfWork.CompleteAsync();
+                    }
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
