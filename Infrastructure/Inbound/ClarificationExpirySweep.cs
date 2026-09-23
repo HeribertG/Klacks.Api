@@ -131,8 +131,8 @@ public sealed class ClarificationExpirySweep : BackgroundService
                 ClarificationNotificationTexts.Expired(
                     clarification.SenderDisplay,
                     clarification.Question,
-                    ToLocal(clarification.AskedAt, companyTimeZone),
-                    ToLocal(clarification.DeadlineAt, companyTimeZone),
+                    ClarificationTimeConversion.ToLocal(clarification.AskedAt, companyTimeZone),
+                    ClarificationTimeConversion.ToLocal(clarification.DeadlineAt, companyTimeZone),
                     clarification.OriginalText,
                     clarification.ShiftContext),
                 cancellationToken);
@@ -147,13 +147,4 @@ public sealed class ClarificationExpirySweep : BackgroundService
         }
     }
 
-    private static DateTime AsUtc(DateTime value) => value.Kind switch
-    {
-        DateTimeKind.Utc => value,
-        DateTimeKind.Local => value.ToUniversalTime(),
-        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
-    };
-
-    private static DateTime ToLocal(DateTime utc, TimeZoneInfo companyTimeZone) =>
-        TimeZoneInfo.ConvertTimeFromUtc(AsUtc(utc), companyTimeZone);
 }

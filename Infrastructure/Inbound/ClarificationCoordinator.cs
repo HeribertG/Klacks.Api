@@ -215,7 +215,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
         var status = unresolved ? InboundClarificationStatus.Unresolved : InboundClarificationStatus.Answered;
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
-        var askedLocal = ToLocal(open.AskedAt, companyTimeZone);
+        var askedLocal = ClarificationTimeConversion.ToLocal(open.AskedAt, companyTimeZone);
 
         var resolved = await _clarificationRepository.TryResolveAsync(
             open.Id,
@@ -261,7 +261,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         return ClarificationPreAnalysis.Context(
-            ClarificationNotificationTexts.AnsweredAfterExpiry(predecessor.Question, ToLocal(predecessor.AskedAt, companyTimeZone)));
+            ClarificationNotificationTexts.AnsweredAfterExpiry(predecessor.Question, ClarificationTimeConversion.ToLocal(predecessor.AskedAt, companyTimeZone)));
     }
 
     private async Task<ClarificationPolicyFacts> GatherFactsAsync(
@@ -413,7 +413,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
             await _analysisNotifier.NotifyMessageAsync(
                 ClarificationNotificationTexts.Started(
                     request.Source.SenderDisplay, analysis.Summary, composed.Question, composed.ShiftContext,
-                    ToLocal(deadlineUtc, companyTimeZone)),
+                    ClarificationTimeConversion.ToLocal(deadlineUtc, companyTimeZone)),
                 cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -444,7 +444,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         OriginalSourceId = request.Source.SourceId,
         SenderDisplay = Truncate(request.Source.SenderDisplay, InboundClarificationConstants.MaxSenderDisplayLength),
         OriginalText = Truncate(request.Source.Body, InboundClarificationConstants.MaxOriginalTextLength),
-        OriginalReceivedAt = AsUtc(request.Source.ReceivedAt),
+        OriginalReceivedAt = ClarificationTimeConversion.AsUtc(request.Source.ReceivedAt),
         Question = composed.Question,
         ShiftContext = composed.ShiftContext == null
             ? null
@@ -471,16 +471,6 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
     private async Task<DateTime> UtcNowAsync(CancellationToken cancellationToken) =>
         (await _companyClock.GetNowAsync(cancellationToken)).UtcDateTime;
-
-    private static DateTime AsUtc(DateTime value) => value.Kind switch
-    {
-        DateTimeKind.Utc => value,
-        DateTimeKind.Local => value.ToUniversalTime(),
-        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
-    };
-
-    private static DateTime ToLocal(DateTime utc, TimeZoneInfo companyTimeZone) =>
-        TimeZoneInfo.ConvertTimeFromUtc(AsUtc(utc), companyTimeZone);
 
     private static string Truncate(string value, int maxLength) =>
         value.Length <= maxLength ? value : value[..maxLength];
