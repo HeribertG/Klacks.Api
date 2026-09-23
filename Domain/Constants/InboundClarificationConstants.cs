@@ -26,6 +26,13 @@ public static class InboundClarificationConstants
 
     public const int MaxQuestionSentences = 2;
 
+    /// <summary>
+    /// Max length of the raw LLM-proposed clarification question draft stored on inbound_analyses
+    /// (InboundAnalysis.ClarificationQuestion / InboundAnalysisConfiguration column length). Distinct
+    /// from MaxQuestionLength, which guards the shorter, sentence-trimmed question actually sent out.
+    /// </summary>
+    public const int MaxDraftQuestionLength = 500;
+
     public const int MaxOriginalTextLength = 4000;
 
     public const int MaxSenderDisplayLength = 300;

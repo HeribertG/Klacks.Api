@@ -12,11 +12,16 @@
 /// into the first admin's conversation history and auto-memory. The Date line handed to the model is
 /// the company-local calendar day of the received instant (via ICompanyClock). A work cancellation
 /// without any date ("I am sick") is assumed to concern that received day with low confidence, so the
-/// action orchestrator only suggests and never executes it. AnalyzeAnswerAsync re-analyses an answered
-/// clarification from original message, question and answer; its result belongs to the answer source.
-/// Client resolution and the enabled/disabled switch are the caller's responsibility; this service
-/// always returns a result, never null: a failed LLM call or an unparsable reply degrades to
-/// Intent=Other/Confidence=Low (customer: CustomerMessage/High) with the failure recorded.
+/// action orchestrator only suggests and never executes it. When only an until date parses (e.g. "sick
+/// until Friday"), a later-than-default until date is kept and the from date defaults to the received
+/// day; an until date before the default day is also defaulted, still with low confidence.
+/// AnalyzeAnswerAsync re-analyses an answered clarification from original message, question and answer;
+/// its result belongs to the answer source, never carries a clarification question (there is no further
+/// round), and is forced to low confidence whenever the answer is still unclear (needsClarification
+/// stays true), so an unresolved clarification can never auto-execute. Client resolution and the
+/// enabled/disabled switch are the caller's responsibility; this service always returns a result, never
+/// null: a failed LLM call or an unparsable reply degrades to Intent=Other/Confidence=Low (customer:
+/// CustomerMessage/High) with the failure recorded.
 /// </summary>
 /// <param name="completionService">Runs the single tool-free LLM completion</param>
 /// <param name="keywordProvider">Supplies the currently configured schedule command keywords</param>
@@ -25,6 +30,7 @@
 
 using System.Globalization;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -42,7 +48,6 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     private const int RawReplyLogLength = 1000;
     private const int MaxSummaryLength = 2000;
     private const int MaxUnparsedSummaryLength = 500;
-    private const int MaxClarificationQuestionLength = 500;
     private const string LlmCallFailedPrefix = "LLM call failed: ";
     private const string ReceivedDateFormat = "yyyy-MM-dd";
 
@@ -121,6 +126,12 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         {
             _logger.LogWarning(ex, "Inbound answer analysis failed for {Channel} source {SourceId}", answerSource.Channel, answerSource.SourceId);
             ApplyFailure(analysis, clientType, answerSource, ex.Message);
+        }
+
+        analysis.ClarificationQuestion = null;
+        if (analysis.NeedsClarification)
+        {
+            analysis.Confidence = EmailConfidence.Low;
         }
 
         return analysis;
@@ -311,18 +322,18 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
 
         analysis.NeedsClarification = clientType != EntityTypeEnum.Customer && ReadFlag(parsed.NeedsClarification);
         analysis.ClarificationQuestion = analysis.NeedsClarification && !string.IsNullOrWhiteSpace(parsed.ClarificationQuestion)
-            ? Truncate(parsed.ClarificationQuestion.Trim(), MaxClarificationQuestionLength)
+            ? Truncate(parsed.ClarificationQuestion.Trim(), InboundClarificationConstants.MaxDraftQuestionLength)
             : null;
 
         if (analysis.Intent == EmailIntent.WorkCancellation && analysis.FromDate == null)
         {
             analysis.FromDate = defaultDate;
-            analysis.UntilDate = defaultDate;
+            analysis.UntilDate = analysis.UntilDate >= defaultDate ? analysis.UntilDate : defaultDate;
             analysis.Confidence = EmailConfidence.Low;
         }
     }
 
-    internal static bool ReadFlag(JsonElement? element) => element switch
+    private static bool ReadFlag(JsonElement? element) => element switch
     {
         { ValueKind: JsonValueKind.True } => true,
         { ValueKind: JsonValueKind.String } text => bool.TryParse(text.GetString(), out var flag) && flag,

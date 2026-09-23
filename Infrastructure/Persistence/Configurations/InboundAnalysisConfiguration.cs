@@ -7,6 +7,7 @@
 /// uninstallable without leaving foreign-key cruft), so both channels are treated the same way here:
 /// SourceKind+SourceId are plain values, resolved by application code, not by the database.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Inbound;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,14 +16,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class InboundAnalysisConfiguration : IEntityTypeConfiguration<InboundAnalysis>
 {
-    private const int ClarificationQuestionMaxLength = 500;
-
     public void Configure(EntityTypeBuilder<InboundAnalysis> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.SourceKind, p.SourceId }).IsUnique();
         builder.HasIndex(p => new { p.IsDeleted, p.ClientId });
         builder.HasIndex(p => new { p.IsDeleted, p.Intent });
-        builder.Property(p => p.ClarificationQuestion).HasMaxLength(ClarificationQuestionMaxLength);
+        builder.Property(p => p.ClarificationQuestion).HasMaxLength(InboundClarificationConstants.MaxDraftQuestionLength);
     }
 }
