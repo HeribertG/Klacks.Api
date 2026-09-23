@@ -97,13 +97,6 @@ public class EmailPollingBackgroundService : BackgroundService
                         await ProcessBatchAsync(toProcess, inboxFolder, junkFolder, stoppingToken);
                     }
 
-                    // Fresh scope: after ProcessBatchAsync the outer scope's context still holds the
-                    // toProcess instances with their pre-processing values (Folder/ProcessedAt), because
-                    // each mail was committed through its own per-mail scope instead. SyncEmailStatesAsync
-                    // loads received emails by Id (tracked) to update IsRead; on the outer context EF's
-                    // identity resolution would hand back those stale toProcess instances instead of the
-                    // current DB row, and the outer CompleteAsync below would then flush their stale
-                    // Folder/ProcessedAt back over what the per-mail scopes already committed.
                     using (var syncScope = _scopeFactory.CreateScope())
                     {
                         var syncEmailService = syncScope.ServiceProvider.GetRequiredService<IImapEmailService>();
@@ -111,6 +104,8 @@ public class EmailPollingBackgroundService : BackgroundService
                         await syncEmailService.SyncEmailStatesAsync(stoppingToken);
                         await syncUnitOfWork.CompleteAsync();
                     }
+
+                    await unitOfWork.CompleteAsync();
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -140,23 +135,40 @@ public class EmailPollingBackgroundService : BackgroundService
     /// still-staged, unrelated changes along with it. The mail handed to ProcessEmailAsync is reloaded
     /// inside the new scope (GetByIdAsync) rather than reusing the instance tracked by the outer scope,
     /// so writes to Folder/ProcessedAt land in the same context as that mail's own CompleteAsync calls;
-    /// a mail that no longer exists (deleted between the fetch and this loop) is skipped.
+    /// a mail that no longer exists (deleted between the fetch and this loop) is skipped. For the same
+    /// reason, ExecuteAsync must not run any further tracked ReceivedEmail work on the fetching scope
+    /// afterwards (e.g. SyncEmailStatesAsync belongs in its own fresh scope): the fetching scope's
+    /// change tracker still holds toProcess with its pre-processing values, and EF's identity resolution
+    /// would hand those stale instances back to a tracked query for the same Ids instead of the current
+    /// row. A per-mail failure before ProcessEmailAsync's own try/catch (CreateScope, service resolution,
+    /// GetByIdAsync) is caught here so it only skips that one mail.
     /// </summary>
     internal async Task ProcessBatchAsync(
         IReadOnlyList<ReceivedEmail> toProcess, string inboxFolder, string junkFolder, CancellationToken stoppingToken)
     {
         foreach (var email in toProcess)
         {
-            using var mailScope = _scopeFactory.CreateScope();
-            var mailUnitOfWork = mailScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var mailEmail = await mailScope.ServiceProvider.GetRequiredService<IReceivedEmailRepository>()
-                .GetByIdAsync(email.Id);
-            if (mailEmail == null)
+            try
             {
-                continue;
-            }
+                using var mailScope = _scopeFactory.CreateScope();
+                var mailUnitOfWork = mailScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var mailEmail = await mailScope.ServiceProvider.GetRequiredService<IReceivedEmailRepository>()
+                    .GetByIdAsync(email.Id);
+                if (mailEmail == null)
+                {
+                    continue;
+                }
 
-            await ProcessEmailAsync(mailScope, mailUnitOfWork, mailEmail, inboxFolder, junkFolder, stoppingToken);
+                await ProcessEmailAsync(mailScope, mailUnitOfWork, mailEmail, inboxFolder, junkFolder, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Setting up per-mail processing failed for email {EmailId}, will retry next cycle", email.Id);
+            }
         }
     }
 
