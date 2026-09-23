@@ -13,8 +13,9 @@
 /// from the question first (other context words such as "de" or "di" stay, so a multi-word term like
 /// "mal de tête" cannot be split apart by a shift name like "Service de nuit"), and the fixed
 /// sick-leave phrasings of ClarificationHealthTerms.AllowedAbsencePhrases (arrêt maladie, in malattia,
-/// krankheitsbedingt, sick leave, ...) are neutralised; German stems match inside compounds
-/// (Rückenschmerzen, Hausarzt). Any violation means no question is sent; the message then stays on the
+/// krankheitsbedingt, sick leave, ...) are neutralised; stems of the compound languages match inside
+/// compounds (Rückenschmerzen, Hausarzt, hoofdpijn, huvudvärk) and the match mode per language is defined
+/// by ClarificationHealthTerms. Any violation means no question is sent; the message then stays on the
 /// regular path.
 /// </summary>
 /// <param name="question">The composed question</param>
