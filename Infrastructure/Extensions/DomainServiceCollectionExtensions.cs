@@ -259,6 +259,8 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IInboundShiftContextReader, InboundShiftContextReader>();
         services.AddScoped<IClarificationQuestionComposer, ClarificationQuestionComposer>();
         services.AddScoped<IInboundReplySender, EmailReplySender>();
+        services.AddScoped<IInboundReplySender, MessengerReplySender>();
+        services.AddScoped<IClientMessengerReplyChannel, Klacks.Api.Infrastructure.Plugins.MessagingPluginClientReplyChannel>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Plugins.IMessengerIntentQueue, Klacks.Api.Infrastructure.Plugins.MessengerIntentQueue>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Plugins.IMessengerIntentProcessor, Klacks.Api.Infrastructure.Plugins.MessengerIntentProcessor>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
