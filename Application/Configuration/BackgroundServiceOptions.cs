@@ -39,6 +39,23 @@ public class BackgroundServiceOptions
     /// </summary>
     public bool MessengerIntentAnalysis { get; set; } = true;
 
+    /// <summary>
+    /// Enables the inbound clarification expiry sweep (ClarificationExpirySweep): marks open clarification
+    /// questions whose answer deadline passed as Expired and tells the planners; the first cycle after a
+    /// restart catches up every deadline missed during the downtime. Default ON: without open
+    /// clarifications (INBOUND_CLARIFICATION_ENABLED is off by default) a cycle is a single query. Safe on
+    /// every instance, like the escalation chain: each transition is a conditional update, so a second
+    /// instance racing the same row loses cleanly. Override via env
+    /// <c>BackgroundServices__InboundClarificationSweep=false</c>.
+    /// </summary>
+    public bool InboundClarificationSweep { get; set; } = true;
+
+    /// <summary>Cadence in seconds between inbound clarification expiry sweeps.</summary>
+    public int InboundClarificationSweepIntervalSeconds { get; set; } = 60;
+
+    /// <summary>Startup delay in seconds before the first inbound clarification expiry sweep.</summary>
+    public int InboundClarificationSweepStartupDelaySeconds { get; set; } = 15;
+
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;
     public bool LLMModelSync { get; set; } = true;

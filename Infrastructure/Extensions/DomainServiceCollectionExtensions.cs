@@ -281,6 +281,9 @@ internal static class DomainServiceCollectionExtensions
             services.AddHostedService<Klacks.Api.Infrastructure.Plugins.MessengerIntentBackgroundService>();
         }
 
+        if (bgOptions.InboundClarificationSweep)
+            services.AddHostedService<ClarificationExpirySweep>();
+
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
         services.AddHttpClient<IRegionPackageMarketplaceClient, RegionPackageMarketplaceClient>();
 
