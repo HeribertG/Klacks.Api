@@ -118,7 +118,7 @@ public static class ClarificationQuestionGuard
         }
 
         var lowerText = text.ToLowerInvariant();
-        if (LinkMarkers.Any(marker => lowerText.Contains(marker, StringComparison.Ordinal)))
+        if (ContainsLink(text))
         {
             violation = LinkViolation;
             return false;
@@ -146,6 +146,24 @@ public static class ClarificationQuestionGuard
         return true;
     }
 
+    /// <summary>
+    /// True when the text contains a link marker ("://" or "www."), case-insensitive. Shared between the
+    /// question guard and the clarification email reply sender's suspicious-subject check, so both use the
+    /// same single source of truth for what counts as a link.
+    /// </summary>
+    public static bool ContainsLink(string? text) =>
+        text != null && LinkMarkers.Any(marker => text.Contains(marker, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// True when the text contains a digit run that looks like a phone number (at least
+    /// MinPhoneNumberDigits digits, with whitespace, dashes, dots, colons or plus signs allowed between
+    /// them), unless the run is itself a date or time (see class summary). Shared between the question
+    /// guard and the clarification email reply sender's suspicious-subject check.
+    /// </summary>
+    public static bool ContainsPhoneNumberLikeDigitRun(string text) =>
+        PhoneNumberDigitRun.Matches(text).Any(match =>
+            match.Value.Count(char.IsDigit) >= MinPhoneNumberDigits && !DateOrTimeRun.IsMatch(match.Value));
+
     public static string? FindHealthTerm(string lowerText)
     {
         var text = RemoveNeutralisedParts(lowerText.Normalize(NormalizationForm.FormC));
@@ -169,10 +187,6 @@ public static class ClarificationQuestionGuard
             .Select(match => match.Value)
             .FirstOrDefault(ClarificationHealthTerms.WholeWordTerms.Contains);
     }
-
-    private static bool ContainsPhoneNumberLikeDigitRun(string text) =>
-        PhoneNumberDigitRun.Matches(text).Any(match =>
-            match.Value.Count(char.IsDigit) >= MinPhoneNumberDigits && !DateOrTimeRun.IsMatch(match.Value));
 
     private static bool EndsWithQuestionMark(string text)
     {

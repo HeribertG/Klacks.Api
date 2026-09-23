@@ -4,14 +4,18 @@
 /// Sends a clarification question as an email reply over the configured SMTP account. The recipient is
 /// the client's STORED address that matched the sender (never an address taken from the message
 /// itself), so a forged sender header at most makes the real person receive the question. The subject
-/// gets a single "Re: " and is flattened to one line (line breaks and control characters of the decoded
-/// original subject become spaces). In-Reply-To and References thread the reply onto the original mail;
-/// only strictly valid message ids (printable ASCII without whitespace or angle brackets, containing '@')
-/// are used, so synthetic "{folder}-{uid}" ids and header-injection attempts are dropped, and a
-/// References value containing line breaks or control characters is discarded as a whole. Every reply
-/// carries Auto-Submitted: auto-replied (RFC 3834) so the employee's auto-responder does not answer it.
-/// Header values with line breaks, SMTP errors, an unavailable mail service and exceptions map to a
-/// failed result, never an exception.
+/// gets a single "Re: " and is flattened to one line (line breaks, control characters and Unicode format
+/// characters such as a right-to-left override of the decoded original subject become spaces); when the
+/// flattened subject still looks suspicious (a link, a MIME encoded-word marker, an '@' or a phone-like
+/// digit run) it is replaced with a fixed neutral subject instead, and the result is bounded to
+/// MaxReplySubjectLength, truncated at a word boundary. In-Reply-To and References thread the reply onto
+/// the original mail; only strictly valid message ids (printable ASCII without whitespace or angle
+/// brackets, containing '@', at most MaxMessageIdLength characters) are used, so synthetic
+/// "{folder}-{uid}" ids, header-injection attempts and oversized ids are dropped, a References value
+/// containing line breaks or control characters is discarded as a whole, and References keeps only the
+/// last MaxReferencesCount ids. Every reply carries Auto-Submitted: auto-replied (RFC 3834) so the
+/// employee's auto-responder does not answer it. Header values with line breaks, SMTP errors, an
+/// unavailable mail service and exceptions map to a failed result, never an exception.
 /// </summary>
 /// <param name="assignmentService">Resolves the stored address of the client</param>
 /// <param name="emailService">Sends the mail over the configured SMTP account</param>
@@ -26,6 +30,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Inbound;
+using Klacks.Api.Domain.Services.Inbound;
 
 namespace Klacks.Api.Infrastructure.Inbound;
 
@@ -37,6 +42,7 @@ public sealed partial class EmailReplySender : IInboundReplySender
     private const char MessageIdOpen = '<';
     private const char MessageIdClose = '>';
     private const char SubjectSeparator = ' ';
+    private const char EmailAtSign = '@';
     private const string ValidMessageIdPattern = @"\A[!-;=?-~]+@[!-;=?-~]+\z";
 
     private readonly IEmailClientAssignmentService _assignmentService;
@@ -111,10 +117,17 @@ public sealed partial class EmailReplySender : IInboundReplySender
 
     internal static string BuildSubject(string? originalSubject)
     {
-        var subject = FlattenToSingleLine(originalSubject);
-        return subject.StartsWith(InboundClarificationConstants.ReplySubjectMarker, StringComparison.OrdinalIgnoreCase)
-            ? subject
-            : InboundClarificationConstants.ReplySubjectPrefix + subject;
+        var flattened = FlattenToSingleLine(originalSubject);
+        if (IsSuspiciousSubject(flattened))
+        {
+            return InboundClarificationConstants.NeutralReplySubject;
+        }
+
+        var subject = flattened.StartsWith(InboundClarificationConstants.ReplySubjectMarker, StringComparison.OrdinalIgnoreCase)
+            ? flattened
+            : InboundClarificationConstants.ReplySubjectPrefix + flattened;
+
+        return TruncateAtWordBoundary(subject, InboundClarificationConstants.MaxReplySubjectLength);
     }
 
     internal static string? BuildReferences(ClarificationEmailThread? thread)
@@ -134,10 +147,29 @@ public sealed partial class EmailReplySender : IInboundReplySender
             .Select(Unbracket)
             .Where(IsValidMessageId)
             .Distinct(StringComparer.Ordinal)
+            .TakeLast(InboundClarificationConstants.MaxReferencesCount)
             .Select(Bracket)
             .ToList();
 
         return ids.Count > 0 ? string.Join(MessageIdSeparator, ids) : null;
+    }
+
+    private static bool IsSuspiciousSubject(string subject) =>
+        ClarificationQuestionGuard.ContainsLink(subject) ||
+        subject.Contains(InboundClarificationConstants.EncodedWordMarker, StringComparison.Ordinal) ||
+        subject.Contains(EmailAtSign) ||
+        ClarificationQuestionGuard.ContainsPhoneNumberLikeDigitRun(subject);
+
+    private static string TruncateAtWordBoundary(string value, int maxLength)
+    {
+        if (value.Length <= maxLength)
+        {
+            return value;
+        }
+
+        var truncated = value[..maxLength];
+        var lastSeparatorIndex = truncated.LastIndexOf(SubjectSeparator);
+        return lastSeparatorIndex > 0 ? truncated[..lastSeparatorIndex] : truncated;
     }
 
     private static IReadOnlyDictionary<string, string> BuildHeaders(InboundReplyTarget target)
@@ -191,12 +223,14 @@ public sealed partial class EmailReplySender : IInboundReplySender
 
     private static bool IsForbiddenInHeader(char character) =>
         char.IsControl(character) ||
-        char.GetUnicodeCategory(character) is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator;
+        char.GetUnicodeCategory(character) is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator or UnicodeCategory.Format;
 
     private static bool ContainsForbiddenHeaderCharacter(string? value) => value != null && value.Any(IsForbiddenInHeader);
 
     private static bool IsValidMessageId(string? messageId) =>
-        !string.IsNullOrEmpty(messageId) && ValidMessageId().IsMatch(messageId);
+        !string.IsNullOrEmpty(messageId) &&
+        messageId.Length <= InboundClarificationConstants.MaxMessageIdLength &&
+        ValidMessageId().IsMatch(messageId);
 
     private static string? Unbracket(string? messageId)
     {

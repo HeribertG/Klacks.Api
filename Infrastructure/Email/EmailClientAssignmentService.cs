@@ -97,11 +97,11 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
             return null;
         }
 
-        var fromAddress = email.FromAddress.ToLower();
+        var fromAddress = email.FromAddress.ToLowerInvariant();
         var match = await _context.Set<Communication>()
             .Where(c => !c.IsDeleted &&
                         (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
-                        c.Value != null && c.Value.ToLower() == fromAddress &&
+                        c.Value != null && c.Value.ToLowerInvariant() == fromAddress &&
                         c.Client != null && !c.Client.IsDeleted)
             .Select(c => new { c.ClientId, c.Client!.Type })
             .FirstOrDefaultAsync(cancellationToken);
@@ -116,15 +116,22 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
             return null;
         }
 
-        var normalizedAddress = fromAddress.ToLower();
-        return await _context.Set<Communication>()
+        var normalizedAddress = fromAddress.ToLowerInvariant();
+        var matches = await _context.Set<Communication>()
             .Where(c => !c.IsDeleted &&
-                        c.ClientId == clientId &&
                         (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
-                        c.Value != null && c.Value.ToLower() == normalizedAddress &&
+                        c.Value != null && c.Value.ToLowerInvariant() == normalizedAddress &&
                         c.Client != null && !c.Client.IsDeleted)
-            .Select(c => c.Value)
-            .FirstOrDefaultAsync(cancellationToken);
+            .Select(c => new { c.ClientId, c.Value })
+            .ToListAsync(cancellationToken);
+
+        var distinctClientIds = matches.Select(m => m.ClientId).Distinct().Take(2).ToList();
+        if (distinctClientIds.Count != 1 || distinctClientIds[0] != clientId)
+        {
+            return null;
+        }
+
+        return matches.First(m => m.ClientId == clientId).Value;
     }
 
     private async Task<HashSet<string>> GetClientEmailAddressesAsync()

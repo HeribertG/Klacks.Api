@@ -49,11 +49,28 @@ public static class InboundClarificationConstants
     /// </summary>
     public const int RunningShiftLookbackDays = 1;
 
-    public const string ReplySenderDisplayName = "Klacksy";
-
     public const string ReplySubjectPrefix = "Re: ";
 
     public const string ReplySubjectMarker = "Re:";
+
+    /// <summary>
+    /// Fixed subject used instead of reflecting the original subject when it looks suspicious (a link, a
+    /// MIME encoded-word marker, an '@' or a phone-like digit run), so none of that content is echoed
+    /// back to the employee.
+    /// </summary>
+    public const string NeutralReplySubject = "Re: Your message to the planning team";
+
+    public const int MaxReplySubjectLength = 120;
+
+    /// <summary>
+    /// Marker of a MIME encoded-word (RFC 2047), e.g. "=?UTF-8?B?...?=". A raw original subject containing
+    /// it was not decoded and must not be reflected as-is.
+    /// </summary>
+    public const string EncodedWordMarker = "=?";
+
+    public const int MaxMessageIdLength = 250;
+
+    public const int MaxReferencesCount = 10;
 
     public const string AutoSubmittedHeader = "Auto-Submitted";
 

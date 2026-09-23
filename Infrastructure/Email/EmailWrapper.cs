@@ -11,6 +11,8 @@ public class EmailWrapper
 
     internal const string LineBreakInHeaderMessage = "Email header values must not contain line breaks";
 
+    internal const string MultipleRecipientsMessage = "Email reply recipient must be a single address";
+
     private static readonly char[] LineBreakCharacters = ['\r', '\n'];
 
     public string AuthenticationType { get; set; } = string.Empty;
@@ -115,7 +117,13 @@ public class EmailWrapper
             EnsureSingleLine(value);
         }
 
-        var recipient = new MailAddress(strTo.Trim());
+        var trimmedTo = strTo.Trim();
+        var recipient = new MailAddress(trimmedTo);
+        if (!string.Equals(recipient.Address, trimmedTo, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new FormatException(MultipleRecipientsMessage);
+        }
+
         var mailMsg = CreateMessageFrom(ReplyTo);
         mailMsg.To.Add(recipient);
         mailMsg.Subject = subject;
