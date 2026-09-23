@@ -27,6 +27,12 @@ public class EmailService : IEmailService
         return mail.SendMail(email, title, message);
     }
 
+    public string SendReplyMail(string email, string title, string message, IReadOnlyDictionary<string, string> headers)
+    {
+        var mail = new MsgEMail(_context, _logger, _encryptionService);
+        return mail.SendReplyMail(email, title, message, headers);
+    }
+
     public async Task<bool> CanSendEmailAsync()
     {
         try

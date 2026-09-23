@@ -1,11 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Net.Mail;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Infrastructure.Email;
 
 public class EmailWrapper
 {
+    internal const string NoSenderAddressMessage = "No sender address available";
+
+    internal const string LineBreakInHeaderMessage = "Email header values must not contain line breaks";
+
+    private static readonly char[] LineBreakCharacters = ['\r', '\n'];
+
     public string AuthenticationType { get; set; } = string.Empty;
 
     public bool DispositionNotification { get; set; } = false;
@@ -71,7 +78,7 @@ public class EmailWrapper
     {
         if (string.IsNullOrEmpty(ReplyTo))
         {
-            return "No sender address available";
+            return NoSenderAddressMessage;
         }
 
         MailMessage mailMsg = SetAddress(strTo, ReplyTo);
@@ -84,6 +91,54 @@ public class EmailWrapper
         }
 
         return SendEmail(mailMsg);
+    }
+
+    public string SendReplyMessage(string strTo, string strSubject, string strMessage, IReadOnlyDictionary<string, string> headers)
+    {
+        using var mailMsg = BuildReplyMessage(strTo, strSubject, strMessage, headers);
+        return mailMsg == null ? NoSenderAddressMessage : SendEmail(mailMsg);
+    }
+
+    internal MailMessage? BuildReplyMessage(string strTo, string strSubject, string strMessage, IReadOnlyDictionary<string, string> headers)
+    {
+        if (string.IsNullOrEmpty(ReplyTo))
+        {
+            return null;
+        }
+
+        var subject = (strSubject ?? string.Empty).Trim();
+        EnsureSingleLine(subject);
+        EnsureSingleLine(strTo);
+        foreach (var (name, value) in headers)
+        {
+            EnsureSingleLine(name);
+            EnsureSingleLine(value);
+        }
+
+        var recipient = new MailAddress(strTo.Trim());
+        var mailMsg = CreateMessageFrom(ReplyTo);
+        mailMsg.To.Add(recipient);
+        mailMsg.Subject = subject;
+        mailMsg.Body = (strMessage ?? string.Empty).Trim() + Environment.NewLine;
+        mailMsg.IsBodyHtml = false;
+
+        foreach (var (name, value) in headers)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                mailMsg.Headers.Add(name, value);
+            }
+        }
+
+        return mailMsg;
+    }
+
+    private static void EnsureSingleLine(string? value)
+    {
+        if (value != null && value.IndexOfAny(LineBreakCharacters) >= 0)
+        {
+            throw new ArgumentException(LineBreakInHeaderMessage);
+        }
     }
 
     private string SendEmail(MailMessage mailMsg)
@@ -121,14 +176,12 @@ public class EmailWrapper
             return ex.Message;
         }
 
-        return "true";
+        return EmailConstants.SendSucceededResult;
     }
 
     private MailMessage SetAddress(string strTo, string address)
     {
-        MailMessage mailMsg;
-
-        mailMsg = string.IsNullOrEmpty(Mark) ? new MailMessage() { From = new MailAddress(address.Trim()) } : new MailMessage() { From = new MailAddress(Mark + "<" + address.Trim() + ">") };
+        var mailMsg = CreateMessageFrom(address);
 
         var tmpTo = strTo.Split(";");
 
@@ -142,6 +195,11 @@ public class EmailWrapper
 
         return mailMsg;
     }
+
+    private MailMessage CreateMessageFrom(string address) =>
+        string.IsNullOrEmpty(Mark)
+            ? new MailMessage() { From = new MailAddress(address.Trim()) }
+            : new MailMessage() { From = new MailAddress(Mark + "<" + address.Trim() + ">") };
 
     private void SetBody(string strSubject, string strMessage, MailMessage mailMsg)
     {

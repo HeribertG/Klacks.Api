@@ -11,4 +11,5 @@ public interface IEmailClientAssignmentService
     Task AssignNewEmailAsync(ReceivedEmail email);
     Task ReassignOrphanedEmailsAsync();
     Task<(Guid ClientId, EntityTypeEnum ClientType)?> ResolveClientAsync(ReceivedEmail email, CancellationToken cancellationToken = default);
+    Task<string?> GetStoredAddressAsync(Guid clientId, string fromAddress, CancellationToken cancellationToken = default);
 }

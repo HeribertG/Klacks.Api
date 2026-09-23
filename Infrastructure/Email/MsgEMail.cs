@@ -9,6 +9,8 @@ namespace Klacks.Api.Infrastructure.Email;
 
 public class MsgEMail
 {
+    private const string WrapperInitialisationFailedMessage = "Wrong Initialisation of the Email Wrapper";
+
     private readonly DataBaseContext context;
     private readonly ISettingsEncryptionService? _encryptionService;
     private readonly ILogger _logger;
@@ -28,7 +30,15 @@ public class MsgEMail
             return email.SendEmailMessage(currenteMail, subject, msg, string.Empty);
         }
 
-        return "Wrong Initialisation of the Email Wrapper";
+        return WrapperInitialisationFailedMessage;
+    }
+
+    public string SendReplyMail(string recipient, string subject, string message, IReadOnlyDictionary<string, string> headers)
+    {
+        var email = InitEMailWrapper();
+        return email != null
+            ? email.SendReplyMessage(recipient, subject, message, headers)
+            : WrapperInitialisationFailedMessage;
     }
 
     private EmailWrapper? InitEMailWrapper()

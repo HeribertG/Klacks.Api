@@ -109,6 +109,24 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         return match == null ? null : (match.ClientId, match.Type);
     }
 
+    public async Task<string?> GetStoredAddressAsync(Guid clientId, string fromAddress, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(fromAddress))
+        {
+            return null;
+        }
+
+        var normalizedAddress = fromAddress.ToLower();
+        return await _context.Set<Communication>()
+            .Where(c => !c.IsDeleted &&
+                        c.ClientId == clientId &&
+                        (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
+                        c.Value != null && c.Value.ToLower() == normalizedAddress &&
+                        c.Client != null && !c.Client.IsDeleted)
+            .Select(c => c.Value)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     private async Task<HashSet<string>> GetClientEmailAddressesAsync()
     {
         var addresses = await _context.Set<Communication>()
