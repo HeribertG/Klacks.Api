@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Read-only projection of a client's planned shifts for the clarification question: real plan rows
-/// only (not soft-deleted, no analyse-scenario rows), ordered by date and start time, with the shift
-/// name as stored. A dedicated narrow query because IWorkRepository.GetByClientAndDateRangeAsync neither
-/// filters scenario rows nor loads the shift.
+/// only (not soft-deleted, no analyse-scenario rows, no container sub-rows via ParentWorkId, and
+/// rows whose Shift is soft-deleted are excluded by the required-navigation query filter), ordered
+/// by date and start time, with the shift name as stored. A dedicated narrow query because
+/// IWorkRepository.GetByClientAndDateRangeAsync neither filters scenario rows nor loads the shift.
 /// </summary>
 /// <param name="context">The scoped database context</param>
 
@@ -31,6 +32,7 @@ public class InboundShiftContextReader : IInboundShiftContextReader
             .AsNoTracking()
             .Where(w => w.ClientId == clientId
                         && !w.IsDeleted
+                        && w.ParentWorkId == null
                         && w.AnalyseToken == null
                         && w.CurrentDate >= fromDate
                         && w.CurrentDate <= untilDate)
