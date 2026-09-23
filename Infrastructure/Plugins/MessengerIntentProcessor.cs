@@ -6,6 +6,15 @@
 /// pipeline uses, mirroring EmailPollingBackgroundService.ProcessEmailAsync step for step: feature gate
 /// MESSENGER_ANALYSIS_ENABLED, client-type resolution, analyze, persist + commit, execute actions,
 /// period-load digest (employees/externs with a dated intent only), notify planners/admins.
+/// Around the analysis it runs the inbound clarification dialog (IClarificationCoordinator, resolved lazily
+/// like the other kernel services): an answer to an open clarification replaces the regular analysis and
+/// is persisted and acted on exactly as returned (same instance and Id, which the clarification already
+/// references), and when a clarification question went out the action orchestrator and the regular
+/// notification are skipped for the unclear message. The regular analysis is persisted and committed
+/// before the post-analysis check, so the clarification can reference it; the in-memory instance is
+/// handed on because some flags are not persisted. A message whose analysis already exists is skipped
+/// before the clarification check and the LLM call (idempotency against a re-delivered message). A
+/// failure of the clarification dialog never breaks the adapter: it degrades to the regular path.
 /// The sender shown to planners is the client's own name from the database (the messenger profile name
 /// is chosen by the user and may be a nickname), falling back to SenderDisplayName, then Sender.
 /// The kernel services are resolved lazily from the (per-message) scope instead of the constructor on
@@ -26,6 +35,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Inbound;
+using Klacks.Api.Infrastructure.Inbound;
 using Klacks.Plugin.Contracts;
 
 namespace Klacks.Api.Infrastructure.Plugins;
@@ -61,14 +71,42 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
             return;
         }
 
-        var source = ToInboundSource(message, client.DisplayName);
-
-        var intentAnalysisService = _serviceProvider.GetRequiredService<IInboundIntentAnalysisService>();
-        var analysis = await intentAnalysisService.AnalyzeAsync(message.ClientId, client.Type, source, cancellationToken);
-
         var analysisRepository = _serviceProvider.GetRequiredService<IInboundAnalysisRepository>();
+        if (await analysisRepository.GetBySourceAsync(InboundSourceKind.Messenger, message.MessageId, cancellationToken) != null)
+        {
+            _logger.LogInformation(
+                "Skipping messenger intent analysis for message {MessageId}: it was already analyzed", message.MessageId);
+            return;
+        }
+
+        var source = ToInboundSource(message, client.DisplayName);
+        var clarificationRequest = new ClarificationRequest(
+            ClientId: message.ClientId,
+            ClientType: client.Type,
+            Source: source,
+            ReplyChannel: message.Channel,
+            SenderAddress: message.Sender,
+            EmailThread: null);
+        var preAnalysis = await BeforeAnalysisSafelyAsync(clarificationRequest, cancellationToken);
+
+        var analysis = preAnalysis.AnswerAnalysis
+            ?? await _serviceProvider.GetRequiredService<IInboundIntentAnalysisService>()
+                .AnalyzeAsync(message.ClientId, client.Type, source, cancellationToken);
+
         await analysisRepository.AddAsync(analysis, cancellationToken);
         await _serviceProvider.GetRequiredService<IUnitOfWork>().CompleteAsync();
+
+        var clarificationContext = preAnalysis.NotifierContext;
+        if (preAnalysis.AnswerAnalysis == null)
+        {
+            var postAnalysis = await AfterAnalysisSafelyAsync(clarificationRequest, analysis, cancellationToken);
+            if (postAnalysis.QuestionSent)
+            {
+                return;
+            }
+
+            clarificationContext = ClarificationNotificationTexts.JoinContext(clarificationContext, postAnalysis.NotifierContext);
+        }
 
         var actionOrchestrator = _serviceProvider.GetRequiredService<IInboundActionOrchestrator>();
         var actionOutcome = await actionOrchestrator.ExecuteAsync(message.ClientId, source, analysis, cancellationToken);
@@ -83,7 +121,49 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
         }
 
         var analysisNotifier = _serviceProvider.GetRequiredService<IInboundAnalysisNotifier>();
-        await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, null, cancellationToken);
+        await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, clarificationContext, cancellationToken);
+    }
+
+    private async Task<ClarificationPreAnalysis> BeforeAnalysisSafelyAsync(
+        ClarificationRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _serviceProvider.GetRequiredService<IClarificationCoordinator>()
+                .BeforeAnalysisAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Clarification answer check failed for messenger message {MessageId}; the message is analyzed normally",
+                request.Source.SourceId);
+            return ClarificationPreAnalysis.None;
+        }
+    }
+
+    private async Task<ClarificationPostAnalysis> AfterAnalysisSafelyAsync(
+        ClarificationRequest request, InboundAnalysis analysis, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _serviceProvider.GetRequiredService<IClarificationCoordinator>()
+                .AfterAnalysisAsync(request, analysis, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Clarification check failed for messenger message {MessageId}; the message stays on the regular path",
+                request.Source.SourceId);
+            return ClarificationPostAnalysis.Continue;
+        }
     }
 
     private static InboundSource ToInboundSource(InboundClientMessengerMessage message, string clientDisplayName) => new(
