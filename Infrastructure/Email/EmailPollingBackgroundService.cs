@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Inbound;
+using Klacks.Api.Infrastructure.Inbound;
 using IEmailNotificationService = Klacks.Api.Domain.Interfaces.Email.IEmailNotificationService;
 
 namespace Klacks.Api.Infrastructure.Email;
@@ -127,7 +128,16 @@ public class EmailPollingBackgroundService : BackgroundService
     /// GetUnprocessedAsync retries this email on the next poll cycle instead of dropping it silently.
     /// Idempotent by design: re-running on an email already past a given stage (e.g. already moved out
     /// of the inbox folder) just skips that stage, which is what makes retry-from-any-interruption-point
-    /// safe.
+    /// safe. An email whose analysis already exists (e.g. processed_at was reset by hand) is only marked
+    /// processed, before the client lookup and the LLM call; otherwise the unique source index would fail
+    /// the insert on every cycle. Before the analysis it commits the staged client-assignment changes (the
+    /// clarification repository is self-committing and must not flush them implicitly) and asks
+    /// IClarificationCoordinator whether the mail answers an open clarification: that answer analysis then
+    /// replaces the regular one and is persisted as the very instance (and Id) the clarification already
+    /// references. After persisting and committing the analysis together with ProcessedAt it lets the
+    /// coordinator ask back once, handing on the in-memory analysis; when a question went out, the action
+    /// orchestrator and the regular notification are skipped. Both hooks run through
+    /// ClarificationDialogSafeGuard, so a failing clarification dialog degrades to the regular path.
     /// </summary>
     internal async Task ProcessEmailAsync(
         IServiceScope scope,
@@ -179,6 +189,17 @@ public class EmailPollingBackgroundService : BackgroundService
             (Guid ClientId, EntityTypeEnum ClientType)? client = null;
             if (emailAnalysisEnabled)
             {
+                var existingAnalysis = await scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>()
+                    .GetBySourceAsync(InboundSourceKind.Email, email.Id, stoppingToken);
+                if (existingAnalysis != null)
+                {
+                    _logger.LogInformation(
+                        "Email {EmailId} was already analyzed; marking it processed without a new analysis", email.Id);
+                    email.ProcessedAt = DateTime.UtcNow;
+                    await unitOfWork.CompleteAsync();
+                    return;
+                }
+
                 client = await assignmentService.ResolveClientAsync(email, stoppingToken);
             }
 
@@ -190,26 +211,36 @@ public class EmailPollingBackgroundService : BackgroundService
             }
 
             var (clientId, clientType) = client.Value;
-            var analysisService = scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>();
-            var analysis = await analysisService.AnalyzeAsync(clientId, clientType, source, stoppingToken);
+            await unitOfWork.CompleteAsync();
+
+            var clarificationRequest = ToClarificationRequest(email, clientId, clientType, source);
+            var preAnalysis = await ClarificationDialogSafeGuard.BeforeAnalysisSafelyAsync(
+                scope.ServiceProvider, clarificationRequest, _logger, stoppingToken);
+
+            var analysis = preAnalysis.AnswerAnalysis
+                ?? await scope.ServiceProvider.GetRequiredService<IInboundIntentAnalysisService>()
+                    .AnalyzeAsync(clientId, clientType, source, stoppingToken);
 
             email.ProcessedAt = DateTime.UtcNow;
-
-            if (analysis == null)
-            {
-                await unitOfWork.CompleteAsync();
-                return;
-            }
 
             var analysisRepository = scope.ServiceProvider.GetRequiredService<IInboundAnalysisRepository>();
             await analysisRepository.AddAsync(analysis, stoppingToken);
             await unitOfWork.CompleteAsync();
 
+            var clarificationContext = preAnalysis.NotifierContext;
+            if (preAnalysis.AnswerAnalysis == null)
+            {
+                var postAnalysis = await ClarificationDialogSafeGuard.AfterAnalysisSafelyAsync(
+                    scope.ServiceProvider, clarificationRequest, analysis, _logger, stoppingToken);
+                if (postAnalysis.QuestionSent)
+                {
+                    return;
+                }
+
+                clarificationContext = ClarificationNotificationTexts.JoinContext(clarificationContext, postAnalysis.NotifierContext);
+            }
+
             var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();
-            // AnalyzeAsync always echoes the resolved clientId onto the analysis it returns (see
-            // InboundIntentAnalysisService), so analysis.ClientId is guaranteed set here; the ?? fallback
-            // to the already-resolved clientId avoids a null-forgiving operator on the nullable property
-            // without adding a branch that would never be taken.
             var resolvedClientId = analysis.ClientId ?? clientId;
             var actionOutcome = await actionOrchestrator.ExecuteAsync(resolvedClientId, source, analysis, stoppingToken);
 
@@ -223,7 +254,7 @@ public class EmailPollingBackgroundService : BackgroundService
             }
 
             var analysisNotifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
-            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, null, stoppingToken);
+            await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, clarificationContext, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
@@ -241,6 +272,19 @@ public class EmailPollingBackgroundService : BackgroundService
         email.Id, InboundSourceKind.Email, EmailConstants.InboundChannel,
         string.IsNullOrWhiteSpace(email.FromName) ? email.FromAddress : $"{email.FromName} ({email.FromAddress})",
         email.Subject, email.BodyText ?? email.BodyHtml ?? string.Empty, email.ReceivedDate);
+
+    private static ClarificationRequest ToClarificationRequest(
+        ReceivedEmail email, Guid clientId, EntityTypeEnum clientType, InboundSource source) => new(
+        ClientId: clientId,
+        ClientType: clientType,
+        Source: source,
+        ReplyChannel: EmailConstants.InboundChannel,
+        SenderAddress: email.FromAddress,
+        EmailThread: new ClarificationEmailThread(
+            MessageId: email.MessageId,
+            InReplyTo: email.InReplyTo,
+            ThreadReferences: email.ThreadReferences,
+            IsAutoGenerated: email.IsAutoGenerated));
 
     private async Task InitialSyncAsync(CancellationToken stoppingToken)
     {

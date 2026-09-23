@@ -14,7 +14,8 @@
 /// before the post-analysis check, so the clarification can reference it; the in-memory instance is
 /// handed on because some flags are not persisted. A message whose analysis already exists is skipped
 /// before the clarification check and the LLM call (idempotency against a re-delivered message). A
-/// failure of the clarification dialog never breaks the adapter: it degrades to the regular path.
+/// failure of the clarification dialog never breaks the adapter: both hooks run through
+/// ClarificationDialogSafeGuard, which degrades to the regular path.
 /// The sender shown to planners is the client's own name from the database (the messenger profile name
 /// is chosen by the user and may be a nickname), falling back to SenderDisplayName, then Sender.
 /// The kernel services are resolved lazily from the (per-message) scope instead of the constructor on
@@ -87,7 +88,8 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
             ReplyChannel: message.Channel,
             SenderAddress: message.Sender,
             EmailThread: null);
-        var preAnalysis = await BeforeAnalysisSafelyAsync(clarificationRequest, cancellationToken);
+        var preAnalysis = await ClarificationDialogSafeGuard.BeforeAnalysisSafelyAsync(
+            _serviceProvider, clarificationRequest, _logger, cancellationToken);
 
         var analysis = preAnalysis.AnswerAnalysis
             ?? await _serviceProvider.GetRequiredService<IInboundIntentAnalysisService>()
@@ -99,7 +101,8 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
         var clarificationContext = preAnalysis.NotifierContext;
         if (preAnalysis.AnswerAnalysis == null)
         {
-            var postAnalysis = await AfterAnalysisSafelyAsync(clarificationRequest, analysis, cancellationToken);
+            var postAnalysis = await ClarificationDialogSafeGuard.AfterAnalysisSafelyAsync(
+                _serviceProvider, clarificationRequest, analysis, _logger, cancellationToken);
             if (postAnalysis.QuestionSent)
             {
                 return;
@@ -122,48 +125,6 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
 
         var analysisNotifier = _serviceProvider.GetRequiredService<IInboundAnalysisNotifier>();
         await analysisNotifier.NotifyAsync(source, analysis, actionOutcome, periodLoadSummary, clarificationContext, cancellationToken);
-    }
-
-    private async Task<ClarificationPreAnalysis> BeforeAnalysisSafelyAsync(
-        ClarificationRequest request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _serviceProvider.GetRequiredService<IClarificationCoordinator>()
-                .BeforeAnalysisAsync(request, cancellationToken);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex,
-                "Clarification answer check failed for messenger message {MessageId}; the message is analyzed normally",
-                request.Source.SourceId);
-            return ClarificationPreAnalysis.None;
-        }
-    }
-
-    private async Task<ClarificationPostAnalysis> AfterAnalysisSafelyAsync(
-        ClarificationRequest request, InboundAnalysis analysis, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _serviceProvider.GetRequiredService<IClarificationCoordinator>()
-                .AfterAnalysisAsync(request, analysis, cancellationToken);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex,
-                "Clarification check failed for messenger message {MessageId}; the message stays on the regular path",
-                request.Source.SourceId);
-            return ClarificationPostAnalysis.Continue;
-        }
     }
 
     private static InboundSource ToInboundSource(InboundClientMessengerMessage message, string clientDisplayName) => new(
