@@ -43,8 +43,6 @@ public static class InboundClarificationConstants
 
     public const int DefaultShiftLookaheadDays = 1;
 
-    public const int DstGapShiftHours = 1;
-
     public const string ReplySenderDisplayName = "Klacksy";
 
     public const string ReplySubjectPrefix = "Re: ";
