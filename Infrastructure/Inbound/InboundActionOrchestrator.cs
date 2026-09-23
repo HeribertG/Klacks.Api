@@ -694,7 +694,7 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             skillName,
             Permissions.ExpandRoles(token.Roles),
             level,
-            UnattendedExecutionKind.EmailAutomation,
+            UnattendedExecutionKind.InboundAutomation,
             AllowIrreversibleUnattended: false));
         if (!decision.Allowed)
         {
