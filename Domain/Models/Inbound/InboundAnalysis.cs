@@ -38,4 +38,8 @@ public class InboundAnalysis : BaseEntity
     public DateTime AnalyzedAt { get; set; }
 
     public string? FailureReason { get; set; }
+
+    public bool NeedsClarification { get; set; }
+
+    public string? ClarificationQuestion { get; set; }
 }

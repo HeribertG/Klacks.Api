@@ -15,11 +15,14 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class InboundAnalysisConfiguration : IEntityTypeConfiguration<InboundAnalysis>
 {
+    private const int ClarificationQuestionMaxLength = 500;
+
     public void Configure(EntityTypeBuilder<InboundAnalysis> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.SourceKind, p.SourceId }).IsUnique();
         builder.HasIndex(p => new { p.IsDeleted, p.ClientId });
         builder.HasIndex(p => new { p.IsDeleted, p.Intent });
+        builder.Property(p => p.ClarificationQuestion).HasMaxLength(ClarificationQuestionMaxLength);
     }
 }

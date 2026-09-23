@@ -312,6 +312,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<EmailFolder> EmailFolders { get; set; }
     public DbSet<SpamRule> SpamRules { get; set; }
     public DbSet<InboundAnalysis> InboundAnalyses { get; set; }
+    public DbSet<InboundClarification> InboundClarifications { get; set; }
 
     // Plugin DbSets
     public DbSet<PluginDoc> PluginDocs { get; set; }
