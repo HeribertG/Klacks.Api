@@ -7,7 +7,15 @@
 /// message came from, and only when the enabled provider's adapter implements IPersonalRecipientClassifier
 /// and classifies the value as a personal address; a provider without that capability counts as "no".
 /// The channel name (MessengerType name) matches the provider type case-insensitively ("Line" vs
-/// "LINE"). The plugin's runtime switch is honoured through IPluginStateChecker. Every failure is mapped
+/// "LINE"). Exactly one enabled provider must match that type; zero or several are treated as
+/// "cannot tell" (fail-closed). MessagingService.SendMessageAsync resolves its providerName argument by
+/// NAME first and only falls back to a type match among enabled providers when no provider carries that
+/// exact name (ResolveProviderAsync); passing the raw channel string there could therefore hit a
+/// differently-typed provider that happens to be named after the channel, or - among several enabled
+/// providers of the classified type - a different one than the adapter here just approved. SendAsync
+/// resolves and re-classifies the provider itself and always sends through its NAME, so it goes through
+/// the exact provider that was classified as personal.
+/// The plugin's runtime switch is honoured through IPluginStateChecker. Every failure is mapped
 /// to a result value. Constructor takes plugin-level services only: MessagingService sits inside the
 /// ILLMService graph, so this class must stay a dependency leaf and must never be injected into a
 /// messenger observer.
@@ -33,6 +41,7 @@ namespace Klacks.Api.Infrastructure.Plugins;
 public sealed class MessagingPluginClientReplyChannel : IClientMessengerReplyChannel
 {
     private const string PluginDisabledError = "The messaging plugin is disabled";
+    private const string NoVerifiedPersonalProviderError = "No single enabled provider could verify the recipient as a personal address";
 
     private readonly IPluginStateChecker _pluginStateChecker;
     private readonly IMessengerContactRepository _contactRepository;
@@ -60,7 +69,7 @@ public sealed class MessagingPluginClientReplyChannel : IClientMessengerReplyCha
     public async Task<string?> ResolvePersonalRecipientAsync(Guid clientId, string channel, CancellationToken cancellationToken = default)
     {
         if (!_pluginStateChecker.IsEnabled(MessagingConstants.PluginName)
-            || !Enum.TryParse<MessengerType>(channel, ignoreCase: true, out var messengerType))
+            || !TryParseChannel(channel, out var messengerType))
         {
             return null;
         }
@@ -73,15 +82,8 @@ public sealed class MessagingPluginClientReplyChannel : IClientMessengerReplyCha
                 return null;
             }
 
-            var providers = await _providerRepository.GetEnabledAsync();
-            var provider = providers.FirstOrDefault(p => string.Equals(p.ProviderType, channel, StringComparison.OrdinalIgnoreCase));
-            if (provider == null)
-            {
-                return null;
-            }
-
-            var adapter = _adapterFactory.Create(provider.ProviderType);
-            return adapter is IPersonalRecipientClassifier classifier && classifier.IsPersonalRecipient(contact.Value)
+            var resolved = await ResolveEnabledProviderAsync(messengerType);
+            return resolved is { Classifier: { } classifier } && classifier.IsPersonalRecipient(contact.Value)
                 ? contact.Value
                 : null;
         }
@@ -99,10 +101,21 @@ public sealed class MessagingPluginClientReplyChannel : IClientMessengerReplyCha
             return InboundReplyResult.Failed(PluginDisabledError);
         }
 
+        if (!TryParseChannel(channel, out var messengerType))
+        {
+            return InboundReplyResult.Failed(NoVerifiedPersonalProviderError);
+        }
+
         try
         {
+            var resolved = await ResolveEnabledProviderAsync(messengerType);
+            if (resolved is not { Provider: var provider, Classifier: { } classifier } || !classifier.IsPersonalRecipient(recipient))
+            {
+                return InboundReplyResult.Failed(NoVerifiedPersonalProviderError);
+            }
+
             var result = await _messagingService.SendMessageAsync(
-                channel,
+                provider.Name,
                 new SendMessageRequest(recipient, text, SenderDisplayName: MessagingConstants.KlacksySenderDisplayName),
                 cancellationToken);
 
@@ -113,5 +126,26 @@ public sealed class MessagingPluginClientReplyChannel : IClientMessengerReplyCha
             _logger.LogWarning(ex, "Clarification message on {Channel} could not be sent", channel);
             return InboundReplyResult.Failed(ex.Message);
         }
+    }
+
+    private static bool TryParseChannel(string channel, out MessengerType messengerType) =>
+        Enum.TryParse(channel, ignoreCase: true, out messengerType) && Enum.IsDefined(messengerType);
+
+    private async Task<(MessagingProvider Provider, IPersonalRecipientClassifier? Classifier)?> ResolveEnabledProviderAsync(MessengerType type)
+    {
+        var providers = await _providerRepository.GetEnabledAsync();
+        var typeName = type.ToString();
+        var matches = providers
+            .Where(p => p.IsEnabled && string.Equals(p.ProviderType, typeName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matches.Count != 1)
+        {
+            return null;
+        }
+
+        var provider = matches[0];
+        var adapter = _adapterFactory.Create(provider.ProviderType);
+        return (provider, adapter as IPersonalRecipientClassifier);
     }
 }
