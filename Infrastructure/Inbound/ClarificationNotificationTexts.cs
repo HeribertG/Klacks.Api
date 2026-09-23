@@ -5,7 +5,9 @@
 /// (answered or still unclear), question unanswered (expired), send failure, suggested question at
 /// global level Propose or with the kill switch, missing personal contact, and a message that arrived
 /// after its question had expired. Times are company-local. JoinContext combines two optional context
-/// blocks for the regular analysis notification.
+/// blocks for the regular analysis notification. SendFailed never repeats the raw provider/exception
+/// text to planners — that detail belongs in the logs only (ClarificationCoordinator logs ids and the
+/// exception or error string); the planner-facing text stays generic on purpose.
 /// </summary>
 /// <param name="sender">Sender label shown to planners</param>
 /// <param name="question">The clarification question</param>
@@ -22,7 +24,6 @@ internal static class ClarificationNotificationTexts
     private const string LocalTimeFormat = "yyyy-MM-dd HH:mm";
     private const string ContextSeparator = "\n\n";
     private const string NoShiftKnown = "none found in the plan";
-    private const string UnknownError = "unknown error";
     private const string Ellipsis = "…";
 
     internal static string Started(string sender, string summary, string question, string? shiftContext, DateTime deadlineLocal) =>
@@ -51,16 +52,16 @@ internal static class ClarificationNotificationTexts
         $"Affected shift: {shiftContext ?? NoShiftKnown}\n" +
         "Please follow up personally.";
 
-    internal static string SendFailed(string question, string? error) =>
-        $"⚠️ Klacksy's question \"{question}\" could not be sent ({(string.IsNullOrWhiteSpace(error) ? UnknownError : error)}). " +
-        "Please follow up personally.";
+    internal static string SendFailed(string question) =>
+        $"⚠️ Klacksy's question \"{question}\" could not be sent. Please follow up personally.";
 
     internal static string Suggested(string question) =>
         $"💡 Klacksy would ask back: \"{question}\" — questions are only sent automatically from the global autonomy " +
         "level Assisted upwards and while the kill switch is off.";
 
     internal static string NoPersonalTarget() =>
-        "ℹ️ The message is unclear, but Klacksy cannot ask back: this employee has no personal contact on this channel.";
+        "ℹ️ The message is unclear, but Klacksy cannot ask back: no unambiguous personal contact could be determined " +
+        "for this employee on this channel.";
 
     internal static string AnsweredAfterExpiry(string question, DateTime askedLocal) =>
         $"ℹ️ This message arrived after Klacksy's question \"{question}\" (asked {Format(askedLocal)}) had expired unanswered.";

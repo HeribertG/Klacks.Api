@@ -313,7 +313,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
         var deadlineUtc = ClarificationDeadlineCalculator.Compute(nowUtc, composed.ShiftStartUtc);
         var clarification = BuildClarification(
-            request, analysis, composed, target.Recipient, InboundClarificationStatus.Open, nowUtc, deadlineUtc);
+            request, analysis, composed, target.Recipient, InboundClarificationStatus.Open, askedAtUtc: nowUtc, deadlineUtc: deadlineUtc);
         var clarificationId = clarification.Id;
         if (!await _clarificationRepository.TryAddOpenAsync(clarification, cancellationToken))
         {
@@ -324,8 +324,11 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         var delivery = await SendSafelyAsync(sender, request, target, composed.Question, cancellationToken);
         if (!delivery.Success)
         {
+            _logger.LogWarning(
+                "Clarification question to client {ClientId} (clarification {ClarificationId}) could not be sent: {Error}",
+                request.ClientId, clarificationId, delivery.Error);
             await MarkUnresolvedSafelyAsync(clarificationId, request.ClientId);
-            return ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.SendFailed(composed.Question, delivery.Error));
+            return ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.SendFailed(composed.Question));
         }
 
         await NotifyStartedSafelyAsync(request, analysis, composed, deadlineUtc, cancellationToken);
@@ -342,7 +345,8 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         }
 
         await _clarificationRepository.AddAsync(
-            BuildClarification(request, analysis, composed, string.Empty, InboundClarificationStatus.Suggested, nowUtc, nowUtc),
+            BuildClarification(
+                request, analysis, composed, string.Empty, InboundClarificationStatus.Suggested, askedAtUtc: nowUtc, deadlineUtc: nowUtc),
             cancellationToken);
         return ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.Suggested(composed.Question));
     }
@@ -369,13 +373,19 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
     {
         try
         {
-            await _clarificationRepository.TryResolveAsync(
+            var resolved = await _clarificationRepository.TryResolveAsync(
                 clarificationId,
                 InboundClarificationStatus.Unresolved,
                 answerSourceId: null,
                 resultAnalysisId: null,
                 resolvedAtUtc: await UtcNowAsync(CancellationToken.None),
                 cancellationToken: CancellationToken.None);
+            if (!resolved)
+            {
+                _logger.LogWarning(
+                    "Clarification {ClarificationId} of client {ClientId} was no longer Open when marking it unresolved after a failed send",
+                    clarificationId, clientId);
+            }
         }
         catch (Exception ex)
         {
@@ -454,8 +464,12 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
     private async Task<DateTime> UtcNowAsync(CancellationToken cancellationToken) =>
         (await _companyClock.GetNowAsync(cancellationToken)).UtcDateTime;
 
-    private static DateTime AsUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+    private static DateTime AsUtc(DateTime value) => value.Kind switch
+    {
+        DateTimeKind.Utc => value,
+        DateTimeKind.Local => value.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+    };
 
     private static DateTime ToLocal(DateTime utc, TimeZoneInfo companyTimeZone) =>
         TimeZoneInfo.ConvertTimeFromUtc(AsUtc(utc), companyTimeZone);

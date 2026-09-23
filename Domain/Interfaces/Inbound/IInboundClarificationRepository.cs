@@ -7,6 +7,9 @@
 /// scope when they call a write method, because its SaveChanges would flush them too. AddAsync rejects
 /// Status == Open with ArgumentOutOfRangeException — an Open row must go through TryAddOpenAsync so the
 /// partial unique index is always the one deciding whether a client may get a new open clarification.
+/// CountAskedSinceAsync counts a round (excluding Suggested) as within the rate-limit window when either
+/// it was asked since the given instant or it ended (ResolvedAt) since then — a completed round still
+/// blocks a new question until its own end falls outside the window, not just its start.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;

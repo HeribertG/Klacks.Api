@@ -92,7 +92,7 @@ public class InboundClarificationRepository : IInboundClarificationRepository
         return await _context.InboundClarifications
             .CountAsync(c => c.ClientId == clientId
                              && c.Status != InboundClarificationStatus.Suggested
-                             && c.AskedAt >= sinceUtc, cancellationToken);
+                             && (c.AskedAt >= sinceUtc || c.ResolvedAt >= sinceUtc), cancellationToken);
     }
 
     public async Task<IReadOnlyList<InboundClarification>> GetOpenDueAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
