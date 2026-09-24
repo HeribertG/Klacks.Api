@@ -94,6 +94,8 @@ public static class InboundClarificationConstants
 
     public const int MinSweepSeconds = 1;
 
+    public const int MaxSweepSeconds = 86_400;
+
     public const string AutoSubmittedHeader = "Auto-Submitted";
 
     public const string AutoSubmittedReplyValue = "auto-replied";
