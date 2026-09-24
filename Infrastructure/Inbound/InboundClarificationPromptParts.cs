@@ -4,7 +4,8 @@
 /// Prompt fragments of the inbound clarification dialog that extend the intent-extraction prompt of
 /// InboundIntentAnalysisService: the two extra JSON fields, the rules for when a message needs a
 /// question back and what that question may ask, the extra instruction for re-analysing an answered
-/// question, and the user message of that re-analysis (original message, question, answer).
+/// question, and the user message of that re-analysis (original message, question, answer), where each
+/// part is wrapped in its own untrusted-data tag with forged closing tags neutralized (UntrustedTextBlock).
 /// </summary>
 /// <param name="senderDisplay">Sender label shown in the From line</param>
 /// <param name="originalText">The employee's original, unclear message</param>

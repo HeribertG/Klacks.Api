@@ -4,7 +4,8 @@
 /// All planner-facing texts of the inbound clarification dialog: question started, answer context
 /// (answered or still unclear), question unanswered (expired), send failure, suggested question at
 /// global level Propose or with the kill switch, missing personal contact, and a message that arrived
-/// after its question had expired. Times are company-local. JoinContext combines two optional context
+/// after its question had expired, and one that arrived after its question was already closed by a planner
+/// takeover or a parallel answer. Times are company-local. JoinContext combines two optional context
 /// blocks for the regular analysis notification. SendFailed never repeats the raw provider/exception
 /// text to planners — that detail belongs in the logs only (ClarificationCoordinator logs ids and the
 /// exception or error string); the planner-facing text stays generic on purpose.
@@ -13,6 +14,7 @@
 /// <param name="question">The clarification question</param>
 /// <param name="askedLocal">Company-local time the question was asked</param>
 /// <param name="deadlineLocal">Company-local answer deadline</param>
+/// <param name="statusText">Plain-language status of the closed clarification (ClarificationStatusText)</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;

@@ -15,7 +15,7 @@
 /// </summary>
 /// <param name="serviceProvider">Creates the scope of each cycle</param>
 /// <param name="timeProvider">Injected clock, so tests can drive "now"</param>
-/// <param name="options">Flag, cadence and startup delay</param>
+/// <param name="options">Flag, cadence and startup delay; both durations are clamped to at least MinSweepSeconds, so a zero or negative configured value cannot crash the service</param>
 /// <param name="logger">Lifecycle and per-cycle log</param>
 
 using Klacks.Api.Application.Configuration;
@@ -73,7 +73,7 @@ public sealed class ClarificationExpirySweep : BackgroundService
         _logger.LogInformation("ClarificationExpirySweep stopped");
     }
 
-    private static TimeSpan ClampedSeconds(int configuredSeconds) =>
+    internal static TimeSpan ClampedSeconds(int configuredSeconds) =>
         TimeSpan.FromSeconds(Math.Max(configuredSeconds, InboundClarificationConstants.MinSweepSeconds));
 
     internal async Task<int> RunCycleAsync(CancellationToken cancellationToken)
