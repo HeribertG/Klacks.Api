@@ -59,6 +59,8 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     private const string LlmCallFailedPrefix = "LLM call failed: ";
     private const string ReceivedDateFormat = "yyyy-MM-dd";
 
+    internal const string ConfidenceLoweredLogMarker = "lowered from high confidence to low";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -207,7 +209,8 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         }
 
         _logger.LogWarning(
-            "Inbound analysis for {Channel} source {SourceId} lowered from high confidence to low: the message text contains an internal prompt label (intent {Intent})",
+            "Inbound analysis for {Channel} source {SourceId} " + ConfidenceLoweredLogMarker +
+            ": the message text contains an internal prompt label (intent {Intent})",
             source.Channel, source.SourceId, analysis.Intent);
         analysis.Confidence = EmailConfidence.Low;
     }
