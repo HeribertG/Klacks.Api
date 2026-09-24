@@ -58,6 +58,7 @@ public static class ClarificationStatusText
 
     public static object ToSkillData(InboundClarification clarification) => new
     {
+        clarification.Id,
         Status = Describe(clarification),
         clarification.Question,
         clarification.ShiftContext,
