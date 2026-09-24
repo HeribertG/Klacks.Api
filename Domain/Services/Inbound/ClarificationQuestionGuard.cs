@@ -6,11 +6,14 @@
 /// MaxQuestionSentences sentences, ending with the question mark of the language, no link, no "@" and no
 /// phone-number-like digit run (at least MinPhoneNumberDigits digits, with whitespace, dashes, dots,
 /// colons or plus signs allowed between them). A run is exempted from the phone check when it is itself
-/// made of one or more ISO dates (2026-09-23), dotted dates (24.09. or 24.09.2026), slash dates (23/09/2026
-/// or 09/23/2026), a bare four-digit year (2026), or times (14:00 or 14.00), separated only by whitespace
-/// or a dash, never a bare dot between tokens: that lets a shift date/time such as "2026-09-23 14:00-22:00",
-/// "vom 24.09. - 26.09." or "23 September 2026 14:00-22:00" through while still rejecting a dot-grouped
-/// digit run such as "06.12.34.56.78". A period only ends a sentence before whitespace or the
+/// made of one or more date or time tokens (day 1-31, month 1-12, hour 0-24, minute 0-59 are range-checked),
+/// separated only by whitespace or a dash, never a bare dot between tokens: ISO dates (2026-09-23), dotted
+/// dates with or without spaces after the dots (24.09., 24.09.2026, 23. 9. 2026, Hungarian 2026. 09. 23.),
+/// slash dates (23/09/2026 or 09/23/2026), dashed dates (23-09-2026), a bare four-digit year (2026) and
+/// times (14:00 or 14.00). That lets a shift date/time such as "2026-09-23 14:00-22:00", "vom 24.09. - 26.09.",
+/// "23. 9. 2026 od 14:00" or "23 September 2026 14:00-22:00" through while still rejecting a dot-grouped
+/// digit run such as "06.12.34.56.78". Residual risk: a phone number written as several valid day/month
+/// pairs joined by ". " (for example "01. 02. 03. 04") is treated as dates. A period only ends a sentence before whitespace or the
 /// end and never after a
 /// digit or a single letter, so a time (14.00), a date (24.09.) or an abbreviation (z. B.) does not count.
 /// The question must END with ?, the full-width ？ or the Arabic ؟;
@@ -60,9 +63,27 @@ public static class ClarificationQuestionGuard
         @"\d[\d\s\-.:+/]*\d",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private const string DateOrTimeToken =
-        @"\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}(?:\.\d{2,4})?\.?|\d{1,2}[.:]\d{2}|" +
-        @"\d{1,2}/\d{1,2}(?:/\d{2,4})?|(?:19|20)\d{2}";
+    private const string DayPattern = @"(?:0?[1-9]|[12]\d|3[01])";
+    private const string MonthPattern = @"(?:0?[1-9]|1[0-2])";
+    private const string FourDigitYearPattern = @"(?:19|20)\d{2}";
+    private const string AnyYearPattern = @"(?:19|20)?\d{2}";
+    private const string HourPattern = @"(?:[01]?\d|2[0-4])";
+    private const string MinutePattern = @"[0-5]\d";
+
+    private static readonly string[] DateOrTimeTokens =
+    [
+        $@"{FourDigitYearPattern}-{MonthPattern}-{DayPattern}",
+        $@"{FourDigitYearPattern}\.\s?{MonthPattern}\.\s?{DayPattern}\.?",
+        $@"{DayPattern}\.{MonthPattern}(?:\.{AnyYearPattern})?\.?",
+        $@"{DayPattern}\.\s?{MonthPattern}\.\s?{FourDigitYearPattern}\.?",
+        $@"{DayPattern}\.\s{MonthPattern}(?:\.|$)",
+        $@"{DayPattern}/{DayPattern}(?:/{AnyYearPattern})?",
+        $@"{DayPattern}-{DayPattern}-{AnyYearPattern}",
+        $@"{HourPattern}[.:]{MinutePattern}",
+        FourDigitYearPattern
+    ];
+
+    private static readonly string DateOrTimeToken = string.Join("|", DateOrTimeTokens);
 
     private static readonly Regex DateOrTimeRun = new(
         $@"^(?:{DateOrTimeToken})(?:[\s\-]+(?:{DateOrTimeToken}))*$",
