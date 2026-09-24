@@ -57,6 +57,13 @@ internal sealed class EmptyAnswerRecovery
     internal string AppendedText { get; private set; } = string.Empty;
 
     /// <summary>
+    /// True once the turn's answer ended in one of the localized fallback notices instead of a model
+    /// answer. The post-turn hooks read it so a canned notice is never learned or remembered as if the
+    /// assistant had said it on its own (EmptyAnswerNoticeText documents the persisted side).
+    /// </summary>
+    internal bool AnsweredWithNotice { get; private set; }
+
+    /// <summary>
     /// True when the turn's answer has to be recovered with an extra model call.
     /// </summary>
     /// <param name="lastCallContent">The content of the loop's last provider call, not of the whole turn.</param>
@@ -192,6 +199,7 @@ internal sealed class EmptyAnswerRecovery
     /// <param name="functionCallCount">Number of calls of the turn; selects the notice.</param>
     private string LocalizedFallbackNotice(int functionCallCount)
     {
+        AnsweredWithNotice = true;
         var noToolRan = functionCallCount == 0;
         var key = noToolRan
             ? GracefulCorrectionTexts.EmptyAnswerNoActionNotice

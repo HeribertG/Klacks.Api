@@ -42,4 +42,11 @@ public record MultiTurnContext(
     /// ToolChoiceRequested rather than widening the loop's already five-wide return tuple.
     /// </summary>
     public bool RecipePausedOnAsk { get; set; }
+
+    /// <summary>
+    /// Set by the closing guard when the turn's answer is a localized empty-answer notice rather than a
+    /// model answer, and handed by ProcessAsync to the post-turn hooks, which then skip memory extraction,
+    /// learning-case collection and grounding for this turn. Carried like RecipePausedOnAsk.
+    /// </summary>
+    public bool AnsweredWithNotice { get; set; }
 }

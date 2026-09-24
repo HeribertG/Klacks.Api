@@ -239,6 +239,21 @@ public static class GracefulCorrectionTexts
         return true;
     }
 
+    /// <summary>
+    /// Every text one key currently resolves to in any language: the core table plus every configured pack.
+    /// Used to recognize a stored notice regardless of the language it was written in.
+    /// </summary>
+    /// <param name="key">Catalogue key whose texts are wanted</param>
+    public static IReadOnlyCollection<string> AllTextsOf(string key)
+    {
+        var packs = _pluginTexts;
+        return VariantsOf(key).Values
+            .Concat(packs.Values.Select(pack => pack.GetValueOrDefault(key)).OfType<string>())
+            .Where(text => !string.IsNullOrWhiteSpace(text))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+    }
+
     /// <summary>Every key of the core catalogue, for the completeness guard test.</summary>
     internal static IReadOnlyCollection<string> Keys => CoreTexts.Keys.ToList();
 

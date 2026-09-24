@@ -182,7 +182,7 @@ public class LLMService : ILLMService
                 context, conversation!.ConversationId, responseContent, allFunctionCalls, ctx.RecipePausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
-            _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
+            _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls, ctx.AnsweredWithNotice);
 
             var response = _responseBuilder.BuildSuccessResponse(
                 lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls,
@@ -544,7 +544,7 @@ public class LLMService : ILLMService
                 context, conversation!.ConversationId, responseContent, allFunctionCalls, recipe.PausedOnAsk);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
-            _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
+            _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls, recovery.AnsweredWithNotice);
         }
         catch (Exception ex)
         {
@@ -1021,11 +1021,14 @@ public class LLMService : ILLMService
         }
 
         var noToolRan = allFunctionCalls.Count == 0;
-        return await RecoveryFor(
-                ctx.Provider, ctx.TotalUsage, ctx.Model, noToolRan ? ctx.Context.Message : currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
-                noToolRan && nudged ? ForceToolNudgePolicy.WithoutNudgeExchange(runningHistory, ctx.Context.Message) : runningHistory,
-                historyBudget, ctx.Context.Language)
-            .ResolveAsync(responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep, ctx.CancellationToken);
+        var recovery = RecoveryFor(
+            ctx.Provider, ctx.TotalUsage, ctx.Model, noToolRan ? ctx.Context.Message : currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
+            noToolRan && nudged ? ForceToolNudgePolicy.WithoutNudgeExchange(runningHistory, ctx.Context.Message) : runningHistory,
+            historyBudget, ctx.Context.Language);
+        var answer = await recovery.ResolveAsync(
+            responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep, ctx.CancellationToken);
+        ctx.AnsweredWithNotice = recovery.AnsweredWithNotice;
+        return answer;
     }
 
     /// <summary>

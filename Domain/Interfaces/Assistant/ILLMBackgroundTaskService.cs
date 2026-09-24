@@ -10,8 +10,19 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 /// </summary>
 public interface ILLMBackgroundTaskService
 {
+    /// <summary>
+    /// Post-turn hooks of one chat turn: compaction, skill-execution audit, trajectory capture and, on a
+    /// failed call, reflection always run; memory extraction, learning-case collection and grounding read
+    /// the answer text and are skipped when that text is a canned empty-answer notice.
+    /// </summary>
+    /// <param name="agent">The default agent, null when none exists.</param>
+    /// <param name="conversation">The conversation the turn belongs to.</param>
+    /// <param name="context">The turn context.</param>
+    /// <param name="responseContent">The answer as stored.</param>
+    /// <param name="allFunctionCalls">Every call of the turn.</param>
+    /// <param name="answeredWithNotice">True when the answer is an empty-answer notice rather than a model answer.</param>
     void RunBackgroundTasks(Agent? agent, LLMConversation conversation, LLMContext context,
-        string responseContent, List<LLMFunctionCall> allFunctionCalls);
+        string responseContent, List<LLMFunctionCall> allFunctionCalls, bool answeredWithNotice = false);
 
     /// <summary>
     /// Fire-and-forget compaction trigger for task-boundary events (e.g. AgentPlan completion) that

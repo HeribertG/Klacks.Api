@@ -9,7 +9,8 @@
 /// conversations. Runs at two trigger points with different message-count thresholds: the default
 /// 30-message threshold (post-turn, <see cref="LLMBackgroundTaskService"/>) and a lower task-boundary
 /// threshold triggered by the plan executor (<see cref="ILLMBackgroundTaskService.TriggerConversationCompaction"/>)
-/// when an AgentPlan completes.
+/// when an AgentPlan completes. A stored empty-answer notice reaches the summarizer only as its state
+/// marker (<see cref="EmptyAnswerNoticeText"/>), never as the canned sentence itself.
 /// </summary>
 /// <param name="conversationId">Unique conversation ID for identifying the conversation</param>
 /// <param name="userId">Owner of the conversation; a conversation belonging to anyone else is never compacted</param>
@@ -197,10 +198,12 @@ public class ConversationCompactionService : IConversationCompactionService
 
         foreach (var msg in messages)
         {
-            var role = msg.Role == "user" ? "User" : "Assistant";
-            var content = msg.Content.Length > 300
-                ? msg.Content[..300] + "..."
-                : msg.Content;
+            var isUser = msg.Role == "user";
+            var role = isUser ? "User" : "Assistant";
+            var text = isUser ? msg.Content : EmptyAnswerNoticeText.ToStateMarkers(msg.Content);
+            var content = text.Length > 300
+                ? text[..300] + "..."
+                : text;
             sb.AppendLine($"{role}: {content}");
         }
 

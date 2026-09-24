@@ -10,7 +10,9 @@
 /// GracefulCorrectionTexts.EmptyAnswerFallbackNotice and EmptyAnswerNoActionNotice resolve instead, so
 /// these constants are a defensive floor rather than the text users normally see. On the
 /// streaming path the recovered answer is appended below text that is already on screen, set apart by
-/// AppendedAnswerSeparator.
+/// AppendedAnswerSeparator. Conversation compaction replaces a stored notice with the matching state
+/// marker (StepsRanStateMarker, NothingExecutedStateMarker), so the summarizer keeps what happened without
+/// reading the canned sentence.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -33,4 +35,8 @@ public static class EmptyAnswerRecoveryConstants
         "I could not produce an answer and nothing was executed. Please try again.";
 
     public const string AppendedAnswerSeparator = "\n\n";
+
+    public const string StepsRanStateMarker = "(Steps were executed, but no answer text was produced.)";
+
+    public const string NothingExecutedStateMarker = "(No answer was produced and nothing was executed.)";
 }
