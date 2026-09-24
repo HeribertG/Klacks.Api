@@ -31,8 +31,8 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly ILogger<LanguagePluginService> _logger;
     private readonly string _pluginDirectory;
     private readonly ConcurrentDictionary<string, LanguagePluginManifest> _manifests = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ConcurrentDictionary<string, Dictionary<string, string>> _translationCache = new();
-    private readonly HashSet<string> _installedCodes = new();
+    private readonly ConcurrentDictionary<string, Dictionary<string, string>> _translationCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _installedCodes = new(StringComparer.OrdinalIgnoreCase);
     private readonly object _installedLock = new();
     private bool _initialized;
 
@@ -129,20 +129,22 @@ public class LanguagePluginService : ILanguagePluginService
     /// written, so a normal boot costs one read per pack. Same ordering constraint as
     /// ApplyInstalledSkillLabelsAsync, and it has to finish before the knowledge index sync at host start
     /// so the new phrases get embedded.
-    /// The installed codes are lower-cased when they are loaded from the settings, while a fresh install
-    /// keys synonyms and skill_phrase rows by the manifest spelling (zh-CN) and the pack directory carries
-    /// that spelling too - on a case-sensitive file system the lower-cased path would not even be found.
-    /// The code is therefore mapped back to its manifest spelling before it reaches the installer.
     /// </summary>
     public async Task ApplyInstalledSkillSynonymBackfillAsync()
     {
         await InitializeAsync();
 
         await RunForEachInstalledCodeAsync(
-            (scope, code) => _contentInstaller.BackfillMissingSkillSynonymsAsync(scope, ToManifestCode(code)),
+            _contentInstaller.BackfillMissingSkillSynonymsAsync,
             "Failed to backfill skill synonyms for installed language plugins");
     }
 
+    /// <summary>
+    /// Maps any spelling of a pack code (zh-cn, ZH-CN) to the one its manifest declares (zh-CN). Every
+    /// installed code is held in that spelling: it keys synonyms, labels, skill_phrase rows and docs, and
+    /// it names the pack directory, which a case-sensitive file system only finds under that spelling.
+    /// A code without a discovered manifest is returned unchanged.
+    /// </summary>
     private string ToManifestCode(string code) =>
         _manifests.TryGetValue(code, out var manifest) ? manifest.Code : code;
 
@@ -309,6 +311,8 @@ public class LanguagePluginService : ILanguagePluginService
         if (!_manifests.TryGetValue(code, out var manifest))
             return false;
 
+        code = manifest.Code;
+
         if (!IsVersionCompatible(manifest.MinKlacksVersion))
         {
             _logger.LogWarning(
@@ -374,6 +378,7 @@ public class LanguagePluginService : ILanguagePluginService
         if (LanguagePluginConstants.CoreLanguages.Contains(code))
             return false;
 
+        code = ToManifestCode(code);
         var settingKey = LanguagePluginConstants.SettingPrefix + code.ToUpperInvariant();
 
         using var scope = _scopeFactory.CreateScope();
@@ -418,6 +423,8 @@ public class LanguagePluginService : ILanguagePluginService
         if (!IsInstalled(code))
             return null;
 
+        code = ToManifestCode(code);
+
         if (_translationCache.TryGetValue(code, out var cached))
             return cached;
 
@@ -457,11 +464,13 @@ public class LanguagePluginService : ILanguagePluginService
         if (!IsInstalled(code))
             return null;
 
+        var pluginCode = ToManifestCode(code);
+
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
 
         var doc = await db.PluginDocs
-            .FirstOrDefaultAsync(d => d.PluginCode == code && d.ManualName == manualName);
+            .FirstOrDefaultAsync(d => d.PluginCode == pluginCode && d.ManualName == manualName);
 
         return doc?.HtmlContent;
     }
@@ -584,11 +593,11 @@ public class LanguagePluginService : ILanguagePluginService
                     if (!string.Equals(setting.Value, "true", StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    var code = setting.Type[LanguagePluginConstants.SettingPrefix.Length..].ToLowerInvariant();
+                    var settingCode = setting.Type[LanguagePluginConstants.SettingPrefix.Length..];
 
-                    if (_manifests.ContainsKey(code))
+                    if (_manifests.TryGetValue(settingCode, out var manifest))
                     {
-                        _installedCodes.Add(code);
+                        _installedCodes.Add(manifest.Code);
                     }
                 }
             }

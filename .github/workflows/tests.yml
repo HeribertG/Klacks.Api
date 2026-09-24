@@ -336,4 +336,4 @@ jobs:
       #     (e.g. DeepLTranslationServiceTests needs DEEPL_API_KEY) — golden-set/LLM runs are
       #     explicitly out of scope for this CI spine (AP 0.3).
       - name: Run integration tests
-        run: dotnet test Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad&TestCategory!=Llm&TestCategory!=ExternalApi"
+        run: dotnet test Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-build --configuration Release --verbosity normal --blame-hang-timeout 10m --filter "TestCategory!=SlowModelLoad&TestCategory!=Llm&TestCategory!=ExternalApi"

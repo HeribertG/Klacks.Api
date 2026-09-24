@@ -160,7 +160,7 @@ public class LanguageConfigController : ControllerBase
         // normal condition (not every manual is translated for every language). Return 204 so the
         // client falls back to the default-language static doc without a spurious 404 error.
         // A genuine 404 is reserved for an unknown / not-installed language.
-        if (_languagePluginService.GetInstalledPluginCodes().Contains(code))
+        if (_languagePluginService.GetInstalledPluginCodes().Contains(code, StringComparer.OrdinalIgnoreCase))
             return NoContent();
 
         return NotFound();
