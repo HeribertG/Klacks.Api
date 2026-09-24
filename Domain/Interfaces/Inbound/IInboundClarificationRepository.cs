@@ -48,12 +48,13 @@ public interface IInboundClarificationRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Retention step: sets original_text to the empty string on every closed round (Answered, Expired,
-    /// TakenOver, Unresolved, soft-deleted rows included) whose resolved_at lies before the cutoff and
-    /// whose text is not already empty. One atomic ExecuteUpdate; Open and Suggested rows are never
-    /// touched, and the row with status, question and deadlines stays. Idempotent; returns the number of
-    /// rows cleared.
+    /// Retention step: sets original_text to the empty string on every ended round (soft-deleted rows
+    /// included) whose text is not already empty: a closed round (Answered, Expired, TakenOver, Unresolved)
+    /// once its resolved_at lies before the cutoff, a Suggested row (an end state that never gets a
+    /// resolved_at) once its asked_at - the time of the analysis - lies before the cutoff. One atomic
+    /// ExecuteUpdate; Open rows are never touched, and the row with status, question and deadlines stays.
+    /// Idempotent; returns the number of rows cleared.
     /// </summary>
-    /// <param name="cutoffUtc">Rows resolved strictly before this UTC instant are cleared</param>
+    /// <param name="cutoffUtc">Closed rows resolved strictly before, and Suggested rows asked strictly before, this UTC instant are cleared</param>
     Task<int> ClearOriginalTextAsync(DateTime cutoffUtc, CancellationToken cancellationToken = default);
 }

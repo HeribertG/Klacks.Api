@@ -10,8 +10,10 @@
 /// TryResolveAsync is a single conditional ExecuteUpdate scoped by Status == Open, mirroring the
 /// escalation-chain transitions: when the expiry sweep and an incoming answer race for the same row,
 /// exactly one of them moves it.
-/// ClearOriginalTextAsync is the retention step: one ExecuteUpdate over all closed rows (soft-deleted ones
-/// included) resolved before the cutoff; the empty string marks a cleared text, so no schema change is needed.
+/// ClearOriginalTextAsync is the retention step: one ExecuteUpdate over the ended rows (soft-deleted ones
+/// included) - closed rounds by resolved_at, Suggested rows (an end state without resolved_at) by asked_at -
+/// before the cutoff; Open rows are never touched. The empty string marks a cleared text, so no schema change
+/// is needed.
 /// </summary>
 /// <param name="context">The scoped database context</param>
 
@@ -178,12 +180,14 @@ public class InboundClarificationRepository : IInboundClarificationRepository
         return await _context.InboundClarifications
             .IgnoreQueryFilters()
             .Where(c => c.OriginalText != string.Empty
-                        && c.ResolvedAt != null
-                        && c.ResolvedAt < cutoffUtc
-                        && (c.Status == InboundClarificationStatus.Answered
-                            || c.Status == InboundClarificationStatus.Expired
-                            || c.Status == InboundClarificationStatus.TakenOver
-                            || c.Status == InboundClarificationStatus.Unresolved))
+                        && ((c.ResolvedAt != null
+                             && c.ResolvedAt < cutoffUtc
+                             && (c.Status == InboundClarificationStatus.Answered
+                                 || c.Status == InboundClarificationStatus.Expired
+                                 || c.Status == InboundClarificationStatus.TakenOver
+                                 || c.Status == InboundClarificationStatus.Unresolved))
+                            || (c.Status == InboundClarificationStatus.Suggested
+                                && c.AskedAt < cutoffUtc)))
             .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.OriginalText, string.Empty), cancellationToken);
     }
 

@@ -57,8 +57,9 @@ public class BackgroundServiceOptions
     public int InboundClarificationSweepStartupDelaySeconds { get; set; } = 15;
 
     /// <summary>
-    /// Days after which the sweep clears the raw original message text of a closed inbound clarification
-    /// (the row with status and deadlines stays). Clamped to 1..3650. Override via env
+    /// Days after which the sweep clears the raw original message text of an ended inbound clarification
+    /// (closed rounds counted from resolved_at, Suggested ones from asked_at; the row with status and
+    /// deadlines stays). Clamped to 1..3650. Override via env
     /// <c>BackgroundServices__InboundClarificationOriginalTextRetentionDays</c>.
     /// </summary>
     public int InboundClarificationOriginalTextRetentionDays { get; set; } = Klacks.Api.Domain.Constants.InboundClarificationConstants.DefaultOriginalTextRetentionDays;

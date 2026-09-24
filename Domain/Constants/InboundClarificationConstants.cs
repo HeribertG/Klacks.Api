@@ -97,9 +97,9 @@ public static class InboundClarificationConstants
     public const int MaxSweepSeconds = 86_400;
 
     /// <summary>
-    /// Days after which the raw original message text of a closed clarification round (Answered, Expired,
-    /// TakenOver, Unresolved) is cleared; counted from resolved_at. Open and Suggested rounds are never
-    /// cleared by this rule.
+    /// Days after which the raw original message text of an ended clarification round is cleared: counted
+    /// from resolved_at for Answered, Expired, TakenOver and Unresolved, and from asked_at for Suggested
+    /// (which never gets a resolved_at). Open rounds are never cleared by this rule.
     /// </summary>
     public const int DefaultOriginalTextRetentionDays = 30;
 

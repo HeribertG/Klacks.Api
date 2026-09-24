@@ -6,9 +6,10 @@
 /// in the same moment or a second instance wins or loses cleanly) and the planners are told that the
 /// question went unanswered, with the original message and the affected shift. The first cycle runs
 /// right after a short startup delay and catches up every deadline missed while the host was down.
-/// Each cycle has a second, independent retention step: the raw original text of rounds that closed longer
-/// ago than the configured retention (default 30 days after resolved_at) is cleared, only the count is
-/// logged, and a failure of either step never stops the other.
+/// Each cycle has a second, independent retention step: the raw original text of rounds that ended longer
+/// ago than the configured retention (default 30 days) is cleared - counted from resolved_at for closed
+/// rounds and from asked_at for Suggested ones - only the count is logged, and a failure of either step
+/// never stops the other.
 /// Resolves the repository, the notifier and ICompanyClock from a fresh scope per cycle (ICompanyClock is
 /// scoped and must not be captured by a hosted service). A failing notification is logged and does not
 /// stop the remaining rows; a failing cycle is logged and never escapes. A cancellation of the stopping
@@ -158,7 +159,7 @@ public sealed class ClarificationExpirySweep : BackgroundService
             if (cleared > 0)
             {
                 _logger.LogInformation(
-                    "ClarificationExpirySweep cleared the original text of {Count} closed clarification(s)", cleared);
+                    "ClarificationExpirySweep cleared the original text of {Count} ended clarification(s)", cleared);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
