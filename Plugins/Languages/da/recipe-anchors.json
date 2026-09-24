@@ -18,7 +18,11 @@
     "bopæl",
     "flytning",
     "postadresse",
-    "hjemmeadresse"
+    "hjemmeadresse",
+    "flytter til",
+    "har ny adresse",
+    "skifter adresse",
+    "har ny bopæl"
   ],
   "offboard-employee": [
     "fratrædelse",
@@ -26,7 +30,12 @@
     "afskedigelse",
     "opsigelse",
     "ansættelsesophør",
-    "udtræden"
+    "udtræden",
+    "fratræder",
+    "afslutter ansættelse",
+    "siger op",
+    "ansættelsen ophører",
+    "forlader virksomheden"
   ],
   "add-employee-to-group": [
     "gruppe",

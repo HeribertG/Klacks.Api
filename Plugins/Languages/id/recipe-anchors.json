@@ -16,13 +16,19 @@
     "alamat",
     "domisili",
     "tempat tinggal",
-    "kediaman"
+    "kediaman",
+    "pindah rumah",
+    "pindah alamat",
+    "pindah tempat tinggal"
   ],
   "offboard-employee": [
     "pengunduran diri",
     "resign",
     "pemutusan hubungan kerja",
-    "hari kerja terakhir"
+    "hari kerja terakhir",
+    "mengundurkan diri",
+    "keluar dari perusahaan",
+    "diberhentikan"
   ],
   "add-employee-to-group": [
     "unit organisasi",

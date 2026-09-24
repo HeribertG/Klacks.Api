@@ -19,14 +19,20 @@
     "omadressering",
     "postadress",
     "bostadsadress",
-    "folkbokföringsadress"
+    "folkbokföringsadress",
+    "flyttar till",
+    "bytt adress",
+    "flyttat hem"
   ],
   "offboard-employee": [
     "uppsägning",
     "sista arbetsdag",
     "avgång",
     "anställningsavslut",
-    "sista anställningsdag"
+    "sista anställningsdag",
+    "lämnar företaget",
+    "säger upp sig",
+    "avslutar anställningen"
   ],
   "add-employee-to-group": [
     "team",

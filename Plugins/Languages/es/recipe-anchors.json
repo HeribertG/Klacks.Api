@@ -18,7 +18,12 @@
     "residencia",
     "mudanza",
     "traslado",
-    "cambio de domicilio"
+    "cambio de domicilio",
+    "se mudó",
+    "cambia de domicilio",
+    "se trasladó",
+    "se ha mudado",
+    "se muda"
   ],
   "offboard-employee": [
     "despido",
@@ -29,7 +34,14 @@
     "fin de contrato",
     "dar de baja",
     "registrar baja",
-    "su salida"
+    "su salida",
+    "deja la empresa",
+    "presenta la renuncia",
+    "finaliza su contrato",
+    "cesa en su puesto",
+    "dejó la empresa",
+    "se va de la empresa",
+    "deja la compañía"
   ],
   "add-employee-to-group": [
     "grupo",

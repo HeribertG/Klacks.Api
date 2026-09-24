@@ -18,7 +18,13 @@
     "endereço",
     "morada",
     "residência",
-    "domicílio"
+    "domicílio",
+    "muda de endereço",
+    "tem novo endereço",
+    "mudou de residência",
+    "alterou morada",
+    "mudou de casa",
+    "mudou-se"
   ],
   "offboard-employee": [
     "saída",
@@ -26,7 +32,13 @@
     "desligamento",
     "último dia",
     "despedimento",
-    "rescisão"
+    "rescisão",
+    "pede demissão",
+    "foi despedid",
+    "deixa a empresa",
+    "entrega carta de demissão",
+    "sai da empresa",
+    "saiu da empresa"
   ],
   "add-employee-to-group": [
     "grupo",

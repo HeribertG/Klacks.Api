@@ -14,14 +14,25 @@
   "record-employee-address-change": [
     "domiciliu",
     "reședință",
-    "adres"
+    "adres",
+    "s-a mutat",
+    "schimbă adresa",
+    "are o nouă adresă",
+    "s-a relocat",
+    "locuiește acum la"
   ],
   "offboard-employee": [
     "demisie",
     "încetare",
     "concediere",
     "demisionare",
-    "ultima zi"
+    "ultima zi",
+    "părăsește compania",
+    "își dă demisia",
+    "demisionează",
+    "este concediat",
+    "pleacă din companie",
+    "a plecat din companie"
   ],
   "add-employee-to-group": [
     "echipă",

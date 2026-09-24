@@ -19,7 +19,13 @@
     "bydliště",
     "trvalé bydliště",
     "přestěhování",
-    "doručovací adresa"
+    "doručovací adresa",
+    "přestěhoval se",
+    "přestěhovala se",
+    "stěhuje se",
+    "změnil adresu",
+    "změnila adresu",
+    "má novou adresu"
   ],
   "offboard-employee": [
     "odchod",
@@ -28,7 +34,11 @@
     "rezignace",
     "poslední pracovní den",
     "dohoda o ukončení",
-    "ukončení pracovního"
+    "ukončení pracovního",
+    "podal výpověď",
+    "podala výpověď",
+    "odchází z firmy",
+    "odešel z firmy"
   ],
   "add-employee-to-group": [
     "skupin",

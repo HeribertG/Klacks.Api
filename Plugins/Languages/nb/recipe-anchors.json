@@ -16,14 +16,26 @@
     "adresse",
     "bosted",
     "flytting",
-    "postadresse"
+    "postadresse",
+    "flytter til",
+    "flyttet til",
+    "har ny adresse",
+    "endret adresse",
+    "byttet adresse"
   ],
   "offboard-employee": [
     "avgang",
     "fratreden",
     "siste arbeidsdag",
     "oppsigelse",
-    "avskjed"
+    "avskjed",
+    "slutter i",
+    "slutter fra",
+    "sluttet i",
+    "sluttet fra",
+    "forlater bedriften",
+    "forlot bedriften",
+    "gir oppsigelse"
   ],
   "add-employee-to-group": [
     "gruppe",

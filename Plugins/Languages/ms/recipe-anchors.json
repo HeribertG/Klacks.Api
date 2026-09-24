@@ -12,14 +12,21 @@
   "record-employee-address-change": [
     "alamat",
     "kediaman",
-    "tempat tinggal"
+    "tempat tinggal",
+    "berpindah rumah",
+    "tukar alamat",
+    "alamat baru"
   ],
   "offboard-employee": [
     "pemberhentian",
     "perletakan jawatan",
     "pemecatan",
     "penamatan",
-    "hari terakhir bekerja"
+    "hari terakhir bekerja",
+    "meletak jawatan",
+    "berhenti kerja",
+    "keluar dari syarikat",
+    "diberhentikan kerja"
   ],
   "add-employee-to-group": [
     "kumpulan",

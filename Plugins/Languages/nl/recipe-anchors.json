@@ -17,7 +17,12 @@
     "woonadres",
     "thuisadres",
     "verhuis",
-    "verhuiz"
+    "verhuiz",
+    "is verhuisd naar",
+    "verhuist naar",
+    "heeft een nieuw adres",
+    "woont nu op",
+    "adres gewijzigd naar"
   ],
   "offboard-employee": [
     "uittreding",
@@ -26,7 +31,11 @@
     "laatste werkdag",
     "einde dienstverband",
     "uitdiensttreding",
-    "opzegging"
+    "opzegging",
+    "verlaat het bedrijf",
+    "neemt ontslag",
+    "dient ontslag in",
+    "treedt uit dienst"
   ],
   "add-employee-to-group": [
     "groep",

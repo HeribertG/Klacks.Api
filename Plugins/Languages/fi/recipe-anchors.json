@@ -17,14 +17,23 @@
     "muutto",
     "kotiosoitte",
     "postiosoite",
-    "osoite"
+    "osoite",
+    "muuttanut osoitteeseen",
+    "uusi osoite",
+    "muuttaa asuntoon",
+    "asunto on vaihtunut",
+    "muuttanut uuteen osoitteeseen"
   ],
   "offboard-employee": [
     "irtisanominen",
     "irtisanoutuminen",
     "viimeinen työpäivä",
     "työsuhteen päättyminen",
-    "irtisanomisaika"
+    "irtisanomisaika",
+    "lähtee yrityksestä",
+    "jättää eroanomuksen",
+    "jättää työpaikan",
+    "lopettaa työsuhteen"
   ],
   "add-employee-to-group": [
     "ryhmä",

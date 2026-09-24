@@ -15,7 +15,11 @@
   "record-employee-address-change": [
     "adres",
     "miejsce zamieszkania",
-    "przeprowadzk"
+    "przeprowadzk",
+    "przeprowadził się",
+    "zmienił adres",
+    "ma nowy adres",
+    "mieszka pod nowym adresem"
   ],
   "offboard-employee": [
     "odejście",
@@ -23,7 +27,14 @@
     "zwolnienie",
     "zakończenie współpracy",
     "wypowiedzeni",
-    "ostatni dzień pracy"
+    "ostatni dzień pracy",
+    "odchodzi z firmy",
+    "złożył rezygnację",
+    "zrezygnował z pracy",
+    "wypowiada umowę",
+    "odejdzie z pracy",
+    "odszedł z firmy",
+    "odchodzi z pracy"
   ],
   "add-employee-to-group": [
     "grupa",
