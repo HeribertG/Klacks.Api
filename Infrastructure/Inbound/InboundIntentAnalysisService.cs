@@ -27,7 +27,7 @@
 /// <param name="completionService">Runs the single tool-free LLM completion</param>
 /// <param name="keywordProvider">Supplies the currently configured schedule command keywords</param>
 /// <param name="companyClock">Resolves the company time zone for the received date</param>
-/// <param name="logger">Logs every attempt with its raw reply and every failure</param>
+/// <param name="logger">Logs every attempt and every failure; the raw model reply only at Debug level, because it can quote health information</param>
 
 using System.Globalization;
 using System.Text.Json;
@@ -165,8 +165,11 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
             reply = completion.Content;
             parsed = ParseReply(reply);
             _logger.LogInformation(
-                "Inbound intent analysis attempt {Attempt}/{Max} for {Channel} source {SourceId}: parsed={Parsed}, raw reply: {Reply}",
-                attempt, MaxLlmAttempts, source.Channel, source.SourceId, parsed != null, Truncate(reply, RawReplyLogLength));
+                "Inbound intent analysis attempt {Attempt}/{Max} for {Channel} source {SourceId}: parsed={Parsed}",
+                attempt, MaxLlmAttempts, source.Channel, source.SourceId, parsed != null);
+            _logger.LogDebug(
+                "Inbound intent analysis raw reply for {Channel} source {SourceId}: {Reply}",
+                source.Channel, source.SourceId, Truncate(reply, RawReplyLogLength));
             if (parsed == null && attempt < MaxLlmAttempts)
             {
                 _logger.LogWarning(
@@ -196,14 +199,7 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     /// <param name="companyTimeZone">The company's configured time zone</param>
     internal static DateOnly ToCompanyLocalDate(DateTime receivedAt, TimeZoneInfo companyTimeZone)
     {
-        var utc = receivedAt.Kind switch
-        {
-            DateTimeKind.Utc => receivedAt,
-            DateTimeKind.Local => receivedAt.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(receivedAt, DateTimeKind.Utc)
-        };
-
-        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(utc, companyTimeZone));
+        return DateOnly.FromDateTime(ClarificationTimeConversion.ToLocal(receivedAt, companyTimeZone));
     }
 
     internal static string FormatDateLine(DateOnly date) =>

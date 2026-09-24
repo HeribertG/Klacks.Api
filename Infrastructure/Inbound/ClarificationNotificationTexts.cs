@@ -66,6 +66,9 @@ internal static class ClarificationNotificationTexts
     internal static string AnsweredAfterExpiry(string question, DateTime askedLocal) =>
         $"ℹ️ This message arrived after Klacksy's question \"{question}\" (asked {Format(askedLocal)}) had expired unanswered.";
 
+    internal static string ArrivedAfterClosure(string question, DateTime askedLocal, string statusText) =>
+        $"ℹ️ This message arrived after Klacksy's question \"{question}\" (asked {Format(askedLocal)}) had already been closed: {statusText}.";
+
     internal static string? JoinContext(string? first, string? second)
     {
         if (string.IsNullOrWhiteSpace(first))

@@ -55,6 +55,7 @@ public static class ClarificationQuestionGuard
     public const string LinkViolation = "the question contains a link";
     public const string EmailAddressViolation = "the question contains an email address";
     public const string PhoneNumberViolation = "the question contains a phone number";
+    public const string HealthTermViolationCategory = "the question contains a health term";
     public const string HealthTermViolationPrefix = "the question contains the health term: ";
 
     private const string RemovedTextReplacement = " ";
@@ -111,6 +112,14 @@ public static class ClarificationQuestionGuard
 
     public static bool IsAcceptable(string? question, out string violation)
         => IsAcceptable(question, null, out violation);
+
+    /// <summary>
+    /// Reduces a violation text to its category, so a log line never carries the matched health term
+    /// (which the employee's own message may have led the model to repeat).
+    /// </summary>
+    /// <param name="violation">The violation text returned by IsAcceptable</param>
+    public static string ToLoggableCategory(string violation) =>
+        violation.StartsWith(HealthTermViolationPrefix, StringComparison.Ordinal) ? HealthTermViolationCategory : violation;
 
     public static bool IsAcceptable(string? question, string? systemInsertedContext, out string violation)
     {

@@ -92,6 +92,8 @@ public static class InboundClarificationConstants
 
     public const int MaxReferencesCount = 10;
 
+    public const int MinSweepSeconds = 1;
+
     public const string AutoSubmittedHeader = "Auto-Submitted";
 
     public const string AutoSubmittedReplyValue = "auto-replied";

@@ -19,6 +19,7 @@
 /// <param name="logger">Lifecycle and per-cycle log</param>
 
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -56,10 +57,10 @@ public sealed class ClarificationExpirySweep : BackgroundService
 
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(_options.InboundClarificationSweepStartupDelaySeconds), _timeProvider, stoppingToken);
+            await Task.Delay(ClampedSeconds(_options.InboundClarificationSweepStartupDelaySeconds), _timeProvider, stoppingToken);
             await RunCycleAsync(stoppingToken);
 
-            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(_options.InboundClarificationSweepIntervalSeconds), _timeProvider);
+            using var timer = new PeriodicTimer(ClampedSeconds(_options.InboundClarificationSweepIntervalSeconds), _timeProvider);
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 await RunCycleAsync(stoppingToken);
@@ -71,6 +72,9 @@ public sealed class ClarificationExpirySweep : BackgroundService
 
         _logger.LogInformation("ClarificationExpirySweep stopped");
     }
+
+    private static TimeSpan ClampedSeconds(int configuredSeconds) =>
+        TimeSpan.FromSeconds(Math.Max(configuredSeconds, InboundClarificationConstants.MinSweepSeconds));
 
     internal async Task<int> RunCycleAsync(CancellationToken cancellationToken)
     {

@@ -44,8 +44,6 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
     private const string EmployeeMessageCloseTag = "</employee_message>";
     private const string DraftQuestionOpenTag = "<draft_question>";
     private const string DraftQuestionCloseTag = "</draft_question>";
-    private const string NeutralizedTagOpenBracket = "[";
-    private const string NeutralizedTagCloseBracket = "]";
 
     private const string SystemPrompt =
         "You write exactly one short follow-up question that a workforce-planning assistant sends privately " +
@@ -135,7 +133,7 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
             {
                 _logger.LogWarning(
                     "Clarification question for client {ClientId} rejected by the guard rails: {Violation}",
-                    request.ClientId, violation);
+                    request.ClientId, ClarificationQuestionGuard.ToLoggableCategory(violation));
                 return null;
             }
 
@@ -184,8 +182,8 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
         return TodayLabel + InboundIntentAnalysisService.FormatDateLine(today) + LineBreak +
                AffectedShiftLabel + (shiftContext ?? NoShiftMarker) + LineBreak +
                AnalysedPeriodLabel + FormatPeriod(analysis) + LineBreak +
-               EmployeeMessageOpenTag + NeutralizeClosingTag(body, EmployeeMessageCloseTag) + EmployeeMessageCloseTag + LineBreak +
-               DraftQuestionOpenTag + NeutralizeClosingTag(draft, DraftQuestionCloseTag) + DraftQuestionCloseTag;
+               UntrustedTextBlock.Wrap(body, EmployeeMessageOpenTag, EmployeeMessageCloseTag) + LineBreak +
+               UntrustedTextBlock.Wrap(draft, DraftQuestionOpenTag, DraftQuestionCloseTag);
     }
 
     private static string FormatPeriod(InboundAnalysis analysis)
@@ -205,12 +203,6 @@ public sealed class ClarificationQuestionComposer : IClarificationQuestionCompos
                PeriodSeparator + until.ToString(PeriodDateFormat, CultureInfo.InvariantCulture) +
                (analysis.DateAssumed ? AssumedStartMarker : string.Empty);
     }
-
-    private static string NeutralizeClosingTag(string text, string closingTag) =>
-        text.Replace(
-            closingTag,
-            NeutralizedTagOpenBracket + closingTag[1..^1] + NeutralizedTagCloseBracket,
-            StringComparison.OrdinalIgnoreCase);
 
     private static string Clean(string content)
     {
