@@ -37,6 +37,8 @@ public static class InboundClarificationConstants
 
     public const int MaxSenderDisplayLength = 300;
 
+    public const int MaxSubjectDisplayLength = 200;
+
     public const int MaxNotifiedOriginalTextLength = 300;
 
     /// <summary>

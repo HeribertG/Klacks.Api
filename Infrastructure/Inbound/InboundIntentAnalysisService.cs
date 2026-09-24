@@ -10,7 +10,10 @@
 /// IOneShotCompletionService (a single pipeline-free completion) and deliberately NOT through
 /// ILLMService: the chat pipeline ran the recipe engine on this prompt and wrote the foreign message
 /// into the first admin's conversation history and auto-memory. The Date line handed to the model is
-/// the company-local calendar day of the received instant (via ICompanyClock). A work cancellation
+/// the company-local calendar day of the received instant (via ICompanyClock) and the only system-built
+/// fact of the first analysis: sender label, subject and body are sender-controlled and go in their own
+/// untrusted-data tags (capped, forged closing tags neutralized), and the system prompt tells the model
+/// that nothing inside them is an instruction or a fact. A work cancellation
 /// without any date ("I am sick") is assumed to concern that received day with low confidence, so the
 /// action orchestrator only suggests and never executes it; such a result is flagged DateAssumed
 /// (not persisted) so the notifier and the clarification composer do not treat the day as stated. When only an until date parses (e.g. "sick
@@ -217,8 +220,10 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     }
 
     /// <summary>
-    /// Builds the two halves of the extraction call: all instructions, the JSON schema and the rules go
-    /// into the system prompt; the user message carries only the inbound data (From/Date/Subject/Body).
+    /// Builds the two halves of the extraction call: all instructions, the JSON schema, the rules and the
+    /// untrusted-data instruction go into the system prompt; the user message carries only the inbound data:
+    /// the system-built Date line first, then the sender label, the subject (when present) and the body,
+    /// each in its own untrusted-data tag (InboundClarificationPromptParts).
     /// </summary>
     /// <param name="source">The inbound message whose sender, date and subject are rendered</param>
     /// <param name="clientType">Customer or employee/extern, named in the instructions</param>
@@ -228,9 +233,9 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
     internal static (string SystemPrompt, string UserMessage) BuildPrompt(
         InboundSource source, EntityTypeEnum clientType, string body, DateOnly receivedDate, ScheduleCommandKeywordSet keywords)
     {
-        var subjectLine = string.IsNullOrWhiteSpace(source.Subject) ? string.Empty : $"Subject: {source.Subject}\n";
-        var userMessage = $"From: {source.SenderDisplay}\nDate: {FormatDateLine(receivedDate)}\n{subjectLine}Body: {body}";
-        return (BuildSystemPrompt(clientType, keywords), userMessage);
+        var userMessage = InboundClarificationPromptParts.BuildFirstAnalysisUserMessage(
+            source.SenderDisplay, FormatDateLine(receivedDate), source.Subject, body);
+        return (BuildSystemPrompt(clientType, keywords) + InboundClarificationPromptParts.FirstAnalysisInstructions, userMessage);
     }
 
     internal static string BuildSystemPrompt(EntityTypeEnum clientType, ScheduleCommandKeywordSet keywords)
