@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Zkontrolovat stav složky pro předání ERP",
   "check_group_geocoding_status": "Zkontrolovat stav geokódování skupin",
   "clear_client_availability": "Odstranit dostupnost zaměstnance",
+  "close_clarification": "Uzavřít otevřený doplňující dotaz zaměstnanci",
   "close_period": "Uzavřít platební období",
   "confirm_pending_action": "Provést odloženou akci",
   "confirm_work": "Potvrdit a zablokovat použití",

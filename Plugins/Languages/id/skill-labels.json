@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Periksa kesehatan folder drop point ERP",
   "check_group_geocoding_status": "Periksa status geocoding grup",
   "clear_client_availability": "Hapus ketersediaan karyawan",
+  "close_clarification": "Tutup pertanyaan klarifikasi terbuka ke karyawan",
   "close_period": "Tutup periode pembayaran",
   "confirm_pending_action": "Jalankan tindakan tertunda",
   "confirm_work": "Konfirmasi dan kunci penugasan kerja",

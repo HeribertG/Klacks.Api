@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Kontrollera status för ERP-överlämningsmappen",
   "check_group_geocoding_status": "Kontrollera gruppernas geokodningsstatus",
   "clear_client_availability": "Rensa en medarbetares tillgänglighet",
+  "close_clarification": "Stäng en öppen följdfråga till en medarbetare",
   "close_period": "Avsluta en betalningsperiod",
   "confirm_pending_action": "Verkställ väntande åtgärd",
   "confirm_work": "Bekräfta och lås ett arbetsuppdrag",

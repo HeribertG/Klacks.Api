@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "בדיקת מצב תיקיית ההעברה של ה-ERP",
   "check_group_geocoding_status": "לבדוק את מצב הגיאו-קידוד של הקבוצות",
   "clear_client_availability": "מחיקת זמינות של עובד",
+  "close_clarification": "סגירת שאלת הבהרה פתוחה לעובד",
   "close_period": "לסגור את תקופת התשלומים",
   "confirm_pending_action": "ביצוע פעולה שנדחתה",
   "confirm_work": "אשר את השימוש ולנעול",

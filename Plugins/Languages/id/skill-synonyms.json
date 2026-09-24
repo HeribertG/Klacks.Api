@@ -269,6 +269,10 @@
     "hapus entri ketersediaan",
     "kosongkan ketersediaan agar hari terbuka lagi"
   ],
+  "close_clarification": [
+    "saya akan mengklarifikasi sendiri dengan karyawan",
+    "tutup pertanyaan klarifikasi"
+  ],
   "close_period": [
     "tutup periode mei 2026",
     "selesaikan periode pembayaran",

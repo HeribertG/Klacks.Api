@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "ERP 전송 폴더 상태 확인",
   "check_group_geocoding_status": "그룹 지오코딩 상태 확인",
   "clear_client_availability": "직원 가용성 삭제",
+  "close_clarification": "직원에게 보낸 열린 확인 질문 닫기",
   "close_period": "급여 기간 마감",
   "confirm_pending_action": "보류 중인 작업 실행",
   "confirm_work": "근무 배정 확정 및 잠금",

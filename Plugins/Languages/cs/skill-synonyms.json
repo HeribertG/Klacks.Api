@@ -276,6 +276,10 @@
     "smazat záznamy dostupnosti",
     "vymazat dostupnost a znovu otevřít den"
   ],
+  "close_clarification": [
+    "vyjasním to se zaměstnancem sám",
+    "ukončit doplňující dotaz"
+  ],
   "close_period": [
     "uzavři období",
     "zavři květen 2026",

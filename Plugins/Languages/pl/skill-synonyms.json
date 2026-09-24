@@ -270,6 +270,10 @@
     "usunąć wpisy dostępności",
     "wyczyścić dostępność aby dzień był znowu otwarty"
   ],
+  "close_clarification": [
+    "sam wyjaśnię to z pracownikiem",
+    "zamknij pytanie doprecyzowujące"
+  ],
   "close_period": [
     "zamknij okres",
     "zamknij miesiąc",

@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Kontroller status for ERP-overførselsmappen",
   "check_group_geocoding_status": "Kontroller gruppernes geokodningsstatus",
   "clear_client_availability": "Slet en medarbejders tilgængelighed",
+  "close_clarification": "Luk et åbent opfølgende spørgsmål til en medarbejder",
   "close_period": "Afslut betalingsperiode",
   "confirm_pending_action": "Udfør den udskudte handling",
   "confirm_work": "Bekræft og spær adgang",

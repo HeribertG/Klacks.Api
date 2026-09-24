@@ -269,6 +269,10 @@
     "beschikbaarheidsitems verwijderen",
     "beschikbaarheid wissen zodat de dag weer open is"
   ],
+  "close_clarification": [
+    "ik stem het zelf af met de medewerker",
+    "verduidelijkingsvraag sluiten"
+  ],
   "close_period": [
     "sluit de periode mei 2026 af",
     "vergrendel de maand",

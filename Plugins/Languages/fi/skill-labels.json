@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Tarkista ERP-siirtokansion tila",
   "check_group_geocoding_status": "Ryhmien geokoodaustilan tarkistaminen",
   "clear_client_availability": "Työntekijän saatavuuden poistaminen",
+  "close_clarification": "Sulje avoin tarkentava kysymys työntekijälle",
   "close_period": "Maksukauden päättäminen",
   "confirm_pending_action": "Suorita keskeytetty toiminto",
   "confirm_work": "Vahvista ja lukitse käyttö",

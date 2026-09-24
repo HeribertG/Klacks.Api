@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "ERP連携フォルダの状態を確認",
   "check_group_geocoding_status": "拠点グループのジオコーディング状況を確認",
   "clear_client_availability": "従業員の稼働可能情報を削除",
+  "close_clarification": "従業員への未回答の確認質問を閉じる",
   "close_period": "支払期間を締め切る",
   "confirm_pending_action": "保留中の操作を実行",
   "confirm_work": "勤務を確定してロック",

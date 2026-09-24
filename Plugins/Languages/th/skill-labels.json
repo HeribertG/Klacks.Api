@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "ตรวจสอบสถานะโฟลเดอร์รับส่งข้อมูล ERP",
   "check_group_geocoding_status": "ตรวจสอบสถานะการแปลงพิกัดของกลุ่ม",
   "clear_client_availability": "ล้างความพร้อมใช้งานของพนักงาน",
+  "close_clarification": "ปิดคำถามเพื่อขอความชัดเจนที่เปิดอยู่ถึงพนักงาน",
   "close_period": "ปิดงวดการจ่ายเงิน",
   "confirm_pending_action": "ดำเนินการที่ค้างอยู่",
   "confirm_work": "ยืนยันและล็อกงาน",

@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "檢查 ERP 投遞資料夾健康狀態",
   "check_group_geocoding_status": "檢查群組地理編碼狀態",
   "clear_client_availability": "清除員工可用性",
+  "close_clarification": "關閉發給員工的待回覆澄清問題",
   "close_period": "關閉薪資結算期間",
   "confirm_pending_action": "執行暫緩的動作",
   "confirm_work": "確認並鎖定勤務",

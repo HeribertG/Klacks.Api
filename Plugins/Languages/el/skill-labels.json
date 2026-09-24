@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Έλεγχος κατάστασης φακέλου μεταφοράς ERP",
   "check_group_geocoding_status": "Έλεγχος της κατάστασης γεωκωδικοποίησης των ομάδων",
   "clear_client_availability": "Διαγραφή διαθεσιμότητας υπαλλήλου",
+  "close_clarification": "Κλείσιμο ανοιχτής διευκρινιστικής ερώτησης προς εργαζόμενο",
   "close_period": "Ολοκλήρωση περιόδου πληρωμών",
   "confirm_pending_action": "Εκτέλεση αναβληθείσας ενέργειας",
   "confirm_work": "Επιβεβαίωση και κλείδωμα χρήσης",

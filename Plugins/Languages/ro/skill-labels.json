@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Verifică starea folderului de predare ERP",
   "check_group_geocoding_status": "Verificarea stării geocodării grupurilor",
   "clear_client_availability": "Șterge disponibilitatea unui angajat",
+  "close_clarification": "Închide o întrebare de clarificare deschisă către un angajat",
   "close_period": "Închiderea perioadei de plată",
   "confirm_pending_action": "Execută acțiunea în așteptare",
   "confirm_work": "Confirmă și blochează operațiunea",

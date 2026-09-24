@@ -265,6 +265,10 @@
     "ta bort tillgänglighetsposter",
     "rensa tillgängligheten så att dagen öppnas igen"
   ],
+  "close_clarification": [
+    "jag reder ut det själv med medarbetaren",
+    "stäng följdfrågan"
+  ],
   "close_period": [
     "stäng perioden",
     "avsluta maj",

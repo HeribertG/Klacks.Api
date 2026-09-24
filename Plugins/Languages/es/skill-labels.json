@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Comprobar el estado de la carpeta de transferencia del ERP",
   "check_group_geocoding_status": "Comprobar el estado de la geocodificación de los grupos",
   "clear_client_availability": "Eliminar la disponibilidad de un empleado",
+  "close_clarification": "Cerrar una pregunta de aclaración abierta a un empleado",
   "close_period": "Cerrar el período de pago",
   "confirm_pending_action": "Ejecutar la acción pendiente",
   "confirm_work": "Confirmar y bloquear la asignación",

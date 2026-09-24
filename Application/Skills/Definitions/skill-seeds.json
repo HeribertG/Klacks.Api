@@ -24155,6 +24155,74 @@
       "version": 1
     },
     {
+      "name": "close_clarification",
+      "area": "inbox",
+      "description": "Ends an open follow-up question the assistant sent privately to an employee about an unclear absence or attendance message, because the planner now takes the matter over personally. The assistant stops waiting for the reply, and later messages from that employee are evaluated normally again. Use when a planner says they will clarify it themselves or the question is no longer needed.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanManageAutomation"
+      ],
+      "parameters": [
+        {
+          "name": "clarificationId",
+          "description": "UUID of the open follow-up question, when it is known",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the employee whose open follow-up question should be closed",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "rückfrage übernehmen"
+        ],
+        "en": [
+          "take over the follow-up question"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "ich kläre das selbst mit dem mitarbeiter",
+          "rückfrage an den mitarbeiter beenden",
+          "klärung selbst übernehmen"
+        ],
+        "en": [
+          "i will clarify it with the employee myself",
+          "stop waiting for the employee's answer",
+          "close the follow-up question"
+        ],
+        "fr": [
+          "je clarifie moi-même avec l'employé",
+          "clore la question de suivi"
+        ],
+        "it": [
+          "chiarisco io con il dipendente",
+          "chiudere la domanda di chiarimento"
+        ]
+      },
+      "labels": {
+        "de": "Offene Rückfrage an Mitarbeitende schließen",
+        "en": "Close an open follow-up question to an employee",
+        "fr": "Clore une question de suivi ouverte à un employé",
+        "it": "Chiudi una domanda di chiarimento aperta a un dipendente"
+      },
+      "version": 1
+    },
+    {
       "name": "translate_email",
       "area": "inbox",
       "description": "Translates a received email into a target language via the mailbox translation service (the inbox translate button) and returns the translated subject and body text. Long bodies are truncated.",

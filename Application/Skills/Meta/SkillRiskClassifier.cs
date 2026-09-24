@@ -496,6 +496,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "delete_agent_skill",
         "accept_skill_relation",
         "dismiss_skill_relation",
+        "close_clarification",
         "update_navigation_synonyms",
         "add_transcription_dictionary_entry",
         "update_transcription_dictionary_entry",

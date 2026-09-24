@@ -265,6 +265,10 @@
     "poista saatavuusmerkinnät",
     "tyhjennä saatavuus jotta päivä avautuu uudelleen"
   ],
+  "close_clarification": [
+    "selvitän asian itse työntekijän kanssa",
+    "sulje tarkentava kysymys"
+  ],
   "close_period": [
     "sulje jakso",
     "päätä toukokuu 2026",

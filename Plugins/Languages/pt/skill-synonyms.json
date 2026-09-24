@@ -273,6 +273,10 @@
     "limpar a disponibilidade para reabrir o dia",
     "remover a disponibilidade registrada"
   ],
+  "close_clarification": [
+    "eu mesmo esclareço com o funcionário",
+    "fechar a pergunta de esclarecimento"
+  ],
   "close_period": [
     "fechar o período de maio",
     "encerrar a quinzena para pagamento",

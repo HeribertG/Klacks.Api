@@ -264,6 +264,10 @@
     "slett tilgjengelighetsoppføringer",
     "tøm tilgjengeligheten så dagen åpnes igjen"
   ],
+  "close_clarification": [
+    "jeg avklarer det selv med den ansatte",
+    "lukk oppfølgingsspørsmålet"
+  ],
   "close_period": [
     "lukk perioden",
     "avslutt perioden",

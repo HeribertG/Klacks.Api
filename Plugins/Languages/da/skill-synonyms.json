@@ -269,6 +269,10 @@
     "slet tilgængelighedsposter",
     "ryd tilgængelighed så dagen er åben igen"
   ],
+  "close_clarification": [
+    "jeg afklarer det selv med medarbejderen",
+    "luk det opfølgende spørgsmål"
+  ],
   "close_period": [
     "luk perioden for maj",
     "afslut lønperioden",

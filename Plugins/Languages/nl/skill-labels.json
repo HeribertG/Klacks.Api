@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "De status van de ERP-overdrachtsmap controleren",
   "check_group_geocoding_status": "De geocoderingstatus van de groepen controleren",
   "clear_client_availability": "De beschikbaarheid van een medewerker verwijderen",
+  "close_clarification": "Een openstaande verduidelijkingsvraag aan een medewerker sluiten",
   "close_period": "Betalingsperiode afsluiten",
   "confirm_pending_action": "Uitgestelde actie uitvoeren",
   "confirm_work": "Gebruik bevestigen en blokkeren",

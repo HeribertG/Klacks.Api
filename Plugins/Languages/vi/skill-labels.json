@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Kiểm tra tình trạng thư mục nhận dữ liệu ERP",
   "check_group_geocoding_status": "Kiểm tra trạng thái mã hóa địa lý nhóm",
   "clear_client_availability": "Xóa thời gian khả dụng của nhân viên",
+  "close_clarification": "Đóng câu hỏi làm rõ đang mở gửi nhân viên",
   "close_period": "Chốt kỳ thanh toán",
   "confirm_pending_action": "Thực hiện hành động đang chờ",
   "confirm_work": "Xác nhận và khóa phân công việc",

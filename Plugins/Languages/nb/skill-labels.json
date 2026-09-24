@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "Kontroller statusen på ERP-overføringsmappen",
   "check_group_geocoding_status": "Sjekke geokodingsstatusen for gruppene",
   "clear_client_availability": "Slette en ansattes tilgjengelighet",
+  "close_clarification": "Lukk et åpent oppfølgingsspørsmål til en ansatt",
   "close_period": "Avslutte betalingsperioden",
   "confirm_pending_action": "Utfør utsatt handling",
   "confirm_work": "Bekreft bruk og sperre",

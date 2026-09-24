@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "التحقق من حالة مجلد نقل بيانات نظام تخطيط موارد المؤسسة (ERP)",
   "check_group_geocoding_status": "التحقق من حالة الترميز الجغرافي للمجموعات",
   "clear_client_availability": "حذف توفر أحد الموظفين",
+  "close_clarification": "إغلاق سؤال متابعة مفتوح لموظف",
   "close_period": "إغلاق فترة الدفع",
   "confirm_pending_action": "تنفيذ الإجراء المؤجل",
   "confirm_work": "تأكيد الاستخدام والحظر",

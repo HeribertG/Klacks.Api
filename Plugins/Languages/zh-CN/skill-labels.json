@@ -42,6 +42,7 @@
   "check_erp_drop_point_folder_health": "检查 ERP 交接点文件夹状态",
   "check_group_geocoding_status": "检查分组地理编码状态",
   "clear_client_availability": "清除员工的可用性",
+  "close_clarification": "关闭发给员工的待回复澄清问题",
   "close_period": "关闭支付周期",
   "confirm_pending_action": "执行已暂挂的操作",
   "confirm_work": "确认并锁定工作任务",
