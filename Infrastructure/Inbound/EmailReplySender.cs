@@ -8,7 +8,9 @@
 /// characters such as a right-to-left override of the decoded original subject become spaces); when the
 /// flattened subject still looks suspicious (a link, a MIME encoded-word marker, an '@' or a phone-like
 /// digit run) it is replaced with a fixed neutral subject instead, and the result is bounded to
-/// MaxReplySubjectLength, truncated at a word boundary. In-Reply-To and References thread the reply onto
+/// MaxReplySubjectLength, truncated at a word boundary; only the first MaxSubjectInspectionLength
+/// characters of the original subject are flattened and inspected, because nothing beyond the reply
+/// subject bound is ever sent and the received subject is unbounded attacker-controlled text. In-Reply-To and References thread the reply onto
 /// the original mail; only strictly valid message ids (printable ASCII without whitespace or angle
 /// brackets, containing '@', at most MaxMessageIdLength characters) are used, so synthetic
 /// "{folder}-{uid}" ids, header-injection attempts and oversized ids are dropped, a References value
@@ -117,7 +119,7 @@ public sealed partial class EmailReplySender : IInboundReplySender
 
     internal static string BuildSubject(string? originalSubject)
     {
-        var flattened = FlattenToSingleLine(originalSubject);
+        var flattened = FlattenToSingleLine(originalSubject, InboundClarificationConstants.MaxSubjectInspectionLength);
         if (IsSuspiciousSubject(flattened))
         {
             return InboundClarificationConstants.NeutralReplySubject;
@@ -192,14 +194,14 @@ public sealed partial class EmailReplySender : IInboundReplySender
         return headers;
     }
 
-    private static string FlattenToSingleLine(string? value)
+    private static string FlattenToSingleLine(string? value, int maxLength)
     {
         if (string.IsNullOrEmpty(value))
         {
             return string.Empty;
         }
 
-        var builder = new StringBuilder(value.Length);
+        var builder = new StringBuilder(Math.Min(value.Length, maxLength));
         var pendingSeparator = false;
         foreach (var character in value)
         {
@@ -207,6 +209,12 @@ public sealed partial class EmailReplySender : IInboundReplySender
             {
                 pendingSeparator = builder.Length > 0;
                 continue;
+            }
+
+            var separatorLength = pendingSeparator ? 1 : 0;
+            if (builder.Length + separatorLength >= maxLength)
+            {
+                break;
             }
 
             if (pendingSeparator)

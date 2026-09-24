@@ -75,6 +75,14 @@ public static class InboundClarificationConstants
     public const int MaxReplySubjectLength = 120;
 
     /// <summary>
+    /// Upper bound of the flattened original subject that is inspected for suspicious content. Twice
+    /// MaxReplySubjectLength: only the first MaxReplySubjectLength characters of the reply subject are ever
+    /// sent, so nothing beyond this bound can reach the employee, and the received subject is unbounded
+    /// attacker-controlled text that must not reach the digit-run regexes at full length.
+    /// </summary>
+    public const int MaxSubjectInspectionLength = MaxReplySubjectLength * 2;
+
+    /// <summary>
     /// Marker of a MIME encoded-word (RFC 2047), e.g. "=?UTF-8?B?...?=". A raw original subject containing
     /// it was not decoded and must not be reflected as-is.
     /// </summary>

@@ -5,7 +5,7 @@
 /// the same rules, this guard enforces them: not empty, at most MaxQuestionLength characters, at most
 /// MaxQuestionSentences sentences, ending with the question mark of the language, no link, no "@" and no
 /// phone-number-like digit run (at least MinPhoneNumberDigits digits, with whitespace, dashes, dots,
-/// colons or plus signs allowed between them). A run is exempted from the phone check when it is itself
+/// colons, plus signs or slashes allowed between them). A run is exempted from the phone check when it is itself
 /// made of one or more date or time tokens (day 1-31, month 1-12, hour 0-24, minute 0-59 are range-checked),
 /// separated only by whitespace or a dash, never a bare dot between tokens: ISO dates (2026-09-23), dotted
 /// dates with or without spaces after the dots (24.09., 24.09.2026, 23. 9. 2026, Hungarian 2026. 09. 23.),
@@ -13,9 +13,11 @@
 /// times (14:00 or 14.00). That lets a shift date/time such as "2026-09-23 14:00-22:00", "vom 24.09. - 26.09.",
 /// "23. 9. 2026 od 14:00" or "23 September 2026 14:00-22:00" through while still rejecting a dot-grouped
 /// digit run such as "06.12.34.56.78". Residual risk: a phone number written as several valid day/month
-/// pairs joined by ". " (for example "01. 02. 03. 04") is treated as dates. A period only ends a sentence before whitespace or the
-/// end and never after a
-/// digit or a single letter, so a time (14.00), a date (24.09.) or an abbreviation (z. B.) does not count.
+/// pairs joined by ". " (for example "01. 02. 03. 04") is treated as dates. The date-or-time run pattern
+/// has overlapping token alternatives and therefore runs on the non-backtracking regex engine, so a
+/// crafted digit run cannot cause catastrophic backtracking. A period only ends a sentence before
+/// whitespace or the end and never after a digit or a single letter, so a time (14.00), a date (24.09.)
+/// or an abbreviation (z. B.) does not count.
 /// The question must END with ?, the full-width ？ or the Arabic ؟;
 /// the Greek question mark (; or U+037E) only counts when the text contains Greek letters. For the
 /// health-term check only, every whole word of the system-inserted context (shift, station or ward names
@@ -87,7 +89,7 @@ public static class ClarificationQuestionGuard
 
     private static readonly Regex DateOrTimeRun = new(
         $@"^(?:{DateOrTimeToken})(?:[\s\-]+(?:{DateOrTimeToken}))*$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.NonBacktracking | RegexOptions.CultureInvariant);
 
     private static readonly Regex SentenceTerminator = new(
         @"(?<!\d)(?<!(?:^|[^\p{L}])\p{L})\.(?=\s|$)|[!?;\u037E](?=\s|$)|[。！？؟]",
@@ -177,8 +179,8 @@ public static class ClarificationQuestionGuard
 
     /// <summary>
     /// True when the text contains a digit run that looks like a phone number (at least
-    /// MinPhoneNumberDigits digits, with whitespace, dashes, dots, colons or plus signs allowed between
-    /// them), unless the run is itself a date or time (see class summary). Shared between the question
+    /// MinPhoneNumberDigits digits, with whitespace, dashes, dots, colons, plus signs or slashes allowed
+    /// between them), unless the run is itself a date or time (see class summary). Shared between the question
     /// guard and the clarification email reply sender's suspicious-subject check.
     /// </summary>
     public static bool ContainsPhoneNumberLikeDigitRun(string text) =>
