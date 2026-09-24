@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Diagnostics;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -162,7 +163,7 @@ public sealed class SpeechModelCheckService
             AvailableFunctions = [],
             Temperature = 0.0,
             MaxTokens = PingMaxTokens,
-            ThinkingBudgetTokens = 0,
+            ThinkingBudgetTokens = ThinkingBudgetConstants.Disabled,
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,

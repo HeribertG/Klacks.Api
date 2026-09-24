@@ -9,5 +9,10 @@ public class LLMProviderResponse
     public LLMUsage Usage { get; set; } = new();
     public bool Success { get; set; } = true;
     public string? Error { get; set; }
-    public bool ContentFromReasoning { get; set; }
+
+    /// <summary>
+    /// True when the model wrote reasoning but no content and no tool call. Content is empty in that
+    /// case: reasoning is never surfaced as the answer. Diagnostic only.
+    /// </summary>
+    public bool ReasoningWithoutContent { get; set; }
 }

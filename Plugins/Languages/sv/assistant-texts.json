@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "Uppfattat — inte {previousAction}. Menar du {optionA} eller {optionB}?",
   "assistant.recipe.confirmYes": "Ja",
   "assistant.recipe.confirmNo": "Nej",
-  "assistant.emptyAnswer.fallbackNotice": "Jag utförde de begärda stegen, men kunde inte formulera ett svar. Fråga gärna igen."
+  "assistant.emptyAnswer.fallbackNotice": "Jag utförde de begärda stegen, men kunde inte formulera ett svar. Fråga gärna igen.",
+  "assistant.emptyAnswer.noActionNotice": "Jag kunde inte formulera ett svar, och ingenting utfördes. Försök gärna igen."
 }

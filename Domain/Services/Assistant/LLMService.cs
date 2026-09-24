@@ -296,9 +296,8 @@ public class LLMService : ILLMService
                 yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
                 var confirmResponse = await ProcessWithTransientRetryAsync(
                     provider!,
-                    LLMProviderRequestFactory.ToolLess(
-                        model!, currentMessage, systemPrompt!,
-                        CombineVolatile(volatilePrompt, confirmInstruction), runningHistory),
+                    LLMProviderRequestFactory.RecipeStep(
+                        model!, currentMessage, systemPrompt!, volatilePrompt, confirmInstruction, runningHistory),
                     cancellationToken);
                 LLMUsageAccumulator.Add(totalUsage, confirmResponse.Usage);
                 var confirmText = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
@@ -319,9 +318,8 @@ public class LLMService : ILLMService
                 yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
                 var askResponse = await ProcessWithTransientRetryAsync(
                     provider!,
-                    LLMProviderRequestFactory.ToolLess(
-                        model!, currentMessage, systemPrompt!,
-                        CombineVolatile(volatilePrompt, askInstruction), runningHistory),
+                    LLMProviderRequestFactory.RecipeStep(
+                        model!, currentMessage, systemPrompt!, volatilePrompt, askInstruction, runningHistory),
                     cancellationToken);
                 LLMUsageAccumulator.Add(totalUsage, askResponse.Usage);
                 var askText = RecipeReplyGuard.SafeAsk(
@@ -478,7 +476,7 @@ public class LLMService : ILLMService
         }
 
         var recovery = RecoveryFor(provider!, totalUsage, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory, historyBudget, context.Language);
-        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, allFunctionCalls, fullResponseContent, lastCallStart, toolIterationsRun, cancellationToken))
+        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, allFunctionCalls, fullResponseContent, lastCallStart, toolIterationsRun, recipe.PausedOnAsk, cancellationToken))
         {
             yield return recoveryChunk;
         }
@@ -510,7 +508,7 @@ public class LLMService : ILLMService
 
         var noActionNotice = TurnClosingNotices.NoAction(
             isMutationIntent, recipe.ForceConfirm, responseContent,
-            allFunctionCalls.Count, recipe.PausedOnAsk, IsClarifyingResponse(responseContent));
+            allFunctionCalls.Count, recipe.PausedOnAsk, ClarifyingResponse.IsClarifying(responseContent));
         if (noActionNotice != null)
         {
             yield return SseChunk.Content(noActionNotice);
@@ -762,9 +760,8 @@ public class LLMService : ILLMService
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
                 var confirmInstruction = enginePlan.ConfirmationInstruction;
-                var confirmRequest = LLMProviderRequestFactory.ToolLess(
-                    ctx.Model, currentMessage, ctx.SystemPrompt,
-                    CombineVolatile(ctx.VolatilePrompt, confirmInstruction), runningHistory);
+                var confirmRequest = LLMProviderRequestFactory.RecipeStep(
+                    ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt, confirmInstruction, runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest, ctx.CancellationToken);
                 LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
@@ -784,9 +781,8 @@ public class LLMService : ILLMService
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
                     RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
-                var askRequest = LLMProviderRequestFactory.ToolLess(
-                    ctx.Model, currentMessage, ctx.SystemPrompt,
-                    CombineVolatile(ctx.VolatilePrompt, askInstruction), runningHistory);
+                var askRequest = LLMProviderRequestFactory.RecipeStep(
+                    ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt, askInstruction, runningHistory);
 
                 lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest, ctx.CancellationToken);
                 LLMUsageAccumulator.Add(ctx.TotalUsage, lastResponse.Usage);
@@ -866,7 +862,7 @@ public class LLMService : ILLMService
                         isMutationIntent, recipe.ForceConfirm,
                         ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content),
                         CompletionClaimDetector.ClaimsCompletion(lastResponse.Content),
-                        allFunctionCalls.Count, recipe.PausedOnAsk, IsClarifyingResponse(lastResponse.Content))
+                        allFunctionCalls.Count, recipe.PausedOnAsk, ClarifyingResponse.IsClarifying(lastResponse.Content))
                     && !forcedRetryUsed
                     && iteration < maxIterations - 1)
                 {
@@ -916,7 +912,7 @@ public class LLMService : ILLMService
         }
 
         responseContent = await RecoverAnswerAsync(
-            ctx, currentMessage, runningHistory, historyBudget, responseContent, lastResponse, allFunctionCalls);
+            ctx, currentMessage, runningHistory, historyBudget, responseContent, lastResponse, allFunctionCalls, recipe.PausedOnAsk, forcedRetryUsed);
 
         // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
         // to the pending ask was recognized as an independent question, not a slot answer. The plan is
@@ -956,19 +952,6 @@ public class LLMService : ILLMService
         ctx.RecipePausedOnAsk = recipe.PausedOnAsk;
 
         return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, recipe.AskedSlot);
-    }
-
-    // A clarifying question or an interactive reply affordance ("[REPLIES:date …]") is the assistant
-    // asking for input, not claiming a completed action — so it must NOT trip the no-action V1 guard.
-    private static bool IsClarifyingResponse(string? content)
-    {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return false;
-        }
-
-        return content.TrimEnd().EndsWith("?", StringComparison.Ordinal)
-            || content.Contains("[REPLIES:", StringComparison.OrdinalIgnoreCase);
     }
 
     // Prompt-injection containment lives in ToolResultFormatter, shared with the turn replay and the
@@ -1023,21 +1006,26 @@ public class LLMService : ILLMService
 
     /// <summary>
     /// Non-streaming side of the closing guard. A failed last response (a recipe confirmation or ask call)
-    /// turns the whole turn into an error response, so recovering its answer would be a wasted call.
+    /// turns the whole turn into an error response, so recovering its answer would be a wasted call. A turn
+    /// without tool calls recovers against the user's message, never against a force-tool nudge, and
+    /// without the nudge's exchange, which would otherwise repeat that message in the history.
     /// </summary>
     private async Task<string> RecoverAnswerAsync(
         MultiTurnContext ctx, string currentMessage, List<Providers.LLMMessage> runningHistory, int historyBudget,
-        string responseContent, LLMProviderResponse? lastResponse, List<LLMFunctionCall> allFunctionCalls)
+        string responseContent, LLMProviderResponse? lastResponse, List<LLMFunctionCall> allFunctionCalls, bool pausedOnRecipeStep,
+        bool nudged)
     {
         if (lastResponse is { Success: false })
         {
             return responseContent;
         }
 
+        var noToolRan = allFunctionCalls.Count == 0;
         return await RecoveryFor(
-                ctx.Provider, ctx.TotalUsage, ctx.Model, currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
-                runningHistory, historyBudget, ctx.Context.Language)
-            .ResolveAsync(responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, ctx.CancellationToken);
+                ctx.Provider, ctx.TotalUsage, ctx.Model, noToolRan ? ctx.Context.Message : currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
+                noToolRan && nudged ? ForceToolNudgePolicy.WithoutNudgeExchange(runningHistory, ctx.Context.Message) : runningHistory,
+                historyBudget, ctx.Context.Language)
+            .ResolveAsync(responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep, ctx.CancellationToken);
     }
 
     /// <summary>
@@ -1053,15 +1041,16 @@ public class LLMService : ILLMService
     /// <param name="streamedContent">Everything streamed so far; the appended text is added to it.</param>
     /// <param name="lastCallStart">Offset in streamedContent where the last provider call's content starts.</param>
     /// <param name="iteration">The loop's last iteration number, reported with the status.</param>
+    /// <param name="pausedOnRecipeStep">True when a recipe paused on its confirmation or ask step this turn.</param>
     /// <param name="cancellationToken">Cancels the extra call.</param>
     private async IAsyncEnumerable<SseChunk> StreamRecoveryAsync(
         EmptyAnswerRecovery recovery, LLMContext context, List<LLMFunctionCall> allFunctionCalls,
-        StringBuilder streamedContent, int lastCallStart, int iteration,
+        StringBuilder streamedContent, int lastCallStart, int iteration, bool pausedOnRecipeStep,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var lastCallContent = streamedContent.ToString(lastCallStart, streamedContent.Length - lastCallStart);
         if (!EmptyAnswerRecovery.NeedsRecovery(
-                lastCallContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly))
+                lastCallContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep))
         {
             yield break;
         }
@@ -1092,8 +1081,8 @@ public class LLMService : ILLMService
         return new EmptyAnswerRecovery(_logger, provider, totalUsage, language, instruction =>
         {
             FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
-            return LLMProviderRequestFactory.ToolLess(
-                model, currentMessage, systemPrompt, CombineVolatile(volatilePrompt, instruction), runningHistory);
+            return LLMProviderRequestFactory.Recovery(
+                model, currentMessage, systemPrompt, volatilePrompt, instruction, runningHistory);
         });
     }
 

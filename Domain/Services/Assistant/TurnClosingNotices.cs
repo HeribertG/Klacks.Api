@@ -13,7 +13,8 @@
 /// (or a [REPLIES:] affordance) is not a false success claim and is skipped, otherwise the well-behaved
 /// default path (Gemini/Anthropic ignore tool_choice) would regress; a recipe deliberately paused on an
 /// ask is not a no-action lie either. The non-streaming path has no equivalent: nothing is sent before the
-/// loop ends there, so it suppresses the claim with a forced retry (ForceToolNudgePolicy) instead.
+/// loop ends there, so it suppresses the claim with a forced retry (ForceToolNudgePolicy) instead, and a
+/// claim made by its empty-answer recovery call is replaced by EmptyAnswerRecovery with the no-action notice.
 ///
 /// Step-failed notice (both paths): a forced recipe step (tool_choice=required) can fail on every
 /// iteration until the iteration budget is exhausted - e.g. a name-resolution skill rejecting the model's

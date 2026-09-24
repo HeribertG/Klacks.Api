@@ -11,7 +11,9 @@
 /// Turning thinking off is scoped to forced requests on purpose: tool_choice is only forced on a
 /// mutation, navigation, pending-confirmation or recipe-step turn, and those are parameter-collecting
 /// steps whose answer is a tool call, not a line of reasoning. An unforced turn keeps thinking exactly
-/// as configured, so no ordinary answer loses quality and no cost profile changes.
+/// as configured, so no ordinary answer loses quality and no cost profile changes. The one other way to
+/// turn thinking off is a caller that sends ThinkingBudgetConstants.Disabled (greeting, recipe confirmation
+/// and ask steps, empty-answer recovery, speech/transcription helpers): those want a short plain answer.
 /// </summary>
 
 using System.Collections.Concurrent;
@@ -158,7 +160,11 @@ public class DeepSeekProvider : BaseHttpProvider
     /// downgraded to auto, and reading it would turn "the turn wants a tool call" into "thinking stays on",
     /// which is the very combination the API rejects.
     /// </summary>
-    /// <param name="request">The request about to be sent; only its ToolChoice is read</param>
+    /// <remarks>
+    /// A ThinkingBudgetTokens of 0 is the caller's documented "disable thinking entirely" and is honoured
+    /// the same way: DeepSeek has no budget, only on/off, so any other value leaves the model default.
+    /// </remarks>
+    /// <param name="request">The request about to be sent; its ToolChoice and ThinkingBudgetTokens are read</param>
     private OpenAIThinkingOptions? ResolveThinking(LLMProviderRequest request)
     {
         if (_disableThinking)
@@ -168,6 +174,11 @@ public class DeepSeekProvider : BaseHttpProvider
                 _logger.LogInformation("Thinking disabled by configuration.");
             }
 
+            return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
+        }
+
+        if (request.ThinkingBudgetTokens == ThinkingBudgetConstants.Disabled)
+        {
             return new OpenAIThinkingOptions { Type = ThinkingTypeDisabled };
         }
 
@@ -223,15 +234,17 @@ public class DeepSeekProvider : BaseHttpProvider
         var rawContent = choice.Message?.GetContentString();
         var rawReasoning = choice.Message?.ReasoningContent;
         _logger.LogInformation(
-            "DeepSeek raw channels: hasToolCalls={HasToolCalls}, content ({ContentLength} chars)={Content}, " +
-            "reasoning_content ({ReasoningLength} chars)={Reasoning}",
-            hasToolCalls, rawContent?.Length ?? 0, TruncateForLog(rawContent),
-            rawReasoning?.Length ?? 0, TruncateForLog(rawReasoning));
+            "DeepSeek raw channels: hasToolCalls={HasToolCalls}, finish_reason={FinishReason}, " +
+            "content ({ContentLength} chars)={Content}, reasoning_content ({ReasoningLength} chars)",
+            hasToolCalls, choice.FinishReason, rawContent?.Length ?? 0, TruncateForLog(rawContent),
+            rawReasoning?.Length ?? 0);
         var answer = ReasoningContentResolver.Resolve(rawContent, rawReasoning, hasToolCalls);
+        ReasoningChannelLog.Write(
+            _logger, ProviderName, request.ModelId, rawReasoning, answer.ReasoningWithoutContent, choice.FinishReason);
         var result = new LLMProviderResponse
         {
             Content = answer.Content,
-            ContentFromReasoning = answer.FromReasoning,
+            ReasoningWithoutContent = answer.ReasoningWithoutContent,
             Success = true,
             Usage = BuildUsageFromCounters(request, new OpenAIUsageResponse
             {
@@ -353,12 +366,10 @@ public class DeepSeekProvider : BaseHttpProvider
 
         var endpoint = "chat/completions";
 
-        // Reasoning models (deepseek-reasoner) stream thinking into reasoning_content. It is the ANSWER
-        // only when no regular content and no tool call ever arrive; otherwise it is chain-of-thought to
-        // discard. Buffer it and flush once after the loop so it never leaks live into the chat.
         var reasoningBuffer = new StringBuilder();
         var sawContent = false;
         var sawToolCall = false;
+        string? finishReason = null;
         OpenAIUsageResponse? streamUsage = null;
 
         await foreach (var rawJson in PostStreamAsync(endpoint, deepSeekRequest, cancellationToken))
@@ -415,16 +426,16 @@ public class DeepSeekProvider : BaseHttpProvider
                 }
             }
 
+            finishReason = choice.FinishReason ?? finishReason;
             if (choice.FinishReason == "tool_calls")
             {
                 yield return LLMStreamingTokens.ToolCallEnd;
             }
         }
 
-        if (!sawContent && !sawToolCall && reasoningBuffer.Length > 0)
-        {
-            yield return reasoningBuffer.ToString();
-        }
+        ReasoningChannelLog.Write(
+            _logger, ProviderName, request.ModelId, reasoningBuffer.ToString(),
+            !sawContent && !sawToolCall && reasoningBuffer.Length > 0, finishReason);
 
         if (streamUsage != null)
         {

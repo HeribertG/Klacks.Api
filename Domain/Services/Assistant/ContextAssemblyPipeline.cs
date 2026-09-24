@@ -16,7 +16,9 @@
 /// <param name="agentConditionRepository">Provides the open condition-ledger findings for the OPEN_FINDINGS context block</param>
 /// <param name="logger">Logger instance</param>
 
+using System.Globalization;
 using System.Text;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -108,7 +110,8 @@ public class ContextAssemblyPipeline
             if (pendingNoteCount > 0)
             {
                 volatileSb.AppendLine();
-                volatileSb.AppendLine($"[PENDING_NOTES: {pendingNoteCount}] You have {pendingNoteCount} undelivered note(s) stashed for this user. Call manage_pending_notes with action 'read' to read them, relay them to the user naturally, then call manage_pending_notes with action 'mark_delivered' and their ids so they are not delivered again.");
+                volatileSb.AppendLine(string.Format(
+                    CultureInfo.InvariantCulture, PendingNotesPromptConstants.HintTemplate, pendingNoteCount));
                 volatileSb.AppendLine();
             }
 

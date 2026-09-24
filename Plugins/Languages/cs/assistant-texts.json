@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "Rozumím — ne {previousAction}. Myslíte {optionA}, nebo {optionB}?",
   "assistant.recipe.confirmYes": "Ano",
   "assistant.recipe.confirmNo": "Ne",
-  "assistant.emptyAnswer.fallbackNotice": "Provedl jsem požadované kroky, ale nepodařilo se mi zformulovat odpověď. Zeptejte se prosím znovu."
+  "assistant.emptyAnswer.fallbackNotice": "Provedl jsem požadované kroky, ale nepodařilo se mi zformulovat odpověď. Zeptejte se prosím znovu.",
+  "assistant.emptyAnswer.noActionNotice": "Nepodařilo se mi zformulovat odpověď a nic nebylo provedeno. Zkuste to prosím znovu."
 }

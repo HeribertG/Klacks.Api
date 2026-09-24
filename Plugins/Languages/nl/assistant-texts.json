@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "Begrepen — niet {previousAction}. Bedoel je {optionA} of {optionB}?",
   "assistant.recipe.confirmYes": "Ja",
   "assistant.recipe.confirmNo": "Nee",
-  "assistant.emptyAnswer.fallbackNotice": "Ik heb de gevraagde stappen uitgevoerd, maar kon geen antwoord formuleren. Stel de vraag opnieuw."
+  "assistant.emptyAnswer.fallbackNotice": "Ik heb de gevraagde stappen uitgevoerd, maar kon geen antwoord formuleren. Stel de vraag opnieuw.",
+  "assistant.emptyAnswer.noActionNotice": "Ik kon geen antwoord formuleren en er is niets uitgevoerd. Probeer het opnieuw."
 }

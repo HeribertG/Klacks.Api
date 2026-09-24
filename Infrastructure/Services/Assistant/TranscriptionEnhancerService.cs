@@ -12,6 +12,7 @@
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -116,7 +117,7 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 Message = preprocessed,
                 Temperature = TranscriptionConstants.Temperature,
                 MaxTokens = TranscriptionConstants.MaxTokens,
-                ThinkingBudgetTokens = 0
+                ThinkingBudgetTokens = ThinkingBudgetConstants.Disabled
             };
 
             _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", apiModelId.ForLog());

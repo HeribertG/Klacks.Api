@@ -7,7 +7,10 @@
 /// is not question-shaped, substitutes a deterministic localized confirmation (using the recipe's
 /// authored goal/prompt translations when available) so the user never sees a leaked tool call, a
 /// hallucinated success or a raw English meta-instruction. A well-formed native question passes
-/// through untouched.
+/// through untouched. "Question-shaped" means the reply ENDS on a question - its last sentence, after
+/// trailing [REPLIES:...]/[SUGGESTIONS:...] blocks, carries the question mark. A question mark anywhere
+/// used to be enough, and a leaked chain-of-thought that merely contained one inner question
+/// ("Should I call manage_pending_notes? No tools are available, so...") was shown as the confirmation.
 /// </summary>
 
 using System.Globalization;
@@ -40,6 +43,10 @@ public static class RecipeReplyGuard
     };
 
     private const string FallbackLanguage = "en";
+
+    private const char BlockEnd = ']';
+
+    private static readonly string[] TrailingBlockPrefixes = { LlmRepliesFormat.BlockPrefix, LlmSuggestionFormat.BlockPrefix };
 
     private const string ConfirmationChipFormat = "{0} {1}{2} \"{3}={4}\" | \"{5}={6}\"]";
 
@@ -122,8 +129,45 @@ public static class RecipeReplyGuard
     private static string Clean(string? modelReply) =>
         string.IsNullOrEmpty(modelReply) ? string.Empty : ToolCallMarkupSanitizer.Sanitize(modelReply);
 
-    private static bool IsQuestionShaped(string sanitized) =>
-        !string.IsNullOrWhiteSpace(sanitized) && sanitized.IndexOfAny(QuestionMarks) >= 0;
+    /// <summary>
+    /// True when the reply ends on a question: the run of non-alphanumeric characters that closes the
+    /// text (after the trailing chip/suggestion blocks) contains a question mark. Closing quotes,
+    /// brackets, emphasis markers or an emoji after the mark therefore do not matter, while a question
+    /// followed by any further sentence does.
+    /// </summary>
+    /// <param name="sanitized">The reply with tool-call markup already removed.</param>
+    private static bool IsQuestionShaped(string sanitized)
+    {
+        var body = WithoutTrailingBlocks(sanitized);
+        for (var index = body.Length - 1; index >= 0 && !char.IsLetterOrDigit(body[index]); index--)
+        {
+            if (Array.IndexOf(QuestionMarks, body[index]) >= 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string WithoutTrailingBlocks(string text)
+    {
+        var body = text.TrimEnd();
+        while (body.Length > 0 && body[^1] == BlockEnd)
+        {
+            var blockStart = TrailingBlockPrefixes
+                .Select(prefix => body.LastIndexOf(prefix, StringComparison.OrdinalIgnoreCase))
+                .Max();
+            if (blockStart < 0)
+            {
+                break;
+            }
+
+            body = body[..blockStart].TrimEnd();
+        }
+
+        return body;
+    }
 
     private static string DeterministicConfirmation(
         string goal,

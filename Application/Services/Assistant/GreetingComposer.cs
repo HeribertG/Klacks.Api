@@ -11,6 +11,7 @@
 
 using System.Text;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -294,7 +295,7 @@ public class GreetingComposer : IGreetingComposer
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
-            ThinkingBudgetTokens = 0
+            ThinkingBudgetTokens = ThinkingBudgetConstants.Disabled
         };
 
         var response = await provider.ProcessAsync(request);
@@ -303,11 +304,10 @@ public class GreetingComposer : IGreetingComposer
             return null;
         }
 
-        if (response.ContentFromReasoning)
+        if (response.ReasoningWithoutContent)
         {
             _logger.LogWarning(
-                "Greeting model {ModelId} answered only through the reasoning channel — discarding to "
-                + "avoid leaking chain-of-thought, template greeting will be used",
+                "Greeting model {ModelId} wrote only reasoning and no greeting — template greeting will be used",
                 model.ApiModelId);
             return null;
         }

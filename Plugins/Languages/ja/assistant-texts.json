@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "承知しました。{previousAction} ではないのですね。{optionA} と {optionB} のどちらでしょうか？",
   "assistant.recipe.confirmYes": "はい",
   "assistant.recipe.confirmNo": "いいえ",
-  "assistant.emptyAnswer.fallbackNotice": "ご依頼の手順を実行しましたが、回答をまとめることができませんでした。もう一度お尋ねください。"
+  "assistant.emptyAnswer.fallbackNotice": "ご依頼の手順を実行しましたが、回答をまとめることができませんでした。もう一度お尋ねください。",
+  "assistant.emptyAnswer.noActionNotice": "回答をまとめることができず、何も実行されていません。もう一度お試しください。"
 }

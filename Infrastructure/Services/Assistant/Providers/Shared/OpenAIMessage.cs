@@ -20,10 +20,8 @@ public class OpenAIMessage
     public object Content { get; set; } = string.Empty;
 
     /// <summary>
-    /// Reasoning / chain-of-thought channel of reasoning models (e.g. Kimi, DeepSeek-R1). Some
-    /// reasoning models stream their entire answer here with an empty <see cref="Content"/>; others
-    /// emit thinking here and the answer in <see cref="Content"/>. Read deliberately by the provider
-    /// (never blindly) — see ReasoningContentResolver.
+    /// Reasoning / chain-of-thought channel of reasoning models (e.g. Kimi, DeepSeek-R1). It is never
+    /// the answer, not even when <see cref="Content"/> is empty - see ReasoningContentResolver.
     /// </summary>
     [JsonPropertyName("reasoning_content")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

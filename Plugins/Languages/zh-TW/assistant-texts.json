@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "明白了——不是{previousAction}。您指的是{optionA}還是{optionB}？",
   "assistant.recipe.confirmYes": "是",
   "assistant.recipe.confirmNo": "否",
-  "assistant.emptyAnswer.fallbackNotice": "我已執行所需的步驟，但無法給出回答。請重新提問。"
+  "assistant.emptyAnswer.fallbackNotice": "我已執行所需的步驟，但無法給出回答。請重新提問。",
+  "assistant.emptyAnswer.noActionNotice": "我無法給出回答，也沒有執行任何操作。請重試。"
 }

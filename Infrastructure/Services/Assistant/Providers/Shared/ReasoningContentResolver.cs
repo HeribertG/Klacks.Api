@@ -4,18 +4,17 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
 /// <summary>
 /// Decides what an OpenAI-compatible reasoning model's effective answer is, given the regular
-/// content, the reasoning_content channel, and whether the turn produced tool calls. Reasoning models
-/// stream thinking into reasoning_content; it is the ANSWER only when there is no content and no tool
-/// call. One symmetric rule for both the non-stream and (buffered) stream paths so chain-of-thought
-/// never leaks into the chat on a normal or tool-calling turn.
+/// content, the reasoning_content channel, and whether the turn produced tool calls. The reasoning
+/// channel is chain-of-thought and is NEVER the answer: until 2026-09-24 it was returned as the answer
+/// when content was empty, and users saw the model's deliberation (e.g. about a tool it did not have)
+/// as Klacksy's reply. An empty answer is left to the callers, which already treat it as "no answer"
+/// (chat: EmptyAnswerRecovery, recipe steps: RecipeReplyGuard, greeting: template fallback).
 /// </summary>
 public static class ReasoningContentResolver
 {
     /// <summary>
-    /// Resolves the answer AND reports whether it had to be taken from the reasoning channel. There
-    /// is deliberately no content-only overload: a caller that must never show raw chain-of-thought
-    /// (e.g. the opening greeting) needs FromReasoning to treat such an answer as a failure, and a
-    /// convenience wrapper that drops the flag is exactly the trap a future provider would fall into.
+    /// Resolves the answer AND reports whether the model reasoned without writing any content, so the
+    /// provider can log that case; the flag never changes what is shown.
     /// </summary>
     /// <param name="content">The regular content channel (may be empty)</param>
     /// <param name="reasoning">The reasoning_content channel (may be empty)</param>
@@ -30,8 +29,6 @@ public static class ReasoningContentResolver
         {
             return new ResolvedAnswer(content, false);
         }
-        return string.IsNullOrEmpty(reasoning)
-            ? new ResolvedAnswer(string.Empty, false)
-            : new ResolvedAnswer(reasoning, true);
+        return new ResolvedAnswer(string.Empty, !string.IsNullOrEmpty(reasoning));
     }
 }

@@ -2,8 +2,9 @@
 
 /// <summary>
 /// User-facing sentences that reach the user without a model call: the two-option clarification of
-/// design rule 2, its Yes/No button labels, and the closing-guard notice EmptyAnswerRecovery falls back
-/// to when even the one tool-less recovery call ends without an answer. Because no model renders them,
+/// design rule 2, its Yes/No button labels, and the two closing-guard notices EmptyAnswerRecovery falls
+/// back to when even the one tool-less recovery call ends without an answer - one after a turn that ran
+/// tools, one after a turn that ran none and must not claim otherwise. Because no model renders them,
 /// each is authored per language - and per the owner's one-language rule (spec §1 rule 4) an installed
 /// language never gets an English substitute. The four core languages live here; the 21 plugin languages
 /// are merged in at startup from each pack's assistant-texts.json by AssistantTextsPluginLoader, through
@@ -11,7 +12,7 @@
 /// English remains only for a tag that no pack claims - an unknown language, never an installed one. An
 /// installed language whose pack lacks the key resolves to nothing for the clarification question, so
 /// that turn falls back to the ordinary note path rather than asking in the wrong language; for the
-/// empty-answer notice the caller falls back to the English constant instead, because there the turn has
+/// empty-answer notices the caller falls back to the English constant instead, because there the turn has
 /// already run its recovery call and has nothing else to fall back to. Both gaps cannot ship, because
 /// AssistantTextsPackCoverageTests fails on a missing key.
 /// The clarification sentence carries rule 1 itself: it names the misunderstanding ({previousAction})
@@ -37,6 +38,7 @@ public static class GracefulCorrectionTexts
     public const string RecipeConfirmNo = "assistant.recipe.confirmNo";
 
     public const string EmptyAnswerFallbackNotice = "assistant.emptyAnswer.fallbackNotice";
+    public const string EmptyAnswerNoActionNotice = "assistant.emptyAnswer.noActionNotice";
 
     public const string PreviousActionPlaceholder = "{previousAction}";
     public const string FirstOptionPlaceholder = "{optionA}";
@@ -51,7 +53,7 @@ public static class GracefulCorrectionTexts
 
     /// <summary>Every key a language pack has to ship. The coverage guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys =
-        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo, EmptyAnswerFallbackNotice];
+        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo, EmptyAnswerFallbackNotice, EmptyAnswerNoActionNotice];
 
     /// <summary>Every placeholder the clarification question must contain, in every language.</summary>
     public static readonly IReadOnlyList<string> RequiredPlaceholders =
@@ -98,6 +100,15 @@ public static class GracefulCorrectionTexts
                     "Merci de reposer la question.",
                 [Italian] = "Ho eseguito i passaggi richiesti, ma non sono riuscito a formulare una risposta. " +
                     "Si prega di ripetere la domanda."
+            },
+            [EmptyAnswerNoActionNotice] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Ich konnte keine Antwort formulieren, und es wurde nichts ausgeführt. " +
+                    "Bitte noch einmal versuchen.",
+                [English] = EmptyAnswerRecoveryConstants.NoActionNotice,
+                [French] = "Je n'ai pas pu formuler de réponse et rien n'a été exécuté. Merci de réessayer.",
+                [Italian] = "Non sono riuscito a formulare una risposta e non è stato eseguito nulla. " +
+                    "Si prega di riprovare."
             }
         };
 

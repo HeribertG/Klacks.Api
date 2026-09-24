@@ -121,10 +121,13 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
             var answer = ReasoningContentResolver.Resolve(
                 choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls);
+            ReasoningChannelLog.Write(
+                _logger, ProviderName, request.ModelId, choice.Message?.ReasoningContent,
+                answer.ReasoningWithoutContent, choice.FinishReason);
             var result = new LLMProviderResponse
             {
                 Content = answer.Content,
-                ContentFromReasoning = answer.FromReasoning,
+                ReasoningWithoutContent = answer.ReasoningWithoutContent,
                 Success = true,
                 Usage = new LLMUsage
                 {
@@ -193,12 +196,10 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
 
         var endpoint = "chat/completions";
 
-        // Reasoning models stream their thinking into reasoning_content. It is the ANSWER only when no
-        // regular content and no tool call ever arrive (e.g. Kimi reasoning-only); otherwise it is
-        // chain-of-thought to discard. Buffer it and flush once after the loop so it never leaks live.
         var reasoningBuffer = new StringBuilder();
         var sawContent = false;
         var sawToolCall = false;
+        string? finishReason = null;
 
         await foreach (var rawJson in PostStreamAsync(endpoint, openAiRequest, cancellationToken))
         {
@@ -247,16 +248,16 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
                 }
             }
 
+            finishReason = choice.FinishReason ?? finishReason;
             if (choice.FinishReason == "tool_calls")
             {
                 yield return " TOOL_END";
             }
         }
 
-        if (!sawContent && !sawToolCall && reasoningBuffer.Length > 0)
-        {
-            yield return reasoningBuffer.ToString();
-        }
+        ReasoningChannelLog.Write(
+            _logger, ProviderName, request.ModelId, reasoningBuffer.ToString(),
+            !sawContent && !sawToolCall && reasoningBuffer.Length > 0, finishReason);
     }
 
     public override async Task<bool> ValidateApiKeyAsync(string apiKey)

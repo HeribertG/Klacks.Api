@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "Selvä — ei {previousAction}. Tarkoitatko {optionA} vai {optionB}?",
   "assistant.recipe.confirmYes": "Joo",
   "assistant.recipe.confirmNo": "Ei",
-  "assistant.emptyAnswer.fallbackNotice": "Suoritin pyydetyt vaiheet, mutta en pystynyt muotoilemaan vastausta. Kysy uudelleen."
+  "assistant.emptyAnswer.fallbackNotice": "Suoritin pyydetyt vaiheet, mutta en pystynyt muotoilemaan vastausta. Kysy uudelleen.",
+  "assistant.emptyAnswer.noActionNotice": "En pystynyt muotoilemaan vastausta, eikä mitään suoritettu. Yritä uudelleen."
 }

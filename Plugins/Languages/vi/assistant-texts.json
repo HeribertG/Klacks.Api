@@ -2,5 +2,6 @@
   "assistant.correction.clarificationQuestion": "Đã hiểu — không phải {previousAction}. Bạn muốn nói {optionA} hay {optionB}?",
   "assistant.recipe.confirmYes": "Có",
   "assistant.recipe.confirmNo": "Không",
-  "assistant.emptyAnswer.fallbackNotice": "Tôi đã thực hiện các bước được yêu cầu, nhưng không thể đưa ra câu trả lời. Vui lòng hỏi lại."
+  "assistant.emptyAnswer.fallbackNotice": "Tôi đã thực hiện các bước được yêu cầu, nhưng không thể đưa ra câu trả lời. Vui lòng hỏi lại.",
+  "assistant.emptyAnswer.noActionNotice": "Tôi không thể đưa ra câu trả lời và chưa có thao tác nào được thực hiện. Vui lòng thử lại."
 }
