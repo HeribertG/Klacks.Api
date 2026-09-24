@@ -378,6 +378,14 @@ public class RecipeEngineService
                 continue;
             }
 
+            if (!HasSemanticAnchor(resolved, message, _logger, language))
+            {
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' semantic candidate (score={Score:F3}) rejected: the message hits too few of its non-verb trigger conditions.",
+                    resolved.Name, candidate.Score);
+                continue;
+            }
+
             top = candidate;
             recipe = resolved;
             topIndex = i;
@@ -405,7 +413,9 @@ public class RecipeEngineService
             }
 
             var alternativeRecipe = FindRecipeByName(recipes, candidate.Entry.SourceId);
-            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger, language))
+            if (alternativeRecipe != null
+                && (IsVetoedByNoneOfGuard(alternativeRecipe, message, _logger, language)
+                    || !HasSemanticAnchor(alternativeRecipe, message, _logger, language)))
             {
                 continue;
             }
@@ -582,6 +592,10 @@ public class RecipeEngineService
     private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger, string? language = null)
         => RecipeTriggerMatcher.IsVetoed(
             Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.VetoesFor(language));
+
+    private static bool HasSemanticAnchor(AgentRecipe recipe, string message, ILogger logger, string? language)
+        => RecipeTriggerMatcher.HasSemanticAnchor(
+            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language);
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)
     {

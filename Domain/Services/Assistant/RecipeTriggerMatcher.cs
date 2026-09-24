@@ -14,6 +14,7 @@
 /// </summary>
 
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -25,6 +26,10 @@ public static class RecipeTriggerMatcher
     // The former 100 ms tripped under nothing worse than a concurrent build and made the trigger
     // disjointness gate flaky. One second still stops a pathological pattern long before a user notices.
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromSeconds(1);
+
+    public const int MinRequiredAnchors = 1;
+
+    private const int VerbConditionCount = 1;
 
     private const string TimeoutMessage =
         "Recipe trigger regex timed out after {Timeout} on a {Length}-character message; treating the " +
@@ -125,6 +130,56 @@ public static class RecipeTriggerMatcher
         }
 
         return trigger != null && trigger.NoneOf.Any(c => ConditionMatches(c, message, logger, language));
+    }
+
+    /// <summary>
+    /// Number of non-verb allOf conditions the message hits. By recipe-authoring convention allOf[0] is
+    /// the verb group and every later condition names the subject, so these are the conditions that
+    /// distinguish one recipe from another.
+    /// </summary>
+    /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
+    /// <param name="message">The user message.</param>
+    /// <param name="logger">Receives regex timeout warnings; may be null.</param>
+    /// <param name="language">Detected message language; null skips locale-bound conditions.</param>
+    public static int CountAnchors(RecipeTrigger? trigger, string? message, ILogger? logger = null, string? language = null)
+    {
+        if (trigger == null || string.IsNullOrWhiteSpace(message))
+        {
+            return 0;
+        }
+
+        return trigger.AllOf
+            .Skip(VerbConditionCount)
+            .Count(c => ConditionMatches(c, message, logger, language));
+    }
+
+    /// <summary>
+    /// Lexical gate for the semantic fallback: an embedding hit only counts when the message also names
+    /// the recipe's subject, meaning at least <see cref="MinRequiredAnchors"/> non-verb condition hits.
+    /// Without it a topical neighbour ("read my deferred notes") ranks above the floor against a write
+    /// recipe and reaches the confirmation gate. Returns true, meaning no
+    /// restriction, when the trigger has no non-verb condition (a single phrase-list condition can never
+    /// be missed by the message here, because the keyword path already ran and did not match), and for
+    /// a language outside the core set, whose vocabulary the allOf conditions do not carry.
+    /// </summary>
+    /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
+    /// <param name="message">The user message.</param>
+    /// <param name="logger">Receives regex timeout warnings; may be null.</param>
+    /// <param name="language">Detected message language; null counts as core.</param>
+    public static bool HasSemanticAnchor(RecipeTrigger? trigger, string? message, ILogger? logger = null, string? language = null)
+    {
+        if (trigger == null || trigger.AllOf.Count <= VerbConditionCount || string.IsNullOrWhiteSpace(message))
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(language)
+            && !MultiLanguage.CoreLanguages.Contains(language, StringComparer.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return CountAnchors(trigger, message, logger, language) >= MinRequiredAnchors;
     }
 
     private static bool ConditionMatches(RecipeCondition condition, string message, ILogger? logger, string? language)
