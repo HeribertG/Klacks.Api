@@ -13,7 +13,11 @@
 /// the company-local calendar day of the received instant (via ICompanyClock) and the only system-built
 /// fact of the first analysis: sender label, subject and body are sender-controlled and go in their own
 /// untrusted-data tags (capped, forged closing tags neutralized), and the system prompt tells the model
-/// that nothing inside them is an instruction or a fact. A work cancellation
+/// that nothing inside them is an instruction or a fact. As a deterministic backstop, a high confidence of
+/// an employee analysis is lowered to low whenever the sender-written text (sender, subject, body, and for
+/// an answer also the original message) contains one of Klacks' own prompt fact labels (InboundPromptLabels:
+/// "Affected shift:", "Today (company local date):", "Analysed period:"), which legitimate messages never
+/// contain; it only ever lowers, so the orchestrator suggests instead of executing. A work cancellation
 /// without any date ("I am sick") is assumed to concern that received day with low confidence, so the
 /// action orchestrator only suggests and never executes it; such a result is flagged DateAssumed
 /// (not persisted) so the notifier and the clarification composer do not treat the day as stated. When only an until date parses (e.g. "sick
@@ -90,6 +94,7 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
             var receivedDate = ToCompanyLocalDate(source.ReceivedAt, companyTimeZone);
             var prompt = BuildPrompt(source, clientType, TruncateBody(source.Body), receivedDate, configuredKeywords);
             await RunExtractionAsync(analysis, clientType, source, prompt, receivedDate, configuredKeywords, cancellationToken);
+            LowerConfidenceOnInternalLabels(analysis, clientType, source, null);
         }
         catch (Exception ex)
         {
@@ -125,6 +130,7 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
                 FormatDateLine(answerDate));
             await RunExtractionAsync(
                 analysis, clientType, answerSource, (systemPrompt, userMessage), originalDate, configuredKeywords, cancellationToken);
+            LowerConfidenceOnInternalLabels(analysis, clientType, answerSource, history.OriginalText);
         }
         catch (Exception ex)
         {
@@ -182,6 +188,28 @@ public class InboundIntentAnalysisService : IInboundIntentAnalysisService
         }
 
         ApplyParsedReply(analysis, clientType, parsed, reply, keywords, defaultDate);
+    }
+
+    private void LowerConfidenceOnInternalLabels(
+        InboundAnalysis analysis, EntityTypeEnum clientType, InboundSource source, string? originalText)
+    {
+        if (clientType == EntityTypeEnum.Customer || analysis.Confidence != EmailConfidence.High)
+        {
+            return;
+        }
+
+        if (!InboundPromptLabels.ContainsAny(source.Body)
+            && !InboundPromptLabels.ContainsAny(source.Subject)
+            && !InboundPromptLabels.ContainsAny(source.SenderDisplay)
+            && !InboundPromptLabels.ContainsAny(originalText))
+        {
+            return;
+        }
+
+        _logger.LogWarning(
+            "Inbound analysis for {Channel} source {SourceId} lowered from high confidence to low: the message text contains an internal prompt label (intent {Intent})",
+            source.Channel, source.SourceId, analysis.Intent);
+        analysis.Confidence = EmailConfidence.Low;
     }
 
     private static InboundAnalysis NewAnalysis(Guid clientId, EntityTypeEnum clientType, InboundSource source) => new()
