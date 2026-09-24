@@ -96,6 +96,31 @@ public static class InboundClarificationConstants
 
     public const int MaxSweepSeconds = 86_400;
 
+    /// <summary>
+    /// Days after which the raw original message text of a closed clarification round (Answered, Expired,
+    /// TakenOver, Unresolved) is cleared; counted from resolved_at. Open and Suggested rounds are never
+    /// cleared by this rule.
+    /// </summary>
+    public const int DefaultOriginalTextRetentionDays = 30;
+
+    /// <summary>
+    /// Lower bound of the configured retention: a zero or negative value would wipe the text of a round
+    /// the moment it closes, so it is raised to one day.
+    /// </summary>
+    public const int MinOriginalTextRetentionDays = 1;
+
+    /// <summary>
+    /// Upper bound of the configured retention (ten years); also keeps the cutoff calculation inside the
+    /// range of DateTime for absurd configured values.
+    /// </summary>
+    public const int MaxOriginalTextRetentionDays = 3650;
+
+    /// <summary>
+    /// Column length of inbound_clarifications.recipient: the longest valid email address (RFC 5321). A
+    /// reply target longer than this is treated as no personal target, because the insert would fail.
+    /// </summary>
+    public const int MaxRecipientLength = 254;
+
     public const string AutoSubmittedHeader = "Auto-Submitted";
 
     public const string AutoSubmittedReplyValue = "auto-replied";

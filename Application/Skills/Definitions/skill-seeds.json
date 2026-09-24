@@ -24039,7 +24039,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -24091,7 +24091,7 @@
         "fr": "Afficher l'analyse d'un e-mail",
         "it": "Mostra l'analisi dell'e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_messenger_analysis",
@@ -24100,7 +24100,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -24152,7 +24152,7 @@
         "fr": "Afficher l'analyse du chat",
         "it": "Mostra l'analisi della chat"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "close_clarification",

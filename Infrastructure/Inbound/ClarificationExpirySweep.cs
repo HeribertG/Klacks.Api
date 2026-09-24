@@ -6,6 +6,9 @@
 /// in the same moment or a second instance wins or loses cleanly) and the planners are told that the
 /// question went unanswered, with the original message and the affected shift. The first cycle runs
 /// right after a short startup delay and catches up every deadline missed while the host was down.
+/// Each cycle has a second, independent retention step: the raw original text of rounds that closed longer
+/// ago than the configured retention (default 30 days after resolved_at) is cleared, only the count is
+/// logged, and a failure of either step never stops the other.
 /// Resolves the repository, the notifier and ICompanyClock from a fresh scope per cycle (ICompanyClock is
 /// scoped and must not be captured by a hosted service). A failing notification is logged and does not
 /// stop the remaining rows; a failing cycle is logged and never escapes. A cancellation of the stopping
@@ -15,7 +18,7 @@
 /// </summary>
 /// <param name="serviceProvider">Creates the scope of each cycle</param>
 /// <param name="timeProvider">Injected clock, so tests can drive "now"</param>
-/// <param name="options">Flag, cadence and startup delay; both durations are clamped to MinSweepSeconds..MaxSweepSeconds, so a zero, negative or oversized configured value cannot crash the service</param>
+/// <param name="options">Flag, cadence, startup delay and original-text retention; the durations are clamped to MinSweepSeconds..MaxSweepSeconds and the retention to MinOriginalTextRetentionDays..MaxOriginalTextRetentionDays, so a zero, negative or oversized configured value cannot crash the service or wipe fresh data</param>
 /// <param name="logger">Lifecycle and per-cycle log</param>
 
 using Klacks.Api.Application.Configuration;
@@ -79,7 +82,20 @@ public sealed class ClarificationExpirySweep : BackgroundService
             InboundClarificationConstants.MinSweepSeconds,
             InboundClarificationConstants.MaxSweepSeconds));
 
+    internal static int ClampedRetentionDays(int configuredDays) =>
+        Math.Clamp(
+            configuredDays,
+            InboundClarificationConstants.MinOriginalTextRetentionDays,
+            InboundClarificationConstants.MaxOriginalTextRetentionDays);
+
     internal async Task<int> RunCycleAsync(CancellationToken cancellationToken)
+    {
+        var expired = await ExpireDueAsync(cancellationToken);
+        await ClearRetainedTextsAsync(cancellationToken);
+        return expired;
+    }
+
+    private async Task<int> ExpireDueAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -126,6 +142,32 @@ public sealed class ClarificationExpirySweep : BackgroundService
         {
             _logger.LogError(ex, "ClarificationExpirySweep cycle failed");
             return 0;
+        }
+    }
+
+    private async Task ClearRetainedTextsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<IInboundClarificationRepository>();
+            var retentionDays = ClampedRetentionDays(_options.InboundClarificationOriginalTextRetentionDays);
+            var cutoffUtc = _timeProvider.GetUtcNow().UtcDateTime.AddDays(-retentionDays);
+
+            var cleared = await repository.ClearOriginalTextAsync(cutoffUtc, cancellationToken);
+            if (cleared > 0)
+            {
+                _logger.LogInformation(
+                    "ClarificationExpirySweep cleared the original text of {Count} closed clarification(s)", cleared);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ClarificationExpirySweep retention step failed");
         }
     }
 

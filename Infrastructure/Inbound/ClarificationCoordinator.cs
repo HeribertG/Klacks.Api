@@ -13,7 +13,8 @@
 /// question (email: via the In-Reply-To/References
 /// headers, otherwise within RecentExpiryNoteWindowHours), only adds a note and leaves the message to the
 /// regular analysis. AfterAnalysisAsync applies ClarificationPolicy to an analysis that needs
-/// clarification: Ask resolves the stored personal contact (a failing lookup counts as no contact),
+/// clarification: Ask resolves the stored personal contact (a failing lookup or a contact longer than the
+/// recipient column counts as no contact),
 /// composes the question from the in-memory analysis, stores the Open clarification first (the
 /// one-open-per-client index prevents a second question), sends it privately to exactly the resolved
 /// target and informs the planners at once, so the adapter skips the action orchestrator; a failed send
@@ -309,7 +310,16 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
     {
         try
         {
-            return await sender.ResolveTargetAsync(request, cancellationToken);
+            var target = await sender.ResolveTargetAsync(request, cancellationToken);
+            if (target != null && target.Recipient.Length > InboundClarificationConstants.MaxRecipientLength)
+            {
+                _logger.LogWarning(
+                    "Personal contact of client {ClientId} is longer than {MaxLength} characters and cannot be stored; treated as no personal contact",
+                    request.ClientId, InboundClarificationConstants.MaxRecipientLength);
+                return null;
+            }
+
+            return target;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

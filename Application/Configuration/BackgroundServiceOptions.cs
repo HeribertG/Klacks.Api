@@ -56,6 +56,13 @@ public class BackgroundServiceOptions
     /// <summary>Startup delay in seconds before the first inbound clarification expiry sweep.</summary>
     public int InboundClarificationSweepStartupDelaySeconds { get; set; } = 15;
 
+    /// <summary>
+    /// Days after which the sweep clears the raw original message text of a closed inbound clarification
+    /// (the row with status and deadlines stays). Clamped to 1..3650. Override via env
+    /// <c>BackgroundServices__InboundClarificationOriginalTextRetentionDays</c>.
+    /// </summary>
+    public int InboundClarificationOriginalTextRetentionDays { get; set; } = Klacks.Api.Domain.Constants.InboundClarificationConstants.DefaultOriginalTextRetentionDays;
+
     public bool MessageRetention { get; set; } = true;
     public bool DataRetention { get; set; } = true;
     public bool LLMModelSync { get; set; } = true;

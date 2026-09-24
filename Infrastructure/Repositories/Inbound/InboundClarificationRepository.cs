@@ -10,6 +10,8 @@
 /// TryResolveAsync is a single conditional ExecuteUpdate scoped by Status == Open, mirroring the
 /// escalation-chain transitions: when the expiry sweep and an incoming answer race for the same row,
 /// exactly one of them moves it.
+/// ClearOriginalTextAsync is the retention step: one ExecuteUpdate over all closed rows (soft-deleted ones
+/// included) resolved before the cutoff; the empty string marks a cleared text, so no schema change is needed.
 /// </summary>
 /// <param name="context">The scoped database context</param>
 
@@ -169,6 +171,20 @@ public class InboundClarificationRepository : IInboundClarificationRepository
                 .SetProperty(c => c.UpdateTime, resolvedAtUtc), cancellationToken);
 
         return affected == 1;
+    }
+
+    public async Task<int> ClearOriginalTextAsync(DateTime cutoffUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.InboundClarifications
+            .IgnoreQueryFilters()
+            .Where(c => c.OriginalText != string.Empty
+                        && c.ResolvedAt != null
+                        && c.ResolvedAt < cutoffUtc
+                        && (c.Status == InboundClarificationStatus.Answered
+                            || c.Status == InboundClarificationStatus.Expired
+                            || c.Status == InboundClarificationStatus.TakenOver
+                            || c.Status == InboundClarificationStatus.Unresolved))
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.OriginalText, string.Empty), cancellationToken);
     }
 
     private static bool IsUniqueViolation(DbUpdateException exception)

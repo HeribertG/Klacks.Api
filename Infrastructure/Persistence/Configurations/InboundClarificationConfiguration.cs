@@ -23,7 +23,7 @@ public class InboundClarificationConfiguration : IEntityTypeConfiguration<Inboun
     internal const string OpenPerClientIndexFilter = "status = 0 AND is_deleted = false";
 
     private const int ChannelMaxLength = 64;
-    private const int RecipientMaxLength = 200;
+    private const int RecipientMaxLength = InboundClarificationConstants.MaxRecipientLength;
     private const int SenderDisplayMaxLength = 300;
     private const int QuestionMaxLength = 1000;
     private const int ShiftContextMaxLength = InboundClarificationConstants.MaxShiftContextLength;
