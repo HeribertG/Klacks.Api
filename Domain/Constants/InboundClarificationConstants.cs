@@ -65,13 +65,6 @@ public static class InboundClarificationConstants
 
     public const string ReplySubjectMarker = "Re:";
 
-    /// <summary>
-    /// Fixed subject used instead of reflecting the original subject when it looks suspicious (a link, a
-    /// MIME encoded-word marker, an '@' or a phone-like digit run), so none of that content is echoed
-    /// back to the employee.
-    /// </summary>
-    public const string NeutralReplySubject = "Re: Your message to the planning team";
-
     public const int MaxReplySubjectLength = 120;
 
     /// <summary>

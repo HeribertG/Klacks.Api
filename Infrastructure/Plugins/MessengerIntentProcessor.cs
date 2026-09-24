@@ -108,7 +108,7 @@ public sealed class MessengerIntentProcessor : IMessengerIntentProcessor
                 return;
             }
 
-            clarificationContext = ClarificationNotificationTexts.JoinContext(clarificationContext, postAnalysis.NotifierContext);
+            clarificationContext = ClarificationContextBlocks.Join(clarificationContext, postAnalysis.NotifierContext);
         }
 
         var actionOrchestrator = _serviceProvider.GetRequiredService<IInboundActionOrchestrator>();

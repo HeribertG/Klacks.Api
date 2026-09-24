@@ -32,6 +32,7 @@
 /// <param name="replySenders">One sender per channel kind (email, messenger)</param>
 /// <param name="intentAnalysisService">Re-analyses an answered clarification</param>
 /// <param name="analysisNotifier">Delivers planner notices</param>
+/// <param name="textService">Composes the planner notices in the installation language</param>
 /// <param name="companyClock">Current instant and company time zone for planner-facing times</param>
 /// <param name="logger">Logs every degradation</param>
 
@@ -57,6 +58,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
     private readonly IEnumerable<IInboundReplySender> _replySenders;
     private readonly IInboundIntentAnalysisService _intentAnalysisService;
     private readonly IInboundAnalysisNotifier _analysisNotifier;
+    private readonly IClarificationTextService _textService;
     private readonly ICompanyClock _companyClock;
     private readonly ILogger<ClarificationCoordinator> _logger;
 
@@ -68,6 +70,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         IEnumerable<IInboundReplySender> replySenders,
         IInboundIntentAnalysisService intentAnalysisService,
         IInboundAnalysisNotifier analysisNotifier,
+        IClarificationTextService textService,
         ICompanyClock companyClock,
         ILogger<ClarificationCoordinator> logger)
     {
@@ -78,6 +81,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         _replySenders = replySenders;
         _intentAnalysisService = intentAnalysisService;
         _analysisNotifier = analysisNotifier;
+        _textService = textService;
         _companyClock = companyClock;
         _logger = logger;
     }
@@ -162,7 +166,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
             }
 
             return decision.SkipReason == ClarificationSkipReason.NoPersonalReplyTarget
-                ? ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.NoPersonalTarget())
+                ? ClarificationPostAnalysis.ContinueWith(await _textService.NoPersonalTargetAsync(cancellationToken))
                 : ClarificationPostAnalysis.Continue;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -238,7 +242,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
         return ClarificationPreAnalysis.Answer(
             answerAnalysis,
-            ClarificationNotificationTexts.AnswerContext(open.Question, askedLocal, open.OriginalText, unresolved));
+            await _textService.AnswerContextAsync(open.Question, askedLocal, open.OriginalText, unresolved, cancellationToken));
     }
 
     private async Task<ClarificationPreAnalysis> DescribeLostRaceAsync(
@@ -251,9 +255,8 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         }
 
         return ClarificationPreAnalysis.Context(current.Status == InboundClarificationStatus.Expired
-            ? ClarificationNotificationTexts.AnsweredAfterExpiry(open.Question, askedLocal)
-            : ClarificationNotificationTexts.ArrivedAfterClosure(
-                open.Question, askedLocal, ClarificationStatusText.Describe(current)));
+            ? await _textService.AnsweredAfterExpiryAsync(open.Question, askedLocal, cancellationToken)
+            : await _textService.ArrivedAfterClosureAsync(open.Question, askedLocal, current, cancellationToken));
     }
 
     private async Task<ClarificationPreAnalysis> DescribeExpiredPredecessorAsync(
@@ -280,7 +283,8 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
 
         var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         return ClarificationPreAnalysis.Context(
-            ClarificationNotificationTexts.AnsweredAfterExpiry(predecessor.Question, ClarificationTimeConversion.ToLocal(predecessor.AskedAt, companyTimeZone)));
+            await _textService.AnsweredAfterExpiryAsync(
+                predecessor.Question, ClarificationTimeConversion.ToLocal(predecessor.AskedAt, companyTimeZone), cancellationToken));
     }
 
     private async Task<ClarificationPolicyFacts> GatherFactsAsync(
@@ -364,7 +368,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
                 "Clarification question to client {ClientId} (clarification {ClarificationId}) could not be sent: {Error}",
                 request.ClientId, clarificationId, delivery.Error);
             await MarkUnresolvedSafelyAsync(clarificationId, request.ClientId);
-            return ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.SendFailed(composed.Question));
+            return ClarificationPostAnalysis.ContinueWith(await _textService.SendFailedAsync(composed.Question, cancellationToken));
         }
 
         await NotifyStartedSafelyAsync(request, analysis, composed, deadlineUtc, cancellationToken);
@@ -384,7 +388,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
             BuildClarification(
                 request, analysis, composed, string.Empty, InboundClarificationStatus.Suggested, askedAtUtc: nowUtc, deadlineUtc: nowUtc),
             cancellationToken);
-        return ClarificationPostAnalysis.ContinueWith(ClarificationNotificationTexts.Suggested(composed.Question));
+        return ClarificationPostAnalysis.ContinueWith(await _textService.SuggestedAsync(composed.Question, cancellationToken));
     }
 
     private async Task<InboundReplyResult> SendSafelyAsync(
@@ -439,9 +443,9 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         {
             var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
             await _analysisNotifier.NotifyMessageAsync(
-                ClarificationNotificationTexts.Started(
+                await _textService.StartedAsync(
                     request.Source.SenderDisplay, analysis.Summary, composed.Question, composed.ShiftContext,
-                    ClarificationTimeConversion.ToLocal(deadlineUtc, companyTimeZone)),
+                    ClarificationTimeConversion.ToLocal(deadlineUtc, companyTimeZone), cancellationToken),
                 cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

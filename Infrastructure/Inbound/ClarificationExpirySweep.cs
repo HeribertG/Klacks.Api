@@ -10,7 +10,7 @@
 /// ago than the configured retention (default 30 days) is cleared - counted from resolved_at for closed
 /// rounds and from asked_at for Suggested ones - only the count is logged, and a failure of either step
 /// never stops the other.
-/// Resolves the repository, the notifier and ICompanyClock from a fresh scope per cycle (ICompanyClock is
+/// Resolves the repository, the notifier, the text service and ICompanyClock from a fresh scope per cycle (ICompanyClock is
 /// scoped and must not be captured by a hosted service). A failing notification is logged and does not
 /// stop the remaining rows; a failing cycle is logged and never escapes. A cancellation of the stopping
 /// token is rethrown and ends the service. The planner notice is at most once: a transition that won but
@@ -111,6 +111,7 @@ public sealed class ClarificationExpirySweep : BackgroundService
             }
 
             var notifier = scope.ServiceProvider.GetRequiredService<IInboundAnalysisNotifier>();
+            var textService = scope.ServiceProvider.GetRequiredService<IClarificationTextService>();
             var companyTimeZone = await scope.ServiceProvider.GetRequiredService<ICompanyClock>().GetTimeZoneAsync(cancellationToken);
             var expired = 0;
 
@@ -129,7 +130,7 @@ public sealed class ClarificationExpirySweep : BackgroundService
                 }
 
                 expired++;
-                await NotifySafelyAsync(notifier, clarification, companyTimeZone, cancellationToken);
+                await NotifySafelyAsync(notifier, textService, clarification, companyTimeZone, cancellationToken);
             }
 
             _logger.LogInformation("ClarificationExpirySweep expired {Count} clarification(s)", expired);
@@ -173,18 +174,23 @@ public sealed class ClarificationExpirySweep : BackgroundService
     }
 
     private async Task NotifySafelyAsync(
-        IInboundAnalysisNotifier notifier, InboundClarification clarification, TimeZoneInfo companyTimeZone, CancellationToken cancellationToken)
+        IInboundAnalysisNotifier notifier,
+        IClarificationTextService textService,
+        InboundClarification clarification,
+        TimeZoneInfo companyTimeZone,
+        CancellationToken cancellationToken)
     {
         try
         {
             await notifier.NotifyMessageAsync(
-                ClarificationNotificationTexts.Expired(
+                await textService.ExpiredAsync(
                     clarification.SenderDisplay,
                     clarification.Question,
                     ClarificationTimeConversion.ToLocal(clarification.AskedAt, companyTimeZone),
                     ClarificationTimeConversion.ToLocal(clarification.DeadlineAt, companyTimeZone),
                     clarification.OriginalText,
-                    clarification.ShiftContext),
+                    clarification.ShiftContext,
+                    cancellationToken),
                 cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

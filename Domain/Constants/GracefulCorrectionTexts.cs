@@ -112,10 +112,7 @@ public static class GracefulCorrectionTexts
             }
         };
 
-    private static readonly object ConfigureLock = new();
-
-    private static Dictionary<string, IReadOnlyDictionary<string, string>> _pluginTexts =
-        new(StringComparer.OrdinalIgnoreCase);
+    private static readonly LocalizedTextCatalogue Catalogue = new(CoreTexts);
 
     /// <summary>
     /// Adds (or replaces) the texts of one language pack. Called once per pack at startup by
@@ -124,143 +121,40 @@ public static class GracefulCorrectionTexts
     /// </summary>
     /// <param name="languageCode">Locale of the pack the texts were read from</param>
     /// <param name="texts">The pack's texts, keyed by the catalogue keys of RequiredKeys</param>
-    public static void Configure(string languageCode, IReadOnlyDictionary<string, string> texts)
-    {
-        if (string.IsNullOrWhiteSpace(languageCode) || texts.Count == 0)
-        {
-            return;
-        }
-
-        lock (ConfigureLock)
-        {
-            _pluginTexts = new Dictionary<string, IReadOnlyDictionary<string, string>>(
-                _pluginTexts, StringComparer.OrdinalIgnoreCase)
-            {
-                [languageCode] = new Dictionary<string, string>(texts, StringComparer.OrdinalIgnoreCase)
-            };
-        }
-    }
+    public static void Configure(string languageCode, IReadOnlyDictionary<string, string> texts) =>
+        Catalogue.Configure(languageCode, texts);
 
     /// <summary>
     /// Discards every configured pack and restores the core-only state. Test-only: Configure writes
     /// process-wide static state, so without a way back a fixture that loads a pack would decide the
     /// outcome of every fixture running after it.
     /// </summary>
-    internal static void Reset()
-    {
-        lock (ConfigureLock)
-        {
-            _pluginTexts = new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-        }
-    }
+    internal static void Reset() => Catalogue.Reset();
 
     /// <summary>
     /// Resolves a text for a language. Core languages come from the table above, installed plugin
     /// languages from their pack, and ONLY an unknown tag falls back to English. An installed language
     /// whose pack lacks the key returns false - the caller then asks nothing rather than in the wrong
-    /// language.
-    /// A regional tag is tried in full first and only then reduced to its base language, so "zh-CN" and
-    /// "zh-TW" keep their own packs while "de-CH" reaches German and "pt-BR" the Portuguese pack. Without
-    /// that second probe every region-qualified installation would land on the English fallback, which is
-    /// precisely what the one-language rule forbids.
+    /// language. The resolution itself, including the regional-tag probe that keeps "zh-CN" and "zh-TW" on
+    /// their own packs while "de-CH" reaches German, lives in LocalizedTextCatalogue.
     /// </summary>
     /// <param name="key">Catalogue key of the wanted sentence</param>
     /// <param name="language">Active language of the turn, or null when the turn carries none</param>
     /// <param name="text">The resolved sentence, empty when nothing resolves</param>
-    public static bool TryGetText(string key, string? language, out string text)
-    {
-        text = string.Empty;
-        if (string.IsNullOrWhiteSpace(key) || !CoreTexts.TryGetValue(key, out var byLanguage))
-        {
-            return false;
-        }
-
-        if (!string.IsNullOrWhiteSpace(language))
-        {
-            var exact = ClaimedBy(byLanguage, key, language!, out text);
-            if (exact.HasValue)
-            {
-                return exact.Value;
-            }
-
-            var baseLanguage = LanguageTag.BaseLanguage(language);
-            if (!string.IsNullOrWhiteSpace(baseLanguage)
-                && !string.Equals(baseLanguage, language, StringComparison.OrdinalIgnoreCase))
-            {
-                var byBase = ClaimedBy(byLanguage, key, baseLanguage!, out text);
-                if (byBase.HasValue)
-                {
-                    return byBase.Value;
-                }
-            }
-        }
-
-        if (byLanguage.TryGetValue(LanguageConfig.DefaultLanguageFallback, out var fallback))
-        {
-            text = fallback;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Whether one exact language tag owns this text, as a three-way answer: true with the text when it
-    /// does, false when the tag belongs to an installed pack that is missing the key (rule 4 - the caller
-    /// asks nothing rather than in the wrong language, and no further lookup may rescue it), and null
-    /// when the tag claims nothing at all, which is the only case the caller may keep searching after.
-    /// </summary>
-    /// <param name="byLanguage">The core table of this key</param>
-    /// <param name="key">Catalogue key of the wanted sentence</param>
-    /// <param name="language">One exact language tag, never blank</param>
-    /// <param name="text">The resolved sentence, empty unless the answer is true</param>
-    private static bool? ClaimedBy(
-        IReadOnlyDictionary<string, string> byLanguage, string key, string language, out string text)
-    {
-        text = string.Empty;
-
-        if (byLanguage.TryGetValue(language, out var core))
-        {
-            text = core;
-            return true;
-        }
-
-        if (!_pluginTexts.TryGetValue(language, out var pack))
-        {
-            return null;
-        }
-
-        if (!pack.TryGetValue(key, out var localized) || string.IsNullOrWhiteSpace(localized))
-        {
-            return false;
-        }
-
-        text = localized;
-        return true;
-    }
+    public static bool TryGetText(string key, string? language, out string text) =>
+        Catalogue.TryGetText(key, language, out text);
 
     /// <summary>
     /// Every text one key currently resolves to in any language: the core table plus every configured pack.
     /// Used to recognize a stored notice regardless of the language it was written in.
     /// </summary>
     /// <param name="key">Catalogue key whose texts are wanted</param>
-    public static IReadOnlyCollection<string> AllTextsOf(string key)
-    {
-        var packs = _pluginTexts;
-        return VariantsOf(key).Values
-            .Concat(packs.Values.Select(pack => pack.GetValueOrDefault(key)).OfType<string>())
-            .Where(text => !string.IsNullOrWhiteSpace(text))
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
-    }
+    public static IReadOnlyCollection<string> AllTextsOf(string key) => Catalogue.AllTextsOf(key);
 
     /// <summary>Every key of the core catalogue, for the completeness guard test.</summary>
-    internal static IReadOnlyCollection<string> Keys => CoreTexts.Keys.ToList();
+    internal static IReadOnlyCollection<string> Keys => Catalogue.Keys;
 
     /// <summary>The per-language variants of one core key, for the completeness guard test.</summary>
     /// <param name="key">Catalogue key whose per-language table is wanted</param>
-    internal static IReadOnlyDictionary<string, string> VariantsOf(string key) =>
-        CoreTexts.TryGetValue(key, out var byLanguage)
-            ? byLanguage
-            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    internal static IReadOnlyDictionary<string, string> VariantsOf(string key) => Catalogue.VariantsOf(key);
 }

@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Loads assistant-texts.json from each installed language plugin directory into
-/// GracefulCorrectionTexts. These are the few sentences the assistant sends WITHOUT a model call, so no
+/// GracefulCorrectionTexts and ClarificationTexts (the planner notices, status words and reply subject of the
+/// inbound clarification dialog). These are the few sentences the assistant sends WITHOUT a model call, so no
 /// prompt rule can translate them and the pack has to carry them - unlike conversation-signals.json,
 /// which carries input-side vocabulary, and unlike translations.json, which is the frontend catalogue.
 /// Called once at application startup next to the other pack loaders; a pack installed while the
@@ -50,6 +51,7 @@ public static class AssistantTextsPluginLoader
                 if (texts is { Count: > 0 })
                 {
                     GracefulCorrectionTexts.Configure(code, texts);
+                    ClarificationTexts.Configure(code, texts);
                 }
             }
             catch (Exception ex)

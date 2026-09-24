@@ -2,10 +2,15 @@
 
 /// <summary>
 /// Plain-language rendering of an inbound clarification for assistant skills: the status in words (never
-/// the internal enum name), one sentence for the skill message, and a compact data object.
+/// the internal enum name), one sentence for the skill message, and a compact data object. Everything here
+/// is English on purpose: the text goes to the language model, which answers the user in the user's own
+/// language. KeyOf maps a clarification to its catalogue key so planner notices can name the same status in
+/// the installation language (ClarificationTextService); the English words are the catalogue's English
+/// entries, so the two never drift.
 /// </summary>
 /// <param name="clarification">The clarification related to an analysis</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Inbound;
 
@@ -13,30 +18,26 @@ namespace Klacks.Api.Domain.Services.Inbound;
 
 public static class ClarificationStatusText
 {
-    private const string OpenText = "waiting for the employee's answer";
-    private const string AnsweredText = "answered by the employee";
-    private const string UnresolvedText = "answered, but still unclear";
-    private const string ExpiredText = "not answered in time";
-    private const string TakenOverText = "taken over by a planner";
-    private const string SuggestedText = "only suggested to the planners, not sent";
-    private const string UndeliveredText = "the question could not be delivered";
-    private const string UnknownText = "unknown";
     private const char DoubleQuote = '"';
     private const char SingleQuote = '\'';
 
-    public static string Describe(InboundClarificationStatus status) => status switch
+    public static string KeyOf(InboundClarificationStatus status) => status switch
     {
-        InboundClarificationStatus.Open => OpenText,
-        InboundClarificationStatus.Answered => AnsweredText,
-        InboundClarificationStatus.Unresolved => UnresolvedText,
-        InboundClarificationStatus.Expired => ExpiredText,
-        InboundClarificationStatus.TakenOver => TakenOverText,
-        InboundClarificationStatus.Suggested => SuggestedText,
-        _ => UnknownText
+        InboundClarificationStatus.Open => ClarificationTextKeys.StatusOpen,
+        InboundClarificationStatus.Answered => ClarificationTextKeys.StatusAnswered,
+        InboundClarificationStatus.Unresolved => ClarificationTextKeys.StatusUnresolved,
+        InboundClarificationStatus.Expired => ClarificationTextKeys.StatusExpired,
+        InboundClarificationStatus.TakenOver => ClarificationTextKeys.StatusTakenOver,
+        InboundClarificationStatus.Suggested => ClarificationTextKeys.StatusSuggested,
+        _ => ClarificationTextKeys.StatusUnknown
     };
 
-    public static string Describe(InboundClarification clarification) =>
-        IsUndelivered(clarification) ? UndeliveredText : Describe(clarification.Status);
+    public static string KeyOf(InboundClarification clarification) =>
+        IsUndelivered(clarification) ? ClarificationTextKeys.StatusUndelivered : KeyOf(clarification.Status);
+
+    public static string Describe(InboundClarificationStatus status) => ClarificationTexts.English(KeyOf(status));
+
+    public static string Describe(InboundClarification clarification) => ClarificationTexts.English(KeyOf(clarification));
 
     public static string Sentence(InboundClarification clarification)
     {

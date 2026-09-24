@@ -286,7 +286,7 @@ public class EmailPollingBackgroundService : BackgroundService
                     return;
                 }
 
-                clarificationContext = ClarificationNotificationTexts.JoinContext(clarificationContext, postAnalysis.NotifierContext);
+                clarificationContext = ClarificationContextBlocks.Join(clarificationContext, postAnalysis.NotifierContext);
             }
 
             var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IInboundActionOrchestrator>();

@@ -7,7 +7,8 @@
 /// gets a single "Re: " and is flattened to one line (line breaks, control characters and Unicode format
 /// characters such as a right-to-left override of the decoded original subject become spaces); when the
 /// flattened subject still looks suspicious (a link, a MIME encoded-word marker, an '@' or a phone-like
-/// digit run) it is replaced with a fixed neutral subject instead, and the result is bounded to
+/// digit run) it is replaced with a fixed neutral subject instead, written in the installation language
+/// (the mail goes to the employee, and the server knows one language per installation), and the result is bounded to
 /// MaxReplySubjectLength, truncated at a word boundary; only the first MaxSubjectInspectionLength
 /// characters of the original subject are flattened and inspected, because nothing beyond the reply
 /// subject bound is ever sent and the received subject is unbounded attacker-controlled text. In-Reply-To and References thread the reply onto
@@ -21,6 +22,7 @@
 /// </summary>
 /// <param name="assignmentService">Resolves the stored address of the client</param>
 /// <param name="emailService">Sends the mail over the configured SMTP account</param>
+/// <param name="textService">Provides the neutral reply subject in the installation language</param>
 /// <param name="logger">Logs failed sends</param>
 
 using System.Globalization;
@@ -49,15 +51,18 @@ public sealed partial class EmailReplySender : IInboundReplySender
 
     private readonly IEmailClientAssignmentService _assignmentService;
     private readonly IEmailService _emailService;
+    private readonly IClarificationTextService _textService;
     private readonly ILogger<EmailReplySender> _logger;
 
     public EmailReplySender(
         IEmailClientAssignmentService assignmentService,
         IEmailService emailService,
+        IClarificationTextService textService,
         ILogger<EmailReplySender> logger)
     {
         _assignmentService = assignmentService;
         _emailService = emailService;
+        _textService = textService;
         _logger = logger;
     }
 
@@ -77,7 +82,7 @@ public sealed partial class EmailReplySender : IInboundReplySender
 
         return new InboundReplyTarget(
             Recipient: storedAddress,
-            Subject: BuildSubject(request.Source.Subject),
+            Subject: BuildSubject(request.Source.Subject, await _textService.NeutralReplySubjectAsync(cancellationToken)),
             InReplyTo: inReplyTo,
             References: BuildReferences(thread));
     }
@@ -117,12 +122,12 @@ public sealed partial class EmailReplySender : IInboundReplySender
         }
     }
 
-    internal static string BuildSubject(string? originalSubject)
+    internal static string BuildSubject(string? originalSubject, string neutralSubject)
     {
         var flattened = FlattenToSingleLine(originalSubject, InboundClarificationConstants.MaxSubjectInspectionLength);
         if (IsSuspiciousSubject(flattened))
         {
-            return InboundClarificationConstants.NeutralReplySubject;
+            return neutralSubject;
         }
 
         var subject = flattened.StartsWith(InboundClarificationConstants.ReplySubjectMarker, StringComparison.OrdinalIgnoreCase)
