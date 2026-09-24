@@ -101,7 +101,7 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         var match = await _context.Set<Communication>()
             .Where(c => !c.IsDeleted &&
                         (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
-                        c.Value != null && c.Value.ToLowerInvariant() == fromAddress &&
+                        c.Value != null && c.Value.ToLower() == fromAddress &&
                         c.Client != null && !c.Client.IsDeleted)
             .Select(c => new { c.ClientId, c.Client!.Type })
             .FirstOrDefaultAsync(cancellationToken);
@@ -120,7 +120,7 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         var matches = await _context.Set<Communication>()
             .Where(c => !c.IsDeleted &&
                         (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
-                        c.Value != null && c.Value.ToLowerInvariant() == normalizedAddress &&
+                        c.Value != null && c.Value.ToLower() == normalizedAddress &&
                         c.Client != null && !c.Client.IsDeleted)
             .Select(c => new { c.ClientId, c.Value })
             .ToListAsync(cancellationToken);
