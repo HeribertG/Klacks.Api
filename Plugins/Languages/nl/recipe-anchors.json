@@ -1,0 +1,180 @@
+{
+  "onboard-employee": [
+    "medewerker",
+    "personeel",
+    "werknemer",
+    "arbeidskracht"
+  ],
+  "user-onboarding": [
+    "account",
+    "gebruiker",
+    "toegangsrechten",
+    "login"
+  ],
+  "record-employee-address-change": [
+    "adres",
+    "woonplaats",
+    "woonadres",
+    "thuisadres",
+    "verhuis",
+    "verhuiz"
+  ],
+  "offboard-employee": [
+    "uittreding",
+    "vertrek",
+    "ontslag",
+    "laatste werkdag",
+    "einde dienstverband",
+    "uitdiensttreding",
+    "opzegging"
+  ],
+  "add-employee-to-group": [
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "bulk-add-employees-to-group": [
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "add-absence-for-employee": [
+    "afwezigheid",
+    "verlof",
+    "vrije dag",
+    "vakantie",
+    "ziekte",
+    "ouderschapsverlof"
+  ],
+  "create-group": [
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "move-group": [
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "add-shift-to-group": [
+    "dienst",
+    "opdracht",
+    "ploeg",
+    "werkopdracht",
+    "bestelling",
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "klant",
+    "cliënt",
+    "opdrachtgever",
+    "geografisch",
+    "dichtstbij"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "medewerker",
+    "personeel",
+    "werknemer",
+    "arbeidskracht",
+    "geografisch",
+    "dichtstbij"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "extern",
+    "freelancer",
+    "uitzendkracht",
+    "ingehuurde",
+    "zzp'er",
+    "geografisch",
+    "dichtstbij"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "geografisch",
+    "dichtstbij",
+    "extern",
+    "freelancer",
+    "uitzendkracht",
+    "ingehuurde",
+    "zzp'er"
+  ],
+  "add-selected-clients-to-group": [
+    "geselecteerd",
+    "aangevinkt",
+    "gemarkeerd",
+    "groep",
+    "team",
+    "afdeling",
+    "organisatie-eenheid"
+  ],
+  "setup-owner-address": [
+    "kalender",
+    "feestdagenkalender",
+    "bedrijfskalender",
+    "vakantiekalender",
+    "verlofkalender"
+  ],
+  "create-shift-order": [
+    "dienst",
+    "opdracht",
+    "ploeg",
+    "werkopdracht",
+    "bestelling"
+  ],
+  "add-task-to-container": [
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "afwezigheid",
+    "verlof",
+    "vrije dag",
+    "vakantie",
+    "ziekte",
+    "ouderschapsverlof"
+  ],
+  "move-absence-for-employee": [
+    "afwezigheid",
+    "verlof",
+    "vrije dag",
+    "vakantie",
+    "ziekte",
+    "ouderschapsverlof"
+  ],
+  "record-availability-for-employee": [
+    "beschikbaarheid",
+    "inzetbaarheid",
+    "beschikbare uren"
+  ],
+  "clear-availability-for-employee": [
+    "beschikbaarheid",
+    "inzetbaarheid",
+    "beschikbare uren"
+  ],
+  "close-payroll-period": [
+    "loonperiode",
+    "afrekeningsperiode",
+    "facturatieperiode",
+    "salarisperiode"
+  ],
+  "setup-planning-profile": [
+    "planningsprofiel",
+    "planningsregels",
+    "planningsinstellingen",
+    "planprofiel"
+  ],
+  "bundle-mobile-services-into-container": [
+    "mobiele dienst",
+    "mobiele service",
+    "mobiele opdracht"
+  ],
+  "setup-consultation": [
+    "eerste stappen",
+    "startgids"
+  ]
+}

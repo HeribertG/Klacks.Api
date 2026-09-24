@@ -1,0 +1,170 @@
+{
+  "onboard-employee": [
+    "pekerja",
+    "kakitangan",
+    "staf"
+  ],
+  "user-onboarding": [
+    "akaun",
+    "pengguna",
+    "log masuk"
+  ],
+  "record-employee-address-change": [
+    "alamat",
+    "kediaman",
+    "tempat tinggal"
+  ],
+  "offboard-employee": [
+    "pemberhentian",
+    "perletakan jawatan",
+    "pemecatan",
+    "penamatan",
+    "hari terakhir bekerja"
+  ],
+  "add-employee-to-group": [
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "bulk-add-employees-to-group": [
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "add-absence-for-employee": [
+    "ketidakhadiran",
+    "cuti",
+    "hari cuti"
+  ],
+  "create-group": [
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "move-group": [
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "add-shift-to-group": [
+    "syif",
+    "pesanan",
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "pelanggan",
+    "klien",
+    "terdekat",
+    "paling hampir",
+    "geografi",
+    "kedekatan",
+    "berhampiran",
+    "paling dekat"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "pekerja",
+    "kakitangan",
+    "staf",
+    "terdekat",
+    "paling hampir",
+    "geografi",
+    "kedekatan",
+    "berhampiran",
+    "paling dekat"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "luaran",
+    "pekerja luar",
+    "kakitangan luar",
+    "kontraktor",
+    "pekerja bebas",
+    "terdekat",
+    "paling hampir",
+    "geografi",
+    "kedekatan",
+    "berhampiran",
+    "paling dekat"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "terdekat",
+    "paling hampir",
+    "geografi",
+    "kedekatan",
+    "berhampiran",
+    "paling dekat",
+    "luaran",
+    "pekerja luar",
+    "kakitangan luar",
+    "kontraktor",
+    "pekerja bebas"
+  ],
+  "add-selected-clients-to-group": [
+    "terpilih",
+    "ditandai",
+    "dipilih",
+    "kumpulan",
+    "bahagian",
+    "jabatan"
+  ],
+  "setup-owner-address": [
+    "kalendar"
+  ],
+  "create-shift-order": [
+    "syif",
+    "pesanan"
+  ],
+  "add-task-to-container": [
+    "wadah",
+    "kontena",
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "ketidakhadiran",
+    "cuti",
+    "hari cuti"
+  ],
+  "move-absence-for-employee": [
+    "ketidakhadiran",
+    "cuti",
+    "hari cuti"
+  ],
+  "record-availability-for-employee": [
+    "ketersediaan",
+    "jam ketersediaan",
+    "hari ketersediaan",
+    "waktu ketersediaan",
+    "hari tersedia",
+    "jadual ketersediaan"
+  ],
+  "clear-availability-for-employee": [
+    "ketersediaan",
+    "jam ketersediaan",
+    "hari ketersediaan",
+    "waktu ketersediaan",
+    "hari tersedia",
+    "jadual ketersediaan"
+  ],
+  "close-payroll-period": [
+    "tempoh gaji",
+    "bulan gaji",
+    "tempoh pembayaran",
+    "kitaran gaji",
+    "tempoh penggajian"
+  ],
+  "setup-planning-profile": [
+    "profil perancangan",
+    "peraturan perancangan"
+  ],
+  "bundle-mobile-services-into-container": [
+    "perkhidmatan mudah alih",
+    "servis mudah alih",
+    "perkhidmatan bergerak"
+  ],
+  "setup-consultation": [
+    "langkah pertama",
+    "langkah awal",
+    "panduan permulaan"
+  ]
+}

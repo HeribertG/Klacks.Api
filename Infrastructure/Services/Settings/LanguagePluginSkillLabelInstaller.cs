@@ -104,7 +104,7 @@ public class LanguagePluginSkillLabelInstaller
     /// Removes the pack's labels again. Column-driven, not file-driven: it walks the rows and drops the
     /// pack's own key, so a pack whose file was renamed or deleted between install and uninstall still
     /// cleans up after itself. That is the newer precedent set by
-    /// LanguagePluginContentInstaller.UninstallRecipeVetoesAsync; the file-driven skill- and
+    /// LanguagePluginRecipeVocabularyInstaller.UninstallRecipeVetoesAsync; the file-driven skill- and
     /// recipe-synonym uninstallers predate it and are not copied here.
     /// </summary>
     /// <param name="scope">Scope providing the skill repository</param>

@@ -1,0 +1,210 @@
+{
+  "onboard-employee": [
+    "zaměstnanec",
+    "zaměstnanc",
+    "personál",
+    "pracovník",
+    "pracovníci",
+    "zaměstnankyně",
+    "pracovnice",
+    "spolupracovník"
+  ],
+  "user-onboarding": [
+    "přihlašovací účet",
+    "login",
+    "uživatel"
+  ],
+  "record-employee-address-change": [
+    "adres",
+    "bydliště",
+    "trvalé bydliště",
+    "přestěhování",
+    "doručovací adresa"
+  ],
+  "offboard-employee": [
+    "odchod",
+    "výpověd",
+    "ukončení poměru",
+    "rezignace",
+    "poslední pracovní den",
+    "dohoda o ukončení",
+    "ukončení pracovního"
+  ],
+  "add-employee-to-group": [
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "bulk-add-employees-to-group": [
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "add-absence-for-employee": [
+    "dovolen",
+    "nemoc",
+    "volno",
+    "nepřítomnost",
+    "absenc"
+  ],
+  "create-group": [
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "move-group": [
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "add-shift-to-group": [
+    "směn",
+    "služb",
+    "zakázk",
+    "objednávk",
+    "turnus",
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "zákazník",
+    "klient",
+    "zákazníci",
+    "zákaznice",
+    "odběratel",
+    "nejbližší",
+    "geografick",
+    "blízkost",
+    "lokalita"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "zaměstnanec",
+    "zaměstnanc",
+    "personál",
+    "pracovník",
+    "pracovníci",
+    "zaměstnankyně",
+    "pracovnice",
+    "spolupracovník",
+    "nejbližší",
+    "geografick",
+    "blízkost",
+    "lokalita"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "externí",
+    "externist",
+    "freelancer",
+    "dohodář",
+    "živnostník",
+    "nejbližší",
+    "geografick",
+    "blízkost",
+    "lokalita"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "nejbližší",
+    "geografick",
+    "blízkost",
+    "lokalita",
+    "externí",
+    "externist",
+    "freelancer",
+    "dohodář",
+    "živnostník"
+  ],
+  "add-selected-clients-to-group": [
+    "označen",
+    "zaškrtnut",
+    "vybrán",
+    "vybraný",
+    "skupin",
+    "organizační jednotka",
+    "oddělení",
+    "útvar",
+    "sekce",
+    "divize"
+  ],
+  "setup-owner-address": [
+    "kalendář",
+    "svátk",
+    "státní svátky",
+    "pracovní kalendář",
+    "svátek",
+    "den pracovního klidu"
+  ],
+  "create-shift-order": [
+    "směn",
+    "služb",
+    "zakázk",
+    "objednávk",
+    "turnus"
+  ],
+  "add-task-to-container": [
+    "kontejner",
+    "šablona kontejneru"
+  ],
+  "remove-absence-for-employee": [
+    "dovolen",
+    "nemoc",
+    "volno",
+    "nepřítomnost",
+    "absenc"
+  ],
+  "move-absence-for-employee": [
+    "dovolen",
+    "nemoc",
+    "volno",
+    "nepřítomnost",
+    "absenc"
+  ],
+  "record-availability-for-employee": [
+    "nedostupnost",
+    "dostupn",
+    "k dispozici"
+  ],
+  "clear-availability-for-employee": [
+    "nedostupnost",
+    "dostupn",
+    "k dispozici"
+  ],
+  "close-payroll-period": [
+    "mzdové období",
+    "účetní období",
+    "měsíc",
+    "výplatní období",
+    "výplatní termín",
+    "závěrka"
+  ],
+  "setup-planning-profile": [
+    "plánovací profil",
+    "profil plánování",
+    "pravidla plánování",
+    "šablona plánování"
+  ],
+  "bundle-mobile-services-into-container": [
+    "mobilní služba",
+    "služba na místě",
+    "terénní služba"
+  ],
+  "setup-consultation": [
+    "první kroky",
+    "nastavení od začátku"
+  ]
+}

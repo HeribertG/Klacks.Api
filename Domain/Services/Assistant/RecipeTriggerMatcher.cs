@@ -7,14 +7,18 @@
 /// do not trigger), anySubstring (case-insensitive contains), or startsWith (an opening of the
 /// message; a term written WITH a trailing space is matched as a whole word, a term without one as an
 /// open stem - see MatchesStartsWith).
-/// Plugin-language synonyms (passed in for the detected language) act as a whole-recipe OR shortcut:
+/// Plugin-language synonyms (passed in for the request language) act as a whole-recipe OR shortcut:
 /// when the structured allOf does not match, any synonym appearing as a substring fires the recipe,
 /// still subject to the same noneOf guard. IsVetoed exposes the noneOf check on its own so the
 /// semantic fallback can honor a recipe's exclusion vocabulary as well.
+/// Every `language` parameter here is the request language, i.e. the caller's UI language (any of the
+/// 25 supported languages). It is NOT a detected message language: a German UI may send a Spanish
+/// message, which is why HasSemanticAnchor evaluates the pack anchors of all installed languages.
 /// </summary>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -63,10 +67,10 @@ public static class RecipeTriggerMatcher
     /// returned false while the guard asserting ShouldBeFalse stayed permanently satisfied.
     /// </summary>
     /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
-    /// <param name="synonyms">Pack synonyms for the detected language; whole-recipe OR shortcut.</param>
+    /// <param name="synonyms">Pack synonyms for the request language; whole-recipe OR shortcut.</param>
     /// <param name="message">The user message.</param>
     /// <param name="logger">Receives regex timeout warnings; may be null.</param>
-    /// <param name="language">Detected message language; null skips locale-bound conditions.</param>
+    /// <param name="language">Request (UI) language, not necessarily the message language; null skips locale-bound conditions.</param>
     /// <param name="packVetoTerms">Pack question-word veto for this recipe and language; may be null.</param>
     public static bool Matches(
         RecipeTrigger trigger,
@@ -140,7 +144,7 @@ public static class RecipeTriggerMatcher
     /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
     /// <param name="message">The user message.</param>
     /// <param name="logger">Receives regex timeout warnings; may be null.</param>
-    /// <param name="language">Detected message language; null skips locale-bound conditions.</param>
+    /// <param name="language">Request (UI) language, not necessarily the message language; null skips locale-bound conditions.</param>
     public static int CountAnchors(RecipeTrigger? trigger, string? message, ILogger? logger = null, string? language = null)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(message))
@@ -155,31 +159,88 @@ public static class RecipeTriggerMatcher
 
     /// <summary>
     /// Lexical gate for the semantic fallback: an embedding hit only counts when the message also names
-    /// the recipe's subject, meaning at least <see cref="MinRequiredAnchors"/> non-verb condition hits.
-    /// Without it a topical neighbour ("read my deferred notes") ranks above the floor against a write
-    /// recipe and reaches the confirmation gate. Returns true, meaning no
-    /// restriction, when the trigger has no non-verb condition (a single phrase-list condition can never
-    /// be missed by the message here, because the keyword path already ran and did not match), and for
-    /// a language outside the core set, whose vocabulary the allOf conditions do not carry.
+    /// the recipe's subject. Without it a topical neighbour ("read my deferred notes") ranks above the
+    /// floor against a write recipe and reaches the confirmation gate. The subject counts as named when
+    /// the core trigger has at least <see cref="MinRequiredAnchors"/> non-verb condition hits OR any
+    /// installed language pack has an anchor term in the message. The pack side is the union over ALL
+    /// installed languages, not only the request language, because the request language is the UI
+    /// language and says nothing about the language the message is written in. Each pack term is matched
+    /// by the mode of its own language (<see cref="RecipeAnchorMatchLanguages"/>).
+    /// Returns true, meaning no restriction, when the trigger has no non-verb condition (a single
+    /// phrase-list condition can never be missed by the message here, because the keyword path already
+    /// ran and did not match), and for a request language outside the core set for which the recipe
+    /// carries no pack anchors - there neither vocabulary exists, so gating would only cost recall.
     /// </summary>
     /// <param name="trigger">The structured allOf/noneOf trigger; may be null.</param>
     /// <param name="message">The user message.</param>
     /// <param name="logger">Receives regex timeout warnings; may be null.</param>
-    /// <param name="language">Detected message language; null counts as core.</param>
-    public static bool HasSemanticAnchor(RecipeTrigger? trigger, string? message, ILogger? logger = null, string? language = null)
+    /// <param name="language">Request (UI) language, not necessarily the message language; null counts as core.</param>
+    /// <param name="packAnchors">The recipe's pack anchors keyed by language code (AgentRecipe.AllAnchors()); may be null.</param>
+    public static bool HasSemanticAnchor(
+        RecipeTrigger? trigger,
+        string? message,
+        ILogger? logger = null,
+        string? language = null,
+        IReadOnlyDictionary<string, List<string>>? packAnchors = null)
     {
         if (trigger == null || trigger.AllOf.Count <= VerbConditionCount || string.IsNullOrWhiteSpace(message))
         {
             return true;
         }
 
-        if (!string.IsNullOrEmpty(language)
-            && !MultiLanguage.CoreLanguages.Contains(language, StringComparer.OrdinalIgnoreCase))
+        if (IsOutsideCoreLanguages(language) && !HasPackAnchorsFor(packAnchors, language!))
         {
             return true;
         }
 
-        return CountAnchors(trigger, message, logger, language) >= MinRequiredAnchors;
+        if (CountAnchors(trigger, message, logger, language) >= MinRequiredAnchors)
+        {
+            return true;
+        }
+
+        return MatchesAnyPackAnchor(packAnchors, message, logger);
+    }
+
+    private static bool IsOutsideCoreLanguages(string? language) =>
+        !string.IsNullOrEmpty(language)
+        && !MultiLanguage.CoreLanguages.Contains(language, StringComparer.OrdinalIgnoreCase);
+
+    private static bool HasPackAnchorsFor(IReadOnlyDictionary<string, List<string>>? packAnchors, string language) =>
+        packAnchors != null
+        && packAnchors.Any(entry => string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase)
+            && entry.Value is { Count: > 0 });
+
+    private static bool MatchesAnyPackAnchor(
+        IReadOnlyDictionary<string, List<string>>? packAnchors, string message, ILogger? logger)
+    {
+        if (packAnchors is not { Count: > 0 })
+        {
+            return false;
+        }
+
+        var wordStartTerms = new List<string>();
+        foreach (var (anchorLanguage, terms) in packAnchors)
+        {
+            if (terms is not { Count: > 0 })
+            {
+                continue;
+            }
+
+            var usable = terms.Where(term => !string.IsNullOrWhiteSpace(term));
+            if (RecipeAnchorMatchLanguages.SubstringMatchLanguages.Contains(anchorLanguage))
+            {
+                if (usable.Any(term => message.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                wordStartTerms.AddRange(usable);
+            }
+        }
+
+        return wordStartTerms.Count > 0 && MatchesWordStart(wordStartTerms, message, logger);
     }
 
     private static bool ConditionMatches(RecipeCondition condition, string message, ILogger? logger, string? language)
@@ -189,7 +250,7 @@ public static class RecipeTriggerMatcher
             return true;
         }
 
-        // AnyWordStartByLocale: per-locale stems that only fire for the detected language.
+        // AnyWordStartByLocale: per-locale stems that only fire for the request language.
         // Case-insensitive key lookup, matching SynonymsFor's convention.
         if (condition.AnyWordStartByLocale != null && language != null)
         {
@@ -230,15 +291,18 @@ public static class RecipeTriggerMatcher
     /// seeded recipes rely on, so the two forms must not be conflated. Both directions are widening-only
     /// against the previous plain prefix compare: everything that matched before still matches.
     /// Internal (not private) with an explicit budget for the same reason as MatchesWordStart.
+    /// The opening is taken after leading whitespace AND leading punctuation
+    /// (<see cref="RecipeTriggerLeadingPunctuation"/>): "¿Cómo …?" must meet the veto "cómo " like
+    /// "Cómo …?" does, and a quote, bracket or dash in front of a question word must not hide it.
     /// </summary>
     /// <param name="terms">startsWith terms of one condition, whole words or open stems.</param>
-    /// <param name="message">The user message; leading whitespace is ignored.</param>
+    /// <param name="message">The user message; leading whitespace and leading punctuation are ignored.</param>
     /// <param name="logger">Receives the timeout warning; may be null.</param>
     /// <param name="timeout">Wall-clock budget for the regex.</param>
     internal static bool MatchesStartsWith(
         IReadOnlyList<string> terms, string message, ILogger? logger, TimeSpan timeout)
     {
-        var trimmed = message.TrimStart();
+        var trimmed = SkipLeadingWhitespaceAndPunctuation(message);
         var wholeWords = new List<string>();
 
         foreach (var term in terms)
@@ -274,6 +338,19 @@ public static class RecipeTriggerMatcher
             logger?.LogWarning(TimeoutMessage, timeout, message.Length);
             return false;
         }
+    }
+
+    private static string SkipLeadingWhitespaceAndPunctuation(string message)
+    {
+        var start = 0;
+        while (start < message.Length
+               && (char.IsWhiteSpace(message[start])
+                   || RecipeTriggerLeadingPunctuation.Characters.Contains(message[start])))
+        {
+            start++;
+        }
+
+        return message[start..];
     }
 
     private static bool MatchesWordStart(IReadOnlyList<string> stems, string message, ILogger? logger)

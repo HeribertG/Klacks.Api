@@ -2,8 +2,8 @@
 
 /// <summary>
 /// EF Core configuration for the AgentRecipe entity with soft-delete query filter, a unique
-/// name index over non-deleted rows and JSONB per-language trigger synonyms, pack veto vocabulary
-/// and goal translations.
+/// name index over non-deleted rows and JSONB per-language trigger synonyms, pack veto vocabulary,
+/// pack anchor vocabulary and goal translations.
 /// </summary>
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Converters;
@@ -27,6 +27,8 @@ public class AgentRecipeConfiguration : IEntityTypeConfiguration<AgentRecipe>
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
         builder.Property(e => e.Vetoes)
+            .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
+        builder.Property(e => e.Anchors)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
         builder.Property(e => e.GoalTranslations)
             .HasJsonbConversionWithComparer<Dictionary<string, string>>();

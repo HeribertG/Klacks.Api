@@ -1,0 +1,213 @@
+{
+  "onboard-employee": [
+    "medarbetare",
+    "anställd",
+    "personal",
+    "arbetstagare"
+  ],
+  "user-onboarding": [
+    "användarkonto",
+    "konto",
+    "systemkonto",
+    "login",
+    "inloggning"
+  ],
+  "record-employee-address-change": [
+    "adress",
+    "hemadress",
+    "flytt",
+    "omadressering",
+    "postadress",
+    "bostadsadress",
+    "folkbokföringsadress"
+  ],
+  "offboard-employee": [
+    "uppsägning",
+    "sista arbetsdag",
+    "avgång",
+    "anställningsavslut",
+    "sista anställningsdag"
+  ],
+  "add-employee-to-group": [
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "bulk-add-employees-to-group": [
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "add-absence-for-employee": [
+    "frånvaro",
+    "semester",
+    "sjukledighet",
+    "ledighet",
+    "sjukskrivning",
+    "föräldraledighet",
+    "tjänstledighet"
+  ],
+  "create-group": [
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "move-group": [
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "add-shift-to-group": [
+    "arbetspass",
+    "tjänstgöring",
+    "uppdrag",
+    "order",
+    "skift",
+    "arbetsorder",
+    "beställning",
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "kund",
+    "klient",
+    "uppdragsgivare",
+    "geografisk",
+    "närhet",
+    "närmast",
+    "närliggande",
+    "närområde"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "medarbetare",
+    "anställd",
+    "personal",
+    "arbetstagare",
+    "geografisk",
+    "närhet",
+    "närmast",
+    "närliggande",
+    "närområde"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "extern",
+    "icke-anställd",
+    "frilansare",
+    "konsult",
+    "bemanningskonsult",
+    "geografisk",
+    "närhet",
+    "närmast",
+    "närliggande",
+    "närområde"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "geografisk",
+    "närhet",
+    "närmast",
+    "närliggande",
+    "närområde",
+    "extern",
+    "icke-anställd",
+    "frilansare",
+    "konsult",
+    "bemanningskonsult"
+  ],
+  "add-selected-clients-to-group": [
+    "markerad",
+    "vald",
+    "ikryssad",
+    "utvald",
+    "team",
+    "avdelning",
+    "arbetslag",
+    "sektion",
+    "gruppen",
+    "grupper"
+  ],
+  "setup-owner-address": [
+    "kalender",
+    "helgdagskalender"
+  ],
+  "create-shift-order": [
+    "arbetspass",
+    "tjänstgöring",
+    "uppdrag",
+    "order",
+    "skift",
+    "arbetsorder",
+    "beställning"
+  ],
+  "add-task-to-container": [
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "frånvaro",
+    "semester",
+    "sjukledighet",
+    "ledighet",
+    "sjukskrivning",
+    "föräldraledighet",
+    "tjänstledighet"
+  ],
+  "move-absence-for-employee": [
+    "frånvaro",
+    "semester",
+    "sjukledighet",
+    "ledighet",
+    "sjukskrivning",
+    "föräldraledighet",
+    "tjänstledighet"
+  ],
+  "record-availability-for-employee": [
+    "tillgänglig",
+    "lediga timmar",
+    "lediga dagar"
+  ],
+  "clear-availability-for-employee": [
+    "tillgänglig",
+    "lediga timmar",
+    "lediga dagar"
+  ],
+  "close-payroll-period": [
+    "löneperiod",
+    "räkenskapsperiod",
+    "lönemånad",
+    "avstämningsperiod",
+    "bokföringsperiod"
+  ],
+  "setup-planning-profile": [
+    "planeringsprofil",
+    "planeringsregel",
+    "schemaläggningsprofil",
+    "planeringsmall",
+    "schemaläggningsregel",
+    "planeringsinställningar"
+  ],
+  "bundle-mobile-services-into-container": [
+    "mobiltjänst",
+    "mobila tjänster",
+    "mobil tjänst"
+  ],
+  "setup-consultation": [
+    "första stegen",
+    "startguide",
+    "kom igång"
+  ]
+}

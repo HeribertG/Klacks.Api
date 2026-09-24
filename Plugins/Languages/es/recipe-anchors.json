@@ -1,0 +1,194 @@
+{
+  "onboard-employee": [
+    "empleado",
+    "personal",
+    "trabajador",
+    "empleada",
+    "colaborador",
+    "asalariado"
+  ],
+  "user-onboarding": [
+    "usuario",
+    "perfil de usuario",
+    "cuenta"
+  ],
+  "record-employee-address-change": [
+    "dirección",
+    "domicilio",
+    "residencia",
+    "mudanza",
+    "traslado",
+    "cambio de domicilio"
+  ],
+  "offboard-employee": [
+    "despido",
+    "renuncia",
+    "último día",
+    "cese",
+    "dimisión",
+    "fin de contrato",
+    "dar de baja",
+    "registrar baja",
+    "su salida"
+  ],
+  "add-employee-to-group": [
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "bulk-add-employees-to-group": [
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "add-absence-for-employee": [
+    "ausencia",
+    "vacaciones",
+    "baja médica",
+    "día libre",
+    "permiso retribuido"
+  ],
+  "create-group": [
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "move-group": [
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "add-shift-to-group": [
+    "turno",
+    "servicio",
+    "guardia",
+    "pedido",
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "cliente",
+    "cercano",
+    "geográfic",
+    "ubicación",
+    "región",
+    "cercanía",
+    "más cercano"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "empleado",
+    "personal",
+    "trabajador",
+    "empleada",
+    "colaborador",
+    "asalariado",
+    "cercano",
+    "geográfic",
+    "ubicación",
+    "región",
+    "cercanía",
+    "más cercano"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "externo",
+    "autónomo",
+    "freelance",
+    "subcontratado",
+    "consultor",
+    "cercano",
+    "geográfic",
+    "ubicación",
+    "región",
+    "cercanía",
+    "más cercano"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "cercano",
+    "geográfic",
+    "ubicación",
+    "región",
+    "cercanía",
+    "más cercano",
+    "externo",
+    "autónomo",
+    "freelance",
+    "subcontratado",
+    "consultor"
+  ],
+  "add-selected-clients-to-group": [
+    "seleccionad",
+    "marcad",
+    "elegid",
+    "tildad",
+    "grupo",
+    "equipo",
+    "departamento",
+    "sección"
+  ],
+  "setup-owner-address": [
+    "calendario",
+    "festivos",
+    "días festivos"
+  ],
+  "create-shift-order": [
+    "turno",
+    "servicio",
+    "guardia",
+    "pedido"
+  ],
+  "add-task-to-container": [
+    "contenedor"
+  ],
+  "remove-absence-for-employee": [
+    "ausencia",
+    "vacaciones",
+    "baja médica",
+    "día libre",
+    "permiso retribuido"
+  ],
+  "move-absence-for-employee": [
+    "ausencia",
+    "vacaciones",
+    "baja médica",
+    "día libre",
+    "permiso retribuido"
+  ],
+  "record-availability-for-employee": [
+    "disponibilidad",
+    "disponible"
+  ],
+  "clear-availability-for-employee": [
+    "disponibilidad",
+    "disponible"
+  ],
+  "close-payroll-period": [
+    "periodo",
+    "nómina",
+    "mes contable",
+    "mes de nómina",
+    "cierre de nómina",
+    "período"
+  ],
+  "setup-planning-profile": [
+    "perfil de planificación",
+    "reglas de planificación",
+    "configuración de planificación",
+    "plantilla de planificación"
+  ],
+  "bundle-mobile-services-into-container": [
+    "servicio móvil",
+    "servicios móviles",
+    "servicio con desplazamiento"
+  ],
+  "setup-consultation": [
+    "primeros pasos",
+    "guía de inicio",
+    "inicio rápido"
+  ]
+}

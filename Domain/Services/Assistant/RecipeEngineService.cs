@@ -381,7 +381,7 @@ public class RecipeEngineService
             if (!HasSemanticAnchor(resolved, message, _logger, language))
             {
                 _logger.LogInformation(
-                    "Recipe '{Recipe}' semantic candidate (score={Score:F3}) rejected: the message hits too few of its non-verb trigger conditions.",
+                    "Recipe '{Recipe}' semantic candidate (score={Score:F3}) rejected: the message names its subject neither in the core trigger nor in any installed language-pack anchor.",
                     resolved.Name, candidate.Score);
                 continue;
             }
@@ -587,15 +587,24 @@ public class RecipeEngineService
     /// <summary>
     /// The exclusion guard on the semantic fallback path. Carries the pack veto vocabulary as well as
     /// noneOf, because a veto honoured only in the keyword path lets the very same message re-enter the
-    /// recipe through embedding ranking - the blind spot fixed on 2026-09-15.
+    /// recipe through embedding ranking - the blind spot fixed on 2026-09-15. The pack side is the union
+    /// of every installed language (AllVetoTerms), symmetric to the anchor union in HasSemanticAnchor: the
+    /// request language is the UI language, so a Spanish question from a German UI that passes the Spanish
+    /// anchor must also meet the Spanish veto. The keyword path (MatchByTrigger) deliberately stays on
+    /// the UI-language vetoes.
     /// </summary>
     private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message, ILogger logger, string? language = null)
         => RecipeTriggerMatcher.IsVetoed(
-            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.VetoesFor(language));
+            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.AllVetoTerms());
 
+    /// <summary>
+    /// The subject gate on the semantic fallback, shared by the candidate and the alternative. Passes the
+    /// recipe's pack anchors of every installed language: the request language is the UI language, so a
+    /// Spanish message from a German UI can only be anchored through the Spanish pack.
+    /// </summary>
     private static bool HasSemanticAnchor(AgentRecipe recipe, string message, ILogger logger, string? language)
         => RecipeTriggerMatcher.HasSemanticAnchor(
-            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language);
+            Deserialize<RecipeTrigger>(recipe.TriggerJson), message, logger, language, recipe.AllAnchors());
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)
     {

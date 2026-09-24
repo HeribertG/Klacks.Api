@@ -18,6 +18,7 @@ public static class LanguagePluginConstants
     public const string SkillLabelsFileName = "skill-labels.json";
     public const string RecipeSynonymsFileName = "recipe-synonyms.json";
     public const string RecipeVetoesFileName = "recipe-vetoes.json";
+    public const string RecipeAnchorsFileName = "recipe-anchors.json";
     public const string SentimentKeywordsFileName = "sentiment-keywords.json";
     public const string WakeWordsFileName = "wake-words.json";
     public const string NavigationTargetsFileName = "navigation-targets.json";

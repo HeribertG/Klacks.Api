@@ -39,6 +39,7 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly LanguagePluginGeoDataInstaller _geoDataInstaller;
     private readonly LanguagePluginContentInstaller _contentInstaller;
     private readonly LanguagePluginSkillLabelInstaller _skillLabelInstaller;
+    private readonly LanguagePluginRecipeVocabularyInstaller _recipeVocabularyInstaller;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -63,6 +64,7 @@ public class LanguagePluginService : ILanguagePluginService
         _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
         _skillLabelInstaller = new LanguagePluginSkillLabelInstaller(_pluginDirectory, _logger);
+        _recipeVocabularyInstaller = new LanguagePluginRecipeVocabularyInstaller(_pluginDirectory, _logger);
     }
 
     public async Task InitializeAsync()
@@ -99,8 +101,23 @@ public class LanguagePluginService : ILanguagePluginService
         await InitializeAsync();
 
         await RunForEachInstalledCodeAsync(
-            _contentInstaller.InstallRecipeVetoesAsync,
+            _recipeVocabularyInstaller.InstallRecipeVetoesAsync,
             "Failed to backfill recipe vetoes for installed language plugins");
+    }
+
+    /// <summary>
+    /// Writes the recipe anchor vocabulary of every installed pack into the enabled recipes on startup,
+    /// for the reasons and under the ordering constraint ApplyInstalledRecipeVetoesAsync documents: the
+    /// column was added after the packs were installed, so without this every existing installation
+    /// would keep an empty column until each pack were reinstalled by hand.
+    /// </summary>
+    public async Task ApplyInstalledRecipeAnchorsAsync()
+    {
+        await InitializeAsync();
+
+        await RunForEachInstalledCodeAsync(
+            _recipeVocabularyInstaller.InstallRecipeAnchorsAsync,
+            "Failed to backfill recipe anchors for installed language plugins");
     }
 
     /// <summary>
@@ -347,7 +364,8 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
         await _skillLabelInstaller.InstallSkillLabelsAsync(scope, code);
         await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
-        await _contentInstaller.InstallRecipeVetoesAsync(scope, code);
+        await _recipeVocabularyInstaller.InstallRecipeVetoesAsync(scope, code);
+        await _recipeVocabularyInstaller.InstallRecipeAnchorsAsync(scope, code);
         await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
         await _contentInstaller.InstallWakeWordsAsync(code);
@@ -388,7 +406,8 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
         await _skillLabelInstaller.UninstallSkillLabelsAsync(scope, code);
         await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
-        await _contentInstaller.UninstallRecipeVetoesAsync(scope, code);
+        await _recipeVocabularyInstaller.UninstallRecipeVetoesAsync(scope, code);
+        await _recipeVocabularyInstaller.UninstallRecipeAnchorsAsync(scope, code);
         await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
         await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);

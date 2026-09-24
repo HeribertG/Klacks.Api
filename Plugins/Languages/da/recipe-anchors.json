@@ -1,0 +1,176 @@
+{
+  "onboard-employee": [
+    "medarbejder",
+    "ansat",
+    "personale"
+  ],
+  "user-onboarding": [
+    "brugerkonto",
+    "konto",
+    "adgang",
+    "brugeradgang",
+    "brugerprofil",
+    "login",
+    "rettighed"
+  ],
+  "record-employee-address-change": [
+    "adresse",
+    "bopæl",
+    "flytning",
+    "postadresse",
+    "hjemmeadresse"
+  ],
+  "offboard-employee": [
+    "fratrædelse",
+    "sidste arbejdsdag",
+    "afskedigelse",
+    "opsigelse",
+    "ansættelsesophør",
+    "udtræden"
+  ],
+  "add-employee-to-group": [
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "bulk-add-employees-to-group": [
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "add-absence-for-employee": [
+    "fravær",
+    "ferie",
+    "sygdom",
+    "sygemelding",
+    "orlov",
+    "fridag"
+  ],
+  "create-group": [
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "move-group": [
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "add-shift-to-group": [
+    "vagt",
+    "serviceordre",
+    "bestilling",
+    "tjeneste",
+    "turnus",
+    "ordre",
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "kunde",
+    "klient",
+    "geografisk",
+    "nærhed",
+    "nærmest"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "medarbejder",
+    "ansat",
+    "personale",
+    "geografisk",
+    "nærhed",
+    "nærmest"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "ekstern",
+    "vikar",
+    "freelancer",
+    "konsulent",
+    "geografisk",
+    "nærhed",
+    "nærmest"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "geografisk",
+    "nærhed",
+    "nærmest",
+    "ekstern",
+    "vikar",
+    "freelancer",
+    "konsulent"
+  ],
+  "add-selected-clients-to-group": [
+    "valgt",
+    "udvalgt",
+    "afmærket",
+    "markeret",
+    "afkrydset",
+    "gruppe",
+    "team",
+    "afdeling"
+  ],
+  "setup-owner-address": [
+    "kalender",
+    "helligdagskalender",
+    "feriekalender"
+  ],
+  "create-shift-order": [
+    "vagt",
+    "serviceordre",
+    "bestilling",
+    "tjeneste",
+    "turnus",
+    "ordre"
+  ],
+  "add-task-to-container": [
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "fravær",
+    "ferie",
+    "sygdom",
+    "sygemelding",
+    "orlov",
+    "fridag"
+  ],
+  "move-absence-for-employee": [
+    "fravær",
+    "ferie",
+    "sygdom",
+    "sygemelding",
+    "orlov",
+    "fridag"
+  ],
+  "record-availability-for-employee": [
+    "tilgængelig",
+    "rådighed",
+    "ledige timer",
+    "ledige dage"
+  ],
+  "clear-availability-for-employee": [
+    "tilgængelig",
+    "rådighed",
+    "ledige timer",
+    "ledige dage"
+  ],
+  "close-payroll-period": [
+    "lønperiode",
+    "afregningsperiode",
+    "lønkørsel"
+  ],
+  "setup-planning-profile": [
+    "planlægningsprofil",
+    "planlægningsreg",
+    "planlægningsindstillinger"
+  ],
+  "bundle-mobile-services-into-container": [
+    "mobiltjeneste",
+    "udekørende",
+    "hjemmeservice"
+  ],
+  "setup-consultation": [
+    "opstart",
+    "kom godt i gang"
+  ]
+}

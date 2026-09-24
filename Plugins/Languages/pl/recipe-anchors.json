@@ -1,0 +1,216 @@
+{
+  "onboard-employee": [
+    "pracownik",
+    "kadra",
+    "personel",
+    "zatrudniony",
+    "pracownic"
+  ],
+  "user-onboarding": [
+    "konto",
+    "użytkownik",
+    "login",
+    "dostęp"
+  ],
+  "record-employee-address-change": [
+    "adres",
+    "miejsce zamieszkania",
+    "przeprowadzk"
+  ],
+  "offboard-employee": [
+    "odejście",
+    "rezygnacja",
+    "zwolnienie",
+    "zakończenie współpracy",
+    "wypowiedzeni",
+    "ostatni dzień pracy"
+  ],
+  "add-employee-to-group": [
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "bulk-add-employees-to-group": [
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "add-absence-for-employee": [
+    "urlop",
+    "choroba",
+    "absencja",
+    "zwolnienie lekarskie",
+    "dzień wolny",
+    "nieobecnoś"
+  ],
+  "create-group": [
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "move-group": [
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "add-shift-to-group": [
+    "zlecenie",
+    "usługa",
+    "dyżur",
+    "zmiana robocza",
+    "zamówien",
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "klient",
+    "klienci",
+    "najbliższy",
+    "bliskość",
+    "geograficzny",
+    "okolic",
+    "sąsiedztwo"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "pracownik",
+    "kadra",
+    "personel",
+    "zatrudniony",
+    "pracownic",
+    "najbliższy",
+    "bliskość",
+    "geograficzny",
+    "okolic",
+    "sąsiedztwo"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "freelancer",
+    "współpracownik zewnętrzny",
+    "zewnętrzn",
+    "najbliższy",
+    "bliskość",
+    "geograficzny",
+    "okolic",
+    "sąsiedztwo"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "najbliższy",
+    "bliskość",
+    "geograficzny",
+    "okolic",
+    "sąsiedztwo",
+    "freelancer",
+    "współpracownik zewnętrzny",
+    "zewnętrzn"
+  ],
+  "add-selected-clients-to-group": [
+    "zaznaczon",
+    "odhaczon",
+    "wybran",
+    "grupa",
+    "zespół",
+    "wydział",
+    "oddział",
+    "sekcja",
+    "grupy",
+    "grupę",
+    "grupie",
+    "grupą",
+    "zespoł"
+  ],
+  "setup-owner-address": [
+    "kalendarz",
+    "święta"
+  ],
+  "create-shift-order": [
+    "zlecenie",
+    "usługa",
+    "dyżur",
+    "zmiana robocza",
+    "zamówien"
+  ],
+  "add-task-to-container": [
+    "kontener",
+    "szablon kontenera"
+  ],
+  "remove-absence-for-employee": [
+    "urlop",
+    "choroba",
+    "absencja",
+    "zwolnienie lekarskie",
+    "dzień wolny",
+    "nieobecnoś"
+  ],
+  "move-absence-for-employee": [
+    "urlop",
+    "choroba",
+    "absencja",
+    "zwolnienie lekarskie",
+    "dzień wolny",
+    "nieobecnoś"
+  ],
+  "record-availability-for-employee": [
+    "godziny dostępności",
+    "niedostępny",
+    "dostępn"
+  ],
+  "clear-availability-for-employee": [
+    "godziny dostępności",
+    "niedostępny",
+    "dostępn"
+  ],
+  "close-payroll-period": [
+    "okres rozliczeniowy",
+    "miesiąc rozliczeniowy",
+    "okres płacowy"
+  ],
+  "setup-planning-profile": [
+    "profil planowania",
+    "reguły planowania",
+    "ustawienia planowania"
+  ],
+  "bundle-mobile-services-into-container": [
+    "usługa mobilna",
+    "serwis mobilny",
+    "dyżur mobilny"
+  ],
+  "setup-consultation": [
+    "pierwsze kroki"
+  ]
+}

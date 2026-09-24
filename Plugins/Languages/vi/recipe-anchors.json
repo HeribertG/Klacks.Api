@@ -1,0 +1,198 @@
+{
+  "onboard-employee": [
+    "nhân viên",
+    "người lao động",
+    "cán bộ"
+  ],
+  "user-onboarding": [
+    "tài khoản",
+    "người dùng",
+    "quyền truy cập"
+  ],
+  "record-employee-address-change": [
+    "địa chỉ",
+    "nơi ở",
+    "chỗ ở",
+    "nhà mới",
+    "chuyển nhà",
+    "nơi cư trú"
+  ],
+  "offboard-employee": [
+    "nghỉ việc",
+    "rời công ty",
+    "thôi việc",
+    "chấm dứt hợp đồng",
+    "từ chức",
+    "sa thải",
+    "ngày làm việc cuối"
+  ],
+  "add-employee-to-group": [
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "bulk-add-employees-to-group": [
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "add-absence-for-employee": [
+    "nghỉ phép",
+    "vắng mặt",
+    "nghỉ ốm",
+    "ngày nghỉ",
+    "kỳ nghỉ",
+    "phép năm",
+    "nghỉ không lương",
+    "thai sản",
+    "nghỉ bệnh",
+    "lịch nghỉ",
+    "xin nghỉ"
+  ],
+  "create-group": [
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "move-group": [
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "add-shift-to-group": [
+    "ca làm",
+    "ca trực",
+    "đơn hàng",
+    "đơn dịch vụ",
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "khách hàng",
+    "gần nhất",
+    "lân cận",
+    "bán kính"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "nhân viên",
+    "người lao động",
+    "cán bộ",
+    "gần nhất",
+    "lân cận",
+    "bán kính"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "ngoài biên chế",
+    "freelance",
+    "cộng tác viên",
+    "nhân viên thời vụ",
+    "nhân viên bên ngoài",
+    "gần nhất",
+    "lân cận",
+    "bán kính"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "gần nhất",
+    "lân cận",
+    "bán kính",
+    "ngoài biên chế",
+    "freelance",
+    "cộng tác viên",
+    "nhân viên thời vụ",
+    "nhân viên bên ngoài"
+  ],
+  "add-selected-clients-to-group": [
+    "đã chọn",
+    "đã đánh dấu",
+    "được chọn",
+    "được đánh dấu",
+    "nhóm",
+    "bộ phận",
+    "đơn vị",
+    "phòng ban"
+  ],
+  "setup-owner-address": [
+    "lịch nghỉ lễ",
+    "ngày lễ"
+  ],
+  "create-shift-order": [
+    "ca làm",
+    "ca trực",
+    "đơn hàng",
+    "đơn dịch vụ"
+  ],
+  "add-task-to-container": [
+    "container",
+    "mẫu container"
+  ],
+  "remove-absence-for-employee": [
+    "nghỉ phép",
+    "vắng mặt",
+    "nghỉ ốm",
+    "ngày nghỉ",
+    "kỳ nghỉ",
+    "phép năm",
+    "nghỉ không lương",
+    "thai sản",
+    "nghỉ bệnh",
+    "lịch nghỉ",
+    "xin nghỉ"
+  ],
+  "move-absence-for-employee": [
+    "nghỉ phép",
+    "vắng mặt",
+    "nghỉ ốm",
+    "ngày nghỉ",
+    "kỳ nghỉ",
+    "phép năm",
+    "nghỉ không lương",
+    "thai sản",
+    "nghỉ bệnh",
+    "lịch nghỉ",
+    "xin nghỉ"
+  ],
+  "record-availability-for-employee": [
+    "sẵn sàng",
+    "giờ rảnh",
+    "thời gian rảnh",
+    "lịch rảnh",
+    "khả dụng"
+  ],
+  "clear-availability-for-employee": [
+    "sẵn sàng",
+    "giờ rảnh",
+    "thời gian rảnh",
+    "lịch rảnh",
+    "khả dụng"
+  ],
+  "close-payroll-period": [
+    "kỳ lương",
+    "chu kỳ lương",
+    "kỳ thanh toán",
+    "kỳ kế toán",
+    "tháng lương",
+    "kỳ chốt lương"
+  ],
+  "setup-planning-profile": [
+    "hồ sơ lập kế hoạch",
+    "quy tắc lập kế hoạch",
+    "profile lập kế hoạch",
+    "cấu hình lập kế hoạch",
+    "quy định lập kế hoạch"
+  ],
+  "bundle-mobile-services-into-container": [
+    "dịch vụ lưu động",
+    "ca lưu động"
+  ],
+  "setup-consultation": [
+    "bước đầu tiên",
+    "sử dụng lần đầu",
+    "hướng dẫn bắt đầu"
+  ]
+}

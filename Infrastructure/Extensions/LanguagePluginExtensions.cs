@@ -29,6 +29,19 @@ public static class LanguagePluginExtensions
     }
 
     /// <summary>
+    /// Backfills the recipe anchor vocabulary of every installed language pack. Same ordering constraint
+    /// as BackfillRecipeVetoesAsync: it needs the installed-codes list and the seeded recipe rows, which
+    /// are parallel branches of one Task.WhenAll.
+    /// </summary>
+    public static async Task<IApplicationBuilder> BackfillRecipeAnchorsAsync(this IApplicationBuilder app)
+    {
+        var service = app.ApplicationServices.GetRequiredService<ILanguagePluginService>();
+        await service.ApplyInstalledRecipeAnchorsAsync();
+
+        return app;
+    }
+
+    /// <summary>
     /// Backfills the user-facing skill labels of every installed language pack. Same ordering constraint
     /// as BackfillRecipeVetoesAsync, one branch further along: it needs the installed-codes list from
     /// InitializeLanguagePluginsAsync AND the skill rows from the chained

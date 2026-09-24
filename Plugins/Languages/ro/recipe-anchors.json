@@ -1,0 +1,204 @@
+{
+  "onboard-employee": [
+    "angajat",
+    "personal",
+    "salariat",
+    "lucrător"
+  ],
+  "user-onboarding": [
+    "utilizator",
+    "login",
+    "cont de utilizator",
+    "contul"
+  ],
+  "record-employee-address-change": [
+    "domiciliu",
+    "reședință",
+    "adres"
+  ],
+  "offboard-employee": [
+    "demisie",
+    "încetare",
+    "concediere",
+    "demisionare",
+    "ultima zi"
+  ],
+  "add-employee-to-group": [
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "bulk-add-employees-to-group": [
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "add-absence-for-employee": [
+    "concediu",
+    "boală",
+    "zi liberă",
+    "zi de concediu",
+    "absenț"
+  ],
+  "create-group": [
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "move-group": [
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "add-shift-to-group": [
+    "tură",
+    "serviciu",
+    "comandă",
+    "tura de lucru",
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "client",
+    "beneficiar",
+    "apropiere",
+    "vecinătate",
+    "geografic",
+    "rază",
+    "apropiat"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "angajat",
+    "personal",
+    "salariat",
+    "lucrător",
+    "apropiere",
+    "vecinătate",
+    "geografic",
+    "rază",
+    "apropiat"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "extern",
+    "colaborator extern",
+    "lucrător extern",
+    "freelancer",
+    "prestator extern",
+    "consultant extern",
+    "apropiere",
+    "vecinătate",
+    "geografic",
+    "rază",
+    "apropiat"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "apropiere",
+    "vecinătate",
+    "geografic",
+    "rază",
+    "apropiat",
+    "extern",
+    "colaborator extern",
+    "lucrător extern",
+    "freelancer",
+    "prestator extern",
+    "consultant extern"
+  ],
+  "add-selected-clients-to-group": [
+    "selectat",
+    "bifat",
+    "marcat",
+    "echipă",
+    "departament",
+    "echipa",
+    "divizie",
+    "grupă",
+    "grupe",
+    "grupul"
+  ],
+  "setup-owner-address": [
+    "calendar",
+    "sărbătoare",
+    "zi nelucrătoare"
+  ],
+  "create-shift-order": [
+    "tură",
+    "serviciu",
+    "comandă",
+    "tura de lucru"
+  ],
+  "add-task-to-container": [
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "concediu",
+    "boală",
+    "zi liberă",
+    "zi de concediu",
+    "absenț"
+  ],
+  "move-absence-for-employee": [
+    "concediu",
+    "boală",
+    "zi liberă",
+    "zi de concediu",
+    "absenț"
+  ],
+  "record-availability-for-employee": [
+    "disponibil",
+    "program disponibil",
+    "ore disponibile",
+    "zile disponibile",
+    "perioade disponibile"
+  ],
+  "clear-availability-for-employee": [
+    "disponibil",
+    "program disponibil",
+    "ore disponibile",
+    "zile disponibile",
+    "perioade disponibile"
+  ],
+  "close-payroll-period": [
+    "perioadă de salarizare",
+    "lună de salarizare",
+    "perioadă de plată",
+    "perioada de salarizare"
+  ],
+  "setup-planning-profile": [
+    "profil de planificare",
+    "reguli de planificare"
+  ],
+  "bundle-mobile-services-into-container": [
+    "serviciu mobil",
+    "serviciu la domiciliu",
+    "serviciu cu deplasare",
+    "serviciu itinerant"
+  ],
+  "setup-consultation": [
+    "primii pași",
+    "configurare inițială",
+    "ghid de început",
+    "noțiuni de bază"
+  ]
+}

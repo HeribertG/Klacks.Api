@@ -1,0 +1,219 @@
+{
+  "onboard-employee": [
+    "työntekij",
+    "henkilöstö",
+    "henkilökunta",
+    "toimihenkilö"
+  ],
+  "user-onboarding": [
+    "käyttäjä",
+    "sisäänkirjautuminen",
+    "kirjautumistunnus",
+    "käyttöoikeu"
+  ],
+  "record-employee-address-change": [
+    "osoitte",
+    "asuinpaikka",
+    "muutto",
+    "kotiosoitte",
+    "postiosoite",
+    "osoite"
+  ],
+  "offboard-employee": [
+    "irtisanominen",
+    "irtisanoutuminen",
+    "viimeinen työpäivä",
+    "työsuhteen päättyminen",
+    "irtisanomisaika"
+  ],
+  "add-employee-to-group": [
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "bulk-add-employees-to-group": [
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "add-absence-for-employee": [
+    "poissaolo",
+    "loma",
+    "sairaus",
+    "vapaapäivä",
+    "sairasloma",
+    "vuosiloma"
+  ],
+  "create-group": [
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "move-group": [
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "add-shift-to-group": [
+    "työvuoro",
+    "vuoro",
+    "päivystys",
+    "tilaus",
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "asiakka",
+    "asiakas",
+    "loppuasiakas",
+    "lähin",
+    "maantieteellinen",
+    "lähistö",
+    "lähialue",
+    "lähiseutu",
+    "lähimp"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "työntekij",
+    "henkilöstö",
+    "henkilökunta",
+    "toimihenkilö",
+    "lähin",
+    "maantieteellinen",
+    "lähistö",
+    "lähialue",
+    "lähiseutu",
+    "lähimp"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "ulkoinen",
+    "freelance",
+    "alihankkija",
+    "ulkopuolinen",
+    "vuokratyöntekijä",
+    "keikkatyöntekijä",
+    "konsultti",
+    "ulkois",
+    "lähin",
+    "maantieteellinen",
+    "lähistö",
+    "lähialue",
+    "lähiseutu",
+    "lähimp"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "lähin",
+    "maantieteellinen",
+    "lähistö",
+    "lähialue",
+    "lähiseutu",
+    "lähimp",
+    "ulkoinen",
+    "freelance",
+    "alihankkija",
+    "ulkopuolinen",
+    "vuokratyöntekijä",
+    "keikkatyöntekijä",
+    "konsultti",
+    "ulkois"
+  ],
+  "add-selected-clients-to-group": [
+    "valittu",
+    "ruksattu",
+    "rastitettu",
+    "valitut",
+    "ryhmä",
+    "tiimi",
+    "osasto",
+    "työryhmä",
+    "henkilöstöryhmä",
+    "toimintayksikkö"
+  ],
+  "setup-owner-address": [
+    "kalenteri",
+    "työkalenteri",
+    "pyhäkalenteri",
+    "vuosilomakalenteri"
+  ],
+  "create-shift-order": [
+    "työvuoro",
+    "vuoro",
+    "päivystys",
+    "tilaus"
+  ],
+  "add-task-to-container": [
+    "kontti",
+    "kontin"
+  ],
+  "remove-absence-for-employee": [
+    "poissaolo",
+    "loma",
+    "sairaus",
+    "vapaapäivä",
+    "sairasloma",
+    "vuosiloma"
+  ],
+  "move-absence-for-employee": [
+    "poissaolo",
+    "loma",
+    "sairaus",
+    "vapaapäivä",
+    "sairasloma",
+    "vuosiloma"
+  ],
+  "record-availability-for-employee": [
+    "saatavuus",
+    "resurssisaatavuus",
+    "työaikatoive",
+    "vapaat ajat",
+    "käytettävissä",
+    "saatavill"
+  ],
+  "clear-availability-for-employee": [
+    "saatavuus",
+    "resurssisaatavuus",
+    "työaikatoive",
+    "vapaat ajat",
+    "käytettävissä",
+    "saatavill"
+  ],
+  "close-payroll-period": [
+    "palkkakausi",
+    "palkanmaksukausi",
+    "palkkajakso"
+  ],
+  "setup-planning-profile": [
+    "suunnitteluprofiili",
+    "työvuoroprofiili",
+    "suunnittelusäännöt",
+    "suunnitteluasetukset",
+    "työvuorosuunnittelumalli"
+  ],
+  "bundle-mobile-services-into-container": [
+    "mobiilipalvelu",
+    "käyntipalvelu",
+    "liikkuva palvelu"
+  ],
+  "setup-consultation": [
+    "ensiaskeleet",
+    "käyttöönotto",
+    "perehdytys",
+    "ensimmäiset askeleet"
+  ]
+}

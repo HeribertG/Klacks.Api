@@ -35,6 +35,14 @@ public interface ILanguagePluginService
     Task ApplyInstalledRecipeVetoesAsync();
 
     /// <summary>
+    /// Writes the recipe anchor vocabulary (recipe-anchors.json) of every installed language pack into the
+    /// enabled recipes. A startup backfill for the same reason and with the same ordering constraint as
+    /// ApplyInstalledRecipeVetoesAsync: invoke it only AFTER both the language-plugin initialization and
+    /// the recipe seeding have completed.
+    /// </summary>
+    Task ApplyInstalledRecipeAnchorsAsync();
+
+    /// <summary>
     /// Writes the user-facing skill labels of every installed language pack into the enabled skills.
     /// A startup backfill for the same reason as ApplyInstalledRecipeVetoesAsync: a pack only reaches
     /// the skills that exist at the moment it is installed, so a label column added after the packs were

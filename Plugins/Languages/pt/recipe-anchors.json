@@ -1,0 +1,213 @@
+{
+  "onboard-employee": [
+    "funcionári",
+    "colaborador",
+    "empregad",
+    "pessoal",
+    "trabalhador"
+  ],
+  "user-onboarding": [
+    "usuári",
+    "acesso",
+    "login",
+    "conta de usuário",
+    "conta de utilizador",
+    "conta do sistema"
+  ],
+  "record-employee-address-change": [
+    "endereço",
+    "morada",
+    "residência",
+    "domicílio"
+  ],
+  "offboard-employee": [
+    "saída",
+    "demiss",
+    "desligamento",
+    "último dia",
+    "despedimento",
+    "rescisão"
+  ],
+  "add-employee-to-group": [
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "bulk-add-employees-to-group": [
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "add-absence-for-employee": [
+    "ausência",
+    "férias",
+    "atestado",
+    "licença",
+    "folga"
+  ],
+  "create-group": [
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "move-group": [
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "add-shift-to-group": [
+    "turno",
+    "serviço",
+    "ordem de serviço",
+    "escala",
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "cliente",
+    "geográfic",
+    "localizaç",
+    "proximidade",
+    "arredores",
+    "raio",
+    "região",
+    "mais próxim",
+    "mais perto"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "funcionári",
+    "colaborador",
+    "empregad",
+    "pessoal",
+    "trabalhador",
+    "geográfic",
+    "localizaç",
+    "proximidade",
+    "arredores",
+    "raio",
+    "região",
+    "mais próxim",
+    "mais perto"
+  ],
+  "bulk-add-externs-to-nearest-group": [
+    "extern",
+    "prestador",
+    "freelancer",
+    "terceirizad",
+    "consultor",
+    "autónom",
+    "autônom",
+    "geográfic",
+    "localizaç",
+    "proximidade",
+    "arredores",
+    "raio",
+    "região",
+    "mais próxim",
+    "mais perto"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "geográfic",
+    "localizaç",
+    "proximidade",
+    "arredores",
+    "raio",
+    "região",
+    "mais próxim",
+    "mais perto",
+    "extern",
+    "prestador",
+    "freelancer",
+    "terceirizad",
+    "consultor",
+    "autónom",
+    "autônom"
+  ],
+  "add-selected-clients-to-group": [
+    "selecionad",
+    "marcad",
+    "escolhid",
+    "assinalad",
+    "grupo",
+    "equipe",
+    "equipa",
+    "departamento",
+    "setor",
+    "seção"
+  ],
+  "setup-owner-address": [
+    "calendário",
+    "feriado"
+  ],
+  "create-shift-order": [
+    "turno",
+    "serviço",
+    "ordem de serviço",
+    "escala"
+  ],
+  "add-task-to-container": [
+    "contêiner",
+    "container"
+  ],
+  "remove-absence-for-employee": [
+    "ausência",
+    "férias",
+    "atestado",
+    "licença",
+    "folga"
+  ],
+  "move-absence-for-employee": [
+    "ausência",
+    "férias",
+    "atestado",
+    "licença",
+    "folga"
+  ],
+  "record-availability-for-employee": [
+    "disponibilidade",
+    "disponíve"
+  ],
+  "clear-availability-for-employee": [
+    "disponibilidade",
+    "disponíve"
+  ],
+  "close-payroll-period": [
+    "período salarial",
+    "apuraç",
+    "competência",
+    "folha de pagamento",
+    "período de pagamento"
+  ],
+  "setup-planning-profile": [
+    "perfil de planeamento",
+    "regras de planeamento",
+    "perfil de planejamento",
+    "regras de planejamento"
+  ],
+  "bundle-mobile-services-into-container": [
+    "serviço móvel",
+    "serviço itinerante",
+    "serviço ambulante",
+    "serviços móveis"
+  ],
+  "setup-consultation": [
+    "primeiros passos",
+    "configuração inicial"
+  ]
+}

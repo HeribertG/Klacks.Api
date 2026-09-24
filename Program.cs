@@ -702,6 +702,7 @@ await Task.WhenAll(
 // InitializeLanguagePluginsAsync loads and the recipe rows LoadRecipeSeedsAsync creates. Inside the
 // batch it would race the seeder and silently skip every recipe that did not exist yet.
 await app.BackfillRecipeVetoesAsync();
+await app.BackfillRecipeAnchorsAsync();
 
 // Depends on the same batch: the installed language codes from InitializeLanguagePluginsAsync and the
 // skill rows from the chained feature-plugin/skill-seed branch. A pack installed before this column

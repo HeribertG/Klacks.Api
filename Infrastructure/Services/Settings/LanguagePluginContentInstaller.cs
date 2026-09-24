@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Installs and uninstalls content-related data (docs, skill synonyms, recipe synonyms, navigation synonyms, sentiment keywords, translations)
-/// for language plugins.
+/// Installs and uninstalls content-related data (docs, skill synonyms, recipe synonyms, navigation synonyms,
+/// sentiment keywords, translations) for language plugins. The recipe vetoes and anchors live in
+/// LanguagePluginRecipeVocabularyInstaller.
 /// </summary>
 /// <param name="pluginDirectory">Base directory of the language plugins</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
@@ -316,110 +317,6 @@ public class LanguagePluginContentInstaller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to uninstall recipe synonyms for language plugin '{Code}'", code.ForLog());
-        }
-    }
-
-    /// <summary>
-    /// Writes the pack's per-recipe question-word veto vocabulary into AgentRecipe.Vetoes[code].
-    /// Two deliberate differences from InstallRecipeSynonymsAsync:
-    /// nothing is mirrored into skill_phrase, because vetoes are exclusion vocabulary rather than
-    /// routing phrases - indexing them would let a question word pull the recipe UP in semantic
-    /// retrieval, which is the opposite of what a veto exists for; and the pack owns its language key
-    /// outright, so a reinstall replaces it instead of merging, there being no admin-edit path that
-    /// also writes this column.
-    /// The recipes are loaded through the TRACKING query (GetAllAsync), not GetAllEnabledAsync: this
-    /// installer runs in the same scope as InstallRecipeSynonymsAsync, which has already attached every
-    /// recipe row, and the startup backfill runs all installed languages through one scope. A second
-    /// no-tracking read would hand Update a second instance of an already-tracked key, which throws and
-    /// is swallowed below - the pack would install its synonyms but silently no vetoes. A recipe whose
-    /// vocabulary is already current is skipped, so a startup backfill is a no-op write-wise.
-    /// Like every other install here a failure is logged and swallowed, so a malformed pack file is a
-    /// silent no-op while the unit gates parse the same file successfully. "Gate green / runtime empty"
-    /// is therefore possible; the error log is the only place it shows.
-    /// </summary>
-    /// <param name="scope">Scope providing the recipe repository</param>
-    /// <param name="code">Language code of the pack</param>
-    public async Task InstallRecipeVetoesAsync(IServiceScope scope, string code)
-    {
-        var vetoesPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.RecipeVetoesFileName);
-        if (!File.Exists(vetoesPath))
-            return;
-
-        try
-        {
-            var json = File.ReadAllText(vetoesPath);
-            var vetoMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
-            if (vetoMap == null || vetoMap.Count == 0)
-                return;
-
-            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
-            var allRecipes = await recipeRepo.GetAllAsync();
-            var count = 0;
-
-            foreach (var recipe in allRecipes.Where(recipe => recipe.IsEnabled))
-            {
-                if (!vetoMap.TryGetValue(recipe.Name, out var terms))
-                    continue;
-
-                var cleaned = terms
-                    .Where(term => !string.IsNullOrWhiteSpace(term))
-                    .Distinct(StringComparer.Ordinal)
-                    .ToList();
-
-                if (recipe.Vetoes != null
-                    && recipe.Vetoes.TryGetValue(code, out var installed)
-                    && installed.SequenceEqual(cleaned, StringComparer.Ordinal))
-                    continue;
-
-                recipe.Vetoes ??= new Dictionary<string, List<string>>();
-                recipe.Vetoes[code] = cleaned;
-                await recipeRepo.UpdateAsync(recipe);
-                count++;
-            }
-
-            _logger.LogInformation(
-                "Installed recipe vetoes for language plugin '{Code}': {Count} recipe(s) updated",
-                code.ForLog(), count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to install recipe vetoes for language plugin '{Code}'", code.ForLog());
-        }
-    }
-
-    /// <summary>
-    /// Removes the pack's language key from every recipe that carries it. Driven by the column, not by
-    /// the pack file: at uninstall time the file may already be gone, and after a recipe rename it no
-    /// longer names the row that still carries the key. Loaded through the tracking query for the same
-    /// reason as InstallRecipeVetoesAsync - UninstallRecipeSynonymsAsync has already attached the rows
-    /// in this scope.
-    /// </summary>
-    /// <param name="scope">Scope providing the recipe repository</param>
-    /// <param name="code">Language code of the pack</param>
-    public async Task UninstallRecipeVetoesAsync(IServiceScope scope, string code)
-    {
-        try
-        {
-            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
-            var allRecipes = await recipeRepo.GetAllAsync();
-            var count = 0;
-
-            foreach (var recipe in allRecipes)
-            {
-                if (recipe.Vetoes == null || !recipe.Vetoes.Remove(code))
-                    continue;
-
-                await recipeRepo.UpdateAsync(recipe);
-                count++;
-            }
-
-            _logger.LogInformation(
-                "Uninstalled recipe vetoes for language plugin '{Code}': {Count} recipe(s) updated",
-                code.ForLog(), count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to uninstall recipe vetoes for language plugin '{Code}'", code.ForLog());
         }
     }
 
