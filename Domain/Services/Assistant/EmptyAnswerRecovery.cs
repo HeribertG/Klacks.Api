@@ -191,9 +191,9 @@ internal sealed class EmptyAnswerRecovery
     }
 
     /// <summary>
-    /// The fallback notice in the turn's language, resolved through GracefulCorrectionTexts so an installed
-    /// language never shows the English notice; only a language Klacks does not ship at all falls through
-    /// to the constant. A turn without tool calls gets the no-action notice, because "I ran the requested
+    /// The fallback notice in the turn's language, resolved through GracefulCorrectionTexts so a language
+    /// with a loaded pack shows its own notice; a language the catalogue does not know (no pack loaded, which
+    /// also covers a pack directory without assistant-texts.json) falls through to the English constant. A turn without tool calls gets the no-action notice, because "I ran the requested
     /// steps" would be untrue there.
     /// </summary>
     /// <param name="functionCallCount">Number of calls of the turn; selects the notice.</param>

@@ -4,9 +4,11 @@
 /// The localized texts of the inbound clarification dialog. The four core languages live in the
 /// per-language tables of this namespace (German, English, French and Italian ClarificationTexts), the 21
 /// plugin languages are merged in at startup from each pack's assistant-texts.json by
-/// AssistantTextsPluginLoader. Resolution is LocalizedTextCatalogue's: English only for a tag that no core
-/// table and no pack claims, never for an installed language, whose missing key resolves to nothing - and
-/// cannot ship, because the pack coverage guard fails on it.
+/// AssistantTextsPluginLoader. Resolution is LocalizedTextCatalogue's: English for a tag that no core
+/// table and no loaded pack claims; a language whose loaded pack lacks a key resolves to nothing (the caller
+/// then chooses English and logs a warning) - a gap the pack coverage guard keeps from shipping. A pack
+/// directory without assistant-texts.json is not loaded and therefore counts as an unknown language: it
+/// resolves to English without any warning at lookup time.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -40,8 +42,8 @@ public static class ClarificationTexts
         Catalogue.Configure(languageCode, texts);
 
     /// <summary>
-    /// Resolves one text for a language. False only when an installed language lacks the key; an unknown
-    /// language resolves to English.
+    /// Resolves one text for a language. False only when a loaded pack lacks the key; an unknown language
+    /// (including one whose pack was never loaded) resolves to English.
     /// </summary>
     /// <param name="key">One of ClarificationTextKeys</param>
     /// <param name="language">Installation language, possibly regional (de-CH), or null</param>
@@ -51,7 +53,7 @@ public static class ClarificationTexts
 
     /// <summary>
     /// The English text of a key: the wording skill outputs for the language model use, and the floor when
-    /// an installed language lacks a key.
+    /// a loaded pack lacks a key.
     /// </summary>
     /// <param name="key">One of ClarificationTextKeys</param>
     public static string English(string key) => EnglishClarificationTexts.Texts[key];

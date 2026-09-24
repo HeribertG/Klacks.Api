@@ -7,10 +7,13 @@
 /// prompt rule can translate them and the pack has to carry them - unlike conversation-signals.json,
 /// which carries input-side vocabulary, and unlike translations.json, which is the frontend catalogue.
 /// Called once at application startup next to the other pack loaders; a pack installed while the
-/// process runs takes effect on the next restart, exactly like every other loader there.
+/// process runs takes effect on the next restart, exactly like every other loader there. A pack directory
+/// without assistant-texts.json is skipped and reported through onMissingFile: without the file the language
+/// counts as unknown to the catalogues and its server-written texts go out in English without any warning.
 /// </summary>
 /// <param name="baseDirectory">Application base directory containing the Plugins folder</param>
 /// <param name="onError">Optional callback invoked per plugin file that failed to load</param>
+/// <param name="onMissingFile">Optional callback invoked with the language code of each installed pack directory that has no assistant-texts.json</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
@@ -22,7 +25,8 @@ public static class AssistantTextsPluginLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public static void Load(string baseDirectory, Action<string, Exception>? onError = null)
+    public static void Load(
+        string baseDirectory, Action<string, Exception>? onError = null, Action<string>? onMissingFile = null)
     {
         var pluginDir = Path.Combine(baseDirectory, LanguagePluginConstants.PluginDirectory);
         if (!Directory.Exists(pluginDir))
@@ -41,6 +45,7 @@ public static class AssistantTextsPluginLoader
             var file = Path.Combine(langDir, LanguagePluginConstants.AssistantTextsFileName);
             if (!File.Exists(file))
             {
+                onMissingFile?.Invoke(code);
                 continue;
             }
 

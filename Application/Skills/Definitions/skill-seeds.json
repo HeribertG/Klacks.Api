@@ -23551,7 +23551,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -23637,7 +23637,7 @@
         "fr": "Lister les e-mails",
         "it": "Elenca le e-mail"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "read_email",
@@ -23646,7 +23646,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -23712,7 +23712,7 @@
         "fr": "Lire un e-mail",
         "it": "Leggi un'e-mail"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "mark_email_read",
@@ -42470,7 +42470,7 @@
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanViewSettings"
+        "CanManageAutomation"
       ],
       "parameters": [
         {
@@ -42524,7 +42524,7 @@
           "emails from"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "mails von kunde",

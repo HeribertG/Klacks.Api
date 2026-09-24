@@ -277,7 +277,8 @@ ConversationSignalsPluginLoader.Load(
     (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
 AssistantTextsPluginLoader.Load(
     AppContext.BaseDirectory,
-    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
+    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"),
+    code => Console.Error.WriteLine($"Language pack '{code}' has no assistant-texts.json; its assistant texts go out in English"));
 CompletionClaimPluginLoader.Load(
     AppContext.BaseDirectory,
     (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));

@@ -46,7 +46,10 @@ public class BackgroundServiceOptions
     /// clarifications (INBOUND_CLARIFICATION_ENABLED is off by default) a cycle is a single query. Safe on
     /// every instance, like the escalation chain: each transition is a conditional update, so a second
     /// instance racing the same row loses cleanly. Override via env
-    /// <c>BackgroundServices__InboundClarificationSweep=false</c>.
+    /// <c>BackgroundServices__InboundClarificationSweep=false</c>. This flag also carries the original-text
+    /// retention (InboundClarificationOriginalTextRetentionDays): the retention is the second step of the
+    /// same hosted service, so with the flag off nothing clears the stored original message text - it stays
+    /// in inbound_clarifications until the flag is switched on again or the rows are removed some other way.
     /// </summary>
     public bool InboundClarificationSweep { get; set; } = true;
 
@@ -60,7 +63,9 @@ public class BackgroundServiceOptions
     /// Days after which the sweep clears the raw original message text of an ended inbound clarification
     /// (closed rounds counted from resolved_at, Suggested ones from asked_at; the row with status and
     /// deadlines stays). Clamped to 1..3650. Override via env
-    /// <c>BackgroundServices__InboundClarificationOriginalTextRetentionDays</c>.
+    /// <c>BackgroundServices__InboundClarificationOriginalTextRetentionDays</c>. Only effective while
+    /// <see cref="InboundClarificationSweep"/> is on: the retention runs inside that sweep, on its cadence,
+    /// and is not registered separately - disabling the sweep disables the retention too.
     /// </summary>
     public int InboundClarificationOriginalTextRetentionDays { get; set; } = Klacks.Api.Domain.Constants.InboundClarificationConstants.DefaultOriginalTextRetentionDays;
 

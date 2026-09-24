@@ -5,8 +5,13 @@
 /// dialog. The language is the installation language (DEFAULT_LANGUAGE), resolved when a text is built and
 /// not before, so a message that needs no text costs no settings read. The catalogue supplies the template,
 /// ClarificationTextTemplate fills it in one pass, so employee text inside a value is never expanded twice.
-/// An installed language whose pack lacks a key falls back to English with a warning in the log - never
-/// silently, and never by dropping a planner notice; the pack coverage guard keeps that case from shipping.
+/// A language whose loaded pack lacks a key falls back to English with a warning in the log, and a planner
+/// notice is never dropped; the pack coverage guard keeps that case from shipping. That warning is NOT a
+/// promise that English can never appear unannounced: a language counts as "installed" here only when its
+/// assistant-texts.json was loaded at startup. A pack directory without that file (or with an empty or
+/// unreadable one), and a pack installed after the process started, is an unknown language to the catalogue
+/// and resolves to English WITHOUT a warning from this service - only the startup loader reports a pack
+/// directory that has no assistant-texts.json.
 /// The unclear-answer notice is appended to the answer context with a line break, a language-neutral join.
 /// Time format and the shortening of the original text are the same in every language, so they stay here.
 /// Skill outputs for the language model are not built here and stay English.

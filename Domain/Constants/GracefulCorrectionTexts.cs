@@ -5,12 +5,13 @@
 /// design rule 2, its Yes/No button labels, and the two closing-guard notices EmptyAnswerRecovery falls
 /// back to when even the one tool-less recovery call ends without an answer - one after a turn that ran
 /// tools, one after a turn that ran none and must not claim otherwise. Because no model renders them,
-/// each is authored per language - and per the owner's one-language rule (spec §1 rule 4) an installed
-/// language never gets an English substitute. The four core languages live here; the 21 plugin languages
-/// are merged in at startup from each pack's assistant-texts.json by AssistantTextsPluginLoader, through
+/// each is authored per language - and per the owner's one-language rule (spec §1 rule 4) a language with
+/// a loaded pack gets no English substitute from the catalogue. The four core languages live here; the 21
+/// plugin languages are merged in at startup from each pack's assistant-texts.json by AssistantTextsPluginLoader, through
 /// the same additive Configure/Reset pattern the conversation-signal detectors use.
-/// English remains only for a tag that no pack claims - an unknown language, never an installed one. An
-/// installed language whose pack lacks the key resolves to nothing for the clarification question, so
+/// English remains for a tag that no table and no loaded pack claims - an unknown language, which includes a
+/// pack directory without assistant-texts.json (never loaded, so indistinguishable from an unknown one). A
+/// language whose loaded pack lacks the key resolves to nothing for the clarification question, so
 /// that turn falls back to the ordinary note path rather than asking in the wrong language; for the
 /// empty-answer notices the caller falls back to the English constant instead, because there the turn has
 /// already run its recovery call and has nothing else to fall back to. Both gaps cannot ship, because
@@ -133,7 +134,7 @@ public static class GracefulCorrectionTexts
 
     /// <summary>
     /// Resolves a text for a language. Core languages come from the table above, installed plugin
-    /// languages from their pack, and ONLY an unknown tag falls back to English. An installed language
+    /// languages from their loaded pack, and ONLY an unknown tag falls back to English. A language
     /// whose pack lacks the key returns false - the caller then asks nothing rather than in the wrong
     /// language. The resolution itself, including the regional-tag probe that keeps "zh-CN" and "zh-TW" on
     /// their own packs while "de-CH" reaches German, lives in LocalizedTextCatalogue.

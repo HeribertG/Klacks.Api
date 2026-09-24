@@ -9,7 +9,9 @@
 /// Each cycle has a second, independent retention step: the raw original text of rounds that ended longer
 /// ago than the configured retention (default 30 days) is cleared - counted from resolved_at for closed
 /// rounds and from asked_at for Suggested ones - only the count is logged, and a failure of either step
-/// never stops the other.
+/// never stops the other. The retention is coupled to the sweep flag: it is a step of this service, not a
+/// service of its own, so BackgroundServices:InboundClarificationSweep=false switches off the expiry AND the
+/// retention, and the original message text of ended rounds is then kept indefinitely.
 /// Resolves the repository, the notifier, the text service and ICompanyClock from a fresh scope per cycle (ICompanyClock is
 /// scoped and must not be captured by a hosted service). A failing notification is logged and does not
 /// stop the remaining rows; a failing cycle is logged and never escapes. A cancellation of the stopping

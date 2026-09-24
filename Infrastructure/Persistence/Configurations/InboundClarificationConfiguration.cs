@@ -24,7 +24,7 @@ public class InboundClarificationConfiguration : IEntityTypeConfiguration<Inboun
 
     private const int ChannelMaxLength = 64;
     private const int RecipientMaxLength = InboundClarificationConstants.MaxRecipientLength;
-    private const int SenderDisplayMaxLength = 300;
+    private const int SenderDisplayMaxLength = InboundClarificationConstants.MaxSenderDisplayLength;
     private const int QuestionMaxLength = 1000;
     private const int ShiftContextMaxLength = InboundClarificationConstants.MaxShiftContextLength;
     private const int EmailMessageIdMaxLength = InboundClarificationConstants.MaxStoredEmailMessageIdLength;

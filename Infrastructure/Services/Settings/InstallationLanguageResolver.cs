@@ -5,7 +5,9 @@
 /// LanguageConfig.SupportedLanguages: that list is never fed with the installed language packs at runtime, so
 /// a filter would turn every pack language into English. A blank or unreadable setting falls back to
 /// LanguageConfig.DefaultLanguageFallback and is logged, never thrown, because a text in the wrong language
-/// is better than a planner notice that is not written at all. Scoped, like the settings reader it uses.
+/// is better than a planner notice that is not written at all. A cancelled call is the one exception: it
+/// rethrows, so a stopping caller is not held up and no wrong-language text is built for it. Scoped, like the
+/// settings reader it uses.
 /// </summary>
 /// <param name="settingsReader">Reads the DEFAULT_LANGUAGE setting</param>
 /// <param name="logger">Logs an unreadable setting</param>
@@ -18,6 +20,8 @@ namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public sealed class InstallationLanguageResolver : IInstallationLanguageResolver
 {
+    private static readonly string[] DefaultLanguageKeys = [SettingKeys.DefaultLanguage];
+
     private readonly ISettingsReader _settingsReader;
     private readonly ILogger<InstallationLanguageResolver> _logger;
 
@@ -31,11 +35,15 @@ public sealed class InstallationLanguageResolver : IInstallationLanguageResolver
     {
         try
         {
-            var configured = (await _settingsReader.GetSetting(SettingKeys.DefaultLanguage))?.Value;
-            if (!string.IsNullOrWhiteSpace(configured))
+            var settings = await _settingsReader.GetSettingsByTypesAsync(DefaultLanguageKeys, cancellationToken);
+            if (settings.TryGetValue(SettingKeys.DefaultLanguage, out var configured) && !string.IsNullOrWhiteSpace(configured))
             {
                 return configured.Trim();
             }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

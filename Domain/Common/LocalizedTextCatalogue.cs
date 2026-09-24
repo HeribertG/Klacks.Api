@@ -4,9 +4,12 @@
 /// Language resolution shared by the catalogues of user-facing sentences that reach the user without a
 /// model call (GracefulCorrectionTexts, ClarificationTexts). The four core languages come from a table
 /// authored in code, the installed plugin languages from their pack, merged in at startup through the
-/// additive Configure/Reset pattern. English is the fallback for a tag that no core table and no pack
-/// claims - an unknown language, never an installed one: a language whose pack lacks a key resolves to
-/// nothing, so the caller decides what to do rather than silently speaking English. A regional tag is tried
+/// additive Configure/Reset pattern. English is the fallback for a tag that no core table and no configured
+/// pack claims - an unknown language. A language whose configured pack lacks a key resolves to nothing, so
+/// the caller decides what to do rather than the catalogue silently speaking English. "Configured" is
+/// narrower than "installed": a pack whose texts were never passed to Configure (a directory without
+/// assistant-texts.json, or one installed after startup) is indistinguishable from an unknown language here
+/// and resolves to English. A regional tag is tried
 /// in full first and only then reduced to its base language, so "zh-CN" and "zh-TW" keep their own packs
 /// while "de-CH" reaches German and "pt-BR" the Portuguese pack.
 /// </summary>
@@ -68,8 +71,8 @@ public sealed class LocalizedTextCatalogue
 
     /// <summary>
     /// Resolves a text for a language. Core languages come from the table, installed plugin languages from
-    /// their pack, and ONLY an unknown tag falls back to English. An installed language whose pack lacks
-    /// the key returns false.
+    /// their configured pack, and ONLY a tag that no table and no configured pack claims falls back to
+    /// English. A language whose configured pack lacks the key returns false.
     /// </summary>
     /// <param name="key">Catalogue key of the wanted sentence</param>
     /// <param name="language">Active language, or null when there is none</param>
