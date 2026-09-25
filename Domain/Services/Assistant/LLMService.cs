@@ -279,7 +279,6 @@ public class LLMService : ILLMService
         var recipe = await RecipeTurnState.BeginAsync(
             _turnPreparation, _recipeRunRecorder, _recipeEngine, _logger,
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
-        var enginePlan = recipe.Plan;
         var lastCallStart = 0;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -408,49 +407,25 @@ public class LLMService : ILLMService
                 + recipe.TakeGateHoldNote();
         }
 
-        var recovery = RecoveryFor(provider!, turn.Usage, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory, historyBudget, context.Language);
-        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, turn.Calls, turn.StreamedContent, lastCallStart, turn.ToolIterations, recipe.PausedOnAsk, cancellationToken))
+        var closing = new StreamedTurnClosing(_logger, _functionExecutor);
+        await foreach (var closingChunk in closing.StreamAsync(
+                           turn,
+                           recipe,
+                           new TurnClosingInput(
+                               provider!, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory,
+                               historyBudget, lastCallStart, isMutationIntent),
+                           cancellationToken))
         {
-            yield return recoveryChunk;
+            yield return closingChunk;
         }
-
-        // The turn above ran normally (full toolset) because the user's reply to the pending ask was
-        // recognized as an independent question, not a slot answer. The plan is still exactly where it
-        // was — same ask step, slot untouched — so once the turn's own answer is done, re-ask it
-        // deterministically (RecipeReplyGuard.SafeAsk with no model reply always falls through to the
-        // authored translation, no extra model call). A live tool-less re-ask call was tried and reverted:
-        // with the ERP explanation still fresh in the running history, the model reliably ignored the
-        // "ask the recipe question" instruction and re-explained the just-answered topic instead (reproduced
-        // live twice, once even alongside a dropped connection) — a real regression, not a hypothetical
-        // one. The deterministic text does not carry the ask step's [REPLIES:...] chips (documented as a
-        // known, reported limitation) but is reliable, which this class of bug cannot trade away.
-        if (enginePlan != null && enginePlan.TopicSwitchThisTurn && enginePlan.IsActive && enginePlan.CurrentIsAsk)
-        {
-            var reaskText = RecipeReplyGuard.SafeAsk(
-                null, enginePlan.CurrentAskPrompt ?? string.Empty,
-                enginePlan.CurrentAskPromptTranslations, context.Language);
-            var reaskChunk = RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
-            turn.StreamedContent.Append(reaskChunk);
-            yield return SseChunk.Content(reaskChunk);
-            await recipe.PauseOnReaskAsync(cancellationToken);
-        }
-
-        await recipe.FinalizeAsync(cancellationToken);
 
         var responseContent = turn.StreamedContent.ToString();
-
-        foreach (var notice in TurnClosingNotices.Collect(
-                     isMutationIntent, recipe.ForceConfirm, responseContent, turn.Calls, recipe.PausedOnAsk, _logger))
-        {
-            yield return SseChunk.Content(notice);
-            responseContent += notice;
-        }
 
         await _turnCompletionRecorder.RecordCompletedAsync(
             new TurnCompletion(
                 context, conversation!, model!, provider!.SupportsToolChoice, responseContent, turn.Usage,
                 stopwatch.ElapsedMilliseconds, turn.TtftMs, turn.ToolIterations, turn.Calls,
-                turn.ToolChoiceRequested, recipe.PausedOnAsk, recovery.AnsweredWithNotice),
+                turn.ToolChoiceRequested, recipe.PausedOnAsk, turn.AnsweredWithNotice),
             cancellationToken);
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
@@ -923,72 +898,14 @@ public class LLMService : ILLMService
         }
 
         var noToolRan = allFunctionCalls.Count == 0;
-        var recovery = RecoveryFor(
-            ctx.Provider, ctx.TotalUsage, ctx.Model, noToolRan ? ctx.Context.Message : currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
+        var recovery = StreamedTurnClosing.RecoveryFor(
+            _logger, ctx.Provider, ctx.TotalUsage, ctx.Model, noToolRan ? ctx.Context.Message : currentMessage, ctx.SystemPrompt, ctx.VolatilePrompt,
             noToolRan && nudged ? ForceToolNudgePolicy.WithoutNudgeExchange(runningHistory, ctx.Context.Message) : runningHistory,
             historyBudget, ctx.Context.Language);
         var answer = await recovery.ResolveAsync(
             responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep, ctx.CancellationToken);
         ctx.AnsweredWithNotice = recovery.AnsweredWithNotice;
         return answer;
-    }
-
-    /// <summary>
-    /// Streaming side of the closing guard. Decides from the LAST provider call only - everything streamed
-    /// from lastCallStart on - because narration streamed alongside an earlier tool call must not count as
-    /// the answer. Text already on screen stays: the recovered answer is appended below it and the same
-    /// text is appended to the turn's content, so the stored answer equals what the user saw. The recovery
-    /// call is announced with the same calling-model status as every loop call.
-    /// </summary>
-    /// <param name="recovery">The turn's closing guard.</param>
-    /// <param name="context">The turn context, source of the status clock.</param>
-    /// <param name="allFunctionCalls">Every call of the turn.</param>
-    /// <param name="streamedContent">Everything streamed so far; the appended text is added to it.</param>
-    /// <param name="lastCallStart">Offset in streamedContent where the last provider call's content starts.</param>
-    /// <param name="iteration">The loop's last iteration number, reported with the status.</param>
-    /// <param name="pausedOnRecipeStep">True when a recipe paused on its confirmation or ask step this turn.</param>
-    /// <param name="cancellationToken">Cancels the extra call.</param>
-    private async IAsyncEnumerable<SseChunk> StreamRecoveryAsync(
-        EmptyAnswerRecovery recovery, LLMContext context, List<LLMFunctionCall> allFunctionCalls,
-        StringBuilder streamedContent, int lastCallStart, int iteration, bool pausedOnRecipeStep,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        var lastCallContent = streamedContent.ToString(lastCallStart, streamedContent.Length - lastCallStart);
-        if (!EmptyAnswerRecovery.NeedsRecovery(
-                lastCallContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep))
-        {
-            yield break;
-        }
-
-        yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), iteration);
-
-        var continuesEarlierContent = !string.IsNullOrWhiteSpace(streamedContent.ToString());
-        await foreach (var token in recovery.StreamAsync(allFunctionCalls.Count, continuesEarlierContent, cancellationToken))
-        {
-            yield return SseChunk.Content(token);
-        }
-
-        streamedContent.Append(recovery.AppendedText);
-    }
-
-    /// <summary>
-    /// Closing guard of both loops (EmptyAnswerRecovery). Its one extra call is tool-less and carries the
-    /// loop's final message - the last tool results - so it sees exactly what the model last saw. The
-    /// running history is fitted to the loop's history budget only when that call is actually built: the
-    /// last loop iteration grew it by one more exchange and a function-result message after the loop's
-    /// own last fit.
-    /// </summary>
-    private EmptyAnswerRecovery RecoveryFor(
-        ILLMProvider provider, Providers.LLMUsage totalUsage, LLMModel model, string currentMessage,
-        string systemPrompt, string? volatilePrompt, List<Providers.LLMMessage> runningHistory, int historyBudget,
-        string? language)
-    {
-        return new EmptyAnswerRecovery(_logger, provider, totalUsage, language, instruction =>
-        {
-            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
-            return LLMProviderRequestFactory.Recovery(
-                model, currentMessage, systemPrompt, volatilePrompt, instruction, runningHistory);
-        });
     }
 
     private static int EstimateTokens(string? text) =>
@@ -1107,7 +1024,7 @@ public class LLMService : ILLMService
     // this the accumulated prompt can exceed the model's input limit mid-loop. Drops the oldest
     // non-system messages (a leading conversation-summary system message is preserved) until the
     // estimated running history plus the next message fits the same budget used for the initial history.
-    private static void FitRunningHistoryToBudget(
+    internal static void FitRunningHistoryToBudget(
         List<Providers.LLMMessage> runningHistory,
         string nextMessage,
         int historyBudgetTokens)

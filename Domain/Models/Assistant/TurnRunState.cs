@@ -35,6 +35,8 @@ public sealed class TurnRunState
 
     public bool ToolChoiceRequested { get; set; }
 
+    public bool AnsweredWithNotice { get; set; }
+
     /// <summary>
     /// Starts the record for a new turn, discarding whatever an earlier turn of the same scope left in it.
     /// </summary>
@@ -51,6 +53,7 @@ public sealed class TurnRunState
         TtftMs = null;
         ToolIterations = 0;
         ToolChoiceRequested = false;
+        AnsweredWithNotice = false;
     }
 
     /// <summary>
