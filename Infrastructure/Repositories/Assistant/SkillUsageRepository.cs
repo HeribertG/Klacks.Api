@@ -23,9 +23,13 @@ public class SkillUsageRepository : ISkillUsageRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    // Every statistic below counts calls that ran; a row the stop of its turn cancelled is none.
+    internal IQueryable<SkillUsageRecord> RanRows() =>
+        _context.SkillUsageRecords.Where(SkillUsagePredicates.Ran);
+
     public async Task<IReadOnlyList<SkillUsageRecord>> GetRecordsAsync(DateTime fromDate, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillUsageRecords
+        return await RanRows()
             .Where(r => r.Timestamp >= fromDate)
             .OrderByDescending(r => r.Timestamp)
             .AsNoTracking()
@@ -34,7 +38,7 @@ public class SkillUsageRepository : ISkillUsageRepository
 
     public async Task<IReadOnlyList<SkillUsageRecord>> GetRecordsBySkillAsync(string skillName, DateTime fromDate, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillUsageRecords
+        return await RanRows()
             .Where(r => r.SkillName == skillName && r.Timestamp >= fromDate)
             .OrderByDescending(r => r.Timestamp)
             .AsNoTracking()
@@ -43,7 +47,7 @@ public class SkillUsageRepository : ISkillUsageRepository
 
     public async Task<IReadOnlyList<SkillUsageRecord>> GetRecordsByUserAsync(Guid userId, DateTime fromDate, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillUsageRecords
+        return await RanRows()
             .Where(r => r.UserId == userId && r.Timestamp >= fromDate)
             .OrderByDescending(r => r.Timestamp)
             .AsNoTracking()
@@ -52,21 +56,21 @@ public class SkillUsageRepository : ISkillUsageRepository
 
     public async Task<int> GetTotalExecutionsAsync(DateTime fromDate, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillUsageRecords
+        return await RanRows()
             .Where(r => r.Timestamp >= fromDate)
             .CountAsync(cancellationToken);
     }
 
     public async Task<decimal> GetSuccessRateAsync(DateTime fromDate, CancellationToken cancellationToken = default)
     {
-        var total = await _context.SkillUsageRecords
+        var total = await RanRows()
             .Where(r => r.Timestamp >= fromDate)
             .CountAsync(cancellationToken);
 
         if (total == 0)
             return 100m;
 
-        var successful = await _context.SkillUsageRecords
+        var successful = await RanRows()
             .Where(r => r.Timestamp >= fromDate && r.Success)
             .CountAsync(cancellationToken);
 

@@ -341,9 +341,9 @@ public class TurnPreparationService : ITurnPreparationService
     /// <summary>
     /// The slot-extraction model call, cut short by the turn's stop token as well as by the request token.
     /// The extractor degrades every failure, a cancellation included, to "no slots", so a stop simply
-    /// yields an empty extraction here and the turn ends at its next safe point. Both callers reach this call
-    /// on the fresh-match branch, which writes nothing before it; what the preparation decided earlier
-    /// (abort, decline, correction) stays, as for every stopped turn.
+    /// yields an empty extraction here and the turn ends at its next safe point. What the preparation decided
+    /// before the call stays, as for every stopped turn: the plain fresh match wrote nothing, the correction
+    /// path has already aborted and cleared the recipe the user corrected.
     /// </summary>
     /// <param name="context">The turn context; its stop token is linked to the call</param>
     /// <param name="provider">The provider the extraction is put to</param>
