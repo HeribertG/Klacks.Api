@@ -51,6 +51,7 @@ public class ChatController : ControllerBase
     private readonly IUserActivityTracker _activityTracker;
     private readonly INavigationEntityRouteGuard _entityRouteGuard;
     private readonly IActiveTurnRegistry _turnRegistry;
+    private readonly IInterruptedTurnFinalizer _turnFinalizer;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -67,7 +68,8 @@ public class ChatController : ControllerBase
         ILLMRepository llmRepository,
         IUserActivityTracker activityTracker,
         INavigationEntityRouteGuard entityRouteGuard,
-        IActiveTurnRegistry turnRegistry)
+        IActiveTurnRegistry turnRegistry,
+        IInterruptedTurnFinalizer turnFinalizer)
     {
         _logger = logger;
         _mediator = mediator;
@@ -84,6 +86,7 @@ public class ChatController : ControllerBase
         _activityTracker = activityTracker;
         _entityRouteGuard = entityRouteGuard;
         _turnRegistry = turnRegistry;
+        _turnFinalizer = turnFinalizer;
     }
 
     private async Task<bool> IsOngoingConversationAsync(string? conversationId, string userId)
@@ -310,6 +313,7 @@ public class ChatController : ControllerBase
             ? CancellationToken.None
             : _turnRegistry.Register(turnId, userId);
 
+        var endedInError = false;
         try
         {
             await foreach (var chunk in _streamingOrchestrator.ProcessStreamAsync(streamRequest, cancellationToken))
@@ -334,6 +338,7 @@ public class ChatController : ControllerBase
         }
         catch (Exception ex)
         {
+            endedInError = true;
             _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);
             try
             {
@@ -347,7 +352,14 @@ public class ChatController : ControllerBase
         }
         finally
         {
-            _turnRegistry.Complete(turnId);
+            try
+            {
+                await _turnFinalizer.FinalizeAsync(userId, turnId, endedInError);
+            }
+            finally
+            {
+                _turnRegistry.Complete(turnId);
+            }
         }
     }
 
