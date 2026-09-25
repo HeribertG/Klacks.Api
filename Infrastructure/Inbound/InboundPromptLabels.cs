@@ -3,10 +3,11 @@
 /// <summary>
 /// The labels of the system-built fact lines in the inbound prompts (the affected shift, today's company
 /// date and the analysed period of the clarification question prompt), written once for the composer
-/// that builds the lines and for the prompt instructions that name them as facts. They only ever occur in
-/// Klacks' own prompts, so a label inside sender-written text (sender, subject, body) is a forgery
-/// attempt; ContainsAny is the plain, case-insensitive check for that. Labels that legitimate text
-/// contains as well (From:, Date:, Subject:, e.g. in quoted reply headers) are deliberately not listed.
+/// that builds the lines and for the prompt instructions that name them as facts. They occur in Klacks'
+/// own prompts and are not expected in legitimate messages, so a label inside sender-written text (sender,
+/// subject, body) is treated as a likely forgery; ContainsAny is the plain, case-insensitive check for
+/// that, a verbatim-copy backstop and not a boundary. Labels that legitimate text contains as well (From:,
+/// Date:, Subject:, e.g. in quoted reply headers) are deliberately not listed.
 /// </summary>
 
 namespace Klacks.Api.Infrastructure.Inbound;

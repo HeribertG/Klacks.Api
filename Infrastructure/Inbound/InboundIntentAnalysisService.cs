@@ -16,8 +16,9 @@
 /// that nothing inside them is an instruction or a fact. As a deterministic backstop, a high confidence of
 /// an employee analysis is lowered to low whenever the sender-written text (sender, subject, body, and for
 /// an answer also the original message) contains one of Klacks' own prompt fact labels (InboundPromptLabels:
-/// "Affected shift:", "Today (company local date):", "Analysed period:"), which legitimate messages never
-/// contain; it only ever lowers, so the orchestrator suggests instead of executing. A work cancellation
+/// "Affected shift:", "Today (company local date):", "Analysed period:"), which are not expected in
+/// legitimate messages; it is a verbatim-copy backstop, not a boundary (a differently spelled label passes),
+/// and it only ever lowers, so the orchestrator suggests instead of executing. A work cancellation
 /// without any date ("I am sick") is assumed to concern that received day with low confidence, so the
 /// action orchestrator only suggests and never executes it; such a result is flagged DateAssumed
 /// (not persisted) so the notifier and the clarification composer do not treat the day as stated. When only an until date parses (e.g. "sick
