@@ -123,6 +123,13 @@ public class LLMContext
     public bool RecipeAwaitingConfirmation { get; set; }
 
     /// <summary>
+    /// True once THIS turn paused a recipe on an ask or confirmation step and persisted it for the next
+    /// turn. Written by the recipe bookkeeping and read by whoever ends a turn without having it in reach:
+    /// a stopped or interrupted turn must not record a correction anchor over a recipe that waits.
+    /// </summary>
+    public bool RecipePausedOnAsk { get; set; }
+
+    /// <summary>
     /// True when THIS turn cleared a recipe's confirmation gate: the user affirmed the question the
     /// previous turn asked and the engine resumed the paused plan (TurnPreparationService). Written by
     /// the one place that makes that decision, so the learning pipeline no longer has to re-derive the

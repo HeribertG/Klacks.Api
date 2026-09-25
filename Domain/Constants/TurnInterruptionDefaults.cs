@@ -10,4 +10,7 @@ public static class TurnInterruptionDefaults
 {
     /// <summary>Result of a call that did not run because the user stopped the turn.</summary>
     public const string SkippedCallResult = "[Not executed: the user stopped this turn before the call ran.]";
+
+    /// <summary>Appended to the stored answer of a stopped or interrupted turn, so the model reads later that the answer above it is cut off.</summary>
+    public const string InterruptedMarker = "[interrupted by user]";
 }

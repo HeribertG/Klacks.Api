@@ -71,6 +71,28 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
         }
     }
 
+    public void RunStoppedTurnTasks(Agent? agent, LLMConversation conversation, LLMContext context,
+        string responseContent, List<LLMFunctionCall> executedCalls, string interruptedPhase)
+    {
+        RunDetached<IConversationCompactionService>(
+            compaction => compaction.CompactIfNeededAsync(conversation.ConversationId, conversation.UserId),
+            "Fire-and-forget conversation compaction failed for {ConversationId}", conversation.ConversationId.ForLog());
+
+        if (agent == null)
+        {
+            return;
+        }
+
+        RunDetached<IAgentSkillRepository>(
+            skillRepository => LogSkillExecutionsAsync(skillRepository, agent, conversation, context, executedCalls),
+            "Fire-and-forget skill execution logging failed for agent {AgentId}", agent.Id);
+
+        RunDetached<ITrajectoryCaptureService>(
+            trajectoryCapture => trajectoryCapture.CaptureAsync(
+                agent.Id, context, responseContent, executedCalls, interruptedPhase),
+            "Fire-and-forget trajectory capture failed for agent {AgentId}", agent.Id);
+    }
+
     /// <summary>
     /// The hooks that consume the answer text itself: auto-memory extraction, learning-case collection and
     /// answer grounding.

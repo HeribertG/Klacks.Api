@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Persistence tail of a finished streamed turn: conversation history, usage row, correction anchor and
-/// the post-turn background tasks. A failure is logged and never thrown, because the answer has already
-/// been streamed to the user and a storage error must not turn it into a failed turn.
+/// Persistence tail of a streamed turn: conversation history, usage row, correction anchor and the post-turn
+/// background tasks - for a turn that ran to its end (RecordCompletedAsync) and for one the user stopped or
+/// whose connection dropped (RecordStoppedAsync, read from the turn's run state). A failure is logged and
+/// never thrown, because the answer has already been streamed to the user and a storage error must not turn
+/// it into a failed turn.
 /// </summary>
 /// <param name="logger">Logs a storage failure</param>
 /// <param name="conversationManager">Writes the history and the usage row</param>
@@ -11,6 +13,7 @@
 /// <param name="agentRepository">Resolves the default agent the background tasks run for</param>
 /// <param name="backgroundTaskService">Starts the post-turn background tasks</param>
 /// <param name="turnState">The turn's run state, whose outcome is claimed before anything is written</param>
+/// <param name="stoppedTurnCleanup">Drops the confirmations a stopped turn issued and closes its UiAction rows</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -26,6 +29,7 @@ public class TurnCompletionRecorder
     private readonly IAgentRepository _agentRepository;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
     private readonly TurnRunState _turnState;
+    private readonly IStoppedTurnCleanup _stoppedTurnCleanup;
 
     public TurnCompletionRecorder(
         ILogger<TurnCompletionRecorder> logger,
@@ -33,7 +37,8 @@ public class TurnCompletionRecorder
         ITurnPreparationService turnPreparation,
         IAgentRepository agentRepository,
         ILLMBackgroundTaskService backgroundTaskService,
-        TurnRunState turnState)
+        TurnRunState turnState,
+        IStoppedTurnCleanup stoppedTurnCleanup)
     {
         _logger = logger;
         _conversationManager = conversationManager;
@@ -41,6 +46,7 @@ public class TurnCompletionRecorder
         _agentRepository = agentRepository;
         _backgroundTaskService = backgroundTaskService;
         _turnState = turnState;
+        _stoppedTurnCleanup = stoppedTurnCleanup;
     }
 
     /// <param name="turn">The finished turn to persist</param>
@@ -82,5 +88,83 @@ public class TurnCompletionRecorder
         {
             _logger.LogError(ex, "Error saving stream conversation for user {UserId}", turn.Context.UserId);
         }
+    }
+
+    /// <summary>
+    /// Persists a turn that ended on the user's stop, or whose connection dropped, from the turn's run state.
+    /// The outcome is claimed first, so the stop tail and the safety net can both call this and only one
+    /// writes. Then, in this order: the history with the partial answer and the interruption marker, the usage
+    /// row (only the calls the server ran are named), the correction anchor for exactly those calls, the
+    /// confirmations the turn issued and its UiAction rows, and the background tasks that stay allowed for a
+    /// turn the user cut off. Every part is best effort and independent of the others. A turn that never got
+    /// as far as a conversation is only cleaned up.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the default-agent lookup; the writes themselves never are</param>
+    /// <returns>What the client is told about the write actions that ran</returns>
+    public async Task<StoppedTurnSummary> RecordStoppedAsync(CancellationToken cancellationToken)
+    {
+        var context = _turnState.Context;
+        var summary = StoppedTurnSummary.From(context, _turnState.Calls);
+
+        if (!_turnState.TrySetOutcome(TurnOutcome.Stopped))
+        {
+            _logger.LogWarning(
+                "Turn {TurnId} already has outcome {Outcome}; the stopped turn is not persisted again",
+                context?.TurnId, _turnState.Outcome);
+            return summary;
+        }
+
+        if (context == null)
+        {
+            return summary;
+        }
+
+        var conversation = _turnState.Conversation;
+        var model = _turnState.Model;
+        var executedCalls = StoppedTurnSummary.ExecutedCalls(_turnState.Calls);
+        var storedAnswer = StoppedTurnSummary.StoredAnswer(_turnState.StreamedContent.ToString());
+        var phase = _turnState.Phase;
+
+        if (conversation != null && model != null)
+        {
+            try
+            {
+                await _conversationManager.SaveConversationMessagesAsync(
+                    conversation, context.Message, storedAnswer, model.ModelId);
+
+                await _conversationManager.TrackUsageAsync(
+                    context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
+                    ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
+                    toolIterations: _turnState.ToolIterations,
+                    turnId: context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(executedCalls),
+                    toolChoiceRequested: _turnState.ToolChoiceRequested,
+                    toolChoiceSupported: _turnState.ProviderSupportsToolChoice,
+                    toolCallReturned: _turnState.Calls.Count > 0);
+
+                _turnPreparation.RecordLastAction(
+                    context, conversation.ConversationId, storedAnswer, executedCalls, context.RecipePausedOnAsk);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving stopped stream conversation for user {UserId}", context.UserId);
+            }
+        }
+
+        await _stoppedTurnCleanup.CleanUpAsync(context.UserId, context.TurnId.GetValueOrDefault(), CancellationToken.None);
+
+        if (conversation != null)
+        {
+            try
+            {
+                var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
+                _backgroundTaskService.RunStoppedTurnTasks(agent, conversation, context, storedAnswer, executedCalls, phase);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error starting the background tasks of a stopped turn for user {UserId}", context.UserId);
+            }
+        }
+
+        return summary;
     }
 }

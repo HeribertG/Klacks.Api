@@ -278,7 +278,7 @@ public class LLMService : ILLMService
 
         if (turn.StopRequested)
         {
-            foreach (var stoppedChunk in StoppedTurnChunks(turn))
+            await foreach (var stoppedChunk in StoppedTurnTail.StreamAsync(_turnCompletionRecorder, turn))
             {
                 yield return stoppedChunk;
             }
@@ -426,7 +426,7 @@ public class LLMService : ILLMService
 
         if (turn.StopRequested)
         {
-            foreach (var stoppedChunk in StoppedTurnChunks(turn))
+            await foreach (var stoppedChunk in StoppedTurnTail.StreamAsync(_turnCompletionRecorder, turn))
             {
                 yield return stoppedChunk;
             }
@@ -449,20 +449,6 @@ public class LLMService : ILLMService
         await ApplySuggestionGroundingAsync(metadataResponse, recipe.AskedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
-        yield return SseChunk.Done();
-    }
-
-    /// <summary>
-    /// The closing events of a turn the user stopped: turn_stopped and then done, nothing else, because the
-    /// client keeps processing the stream after a confirmed stop and would otherwise append text or start UI
-    /// actions to a stopped turn. Claims the Stopped outcome first, so the safety net leaves the turn alone.
-    /// </summary>
-    /// <param name="turn">The stopped turn</param>
-    private static IEnumerable<SseChunk> StoppedTurnChunks(TurnRunState turn)
-    {
-        turn.TrySetOutcome(TurnOutcome.Stopped);
-        var executedCount = turn.Calls.Count(c => c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat && !c.SkippedByStop);
-        yield return SseChunk.TurnStopped(turn.Context!.TurnId.GetValueOrDefault(), new List<string>(), executedCount);
         yield return SseChunk.Done();
     }
 

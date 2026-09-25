@@ -9,6 +9,7 @@
 /// scope ever run a second one. The outcome is claimed exactly once, by whoever ends the turn first.
 /// </summary>
 
+using System.Diagnostics;
 using System.Text;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -23,6 +24,7 @@ public sealed class TurnRunState
 
     private int _outcome = NoOutcome;
     private int _contentLengthAtLastCalls;
+    private long _startTimestamp = Stopwatch.GetTimestamp();
 
     public LLMContext? Context { get; private set; }
 
@@ -54,6 +56,9 @@ public sealed class TurnRunState
     public CancellationToken StopToken { get; private set; }
 
     public bool StopRequested => StopToken.IsCancellationRequested;
+
+    /// <summary>Milliseconds since the turn began, read when a turn is persisted without its own clock at hand.</summary>
+    public long ElapsedMs => (long)Stopwatch.GetElapsedTime(_startTimestamp).TotalMilliseconds;
 
     /// <summary>How the turn ended, null while it is running or when it was left mid-way.</summary>
     public TurnOutcome? Outcome
@@ -106,6 +111,7 @@ public sealed class TurnRunState
         NavigationTarget = null;
         StopToken = context.StopToken;
         _contentLengthAtLastCalls = 0;
+        _startTimestamp = Stopwatch.GetTimestamp();
         Volatile.Write(ref _outcome, NoOutcome);
     }
 

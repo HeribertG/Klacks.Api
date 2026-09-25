@@ -25,6 +25,22 @@ public interface ILLMBackgroundTaskService
         string responseContent, List<LLMFunctionCall> allFunctionCalls, bool answeredWithNotice = false);
 
     /// <summary>
+    /// Post-turn hooks of a turn the user stopped or whose connection dropped. Only what is safe to draw from
+    /// an unfinished turn runs: compaction, the skill-execution audit of the calls that really ran, and the
+    /// trajectory capture, which records the turn as interrupted and counts it for nothing. Memory extraction,
+    /// learning-case collection, grounding and reflection do not run - they would learn from an answer that
+    /// was cut off.
+    /// </summary>
+    /// <param name="agent">The default agent, null when none exists.</param>
+    /// <param name="conversation">The conversation the turn belongs to.</param>
+    /// <param name="context">The turn context.</param>
+    /// <param name="responseContent">The answer as stored, marker included.</param>
+    /// <param name="executedCalls">Only the calls the server ran to their end.</param>
+    /// <param name="interruptedPhase">The phase the turn was in, one of InterruptedTurnPhases.</param>
+    void RunStoppedTurnTasks(Agent? agent, LLMConversation conversation, LLMContext context,
+        string responseContent, List<LLMFunctionCall> executedCalls, string interruptedPhase);
+
+    /// <summary>
     /// Fire-and-forget compaction trigger for task-boundary events (e.g. AgentPlan completion) that
     /// need a different message-count threshold than the default post-turn compaction.
     /// </summary>

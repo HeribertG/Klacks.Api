@@ -144,6 +144,7 @@ internal sealed class RecipeTurnState
     {
         _engine.Persist(UserGuid, _conversationId, Plan!);
         PausedOnAsk = true;
+        _context.RecipePausedOnAsk = true;
         _context.RecipeAwaitingConfirmation = true;
         await AdvanceRunAsync(cancellationToken);
         _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", Plan!.Name);
@@ -242,6 +243,7 @@ internal sealed class RecipeTurnState
         AskedSlot = Plan!.CurrentStep?.Slot;
         _engine.Persist(UserGuid, _conversationId, Plan);
         PausedOnAsk = true;
+        _context.RecipePausedOnAsk = true;
         await AdvanceRunAsync(cancellationToken);
     }
 
