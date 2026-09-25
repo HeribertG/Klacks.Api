@@ -20927,6 +20927,232 @@
       "version": 2
     },
     {
+      "name": "assign_macro_to_shift",
+      "area": "settings",
+      "description": "Switches the calculation macro (surcharge formula) of a shift together with every other cut of the same order, for example to put an extended surcharge formula on the night shift or to go back to the standard formula. Before anything changes, the administrator sees how many works of the order are in scope and a sample comparison of old and new surcharge values. Values stay until edited or recalculated; recalculation skips sealed works, saving one recalculates it. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "Id of one shift of the order; every live cut of the same order is switched with it. Look the shift up first; names are not accepted.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroId",
+          "description": "Id of the macro every shift of the order uses from now on: any existing macro, including the templates shipped with Klacks. Look it up first; names are not accepted.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "macro"
+        ],
+        "de": [
+          "makro",
+          "zuweisen",
+          "schicht"
+        ],
+        "en": [
+          "assign"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "makro einer schicht zuweisen",
+          "schichtmakro umhängen",
+          "zuschlagsformel der schicht wechseln"
+        ],
+        "en": [
+          "assign macro to shift",
+          "switch the shift macro",
+          "change the surcharge formula of a shift"
+        ],
+        "fr": [
+          "attribuer une macro au service",
+          "changer la macro du service"
+        ],
+        "it": [
+          "assegnare una macro al turno",
+          "cambiare la macro del turno"
+        ]
+      },
+      "labels": {
+        "de": "Berechnungsmakro einer Schicht samt allen Schnitten zuweisen",
+        "en": "Assign a calculation macro to a shift and all its cuts",
+        "fr": "Attribuer une macro de calcul à un service et à toutes ses parties",
+        "it": "Assegna una macro di calcolo a un turno e a tutte le sue parti"
+      },
+      "version": 1
+    },
+    {
+      "name": "assign_macro_to_absence_type",
+      "area": "settings",
+      "description": "Switches the calculation macro that an absence type such as vacation, illness or accident uses to credit hours, for example to put a new crediting formula on paid leave. Before anything changes, the administrator sees how many booked absences are affected and a sample comparison of old and new credited hours. Bookings keep their stored hours until edited or recalculated; recalculation skips sealed bookings, saving one recalculates it. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "absenceTypeId",
+          "description": "Id of the absence type whose calculation macro is switched. Look the absence type up first; names are not accepted.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroId",
+          "description": "Id of the macro the absence type uses from now on: any existing macro, including the templates shipped with Klacks. Look it up first; names are not accepted.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "macro"
+        ],
+        "de": [
+          "makro",
+          "zuweisen",
+          "abwesenheitsart"
+        ],
+        "en": [
+          "assign"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "makro einer abwesenheitsart zuweisen",
+          "absenzmakro umhängen",
+          "anrechnungsformel der absenzart wechseln"
+        ],
+        "en": [
+          "assign macro to absence type",
+          "switch the absence type macro",
+          "change the crediting formula of an absence type"
+        ],
+        "fr": [
+          "attribuer une macro au type d'absence",
+          "changer la macro du type d'absence"
+        ],
+        "it": [
+          "assegnare una macro al tipo di assenza",
+          "cambiare la macro del tipo di assenza"
+        ]
+      },
+      "labels": {
+        "de": "Berechnungsmakro einer Abwesenheitsart zuweisen",
+        "en": "Assign a calculation macro to an absence type",
+        "fr": "Attribuer une macro de calcul à un type d'absence",
+        "it": "Assegna una macro di calcolo a un tipo di assenza"
+      },
+      "version": 1
+    },
+    {
+      "name": "revert_macro_assignment",
+      "area": "settings",
+      "description": "Undoes an earlier switch of the calculation macro on a shift order or an absence type and puts each previous formula back, all cuts of one switch at once. If any of them was changed since, nothing is undone and the conflicts are listed. Before anything changes, the administrator sees the affected entries and a sample comparison of the values. Stored values stay until edited or recalculated. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "switchId",
+          "description": "Id of the switch to undo, as reported when the macro was switched (one id for all cuts switched together). Pass exactly one of switchId, shiftId or absenceTypeId.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "shiftId",
+          "description": "Undo the whole latest macro switch that changed the shift with this id, including the other cuts switched with it.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceTypeId",
+          "description": "Undo the latest macro switch that changed the absence type with this id.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "macro"
+        ],
+        "de": [
+          "makro",
+          "rückgängig"
+        ],
+        "en": [
+          "undo"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "makrozuweisung rückgängig machen",
+          "vorheriges makro wiederherstellen",
+          "makro zurückhängen"
+        ],
+        "en": [
+          "undo macro assignment",
+          "restore the previous macro",
+          "switch the macro back"
+        ],
+        "fr": [
+          "annuler l'attribution de la macro",
+          "rétablir la macro précédente"
+        ],
+        "it": [
+          "annullare l'assegnazione della macro",
+          "ripristinare la macro precedente"
+        ]
+      },
+      "labels": {
+        "de": "Makrozuweisung rückgängig machen",
+        "en": "Undo a macro assignment",
+        "fr": "Annuler l'attribution d'une macro",
+        "it": "Annulla l'assegnazione di una macro"
+      },
+      "version": 1
+    },
+    {
       "name": "update_qualification",
       "area": "contract",
       "description": "Updates an existing qualification master entry (e.g. rename 'Forklift licence', change its category or expiry behaviour). Resolve the qualification by qualificationId (preferred, use list_qualifications to find it) or by an exact, unambiguous name. Only the provided fields are changed; all other values are kept. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",

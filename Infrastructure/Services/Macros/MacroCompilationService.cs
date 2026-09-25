@@ -1,16 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using System.Globalization;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
-using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
 
 namespace Klacks.Api.Infrastructure.Services.Macros;
 
 /// <summary>
-/// Encapsulates macro loading, compilation (with cache), import setting and execution.
+/// Encapsulates macro loading, compilation (with cache), import setting and execution. The OUTPUT messages of a run are
+/// read by <see cref="MacroResultAggregator"/>, the one reader shared with the macro dry-run.
 /// </summary>
 /// <param name="macroManagementService">Loads macro definitions from the database</param>
 /// <param name="macroCache">Cache for already compiled macros</param>
@@ -69,50 +67,6 @@ public class MacroCompilationService : IMacroCompilationService
             return new MacroExecutionResult(false, null);
         }
 
-        decimal? resultValue = null;
-        var surcharges = new List<MacroSurchargeItem>();
-        foreach (var msg in results)
-        {
-            if (!decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
-            {
-                continue;
-            }
-
-            if (msg.Type == (int)MacroTypeEnum.DefaultResult)
-            {
-                resultValue = parsed;
-            }
-            else if (parsed != 0m && TryMapSurchargeType(msg.Type, out var surchargeType))
-            {
-                surcharges.Add(new MacroSurchargeItem(surchargeType, parsed));
-            }
-        }
-
-        return new MacroExecutionResult(true, resultValue, surcharges);
-    }
-
-    private static bool TryMapSurchargeType(int messageType, out SurchargeType surchargeType)
-    {
-        switch ((MacroTypeEnum)messageType)
-        {
-            case MacroTypeEnum.SurchargeNight:
-                surchargeType = SurchargeType.Night;
-                return true;
-            case MacroTypeEnum.SurchargeWeekend1:
-                surchargeType = SurchargeType.Weekend1;
-                return true;
-            case MacroTypeEnum.SurchargeWeekend2:
-                surchargeType = SurchargeType.Weekend2;
-                return true;
-            case MacroTypeEnum.SurchargeWeekend3:
-                surchargeType = SurchargeType.Weekend3;
-                return true;
-            case MacroTypeEnum.SurchargeHoliday:
-                surchargeType = SurchargeType.Holiday;
-                return true;
-            default:
-                surchargeType = default;
-                return false;
-        }
+        return MacroResultAggregator.Aggregate(results);
     }
 }

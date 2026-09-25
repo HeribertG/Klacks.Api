@@ -12040,6 +12040,85 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("macro", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.MacroAssignmentHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("changed_by_user_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("NewMacroId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("new_macro_id");
+
+                    b.Property<Guid?>("PreviousMacroId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("previous_macro_id");
+
+                    b.Property<Guid?>("RevertOfHistoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("revert_of_history_id");
+
+                    b.Property<Guid?>("RevertedByHistoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reverted_by_history_id");
+
+                    b.Property<Guid>("SwitchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("switch_id");
+
+                    b.Property<int>("Target")
+                        .HasColumnType("integer")
+                        .HasColumnName("target");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("target_id");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_macro_assignment_history");
+
+                    b.HasIndex("SwitchId")
+                        .HasDatabaseName("ix_macro_assignment_history_switch_id");
+
+                    b.HasIndex("Target", "TargetId")
+                        .HasDatabaseName("ix_macro_assignment_history_target_target_id");
+
+                    b.ToTable("macro_assignment_history", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Settings.PluginDoc", b =>
                 {
                     b.Property<Guid>("Id")

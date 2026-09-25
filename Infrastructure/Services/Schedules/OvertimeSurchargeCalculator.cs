@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Default IOvertimeSurchargeCalculator (K3/K4). Runs as C# post-processing next to WorkMacroService's
-/// macro execution, never inside the macro DSL itself (see WorkMacroService.ApplyRateModeAdjustments for
+/// macro execution, never inside the macro DSL itself (see MacroRateModeAdjuster for
 /// the analogous K19 precedent this follows). Cumulates a client's other worked hours in the configured
 /// basis period (day or week) using a deterministic chronological order (see remarks), places this Work's
 /// own hours into the configured tier bands and returns the resulting typed Overtime1/2/3 surcharge

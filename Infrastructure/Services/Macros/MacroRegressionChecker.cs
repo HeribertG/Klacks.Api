@@ -11,11 +11,14 @@
 /// 0.000001, because the script adds in binary floating point (8.4 + 4.2 comes out as 12.600000000000001)
 /// while the expected sum is formed in decimal from the printed values; the unchanged form stays exact. The rule
 /// for channel 1 lives in one method (CheckResultChannel). An input on which the original fails is
-/// skipped; an input on which only the copy fails aborts the check. Every abort carries a
-/// <see cref="MacroRegressionFailureKind"/>, so only a runtime failure of the copy is attributed to the appended
-/// script. A compiler crash (a comment on the last line without a line break after it) counts as a compile error
-/// of that script and is reported with a fixed message. Inputs are bound through
-/// <see cref="MacroDataImportBinder"/>, and execution runs on the calling thread under a cooperative time budget
+/// skipped; an input on which only the copy fails aborts the check. A channel sum beyond the decimal range counts as
+/// a failed run of that script. When the sum form of channel 1 leaves the decimal range (the sum of the added
+/// surcharges, the original result plus that sum, or the distance of the copy's result from it), the check aborts
+/// as CopyTotalOutOfRange: the copy is refused, never let through, because the rule cannot be verified. Every abort
+/// carries a <see cref="MacroRegressionFailureKind"/>, so only a runtime failure of the copy gets the guidance for
+/// the appended script. A compiler crash (a comment on the last line without a line break after it) counts as a compile error
+/// of that script and is reported with a fixed message. Scripts are compiled and run through
+/// <see cref="MacroScriptRunner"/> (inputs bound through <see cref="MacroDataImportBinder"/>), and execution runs on the calling thread under a cooperative time budget
 /// that the interpreter checks after every instruction, so an exhausted budget leaves no thread running. The
 /// caller's cancellation token is linked with that budget: a cancellation by the caller (the user stops the turn)
 /// throws OperationCanceledException, only the exhausted budget is reported as BudgetExceeded.
@@ -40,10 +43,12 @@ public class MacroRegressionChecker : IMacroRegressionChecker
     private const decimal AcceptedTotalTolerance = 0.000001m;
     private const string OriginalCompileFailedMessage = "The original macro script does not compile: {0}";
     private const string CopyCompileFailedMessage = "The extended script does not compile: {0}";
-    private const string TrailingCommentCompileError =
-        "it ends with a comment on its last line without a line break after it, which the script parser cannot handle.";
     private const string CopyRuntimeFailedMessage =
         "The extended script fails at test input [{0}] although the original runs there: {1}";
+    private const string CopyTotalOutOfRangeMessage =
+        "The extended script adds surcharges at test input [{0}] whose total, together with the original result and "
+        + "the result of the copy on channel 1, lies beyond the decimal range, so the result channel cannot be "
+        + "compared with the original. Keep the added surcharges and the result within realistic amounts.";
     private const string BudgetExceededMessage = "The regression check did not finish within {0} ms.";
     private const string NoComparableSampleMessage =
         "The original macro could not be executed on any test input, so its output cannot be compared.";
@@ -64,7 +69,7 @@ public class MacroRegressionChecker : IMacroRegressionChecker
         string originalContent, string copyContent, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var (original, originalError) = TryCompile(originalContent);
+        var (original, originalError) = MacroScriptRunner.TryCompile(originalContent);
         if (original == null)
         {
             return MacroRegressionResult.Failure(
@@ -72,7 +77,7 @@ public class MacroRegressionChecker : IMacroRegressionChecker
                 Format(OriginalCompileFailedMessage, originalError));
         }
 
-        var (copy, copyError) = TryCompile(copyContent);
+        var (copy, copyError) = MacroScriptRunner.TryCompile(copyContent);
         if (copy == null)
         {
             return MacroRegressionResult.Failure(
@@ -83,19 +88,6 @@ public class MacroRegressionChecker : IMacroRegressionChecker
         using var budget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         budget.CancelAfter(_budget);
         return CompareOnGrid(original, copy, budget.Token, cancellationToken);
-    }
-
-    private static (CompiledScript? Script, string? Error) TryCompile(string content)
-    {
-        try
-        {
-            var compiled = CompiledScript.Compile(content);
-            return compiled.HasError ? (null, compiled.Error?.Description) : (compiled, null);
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            return (null, TrailingCommentCompileError);
-        }
     }
 
     private MacroRegressionResult CompareOnGrid(
@@ -135,7 +127,16 @@ public class MacroRegressionChecker : IMacroRegressionChecker
             }
 
             compared++;
-            CollectDeviations(sample, originalValues, copyValues, deviations);
+            try
+            {
+                CollectDeviations(sample, originalValues, copyValues, deviations);
+            }
+            catch (OverflowException)
+            {
+                return MacroRegressionResult.Failure(
+                    MacroRegressionFailureKind.CopyTotalOutOfRange,
+                    Format(CopyTotalOutOfRangeMessage, sample.Description));
+            }
         }
 
         if (compared == 0)
@@ -159,15 +160,18 @@ public class MacroRegressionChecker : IMacroRegressionChecker
     private static Dictionary<int, decimal>? Run(
         CompiledScript compiled, MacroData data, CancellationToken budget, out string? error)
     {
+        var run = MacroScriptRunner.Run(compiled, data, budget);
+        error = run.Error;
+        if (!run.IsCompleted)
+        {
+            return null;
+        }
+
         try
         {
-            var script = compiled.CloneForExecution();
-            MacroDataImportBinder.Bind(script, data);
-            var result = new ScriptExecutionContext(script).Execute(budget);
-            error = result.Error?.Description;
-            return result.Success ? AggregateChannels(result.Messages) : null;
+            return AggregateChannels(run.Messages!);
         }
-        catch (Exception ex)
+        catch (OverflowException ex)
         {
             error = ex.Message;
             return null;

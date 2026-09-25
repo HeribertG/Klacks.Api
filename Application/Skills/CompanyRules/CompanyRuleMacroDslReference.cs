@@ -3,7 +3,7 @@
 /// <summary>
 /// Compact English reference for the macro DSL, surfaced by start_company_rule when the rule kind is
 /// customMacro so the model can author a valid script. Lists the statement syntax, the IMPORT symbols the
-/// runtime injects (see MacroCompilationService.SetImportsFromMacroData) and the OUTPUT channels the backend
+/// runtime injects (see MacroDataImportBinder.Bind) and the OUTPUT channels the backend
 /// processes (see MacroOutputChannels.Supported; the apply step refuses any other channel). Kept as a constant;
 /// CompanyRuleMacroDslReferenceTests pins the channel list against MacroOutputChannels.Supported.
 /// </summary>

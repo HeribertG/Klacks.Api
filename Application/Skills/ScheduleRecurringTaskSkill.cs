@@ -10,6 +10,8 @@
 /// cause the owner can fix (a missing irreversible opt-in, a too-low autonomy level) pauses the task
 /// instead of destroying it, and re-authoring it here lifts that pause so the next occurrence is tried
 /// again. Without that path the pause would be a dead end no setting could ever undo.
+/// Neither the scheduling skills themselves nor confirm_pending_action can be scheduled: a background redemption of a
+/// confirmation token would run the held action without the user ever answering.
 /// </summary>
 /// <param name="name">Human-readable label, unique per user; re-using a name updates that task.</param>
 /// <param name="cronExpression">Standard 5-field cron expression derived from the user's natural-language schedule (e.g. "0 8 * * 1" = Mondays 08:00).</param>
@@ -43,6 +45,12 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         "list_recurring_tasks",
         "cancel_recurring_task"
     };
+
+    private const string SchedulingSkillsCannotBeScheduledMessage = "Scheduling skills cannot themselves be scheduled.";
+
+    private const string ConfirmationCannotBeScheduledMessage =
+        "'" + AutonomyDefaults.ConfirmPendingActionSkillName + "' cannot be scheduled: a held action runs only after the "
+        + "user confirmed it in the conversation, never from a background run.";
 
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillRegistry _skillRegistry;
@@ -116,9 +124,9 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 return SkillResult.Error("A skill action needs skillName.");
             }
 
-            if (SchedulingSkillNames.Contains(skillName))
+            if (DescribeUnschedulable(skillName) is { } unschedulable)
             {
-                return SkillResult.Error("Scheduling skills cannot themselves be scheduled.");
+                return SkillResult.Error(unschedulable);
             }
 
             var descriptor = _skillRegistry.GetSkillByName(skillName);
@@ -246,6 +254,18 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             preview,
             $"Scheduled '{name}' [{cronExpression}] in {resolvedTimeZone}. Next run: {nextRunLocal}.{resumedHint}");
+    }
+
+    private static string? DescribeUnschedulable(string skillName)
+    {
+        if (SchedulingSkillNames.Contains(skillName))
+        {
+            return SchedulingSkillsCannotBeScheduledMessage;
+        }
+
+        return string.Equals(skillName, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase)
+            ? ConfirmationCannotBeScheduledMessage
+            : null;
     }
 
     private async Task<string> ResolveTimeZoneAsync(

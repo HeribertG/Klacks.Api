@@ -307,6 +307,11 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IMacroScriptValidator, MacroScriptValidator>();
         services.AddScoped<IMacroOutputChannelInspector, MacroOutputChannelInspector>();
         services.AddScoped<IMacroRegressionChecker, MacroRegressionChecker>();
+        services.AddScoped<IMacroDryRunService, MacroDryRunService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IMacroAssignmentPlanner,
+                           Klacks.Api.Application.Services.Macros.MacroAssignmentPlanner>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
+                           Klacks.Api.Application.Skills.MacroAssignmentConfirmationPreviewProvider>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
     }
 
@@ -340,6 +345,10 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Staffs.QualificationImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IMacroImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Settings.MacroImportRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IMacroAssignmentHistoryRepository,
+                           Klacks.Api.Infrastructure.Repositories.Settings.MacroAssignmentHistoryRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Macros.IMacroReferenceRepository,
+                           Klacks.Api.Infrastructure.Repositories.Settings.MacroReferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IClientMembershipStartResolver,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.ClientMembershipStartResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPeriodCapEvaluator,

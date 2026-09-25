@@ -1072,6 +1072,66 @@
       "status": 1
     },
     {
+      "skillAName": "assign_macro_to_shift",
+      "skillBName": "search_shifts",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_macro_to_shift",
+      "skillBName": "list_macros",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_macro_to_absence_type",
+      "skillBName": "list_absence_types",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_macro_to_absence_type",
+      "skillBName": "list_macros",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "revert_macro_assignment",
+      "skillBName": "assign_macro_to_shift",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "revert_macro_assignment",
+      "skillBName": "assign_macro_to_absence_type",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
       "skillAName": "search_client_absences",
       "skillBName": "explain_page_absence",
       "type": 2,

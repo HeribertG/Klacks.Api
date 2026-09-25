@@ -36,7 +36,8 @@ public static class UnattendedDenyReasonClassification
             UnattendedDenyReason.NoPermissions,
             UnattendedDenyReason.UnknownSkill,
             UnattendedDenyReason.SensitiveSkill,
-            UnattendedDenyReason.UnknownRiskClass
+            UnattendedDenyReason.UnknownRiskClass,
+            UnattendedDenyReason.ConfirmationRedemption
         };
 
     /// <summary>

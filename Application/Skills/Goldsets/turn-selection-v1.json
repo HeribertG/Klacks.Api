@@ -2921,6 +2921,45 @@
       ]
     },
     {
+      "id": "w05-coverage-assign-macro-to-shift",
+      "message": "Die Frühschicht soll ab sofort über das Makro 'Sonntag erweitert' abgerechnet werden.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "assign_macro_to_shift",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: switch the macro reference of one shift",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-assign-macro-to-absence-type",
+      "message": "Für die Ferien soll künftig das Makro 'Ferien Teilzeit' die Stunden gutschreiben.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "assign_macro_to_absence_type",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: switch the macro reference of one absence type",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-revert-macro-assignment",
+      "message": "Mach die Umstellung auf das neue Makro bei der Frühschicht wieder rückgängig.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "revert_macro_assignment",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: undo a macro switch",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
       "id": "w05-coverage-update-qualification",
       "message": "Benenn die Qualifikation 'Staplerschein' um in 'Staplerschein Kat. R'.",
       "locale": "de",

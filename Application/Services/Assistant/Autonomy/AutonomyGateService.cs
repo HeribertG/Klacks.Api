@@ -6,9 +6,13 @@
 /// and scenario-gated skills need level Assisted or higher; irreversible skills need level
 /// Autonomous or higher. A valid one-time confirmation token bypasses the gate exactly once
 /// and only for the exact parameters it was issued for — on any mismatch the token is burned
-/// and a fresh confirmation is required.
+/// and a fresh confirmation is required. When a sensitive skill is held and a registered
+/// <see cref="ISkillConfirmationPreviewProvider"/> supports it, the server first computes a preview of exactly this call:
+/// the preview is appended to the confirmation request, while a refusal or a failing provider returns an error without
+/// issuing a token. The preview is facts for the model to relay; the user still sees the model's wording.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -18,10 +22,18 @@ namespace Klacks.Api.Application.Services.Assistant.Autonomy;
 
 public class AutonomyGateService : IAutonomyGate
 {
+    private const string PreviewIntro =
+        "\nServer-computed preview of exactly this action (show these facts to the user before asking for the "
+        + "confirmation; keep every name and number unchanged, translate only the wording):\n";
+    private const string PreviewFailedMessage =
+        "The server could not compute the preview of '{0}', so the action was not stored and nothing was changed. "
+        + "Tell the user that the preview failed; do not retry in this turn.";
+
     private readonly IAgentAutonomyPreferenceRepository _preferenceRepository;
     private readonly ISkillRiskClassifier _riskClassifier;
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ITurnConfirmationScope _turnScope;
+    private readonly IReadOnlyList<ISkillConfirmationPreviewProvider> _previewProviders;
     private readonly ILogger<AutonomyGateService> _logger;
 
     public AutonomyGateService(
@@ -29,12 +41,14 @@ public class AutonomyGateService : IAutonomyGate
         ISkillRiskClassifier riskClassifier,
         IPendingConfirmationStore confirmationStore,
         ITurnConfirmationScope turnScope,
+        IEnumerable<ISkillConfirmationPreviewProvider> previewProviders,
         ILogger<AutonomyGateService> logger)
     {
         _preferenceRepository = preferenceRepository;
         _riskClassifier = riskClassifier;
         _confirmationStore = confirmationStore;
         _turnScope = turnScope;
+        _previewProviders = previewProviders.ToList();
         _logger = logger;
     }
 
@@ -71,6 +85,17 @@ public class AutonomyGateService : IAutonomyGate
             return null;
         }
 
+        var preview = riskClass == SkillRiskClass.Sensitive
+            ? await BuildPreviewAsync(descriptor.Name, context, parameters, cancellationToken)
+            : null;
+        if (preview is { IsRefusal: true })
+        {
+            _logger.LogInformation(
+                "Autonomy gate refused skill {SkillName} for user {UserId} before confirmation: its preview rejected the call",
+                descriptor.Name, context.UserId);
+            return SkillResult.Error(preview.Text);
+        }
+
         var token = _confirmationStore.Create(context.UserId, descriptor.Name, parameters);
         _turnScope.MarkIssued(token);
         if (riskClass == SkillRiskClass.Sensitive)
@@ -83,7 +108,7 @@ public class AutonomyGateService : IAutonomyGate
             descriptor.Name, riskClass, context.UserId, level);
 
         return SkillResult.Confirmation(
-            BuildConfirmationMessage(descriptor.Name, riskClass, level, token),
+            AppendPreview(BuildConfirmationMessage(descriptor.Name, riskClass, level, token), preview),
             token,
             new { skillName = descriptor.Name, riskClass = riskClass.ToString(), autonomyLevel = (int)level });
     }
@@ -177,6 +202,33 @@ public class AutonomyGateService : IAutonomyGate
         var row = await _preferenceRepository.GetAsync(userId.ToString(), cancellationToken);
         return row?.Level ?? AutonomyDefaults.DefaultLevel;
     }
+
+    private async Task<SkillConfirmationPreview?> BuildPreviewAsync(
+        string skillName,
+        SkillExecutionContext context,
+        Dictionary<string, object> parameters,
+        CancellationToken cancellationToken)
+    {
+        var provider = _previewProviders.FirstOrDefault(candidate => candidate.Supports(skillName));
+        if (provider == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return await provider.BuildAsync(skillName, context, parameters, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Confirmation preview for skill {SkillName} failed; the call was not held", skillName);
+            return SkillConfirmationPreview.Refuse(
+                string.Format(CultureInfo.InvariantCulture, PreviewFailedMessage, skillName));
+        }
+    }
+
+    private static string AppendPreview(string message, SkillConfirmationPreview? preview) =>
+        preview == null ? message : message + PreviewIntro + preview.Text;
 
     private static string BuildConfirmationMessage(string skillName, SkillRiskClass riskClass, AutonomyLevel level, string token)
     {

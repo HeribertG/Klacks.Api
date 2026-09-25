@@ -7,7 +7,7 @@
 /// <param name="SkippedSamples">Test inputs skipped because the original itself failed on them</param>
 /// <param name="Deviations">The first deviations found, capped for readability</param>
 /// <param name="TotalDeviationCount">Number of deviations found in total</param>
-/// <param name="FailureMessage">Why the check could not be carried out (compile error, copy runtime error, time budget); null when it ran</param>
+/// <param name="FailureMessage">Why the check could not be carried out (compile error, copy runtime error, result total of the copy beyond the decimal range, time budget); null when it ran</param>
 /// <param name="FailureKind">What aborted the check, so a caller can tell a fault of the copy from a fault of the original or of the check itself; None when it ran</param>
 
 using Klacks.Api.Domain.Enums;

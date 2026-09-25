@@ -6,8 +6,9 @@
 /// macros it created itself (Assistant) freely; of an extended copy (AssistantExtension) it may change the name and
 /// the description, never the script, because the regression check that proved the original output is preserved
 /// ran on exactly that script. Templates shipped with Klacks, region-setup imports and user-created macros are
-/// refused with an actionable InvalidRequestException. Assigning an assistant-owned macro to an order is refused
-/// as well (assignment with a preview is not available yet). The admin REST path does not use this guard.
+/// refused with an actionable InvalidRequestException. Assigning an assistant-owned macro while an order is created is
+/// refused as well; the switch goes through the macro assignment skill with its server-computed preview. The admin REST
+/// path does not use this guard.
 /// </summary>
 /// <param name="macro">The macro a skill is about to change, delete or assign, as loaded from the database</param>
 /// <param name="changesScript">Update only: whether the update replaces the script with a different one</param>
@@ -38,9 +39,11 @@ public static class MacroAssistantGuard
         + "the description of this copy may still be changed.";
 
     private const string AssignmentRejectedMessage =
-        "Calculation macro '{0}' (id {1}) was created by the assistant and cannot be assigned to an order by the "
-        + "assistant yet. Omit macroId to use the standard shift macro, pick a macro that was not created by the "
-        + "assistant from list_macros, or let an administrator assign this macro in the order settings.";
+        "Calculation macro '{0}' (id {1}) was created by the assistant and is not assigned while an order is created. "
+        + "Create the order without macroId (it gets the standard shift macro), then switch its macro with "
+        + MacroAssignmentSkillNames.AssignToShift
+        + ", which switches every shift cut from the same order, shows the affected works and a dry run and needs "
+        + "an administrator's confirmation.";
 
     private const string SeedOriginDescription = "is a template shipped with Klacks";
     private const string ImportOriginDescription = "was imported by the region setup";

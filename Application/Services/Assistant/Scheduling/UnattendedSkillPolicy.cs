@@ -8,7 +8,9 @@
 /// unrecognised risk class is refused rather than waved through, and every remaining class has to clear
 /// an autonomy threshold that is stricter than the interactive one. An irreversible skill is refused
 /// outright unless a scheduled task carries an explicit per-task opt-in; the proactive heartbeat has no
-/// such opt-in and therefore never runs an irreversible skill.
+/// such opt-in and therefore never runs an irreversible skill. confirm_pending_action is refused by name before
+/// anything else, on every path and at every level: redeeming a held action's token in the background would run that
+/// action without the user ever answering.
 ///
 /// Every refusal text states the CAUSE and the REMEDY only. What happens to the caller afterwards -
 /// pausing a scheduled task, disabling it, or nothing at all on the heartbeat, where no task exists to
@@ -38,6 +40,15 @@ public sealed class UnattendedSkillPolicy : IUnattendedSkillPolicy
 
     public UnattendedSkillDecision Decide(UnattendedSkillRequest request)
     {
+        if (string.Equals(
+                request.SkillName?.Trim(), AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase))
+        {
+            return UnattendedSkillDecision.Deny(
+                $"Skill '{AutonomyDefaults.ConfirmPendingActionSkillName}' redeems a confirmation only the user can give " +
+                "in the conversation and never runs unattended. Confirm the held action in the chat instead.",
+                UnattendedDenyReason.ConfirmationRedemption);
+        }
+
         if (request.OwnerPermissions.Count == 0)
         {
             return UnattendedSkillDecision.Deny(

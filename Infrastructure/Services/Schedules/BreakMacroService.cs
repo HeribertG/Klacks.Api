@@ -45,7 +45,7 @@ public class BreakMacroService : IBreakMacroService
     /// which is why the macro must not overwrite it. Equal bounds with a WorkTime of zero are a
     /// genuinely empty entry and still go through the macro.
     /// </remarks>
-    private static bool HasDirectlyRecordedDuration(Break breakEntry)
+    internal static bool HasDirectlyRecordedDuration(Break breakEntry)
         => breakEntry.StartTime == breakEntry.EndTime && breakEntry.WorkTime > 0;
 
     public async Task ProcessBreakMacroAsync(Break breakEntry, int? paymentInterval = null)

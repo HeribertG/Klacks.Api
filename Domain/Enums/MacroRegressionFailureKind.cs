@@ -9,5 +9,6 @@ public enum MacroRegressionFailureKind
     CopyCompileError = 2,
     CopyRuntimeError = 3,
     NoComparableSample = 4,
-    BudgetExceeded = 5
+    BudgetExceeded = 5,
+    CopyTotalOutOfRange = 6
 }

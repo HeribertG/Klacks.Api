@@ -4,7 +4,9 @@
 /// Executes a pending action the user just confirmed. The autonomy gate stored the original
 /// skill invocation under a one-time token; this skill consumes the token and replays the
 /// stored invocation exactly (same skill, same parameters), bypassing the gate because the
-/// token represents the user's explicit confirmation.
+/// token represents the user's explicit confirmation. A call that already arrives with the gate bypassed comes from a
+/// background path (scheduled task, plan step, goal plan, proactive or inbound automation), where nobody can have
+/// confirmed anything; it is refused before the token is consumed, so the token stays redeemable by the user.
 /// </summary>
 /// <param name="confirmation_token">The one-time token from the confirmation request.</param>
 
@@ -19,6 +21,10 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("confirm_pending_action")]
 public class ConfirmPendingActionSkill : BaseSkillImplementation
 {
+    private const string BackgroundRedemptionMessage =
+        "A held action can only be confirmed by the user in the conversation, not from a background run (scheduled "
+        + "task, plan step, proactive or inbound automation). Nothing was executed; the token stays valid for the user.";
+
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ISkillExecutor _skillExecutor;
     private readonly ITurnConfirmationScope _turnScope;
@@ -42,6 +48,11 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
         if (string.IsNullOrWhiteSpace(token))
         {
             return SkillResult.Error($"Missing required parameter '{AutonomyDefaults.ConfirmationTokenParameter}'.");
+        }
+
+        if (context.BypassAutonomyGate)
+        {
+            return SkillResult.Error(BackgroundRedemptionMessage);
         }
 
         if (_turnScope.WasIssuedThisTurnForSensitiveSkill(token))

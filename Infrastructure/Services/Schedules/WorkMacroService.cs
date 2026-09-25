@@ -15,6 +15,7 @@
 /// <param name="context">Database access for WorkChange-to-Work resolution</param>
 /// <param name="logger">Logger for warnings and error messages</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Macros;
@@ -23,14 +24,13 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.ValueObjects;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Macros;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class WorkMacroService : IWorkMacroService
 {
-    private const int AmountDecimalPlaces = 2;
-
     private readonly DataBaseContext _context;
     private readonly IShiftRepository _shiftRepository;
     private readonly IMacroDataProvider _macroDataProvider;
@@ -74,7 +74,7 @@ public class WorkMacroService : IWorkMacroService
             }
 
             var macroData = await _macroDataProvider.GetMacroDataAsync(work);
-            var result = ApplyRateModeAdjustments(
+            var result = MacroRateModeAdjuster.Apply(
                 await _macroCompilationService.CompileAndExecuteAsync(shift.MacroId.Value, macroData),
                 macroData);
 
@@ -124,7 +124,7 @@ public class WorkMacroService : IWorkMacroService
             }
 
             var macroData = await _macroDataProvider.GetMacroDataForWorkChangeAsync(workChange, work);
-            var result = ApplyRateModeAdjustments(
+            var result = MacroRateModeAdjuster.Apply(
                 await _macroCompilationService.CompileAndExecuteAsync(shift.MacroId.Value, macroData),
                 macroData);
 
@@ -143,63 +143,6 @@ public class WorkMacroService : IWorkMacroService
             _logger.LogError(ex, "Unexpected error processing macro for WorkChange {WorkChangeId}", workChange.Id);
         }
     }
-
-    /// <summary>
-    /// Reinterprets a macro's typed surcharge output according to the configured RateMode per surcharge
-    /// type. Macros always compute Amount as SegmentHours * Rate (verified against the built-in "AllShift"
-    /// macro); for Multiplier and FixedPerHour this arithmetic already yields the desired result (bonus
-    /// hours vs. an absolute currency amount respectively — same formula, different unit), so only
-    /// FixedPerShift needs an actual override (flat Rate once, independent of segment duration). The
-    /// DefaultResult is adjusted by the same delta so any non-surcharge portion of a custom macro's total
-    /// is preserved rather than overwritten.
-    /// </summary>
-    private static MacroExecutionResult ApplyRateModeAdjustments(MacroExecutionResult result, MacroData macroData)
-    {
-        if (!result.Success || result.Surcharges.Count == 0)
-        {
-            return result;
-        }
-
-        var adjustedItems = result.Surcharges
-            .Select(item => item with { Amount = AdjustAmount(item.Type, item.Amount, macroData) })
-            .ToList();
-
-        var delta = adjustedItems.Sum(item => item.Amount) - result.Surcharges.Sum(item => item.Amount);
-        var adjustedResultValue = result.ResultValue.HasValue
-            ? Math.Round(result.ResultValue.Value + delta, AmountDecimalPlaces)
-            : result.ResultValue;
-
-        return new MacroExecutionResult(result.Success, adjustedResultValue, adjustedItems);
-    }
-
-    private static decimal AdjustAmount(SurchargeType type, decimal amount, MacroData macroData)
-    {
-        var (rate, mode, minimumPerHour) = GetRateConfig(type, macroData);
-
-        if (mode == SurchargeRateMode.FixedPerShift)
-        {
-            return amount == 0m ? 0m : rate;
-        }
-
-        if (mode == SurchargeRateMode.Multiplier && minimumPerHour.HasValue && rate != 0m)
-        {
-            var segmentHours = amount / rate;
-            var minimumAmount = minimumPerHour.Value * segmentHours;
-            return Math.Max(amount, minimumAmount);
-        }
-
-        return amount;
-    }
-
-    private static (decimal Rate, SurchargeRateMode Mode, decimal? MinimumPerHour) GetRateConfig(SurchargeType type, MacroData macroData) => type switch
-    {
-        SurchargeType.Night => (macroData.NightRate, macroData.NightRateMode, macroData.NightMinimumPerHour),
-        SurchargeType.Weekend1 => (macroData.WE1Rate, macroData.WE1RateMode, macroData.WE1MinimumPerHour),
-        SurchargeType.Weekend2 => (macroData.WE2Rate, macroData.WE2RateMode, macroData.WE2MinimumPerHour),
-        SurchargeType.Weekend3 => (macroData.WE3Rate, macroData.WE3RateMode, macroData.WE3MinimumPerHour),
-        SurchargeType.Holiday => (macroData.HolidayRate, macroData.HolidayRateMode, macroData.HolidayMinimumPerHour),
-        _ => (0m, SurchargeRateMode.Multiplier, null)
-    };
 
     /// <summary>
     /// K4: the stacking mode is a structural property of the macro assigned to the shift, not an
@@ -226,7 +169,7 @@ public class WorkMacroService : IWorkMacroService
     /// compares the surcharge-only totals — NOT ResultValue itself, which for some macros (e.g. the
     /// seeded "Accident" macro) carries a non-surcharge quantity such as passthrough hours — and, if
     /// overtime wins, replaces only the surcharge portion via the same delta approach
-    /// ApplyRateModeAdjustments uses, so a non-surcharge ResultValue component is never clobbered.
+    /// MacroRateModeAdjuster uses, so a non-surcharge ResultValue component is never clobbered.
     /// Additive always adds both totals and concatenates both item lists.
     /// </summary>
     private static MacroExecutionResult ApplyOvertimeStacking(
@@ -239,18 +182,18 @@ public class WorkMacroService : IWorkMacroService
             return result;
         }
 
-        var overtimeTotal = Math.Round(overtime.Items.Sum(item => item.Amount), AmountDecimalPlaces);
+        var overtimeTotal = Math.Round(overtime.Items.Sum(item => item.Amount), MacroAmountPrecision.DecimalPlaces);
 
         if (stackingMode == SurchargeStackingMode.Additive)
         {
             var combinedItems = result.Surcharges.Concat(overtime.Items).ToList();
             var combinedResultValue = result.ResultValue.HasValue
-                ? Math.Round(result.ResultValue.Value + overtimeTotal, AmountDecimalPlaces)
+                ? Math.Round(result.ResultValue.Value + overtimeTotal, MacroAmountPrecision.DecimalPlaces)
                 : overtimeTotal;
             return new MacroExecutionResult(true, combinedResultValue, combinedItems);
         }
 
-        var existingSurchargeTotal = Math.Round(result.Surcharges.Sum(item => item.Amount), AmountDecimalPlaces);
+        var existingSurchargeTotal = Math.Round(result.Surcharges.Sum(item => item.Amount), MacroAmountPrecision.DecimalPlaces);
         if (overtimeTotal <= existingSurchargeTotal)
         {
             return result;
@@ -258,7 +201,7 @@ public class WorkMacroService : IWorkMacroService
 
         var delta = overtimeTotal - existingSurchargeTotal;
         var adjustedResultValue = result.ResultValue.HasValue
-            ? Math.Round(result.ResultValue.Value + delta, AmountDecimalPlaces)
+            ? Math.Round(result.ResultValue.Value + delta, MacroAmountPrecision.DecimalPlaces)
             : overtimeTotal;
 
         return new MacroExecutionResult(true, adjustedResultValue, overtime.Items.ToList());

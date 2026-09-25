@@ -189,6 +189,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<CompanyRule> CompanyRule { get; set; }
 
+    public DbSet<MacroAssignmentHistory> MacroAssignmentHistory { get; set; }
+
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
 
     public DbSet<Period> Period { get; set; }
