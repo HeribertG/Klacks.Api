@@ -11,7 +11,8 @@
 /// model's wording, confirm_pending_action can redeem the token in a later turn without an explicit yes, and the chat UI
 /// does not show skill results; the confirmed call therefore re-checks the role and plans again.
 /// </summary>
-/// <param name="planner">Plans the switch or the undo and runs the dry run</param>
+/// <param name="assignPlanner">Plans the switch and runs its dry run</param>
+/// <param name="revertPlanner">Plans the undo and runs its dry run</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
@@ -22,11 +23,13 @@ namespace Klacks.Api.Application.Skills;
 
 public class MacroAssignmentConfirmationPreviewProvider : ISkillConfirmationPreviewProvider
 {
-    private readonly IMacroAssignmentPlanner _planner;
+    private readonly IMacroAssignPlanner _assignPlanner;
+    private readonly IMacroRevertPlanner _revertPlanner;
 
-    public MacroAssignmentConfirmationPreviewProvider(IMacroAssignmentPlanner planner)
+    public MacroAssignmentConfirmationPreviewProvider(IMacroAssignPlanner assignPlanner, IMacroRevertPlanner revertPlanner)
     {
-        _planner = planner;
+        _assignPlanner = assignPlanner;
+        _revertPlanner = revertPlanner;
     }
 
     public bool Supports(string skillName) =>
@@ -65,7 +68,7 @@ public class MacroAssignmentConfirmationPreviewProvider : ISkillConfirmationPrev
             return SkillConfirmationPreview.Refuse(error);
         }
 
-        var preview = await _planner.PreviewAssignAsync(target, holderId, macroId, cancellationToken);
+        var preview = await _assignPlanner.PreviewAssignAsync(target, holderId, macroId, cancellationToken);
         return preview.Refusal != null
             ? SkillConfirmationPreview.Refuse(preview.Refusal)
             : SkillConfirmationPreview.Show(MacroAssignmentTextFormatter.DescribeAssignPreview(preview.Plan, preview.DryRun!));
@@ -80,7 +83,7 @@ public class MacroAssignmentConfirmationPreviewProvider : ISkillConfirmationPrev
             return SkillConfirmationPreview.Refuse(error);
         }
 
-        var preview = await _planner.PreviewRevertAsync(request!, cancellationToken);
+        var preview = await _revertPlanner.PreviewRevertAsync(request!, cancellationToken);
         return preview.Refusal != null
             ? SkillConfirmationPreview.Refuse(preview.Refusal)
             : SkillConfirmationPreview.Show(MacroAssignmentTextFormatter.DescribeRevertPreview(preview.Plan, preview.DryRun!));

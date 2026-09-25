@@ -27,17 +27,13 @@ public static class MacroAssignmentParameters
     private const string MissingIdMessage =
         "{0} is required: pass the id of the {1}. Names are not accepted; look the {1} up first.";
     private const string InvalidIdMessage = "'{0}' is not a valid id for {1}.";
-    private const string ShiftNoun = "shift";
-    private const string AbsenceTypeNoun = "absence type";
     private const string MacroNoun = "macro";
 
     public static (Guid HolderId, Guid MacroId, string? Error) ReadAssign(
         Dictionary<string, object> parameters, MacroAssignmentTarget target)
     {
-        var (holderParameter, holderNoun) = target == MacroAssignmentTarget.Shift
-            ? (ShiftId, ShiftNoun)
-            : (AbsenceTypeId, AbsenceTypeNoun);
-        var (holderId, holderError) = ReadRequired(parameters, holderParameter, holderNoun);
+        var holderParameter = target == MacroAssignmentTarget.Shift ? ShiftId : AbsenceTypeId;
+        var (holderId, holderError) = ReadRequired(parameters, holderParameter, MacroAssignmentPolicy.NounOf(target));
         if (holderError != null)
         {
             return (Guid.Empty, Guid.Empty, holderError);

@@ -19,7 +19,6 @@
 /// <param name="outcome">The written switch or undo, with the dry run of its preview</param>
 
 using System.Globalization;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Services.Macros;
 
@@ -38,8 +37,6 @@ public static class MacroAssignmentTextFormatter
 
     private const string LineBreak = "\n";
     private const string TruncationMarker = " [shortened]";
-    private const string ShiftNoun = "shift";
-    private const string AbsenceTypeNoun = "absence type";
     private const string NoMacroText = "no macro";
     private const string DeletedMacroText = "a deleted macro";
     private const string DifferentMacrosText = "different macros";
@@ -221,8 +218,7 @@ public static class MacroAssignmentTextFormatter
         return id.HasValue ? DeletedMacroText : NoMacroText;
     }
 
-    private static string NounOf(MacroReferenceHolder holder) =>
-        holder.Target == MacroAssignmentTarget.Shift ? ShiftNoun : AbsenceTypeNoun;
+    private static string NounOf(MacroReferenceHolder holder) => MacroAssignmentPolicy.NounOf(holder.Target);
 
     private static string Value(decimal? value) =>
         value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture) : NoValueText;

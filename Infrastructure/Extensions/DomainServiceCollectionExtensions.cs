@@ -308,8 +308,10 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IMacroOutputChannelInspector, MacroOutputChannelInspector>();
         services.AddScoped<IMacroRegressionChecker, MacroRegressionChecker>();
         services.AddScoped<IMacroDryRunService, MacroDryRunService>();
-        services.AddScoped<Klacks.Api.Application.Interfaces.IMacroAssignmentPlanner,
-                           Klacks.Api.Application.Services.Macros.MacroAssignmentPlanner>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IMacroAssignPlanner,
+                           Klacks.Api.Application.Services.Macros.MacroAssignPlanner>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.IMacroRevertPlanner,
+                           Klacks.Api.Application.Services.Macros.MacroRevertPlanner>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillConfirmationPreviewProvider,
                            Klacks.Api.Application.Skills.MacroAssignmentConfirmationPreviewProvider>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();

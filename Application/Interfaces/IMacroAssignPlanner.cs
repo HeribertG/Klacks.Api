@@ -5,10 +5,8 @@ using Klacks.Api.Domain.Models.Macros;
 
 namespace Klacks.Api.Application.Interfaces;
 
-public interface IMacroAssignmentPlanner
+public interface IMacroAssignPlanner
 {
     Task<MacroAssignmentPreview> PreviewAssignAsync(
         MacroAssignmentTarget target, Guid holderId, Guid macroId, CancellationToken cancellationToken = default);
-
-    Task<MacroRevertPreview> PreviewRevertAsync(MacroRevertRequest request, CancellationToken cancellationToken = default);
 }

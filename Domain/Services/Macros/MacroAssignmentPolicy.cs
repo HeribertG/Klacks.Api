@@ -15,7 +15,8 @@
 /// cases production keeps the stored values on recalculation). Dry-run warnings name the samples that get no value today
 /// or afterwards (production keeps the stored value there), but only for a side that has a macro reference at all, so an
 /// ordinary first assignment or an undo back to no macro stays quiet. Guid.Empty counts as no macro, as in production.
-/// Every name in a text is flattened by <see cref="MacroAssignmentNames"/>.
+/// Every name in a text is flattened by <see cref="MacroAssignmentNames"/>. <see cref="NounOf"/> is the one wording of a
+/// holder kind that the planners, the skill parameters and the skill texts share.
 /// </summary>
 /// <param name="holder">The shift or absence type the caller addressed</param>
 /// <param name="members">Every member of the holder's cut group, the holder included (an absence type is alone)</param>
@@ -34,6 +35,8 @@ namespace Klacks.Api.Domain.Services.Macros;
 
 public static class MacroAssignmentPolicy
 {
+    private const string ShiftNoun = "shift";
+    private const string AbsenceTypeNoun = "absence type";
     private const string ScenarioRefusal =
         "'{0}' belongs to an analysis scenario; macros are only switched on the live plan.";
     private const string SealedOrderRefusal =
@@ -83,6 +86,9 @@ public static class MacroAssignmentPolicy
     };
 
     public static Guid? AsReference(Guid? macroId) => macroId == Guid.Empty ? null : macroId;
+
+    public static string NounOf(MacroAssignmentTarget target) =>
+        target == MacroAssignmentTarget.Shift ? ShiftNoun : AbsenceTypeNoun;
 
     public static string? FindHolderRefusal(MacroReferenceHolder holder)
     {

@@ -33,14 +33,14 @@ public class AssignMacroCommandHandler : IRequestHandler<AssignMacroCommand, Mac
     private const string SaveFailedLogMessage =
         "Macro switch {SwitchId} of {Target} {HolderId} to macro {MacroId} with {HolderCount} holder(s) failed to save";
 
-    private readonly IMacroAssignmentPlanner _planner;
+    private readonly IMacroAssignPlanner _planner;
     private readonly IMacroReferenceRepository _references;
     private readonly IMacroAssignmentHistoryRepository _history;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AssignMacroCommandHandler> _logger;
 
     public AssignMacroCommandHandler(
-        IMacroAssignmentPlanner planner,
+        IMacroAssignPlanner planner,
         IMacroReferenceRepository references,
         IMacroAssignmentHistoryRepository history,
         IUnitOfWork unitOfWork,

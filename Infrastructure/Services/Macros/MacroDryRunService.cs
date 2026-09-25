@@ -29,9 +29,9 @@ using System.Globalization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Scripting;
-using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Macros;
@@ -164,7 +164,7 @@ public class MacroDryRunService : IMacroDryRunService
         using var budget = StartBudget(callerToken);
         foreach (var breakEntry in breaks)
         {
-            if (BreakMacroService.HasDirectlyRecordedDuration(breakEntry))
+            if (BreakDurationPredicate.HasDirectlyRecordedDuration(breakEntry))
             {
                 samples.Add(new MacroDryRunSample(
                     breakEntry.Id, breakEntry.CurrentDate, breakEntry.WorkTime, null, null, true));

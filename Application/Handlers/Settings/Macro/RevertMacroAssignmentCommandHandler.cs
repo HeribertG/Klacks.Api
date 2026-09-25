@@ -38,14 +38,14 @@ public class RevertMacroAssignmentCommandHandler : IRequestHandler<RevertMacroAs
     private const string SwitchChangedMessage =
         "The macro switch to undo is no longer recorded as it was planned; nothing was changed.";
 
-    private readonly IMacroAssignmentPlanner _planner;
+    private readonly IMacroRevertPlanner _planner;
     private readonly IMacroReferenceRepository _references;
     private readonly IMacroAssignmentHistoryRepository _history;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RevertMacroAssignmentCommandHandler> _logger;
 
     public RevertMacroAssignmentCommandHandler(
-        IMacroAssignmentPlanner planner,
+        IMacroRevertPlanner planner,
         IMacroReferenceRepository references,
         IMacroAssignmentHistoryRepository history,
         IUnitOfWork unitOfWork,
