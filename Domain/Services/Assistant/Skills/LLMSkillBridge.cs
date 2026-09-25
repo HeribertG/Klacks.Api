@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
@@ -15,8 +16,6 @@ public class LLMSkillBridge : ILLMSkillBridge
     private readonly ISkillExecutor _skillExecutor;
     private readonly ISkillAdapterFactory _adapterFactory;
     private readonly ILogger<LLMSkillBridge> _logger;
-
-    private const string ConfirmationTokenMetadataKey = "confirmationToken";
 
     public LLMSkillBridge(
         ISkillRegistry skillRegistry,
@@ -74,7 +73,7 @@ public class LLMSkillBridge : ILLMSkillBridge
             UiActionTrackingId = result.UiActionTrackingId,
             ContainsExternalContent = result.ContainsExternalContent,
             ConfirmationToken = result.Type == SkillResultType.Confirmation
-                && result.Metadata?.GetValueOrDefault(ConfirmationTokenMetadataKey) is string token
+                && result.Metadata?.GetValueOrDefault(SkillResultMetadataKeys.ConfirmationToken) is string token
                     ? token
                     : null
         };

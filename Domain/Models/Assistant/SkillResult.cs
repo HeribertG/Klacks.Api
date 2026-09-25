@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Assistant;
@@ -81,7 +82,7 @@ public record SkillResult
             Type = SkillResultType.Confirmation,
             Metadata = new Dictionary<string, object>
             {
-                ["confirmationToken"] = confirmationToken,
+                [SkillResultMetadataKeys.ConfirmationToken] = confirmationToken,
                 ["requiresConfirmation"] = true,
                 ["pendingData"] = pendingData ?? new object()
             }

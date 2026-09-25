@@ -33,8 +33,6 @@ namespace Klacks.Api.Presentation.Mcp;
 
 public class McpSkillCallHandler : IMcpSkillCallHandler
 {
-    private const string ConfirmationTokenMetadataKey = "confirmationToken";
-
     private static readonly JsonSerializerOptions ResultSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -198,7 +196,7 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
     private static string ExtractConfirmationToken(SkillExecuteResponse response)
     {
         if (response.Metadata != null
-            && response.Metadata.TryGetValue(ConfirmationTokenMetadataKey, out var token))
+            && response.Metadata.TryGetValue(SkillResultMetadataKeys.ConfirmationToken, out var token))
         {
             return token?.ToString() ?? string.Empty;
         }
