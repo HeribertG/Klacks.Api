@@ -96,7 +96,7 @@ public class LLMConversationManager
         await _repository.RecordConversationTurnAsync(
             conversation,
             MessagesPerTurn,
-            DateTime.UtcNow,
+            turnStartedUtc ?? DateTime.UtcNow,
             modelId,
             GenerateConversationTitle(userMessage, assistantMessage));
         _historyCache.Remove(BuildHistoryCacheKey(conversation.ConversationId, conversation.UserId));
