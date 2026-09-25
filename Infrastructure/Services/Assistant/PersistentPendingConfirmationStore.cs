@@ -80,25 +80,30 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         DiscardRows(userId, PendingConfirmationPurposes.CorrectionUndo, null);
     }
 
+    public void DiscardByTokens(Guid userId, IReadOnlyCollection<string> tokens)
+    {
+        if (tokens.Count == 0)
+        {
+            return;
+        }
+
+        DiscardRows(userId, row => tokens.Contains(row.Token, StringComparer.Ordinal));
+    }
+
     private void DiscardRows(Guid userId, string purpose, string? skillName)
+    {
+        DiscardRows(userId, row => HasPurpose(row, purpose)
+            && (skillName == null || string.Equals(row.SkillName, skillName, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private void DiscardRows(Guid userId, Func<PendingConfirmationRow, bool> matches)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IPendingConfirmationRepository>();
         var rows = repository.GetActiveForUserAsync(userId, DateTime.UtcNow).GetAwaiter().GetResult();
 
-        foreach (var row in rows)
+        foreach (var row in rows.Where(matches))
         {
-            if (!HasPurpose(row, purpose))
-            {
-                continue;
-            }
-
-            if (skillName != null
-                && !string.Equals(row.SkillName, skillName, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
             repository.ConsumeAsync(row.Token).GetAwaiter().GetResult();
         }
     }

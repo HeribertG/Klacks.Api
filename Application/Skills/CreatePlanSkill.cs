@@ -97,6 +97,7 @@ public class CreatePlanSkill : BaseSkillImplementation
 
         var token = _confirmationStore.Create(context.UserId, PlanSkillDefaults.CreatePlanSkillName, pendingParameters);
         _turnScope.MarkIssuedForSensitiveSkill(token);
+        _turnScope.MarkIssued(token);
 
         var message = new StringBuilder();
         message.Append("I drafted a ").Append(steps.Count).Append(steps.Count == 1 ? " step" : " steps")

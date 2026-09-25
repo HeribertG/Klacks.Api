@@ -72,6 +72,7 @@ public class AutonomyGateService : IAutonomyGate
         }
 
         var token = _confirmationStore.Create(context.UserId, descriptor.Name, parameters);
+        _turnScope.MarkIssued(token);
         if (riskClass == SkillRiskClass.Sensitive)
         {
             _turnScope.MarkIssuedForSensitiveSkill(token);

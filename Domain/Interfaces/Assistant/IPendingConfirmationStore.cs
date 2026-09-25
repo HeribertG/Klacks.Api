@@ -40,4 +40,12 @@ public interface IPendingConfirmationStore
     void DiscardProposalHints(Guid userId, string? applySkillName = null);
 
     void DiscardCorrectionUndo(Guid userId);
+
+    /// <summary>
+    /// Drops the outstanding confirmations of the user that carry one of the given tokens, whatever their
+    /// purpose. Tokens that are unknown, already redeemed or belong to somebody else are left alone.
+    /// </summary>
+    /// <param name="userId">The user the tokens were issued to</param>
+    /// <param name="tokens">The tokens to drop</param>
+    void DiscardByTokens(Guid userId, IReadOnlyCollection<string> tokens);
 }

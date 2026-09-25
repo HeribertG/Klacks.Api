@@ -35,6 +35,7 @@ public class LLMFunctionExecutor
     private readonly IAgentRepository _agentRepository;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly ICancellableSkillPolicy? _cancellableSkillPolicy;
+    private readonly ITurnConfirmationScope? _turnScope;
 
     private Dictionary<string, AgentSkill>? _skillCache;
 
@@ -44,7 +45,8 @@ public class LLMFunctionExecutor
         IAgentRepository agentRepository,
         IPendingConfirmationStore pendingConfirmationStore,
         ILLMSkillBridge? skillBridge = null,
-        ICancellableSkillPolicy? cancellableSkillPolicy = null)
+        ICancellableSkillPolicy? cancellableSkillPolicy = null,
+        ITurnConfirmationScope? turnScope = null)
     {
         _logger = logger;
         _agentSkillRepository = agentSkillRepository;
@@ -52,6 +54,7 @@ public class LLMFunctionExecutor
         _pendingConfirmationStore = pendingConfirmationStore;
         _skillBridge = skillBridge;
         _cancellableSkillPolicy = cancellableSkillPolicy;
+        _turnScope = turnScope;
     }
 
     private async Task<AgentSkill?> GetSkillAsync(string functionName)
@@ -171,6 +174,7 @@ public class LLMFunctionExecutor
                 else
                 {
                     _pendingConfirmationStore.CreateProposalHint(userId, call.FunctionName);
+                    _turnScope?.MarkProposalHint(call.FunctionName);
                 }
 
                 return;
@@ -185,6 +189,7 @@ public class LLMFunctionExecutor
             if (!string.IsNullOrWhiteSpace(skill?.PairedApplySkill))
             {
                 _pendingConfirmationStore.CreateProposalHint(userId, skill!.PairedApplySkill!);
+                _turnScope?.MarkProposalHint(skill.PairedApplySkill!);
             }
         }
         catch (Exception ex)
