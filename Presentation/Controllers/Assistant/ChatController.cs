@@ -14,6 +14,7 @@ using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
@@ -49,6 +50,7 @@ public class ChatController : ControllerBase
     private readonly ILLMRepository _llmRepository;
     private readonly IUserActivityTracker _activityTracker;
     private readonly INavigationEntityRouteGuard _entityRouteGuard;
+    private readonly IActiveTurnRegistry _turnRegistry;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -64,7 +66,8 @@ public class ChatController : ControllerBase
         INavigationMissDetector navMissDetector,
         ILLMRepository llmRepository,
         IUserActivityTracker activityTracker,
-        INavigationEntityRouteGuard entityRouteGuard)
+        INavigationEntityRouteGuard entityRouteGuard,
+        IActiveTurnRegistry turnRegistry)
     {
         _logger = logger;
         _mediator = mediator;
@@ -80,6 +83,7 @@ public class ChatController : ControllerBase
         _llmRepository = llmRepository;
         _activityTracker = activityTracker;
         _entityRouteGuard = entityRouteGuard;
+        _turnRegistry = turnRegistry;
     }
 
     private async Task<bool> IsOngoingConversationAsync(string? conversationId, string userId)
@@ -299,6 +303,13 @@ public class ChatController : ControllerBase
             IsVoiceMode = request.IsVoiceMode
         };
 
+        // No user id means the turn can never be stopped by anyone (the registry refuses an empty owner and
+        // the cancel endpoint answers 404 for it), so it streams unregistered instead of failing. Registered
+        // directly before the try so that nothing between the registration and the finally can leak an entry.
+        streamRequest.StopToken = string.IsNullOrWhiteSpace(userId)
+            ? CancellationToken.None
+            : _turnRegistry.Register(turnId, userId);
+
         try
         {
             await foreach (var chunk in _streamingOrchestrator.ProcessStreamAsync(streamRequest, cancellationToken))
@@ -330,6 +341,10 @@ public class ChatController : ControllerBase
                 _logger.LogDebug(writeEx, "Failed to send error chunk to disconnected client for user {UserId}", userId);
             }
         }
+        finally
+        {
+            _turnRegistry.Complete(turnId);
+        }
     }
 
     /// <param name="chunk">Chunk to serialize; its type picks the SSE event name</param>
@@ -345,6 +360,20 @@ public class ChatController : ControllerBase
     /// <param name="startTimestamp">Stopwatch timestamp the turn started at</param>
     private static long ElapsedMsSince(long startTimestamp) =>
         (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
+
+    [HttpPost("turns/{turnId:guid}/cancel")]
+    [DisableRateLimiting]
+    public ActionResult<CancelTurnResponse> CancelTurn(Guid turnId)
+    {
+        var userId = GetCurrentUserId();
+        if (_turnRegistry.RequestStop(turnId, userId) != StopRequestOutcome.Accepted)
+        {
+            return NotFound();
+        }
+
+        _logger.LogInformation("Stop requested for turn {TurnId} by user {UserId}", turnId, userId);
+        return Accepted(new CancelTurnResponse { Accepted = true });
+    }
 
     [HttpGet("functions")]
     public async Task<ActionResult<object>> GetAvailableFunctions()

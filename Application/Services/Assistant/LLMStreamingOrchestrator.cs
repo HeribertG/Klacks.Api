@@ -50,6 +50,13 @@ public class LLMStreamRequest
     public Guid TurnId { get; set; }
 
     /// <summary>
+    /// Cancelled when the turn's owner asks for a stop. Distinct from the HTTP request token on purpose: a
+    /// stop lets the turn finish cleanly and persist what happened, a disconnect does not. None when the
+    /// turn is not registered for stop requests.
+    /// </summary>
+    public CancellationToken StopToken { get; set; }
+
+    /// <summary>
     /// Stopwatch timestamp the turn's elapsed times are measured from. Supplied by the caller so the
     /// status events count from when the request arrived rather than from when this orchestrator is
     /// reached - the caller has already normalized, matched and logged by then. Null means "start the
