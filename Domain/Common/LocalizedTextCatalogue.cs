@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Language resolution shared by the catalogues of user-facing sentences that reach the user without a
-/// model call (GracefulCorrectionTexts, ClarificationTexts). The four core languages come from a table
-/// authored in code, the installed plugin languages from their pack, merged in at startup through the
+/// model call (GracefulCorrectionTexts, ClarificationTexts, EscalationHandoffTexts, MessengerProactiveTexts).
+/// The four core languages come from a table authored in code, the installed plugin languages from their pack, merged in at startup through the
 /// additive Configure/Reset pattern. English is the fallback for a tag that no core table and no configured
 /// pack claims - an unknown language. A language whose configured pack lacks a key resolves to nothing, so
 /// the caller decides what to do rather than the catalogue silently speaking English. "Configured" is

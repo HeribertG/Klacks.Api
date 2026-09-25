@@ -22,7 +22,6 @@
 using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant.Escalation;
-using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
