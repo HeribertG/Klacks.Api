@@ -29,6 +29,9 @@ public class TurnCompletionRecorder
     private const string HistoryPart = "history";
     private const string UsagePart = "usage row";
     private const string AnchorPart = "correction anchor";
+    private const string CleanupPart = "confirmation cleanup";
+    private const string StoppedTurnKind = "stopped";
+    private const string ErroredTurnKind = "errored";
 
     private readonly ILogger<TurnCompletionRecorder> _logger;
     private readonly LLMConversationManager _conversationManager;
@@ -194,12 +197,14 @@ public class TurnCompletionRecorder
         var storedAnswer = StoppedTurnSummary.StoredAnswer(_turnState.StreamedContent.ToString(), marker);
         var phase = _turnState.Phase;
 
+        var turnKind = hasError ? ErroredTurnKind : StoppedTurnKind;
+
         if (conversation != null && model != null)
         {
-            await TryRecordAsync(HistoryPart, context.UserId, () => _conversationManager.SaveConversationMessagesAsync(
+            await TryRecordAsync(HistoryPart, turnKind, context.UserId, () => _conversationManager.SaveConversationMessagesAsync(
                 conversation, context.Message, storedAnswer, model.ModelId, _turnState.StartedAtUtc));
 
-            await TryRecordAsync(UsagePart, context.UserId, () => _conversationManager.TrackUsageAsync(
+            await TryRecordAsync(UsagePart, turnKind, context.UserId, () => _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
                 hasError: hasError,
                 errorMessage: hasError ? TurnInterruptionDefaults.ErroredUsageMessage : null,
@@ -210,14 +215,15 @@ public class TurnCompletionRecorder
                 toolChoiceSupported: _turnState.ProviderSupportsToolChoice,
                 toolCallReturned: _turnState.Calls.Count > 0));
 
-            await TryRecordAsync(AnchorPart, context.UserId, () =>
+            await TryRecordAsync(AnchorPart, turnKind, context.UserId, () =>
             {
                 RecordStoppedTurnAnchor(context, conversation.ConversationId, storedAnswer, executedCalls);
                 return Task.CompletedTask;
             });
         }
 
-        await _stoppedTurnCleanup.CleanUpAsync(context.UserId, context.TurnId.GetValueOrDefault(), CancellationToken.None);
+        await TryRecordAsync(CleanupPart, turnKind, context.UserId, () =>
+            _stoppedTurnCleanup.CleanUpAsync(context.UserId, context.TurnId.GetValueOrDefault(), CancellationToken.None));
 
         if (conversation != null)
         {
@@ -247,7 +253,7 @@ public class TurnCompletionRecorder
         _turnPreparation.RecordLastAction(context, conversationId, storedAnswer, executedCalls, context.RecipePausedOnAsk);
     }
 
-    private async Task TryRecordAsync(string part, string userId, Func<Task> write)
+    private async Task TryRecordAsync(string part, string turnKind, string userId, Func<Task> write)
     {
         try
         {
@@ -255,7 +261,7 @@ public class TurnCompletionRecorder
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving the {Part} of a stopped stream turn for user {UserId}", part, userId);
+            _logger.LogError(ex, "Error saving the {Part} of a {TurnKind} turn for user {UserId}", part, turnKind, userId);
         }
     }
 }
