@@ -26,6 +26,9 @@ public sealed class TurnRunState
     private int _contentLengthAtLastCalls;
     private long _startTimestamp = Stopwatch.GetTimestamp();
 
+    /// <summary>When the turn began (UTC), the time a turn persisted late stamps its history rows with.</summary>
+    public DateTime StartedAtUtc { get; private set; } = DateTime.UtcNow;
+
     public LLMContext? Context { get; private set; }
 
     public LLMConversation? Conversation { get; private set; }
@@ -112,6 +115,7 @@ public sealed class TurnRunState
         StopToken = context.StopToken;
         _contentLengthAtLastCalls = 0;
         _startTimestamp = Stopwatch.GetTimestamp();
+        StartedAtUtc = DateTime.UtcNow;
         Volatile.Write(ref _outcome, NoOutcome);
     }
 

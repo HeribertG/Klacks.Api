@@ -18,11 +18,16 @@
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
 public class TurnCompletionRecorder
 {
+    private const string HistoryPart = "history";
+    private const string UsagePart = "usage row";
+    private const string AnchorPart = "correction anchor";
+
     private readonly ILogger<TurnCompletionRecorder> _logger;
     private readonly LLMConversationManager _conversationManager;
     private readonly ITurnPreparationService _turnPreparation;
@@ -96,8 +101,10 @@ public class TurnCompletionRecorder
     /// writes. Then, in this order: the history with the partial answer and the interruption marker, the usage
     /// row (only the calls the server ran are named), the correction anchor for exactly those calls, the
     /// confirmations the turn issued and its UiAction rows, and the background tasks that stay allowed for a
-    /// turn the user cut off. Every part is best effort and independent of the others. A turn that never got
-    /// as far as a conversation is only cleaned up.
+    /// turn the user cut off. Every part is best effort and independent of the others. The history rows carry the
+    /// time the turn began, and the anchor is left alone when a newer turn has already written or superseded
+    /// it, so a turn persisted after the user moved on cannot read as the latest one. A turn that never got as
+    /// far as a conversation is only cleaned up.
     /// </summary>
     /// <param name="cancellationToken">Cancels the default-agent lookup; the writes themselves never are</param>
     /// <returns>What the client is told about the write actions that ran</returns>
@@ -127,27 +134,23 @@ public class TurnCompletionRecorder
 
         if (conversation != null && model != null)
         {
-            try
-            {
-                await _conversationManager.SaveConversationMessagesAsync(
-                    conversation, context.Message, storedAnswer, model.ModelId);
+            await TryRecordAsync(HistoryPart, context.UserId, () => _conversationManager.SaveConversationMessagesAsync(
+                conversation, context.Message, storedAnswer, model.ModelId, _turnState.StartedAtUtc));
 
-                await _conversationManager.TrackUsageAsync(
-                    context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
-                    ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
-                    toolIterations: _turnState.ToolIterations,
-                    turnId: context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(executedCalls),
-                    toolChoiceRequested: _turnState.ToolChoiceRequested,
-                    toolChoiceSupported: _turnState.ProviderSupportsToolChoice,
-                    toolCallReturned: _turnState.Calls.Count > 0);
+            await TryRecordAsync(UsagePart, context.UserId, () => _conversationManager.TrackUsageAsync(
+                context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
+                ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
+                toolIterations: _turnState.ToolIterations,
+                turnId: context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(executedCalls),
+                toolChoiceRequested: _turnState.ToolChoiceRequested,
+                toolChoiceSupported: _turnState.ProviderSupportsToolChoice,
+                toolCallReturned: _turnState.Calls.Count > 0));
 
-                _turnPreparation.RecordLastAction(
-                    context, conversation.ConversationId, storedAnswer, executedCalls, context.RecipePausedOnAsk);
-            }
-            catch (Exception ex)
+            await TryRecordAsync(AnchorPart, context.UserId, () =>
             {
-                _logger.LogError(ex, "Error saving stopped stream conversation for user {UserId}", context.UserId);
-            }
+                RecordStoppedTurnAnchor(context, conversation.ConversationId, storedAnswer, executedCalls);
+                return Task.CompletedTask;
+            });
         }
 
         await _stoppedTurnCleanup.CleanUpAsync(context.UserId, context.TurnId.GetValueOrDefault(), CancellationToken.None);
@@ -166,5 +169,31 @@ public class TurnCompletionRecorder
         }
 
         return summary;
+    }
+
+    private void RecordStoppedTurnAnchor(
+        LLMContext context, string conversationId, string storedAnswer, IReadOnlyList<LLMFunctionCall> executedCalls)
+    {
+        if (_turnPreparation.HasLastActionSince(context, conversationId, _turnState.StartedAtUtc))
+        {
+            _logger.LogInformation(
+                "Turn {TurnId} was persisted after a newer turn wrote the correction anchor of conversation {ConversationId}; the anchor is kept",
+                context.TurnId, conversationId);
+            return;
+        }
+
+        _turnPreparation.RecordLastAction(context, conversationId, storedAnswer, executedCalls, context.RecipePausedOnAsk);
+    }
+
+    private async Task TryRecordAsync(string part, string userId, Func<Task> write)
+    {
+        try
+        {
+            await write();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving the {Part} of a stopped stream turn for user {UserId}", part, userId);
+        }
     }
 }

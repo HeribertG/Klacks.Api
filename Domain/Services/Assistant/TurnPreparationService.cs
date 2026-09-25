@@ -411,6 +411,25 @@ public class TurnPreparationService : ITurnPreparationService
         }
     }
 
+    public bool HasLastActionSince(LLMContext context, string conversationId, DateTime sinceUtc)
+    {
+        if (!Guid.TryParse(context.UserId, out var userGuid) || string.IsNullOrEmpty(conversationId))
+        {
+            return false;
+        }
+
+        try
+        {
+            var last = _lastActionStore.Peek(userGuid, conversationId);
+            return last != null && (last.CreateTimeUtc > sinceUtc || last.SupersededAtUtc > sinceUtc);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not read the previous action for user {UserId}", context.UserId);
+            return false;
+        }
+    }
+
     /// <summary>
     /// Gates G0-G4 are evaluated first and only then is the (comparatively expensive) G5 probe paid for,
     /// so a message that was going to be rejected anyway never runs it.

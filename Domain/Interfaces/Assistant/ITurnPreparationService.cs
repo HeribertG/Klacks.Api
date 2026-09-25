@@ -49,6 +49,16 @@ public interface ITurnPreparationService
         bool recipePaused);
 
     /// <summary>
+    /// True when the conversation's previous-action record was written or superseded after the given time,
+    /// which is how a turn persisted late (stopped, cut off) learns that a newer turn has already moved on and
+    /// must not overwrite that turn's anchor. A failing store reads as "no newer record".
+    /// </summary>
+    /// <param name="context">The turn's context, source of the user id.</param>
+    /// <param name="conversationId">The resolved conversation id the record is keyed by.</param>
+    /// <param name="sinceUtc">The start of the turn that is about to record; anything after it is newer.</param>
+    bool HasLastActionSince(LLMContext context, string conversationId, DateTime sinceUtc);
+
+    /// <summary>
     /// Part (c) of the turn preparation: decides whether this turn corrects the previous one and what
     /// the re-routing must run on. Called BEFORE the toolset assembly, because the composite is the
     /// assembler's input and the exclusion is one of its parameters.

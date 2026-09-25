@@ -16,6 +16,8 @@ public class LLMConversationManager
 
     private const string HistoryCacheKeySeparator = "|";
 
+    private const long AssistantAfterUserTicks = 1;
+
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
@@ -58,14 +60,15 @@ public class LLMConversationManager
         LLMConversation conversation,
         string userMessage,
         string assistantMessage,
-        string modelId)
+        string modelId,
+        DateTime? turnStartedUtc = null)
     {
         await _repository.SaveMessageAsync(new LLMMessage
         {
             ConversationId = conversation.Id,
             Role = "user",
             Content = userMessage,
-            CreateTime = DateTime.UtcNow
+            CreateTime = turnStartedUtc ?? DateTime.UtcNow
         });
 
         if (ToolCallMarkupSanitizer.ContainsMarkup(assistantMessage))
@@ -82,7 +85,7 @@ public class LLMConversationManager
             Role = "assistant",
             Content = ToolCallMarkupSanitizer.Sanitize(assistantMessage),
             ModelId = modelId,
-            CreateTime = DateTime.UtcNow
+            CreateTime = turnStartedUtc?.AddTicks(AssistantAfterUserTicks) ?? DateTime.UtcNow
         });
 
         conversation.LastMessageAt = DateTime.UtcNow;
