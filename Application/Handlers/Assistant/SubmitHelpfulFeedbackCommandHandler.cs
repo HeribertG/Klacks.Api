@@ -108,6 +108,13 @@ public class SubmitHelpfulFeedbackCommandHandler
             await _repository.UpdateAsync(trajectory, cancellationToken);
         }
 
+        // The judgement of a turn the user stopped is kept on its trajectory, but it feeds no learning case:
+        // an unfinished answer says nothing about whether the routing was right.
+        if (trajectory.WasInterrupted)
+        {
+            return;
+        }
+
         // W1.8: a thumbs-down is an explicit negative judgement about a captured turn, so the learning
         // loop gets a case for the utterance's cluster. The collector swallows its own failures, so the
         // feedback response never depends on the learning store.

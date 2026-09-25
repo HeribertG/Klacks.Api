@@ -32,6 +32,7 @@ public class SkillSelectionTrajectoryConfiguration : IEntityTypeConfiguration<Sk
         builder.Property(p => p.LearnedPhraseHit).HasMaxLength(128);
         builder.Property(p => p.HelpfulComment).HasMaxLength(SkillLearningDefaults.FeedbackCommentMaxLength);
         builder.Property(p => p.RecipeOutcome).HasMaxLength(RecipeOutcomes.MaxLength);
+        builder.Property(p => p.InterruptedPhase).HasMaxLength(InterruptedTurnPhases.MaxLength);
         builder.Property(p => p.KnowledgeIndexCandidatesJson).HasColumnType("jsonb");
 
         builder.HasOne<AgentPlan>()

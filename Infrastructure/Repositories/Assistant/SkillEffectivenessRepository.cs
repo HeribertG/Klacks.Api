@@ -101,11 +101,15 @@ public class SkillEffectivenessRepository : ISkillEffectivenessRepository
         return rows.Select(r => new SkillCallStat(r.SkillName, r.Calls, r.Failures)).ToList();
     }
 
+    // A turn the user stopped never reached the end of its routing, so the skill it had chosen so far says
+    // nothing about where chosen skills come from.
+    internal IQueryable<SkillSelectionTrajectory> ChosenSourceCandidates(DateTime from) =>
+        _context.SkillSelectionTrajectories.Where(t => t.CreateTime >= from && !t.WasInterrupted);
+
     public async Task<IReadOnlyList<TrajectoryChosenSourceSample>> GetChosenSourceSampleAsync(
         DateTime from, int limit, CancellationToken cancellationToken = default)
     {
-        var rows = await _context.SkillSelectionTrajectories
-            .Where(t => t.CreateTime >= from)
+        var rows = await ChosenSourceCandidates(from)
             .OrderByDescending(t => t.CreateTime)
             .Take(limit)
             .Select(t => new { t.LlmChosenSkill, t.KnowledgeIndexCandidatesJson })

@@ -49,11 +49,15 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .ToListAsync(cancellationToken);
     }
 
+    // A turn the user stopped is never sharpening evidence, whatever a correction menu later says about it.
+    internal IQueryable<SkillSelectionTrajectory> UncorrectedWrongSkillQuery(Guid agentId) =>
+        _context.SkillSelectionTrajectories
+            .Where(t => t.AgentId == agentId && t.WasCorrected && t.SharpenedAtUtc == null
+                && t.CorrectionType == CorrectionTypes.WrongSkill && !t.WasInterrupted);
+
     public async Task<List<SkillSelectionTrajectory>> GetUncorrectedWrongSkillAsync(Guid agentId, int limit, CancellationToken cancellationToken = default)
     {
-        return await _context.SkillSelectionTrajectories
-            .Where(t => t.AgentId == agentId && t.WasCorrected && t.SharpenedAtUtc == null
-                && t.CorrectionType == CorrectionTypes.WrongSkill)
+        return await UncorrectedWrongSkillQuery(agentId)
             .OrderByDescending(t => t.CreateTime)
             .Take(limit)
             .ToListAsync(cancellationToken);
@@ -114,7 +118,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
 
         return _context.SkillSelectionTrajectories
             .AsNoTracking()
-            .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc)
+            .Where(t => t.LearnedPhraseHit == ownerName && t.CreateTime >= fromUtc && !t.WasInterrupted)
             .Select(t => new UsageRow(
                 t.CreateTime, t.WasCorrected, t.Helpful,
                 t.LlmChosenSkill == ownerName && !t.WasCorrected && (t.WasSuccessful ?? true)
@@ -127,7 +131,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
 
         return _context.SkillSelectionTrajectories
             .AsNoTracking()
-            .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc)
+            .Where(t => t.RecipeName == recipeName && t.CreateTime >= fromUtc && !t.WasInterrupted)
             .Select(t => new UsageRow(
                 t.CreateTime, t.WasCorrected, t.Helpful,
                 !t.WasCorrected && (t.WasSuccessful ?? t.WasExecuted)
@@ -141,6 +145,7 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
         return _context.SkillSelectionTrajectories
             .AsNoTracking()
             .Where(t => t.RecipeName == recipeName
+                && !t.WasInterrupted
                 && !t.WasCorrected
                 && (t.WasSuccessful ?? t.WasExecuted)
                 && (t.TurnId == null || !failedTurnIds.Contains(t.TurnId.Value)));

@@ -88,4 +88,18 @@ public class SkillSelectionTrajectory : BaseEntity
     /// the feedback handler, never rejected.
     /// </summary>
     public string? HelpfulComment { get; set; }
+
+    /// <summary>
+    /// True when the turn ended on the user's stop or a dropped connection instead of running to its end.
+    /// Such a row is recorded but counts for nothing: no fitness quote, no sharpening evidence, no learning
+    /// case of its own, no verdict. The one thing it may still do is be marked GracefulRerouted by the
+    /// turn that follows it, when that turn's correction really re-routed the request.
+    /// </summary>
+    public bool WasInterrupted { get; set; }
+
+    /// <summary>
+    /// The phase the turn was in when it was interrupted, one of <see cref="InterruptedTurnPhases"/>. Null
+    /// for a turn that ran to its end.
+    /// </summary>
+    public string? InterruptedPhase { get; set; }
 }

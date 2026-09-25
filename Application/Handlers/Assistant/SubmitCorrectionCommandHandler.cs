@@ -86,6 +86,13 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
             "Correction applied to trajectory {TrajectoryId}: type={Type}",
             trajectory.Id, trajectory.CorrectionType);
 
+        // A turn the user stopped is corrected on record but teaches nothing: no reflection, no lesson revoked,
+        // no learning case, because the answer never ran to its end.
+        if (trajectory.WasInterrupted)
+        {
+            return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
+        }
+
         // A user correction is the strongest evidence a turn went wrong, so it feeds the reflection.
         // NoneNeeded says the turn was fine after all and must not produce a lesson.
         if (string.Equals(trajectory.CorrectionType, CorrectionTypes.NoneNeeded, StringComparison.OrdinalIgnoreCase)

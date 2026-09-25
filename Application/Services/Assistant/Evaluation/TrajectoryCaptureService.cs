@@ -57,11 +57,17 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         _logger = logger;
     }
 
-    public async Task CaptureAsync(Guid agentId, LLMContext context, string responseContent, List<LLMFunctionCall> allFunctionCalls)
+    public async Task CaptureAsync(
+        Guid agentId, LLMContext context, string responseContent, List<LLMFunctionCall> allFunctionCalls,
+        string? interruptedPhase = null)
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(context.UserId))
+            var interrupted = interruptedPhase != null;
+
+            // An interrupted turn resolves nothing about the turn before it: it never ran to its end, so what
+            // its message says about the previous answer is not evidence.
+            if (!interrupted && !string.IsNullOrWhiteSpace(context.UserId))
             {
                 await ResolvePreviousTurnAsync(agentId, context);
             }
@@ -89,7 +95,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions),
                 LlmChosenSkill = allFunctionCalls.FirstOrDefault()?.FunctionName,
                 WasExecuted = allFunctionCalls.Count > 0,
-                WasSuccessful = await ComputeWasSuccessfulAsync(context.TurnId),
+                WasSuccessful = interrupted ? null : await ComputeWasSuccessfulAsync(context.TurnId),
                 HadMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message),
                 WasCorrected = false,
                 CorrectionType = CorrectionTypes.None,
@@ -97,7 +103,9 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 LatencyMsKnowledge = latencyKnowledge,
                 LatencyMsLlm = latencyLlm,
                 RecipeName = Truncate(context.ActiveRecipeName),
-                RecipeOutcome = ResolveRecipeOutcome(context),
+                RecipeOutcome = interrupted ? null : ResolveRecipeOutcome(context),
+                WasInterrupted = interrupted,
+                InterruptedPhase = interruptedPhase,
                 LearnedPhraseHit = await FindLearnedPhraseHitAsync(context.Message),
                 CreateTime = DateTime.UtcNow
             };
@@ -186,6 +194,12 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
             return;
         }
 
+        if (previous.WasInterrupted)
+        {
+            await ResolveInterruptedPreviousAsync(agentId, previous, context, isCorrectionSignal);
+            return;
+        }
+
         // Before the window, and without asking the message anything: the engine itself cleared the gate
         // this turn, so nothing has to be attributed by heuristic. The window bounds an attribution, not
         // a fact, and the two clocks disagree - a user who reads the confirmation question and answers
@@ -233,6 +247,25 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         }
 
         await MarkImplicitCorrectionAsync(agentId, previous, context.GracefulCorrectionApplied);
+    }
+
+    // A turn the user stopped counts for nothing, with one exception: when the next message is a correction
+    // that the graceful-correction path really re-routed, the stop and the correction together are the
+    // strongest signal there is that the first routing was wrong, and it is booked as such. Nothing else
+    // about an interrupted turn is resolved by what follows it - not an implicit correction, not a recipe
+    // gate - because the turn never reached the point where the user could have judged it.
+    private async Task ResolveInterruptedPreviousAsync(
+        Guid agentId, SkillSelectionTrajectory previous, LLMContext context, bool isCorrectionSignal)
+    {
+        if (!isCorrectionSignal
+            || !context.GracefulCorrectionApplied
+            || string.IsNullOrWhiteSpace(previous.LlmChosenSkill)
+            || DateTime.UtcNow - previous.CreateTime > ImplicitCorrectionWindow)
+        {
+            return;
+        }
+
+        await MarkImplicitCorrectionAsync(agentId, previous, wasRerouted: true);
     }
 
     // A bare negation answers the assistant's own question and says the recipe trigger was too broad; a

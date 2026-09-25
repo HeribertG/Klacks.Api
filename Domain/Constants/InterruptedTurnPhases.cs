@@ -8,6 +8,9 @@ namespace Klacks.Api.Domain.Constants;
 /// </summary>
 public static class InterruptedTurnPhases
 {
+    /// <summary>Column width of the phase; the longest phase is 12 characters.</summary>
+    public const int MaxLength = 16;
+
     /// <summary>Nothing was streamed and no tool was called yet.</summary>
     public const string BeforeText = "before_text";
 

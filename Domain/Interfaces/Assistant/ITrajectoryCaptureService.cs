@@ -8,6 +8,7 @@
 /// <param name="context">Context with the user message, locale and available functions presented to the LLM</param>
 /// <param name="responseContent">Raw assistant response from the turn</param>
 /// <param name="allFunctionCalls">Function calls actually executed by the LLM during the turn</param>
+/// <param name="interruptedPhase">One of InterruptedTurnPhases when the turn ended on a stop or a dropped connection, null for a turn that ran to its end</param>
 
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -16,5 +17,7 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface ITrajectoryCaptureService
 {
-    Task CaptureAsync(Guid agentId, LLMContext context, string responseContent, List<LLMFunctionCall> allFunctionCalls);
+    Task CaptureAsync(
+        Guid agentId, LLMContext context, string responseContent, List<LLMFunctionCall> allFunctionCalls,
+        string? interruptedPhase = null);
 }
