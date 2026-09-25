@@ -96,13 +96,12 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
     // outcome afterwards (W1.4), flipping skill_usage_records.success without anybody rewriting that
     // snapshot - so a turn whose only execution the browser later reported as failed was still being
     // booked as a success through the "?? true" fallback. Evaluating the turn_id join here instead makes
-    // the late report count. Rows still in Dispatched state remain excluded, exactly as at capture time:
-    // "nobody has reported yet" is not a failure.
+    // the late report count. Rows without a verdict remain excluded, exactly as at capture time: "nobody has
+    // reported yet" (Dispatched) and "the stop kept it from running" (Cancelled) are not failures.
     internal IQueryable<Guid> FailedTurnIds() =>
         _context.SkillUsageRecords
-            .Where(u => u.TurnId != null
-                && !u.Success
-                && (u.UiActionStatus == null || u.UiActionStatus != UiActionStatus.Dispatched))
+            .Where(u => u.TurnId != null && !u.Success)
+            .Where(SkillUsagePredicates.HasVerdict)
             .Select(u => u.TurnId!.Value);
 
     // The three fitness queries are built apart from their execution so a unit test can pin the SQL

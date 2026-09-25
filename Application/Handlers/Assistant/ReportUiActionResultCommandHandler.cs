@@ -6,7 +6,8 @@
 /// the authorization. Unknown ids are not errors: the usage row may have been lost to a restart or
 /// the client may double-report, and a 404 would teach the client nothing useful. A report against a
 /// non-UiAction row or with an unknown status is rejected as a bad request, because that is a
-/// programming error the client should see.
+/// programming error the client should see. A row the stop of its turn already cancelled keeps that
+/// state: the browser never received its steps, so a report for it is a stale echo and is ignored.
 /// </summary>
 /// <param name="repository">Usage store, self-committing</param>
 /// <param name="logger">Reports misses, which are the only interesting outcome</param>
@@ -63,6 +64,13 @@ public class ReportUiActionResultCommandHandler
         {
             throw new ArgumentException(
                 $"Usage row {request.TrackingId} is not a UiAction dispatch.", nameof(request));
+        }
+
+        if (record.UiActionStatus == UiActionStatus.Cancelled)
+        {
+            _logger.LogInformation(
+                "UiAction report for {TrackingId} ignored: the stop of its turn already cancelled it", request.TrackingId);
+            return new ReportUiActionResultResult(Found: true, Updated: false, Error: null);
         }
 
         record.UiActionStatus = status.Value;

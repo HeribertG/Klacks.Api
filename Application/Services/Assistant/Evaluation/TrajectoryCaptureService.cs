@@ -148,10 +148,10 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
 
         // W1.4: a dispatched UiAction is not a verdict yet - the browser reports Completed/Failed
         // later, after this capture has already run. Rows still in Dispatched state are therefore
-        // excluded from the verdict; a turn that consists only of pending UiActions stays unknown
-        // instead of being booked as a false success.
+        // excluded from the verdict, and so are rows the user's stop kept from running (Cancelled);
+        // a turn that consists only of such rows stays unknown instead of being booked as a false success.
         var decisiveRows = usageRows
-            .Where(row => row.UiActionStatus != Domain.Enums.UiActionStatus.Dispatched)
+            .Where(SkillUsagePredicates.RowHasVerdict)
             .ToList();
 
         if (decisiveRows.Count == 0)

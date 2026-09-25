@@ -21,4 +21,14 @@ public interface ISkillUsageRepository
 
     /// <summary>Persists a usage-row change (W1.4 frontend outcome report).</summary>
     Task UpdateAsync(SkillUsageRecord record, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Closes the UiAction rows of a stopped turn: every row of the turn still in Dispatched state becomes
+    /// Cancelled and unsuccessful, because the client never received its steps. Rows of other turns and rows
+    /// that already carry an outcome are left alone. Self-committing.
+    /// </summary>
+    /// <param name="turnId">The stopped turn</param>
+    /// <param name="cancellationToken">Cancels the write</param>
+    /// <returns>The number of rows closed</returns>
+    Task<int> CancelDispatchedForTurnAsync(Guid turnId, CancellationToken cancellationToken = default);
 }

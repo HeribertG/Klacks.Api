@@ -17,5 +17,12 @@ public enum UiActionStatus
     Completed = 2,
 
     /// <summary>The frontend reported the action as failed.</summary>
-    Failed = 3
+    Failed = 3,
+
+    /// <summary>
+    /// The turn that dispatched the action was stopped before the client ever received its steps, so the
+    /// browser never ran it. Neither a success nor a failure of the skill: every reader that separates
+    /// decided rows from pending ones must leave it out, and a later outcome report never overwrites it.
+    /// </summary>
+    Cancelled = 4
 }

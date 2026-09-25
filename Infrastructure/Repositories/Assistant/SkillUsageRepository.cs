@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -92,5 +93,28 @@ public class SkillUsageRepository : ISkillUsageRepository
     {
         _context.SkillUsageRecords.Update(record);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    internal IQueryable<SkillUsageRecord> DispatchedRowsOfTurn(Guid turnId) =>
+        _context.SkillUsageRecords.Where(r => r.TurnId == turnId && r.UiActionStatus == UiActionStatus.Dispatched);
+
+    public async Task<int> CancelDispatchedForTurnAsync(Guid turnId, CancellationToken cancellationToken = default)
+    {
+        var rows = await DispatchedRowsOfTurn(turnId).ToListAsync(cancellationToken);
+        if (rows.Count == 0)
+        {
+            return 0;
+        }
+
+        var now = DateTime.UtcNow;
+        foreach (var row in rows)
+        {
+            row.UiActionStatus = UiActionStatus.Cancelled;
+            row.Success = false;
+            row.UpdateTime = now;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        return rows.Count;
     }
 }

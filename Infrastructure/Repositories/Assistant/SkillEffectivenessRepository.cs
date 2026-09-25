@@ -71,9 +71,8 @@ public class SkillEffectivenessRepository : ISkillEffectivenessRepository
 
     internal IQueryable<SkillUsageRecord> CallRecordsQuery(DateTime from) =>
         _context.SkillUsageRecords
-            .Where(s => s.CreateTime >= from
-                && (s.UiActionStatus == null || s.UiActionStatus != UiActionStatus.Dispatched)
-                && s.FailureKind != SkillFailureKind.Cancelled);
+            .Where(s => s.CreateTime >= from)
+            .Where(SkillUsagePredicates.HasVerdict);
 
     public async Task<IReadOnlyList<SkillFailureKindCount>> GetFailureCountsAsync(
         DateTime from, CancellationToken cancellationToken = default)
