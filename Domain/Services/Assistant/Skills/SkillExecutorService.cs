@@ -194,7 +194,7 @@ public class SkillExecutorService : ISkillExecutor
                 invocation.Parameters,
                 result,
                 stopwatch.Elapsed,
-                cancellationToken,
+                CancellationToken.None,
                 recordId: uiActionTrackingId);
 
             _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
@@ -219,7 +219,7 @@ public class SkillExecutorService : ISkillExecutor
                 { SkillErrorKeys.ErrorCode, ex.ErrorCode ?? SkillErrorKeys.Unknown },
                 { SkillErrorKeys.SkillName, ex.SkillName }
             });
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
             return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -240,7 +240,7 @@ public class SkillExecutorService : ISkillExecutor
                 { SkillErrorKeys.SkillName, invocation.SkillName },
                 { SkillErrorKeys.ExceptionType, ex.GetType().Name }
             });
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
             return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
         }
     }
