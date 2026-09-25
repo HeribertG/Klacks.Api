@@ -147,6 +147,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanStepExecutor, Klacks.Api.Application.Services.Assistant.Planning.PlanStepExecutor>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Planning.IPlanChatService, Klacks.Api.Application.Services.Assistant.Planning.PlanChatService>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPlanExecutionRegistry, Klacks.Api.Infrastructure.Services.Assistant.PlanExecutionRegistry>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IActiveTurnRegistry, Klacks.Api.Infrastructure.Services.Assistant.ActiveTurnRegistry>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
     }
 
