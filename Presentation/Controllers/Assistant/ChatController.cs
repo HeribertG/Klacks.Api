@@ -328,6 +328,10 @@ public class ChatController : ControllerBase
         {
             _logger.LogInformation("SSE stream cancelled by client for user {UserId}", userId);
         }
+        catch (OperationCanceledException) when (streamRequest.StopToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Turn {TurnId} of user {UserId} ended on a stop request", turnId, userId);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during SSE streaming for user {UserId}", userId);

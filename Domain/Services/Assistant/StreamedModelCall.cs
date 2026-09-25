@@ -5,7 +5,9 @@
 /// non-streaming call for a provider that cannot stream, and hands back what the call produced. Content
 /// reaches the client as it arrives; tool-call deltas are collected and completed. The first content
 /// token stamps the turn's time to first token, and a failed call is reported through Error instead of
-/// an event so the turn decides how it ends. One instance covers exactly one call.
+/// an event so the turn decides how it ends. The call runs on a token linked to the request token and the
+/// turn's stop token; a call that either token cut short is reported through Cancelled, and tool calls
+/// that were still being received are then not completed. One instance covers exactly one call.
 /// </summary>
 /// <param name="logger">The chat service's logger, so log categories stay unchanged</param>
 
@@ -32,12 +34,15 @@ internal sealed class StreamedModelCall
     /// <summary>Client-facing text of the failure the call ended on, null when it succeeded.</summary>
     internal string? Error { get; private set; }
 
+    /// <summary>True when the request or the stop token cut the call short; not an error.</summary>
+    internal bool Cancelled { get; private set; }
+
     /// <param name="provider">The provider to call</param>
     /// <param name="request">The prepared request</param>
     /// <param name="model">The model the call runs on; its API id is used for the error log</param>
     /// <param name="turn">The turn the call belongs to; receives usage and the time to first token</param>
     /// <param name="stopwatch">The turn's clock, the time to first token is read from it</param>
-    /// <param name="cancellationToken">Cancels the call</param>
+    /// <param name="cancellationToken">The request token; the turn's stop token is linked to it for the call</param>
     internal async IAsyncEnumerable<SseChunk> RunAsync(
         ILLMProvider provider,
         LLMProviderRequest request,
@@ -50,8 +55,9 @@ internal sealed class StreamedModelCall
 
         if (provider.SupportsStreaming)
         {
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, turn.StopToken);
             var reader = new ProviderStreamReader(_logger);
-            await foreach (var token in reader.ReadAsync(provider, request, model.ApiModelId, cancellationToken))
+            await foreach (var token in reader.ReadAsync(provider, request, model.ApiModelId, linked.Token))
             {
                 if (turn.TtftMs == null)
                 {
@@ -63,18 +69,31 @@ internal sealed class StreamedModelCall
                 yield return SseChunk.Content(token);
             }
 
+            Accumulator = reader.Accumulator;
+            if (reader.Cancelled)
+            {
+                Cancelled = true;
+                yield break;
+            }
+
             if (reader.Failed)
             {
                 Error = AssistantStreamErrorMessages.ProviderFailure;
                 yield break;
             }
 
-            Accumulator = reader.Accumulator;
             hasToolEnd = reader.HasToolEnd;
         }
         else
         {
-            var response = await TransientProviderRetry.ProcessAsync(provider, request, _logger, cancellationToken);
+            var response = await StopAwareCall.RunAsync(
+                turn, cancellationToken, token => TransientProviderRetry.ProcessAsync(provider, request, _logger, token));
+            if (response == null)
+            {
+                Cancelled = true;
+                yield break;
+            }
+
             LLMUsageAccumulator.Add(turn.Usage, response.Usage);
 
             if (!response.Success)

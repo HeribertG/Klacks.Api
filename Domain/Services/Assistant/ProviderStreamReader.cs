@@ -45,6 +45,14 @@ internal sealed class ProviderStreamReader
     internal bool Failed { get; private set; }
 
     /// <summary>
+    /// True when the call was cut short because the caller's token was cancelled - a stop request or a dropped
+    /// connection. Neither is an error: nothing is logged, nothing is retried and <see cref="Failed"/> stays
+    /// false. The content streamed so far stays in <see cref="Accumulator"/>, unfinished tool-call deltas
+    /// included, which the caller must not treat as complete calls.
+    /// </summary>
+    internal bool Cancelled { get; private set; }
+
+    /// <summary>
     /// Yields the plain content tokens of one provider call, in the order the provider produced them.
     /// </summary>
     /// <param name="provider">The streaming provider; the caller has checked SupportsStreaming.</param>
@@ -68,40 +76,63 @@ internal sealed class ProviderStreamReader
             var echoFilter = new PlaceholderEchoFilter();
             var enumerator = provider.ProcessStreamAsync(request, cancellationToken).GetAsyncEnumerator(cancellationToken);
 
-            while (true)
+            try
             {
-                string? token;
-                try
+                while (true)
                 {
-                    if (!await enumerator.MoveNextAsync()) break;
-                    token = enumerator.Current;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Streaming provider error for model {ModelId}", modelId);
-                    // Kept raw for the transient-error classification and the retry log below;
-                    // the client only ever sees the generic text.
-                    streamErrorMessage = ex.Message;
-                    break;
-                }
+                    string? token;
+                    try
+                    {
+                        if (!await enumerator.MoveNextAsync()) break;
+                        token = enumerator.Current;
+                    }
+                    catch (Exception) when (cancellationToken.IsCancellationRequested)
+                    {
+                        Cancelled = true;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Streaming provider error for model {ModelId}", modelId);
+                        // Kept raw for the transient-error classification and the retry log below;
+                        // the client only ever sees the generic text.
+                        streamErrorMessage = ex.Message;
+                        break;
+                    }
 
-                if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
-                {
-                    AppendToolCallDelta(token);
-                }
-                else if (token == LLMStreamingTokens.ToolCallEnd)
-                {
-                    HasToolEnd = true;
-                }
-                else if (echoFilter.Push(token) is { Length: > 0 } visible)
-                {
-                    Accumulator.AppendContent(visible);
-                    contentEmitted = true;
-                    yield return visible;
+                    // A provider that does not observe its token keeps producing; the caller's cancellation
+                    // is honoured at the next token regardless.
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        Cancelled = true;
+                        break;
+                    }
+
+                    if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
+                    {
+                        AppendToolCallDelta(token);
+                    }
+                    else if (token == LLMStreamingTokens.ToolCallEnd)
+                    {
+                        HasToolEnd = true;
+                    }
+                    else if (echoFilter.Push(token) is { Length: > 0 } visible)
+                    {
+                        Accumulator.AppendContent(visible);
+                        contentEmitted = true;
+                        yield return visible;
+                    }
                 }
             }
+            finally
+            {
+                await enumerator.DisposeAsync();
+            }
 
-            await enumerator.DisposeAsync();
+            if (Cancelled)
+            {
+                yield break;
+            }
 
             if (streamErrorMessage == null)
             {

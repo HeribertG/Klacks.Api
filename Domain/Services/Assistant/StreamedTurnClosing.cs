@@ -4,7 +4,9 @@
 /// The closing of a streamed turn after its tool loop: the empty-answer recovery call, the deterministic
 /// re-ask of a recipe question the turn answered around, the recipe run bookkeeping and the closing
 /// notices. Everything is streamed to the client and appended to the turn's stored text, so the stored
-/// answer equals what the user saw. Also hosts the closing guard both chat loops share.
+/// answer equals what the user saw. Also hosts the closing guard both chat loops share. A stop request ends
+/// the closing before the recovery call and again after it, without touching the recipe run: the turn is
+/// then persisted as a stopped one and the recipe stays where it is.
 /// </summary>
 /// <param name="logger">The chat service's logger, so log categories stay unchanged</param>
 /// <param name="functionExecutor">Tells whether the last tool batch ended the turn on a UI passthrough</param>
@@ -37,6 +39,11 @@ internal sealed class StreamedTurnClosing
         TurnClosingInput input,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        if (turn.StopRequested)
+        {
+            yield break;
+        }
+
         var context = turn.Context!;
         var enginePlan = recipe.Plan;
         var recovery = RecoveryFor(
@@ -46,6 +53,11 @@ internal sealed class StreamedTurnClosing
                            recovery, turn, input.LastCallStart, recipe.PausedOnAsk, cancellationToken))
         {
             yield return recoveryChunk;
+        }
+
+        if (turn.StopRequested)
+        {
+            yield break;
         }
 
         // The turn above ran normally (full toolset) because the user's reply to the pending ask was

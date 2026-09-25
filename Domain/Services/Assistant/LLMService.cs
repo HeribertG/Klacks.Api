@@ -276,6 +276,16 @@ public class LLMService : ILLMService
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(context.Message);
 
+        if (turn.StopRequested)
+        {
+            foreach (var stoppedChunk in StoppedTurnChunks(turn))
+            {
+                yield return stoppedChunk;
+            }
+
+            yield break;
+        }
+
         // Emitted unconditionally, not only when a recipe turns out to be active: the resolve itself
         // runs on every turn (recipe table read, trigger matching, semantic fallback and slot
         // extraction — the last of which is a model call), so the wait is real regardless of outcome.
@@ -288,6 +298,11 @@ public class LLMService : ILLMService
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
+            if (turn.StopRequested)
+            {
+                break;
+            }
+
             turn.ToolIterations = iteration + 1;
             lastCallStart = turn.StreamedContent.Length;
             FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
@@ -299,7 +314,7 @@ public class LLMService : ILLMService
                 yield return stepChunk;
             }
 
-            if (recipe.PausedOnAsk)
+            if (recipe.PausedOnAsk || turn.StopRequested)
             {
                 break;
             }
@@ -363,6 +378,16 @@ public class LLMService : ILLMService
             var accumulator = modelCall.Accumulator;
             turn.StreamedContent.Append(accumulator.AccumulatedContent);
 
+            if (modelCall.Cancelled && !turn.StopRequested)
+            {
+                yield break;
+            }
+
+            if (turn.StopRequested)
+            {
+                break;
+            }
+
             if (!accumulator.HasFunctionCalls)
                 break;
 
@@ -378,7 +403,7 @@ public class LLMService : ILLMService
                 yield return roundChunk;
             }
 
-            if (toolRound.EndsTurn)
+            if (toolRound.EndsTurn || turn.StopRequested)
                 break;
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
@@ -400,6 +425,16 @@ public class LLMService : ILLMService
             yield return closingChunk;
         }
 
+        if (turn.StopRequested)
+        {
+            foreach (var stoppedChunk in StoppedTurnChunks(turn))
+            {
+                yield return stoppedChunk;
+            }
+
+            yield break;
+        }
+
         var responseContent = turn.StreamedContent.ToString();
 
         await _turnCompletionRecorder.RecordCompletedAsync(
@@ -407,7 +442,7 @@ public class LLMService : ILLMService
                 context, conversation!, model!, provider!.SupportsToolChoice, responseContent, turn.Usage,
                 stopwatch.ElapsedMilliseconds, turn.TtftMs, turn.ToolIterations, turn.Calls,
                 turn.ToolChoiceRequested, recipe.PausedOnAsk, turn.AnsweredWithNotice),
-            cancellationToken);
+            CancellationToken.None);
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = turn.Usage, Success = true },
@@ -415,6 +450,20 @@ public class LLMService : ILLMService
         await ApplySuggestionGroundingAsync(metadataResponse, recipe.AskedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
+        yield return SseChunk.Done();
+    }
+
+    /// <summary>
+    /// The closing events of a turn the user stopped: turn_stopped and then done, nothing else, because the
+    /// client keeps processing the stream after a confirmed stop and would otherwise append text or start UI
+    /// actions to a stopped turn. Claims the Stopped outcome first, so the safety net leaves the turn alone.
+    /// </summary>
+    /// <param name="turn">The stopped turn</param>
+    private static IEnumerable<SseChunk> StoppedTurnChunks(TurnRunState turn)
+    {
+        turn.TrySetOutcome(TurnOutcome.Stopped);
+        var executedCount = turn.Calls.Count(c => c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat);
+        yield return SseChunk.TurnStopped(turn.Context!.TurnId.GetValueOrDefault(), new List<string>(), executedCount);
         yield return SseChunk.Done();
     }
 

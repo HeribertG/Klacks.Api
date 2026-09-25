@@ -48,7 +48,17 @@ public class ActiveTurnRegistry : IActiveTurnRegistry
             return StopRequestOutcome.NotFound;
         }
 
-        turn.Stop.Cancel();
+        try
+        {
+            turn.Stop.Cancel();
+        }
+        catch (AggregateException)
+        {
+            // Registrations on the token run synchronously in this call (the linked provider tokens of the
+            // streaming turn hang on it). One that throws must not turn an accepted stop into a failed
+            // request: the token is cancelled and every other registration has run by the time this lands.
+        }
+
         return StopRequestOutcome.Accepted;
     }
 
