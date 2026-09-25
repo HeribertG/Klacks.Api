@@ -181,4 +181,10 @@ public class LLMContext
     /// correction turn and be redeemed by an unrelated "yes" one turn later.
     /// </summary>
     public bool CorrectionUndoOffered { get; set; }
+
+    /// <summary>
+    /// Cancelled when the turn's owner asks for a cooperative stop. Distinct from the HTTP request token on
+    /// purpose: a stop lets the turn finish cleanly and persist what happened. None on paths that offer no stop.
+    /// </summary>
+    public CancellationToken StopToken { get; set; }
 }

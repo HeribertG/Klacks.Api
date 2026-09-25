@@ -154,6 +154,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             ConversationId = request.ConversationId,
             TurnId = turnId,
             TurnStartTimestamp = turnStartTimestamp,
+            StopToken = request.StopToken,
             ModelId = effectiveModelId,
             ProviderId = LLMCapabilityService.MapProvider(earlyModel?.ProviderId),
             Language = request.Language,

@@ -10,8 +10,11 @@
 /// <param name="turnPreparation">Records the last-action anchor a later correction reads</param>
 /// <param name="agentRepository">Resolves the default agent the background tasks run for</param>
 /// <param name="backgroundTaskService">Starts the post-turn background tasks</param>
+/// <param name="turnState">The turn's run state, whose outcome is claimed before anything is written</param>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -22,25 +25,38 @@ public class TurnCompletionRecorder
     private readonly ITurnPreparationService _turnPreparation;
     private readonly IAgentRepository _agentRepository;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
+    private readonly TurnRunState _turnState;
 
     public TurnCompletionRecorder(
         ILogger<TurnCompletionRecorder> logger,
         LLMConversationManager conversationManager,
         ITurnPreparationService turnPreparation,
         IAgentRepository agentRepository,
-        ILLMBackgroundTaskService backgroundTaskService)
+        ILLMBackgroundTaskService backgroundTaskService,
+        TurnRunState turnState)
     {
         _logger = logger;
         _conversationManager = conversationManager;
         _turnPreparation = turnPreparation;
         _agentRepository = agentRepository;
         _backgroundTaskService = backgroundTaskService;
+        _turnState = turnState;
     }
 
     /// <param name="turn">The finished turn to persist</param>
     /// <param name="cancellationToken">Cancels the default-agent lookup</param>
     public async Task RecordCompletedAsync(TurnCompletion turn, CancellationToken cancellationToken)
     {
+        // Claimed before the first write on purpose: a storage failure below must still leave the turn
+        // recorded as completed, otherwise the interrupted-turn safety net would store it a second time.
+        if (!_turnState.TrySetOutcome(TurnOutcome.Completed))
+        {
+            _logger.LogWarning(
+                "Turn {TurnId} already has outcome {Outcome}; the completed turn is not persisted again",
+                turn.Context.TurnId, _turnState.Outcome);
+            return;
+        }
+
         try
         {
             await _conversationManager.SaveConversationMessagesAsync(

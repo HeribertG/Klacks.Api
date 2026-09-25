@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -29,6 +30,7 @@ public class LLMService : ILLMService
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
     private readonly ITurnPreparationService _turnPreparation;
     private readonly TurnCompletionRecorder _turnCompletionRecorder;
+    private readonly TurnRunState _turnState;
 
     private const int MaxHistoryMessages = 20;
 
@@ -85,7 +87,8 @@ public class LLMService : ILLMService
         ISuggestionEntityNameReader suggestionEntityNameReader,
         IContextBudgetPolicy contextBudgetPolicy,
         ITurnPreparationService turnPreparation,
-        TurnCompletionRecorder turnCompletionRecorder)
+        TurnCompletionRecorder turnCompletionRecorder,
+        TurnRunState turnState)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -102,6 +105,7 @@ public class LLMService : ILLMService
         _contextBudgetPolicy = contextBudgetPolicy;
         _turnPreparation = turnPreparation;
         _turnCompletionRecorder = turnCompletionRecorder;
+        _turnState = turnState;
     }
 
     /// <summary>
@@ -205,6 +209,7 @@ public class LLMService : ILLMService
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
+        _turnState.Begin(context);
 
         yield return SseChunk.Status(SseStatusStages.PreparingContext, ElapsedMsFor(context));
 
@@ -225,6 +230,7 @@ public class LLMService : ILLMService
 
         if (preparationError != null)
         {
+            _turnState.TrySetOutcome(TurnOutcome.Errored);
             yield return SseChunk.Error(preparationError);
             yield break;
         }
@@ -233,6 +239,7 @@ public class LLMService : ILLMService
 
         if (prepError != null)
         {
+            _turnState.TrySetOutcome(TurnOutcome.Errored);
             yield return SseChunk.Error(prepError);
             yield break;
         }
@@ -242,6 +249,7 @@ public class LLMService : ILLMService
         if (context.CorrectionClarificationReply is { Length: > 0 } streamClarification)
         {
             yield return SseChunk.Content(streamClarification);
+            _turnState.TrySetOutcome(TurnOutcome.Clarified);
 
             try
             {
@@ -258,8 +266,7 @@ public class LLMService : ILLMService
             yield break;
         }
 
-        var turn = new TurnRunState();
-        turn.Begin(context);
+        var turn = _turnState;
         turn.Attach(conversation!, model!, provider!.SupportsToolChoice);
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
@@ -348,6 +355,7 @@ public class LLMService : ILLMService
 
             if (modelCall.Error != null)
             {
+                turn.TrySetOutcome(TurnOutcome.Errored);
                 yield return SseChunk.Error(modelCall.Error);
                 yield break;
             }
@@ -359,7 +367,7 @@ public class LLMService : ILLMService
                 break;
 
             var functionCalls = accumulator.FunctionCalls.ToList();
-            turn.Calls.AddRange(functionCalls);
+            turn.RegisterCalls(functionCalls);
             ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
             var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe);

@@ -271,6 +271,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<IOneShotCompletionService, OneShotCompletionService>();
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<TurnCompletionRecorder>();
+        services.AddScoped<Klacks.Api.Domain.Models.Assistant.TurnRunState>();
         services.AddSkillToolsetServices();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
