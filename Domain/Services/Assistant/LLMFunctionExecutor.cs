@@ -300,7 +300,7 @@ public class LLMFunctionExecutor
             ? stopToken
             : CancellationToken.None;
         var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext, skillToken);
-        if (stopToken.IsCancellationRequested && result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Cancelled))
+        if (skillToken.CanBeCanceled && stopToken.IsCancellationRequested && !result.Success)
         {
             MarkSkippedByStop(call);
             return call.Result!;

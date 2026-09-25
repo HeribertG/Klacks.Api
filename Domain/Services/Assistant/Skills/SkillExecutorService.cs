@@ -222,7 +222,7 @@ public class SkillExecutorService : ISkillExecutor
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
             return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             stopwatch.Stop();
             _logger.LogInformation("Skill execution cancelled: {SkillName}", invocation.SkillName);
