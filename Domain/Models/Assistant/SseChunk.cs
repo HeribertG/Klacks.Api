@@ -31,11 +31,17 @@ public class SseChunk
     public string? Stage { get; set; }
     public long? ElapsedMs { get; set; }
     public int? Iteration { get; set; }
+    public Guid? TurnId { get; set; }
+    public List<string>? ExecutedSkillLabels { get; set; }
+    public int? ExecutedCount { get; set; }
 
-    public static SseChunk StreamStart(string conversationId) => new()
+    /// <param name="conversationId">The conversation the turn belongs to</param>
+    /// <param name="turnId">Id the client sends to the cancel endpoint to stop this turn; omitted when the turn has none</param>
+    public static SseChunk StreamStart(string conversationId, Guid? turnId = null) => new()
     {
         Type = SseChunkType.StreamStart,
-        ConversationId = conversationId
+        ConversationId = conversationId,
+        TurnId = turnId
     };
 
     public static SseChunk Content(string text) => new()
@@ -79,6 +85,22 @@ public class SseChunk
         Type = SseChunkType.Done
     };
 
+    /// <summary>
+    /// Closing event of a turn the user stopped: the client learns what really ran before it says so. After
+    /// this event only Done follows - no content, no metadata - because the client keeps processing the
+    /// stream after a confirmed stop and would otherwise append text or start UI actions to a stopped turn.
+    /// </summary>
+    /// <param name="turnId">Id of the stopped turn</param>
+    /// <param name="executedSkillLabels">User-language labels of the actions that really ran; may be shorter than the count</param>
+    /// <param name="executedCount">Number of actions that really ran, including any whose label is unavailable</param>
+    public static SseChunk TurnStopped(Guid turnId, List<string> executedSkillLabels, int executedCount) => new()
+    {
+        Type = SseChunkType.TurnStopped,
+        TurnId = turnId,
+        ExecutedSkillLabels = executedSkillLabels,
+        ExecutedCount = executedCount
+    };
+
     public static SseChunk Error(string message) => new()
     {
         Type = SseChunkType.Error,
@@ -110,5 +132,6 @@ public enum SseChunkType
     Metadata,
     Done,
     Error,
-    Status
+    Status,
+    TurnStopped
 }

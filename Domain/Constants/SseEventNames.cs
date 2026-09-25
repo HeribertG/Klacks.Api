@@ -20,6 +20,7 @@ public static class SseEventNames
     public const string Done = "done";
     public const string Error = "error";
     public const string Status = "status";
+    public const string TurnStopped = "turn_stopped";
 
     /// <summary>
     /// Name an unmapped chunk type is sent under. Kept so a newly added chunk type reaches the client
@@ -38,6 +39,7 @@ public static class SseEventNames
         SseChunkType.Done => Done,
         SseChunkType.Error => Error,
         SseChunkType.Status => Status,
+        SseChunkType.TurnStopped => TurnStopped,
         _ => Unknown
     };
 }

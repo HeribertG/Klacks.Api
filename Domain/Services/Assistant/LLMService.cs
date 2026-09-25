@@ -237,7 +237,7 @@ public class LLMService : ILLMService
             yield break;
         }
 
-        yield return SseChunk.StreamStart(conversation!.ConversationId);
+        yield return SseChunk.StreamStart(conversation!.ConversationId, context.TurnId);
 
         if (context.CorrectionClarificationReply is { Length: > 0 } streamClarification)
         {
