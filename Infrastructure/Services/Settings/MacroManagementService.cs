@@ -5,9 +5,10 @@
 /// while active shifts or absence types reference the macro or while it carries a standard function. An update
 /// never takes the origin from the payload: it keeps the persisted origin, except that an assistant-owned macro
 /// edited outside the assistant (the admin REST path) becomes a user macro, so the assistant cannot overwrite the
-/// administrator's version afterwards. An update replaces the whole macro with the given instance: another instance of
-/// the same macro that an earlier read in the same scope left tracked (GetQuery, ListQuery) is detached first, otherwise
-/// the update would fail with an identity conflict.
+/// administrator's version afterwards. An update replaces the whole macro with the given instance: another, unchanged
+/// instance of the same macro that an earlier read in the same scope left tracked (GetQuery, ListQuery) is detached
+/// first, otherwise the update would fail with an identity conflict. A tracked instance with pending changes is never
+/// detached, so those changes are not dropped silently; the update then fails loudly.
 /// </summary>
 /// <param name="context">Database context the changes are staged on</param>
 /// <param name="macroCache">Cache of compiled macros, invalidated on every change</param>
@@ -135,7 +136,9 @@ public class MacroManagementService : IMacroManagementService
     private void DetachOtherTrackedInstance(Macro macro)
     {
         var tracked = _context.Macro.Local.FirstOrDefault(m => m.Id == macro.Id);
-        if (tracked != null && !ReferenceEquals(tracked, macro))
+        if (tracked != null
+            && !ReferenceEquals(tracked, macro)
+            && _context.Entry(tracked).State == EntityState.Unchanged)
         {
             _context.Entry(tracked).State = EntityState.Detached;
         }
