@@ -258,17 +258,13 @@ public class LLMService : ILLMService
             yield break;
         }
 
-        var totalUsage = new Providers.LLMUsage();
-        var allFunctionCalls = new List<LLMFunctionCall>();
-        var fullResponseContent = new StringBuilder();
+        var turn = new TurnRunState();
+        turn.Begin(context);
+        turn.Attach(conversation!, model!, provider!.SupportsToolChoice);
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
         var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt, context.AvailableFunctions);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var firstTokenLogged = false;
-        long? ttftMs = null;
-        var toolIterationsRun = 0;
-        var toolChoiceRequested = false;
         string? navigationRoute = null;
         string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
@@ -288,49 +284,19 @@ public class LLMService : ILLMService
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
-            toolIterationsRun = iteration + 1;
-            lastCallStart = fullResponseContent.Length;
+            turn.ToolIterations = iteration + 1;
+            lastCallStart = turn.StreamedContent.Length;
             FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
-            enginePlan?.AdvanceOverSatisfied();
-            if (enginePlan != null && enginePlan.NeedsConfirmation)
+            await foreach (var stepChunk in RecipePauseStep.StreamAsync(
+                               _logger, recipe, provider!, model!, currentMessage, systemPrompt!, volatilePrompt,
+                               runningHistory, turn, cancellationToken))
             {
-                var confirmInstruction = enginePlan.ConfirmationInstruction;
-                yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
-                var confirmResponse = await ProcessWithTransientRetryAsync(
-                    provider!,
-                    LLMProviderRequestFactory.RecipeStep(
-                        model!, currentMessage, systemPrompt!, volatilePrompt, confirmInstruction, runningHistory),
-                    cancellationToken);
-                LLMUsageAccumulator.Add(totalUsage, confirmResponse.Usage);
-                var confirmText = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
-                    confirmResponse.Success ? confirmResponse.Content : null, enginePlan.Goal,
-                    enginePlan.AlternativeGoal, context.Language, enginePlan.GoalTranslations,
-                    enginePlan.AlternativeGoalTranslations), enginePlan.AlternativeGoal, context.Language);
-                fullResponseContent.Append(confirmText);
-                yield return SseChunk.Content(confirmText);
-                await recipe.PauseForConfirmationAsync(cancellationToken);
-                break;
+                yield return stepChunk;
             }
 
-            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk && !enginePlan.TopicSwitchThisTurn)
+            if (recipe.PausedOnAsk)
             {
-                var askInstruction = string.Format(
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
-                yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
-                var askResponse = await ProcessWithTransientRetryAsync(
-                    provider!,
-                    LLMProviderRequestFactory.RecipeStep(
-                        model!, currentMessage, systemPrompt!, volatilePrompt, askInstruction, runningHistory),
-                    cancellationToken);
-                LLMUsageAccumulator.Add(totalUsage, askResponse.Usage);
-                var askText = RecipeReplyGuard.SafeAsk(
-                    askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
-                    enginePlan.CurrentAskPromptTranslations, context.Language);
-                fullResponseContent.Append(askText);
-                yield return SseChunk.Content(askText);
-                await recipe.PauseOnAskAsync(cancellationToken);
                 break;
             }
 
@@ -343,7 +309,7 @@ public class LLMService : ILLMService
             // is now rejected rather than silently executed.
             var iterationFunctions = context.AvailableFunctions;
 
-            var confirmThisIteration = recipe.ForceConfirm && allFunctionCalls.Count == 0;
+            var confirmThisIteration = recipe.ForceConfirm && turn.Calls.Count == 0;
             if (confirmThisIteration)
             {
                 iterationFunctions = new List<LLMFunction> { recipe.ConfirmFunction! };
@@ -362,77 +328,41 @@ public class LLMService : ILLMService
                 model!, currentMessage, systemPrompt!,
                 CombineVolatile(volatilePrompt, IterationNotePolicy.Select(
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
-                    recipe.SuggestPlan, allFunctionCalls.Count)),
+                    recipe.SuggestPlan, turn.Calls.Count)),
                 runningHistory, iterationFunctions,
                 ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count),
+                    forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, turn.Calls.Count),
                 stream: true,
-                onStreamUsage: usage => LLMUsageAccumulator.Add(totalUsage, usage));
+                onStreamUsage: usage => LLMUsageAccumulator.Add(turn.Usage, usage));
 
             if (providerRequest.ToolChoice == MutationGuardConstants.ToolChoiceRequired)
             {
-                toolChoiceRequested = true;
+                turn.ToolChoiceRequested = true;
             }
 
-            var accumulator = new StreamAccumulator();
-            var hasToolEnd = false;
+            yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), turn.ToolIterations);
 
-            yield return SseChunk.Status(SseStatusStages.CallingModel, ElapsedMsFor(context), toolIterationsRun);
-
-            if (provider!.SupportsStreaming)
+            var modelCall = new StreamedModelCall(_logger);
+            await foreach (var callChunk in modelCall.RunAsync(
+                               provider!, providerRequest, model!, turn, stopwatch, cancellationToken))
             {
-                var reader = new ProviderStreamReader(_logger);
-                await foreach (var token in reader.ReadAsync(
-                                   provider, providerRequest, model!.ApiModelId, cancellationToken))
-                {
-                    if (!firstTokenLogged)
-                    {
-                        ttftMs = stopwatch.ElapsedMilliseconds;
-                        _logger.LogInformation("LLM TTFT: {Ms}ms turn={Turn}", ttftMs, TurnCorrelationFor(context));
-                        firstTokenLogged = true;
-                    }
-
-                    yield return SseChunk.Content(token);
-                }
-
-                if (reader.Failed)
-                {
-                    yield return SseChunk.Error(AssistantStreamErrorMessages.ProviderFailure);
-                    yield break;
-                }
-
-                accumulator = reader.Accumulator;
-                hasToolEnd = reader.HasToolEnd;
+                yield return callChunk;
             }
-            else
+
+            if (modelCall.Error != null)
             {
-                var response = await ProcessWithTransientRetryAsync(provider, providerRequest, cancellationToken);
-                LLMUsageAccumulator.Add(totalUsage, response.Usage);
-
-                if (!response.Success)
-                {
-                    yield return SseChunk.Error(response.Error ?? "Provider error");
-                    yield break;
-                }
-
-                var visibleContent = AnswerPlaceholder.Visible(response.Content);
-                accumulator.AppendContent(visibleContent);
-                yield return SseChunk.Content(visibleContent);
-                hasToolEnd = accumulator.AppendCompleteFunctionCalls(response.FunctionCalls);
+                yield return SseChunk.Error(modelCall.Error);
+                yield break;
             }
 
-            if (hasToolEnd)
-            {
-                accumulator.FinalizeFunctionCalls();
-            }
-
-            fullResponseContent.Append(accumulator.AccumulatedContent);
+            var accumulator = modelCall.Accumulator;
+            turn.StreamedContent.Append(accumulator.AccumulatedContent);
 
             if (!accumulator.HasFunctionCalls)
                 break;
 
             var functionCalls = accumulator.FunctionCalls.ToList();
-            allFunctionCalls.AddRange(functionCalls);
+            turn.Calls.AddRange(functionCalls);
             ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
             var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe);
@@ -442,7 +372,7 @@ public class LLMService : ILLMService
                 yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
             }
 
-            yield return SseChunk.Status(SseStatusStages.ExecutingTool, ElapsedMsFor(context), toolIterationsRun);
+            yield return SseChunk.Status(SseStatusStages.ExecutingTool, ElapsedMsFor(context), turn.ToolIterations);
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
             recipe.Forcing?.Observe(functionCalls);
@@ -478,8 +408,8 @@ public class LLMService : ILLMService
                 + recipe.TakeGateHoldNote();
         }
 
-        var recovery = RecoveryFor(provider!, totalUsage, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory, historyBudget, context.Language);
-        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, allFunctionCalls, fullResponseContent, lastCallStart, toolIterationsRun, recipe.PausedOnAsk, cancellationToken))
+        var recovery = RecoveryFor(provider!, turn.Usage, model!, currentMessage, systemPrompt!, volatilePrompt, runningHistory, historyBudget, context.Language);
+        await foreach (var recoveryChunk in StreamRecoveryAsync(recovery, context, turn.Calls, turn.StreamedContent, lastCallStart, turn.ToolIterations, recipe.PausedOnAsk, cancellationToken))
         {
             yield return recoveryChunk;
         }
@@ -500,17 +430,17 @@ public class LLMService : ILLMService
                 null, enginePlan.CurrentAskPrompt ?? string.Empty,
                 enginePlan.CurrentAskPromptTranslations, context.Language);
             var reaskChunk = RecipeEngineDefaults.TopicSwitchReaskSeparator + reaskText;
-            fullResponseContent.Append(reaskChunk);
+            turn.StreamedContent.Append(reaskChunk);
             yield return SseChunk.Content(reaskChunk);
             await recipe.PauseOnReaskAsync(cancellationToken);
         }
 
         await recipe.FinalizeAsync(cancellationToken);
 
-        var responseContent = fullResponseContent.ToString();
+        var responseContent = turn.StreamedContent.ToString();
 
         foreach (var notice in TurnClosingNotices.Collect(
-                     isMutationIntent, recipe.ForceConfirm, responseContent, allFunctionCalls, recipe.PausedOnAsk, _logger))
+                     isMutationIntent, recipe.ForceConfirm, responseContent, turn.Calls, recipe.PausedOnAsk, _logger))
         {
             yield return SseChunk.Content(notice);
             responseContent += notice;
@@ -518,14 +448,14 @@ public class LLMService : ILLMService
 
         await _turnCompletionRecorder.RecordCompletedAsync(
             new TurnCompletion(
-                context, conversation!, model!, provider!.SupportsToolChoice, responseContent, totalUsage,
-                stopwatch.ElapsedMilliseconds, ttftMs, toolIterationsRun, allFunctionCalls,
-                toolChoiceRequested, recipe.PausedOnAsk, recovery.AnsweredWithNotice),
+                context, conversation!, model!, provider!.SupportsToolChoice, responseContent, turn.Usage,
+                stopwatch.ElapsedMilliseconds, turn.TtftMs, turn.ToolIterations, turn.Calls,
+                turn.ToolChoiceRequested, recipe.PausedOnAsk, recovery.AnsweredWithNotice),
             cancellationToken);
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
-            new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },
-            conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute, navigationTarget);
+            new LLMProviderResponse { Content = responseContent, Usage = turn.Usage, Success = true },
+            conversation!.ConversationId, responseContent, turn.Calls, navigationRoute, navigationTarget);
         await ApplySuggestionGroundingAsync(metadataResponse, recipe.AskedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
@@ -670,14 +600,14 @@ public class LLMService : ILLMService
     // Milliseconds since the turn clock started, i.e. before the toolset assembly the caller already
     // paid for. Null when no clock was handed in, which keeps elapsedMs off the wire instead of
     // reporting an age measured from an unrelated zero point.
-    private static long? ElapsedMsFor(LLMContext context) =>
+    internal static long? ElapsedMsFor(LLMContext context) =>
         context.TurnStartTimestamp is { } start
             ? (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds
             : null;
 
     // The turn's short correlation id: the same value the ambient TurnCorrelation carries into the
     // retrieval log, so both sides of a turn can be joined without threading an id through the layers.
-    private static string TurnCorrelationFor(LLMContext context) =>
+    internal static string TurnCorrelationFor(LLMContext context) =>
         context.TurnId is { } turnId ? TurnCorrelation.Format(turnId) : TurnCorrelation.CurrentOrNone;
 
     // Effective per-turn budget for conversation history, derived from the provider's real input limit
