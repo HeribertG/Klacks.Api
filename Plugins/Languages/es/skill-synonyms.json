@@ -1358,6 +1358,10 @@
     "¿qué pasa con el dictado si quito whisper?",
     "¿cuánta memoria necesita cada modelo?"
   ],
+  "extend_macro": [
+    "ampliar macro como copia",
+    "copia ampliada de la macro de cálculo"
+  ],
   "fetch_new_emails": [
     "recuperar los correos nuevos ahora",
     "actualizar la bandeja de entrada ya"

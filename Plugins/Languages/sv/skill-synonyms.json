@@ -1351,6 +1351,10 @@
     "vad kostar det i minne med whisper?",
     "hur tar jag bort whisper igen?"
   ],
+  "extend_macro": [
+    "utöka makro som kopia",
+    "utökad kopia av beräkningsmakro"
+  ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",
     "uppdatera inkorgen direkt"

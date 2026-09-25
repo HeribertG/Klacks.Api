@@ -199,6 +199,7 @@
   "explain_system_context": "解释 Klacksy 的系统环境",
   "explain_user_account_creation": "创建用户账号的方式",
   "explain_whisper_setup": "解释本地语音识别设置",
+  "extend_macro": "以副本方式扩展计算宏",
   "fetch_new_emails": "立即获取新邮件",
   "fill_group_by_criteria": "按条件填充组",
   "find_absence_capacity_windows": "查找适合休假的时间段",

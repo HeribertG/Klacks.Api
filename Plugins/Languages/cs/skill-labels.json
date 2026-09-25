@@ -199,6 +199,7 @@
   "explain_system_context": "Vysvětlit systémový kontext Klacksyho",
   "explain_user_account_creation": "Způsoby vytváření uživatelských účtů",
   "explain_whisper_setup": "Vysvětlení lokálního rozpoznávání řeči (Whisper)",
+  "extend_macro": "Rozšířit výpočetní makro jako kopii",
   "fetch_new_emails": "Načíst nové e-maily",
   "fill_group_by_criteria": "Vyplnit skupinu podle kritérií",
   "find_absence_capacity_windows": "Najít vhodné časové okno pro nepřítomnost",

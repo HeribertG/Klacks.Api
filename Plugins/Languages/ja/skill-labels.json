@@ -199,6 +199,7 @@
   "explain_system_context": "Klacksyのシステムコンテキストを説明",
   "explain_user_account_creation": "ユーザーアカウントの作成方法",
   "explain_whisper_setup": "ローカル音声認識（Whisper）の説明",
+  "extend_macro": "計算マクロをコピーとして拡張",
   "fetch_new_emails": "新着メールを今すぐ取得",
   "fill_group_by_criteria": "条件でグループを自動構成",
   "find_absence_capacity_windows": "休暇に適した期間を検索",

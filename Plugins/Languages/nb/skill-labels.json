@@ -199,6 +199,7 @@
   "explain_system_context": "Forklare systemkonteksten til Klacksy",
   "explain_user_account_creation": "Måter å opprette brukerkontoer på",
   "explain_whisper_setup": "Forklaring av lokal talegjenkjenning (Whisper)",
+  "extend_macro": "Utvid beregningsmakro som kopi",
   "fetch_new_emails": "Hent nye e-poster nå",
   "fill_group_by_criteria": "Fyll ut gruppen etter kriterier",
   "find_absence_capacity_windows": "Finne passende tidsvinduer for fravær",

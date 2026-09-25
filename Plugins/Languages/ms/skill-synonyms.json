@@ -1325,6 +1325,10 @@
     "bagaimana menukar saiz model whisper",
     "apa yang berlaku jika saya buang whisper"
   ],
+  "extend_macro": [
+    "kembangkan makro sebagai salinan",
+    "salinan makro pengiraan yang dikembangkan"
+  ],
   "fetch_new_emails": [
     "dapatkan e-mel baharu sekarang",
     "segarkan peti masuk serta-merta"

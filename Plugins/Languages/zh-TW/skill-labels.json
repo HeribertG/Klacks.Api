@@ -199,6 +199,7 @@
   "explain_system_context": "說明 Klacksy 的系統環境",
   "explain_user_account_creation": "建立使用者帳號的方式",
   "explain_whisper_setup": "說明本機語音辨識設定",
+  "extend_macro": "以副本方式擴充計算巨集",
   "fetch_new_emails": "立即收取新郵件",
   "fill_group_by_criteria": "依條件填入群組",
   "find_absence_capacity_windows": "尋找適合休假的時段",

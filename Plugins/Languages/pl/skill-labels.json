@@ -199,6 +199,7 @@
   "explain_system_context": "Wyjaśnij kontekst systemowy Klacksy'ego",
   "explain_user_account_creation": "Sposoby tworzenia konta użytkownika",
   "explain_whisper_setup": "Wyjaśnij konfigurację lokalnego rozpoznawania mowy (Whisper)",
+  "extend_macro": "Rozszerzenie makra obliczeniowego jako kopii",
   "fetch_new_emails": "Pobierz teraz nowe wiadomości e-mail",
   "fill_group_by_criteria": "Wypełnij grupę według kryteriów",
   "find_absence_capacity_windows": "Znajdź odpowiednie okna czasowe dla nieobecności",

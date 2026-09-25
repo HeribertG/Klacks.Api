@@ -199,6 +199,7 @@
   "explain_system_context": "Explicar el contexto del sistema de Klacksy",
   "explain_user_account_creation": "Formas de crear cuentas de usuario",
   "explain_whisper_setup": "Explicación del reconocimiento de voz local (Whisper)",
+  "extend_macro": "Ampliar la macro de cálculo como copia",
   "fetch_new_emails": "Recuperar ahora los nuevos correos electrónicos",
   "fill_group_by_criteria": "Rellenar el grupo según los criterios",
   "find_absence_capacity_windows": "Encontrar franjas horarias adecuadas para una ausencia",

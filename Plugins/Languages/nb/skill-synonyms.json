@@ -1331,6 +1331,10 @@
     "hvordan bytter jeg modellstørrelse?",
     "hva skjer med diktat hvis jeg fjerner whisper?"
   ],
+  "extend_macro": [
+    "utvid makro som kopi",
+    "utvidet kopi av beregningsmakro"
+  ],
   "fetch_new_emails": [
     "hent nye e-poster nå",
     "oppdater innboksen umiddelbart"

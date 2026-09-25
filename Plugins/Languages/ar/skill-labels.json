@@ -199,6 +199,7 @@
   "explain_system_context": "شرح سياق نظام Klacksy",
   "explain_user_account_creation": "طرق إنشاء حسابات المستخدمين",
   "explain_whisper_setup": "شرح نظام التعرف على الكلام المحلي (Whisper)",
+  "extend_macro": "توسيع ماكرو الحساب كنسخة",
   "fetch_new_emails": "استلام رسائل البريد الإلكتروني الجديدة الآن",
   "fill_group_by_criteria": "ملء المجموعة وفقًا للمعايير",
   "find_absence_capacity_windows": "تحديد المواعيد المناسبة للغياب",

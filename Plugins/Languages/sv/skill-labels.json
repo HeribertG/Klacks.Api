@@ -199,6 +199,7 @@
   "explain_system_context": "Förklara Klacksys systemkontext",
   "explain_user_account_creation": "Sätt att skapa ett användarkonto",
   "explain_whisper_setup": "Förklara lokal taligenkänning (Whisper)",
+  "extend_macro": "Utöka beräkningsmakro som kopia",
   "fetch_new_emails": "Hämta nya e-postmeddelanden nu",
   "fill_group_by_criteria": "Fyll en grupp efter kriterier",
   "find_absence_capacity_windows": "Hitta lämpliga tidsfönster för en frånvaro",

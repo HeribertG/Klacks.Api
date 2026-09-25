@@ -1355,6 +1355,10 @@
     "ce se întâmplă cu dictarea dacă elimin whisper?",
     "cum văd progresul instalării?"
   ],
+  "extend_macro": [
+    "extinde macro-ul ca o copie",
+    "copie extinsă a macro-ului de calcul"
+  ],
   "fetch_new_emails": [
     "preia e-mailurile noi acum",
     "reîmprospătează inboxul imediat"

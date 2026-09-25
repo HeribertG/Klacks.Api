@@ -1323,6 +1323,10 @@
     "bagaimana cara beralih ke pengenalan suara lokal",
     "apa yang terjadi jika saya hapus model whisper"
   ],
+  "extend_macro": [
+    "perluas makro sebagai salinan",
+    "salinan makro perhitungan yang diperluas"
+  ],
   "fetch_new_emails": [
     "ambil email baru sekarang",
     "segarkan kotak masuk segera"

@@ -199,6 +199,7 @@
   "explain_system_context": "Selitä Klacksyn järjestelmäkonteksti",
   "explain_user_account_creation": "Käyttäjätilien luontitavat",
   "explain_whisper_setup": "Paikallisen puheentunnistuksen (Whisper) selittäminen",
+  "extend_macro": "Laskentamakron laajentaminen kopiona",
   "fetch_new_emails": "Lataa uudet sähköpostit nyt",
   "fill_group_by_criteria": "Täytä ryhmä kriteerien mukaan",
   "find_absence_capacity_windows": "Löytää sopivia aikavälejä poissaololle",

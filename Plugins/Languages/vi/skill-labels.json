@@ -199,6 +199,7 @@
   "explain_system_context": "Giải thích bối cảnh hệ thống của Klacksy",
   "explain_user_account_creation": "Các cách tạo tài khoản người dùng",
   "explain_whisper_setup": "Giải thích thiết lập nhận dạng giọng nói cục bộ (Whisper)",
+  "extend_macro": "Mở rộng macro tính toán dưới dạng bản sao",
   "fetch_new_emails": "Tải email mới ngay",
   "fill_group_by_criteria": "Thêm người vào nhóm theo tiêu chí",
   "find_absence_capacity_windows": "Tìm khung thời gian phù hợp để vắng mặt",

@@ -1350,6 +1350,10 @@
     "mitä tapahtuu kun poistan whisperin?",
     "millä mallilla saan parhaan tarkkuuden?"
   ],
+  "extend_macro": [
+    "laajenna makro kopiona",
+    "laskentamakron laajennettu kopio"
+  ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",
     "päivitä saapuneet-kansio heti"

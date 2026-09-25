@@ -1319,6 +1319,10 @@
     "tại sao quá trình cài đặt lâu vậy",
     "cách chuyển giọng nói về máy chủ nội bộ"
   ],
+  "extend_macro": [
+    "mở rộng macro thành bản sao",
+    "bản sao mở rộng của macro tính toán"
+  ],
   "fetch_new_emails": [
     "lấy email mới ngay bây giờ",
     "làm mới hộp thư đến ngay"

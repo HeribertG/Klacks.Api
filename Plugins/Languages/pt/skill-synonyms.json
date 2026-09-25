@@ -1364,6 +1364,10 @@
     "posso manter as gravações aqui",
     "como trocar o tamanho do modelo"
   ],
+  "extend_macro": [
+    "ampliar macro como cópia",
+    "cópia ampliada da macro de cálculo"
+  ],
   "fetch_new_emails": [
     "buscar os novos e-mails agora",
     "atualizar a caixa de entrada já"

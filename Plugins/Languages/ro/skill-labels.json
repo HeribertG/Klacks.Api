@@ -199,6 +199,7 @@
   "explain_system_context": "Explică contextul de sistem al Klacksy",
   "explain_user_account_creation": "Modalități de creare a contului de utilizator",
   "explain_whisper_setup": "Explică configurarea recunoașterii vocale locale (Whisper)",
+  "extend_macro": "Extinderea macro-ului de calcul ca o copie",
   "fetch_new_emails": "Preia e-mailurile noi acum",
   "fill_group_by_criteria": "Completarea grupului în funcție de criterii",
   "find_absence_capacity_windows": "Găsește intervale potrivite pentru o absență",

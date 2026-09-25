@@ -1370,6 +1370,10 @@
     "wat is het verschil tussen de modellen",
     "hoe verwijder ik de lokale spraakherkenning"
   ],
+  "extend_macro": [
+    "macro als kopie uitbreiden",
+    "uitgebreide kopie van de berekeningsmacro"
+  ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",
     "postvak in direct verversen"

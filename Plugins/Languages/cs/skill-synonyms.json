@@ -1363,6 +1363,10 @@
     "jak stáhnout model pro whisper",
     "co se stane, když whisper odeberu"
   ],
+  "extend_macro": [
+    "rozšířit makro jako kopii",
+    "rozšířená kopie výpočetního makra"
+  ],
   "fetch_new_emails": [
     "stáhnout nové e-maily hned",
     "aktualizovat doručenou poštu"

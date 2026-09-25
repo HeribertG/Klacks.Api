@@ -199,6 +199,7 @@
   "explain_system_context": "อธิบายบริบทระบบของ Klacksy",
   "explain_user_account_creation": "วิธีสร้างบัญชีผู้ใช้",
   "explain_whisper_setup": "อธิบายการตั้งค่าการรู้จำเสียงในเครื่อง",
+  "extend_macro": "ขยายมาโครการคำนวณเป็นสำเนา",
   "fetch_new_emails": "ดึงอีเมลใหม่ตอนนี้",
   "fill_group_by_criteria": "เติมกลุ่มตามเกณฑ์",
   "find_absence_capacity_windows": "ค้นหาช่วงเวลาที่เหมาะสมสำหรับการลา",

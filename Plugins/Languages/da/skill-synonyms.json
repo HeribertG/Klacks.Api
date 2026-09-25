@@ -1363,6 +1363,10 @@
     "hvordan skifter jeg mellem whisper-modeller?",
     "hvad sker der, hvis jeg fjerner whisper?"
   ],
+  "extend_macro": [
+    "udvid makro som kopi",
+    "udvidet kopi af beregningsmakro"
+  ],
   "fetch_new_emails": [
     "hent nye e-mails nu",
     "opdater indbakken med det samme"
