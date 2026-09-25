@@ -1368,6 +1368,18 @@
     "ampliar macro como cópia",
     "cópia ampliada da macro de cálculo"
   ],
+  "assign_macro_to_shift": [
+    "atribuir macro ao turno",
+    "trocar a macro de cálculo do turno"
+  ],
+  "assign_macro_to_absence_type": [
+    "atribuir macro ao tipo de ausência",
+    "trocar a macro de cálculo do tipo de ausência"
+  ],
+  "revert_macro_assignment": [
+    "desfazer atribuição de macro",
+    "restaurar a macro de cálculo anterior"
+  ],
   "fetch_new_emails": [
     "buscar os novos e-mails agora",
     "atualizar a caixa de entrada já"

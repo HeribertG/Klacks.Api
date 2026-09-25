@@ -1362,6 +1362,18 @@
     "ampliar macro como copia",
     "copia ampliada de la macro de cálculo"
   ],
+  "assign_macro_to_shift": [
+    "asignar macro al turno",
+    "cambiar la macro de cálculo del turno"
+  ],
+  "assign_macro_to_absence_type": [
+    "asignar macro al tipo de ausencia",
+    "cambiar la macro de cálculo del tipo de ausencia"
+  ],
+  "revert_macro_assignment": [
+    "deshacer asignación de macro",
+    "restaurar la macro de cálculo anterior"
+  ],
   "fetch_new_emails": [
     "recuperar los correos nuevos ahora",
     "actualizar la bandeja de entrada ya"

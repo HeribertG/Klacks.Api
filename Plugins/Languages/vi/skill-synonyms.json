@@ -1323,6 +1323,18 @@
     "mở rộng macro thành bản sao",
     "bản sao mở rộng của macro tính toán"
   ],
+  "assign_macro_to_shift": [
+    "gán macro cho ca làm",
+    "đổi macro tính toán của ca làm"
+  ],
+  "assign_macro_to_absence_type": [
+    "gán macro cho loại nghỉ phép",
+    "đổi macro tính toán của loại nghỉ phép"
+  ],
+  "revert_macro_assignment": [
+    "hoàn tác gán macro",
+    "khôi phục macro tính toán trước đó"
+  ],
   "fetch_new_emails": [
     "lấy email mới ngay bây giờ",
     "làm mới hộp thư đến ngay"

@@ -1367,6 +1367,18 @@
     "rozšířit makro jako kopii",
     "rozšířená kopie výpočetního makra"
   ],
+  "assign_macro_to_shift": [
+    "přiřadit makro směně",
+    "změnit výpočetní makro směny"
+  ],
+  "assign_macro_to_absence_type": [
+    "přiřadit makro typu nepřítomnosti",
+    "změnit výpočetní makro typu nepřítomnosti"
+  ],
+  "revert_macro_assignment": [
+    "vrátit přiřazení makra",
+    "obnovit předchozí výpočetní makro"
+  ],
   "fetch_new_emails": [
     "stáhnout nové e-maily hned",
     "aktualizovat doručenou poštu"

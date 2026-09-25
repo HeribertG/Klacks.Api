@@ -1367,6 +1367,18 @@
     "udvid makro som kopi",
     "udvidet kopi af beregningsmakro"
   ],
+  "assign_macro_to_shift": [
+    "tildel makro til vagt",
+    "udskift beregningsmakro for vagt"
+  ],
+  "assign_macro_to_absence_type": [
+    "tildel makro til fraværstype",
+    "udskift beregningsmakro for fraværstype"
+  ],
+  "revert_macro_assignment": [
+    "fortryd makrotildeling",
+    "gendan tidligere beregningsmakro"
+  ],
   "fetch_new_emails": [
     "hent nye e-mails nu",
     "opdater indbakken med det samme"

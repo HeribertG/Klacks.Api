@@ -1359,6 +1359,18 @@
     "extinde macro-ul ca o copie",
     "copie extinsă a macro-ului de calcul"
   ],
+  "assign_macro_to_shift": [
+    "atribuie macro-ul schimbului",
+    "schimbă macro-ul de calcul al schimbului"
+  ],
+  "assign_macro_to_absence_type": [
+    "atribuie macro-ul tipului de absență",
+    "schimbă macro-ul de calcul al tipului de absență"
+  ],
+  "revert_macro_assignment": [
+    "anulează atribuirea macro-ului",
+    "restabilește macro-ul de calcul anterior"
+  ],
   "fetch_new_emails": [
     "preia e-mailurile noi acum",
     "reîmprospătează inboxul imediat"

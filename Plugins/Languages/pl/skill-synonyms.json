@@ -1373,6 +1373,18 @@
     "rozszerz makro jako kopię",
     "rozszerzona kopia makra obliczeniowego"
   ],
+  "assign_macro_to_shift": [
+    "przypisz makro do zmiany",
+    "zmień makro obliczeniowe zmiany"
+  ],
+  "assign_macro_to_absence_type": [
+    "przypisz makro do rodzaju nieobecności",
+    "zmień makro obliczeniowe rodzaju nieobecności"
+  ],
+  "revert_macro_assignment": [
+    "cofnij przypisanie makra",
+    "przywróć poprzednie makro obliczeniowe"
+  ],
   "fetch_new_emails": [
     "pobierz nowe e-maile teraz",
     "odśwież skrzynkę odbiorczą natychmiast"

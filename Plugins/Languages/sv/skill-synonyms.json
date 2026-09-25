@@ -1355,6 +1355,18 @@
     "utöka makro som kopia",
     "utökad kopia av beräkningsmakro"
   ],
+  "assign_macro_to_shift": [
+    "tilldela makro till pass",
+    "byt beräkningsmakro för passet"
+  ],
+  "assign_macro_to_absence_type": [
+    "tilldela makro till frånvarotyp",
+    "byt beräkningsmakro för frånvarotypen"
+  ],
+  "revert_macro_assignment": [
+    "ångra makrotilldelning",
+    "återställ tidigare beräkningsmakro"
+  ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",
     "uppdatera inkorgen direkt"

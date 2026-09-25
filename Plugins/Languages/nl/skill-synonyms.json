@@ -1374,6 +1374,18 @@
     "macro als kopie uitbreiden",
     "uitgebreide kopie van de berekeningsmacro"
   ],
+  "assign_macro_to_shift": [
+    "macro aan dienst toewijzen",
+    "berekeningsmacro van de dienst wisselen"
+  ],
+  "assign_macro_to_absence_type": [
+    "macro aan afwezigheidstype toewijzen",
+    "berekeningsmacro van het afwezigheidstype wisselen"
+  ],
+  "revert_macro_assignment": [
+    "macrotoewijzing ongedaan maken",
+    "vorige berekeningsmacro terugzetten"
+  ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",
     "postvak in direct verversen"

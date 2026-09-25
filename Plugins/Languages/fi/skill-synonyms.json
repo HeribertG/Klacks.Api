@@ -1354,6 +1354,18 @@
     "laajenna makro kopiona",
     "laskentamakron laajennettu kopio"
   ],
+  "assign_macro_to_shift": [
+    "määritä makro vuorolle",
+    "vaihda vuoron laskentamakro"
+  ],
+  "assign_macro_to_absence_type": [
+    "määritä makro poissaolotyypille",
+    "vaihda poissaolotyypin laskentamakro"
+  ],
+  "revert_macro_assignment": [
+    "peru makron määritys",
+    "palauta aiempi laskentamakro"
+  ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",
     "päivitä saapuneet-kansio heti"

@@ -1323,6 +1323,18 @@
     "以副本扩展计算宏",
     "扩展后的计算宏副本"
   ],
+  "assign_macro_to_shift": [
+    "给班次分配计算宏",
+    "更换班次的计算宏"
+  ],
+  "assign_macro_to_absence_type": [
+    "给缺勤类型分配计算宏",
+    "更换缺勤类型的计算宏"
+  ],
+  "revert_macro_assignment": [
+    "撤销计算宏分配",
+    "恢复之前的计算宏"
+  ],
   "fetch_new_emails": [
     "立即收取新邮件",
     "马上刷新收件箱"

@@ -1329,6 +1329,18 @@
     "kembangkan makro sebagai salinan",
     "salinan makro pengiraan yang dikembangkan"
   ],
+  "assign_macro_to_shift": [
+    "tetapkan makro kepada syif",
+    "tukar makro pengiraan syif"
+  ],
+  "assign_macro_to_absence_type": [
+    "tetapkan makro kepada jenis ketidakhadiran",
+    "tukar makro pengiraan jenis ketidakhadiran"
+  ],
+  "revert_macro_assignment": [
+    "batalkan penetapan makro",
+    "pulihkan makro pengiraan sebelumnya"
+  ],
   "fetch_new_emails": [
     "dapatkan e-mel baharu sekarang",
     "segarkan peti masuk serta-merta"

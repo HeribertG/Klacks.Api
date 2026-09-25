@@ -1327,6 +1327,18 @@
     "perluas makro sebagai salinan",
     "salinan makro perhitungan yang diperluas"
   ],
+  "assign_macro_to_shift": [
+    "tetapkan makro ke shift",
+    "ganti makro perhitungan shift"
+  ],
+  "assign_macro_to_absence_type": [
+    "tetapkan makro ke jenis ketidakhadiran",
+    "ganti makro perhitungan jenis ketidakhadiran"
+  ],
+  "revert_macro_assignment": [
+    "batalkan penetapan makro",
+    "kembalikan makro perhitungan sebelumnya"
+  ],
   "fetch_new_emails": [
     "ambil email baru sekarang",
     "segarkan kotak masuk segera"
