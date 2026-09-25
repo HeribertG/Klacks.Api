@@ -17,7 +17,7 @@ public class ActiveTurnRegistry : IActiveTurnRegistry
 {
     private readonly ConcurrentDictionary<Guid, ActiveTurn> _turns = new();
 
-    public int ActiveCount => _turns.Count;
+    internal int ActiveCount => _turns.Count;
 
     // The cancellation sources are deliberately never disposed: a source without timers or linked sources
     // holds no unmanaged resource, and disposing one would turn a stop that races Complete into an
