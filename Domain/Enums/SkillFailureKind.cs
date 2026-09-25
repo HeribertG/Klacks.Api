@@ -25,5 +25,8 @@ public enum SkillFailureKind
     UiActionContext = 5,
 
     /// <summary>Any exception or configuration error (no implementation/handler) during execution.</summary>
-    Exception = 6
+    Exception = 6,
+
+    /// <summary>A stop request cut a read-only skill short. Not a failure of the skill: it is excluded from the failure counts.</summary>
+    Cancelled = 7
 }

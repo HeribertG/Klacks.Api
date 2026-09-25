@@ -19,6 +19,14 @@ public class LLMFunctionCall
     /// must exclude it.
     /// </summary>
     public bool IsRejectedRepeat { get; set; }
+
+    /// <summary>
+    /// True when the call did not run because the user stopped the turn: it was skipped before it started,
+    /// or it is a read that the stop cut short. Like RequiresConfirmation and IsRejectedRepeat it sets
+    /// Success=false without being a skill failure, so failure-driven consumers (reflection, grounding
+    /// skip, last-error notice) and the record of what the turn executed must exclude it.
+    /// </summary>
+    public bool SkippedByStop { get; set; }
     public string? UiActionSteps { get; set; }
     public Guid? UiActionTrackingId { get; set; }
     public LLMFunctionResultKind ResultKind { get; set; }

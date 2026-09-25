@@ -64,11 +64,21 @@ public class SkillEffectivenessRepository : ISkillEffectivenessRepository
             .CountAsync(cancellationToken);
     }
 
+    // A skill the user's stop cut short (Cancelled) is not a failure and not a call of that skill either.
+    internal IQueryable<SkillUsageRecord> FailureRecordsQuery(DateTime from) =>
+        _context.SkillUsageRecords
+            .Where(s => s.CreateTime >= from && s.FailureKind != null && s.FailureKind != SkillFailureKind.Cancelled);
+
+    internal IQueryable<SkillUsageRecord> CallRecordsQuery(DateTime from) =>
+        _context.SkillUsageRecords
+            .Where(s => s.CreateTime >= from
+                && (s.UiActionStatus == null || s.UiActionStatus != UiActionStatus.Dispatched)
+                && s.FailureKind != SkillFailureKind.Cancelled);
+
     public async Task<IReadOnlyList<SkillFailureKindCount>> GetFailureCountsAsync(
         DateTime from, CancellationToken cancellationToken = default)
     {
-        var rows = await _context.SkillUsageRecords
-            .Where(s => s.CreateTime >= from && s.FailureKind != null)
+        var rows = await FailureRecordsQuery(from)
             .GroupBy(s => s.FailureKind!.Value)
             .Select(g => new { Kind = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
@@ -79,9 +89,7 @@ public class SkillEffectivenessRepository : ISkillEffectivenessRepository
     public async Task<IReadOnlyList<SkillCallStat>> GetSkillCallStatsAsync(
         DateTime from, CancellationToken cancellationToken = default)
     {
-        var rows = await _context.SkillUsageRecords
-            .Where(s => s.CreateTime >= from
-                && (s.UiActionStatus == null || s.UiActionStatus != UiActionStatus.Dispatched))
+        var rows = await CallRecordsQuery(from)
             .GroupBy(s => s.SkillName)
             .Select(g => new
             {

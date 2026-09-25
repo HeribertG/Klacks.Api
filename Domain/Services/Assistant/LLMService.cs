@@ -462,7 +462,7 @@ public class LLMService : ILLMService
     private static IEnumerable<SseChunk> StoppedTurnChunks(TurnRunState turn)
     {
         turn.TrySetOutcome(TurnOutcome.Stopped);
-        var executedCount = turn.Calls.Count(c => c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat);
+        var executedCount = turn.Calls.Count(c => c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat && !c.SkippedByStop);
         yield return SseChunk.TurnStopped(turn.Context!.TurnId.GetValueOrDefault(), new List<string>(), executedCount);
         yield return SseChunk.Done();
     }

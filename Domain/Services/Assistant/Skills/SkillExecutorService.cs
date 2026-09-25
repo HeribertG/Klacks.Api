@@ -227,7 +227,7 @@ public class SkillExecutorService : ISkillExecutor
             stopwatch.Stop();
             _logger.LogInformation("Skill execution cancelled: {SkillName}", invocation.SkillName);
             var result = SkillResult.Cancelled($"Skill '{invocation.SkillName}' execution was cancelled");
-            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, cancellationToken);
+            await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Cancelled, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
             return result;
         }
         catch (Exception ex)

@@ -185,6 +185,7 @@ internal static class LLMCoreServiceCollectionExtensions
     private static void AddAssistantPendingStateServices(this IServiceCollection services)
     {
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ICancellableSkillPolicy, Klacks.Api.Application.Services.Assistant.CancellableSkillPolicy>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingConfirmationRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();

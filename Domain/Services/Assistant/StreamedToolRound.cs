@@ -3,8 +3,9 @@
 /// <summary>
 /// The tool half of one iteration of a streamed turn: announces the calls the model made, runs the ones
 /// the repeat guard let through, tells the recipe about them, remembers a navigation a call led to and
-/// streams every call's result. Whether the round ended the turn is read from <see cref="EndsTurn"/>.
-/// One instance covers exactly one round.
+/// streams every call's result, except that of a call the user's stop kept from running: the client marks a
+/// tool step as done on its result, and that step never ran. Whether the round ended the turn is read from
+/// <see cref="EndsTurn"/>. One instance covers exactly one round.
 /// </summary>
 /// <param name="functionExecutor">Runs the calls and reports what kind of calls they were</param>
 
@@ -48,7 +49,7 @@ internal sealed class StreamedToolRound
 
         yield return SseChunk.Status(SseStatusStages.ExecutingTool, LLMService.ElapsedMsFor(context), turn.ToolIterations);
 
-        await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
+        await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls, turn.StopToken);
         recipe.Forcing?.Observe(functionCalls);
         if (functionCalls.Any(c => c.RequiresConfirmation))
         {
@@ -60,7 +61,7 @@ internal sealed class StreamedToolRound
         if (_functionExecutor.NavigationTarget != null)
             turn.NavigationTarget = _functionExecutor.NavigationTarget;
 
-        foreach (var call in functionCalls)
+        foreach (var call in functionCalls.Where(c => !c.SkippedByStop))
         {
             // Same vacuous-truth guard as EndsTurn below: with an empty execution list
             // HasOnlyUiPassthroughCalls is true although nothing UiPassthrough ran.

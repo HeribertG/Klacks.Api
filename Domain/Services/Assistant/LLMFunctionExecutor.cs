@@ -34,6 +34,7 @@ public class LLMFunctionExecutor
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
+    private readonly ICancellableSkillPolicy? _cancellableSkillPolicy;
 
     private Dictionary<string, AgentSkill>? _skillCache;
 
@@ -42,13 +43,15 @@ public class LLMFunctionExecutor
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
         IPendingConfirmationStore pendingConfirmationStore,
-        ILLMSkillBridge? skillBridge = null)
+        ILLMSkillBridge? skillBridge = null,
+        ICancellableSkillPolicy? cancellableSkillPolicy = null)
     {
         _logger = logger;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _pendingConfirmationStore = pendingConfirmationStore;
         _skillBridge = skillBridge;
+        _cancellableSkillPolicy = cancellableSkillPolicy;
     }
 
     private async Task<AgentSkill?> GetSkillAsync(string functionName)
@@ -87,7 +90,8 @@ public class LLMFunctionExecutor
     public string? NavigationRoute { get; private set; }
     public string? NavigationTarget { get; private set; }
 
-    public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
+    public async Task<string> ProcessFunctionCallsAsync(
+        LLMContext context, List<LLMFunctionCall> functionCalls, CancellationToken stopToken = default)
     {
         var results = new List<string>();
         var allUiPassthrough = true;
@@ -96,13 +100,19 @@ public class LLMFunctionExecutor
 
         foreach (var call in functionCalls)
         {
+            if (stopToken.IsCancellationRequested)
+            {
+                MarkSkippedByStop(call);
+                continue;
+            }
+
             try
             {
                 var executionType = await GetExecutionTypeAsync(call.FunctionName);
                 if (executionType != LlmExecutionTypes.UiPassthrough)
                     allUiPassthrough = false;
 
-                var result = await ExecuteFunctionAsync(context, call);
+                var result = await ExecuteFunctionAsync(context, call, stopToken);
                 call.Result = result;
                 if (!string.IsNullOrEmpty(result))
                 {
@@ -123,6 +133,14 @@ public class LLMFunctionExecutor
         HasOnlyUiPassthroughCalls = allUiPassthrough;
         LastBatchWasUiPassthroughOnly = allUiPassthrough && functionCalls.Count > 0;
         return string.Join("\n", results);
+    }
+
+    private static void MarkSkippedByStop(LLMFunctionCall call)
+    {
+        call.SkippedByStop = true;
+        call.Success = false;
+        call.Result = TurnInterruptionDefaults.SkippedCallResult;
+        call.ResultKind = LLMFunctionResultKind.Error;
     }
 
     // A propose_* skill only produces a dry run and then asks the user to confirm. The user's reply is
@@ -203,7 +221,7 @@ public class LLMFunctionExecutor
         { "navigate_to_page", "navigate_to" }
     };
 
-    private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call)
+    private async Task<string> ExecuteFunctionAsync(LLMContext context, LLMFunctionCall call, CancellationToken stopToken)
     {
         if (FunctionNameAliases.TryGetValue(call.FunctionName, out var normalizedName))
         {
@@ -219,7 +237,7 @@ public class LLMFunctionExecutor
         if (executionType == LlmExecutionTypes.FrontendOnly)
         {
             _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
-            var skillResult = await ExecuteSkillAsync(context, call);
+            var skillResult = await ExecuteSkillAsync(context, call, stopToken);
             var firstLine = skillResult.Split('\n')[0];
             call.ResultKind = LLMFunctionResultKind.FrontendOnly;
             call.DataJson = new();
@@ -237,10 +255,10 @@ public class LLMFunctionExecutor
                    "Inform the user that the action is being carried out.";
         }
 
-        return await ExecuteSkillAsync(context, call);
+        return await ExecuteSkillAsync(context, call, stopToken);
     }
 
-    private async Task<string> ExecuteSkillAsync(LLMContext context, LLMFunctionCall call)
+    private async Task<string> ExecuteSkillAsync(LLMContext context, LLMFunctionCall call, CancellationToken stopToken)
     {
         if (_skillBridge == null)
         {
@@ -273,7 +291,16 @@ public class LLMFunctionExecutor
             Parameters = call.Parameters
         };
 
-        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext);
+        var skillToken = stopToken.CanBeCanceled && _cancellableSkillPolicy?.ReceivesStopToken(call.FunctionName) == true
+            ? stopToken
+            : CancellationToken.None;
+        var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext, skillToken);
+        if (stopToken.IsCancellationRequested && result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Cancelled))
+        {
+            MarkSkippedByStop(call);
+            return call.Result!;
+        }
+
         call.Success = result.Success;
         call.ContainsExternalContent = result.ContainsExternalContent;
         call.RequiresConfirmation =
