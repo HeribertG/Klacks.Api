@@ -1467,6 +1467,17 @@
       "expectedRecipe": "setup-consultation"
     },
     {
+      "id": "w05-recipe-plan-delivery-deadline",
+      "message": "Bis wann muss ich die Pläne fertig haben, damit sie rechtzeitig per Post ankommen?",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: plan-delivery-deadline",
+      "expectedRecipe": "plan-delivery-deadline"
+    },
+    {
       "id": "w05-messaging-send-message",
       "message": "Sende eine Nachricht an Max",
       "locale": "de",
