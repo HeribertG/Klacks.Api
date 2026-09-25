@@ -42,7 +42,7 @@ public class InterruptedTurnFinalizer : IInterruptedTurnFinalizer
         _logger = logger;
     }
 
-    public async Task FinalizeAsync(string userId, Guid turnId, bool endedInError)
+    public async Task<StoppedTurnSummary?> FinalizeAsync(string userId, Guid turnId, bool endedInError)
     {
         try
         {
@@ -54,12 +54,12 @@ public class InterruptedTurnFinalizer : IInterruptedTurnFinalizer
             if (_turnState.Outcome == TurnOutcome.Errored)
             {
                 await _recorder.RecordErroredAsync(CancellationToken.None);
-                return;
+                return null;
             }
 
             if (_turnState.Outcome != null)
             {
-                return;
+                return null;
             }
 
             if (_turnState.Context == null)
@@ -70,19 +70,21 @@ public class InterruptedTurnFinalizer : IInterruptedTurnFinalizer
                         "Turn {TurnId} of user {UserId} ended before its context was prepared; only its confirmations are dropped",
                         turnId, userId);
                     await _cleanup.CleanUpAsync(userId, turnId, CancellationToken.None);
+                    return StoppedTurnSummary.Nothing;
                 }
 
-                return;
+                return null;
             }
 
             _logger.LogInformation(
                 "Turn {TurnId} of user {UserId} was left mid-way ({Reason}) and is persisted as interrupted",
                 turnId, userId, _turnState.StopRequested ? "stop requested" : "connection lost");
-            await _recorder.RecordStoppedAsync(CancellationToken.None);
+            return await _recorder.TryRecordStoppedAsync(CancellationToken.None);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Finalizing the interrupted turn {TurnId} of user {UserId} failed", turnId, userId);
+            return null;
         }
     }
 }

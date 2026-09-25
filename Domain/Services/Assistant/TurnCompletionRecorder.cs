@@ -110,7 +110,15 @@ public class TurnCompletionRecorder
     /// </summary>
     /// <param name="cancellationToken">Cancels the default-agent lookup; the writes themselves never are</param>
     /// <returns>What the client is told about the write actions that ran</returns>
-    public async Task<StoppedTurnSummary> RecordStoppedAsync(CancellationToken cancellationToken)
+    public async Task<StoppedTurnSummary> RecordStoppedAsync(CancellationToken cancellationToken) =>
+        await TryRecordStoppedAsync(cancellationToken) ?? StoppedTurnSummary.From(_turnState.Context, _turnState.Calls);
+
+    /// <summary>
+    /// The same persistence as RecordStoppedAsync for a caller that has to know whether it did the writing.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the default-agent lookup; the writes themselves never are</param>
+    /// <returns>The summary of the write actions when this call claimed the outcome and persisted the turn; null when the turn already had an outcome and nothing was written</returns>
+    public async Task<StoppedTurnSummary?> TryRecordStoppedAsync(CancellationToken cancellationToken)
     {
         var context = _turnState.Context;
         var summary = StoppedTurnSummary.From(context, _turnState.Calls);
@@ -120,7 +128,7 @@ public class TurnCompletionRecorder
             _logger.LogWarning(
                 "Turn {TurnId} already has outcome {Outcome}; the stopped turn is not persisted again",
                 context?.TurnId, _turnState.Outcome);
-            return summary;
+            return null;
         }
 
         if (context == null)
@@ -128,7 +136,15 @@ public class TurnCompletionRecorder
             return summary;
         }
 
-        await PersistCutOffTurnAsync(context, TurnInterruptionDefaults.InterruptedMarker, hasError: false, cancellationToken);
+        try
+        {
+            await PersistCutOffTurnAsync(context, TurnInterruptionDefaults.InterruptedMarker, hasError: false, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error persisting the stopped turn of user {UserId}", context.UserId);
+        }
+
         return summary;
     }
 

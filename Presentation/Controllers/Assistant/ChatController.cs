@@ -314,10 +314,13 @@ public class ChatController : ControllerBase
             : _turnRegistry.Register(turnId, userId);
 
         var endedInError = false;
+        var stopEscaped = false;
+        var stopReported = false;
         try
         {
             await foreach (var chunk in _streamingOrchestrator.ProcessStreamAsync(streamRequest, cancellationToken))
             {
+                stopReported |= chunk.Type == SseChunkType.TurnStopped;
                 if (chunk.Type == SseChunkType.Metadata)
                 {
                     chunk.MissedTargetId = await DetectAndLogSuspectedMissAsync(
@@ -334,6 +337,7 @@ public class ChatController : ControllerBase
         }
         catch (OperationCanceledException) when (streamRequest.StopToken.IsCancellationRequested)
         {
+            stopEscaped = true;
             _logger.LogInformation("Turn {TurnId} of user {UserId} ended on a stop request", turnId, userId);
         }
         catch (Exception ex)
@@ -354,12 +358,35 @@ public class ChatController : ControllerBase
         {
             try
             {
-                await _turnFinalizer.FinalizeAsync(userId, turnId, endedInError);
+                var persistedAsStopped = await _turnFinalizer.FinalizeAsync(userId, turnId, endedInError);
+                if (stopEscaped && !stopReported && persistedAsStopped != null)
+                {
+                    await WriteStopConfirmationAsync(turnId, persistedAsStopped, userId, cancellationToken);
+                }
             }
             finally
             {
                 _turnRegistry.Complete(turnId);
             }
+        }
+    }
+
+    /// <param name="turnId">The stopped turn the client is told about</param>
+    /// <param name="summary">The write actions that ran, as the client is to hear them</param>
+    /// <param name="userId">The turn's user, for the log only</param>
+    /// <param name="cancellationToken">Aborts the write when the client disconnects</param>
+    private async Task WriteStopConfirmationAsync(
+        Guid turnId, StoppedTurnSummary summary, string userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await WriteSseEventAsync(
+                SseChunk.TurnStopped(turnId, summary.Labels.ToList(), summary.ExecutedCount), cancellationToken);
+            await WriteSseEventAsync(SseChunk.Done(), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to send the stop confirmation to a disconnected client for user {UserId}", userId);
         }
     }
 
