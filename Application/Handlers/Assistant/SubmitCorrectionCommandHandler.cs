@@ -6,7 +6,9 @@
 /// Because that hash is normalised, a correction whose text differs from the captured turn only in
 /// casing or surrounding whitespace now finds its trajectory instead of silently reporting "not found".
 /// A correction naming the expected skill is also the only evidence the learning loop gets that is not a
-/// refusal, so it is forwarded to the case collector.
+/// refusal, so it is forwarded to the case collector. This holds for a turn the user stopped as well: the bare
+/// stop teaches nothing, but a click on the correction menu is an explicit judgement of that turn. Such a turn
+/// teaches once - a stopped turn that is already corrected is left as it is.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Assistant;
@@ -76,6 +78,16 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
             return new SubmitCorrectionResult(Found: false, TrajectoryId: null);
         }
 
+        // A stopped turn the follow-up turn has already booked through the graceful-correction path (or that an
+        // earlier menu click corrected) has taught once; a second lesson from the same turn would count it twice.
+        if (trajectory.WasInterrupted && trajectory.WasCorrected)
+        {
+            _logger.LogInformation(
+                "Correction for the stopped trajectory {TrajectoryId} ignored: it is already corrected as {Type}",
+                trajectory.Id, trajectory.CorrectionType);
+            return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
+        }
+
         trajectory.WasCorrected = true;
         trajectory.CorrectionType = request.CorrectionType.ToLowerInvariant();
         trajectory.UpdateTime = DateTime.UtcNow;
@@ -85,13 +97,6 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
         _logger.LogInformation(
             "Correction applied to trajectory {TrajectoryId}: type={Type}",
             trajectory.Id, trajectory.CorrectionType);
-
-        // A turn the user stopped is corrected on record but teaches nothing: no reflection, no lesson revoked,
-        // no learning case, because the answer never ran to its end.
-        if (trajectory.WasInterrupted)
-        {
-            return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
-        }
 
         // A user correction is the strongest evidence a turn went wrong, so it feeds the reflection.
         // NoneNeeded says the turn was fine after all and must not produce a lesson.

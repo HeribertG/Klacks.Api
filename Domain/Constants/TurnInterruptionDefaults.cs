@@ -13,4 +13,10 @@ public static class TurnInterruptionDefaults
 
     /// <summary>Appended to the stored answer of a stopped or interrupted turn, so the model reads later that the answer above it is cut off.</summary>
     public const string InterruptedMarker = "[interrupted by user]";
+
+    /// <summary>Appended to the stored answer of a turn that ended on an error after write actions had run. Neutral on purpose: the user did not stop it, and the model must not tell him he did.</summary>
+    public const string ErroredMarker = "[interrupted by an error]";
+
+    /// <summary>Error text of the usage row of a turn that ended on an error after write actions had run.</summary>
+    public const string ErroredUsageMessage = "The turn ended on an error after write actions had run.";
 }

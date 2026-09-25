@@ -40,16 +40,19 @@ public sealed record StoppedTurnSummary(IReadOnlyList<string> Labels, int Execut
             .ToList();
 
     /// <summary>
-    /// The answer as it is stored for a stopped turn: what was streamed, then the marker the model reads later.
+    /// The answer as it is stored for a turn that was cut off: what was streamed, then the marker the model
+    /// reads later.
     /// </summary>
-    /// <param name="streamedContent">The text the client received before the stop</param>
-    public static string StoredAnswer(string streamedContent) =>
+    /// <param name="streamedContent">The text the client received before the turn was cut off</param>
+    /// <param name="marker">Says why the answer ends there: the user's stop or an error</param>
+    public static string StoredAnswer(string streamedContent, string marker = TurnInterruptionDefaults.InterruptedMarker) =>
         string.IsNullOrWhiteSpace(streamedContent)
-            ? TurnInterruptionDefaults.InterruptedMarker
-            : streamedContent + "\n" + TurnInterruptionDefaults.InterruptedMarker;
+            ? marker
+            : streamedContent + "\n" + marker;
 
     /// <summary>
-    /// Builds the summary of the write actions a stopped turn ran.
+    /// Builds the summary of the write actions a stopped turn ran. Its count is also what tells a turn that
+    /// changed something from one that did not.
     /// </summary>
     /// <param name="context">The turn context; its language and toolset resolve the labels</param>
     /// <param name="calls">Every call of the turn</param>

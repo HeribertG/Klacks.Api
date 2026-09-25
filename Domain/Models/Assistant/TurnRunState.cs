@@ -23,6 +23,7 @@ public sealed class TurnRunState
     private const int NoOutcome = -1;
 
     private int _outcome = NoOutcome;
+    private int _erroredPersistenceClaimed;
     private int _contentLengthAtLastCalls;
     private long _startTimestamp = Stopwatch.GetTimestamp();
 
@@ -117,6 +118,7 @@ public sealed class TurnRunState
         _startTimestamp = Stopwatch.GetTimestamp();
         StartedAtUtc = DateTime.UtcNow;
         Volatile.Write(ref _outcome, NoOutcome);
+        Volatile.Write(ref _erroredPersistenceClaimed, 0);
     }
 
     /// <summary>
@@ -152,5 +154,16 @@ public sealed class TurnRunState
     public bool TrySetOutcome(TurnOutcome outcome)
     {
         return Interlocked.CompareExchange(ref _outcome, (int)outcome, NoOutcome) == NoOutcome;
+    }
+
+    /// <summary>
+    /// Claims the right to persist a turn that ended on an error after write actions had run. The Errored
+    /// outcome itself cannot guard that: it is claimed by whoever reports the failure, long before anything is
+    /// stored, so a second flag makes the write happen once however many callers reach it.
+    /// </summary>
+    /// <returns>True for the first caller only</returns>
+    public bool TryClaimErroredPersistence()
+    {
+        return Interlocked.CompareExchange(ref _erroredPersistenceClaimed, 1, 0) == 0;
     }
 }

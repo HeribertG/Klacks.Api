@@ -90,10 +90,12 @@ public class SkillSelectionTrajectory : BaseEntity
     public string? HelpfulComment { get; set; }
 
     /// <summary>
-    /// True when the turn ended on the user's stop or a dropped connection instead of running to its end.
+    /// True when the turn ended on the user's stop, a dropped connection or an error after a write action
+    /// instead of running to its end; the usage row of the same turn id (HasError) tells the error from the rest.
     /// Such a row is recorded but counts for nothing: no fitness quote, no sharpening evidence, no learning
-    /// case of its own, no verdict. The one thing it may still do is be marked GracefulRerouted by the
-    /// turn that follows it, when that turn's correction really re-routed the request.
+    /// case of its own, no verdict. What may still teach is a judgement the user makes of it: the turn that
+    /// follows marks it GracefulRerouted when its correction really re-routed the request, or the user
+    /// corrects it through the correction menu. Only one of the two counts, whichever comes first.
     /// </summary>
     public bool WasInterrupted { get; set; }
 

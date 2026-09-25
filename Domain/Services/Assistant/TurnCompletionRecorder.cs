@@ -3,9 +3,10 @@
 /// <summary>
 /// Persistence tail of a streamed turn: conversation history, usage row, correction anchor and the post-turn
 /// background tasks - for a turn that ran to its end (RecordCompletedAsync) and for one the user stopped or
-/// whose connection dropped (RecordStoppedAsync, read from the turn's run state). A failure is logged and
-/// never thrown, because the answer has already been streamed to the user and a storage error must not turn
-/// it into a failed turn.
+/// whose connection dropped (RecordStoppedAsync, read from the turn's run state), and for one that ended on an
+/// error after the server had run a write action (RecordErroredAsync). A failure is logged and never thrown,
+/// because the answer has already been streamed to the user and a storage error must not turn it into a
+/// failed turn.
 /// </summary>
 /// <param name="logger">Logs a storage failure</param>
 /// <param name="conversationManager">Writes the history and the usage row</param>
@@ -15,6 +16,7 @@
 /// <param name="turnState">The turn's run state, whose outcome is claimed before anything is written</param>
 /// <param name="stoppedTurnCleanup">Drops the confirmations a stopped turn issued and closes its UiAction rows</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -126,10 +128,54 @@ public class TurnCompletionRecorder
             return summary;
         }
 
+        await PersistCutOffTurnAsync(context, TurnInterruptionDefaults.InterruptedMarker, hasError: false, cancellationToken);
+        return summary;
+    }
+
+    /// <summary>
+    /// Persists a turn whose outcome is Errored, but only when the server had already run a write action in it:
+    /// that action stays in place, so the turn must leave its history, usage and correction anchor behind the
+    /// way a stopped turn does, or a "no, I meant..." that follows could not find what was done. It is stored
+    /// under a neutral error marker, not the user's, and the background tasks are the same reduced set a stop
+    /// gets: an error teaches nothing. A turn without such a write is left exactly as it was, and so is one
+    /// whose persistence was already claimed, which is what keeps the chat service and the safety net from
+    /// both writing it. A failure is logged and never thrown.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the default-agent lookup; the writes themselves never are</param>
+    public async Task RecordErroredAsync(CancellationToken cancellationToken)
+    {
+        var context = _turnState.Context;
+        if (_turnState.Outcome != TurnOutcome.Errored
+            || context == null
+            || StoppedTurnSummary.From(context, _turnState.Calls).ExecutedCount == 0)
+        {
+            return;
+        }
+
+        if (!_turnState.TryClaimErroredPersistence())
+        {
+            _logger.LogWarning(
+                "Turn {TurnId} that ended on an error is already persisted; it is not persisted again", context.TurnId);
+            return;
+        }
+
+        try
+        {
+            await PersistCutOffTurnAsync(context, TurnInterruptionDefaults.ErroredMarker, hasError: true, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error persisting the turn of user {UserId} that ended on an error", context.UserId);
+        }
+    }
+
+    private async Task PersistCutOffTurnAsync(
+        LLMContext context, string marker, bool hasError, CancellationToken cancellationToken)
+    {
         var conversation = _turnState.Conversation;
         var model = _turnState.Model;
         var executedCalls = StoppedTurnSummary.ExecutedCalls(_turnState.Calls);
-        var storedAnswer = StoppedTurnSummary.StoredAnswer(_turnState.StreamedContent.ToString());
+        var storedAnswer = StoppedTurnSummary.StoredAnswer(_turnState.StreamedContent.ToString(), marker);
         var phase = _turnState.Phase;
 
         if (conversation != null && model != null)
@@ -139,6 +185,8 @@ public class TurnCompletionRecorder
 
             await TryRecordAsync(UsagePart, context.UserId, () => _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
+                hasError: hasError,
+                errorMessage: hasError ? TurnInterruptionDefaults.ErroredUsageMessage : null,
                 ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
                 toolIterations: _turnState.ToolIterations,
                 turnId: context.TurnId, functionsCalledJson: LLMService.SerializeFunctionsCalled(executedCalls),
@@ -164,11 +212,9 @@ public class TurnCompletionRecorder
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error starting the background tasks of a stopped turn for user {UserId}", context.UserId);
+                _logger.LogError(ex, "Error starting the background tasks of a cut-off turn for user {UserId}", context.UserId);
             }
         }
-
-        return summary;
     }
 
     private void RecordStoppedTurnAnchor(

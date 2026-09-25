@@ -18,6 +18,6 @@ public enum TurnOutcome
     /// <summary>The turn answered with a clarification question and persisted itself.</summary>
     Clarified = 2,
 
-    /// <summary>The turn ended on an error and told the client so.</summary>
+    /// <summary>The turn ended on an error and told the client so. It is persisted only when a write action had already run in it.</summary>
     Errored = 3
 }
