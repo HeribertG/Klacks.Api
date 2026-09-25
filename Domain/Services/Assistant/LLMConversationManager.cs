@@ -16,7 +16,10 @@ public class LLMConversationManager
 
     private const string HistoryCacheKeySeparator = "|";
 
-    private const long AssistantAfterUserTicks = 1;
+    // One microsecond, the finest step the timestamptz column stores: a single tick (100 ns) is rounded away
+    // there, both rows of a late persisted turn would carry the same time and the history could read the
+    // answer before the request.
+    private const long AssistantAfterUserTicks = TimeSpan.TicksPerMicrosecond;
 
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
