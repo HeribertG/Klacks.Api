@@ -37,6 +37,10 @@ public sealed class TurnRunState
 
     public bool AnsweredWithNotice { get; set; }
 
+    public string? NavigationRoute { get; set; }
+
+    public string? NavigationTarget { get; set; }
+
     /// <summary>
     /// Starts the record for a new turn, discarding whatever an earlier turn of the same scope left in it.
     /// </summary>
@@ -54,6 +58,8 @@ public sealed class TurnRunState
         ToolIterations = 0;
         ToolChoiceRequested = false;
         AnsweredWithNotice = false;
+        NavigationRoute = null;
+        NavigationTarget = null;
     }
 
     /// <summary>

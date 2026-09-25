@@ -265,8 +265,6 @@ public class LLMService : ILLMService
         var currentMessage = context.Message;
         var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt, context.AvailableFunctions);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        string? navigationRoute = null;
-        string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(context.Message);
@@ -366,38 +364,13 @@ public class LLMService : ILLMService
 
             var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe);
 
-            foreach (var call in functionCalls)
+            var toolRound = new StreamedToolRound(_functionExecutor);
+            await foreach (var roundChunk in toolRound.RunAsync(turn, recipe, functionCalls, executableCalls))
             {
-                yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
+                yield return roundChunk;
             }
 
-            yield return SseChunk.Status(SseStatusStages.ExecutingTool, ElapsedMsFor(context), turn.ToolIterations);
-
-            await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
-            recipe.Forcing?.Observe(functionCalls);
-            if (functionCalls.Any(c => c.RequiresConfirmation))
-            {
-                recipe.ReleaseOnAutonomyGateHold();
-            }
-
-            if (_functionExecutor.NavigationRoute != null)
-                navigationRoute = _functionExecutor.NavigationRoute;
-            if (_functionExecutor.NavigationTarget != null)
-                navigationTarget = _functionExecutor.NavigationTarget;
-
-            foreach (var call in functionCalls)
-            {
-                // Same vacuous-truth guard as the break below: with an empty execution list
-                // HasOnlyUiPassthroughCalls is true although nothing UiPassthrough ran.
-                var executionType = executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls
-                    ? "UiPassthrough"
-                    : "Skill";
-                yield return SseChunk.FunctionResultChunk(call.FunctionName, call.Result, executionType, call.UiActionSteps, call.UiActionTrackingId);
-            }
-
-            // Guarded on executableCalls: with an empty execution list HasOnlyUiPassthroughCalls is
-            // vacuously true and would end the turn before the model ever saw the rejection results.
-            if (executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls)
+            if (toolRound.EndsTurn)
                 break;
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
@@ -430,7 +403,7 @@ public class LLMService : ILLMService
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = turn.Usage, Success = true },
-            conversation!.ConversationId, responseContent, turn.Calls, navigationRoute, navigationTarget);
+            conversation!.ConversationId, responseContent, turn.Calls, turn.NavigationRoute, turn.NavigationTarget);
         await ApplySuggestionGroundingAsync(metadataResponse, recipe.AskedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
