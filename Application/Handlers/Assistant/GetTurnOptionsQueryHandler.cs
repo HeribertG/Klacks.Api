@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Reads the skills that were offered to the model in one captured turn and turns them into the options
-/// of the correction menu (C1). The raw message is hashed here rather than in the browser, so
-/// MessageNormalizer stays the single source of the utterance key and no user text ever travels in a
+/// of the correction menu (C1). The turn is found by its turn id when the client sends one (exact, survives
+/// stop-and-resend of the same text), otherwise by the raw message, which is hashed here rather than in the
+/// browser, so MessageNormalizer stays the single source of the utterance key and no user text ever travels in a
 /// URL. The lookup is scoped to the caller, so a turn of another user is invisible instead of refused:
 /// the same sentence is typed by many users, and whose turn was captured last must not decide whether a
 /// correction menu opens. Always-on plumbing and the skill the model actually chose are dropped: neither
@@ -12,7 +13,7 @@
 /// provenance and by the skill's own always-on flag - because a turn captured before the provenance
 /// column existed carries no source, and a candidate without one would otherwise reach the menu.
 /// </summary>
-/// <param name="trajectories">Trajectory store, queried by caller id and utterance hash</param>
+/// <param name="trajectories">Trajectory store, queried by caller id and turn id or utterance hash</param>
 /// <param name="skillCache">Enabled skills of every agent, used for the description and the always-on
 /// flag of an option</param>
 /// <param name="logger">Logger for the lookup that found no captured turn of this caller</param>
@@ -60,15 +61,14 @@ public class GetTurnOptionsQueryHandler : IRequestHandler<GetTurnOptionsQuery, T
             throw new ArgumentException("UserMessage must be provided.", nameof(request));
         }
 
-        var hash = MessageNormalizer.Hash(request.UserMessage);
-        var trajectory = await _trajectories.FindMostRecentByUserAndHashAsync(
-            request.UserId, hash, cancellationToken);
+        var trajectory = await _trajectories.FindByTurnIdOrMessageAsync(
+            request.UserId, request.TurnId, request.UserMessage, cancellationToken);
 
         if (trajectory == null)
         {
             _logger.LogInformation(
-                "Turn options requested for user {UserId} but no matching trajectory was found (hash {Hash})",
-                request.UserId, hash);
+                "Turn options requested for user {UserId} but no matching trajectory was found (turn {TurnId}, hash {Hash})",
+                request.UserId, request.TurnId, MessageNormalizer.Hash(request.UserMessage));
             return new TurnOptionsResult { Outcome = TurnOptionsOutcome.NotFound };
         }
 

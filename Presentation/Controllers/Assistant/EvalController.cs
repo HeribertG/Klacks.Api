@@ -250,6 +250,7 @@ public class EvalController : ControllerBase
                 {
                     UserId = userId,
                     UserMessage = body.UserMessage ?? string.Empty,
+                    TurnId = body.TurnId,
                     Helpful = body.Helpful,
                     Comment = body.Comment
                 },
@@ -378,7 +379,8 @@ public class EvalController : ControllerBase
                 new GetTurnOptionsQuery
                 {
                     UserId = userId,
-                    UserMessage = body.UserMessage ?? string.Empty
+                    UserMessage = body.UserMessage ?? string.Empty,
+                    TurnId = body.TurnId
                 },
                 cancellationToken);
 
@@ -393,6 +395,12 @@ public class EvalController : ControllerBase
     public sealed class TurnOptionsRequest
     {
         public string? UserMessage { get; set; }
+
+        /// <summary>
+        /// Server-assigned id of the turn the menu is about (from the stream_start event). Optional: clients
+        /// that do not send it, and turns older than the event, fall back to the message-hash lookup.
+        /// </summary>
+        public Guid? TurnId { get; set; }
     }
 
     public sealed class SubmitCorrectionRequest
@@ -411,6 +419,12 @@ public class EvalController : ControllerBase
     public sealed class SubmitHelpfulFeedbackRequest
     {
         public string? UserMessage { get; set; }
+
+        /// <summary>
+        /// Server-assigned id of the judged turn (from the stream_start event). Optional: clients that do
+        /// not send it, and turns older than the event, fall back to the message-hash lookup.
+        /// </summary>
+        public Guid? TurnId { get; set; }
 
         /// <summary>
         /// Null/absent means thumbs-up (historical behaviour). False marks the turn as not helpful

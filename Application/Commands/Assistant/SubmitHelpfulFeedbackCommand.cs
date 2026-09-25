@@ -6,7 +6,8 @@
 /// the thumbs-down feeds an explicit negative case into the learning loop.
 /// </summary>
 /// <param name="UserId">Identity of the person judging, taken from the token, never from the body</param>
-/// <param name="UserMessage">The utterance the answer responded to; hashed to find the turn</param>
+/// <param name="UserMessage">The utterance the answer responded to; hashed to find the turn when no turn id is sent</param>
+/// <param name="TurnId">Optional server-assigned id of the judged turn; when set it is the exact key and the hash is never used</param>
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Assistant;
@@ -16,6 +17,8 @@ public class SubmitHelpfulFeedbackCommand : IRequest<SubmitHelpfulFeedbackResult
     public string UserId { get; set; } = string.Empty;
 
     public string UserMessage { get; set; } = string.Empty;
+
+    public Guid? TurnId { get; set; }
 
     /// <summary>
     /// Null means thumbs-up (the historical meaning of this endpoint, W1.8 keeps that backward

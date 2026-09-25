@@ -13,6 +13,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -68,10 +69,14 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
             throw new ArgumentException($"Unknown correction type '{request.CorrectionType}'.", nameof(request));
         }
 
-        var trajectory = await FindTrajectoryAsync(request, cancellationToken);
+        var trajectory = await _repository.FindByTurnIdOrMessageAsync(
+            request.UserId, request.TurnId, request.UserMessage, cancellationToken);
 
         if (trajectory == null)
         {
+            _logger.LogInformation(
+                "Correction received for user {UserId} but no matching trajectory was found (turn {TurnId}, hash {Hash})",
+                request.UserId, request.TurnId, MessageNormalizer.Hash(request.UserMessage));
             return new SubmitCorrectionResult(Found: false, TrajectoryId: null);
         }
 
@@ -119,38 +124,6 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
         await CollectLearningCaseAsync(request, trajectory, cancellationToken);
 
         return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
-    }
-
-    // A turn id names the turn exactly and is the only key once the client sends one. It never falls back to
-    // the hash: the id being unknown (not persisted yet, no trajectory captured) says nothing about which of
-    // two same-text turns was meant, and the hash would pick the newest - the very ambiguity the id removes.
-    // Only a client without an id (older Ui, turns from before the stream_start event) uses the hash.
-    private async Task<SkillSelectionTrajectory?> FindTrajectoryAsync(
-        SubmitCorrectionCommand request, CancellationToken cancellationToken)
-    {
-        if (request.TurnId.HasValue)
-        {
-            var byTurn = await _repository.FindByUserAndTurnIdAsync(request.UserId, request.TurnId.Value, cancellationToken);
-            if (byTurn == null)
-            {
-                _logger.LogInformation(
-                    "Correction received for user {UserId} but no trajectory was found for turn {TurnId}",
-                    request.UserId, request.TurnId);
-            }
-
-            return byTurn;
-        }
-
-        var hash = MessageNormalizer.Hash(request.UserMessage);
-        var byHash = await _repository.FindMostRecentByUserAndHashAsync(request.UserId, hash, cancellationToken);
-        if (byHash == null)
-        {
-            _logger.LogInformation(
-                "Correction received for user {UserId} but no matching trajectory was found (hash {Hash})",
-                request.UserId, hash);
-        }
-
-        return byHash;
     }
 
     // Only the correction types that say something about ROUTING become learning cases: a wrong
