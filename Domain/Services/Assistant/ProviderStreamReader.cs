@@ -153,7 +153,16 @@ internal sealed class ProviderStreamReader
                 _logger.LogWarning(
                     "Transient streaming provider error (attempt {Attempt}/{Max}): {Error} - retrying",
                     transientAttempt, LLMRetryConstants.MaxTransientRetries, streamErrorMessage);
-                await Task.Delay(LLMRetryConstants.GetRetryDelay(transientAttempt), cancellationToken);
+                try
+                {
+                    await Task.Delay(LLMRetryConstants.GetRetryDelay(transientAttempt), cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    Cancelled = true;
+                    yield break;
+                }
+
                 continue;
             }
 
