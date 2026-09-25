@@ -79,6 +79,11 @@ public class RecipeSlotExtractor
                 parsed.Count, string.Join(", ", parsed.Keys));
             return parsed;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogDebug("Recipe slot extraction was cancelled; degrading to no pre-filled slots.");
+            return empty;
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Recipe slot extraction failed; degrading to no pre-filled slots.");

@@ -97,7 +97,9 @@ internal sealed class RecipeTurnState
     /// <summary>
     /// Runs the shared pre-loop preparation and opens the run row. The write to
     /// <see cref="LLMContext.ActiveRecipeName"/> happens here because the post-turn hooks read the name
-    /// off the very same context instance, for cut plans just as much as for data-driven ones (W1.5).
+    /// off the very same context instance, for cut plans just as much as for data-driven ones (W1.5). No run
+    /// row is opened once a stop was requested, because the turn ends without running the recipe and nothing
+    /// would close the row.
     /// </summary>
     /// <param name="turnPreparation">Produces the plan, the confirmation decision and its note.</param>
     /// <param name="recorder">Recipe-run telemetry sink; every call is best-effort.</param>
@@ -127,7 +129,7 @@ internal sealed class RecipeTurnState
         context.ActiveRecipeName = forcing?.Name;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, forcing != null);
         Guid.TryParse(context.UserId, out var userGuid);
-        var run = forcing != null && userGuid != Guid.Empty
+        var run = forcing != null && userGuid != Guid.Empty && !context.StopToken.IsCancellationRequested
             ? await recorder.BeginOrResumeAsync(
                 forcing.Name, userGuid, conversationId, context.TurnId, forcing.StepIndex, cancellationToken)
             : null;
