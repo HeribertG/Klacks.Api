@@ -16,6 +16,7 @@
 /// <param name="skillBridge">Executes skills by name; also used for the server-side knowledge injection</param>
 /// <param name="agentSkillRepository">Resolves the execution type of called skills</param>
 /// <param name="pendingConfirmationStore">Records and drops the proposal hint of a propose/apply pair</param>
+/// <param name="turnScope">Remembers every token and hint the turn issues; required, because a stop discards exactly what it remembers</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -35,7 +36,7 @@ public class LLMFunctionExecutor
     private readonly IAgentRepository _agentRepository;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly ICancellableSkillPolicy? _cancellableSkillPolicy;
-    private readonly ITurnConfirmationScope? _turnScope;
+    private readonly ITurnConfirmationScope _turnScope;
 
     private Dictionary<string, AgentSkill>? _skillCache;
 
@@ -44,9 +45,9 @@ public class LLMFunctionExecutor
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
         IPendingConfirmationStore pendingConfirmationStore,
+        ITurnConfirmationScope turnScope,
         ILLMSkillBridge? skillBridge = null,
-        ICancellableSkillPolicy? cancellableSkillPolicy = null,
-        ITurnConfirmationScope? turnScope = null)
+        ICancellableSkillPolicy? cancellableSkillPolicy = null)
     {
         _logger = logger;
         _agentSkillRepository = agentSkillRepository;
@@ -174,7 +175,7 @@ public class LLMFunctionExecutor
                 else
                 {
                     _pendingConfirmationStore.CreateProposalHint(userId, call.FunctionName);
-                    _turnScope?.MarkProposalHint(call.FunctionName);
+                    _turnScope.MarkProposalHint(call.FunctionName);
                 }
 
                 return;
@@ -189,7 +190,7 @@ public class LLMFunctionExecutor
             if (!string.IsNullOrWhiteSpace(skill?.PairedApplySkill))
             {
                 _pendingConfirmationStore.CreateProposalHint(userId, skill!.PairedApplySkill!);
-                _turnScope?.MarkProposalHint(skill.PairedApplySkill!);
+                _turnScope.MarkProposalHint(skill.PairedApplySkill!);
             }
         }
         catch (Exception ex)
@@ -309,7 +310,7 @@ public class LLMFunctionExecutor
         call.Success = result.Success;
         if (!string.IsNullOrEmpty(result.ConfirmationToken))
         {
-            _turnScope?.MarkIssued(result.ConfirmationToken);
+            _turnScope.MarkIssued(result.ConfirmationToken);
         }
 
         call.ContainsExternalContent = result.ContainsExternalContent;
