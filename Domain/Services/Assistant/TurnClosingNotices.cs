@@ -77,6 +77,49 @@ internal static class TurnClosingNotices
         return allFunctionCalls.LastOrDefault(call => !call.IsRejectedRepeat) ?? allFunctionCalls[^1];
     }
 
+    /// <summary>
+    /// The notices a streaming turn appends after its loop, in the order they reach the user: the no-action
+    /// notice first, then the every-step-failed notice, which is judged against the answer INCLUDING the
+    /// first notice. Empty when the turn owes the user neither.
+    /// </summary>
+    /// <param name="isMutationIntent">True when the user's message was detected as a mutation request.</param>
+    /// <param name="forceConfirmation">True while the pending-confirmation gate narrowed the turn.</param>
+    /// <param name="responseContent">Everything the turn has streamed so far.</param>
+    /// <param name="allFunctionCalls">Every call of the turn, in call order.</param>
+    /// <param name="recipePausedOnAsk">True when the turn deliberately stopped on a recipe ask step.</param>
+    /// <param name="logger">Receives the raw message of a surfaced failure, which the notice itself redacts.</param>
+    internal static IReadOnlyList<string> Collect(
+        bool isMutationIntent,
+        bool forceConfirmation,
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> allFunctionCalls,
+        bool recipePausedOnAsk,
+        ILogger logger)
+    {
+        var notices = new List<string>();
+        var content = responseContent;
+
+        var noActionNotice = NoAction(
+            isMutationIntent, forceConfirmation, content,
+            allFunctionCalls.Count, recipePausedOnAsk, ClarifyingResponse.IsClarifying(content));
+        if (noActionNotice != null)
+        {
+            notices.Add(noActionNotice);
+            content += noActionNotice;
+        }
+
+        var failedCall = LastUnrecoveredFailure(allFunctionCalls, content);
+        if (failedCall != null)
+        {
+            logger.LogWarning(
+                "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
+                failedCall.FunctionName, failedCall.Result);
+            notices.Add(StepFailed(failedCall));
+        }
+
+        return notices;
+    }
+
     /// <summary>The user-visible, identifier-redacted text for a failed forced step.</summary>
     /// <param name="failedCall">The call picked by <see cref="LastUnrecoveredFailure"/>.</param>
     internal static string StepFailed(LLMFunctionCall failedCall) =>

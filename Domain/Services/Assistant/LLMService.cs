@@ -28,6 +28,7 @@ public class LLMService : ILLMService
     private readonly ISuggestionEntityNameReader _suggestionEntityNameReader;
     private readonly IContextBudgetPolicy _contextBudgetPolicy;
     private readonly ITurnPreparationService _turnPreparation;
+    private readonly TurnCompletionRecorder _turnCompletionRecorder;
 
     private const int MaxHistoryMessages = 20;
 
@@ -83,7 +84,8 @@ public class LLMService : ILLMService
         IRecipeRunRecorder recipeRunRecorder,
         ISuggestionEntityNameReader suggestionEntityNameReader,
         IContextBudgetPolicy contextBudgetPolicy,
-        ITurnPreparationService turnPreparation)
+        ITurnPreparationService turnPreparation,
+        TurnCompletionRecorder turnCompletionRecorder)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -99,6 +101,7 @@ public class LLMService : ILLMService
         _suggestionEntityNameReader = suggestionEntityNameReader;
         _contextBudgetPolicy = contextBudgetPolicy;
         _turnPreparation = turnPreparation;
+        _turnCompletionRecorder = turnCompletionRecorder;
     }
 
     /// <summary>
@@ -506,50 +509,19 @@ public class LLMService : ILLMService
 
         var responseContent = fullResponseContent.ToString();
 
-        var noActionNotice = TurnClosingNotices.NoAction(
-            isMutationIntent, recipe.ForceConfirm, responseContent,
-            allFunctionCalls.Count, recipe.PausedOnAsk, ClarifyingResponse.IsClarifying(responseContent));
-        if (noActionNotice != null)
+        foreach (var notice in TurnClosingNotices.Collect(
+                     isMutationIntent, recipe.ForceConfirm, responseContent, allFunctionCalls, recipe.PausedOnAsk, _logger))
         {
-            yield return SseChunk.Content(noActionNotice);
-            responseContent += noActionNotice;
+            yield return SseChunk.Content(notice);
+            responseContent += notice;
         }
 
-        var failedCall = TurnClosingNotices.LastUnrecoveredFailure(allFunctionCalls, responseContent);
-        if (failedCall != null)
-        {
-            _logger.LogWarning(
-                "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
-                failedCall.FunctionName, failedCall.Result);
-            var lastFailureNotice = TurnClosingNotices.StepFailed(failedCall);
-            yield return SseChunk.Content(lastFailureNotice);
-            responseContent += lastFailureNotice;
-        }
-
-        try
-        {
-            await _conversationManager.SaveConversationMessagesAsync(
-                conversation!, context.Message, responseContent, model!.ModelId);
-
-            await _conversationManager.TrackUsageAsync(
-                context.UserId, model, conversation!,
-                totalUsage, stopwatch.ElapsedMilliseconds,
-                ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun,
-                turnId: context.TurnId, functionsCalledJson: SerializeFunctionsCalled(allFunctionCalls),
-                toolChoiceRequested: toolChoiceRequested,
-                toolChoiceSupported: provider!.SupportsToolChoice,
-                toolCallReturned: allFunctionCalls.Count > 0);
-
-            _turnPreparation.RecordLastAction(
-                context, conversation!.ConversationId, responseContent, allFunctionCalls, recipe.PausedOnAsk);
-
-            var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
-            _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls, recovery.AnsweredWithNotice);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error saving stream conversation for user {UserId}", context.UserId);
-        }
+        await _turnCompletionRecorder.RecordCompletedAsync(
+            new TurnCompletion(
+                context, conversation!, model!, provider!.SupportsToolChoice, responseContent, totalUsage,
+                stopwatch.ElapsedMilliseconds, ttftMs, toolIterationsRun, allFunctionCalls,
+                toolChoiceRequested, recipe.PausedOnAsk, recovery.AnsweredWithNotice),
+            cancellationToken);
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },

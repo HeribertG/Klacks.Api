@@ -269,6 +269,7 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<IOneShotCompletionService, OneShotCompletionService>();
         services.AddScoped<LLMConversationManager>();
+        services.AddScoped<TurnCompletionRecorder>();
         services.AddSkillToolsetServices();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
