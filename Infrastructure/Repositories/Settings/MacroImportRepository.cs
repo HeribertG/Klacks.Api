@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Default <see cref="IMacroImportRepository"/>.
+/// Default <see cref="IMacroImportRepository"/>. Every inserted row is recorded with <see cref="MacroOrigin.Import"/>.
 /// </summary>
 /// <param name="context">Database context providing the Macro DbSet</param>
 
@@ -45,6 +45,7 @@ public class MacroImportRepository : IMacroImportRepository
 
     public void Add(Macro macro)
     {
+        macro.Origin = MacroOrigin.Import;
         _context.Macro.Add(macro);
         _macroCache.Invalidate(macro.Id);
     }

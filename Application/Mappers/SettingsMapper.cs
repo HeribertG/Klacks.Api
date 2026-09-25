@@ -76,6 +76,7 @@ public partial class SettingsMapper
     [MapperIgnoreTarget(nameof(Macro.DeletedTime))]
     [MapperIgnoreTarget(nameof(Macro.IsDeleted))]
     [MapperIgnoreTarget(nameof(Macro.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Macro.Origin))]
     public partial Macro ToMacroEntity(MacroResource resource);
 
     public partial TruncatedAbsence CloneTruncatedAbsence(TruncatedAbsence absence);

@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Handler for creating a calculation macro; validates the macro script (compile + probe execution)
-/// before persisting.
+/// before persisting. The origin of the new row comes from the command (User for the admin REST path,
+/// Assistant for Klacksy skills), never from the client payload.
 /// </summary>
-/// <param name="request">Contains the macro resource with name, content (script) and type</param>
+/// <param name="request">Contains the macro resource with name, content (script) and type, plus the origin</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.Macros;
@@ -43,6 +44,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
             EnsureValidScript(request.model.Content);
 
             var macro = _settingsMapper.ToMacroEntity(request.model);
+            macro.Origin = request.Origin;
             var result = await _settingsRepository.AddMacroAsync(macro);
             await _unitOfWork.CompleteAsync();
             return _settingsMapper.ToMacroResource(result);

@@ -3,7 +3,8 @@
 /// <summary>
 /// Shows a full preview of the in-progress company-rule draft before it is applied: for SurchargeSettings
 /// the old-to-new comparison of every affected setting, for CounterRule the resolved scheduling-rule
-/// scope, for CustomMacro the script plus the macro-script validation result. When required parameters
+/// scope, for CustomMacro the script plus its validation result: first the OUTPUT channel policy that the apply
+/// step enforces, then the macro-script validator. When required parameters
 /// are still missing it returns the checklist instead of a preview. Read-only; nothing is persisted.
 /// </summary>
 
@@ -30,6 +31,7 @@ public class PreviewCompanyRuleSkill : BaseSkillImplementation
     private readonly ICompanyRuleDraftValidator _validator;
     private readonly ISettingsReader _settingsReader;
     private readonly IMacroScriptValidator _macroScriptValidator;
+    private readonly IMacroOutputChannelInspector _macroChannelInspector;
     private readonly IComplianceEnforcementResolver _enforcementResolver;
     private readonly IMediator _mediator;
 
@@ -39,6 +41,7 @@ public class PreviewCompanyRuleSkill : BaseSkillImplementation
         ICompanyRuleDraftValidator validator,
         ISettingsReader settingsReader,
         IMacroScriptValidator macroScriptValidator,
+        IMacroOutputChannelInspector macroChannelInspector,
         IComplianceEnforcementResolver enforcementResolver,
         IMediator mediator)
     {
@@ -47,6 +50,7 @@ public class PreviewCompanyRuleSkill : BaseSkillImplementation
         _validator = validator;
         _settingsReader = settingsReader;
         _macroScriptValidator = macroScriptValidator;
+        _macroChannelInspector = macroChannelInspector;
         _enforcementResolver = enforcementResolver;
         _mediator = mediator;
     }
@@ -159,15 +163,20 @@ public class PreviewCompanyRuleSkill : BaseSkillImplementation
     private object BuildCustomMacroPreview(CompanyRuleDraft draft)
     {
         var script = draft.Parameters.GetValueOrDefault(CompanyRuleParameterNames.MacroScript) ?? string.Empty;
-        var validation = _macroScriptValidator.Validate(script);
+        var scriptError = MacroOutputChannelPolicy.FindViolation(_macroChannelInspector.Inspect(script));
+        if (scriptError == null)
+        {
+            var validation = _macroScriptValidator.Validate(script);
+            scriptError = validation.IsValid ? null : validation.ErrorMessage;
+        }
 
         return new
         {
             MacroName = draft.Parameters.GetValueOrDefault(CompanyRuleParameterNames.MacroName),
             Category = draft.Parameters.GetValueOrDefault(CompanyRuleParameterNames.MacroCategory) ?? nameof(MacroCategoryEnum.Shift),
             Script = script,
-            ScriptValid = validation.IsValid,
-            ScriptError = validation.IsValid ? null : validation.ErrorMessage
+            ScriptValid = scriptError == null,
+            ScriptError = scriptError
         };
     }
 }

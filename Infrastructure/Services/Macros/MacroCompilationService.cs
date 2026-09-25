@@ -6,7 +6,6 @@ using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
-using Klacks.Api.Infrastructure.Scripting;
 
 namespace Klacks.Api.Infrastructure.Services.Macros;
 
@@ -56,7 +55,7 @@ public class MacroCompilationService : IMacroCompilationService
         }
 
         var compiledScript = cachedScript.CloneForExecution();
-        SetImportsFromMacroData(compiledScript, macroData);
+        MacroDataImportBinder.Bind(compiledScript, macroData);
 
         var results = _macroEngine.RunWithScript(compiledScript);
 
@@ -115,28 +114,5 @@ public class MacroCompilationService : IMacroCompilationService
                 surchargeType = default;
                 return false;
         }
-    }
-
-    private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
-    {
-        compiledScript.SetExternalValue("hour", data.Hour);
-        compiledScript.SetExternalValue("fromhour", data.FromHour);
-        compiledScript.SetExternalValue("untilhour", data.UntilHour);
-        compiledScript.SetExternalValue("weekday", data.Weekday);
-        compiledScript.SetExternalValue("holiday", data.Holiday ? 1 : 0);
-        compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);
-        compiledScript.SetExternalValue("nightrate", data.NightRate);
-        compiledScript.SetExternalValue("holidayrate", data.HolidayRate);
-        compiledScript.SetExternalValue("we1rate", data.WE1Rate);
-        compiledScript.SetExternalValue("we2rate", data.WE2Rate);
-        compiledScript.SetExternalValue("we3rate", data.WE3Rate);
-        compiledScript.SetExternalValue("nightstart", data.NightStart);
-        compiledScript.SetExternalValue("nightend", data.NightEnd);
-        compiledScript.SetExternalValue("guaranteedhours", data.GuaranteedHours);
-        compiledScript.SetExternalValue("fulltime", data.FullTime);
-        compiledScript.SetExternalValue("percent", data.WorkloadPercent);
-        compiledScript.SetExternalValue("weekendday1", data.WeekendDay1);
-        compiledScript.SetExternalValue("weekendday2", data.WeekendDay2);
-        compiledScript.SetExternalValue("weekendday3", data.WeekendDay3);
     }
 }

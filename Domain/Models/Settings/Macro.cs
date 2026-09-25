@@ -10,7 +10,8 @@ namespace Klacks.Api.Domain.Models.Settings;
 /// (Custom/Standard/StandardAdditive). Rows are either customer-created (full CRUD, ImportSourceKey
 /// empty) or imported from a region-setup "macros" section (K20 entity import, ImportSourceKey/
 /// ImportContentHash set — see <see cref="IImportableEntity"/>); an imported row a customer has edited
-/// is never overwritten by a re-import.
+/// is never overwritten by a re-import. Origin records who created the row (template seed, region-setup
+/// import, user, or the assistant); it is set once on insert and never changed by an update.
 /// </summary>
 public class Macro : BaseEntity, IImportableEntity
 {
@@ -27,4 +28,6 @@ public class Macro : BaseEntity, IImportableEntity
     public string ImportSourceKey { get; set; } = string.Empty;
 
     public string ImportContentHash { get; set; } = string.Empty;
+
+    public MacroOrigin Origin { get; set; } = MacroOrigin.User;
 }

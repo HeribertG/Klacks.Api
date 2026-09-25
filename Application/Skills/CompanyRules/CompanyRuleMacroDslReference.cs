@@ -3,8 +3,9 @@
 /// <summary>
 /// Compact English reference for the macro DSL, surfaced by start_company_rule when the rule kind is
 /// customMacro so the model can author a valid script. Lists the statement syntax, the IMPORT symbols the
-/// runtime injects (see MacroCompilationService.SetImportsFromMacroData) and the OUTPUT channels
-/// (see MacroTypeEnum). Kept as a constant so it never drifts from the runtime.
+/// runtime injects (see MacroCompilationService.SetImportsFromMacroData) and the OUTPUT channels the backend
+/// processes (see MacroOutputChannels.Supported; the apply step refuses any other channel). Kept as a constant;
+/// CompanyRuleMacroDslReferenceTests pins the channel list against MacroOutputChannels.Supported.
 /// </summary>
 namespace Klacks.Api.Application.Skills.CompanyRules;
 
@@ -20,7 +21,8 @@ internal static class CompanyRuleMacroDslReference
         "IMPORT symbols (read-only, injected per work row): hour, fromhour, untilhour, weekday, holiday (1/0), " +
         "holidaynextday (1/0), nightrate, holidayrate, we1rate, we2rate, we3rate, nightstart, nightend, " +
         "guaranteedhours, fulltime, weekendday1, weekendday2, weekendday3.\n" +
-        "OUTPUT channels: 1 = default result, 5 = info, 10 = night surcharge, 11 = weekend-1 surcharge, " +
+        "OUTPUT channels (only these are processed; any other channel, or a channel that is not a plain number, " +
+        "is refused): 1 = default result, 10 = night surcharge, 11 = weekend-1 surcharge, " +
         "12 = weekend-2 surcharge, 13 = weekend-3 surcharge, 14 = holiday surcharge.\n" +
         "Example: OUTPUT 1, TimeToHours(untilhour) - TimeToHours(fromhour)";
 }

@@ -305,6 +305,8 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
         services.AddScoped<IMacroCompilationService, MacroCompilationService>();
         services.AddScoped<IMacroScriptValidator, MacroScriptValidator>();
+        services.AddScoped<IMacroOutputChannelInspector, MacroOutputChannelInspector>();
+        services.AddScoped<IMacroRegressionChecker, MacroRegressionChecker>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
     }
 

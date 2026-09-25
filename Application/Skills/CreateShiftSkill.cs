@@ -10,11 +10,13 @@
 /// <param name="clientId">UUID of the customer (EntityTypeEnum.Customer) the order is billed to; mandatory.</param>
 /// <param name="startTime">Start time of the shift (e.g. "07:00")</param>
 /// <param name="endTime">End time of the shift (e.g. "15:00"); may equal startTime for a 24h order</param>
-/// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (category Shift, function Standard).</param>
+/// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (category Shift, function Standard).
+/// A macro created by the assistant (origin Assistant or AssistantExtension) is refused via <see cref="MacroAssistantGuard"/>.</param>
 /// <param name="asDraft">Optional; defaults to false. When true, creates the order as an editable draft
 /// (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet. Use
 /// seal_shift once the draft is complete.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -32,6 +34,15 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_shift")]
 public class CreateShiftSkill : BaseSkillImplementation
 {
+    private const string MacroIdParameter = "macroId";
+    private const string MacroNotFoundMessage =
+        "Calculation macro with ID {0} not found. Use list_macros to pick a valid macro.";
+    private const string NoShiftMacroMessage =
+        "Cannot create the order yet. No calculation macro with category 'Shift' is configured, so the " +
+        "order would have no way to compute its hours and surcharges. First set up a calculation macro " +
+        "with category Shift (function Standard) — inspect the existing macros with list_macros or " +
+        "configure one in Settings — then call create_shift again (optionally pass its id as macroId).";
+
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IClientRepository _clientRepository;
@@ -98,33 +109,11 @@ public class CreateShiftSkill : BaseSkillImplementation
                 "Pick a customer with find_customer_candidates or create one with create_employee using entityType=Customer.");
         }
 
-        var macros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
-        var macroIdStr = GetParameter<string>(parameters, "macroId");
-        Guid? macroId;
-        if (!string.IsNullOrWhiteSpace(macroIdStr) && Guid.TryParse(macroIdStr, out var parsedMacroId))
+        var (macroId, macroName, macroError) = await ResolveMacroAsync(parameters, cancellationToken);
+        if (macroError != null)
         {
-            if (macros.All(m => m.Id != parsedMacroId))
-            {
-                return SkillResult.Error(
-                    $"Calculation macro with ID {parsedMacroId} not found. Use list_macros to pick a valid macro.");
-            }
-
-            macroId = parsedMacroId;
+            return SkillResult.Error(macroError);
         }
-        else
-        {
-            macroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
-            if (macroId == null)
-            {
-                return SkillResult.Error(
-                    "Cannot create the order yet. No calculation macro with category 'Shift' is configured, so the " +
-                    "order would have no way to compute its hours and surcharges. First set up a calculation macro " +
-                    "with category Shift (function Standard) — inspect the existing macros with list_macros or " +
-                    "configure one in Settings — then call create_shift again (optionally pass its id as macroId).");
-            }
-        }
-
-        var macroName = macros.FirstOrDefault(m => m.Id == macroId)?.Name;
 
         var weekdaysStr = GetParameter<string>(parameters, "weekdays") ?? "all";
 
@@ -297,6 +286,31 @@ public class CreateShiftSkill : BaseSkillImplementation
               "If it is a single shift, the order is already complete.";
 
         return SkillResult.SuccessResult(resultData, message);
+    }
+
+    private async Task<(Guid? Id, string? Name, string? Error)> ResolveMacroAsync(
+        Dictionary<string, object> parameters, CancellationToken cancellationToken)
+    {
+        var macros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
+        var macroIdStr = GetParameter<string>(parameters, MacroIdParameter);
+        if (!string.IsNullOrWhiteSpace(macroIdStr) && Guid.TryParse(macroIdStr, out var parsedMacroId))
+        {
+            var requestedMacro = macros.FirstOrDefault(m => m.Id == parsedMacroId);
+            if (requestedMacro == null)
+            {
+                return (null, null, string.Format(CultureInfo.InvariantCulture, MacroNotFoundMessage, parsedMacroId));
+            }
+
+            var assignmentRefusal = MacroAssistantGuard.FindAssignmentRefusal(requestedMacro);
+            return assignmentRefusal != null
+                ? (null, null, assignmentRefusal)
+                : (requestedMacro.Id, requestedMacro.Name, null);
+        }
+
+        var defaultMacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+        return defaultMacroId == null
+            ? (null, null, NoShiftMacroMessage)
+            : (defaultMacroId, macros.FirstOrDefault(m => m.Id == defaultMacroId)?.Name, null);
     }
 
     private static (bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) ParseWeekdays(string weekdays)

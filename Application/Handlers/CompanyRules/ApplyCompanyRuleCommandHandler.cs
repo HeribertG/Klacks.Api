@@ -4,11 +4,14 @@
 /// Applies the pending company-rule draft. SurchargeSettings snapshots the overwritten setting values
 /// and writes the new ones; CounterRule resolves the optional scheduling-rule scope by name, maps the
 /// warn/block enforcement choice onto the rule's per-rule override and creates a counter rule; CustomMacro
-/// rejects a name collision and creates a custom macro. In every case a
+/// refuses OUTPUT channels the backend does not process or cannot check (same <see cref="MacroOutputChannelPolicy"/>
+/// as create_macro), rejects a name collision and creates a custom macro; the created macro carries origin
+/// Assistant so the assistant may later change or delete it. In every case a
 /// registry row is written and the draft is cleared. When at least one surcharge-relevant setting value
 /// (see SurchargeRelevantSettingKeys) actually changed, a SurchargeSettingsChangedEvent is dispatched
 /// post-commit and defensively so persisted work surcharges are recalculated. Domain problems (missing
-/// parameters, ambiguous or unknown scheduling rule, macro name collision, invalid macro script) surface
+/// parameters, ambiguous or unknown scheduling rule, unprocessed OUTPUT channel, macro name collision, invalid
+/// macro script) surface
 /// as <see cref="InvalidRequestException"/> so the calling skill can relay the real message. The list of
 /// changed surcharge keys is cleared at the start of every surcharge apply so that an execution-strategy
 /// retry of the transaction cannot accumulate duplicate keys.
@@ -22,13 +25,14 @@ using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Domain.Common;
+using Klacks.Api.Application.Skills;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
@@ -48,6 +52,7 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICompanyRuleRepository _companyRuleRepository;
     private readonly IMediator _mediator;
+    private readonly IMacroOutputChannelInspector _macroChannelInspector;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SettingsMapper _mapper;
     private readonly IDomainEventDispatcher _eventDispatcher;
@@ -60,6 +65,7 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         ISettingsRepository settingsRepository,
         ICompanyRuleRepository companyRuleRepository,
         IMediator mediator,
+        IMacroOutputChannelInspector macroChannelInspector,
         IUnitOfWork unitOfWork,
         SettingsMapper mapper,
         IDomainEventDispatcher eventDispatcher,
@@ -71,6 +77,7 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         _settingsRepository = settingsRepository;
         _companyRuleRepository = companyRuleRepository;
         _mediator = mediator;
+        _macroChannelInspector = macroChannelInspector;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _eventDispatcher = eventDispatcher;
@@ -238,6 +245,12 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
             category = Enum.Parse<MacroCategoryEnum>(categoryRaw, ignoreCase: true);
         }
 
+        var channelViolation = MacroOutputChannelPolicy.FindViolation(_macroChannelInspector.Inspect(script));
+        if (channelViolation != null)
+        {
+            throw new InvalidRequestException(channelViolation);
+        }
+
         var existingMacros = await _mediator.Send(new MacroQueries.ListQuery(), cancellationToken);
         if (existingMacros.Any(m => string.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)))
         {
@@ -253,10 +266,10 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
             Content = script,
             Type = (int)MacroFunctionEnum.Custom,
             Category = category,
-            Description = BuildDescription(description)
+            Description = MacroDescriptionFactory.ForAllCoreLanguages(description)
         };
 
-        var created = await _mediator.Send(new MacroCommands.PostCommand(resource), cancellationToken);
+        var created = await _mediator.Send(new MacroCommands.PostCommand(resource, MacroOrigin.Assistant), cancellationToken);
         if (created is null)
         {
             throw new InvalidRequestException($"Macro '{name}' could not be created.");
@@ -308,21 +321,5 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         }
 
         return rawValue.Trim();
-    }
-
-    private static MultiLanguage BuildDescription(string? description)
-    {
-        var value = new MultiLanguage();
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            return value;
-        }
-
-        foreach (var language in MultiLanguage.CoreLanguages)
-        {
-            value.SetValue(language, description);
-        }
-
-        return value;
     }
 }

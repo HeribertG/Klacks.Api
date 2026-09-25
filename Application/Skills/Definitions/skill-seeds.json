@@ -3376,6 +3376,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "includeScript",
+          "description": "Set to true to also return the script text of each macro, for example before building an extended copy.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -3433,7 +3441,7 @@
         "fr": "Lister les macros de calcul",
         "it": "Elenca le macro di calcolo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_macro",
@@ -20819,6 +20827,104 @@
         "it": "Modifica una macro di calcolo"
       },
       "version": 5
+    },
+    {
+      "name": "extend_macro",
+      "area": "settings",
+      "description": "Creates an extended copy of an existing calculation macro: the original stays unchanged, and the copy runs the original script plus an appended block that adds extra output such as an additional surcharge. Before saving, a test grid checks that every original value stays identical; only the result may grow by exactly the added surcharges. Requires admin permissions. Use when the user wants to add something to a macro or a template formula without touching the original.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "macroId",
+          "description": "The id of the macro to extend. Preferred over macroName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroName",
+          "description": "The exact name of the macro to extend when macroId is omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "Name of the new extended copy; it must differ from every existing macro name.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "additionalScript",
+          "description": "Script block appended after the original script. It may use the IMPORT symbols of the original without importing them again, new IMPORTs, variables it declares itself with DIM and FUNCTIONs it declares itself under a new name, but never the variables or FUNCTIONs of the original script, which are no longer usable after its OUTPUT statements (copy a function under a new name if needed). Compute all values first, then put the OUTPUT statements at the end, outside of loops, each variable once and in the order the variables were declared. OUTPUT only on channel 1 or 10-14. A surcharge may only go to a channel 10-14 that the original leaves at 0; channel 1 (the result) either stays untouched or is set to the original result plus exactly the added surcharges, computed from the IMPORT symbols.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "Optional short description of the extended copy, applied to all core languages.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "macro",
+          "extend"
+        ],
+        "de": [
+          "makro",
+          "erweitern",
+          "kopie"
+        ],
+        "en": [
+          "copy"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "makro als kopie erweitern",
+          "erweiterte makrokopie",
+          "zusatzzuschlag in makrokopie"
+        ],
+        "en": [
+          "extend macro as a copy",
+          "extended macro copy",
+          "extra surcharge in macro copy"
+        ],
+        "fr": [
+          "étendre la macro en copie",
+          "copie étendue de la macro"
+        ],
+        "it": [
+          "estendere la macro come copia",
+          "copia estesa della macro"
+        ]
+      },
+      "labels": {
+        "de": "Berechnungsmakro als Kopie erweitern",
+        "en": "Extend a calculation macro as a copy",
+        "fr": "Étendre une macro de calcul en copie",
+        "it": "Estendi una macro di calcolo come copia"
+      },
+      "version": 2
     },
     {
       "name": "update_qualification",

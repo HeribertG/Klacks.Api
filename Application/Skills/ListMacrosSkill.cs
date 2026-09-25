@@ -3,10 +3,13 @@
 /// <summary>
 /// Lists the calculation macros (scripts) defined in the settings. Thin wrapper around
 /// <see cref="Klacks.Api.Application.Queries.Settings.Macros.ListQuery"/>; an optional search
-/// term filters by macro name.
+/// term filters by macro name. Each macro carries its origin (template, import, user or assistant), which
+/// decides whether the assistant may change it.
 /// </summary>
 /// <param name="searchTerm">Optional. Filters the returned macros by name (case-insensitive);
 /// when the substring filter finds nothing, the fuzzy MacroResolver suggests the closest macro.</param>
+/// <param name="includeScript">Optional. When true, each macro also carries its script text, e.g. to build an
+/// extended copy.</param>
 
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Domain.Attributes;
@@ -19,6 +22,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_macros")]
 public class ListMacrosSkill : BaseSkillImplementation
 {
+    private const string IncludeScriptParameter = "includeScript";
+
     private readonly IMediator _mediator;
 
     public ListMacrosSkill(IMediator mediator)
@@ -32,6 +37,7 @@ public class ListMacrosSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var searchTerm = GetParameter<string>(parameters, "searchTerm");
+        var includeScript = GetParameter<bool?>(parameters, IncludeScriptParameter) ?? false;
 
         var allMacros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
         var macros = allMacros;
@@ -62,9 +68,15 @@ public class ListMacrosSkill : BaseSkillImplementation
             }
         }
 
+        var projected = macros
+            .Select(m => includeScript
+                ? (object)new { m.Id, m.Name, m.Type, Category = m.Category.ToString(), Origin = m.Origin.ToString(), Script = m.Content }
+                : new { m.Id, m.Name, m.Type, Category = m.Category.ToString(), Origin = m.Origin.ToString() })
+            .ToList();
+
         var resultData = new
         {
-            Macros = macros.Select(m => new { m.Id, m.Name, m.Type, Category = m.Category.ToString() }).ToList(),
+            Macros = projected,
             Count = macros.Count
         };
 

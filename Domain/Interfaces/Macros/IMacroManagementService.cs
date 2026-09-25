@@ -16,5 +16,5 @@ public interface IMacroManagementService
 
     Task<bool> MacroExistsAsync(Guid id);
 
-    Task<Macro> UpdateMacroAsync(Macro macro);
+    Task<Macro> UpdateMacroAsync(Macro macro, bool byAssistant);
 }

@@ -1052,6 +1052,26 @@
       "status": 1
     },
     {
+      "skillAName": "extend_macro",
+      "skillBName": "explain_macro_editor",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "extend_macro",
+      "skillBName": "list_macros",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
       "skillAName": "search_client_absences",
       "skillBName": "explain_page_absence",
       "type": 2,

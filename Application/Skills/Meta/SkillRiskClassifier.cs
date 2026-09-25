@@ -183,6 +183,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_contract",
         "create_macro",
         "update_macro",
+        "extend_macro",
         "create_monthly_target_hours",
         "update_monthly_target_hours",
         "update_overtime_settings",

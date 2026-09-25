@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Handler for updating a calculation macro; validates the macro script (compile + probe execution)
-/// before persisting.
+/// before persisting. Whether the assistant or the admin REST path edits the macro is passed on, because an
+/// admin edit turns an assistant-owned macro into a user macro.
 /// </summary>
-/// <param name="request">Contains the macro resource with id, name, content (script) and type</param>
+/// <param name="request">Contains the macro resource with id, name, content (script) and type, plus ByAssistant</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.Macros;
@@ -43,7 +44,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
             EnsureValidScript(request.model.Content);
 
             var macro = _settingsMapper.ToMacroEntity(request.model);
-            var updatedMacro = await _settingsRepository.PutMacroAsync(macro);
+            var updatedMacro = await _settingsRepository.PutMacroAsync(macro, request.ByAssistant);
             await _unitOfWork.CompleteAsync();
             return _settingsMapper.ToMacroResource(updatedMacro);
         }

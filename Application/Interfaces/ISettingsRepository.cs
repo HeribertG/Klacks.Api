@@ -42,7 +42,7 @@ public interface ISettingsRepository : ISettingsReader
 
     CalendarRule PutCalendarRule(CalendarRule calendarRule);
 
-    Task<Macro> PutMacroAsync(Macro macro);
+    Task<Macro> PutMacroAsync(Macro macro, bool byAssistant);
 
     Task<Klacks.Api.Domain.Models.Settings.Settings> PutSetting(Klacks.Api.Domain.Models.Settings.Settings settings);
 

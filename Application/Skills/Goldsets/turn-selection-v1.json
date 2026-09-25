@@ -2908,6 +2908,19 @@
       ]
     },
     {
+      "id": "w05-coverage-extend-macro",
+      "message": "Erweitere das Makro 'Sonntagszuschlag' um einen zusätzlichen Feiertagsanteil, die bisherige Berechnung soll gleich bleiben.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "extend_macro",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "mutating-skill coverage: extended copy of an existing macro",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
       "id": "w05-coverage-update-qualification",
       "message": "Benenn die Qualifikation 'Staplerschein' um in 'Staplerschein Kat. R'.",
       "locale": "de",

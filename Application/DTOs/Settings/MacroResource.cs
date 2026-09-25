@@ -18,4 +18,6 @@ public class MacroResource
     public int Type { get; set; }
 
     public MacroCategoryEnum Category { get; set; } = MacroCategoryEnum.Unspecified;
+
+    public MacroOrigin Origin { get; set; } = MacroOrigin.User;
 }

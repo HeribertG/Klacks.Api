@@ -1,7 +1,19 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Stages macro changes on the database context and keeps the compiled-macro cache in sync. A delete is refused
+/// while active shifts or absence types reference the macro or while it carries a standard function. An update
+/// never takes the origin from the payload: it keeps the persisted origin, except that an assistant-owned macro
+/// edited outside the assistant (the admin REST path) becomes a user macro, so the assistant cannot overwrite the
+/// administrator's version afterwards.
+/// </summary>
+/// <param name="context">Database context the changes are staged on</param>
+/// <param name="macroCache">Cache of compiled macros, invalidated on every change</param>
+/// <param name="logger">Logger for macro operations</param>
+
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Interfaces;
@@ -50,6 +62,14 @@ public class MacroManagementService : IMacroManagementService
                 "Reassign the affected shifts to a different macro first, then delete this one.");
         }
 
+        var referencingAbsenceCount = await _context.Absence.CountAsync(a => a.MacroId == id);
+        if (referencingAbsenceCount > 0)
+        {
+            throw new InvalidRequestException(
+                $"Macro '{macro.Name}' is still referenced by {referencingAbsenceCount} absence type(s). " +
+                "Assign a different macro to the affected absence types first, then delete this one.");
+        }
+
         if ((MacroFunctionEnum)macro.Type != MacroFunctionEnum.Custom)
         {
             throw new InvalidRequestException(
@@ -87,11 +107,25 @@ public class MacroManagementService : IMacroManagementService
         return await _context.Macro.AnyAsync(e => e.Id == id);
     }
 
-    public Task<Macro> UpdateMacroAsync(Macro macro)
+    public async Task<Macro> UpdateMacroAsync(Macro macro, bool byAssistant)
     {
         _logger.LogInformation("Updating macro with ID: {MacroId}", macro.Id);
+
+        var persistedOrigin = await _context.Macro
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(m => m.Id == macro.Id)
+            .Select(m => (MacroOrigin?)m.Origin)
+            .FirstOrDefaultAsync();
+        if (persistedOrigin.HasValue)
+        {
+            macro.Origin = persistedOrigin.Value.IsAssistantOwned() && !byAssistant
+                ? MacroOrigin.User
+                : persistedOrigin.Value;
+        }
+
         _context.Macro.Update(macro);
         _macroCache.Invalidate(macro.Id);
-        return Task.FromResult(macro);
+        return macro;
     }
 }

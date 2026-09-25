@@ -145,9 +145,9 @@ public class SettingsRepository : ISettingsRepository
         return await _macroManagementService.MacroExistsAsync(id);
     }
 
-    public async Task<Macro> PutMacroAsync(Macro macro)
+    public async Task<Macro> PutMacroAsync(Macro macro, bool byAssistant)
     {
-        return await _macroManagementService.UpdateMacroAsync(macro);
+        return await _macroManagementService.UpdateMacroAsync(macro, byAssistant);
     }
 
     public void RemoveMacro(Macro macro)

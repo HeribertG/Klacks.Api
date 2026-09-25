@@ -16,7 +16,7 @@ namespace Klacks.Api.Data.Seed
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT 'b1481e19-eaba-458a-a33b-666f2ecc28d2','Accident','import hour
 import fromhour
 import untilhour
@@ -37,11 +37,11 @@ ELSE
 	Hour = 0
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = 'b1481e19-eaba-458a-a33b-666f2ecc28d2');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT 'ac8a7b05-2312-41aa-a21d-e3edba54aef5','Accident50%','import hour
 import fromhour
 import untilhour
@@ -63,11 +63,11 @@ ELSE
 	Hour = 0
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = 'ac8a7b05-2312-41aa-a21d-e3edba54aef5');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','IMPORT Hour, FromHour, UntilHour
 IMPORT Weekday, Holiday, HolidayNextDay
 IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
@@ -166,11 +166,11 @@ OUTPUT 11, BonusWeekend1
 OUTPUT 12, BonusWeekend2
 OUTPUT 13, BonusWeekend3
 OUTPUT 14, BonusHoliday
-',1,'{""de"":""""}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',1
+',1,'{""de"":""""}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',1,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT 'ad86380e-3e8e-4497-95c1-3555ee0803c4','Military Service','import hour
 import fromhour
 import untilhour
@@ -198,11 +198,11 @@ ELSE
 	END IF
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = 'ad86380e-3e8e-4497-95c1-3555ee0803c4');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT 'f7704df2-bb51-40c8-9ecd-ad57c1064490','Null Hour','import hour
 import fromhour
 import untilhour
@@ -216,11 +216,11 @@ import we2rate
 import guaranteedhours
 import fulltime
 
-OUTPUT 1, 0',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, 0',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = 'f7704df2-bb51-40c8-9ecd-ad57c1064490');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT '3bac9e54-4368-4174-8bc9-435ce08aecbd','Vacation','import hour
 import fromhour
 import untilhour
@@ -248,11 +248,11 @@ ELSE
 	END IF
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = '3bac9e54-4368-4174-8bc9-435ce08aecbd');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT '7c5a9d21-4e8b-4f3a-9c67-2d1e8f5b0a43','Vacation50%','import hour
 import fromhour
 import untilhour
@@ -281,11 +281,11 @@ ELSE
 	END IF
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-18 00:00:00.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-18 00:00:00.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = '7c5a9d21-4e8b-4f3a-9c67-2d1e8f5b0a43');");
 
             migrationBuilder.Sql(
-                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category)
+                @"INSERT INTO public.macro (id,""name"",""content"",""type"",description,create_time,current_user_created,update_time,current_user_updated,deleted_time,is_deleted,current_user_deleted,category,origin)
 SELECT '9f2b4c67-3d1a-4e85-b7c9-5a8d0e6f2b31','Paid Absence','import hour
 import fromhour
 import untilhour
@@ -309,7 +309,7 @@ IF Duration >= 23.9 THEN
 	Duration = 0
 END IF
 
-OUTPUT 1, Duration',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-19 00:00:00.000','admin',NULL,'',NULL,false,'',0
+OUTPUT 1, Duration',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-19 00:00:00.000','admin',NULL,'',NULL,false,'',0,1
 WHERE NOT EXISTS (SELECT 1 FROM public.macro WHERE id = '9f2b4c67-3d1a-4e85-b7c9-5a8d0e6f2b31');");
         }
     }
