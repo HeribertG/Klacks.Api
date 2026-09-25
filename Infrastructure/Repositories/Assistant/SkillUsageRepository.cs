@@ -104,21 +104,12 @@ public class SkillUsageRepository : ISkillUsageRepository
 
     public async Task<int> CancelDispatchedForTurnAsync(Guid turnId, CancellationToken cancellationToken = default)
     {
-        var rows = await DispatchedRowsOfTurn(turnId).ToListAsync(cancellationToken);
-        if (rows.Count == 0)
-        {
-            return 0;
-        }
-
         var now = DateTime.UtcNow;
-        foreach (var row in rows)
-        {
-            row.UiActionStatus = UiActionStatus.Cancelled;
-            row.Success = false;
-            row.UpdateTime = now;
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return rows.Count;
+        return await DispatchedRowsOfTurn(turnId).ExecuteUpdateAsync(
+            setters => setters
+                .SetProperty(r => r.UiActionStatus, UiActionStatus.Cancelled)
+                .SetProperty(r => r.Success, false)
+                .SetProperty(r => r.UpdateTime, now),
+            cancellationToken);
     }
 }
