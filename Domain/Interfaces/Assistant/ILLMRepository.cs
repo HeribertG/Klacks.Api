@@ -29,7 +29,10 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     
     Task<LLMConversation> GetOrCreateConversationAsync(string conversationId, string userId);
     Task<List<LLMConversation>> GetUserConversationsAsync(string userId, int limit, int offset);
-    Task<LLMConversation> UpdateConversationAsync(LLMConversation conversation);
+    Task RecordConversationTurnAsync(
+        LLMConversation conversation, int messageCount, DateTime lastMessageAtUtc, string modelId, string? proposedTitle);
+    Task AddConversationUsageAsync(LLMConversation conversation, int tokens, decimal cost);
+    Task UpdateConversationSummaryAsync(LLMConversation conversation);
     Task<bool> ArchiveConversationAsync(string conversationId, string userId);
     
     Task<LLMMessage> SaveMessageAsync(LLMMessage message);

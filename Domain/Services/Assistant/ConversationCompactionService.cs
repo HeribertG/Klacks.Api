@@ -103,7 +103,7 @@ public class ConversationCompactionService : IConversationCompactionService
             }
 
             conversation.Summary = BuildSummaryToStore(conversation.Summary, modelOutput);
-            await _llmRepository.UpdateConversationAsync(conversation);
+            await _llmRepository.UpdateConversationSummaryAsync(conversation);
 
             _logger.LogInformation(
                 "Compacted conversation {ConversationId}: summarized {MessageCount} old messages",

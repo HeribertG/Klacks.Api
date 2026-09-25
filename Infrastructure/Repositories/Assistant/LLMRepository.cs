@@ -256,11 +256,55 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             .ToListAsync();
     }
 
-    public async Task<LLMConversation> UpdateConversationAsync(LLMConversation conversation)
+    public async Task RecordConversationTurnAsync(
+        LLMConversation conversation, int messageCount, DateTime lastMessageAtUtc, string modelId, string? proposedTitle)
     {
-        context.Set<LLMConversation>().Update(conversation);
-        await context.SaveChangesAsync();
-        return conversation;
+        var now = DateTime.UtcNow;
+        await context.Set<LLMConversation>()
+            .Where(c => c.Id == conversation.Id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.MessageCount, c => c.MessageCount + messageCount)
+                .SetProperty(c => c.LastModelId, c => c.LastMessageAt > lastMessageAtUtc ? c.LastModelId : modelId)
+                .SetProperty(c => c.LastMessageAt, c => c.LastMessageAt > lastMessageAtUtc ? c.LastMessageAt : lastMessageAtUtc)
+                .SetProperty(c => c.Title, c => c.Title == null || c.Title == string.Empty ? proposedTitle : c.Title)
+                .SetProperty(c => c.UpdateTime, now));
+
+        await RefreshAsync(conversation);
+    }
+
+    public async Task AddConversationUsageAsync(LLMConversation conversation, int tokens, decimal cost)
+    {
+        var now = DateTime.UtcNow;
+        await context.Set<LLMConversation>()
+            .Where(c => c.Id == conversation.Id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.TotalTokens, c => c.TotalTokens + tokens)
+                .SetProperty(c => c.TotalCost, c => c.TotalCost + cost)
+                .SetProperty(c => c.UpdateTime, now));
+
+        await RefreshAsync(conversation);
+    }
+
+    public async Task UpdateConversationSummaryAsync(LLMConversation conversation)
+    {
+        var summary = conversation.Summary;
+        var now = DateTime.UtcNow;
+        await context.Set<LLMConversation>()
+            .Where(c => c.Id == conversation.Id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.Summary, summary)
+                .SetProperty(c => c.UpdateTime, now));
+
+        await RefreshAsync(conversation);
+    }
+
+    private async Task RefreshAsync(LLMConversation conversation)
+    {
+        var entry = context.Entry(conversation);
+        if (entry.State != EntityState.Detached)
+        {
+            await entry.ReloadAsync();
+        }
     }
 
     public async Task<bool> ArchiveConversationAsync(string conversationId, string userId)

@@ -21,6 +21,8 @@ public class LLMConversationManager
     // answer before the request.
     private const long AssistantAfterUserTicks = TimeSpan.TicksPerMicrosecond;
 
+    private const int MessagesPerTurn = 2;
+
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
@@ -91,16 +93,12 @@ public class LLMConversationManager
             CreateTime = turnStartedUtc?.AddTicks(AssistantAfterUserTicks) ?? DateTime.UtcNow
         });
 
-        conversation.LastMessageAt = DateTime.UtcNow;
-        conversation.MessageCount += 2;
-        conversation.LastModelId = modelId;
-
-        if (conversation.MessageCount == 2)
-        {
-            conversation.Title = GenerateConversationTitle(userMessage, assistantMessage);
-        }
-
-        await _repository.UpdateConversationAsync(conversation);
+        await _repository.RecordConversationTurnAsync(
+            conversation,
+            MessagesPerTurn,
+            DateTime.UtcNow,
+            modelId,
+            GenerateConversationTitle(userMessage, assistantMessage));
         _historyCache.Remove(BuildHistoryCacheKey(conversation.ConversationId, conversation.UserId));
     }
 
@@ -149,8 +147,7 @@ public class LLMConversationManager
 
         if (!hasError)
         {
-            conversation.TotalTokens += usage.TotalTokens;
-            conversation.TotalCost += usage.Cost;
+            await _repository.AddConversationUsageAsync(conversation, usage.TotalTokens, usage.Cost);
         }
     }
 
