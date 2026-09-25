@@ -210,7 +210,8 @@ public class EvalController : ControllerBase
                 UserId = userId,
                 UserMessage = body.UserMessage ?? string.Empty,
                 CorrectionType = body.CorrectionType ?? string.Empty,
-                ExpectedSkill = body.ExpectedSkill
+                ExpectedSkill = body.ExpectedSkill,
+                TurnId = body.TurnId
             });
             return Ok(result);
         }
@@ -399,6 +400,12 @@ public class EvalController : ControllerBase
         public string? UserMessage { get; set; }
         public string? CorrectionType { get; set; }
         public string? ExpectedSkill { get; set; }
+
+        /// <summary>
+        /// Server-assigned id of the corrected turn (from the stream_start event). Optional: clients that
+        /// do not send it, and turns older than the event, fall back to the message-hash lookup.
+        /// </summary>
+        public Guid? TurnId { get; set; }
     }
 
     public sealed class SubmitHelpfulFeedbackRequest

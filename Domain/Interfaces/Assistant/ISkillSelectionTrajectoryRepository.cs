@@ -33,6 +33,15 @@ public interface ISkillSelectionTrajectoryRepository
     Task MarkSharpenedAsync(
         IReadOnlyList<Guid> ids, DateTime sharpenedAtUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The trajectory of one specific turn, scoped to its owner. The turn id is the exact key: unlike the
+    /// utterance hash it stays unambiguous when the same text was sent twice (stop and resend). A turn that
+    /// belongs to another user is not found, exactly like an unknown id.
+    /// </summary>
+    /// <param name="userId">Owner of the turn; a trajectory of anyone else is never returned</param>
+    /// <param name="turnId">Server-assigned id of the turn, as announced in the stream_start event</param>
+    Task<SkillSelectionTrajectory?> FindByUserAndTurnIdAsync(string userId, Guid turnId, CancellationToken cancellationToken = default);
+
     Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default);
 
     Task<SkillSelectionTrajectory?> FindMostRecentByAgentAndUserAsync(Guid agentId, string userId, CancellationToken cancellationToken = default);

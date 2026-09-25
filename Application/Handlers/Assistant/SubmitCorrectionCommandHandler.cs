@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Marks a captured trajectory as user-corrected. Looks the trajectory up by user id + the 16-char
-/// MessageNormalizer hash of the user message (privacy-preserving: the original message is not stored).
-/// Because that hash is normalised, a correction whose text differs from the captured turn only in
-/// casing or surrounding whitespace now finds its trajectory instead of silently reporting "not found".
+/// Marks a captured trajectory as user-corrected. Looks the trajectory up by user id + turn id when the
+/// client sends the id of the corrected turn (exact, survives stop-and-resend of the same text), otherwise by
+/// user id + the 16-char MessageNormalizer hash of the user message (privacy-preserving: the original message
+/// is not stored). Because that hash is normalised, a correction whose text differs from the captured turn
+/// only in casing or surrounding whitespace finds its trajectory instead of silently reporting "not found".
 /// A correction naming the expected skill is also the only evidence the learning loop gets that is not a
 /// refusal, so it is forwarded to the case collector. This holds for a turn the user stopped as well: the bare
 /// stop teaches nothing, but a click on the correction menu is an explicit judgement of that turn. Such a turn
@@ -67,14 +68,10 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
             throw new ArgumentException($"Unknown correction type '{request.CorrectionType}'.", nameof(request));
         }
 
-        var hash = MessageNormalizer.Hash(request.UserMessage);
-        var trajectory = await _repository.FindMostRecentByUserAndHashAsync(request.UserId, hash, cancellationToken);
+        var trajectory = await FindTrajectoryAsync(request, cancellationToken);
 
         if (trajectory == null)
         {
-            _logger.LogInformation(
-                "Correction received for user {UserId} but no matching trajectory was found (hash {Hash})",
-                request.UserId, hash);
             return new SubmitCorrectionResult(Found: false, TrajectoryId: null);
         }
 
@@ -122,6 +119,38 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
         await CollectLearningCaseAsync(request, trajectory, cancellationToken);
 
         return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
+    }
+
+    // A turn id names the turn exactly and is the only key once the client sends one. It never falls back to
+    // the hash: the id being unknown (not persisted yet, no trajectory captured) says nothing about which of
+    // two same-text turns was meant, and the hash would pick the newest - the very ambiguity the id removes.
+    // Only a client without an id (older Ui, turns from before the stream_start event) uses the hash.
+    private async Task<SkillSelectionTrajectory?> FindTrajectoryAsync(
+        SubmitCorrectionCommand request, CancellationToken cancellationToken)
+    {
+        if (request.TurnId.HasValue)
+        {
+            var byTurn = await _repository.FindByUserAndTurnIdAsync(request.UserId, request.TurnId.Value, cancellationToken);
+            if (byTurn == null)
+            {
+                _logger.LogInformation(
+                    "Correction received for user {UserId} but no trajectory was found for turn {TurnId}",
+                    request.UserId, request.TurnId);
+            }
+
+            return byTurn;
+        }
+
+        var hash = MessageNormalizer.Hash(request.UserMessage);
+        var byHash = await _repository.FindMostRecentByUserAndHashAsync(request.UserId, hash, cancellationToken);
+        if (byHash == null)
+        {
+            _logger.LogInformation(
+                "Correction received for user {UserId} but no matching trajectory was found (hash {Hash})",
+                request.UserId, hash);
+        }
+
+        return byHash;
     }
 
     // Only the correction types that say something about ROUTING become learning cases: a wrong

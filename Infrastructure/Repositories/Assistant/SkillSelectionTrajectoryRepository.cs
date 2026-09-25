@@ -80,6 +80,18 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
                 cancellationToken);
     }
 
+    // The owner is part of the predicate, not a check after the fact: a turn id that belongs to someone else
+    // is indistinguishable from an unknown one, so a guessed id tells nothing about other users' turns.
+    internal IQueryable<SkillSelectionTrajectory> ByUserAndTurnIdQuery(string userId, Guid turnId) =>
+        _context.SkillSelectionTrajectories.Where(t => t.UserId == userId && t.TurnId == turnId);
+
+    public async Task<SkillSelectionTrajectory?> FindByUserAndTurnIdAsync(string userId, Guid turnId, CancellationToken cancellationToken = default)
+    {
+        return await ByUserAndTurnIdQuery(userId, turnId)
+            .OrderByDescending(t => t.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default)
     {
         return await _context.SkillSelectionTrajectories
