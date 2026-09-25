@@ -1610,6 +1610,11 @@
     "sjekk planstatus",
     "er planen ferdig"
   ],
+  "get_planning_deadline": [
+    "innen når må vaktplanen være ferdig",
+    "beregn planleggingsfristen",
+    "seneste dato for å sende ut vaktplanen"
+  ],
   "get_proactive_governance": [
     "hva kan du ordne selv",
     "vis grensen for selvstendig handling",
@@ -2496,6 +2501,10 @@
     "endre fargevalget",
     "bruk lyst tema",
     "høy kontrast for øynene"
+  ],
+  "set_planning_deadline_lead": [
+    "lagre forhåndstiden for planleggingen",
+    "lagre planleggingsfristens forhåndstid"
   ],
   "set_planning_profile_parameters": [
     "angi parametere for planleggingsprofilen",

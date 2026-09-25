@@ -24,5 +24,6 @@
   "close-payroll-period": ["fechar o período salarial", "selar o mês"],
   "bundle-mobile-services-into-container": ["agrupar serviços móveis num novo contêiner", "criar contêiner a partir de serviços próximos", "construir contêiner com rota otimizada"],
   "setup-planning-profile": ["configurar um perfil de planeamento próprio", "definir regras de planeamento próprias da empresa"],
-  "setup-consultation": ["como eu começo a usar o sistema do zero", "quais são os primeiros passos no sistema", "ainda não há absolutamente nada planejado", "como configuro o Klacks desde o início"]
+  "setup-consultation": ["como eu começo a usar o sistema do zero", "quais são os primeiros passos no sistema", "ainda não há absolutamente nada planejado", "como configuro o Klacks desde o início"],
+  "plan-delivery-deadline": ["prazo limite da escala para o envio por correio ou e-mail", "data limite de conclusão do plano de turnos para envio postal", "prazo final do planeamento da escala antes do envio por e-mail"]
 }

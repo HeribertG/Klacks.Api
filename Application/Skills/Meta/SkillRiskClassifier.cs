@@ -205,6 +205,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_ai_guidelines",
         "update_ai_soul",
         "update_compliance_enforcement_settings",
+        // The planning deadline lead decides how many days before a period starts the next-period detector
+        // reports it and, when the autonomy brakes allow, starts the automatic autofill: raising it moves
+        // the autopilot's start earlier, onto less complete availability input. The guided recipe only
+        // calculates and offers; storing is a separate request the user makes afterwards, and the
+        // confirmation gate holds that call until the user has said yes.
+        "set_planning_deadline_lead",
         // Installing a feature plugin ADDS SKILLS to the assistant (the messaging plugin is what brings
         // send_message), which is mandate widening in its most literal form; uninstalling removes them
         // again together with the plugin's data. The Whisper pair is the same decision one layer down: it

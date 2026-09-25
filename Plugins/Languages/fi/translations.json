@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Laske vain työpäivät",
   "setting.complianceEnforcement.roster-publication-header": "Työvuorolistan julkaisu",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Vähimmäisvaroaika (päivää)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Suunnittelun varoaika (päivää ennen jakson alkua)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Korvaava lepoaika",
   "setting.complianceEnforcement.rule.counterRule": "Laskurisääntö",
   "setting.complianceEnforcement.rule.holidayWork": "Pyhäpäivätyö",

@@ -6049,6 +6049,149 @@
           "note": "RECIPE 'setup-consultation' step 6 of 6: if the result navigated, tell the user what they will see there. If it carries Data.Handoff, offer exactly that value as a single reply chip and call no other tool. If it carries neither, summarize what was decided and stop."
         }
       ]
+    },
+    {
+      "name": "plan-delivery-deadline",
+      "goal": "Find out by when planning must be finished so the plan can still be delivered by e-mail or post: ask how the plan is delivered, how long post takes, how many days ahead the employees must hold the plan and how long the internal review takes, calculate the latest dates per group, and offer to store the resulting lead, which is a separate, confirmed step outside this recipe.",
+      "goalTranslations": {
+        "de": "Ermittelt, bis wann die Planung spätestens fertig sein muss, damit sie rechtzeitig per E-Mail oder Post zugestellt wird: fragt Zustellart, Postlaufzeit, Bekanntgabefrist und Prüfzeit, nennt den Stichtag je Gruppe und bietet an, den Vorlauf zu speichern (eigener, bestätigter Schritt).",
+        "en": "Finds out by when planning must be finished so the plan is delivered in time by e-mail or post: asks the delivery method, postal transit, announcement period and review time, states the deadline per group and offers to store the lead (a separate, confirmed step).",
+        "fr": "Détermine la date limite de fin de planification pour une remise à temps par e-mail ou par courrier : demande le mode d'envoi, le délai postal, le délai de communication et la durée de contrôle, indique la date limite par groupe et propose d'enregistrer le délai (étape distincte et confirmée).",
+        "it": "Determina entro quando la pianificazione deve essere pronta per una consegna puntuale via e-mail o posta: chiede il canale, i tempi postali, il preavviso e il tempo di verifica, indica la scadenza per gruppo e propone di salvare l'anticipo (passo separato e confermato)."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 76,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "wann",
+              "spätest",
+              "spaetest",
+              "stichtag",
+              "frist",
+              "deadline",
+              "rechtzeitig",
+              "when",
+              "latest",
+              "time",
+              "quand",
+              "temps",
+              "tard",
+              "quando",
+              "tempo",
+              "entro",
+              "scadenza",
+              "échéance",
+              "echeance"
+            ]
+          },
+          {
+            "anySubstring": [
+              "plan",
+              "plän",
+              "roster",
+              "schedule",
+              "planning",
+              "planif",
+              "pianific",
+              "turni"
+            ]
+          },
+          {
+            "anySubstring": [
+              "versend",
+              "verschick",
+              "zustell",
+              "e-mail",
+              "email",
+              "per post",
+              "postweg",
+              "by post",
+              "by mail",
+              "to send",
+              "be sent",
+              "envoy",
+              "expédi",
+              "per posta",
+              "spedi",
+              "inviare",
+              "inviat",
+              "par courrier",
+              "par la poste",
+              "lettre"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "erfass",
+              "create",
+              "crée",
+              "crea"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "delivery",
+          "prompt": "Ask how the finished plans reach the employees: by e-mail (Klacks sends the PDF itself) or by post. Make clear that post is only calculated here — Klacks does not send letters. Offer [REPLIES:single \"E-Mail=email\" | \"Post=post\"]. Ask exactly this one question and nothing else: state no deadline, sum, date or conclusion before the calculation step, and do not offer to store anything yet.",
+          "promptTranslations": {
+            "de": "Wie erreichen die fertigen Pläne die Mitarbeitenden — per E-Mail (Klacks versendet das PDF selbst) oder per Post? Post wird hier nur eingerechnet, Klacks versendet keine Briefe. [REPLIES:single \"E-Mail=email\" | \"Post=post\"]",
+            "en": "How do the finished plans reach the employees — by e-mail (Klacks sends the PDF itself) or by post? Post is only calculated here, Klacks does not send letters. [REPLIES:single \"E-mail=email\" | \"Post=post\"]",
+            "fr": "Comment les plannings terminés parviennent-ils aux collaborateurs — par e-mail (Klacks envoie lui-même le PDF) ou par courrier ? Le courrier n'est ici que calculé, Klacks n'envoie pas de lettres. [REPLIES:single \"E-mail=email\" | \"Courrier=post\"]",
+            "it": "Come arrivano i piani pronti ai collaboratori — per e-mail (Klacks invia il PDF da solo) o per posta? La posta qui è solo calcolata, Klacks non invia lettere. [REPLIES:single \"E-mail=email\" | \"Posta=post\"]"
+          },
+          "description": "the delivery method: email or post"
+        },
+        {
+          "kind": "ask",
+          "slot": "transitDays",
+          "prompt": "Ask how many days the delivery takes from dispatch to arrival, printing included. For e-mail the answer is 0. Ask exactly this one question and nothing else: state no deadline, sum, date or conclusion before the calculation step, and do not offer to store anything yet.",
+          "promptTranslations": {
+            "de": "Wie viele Tage dauert die Zustellung vom Versand bis zur Ankunft, Druck eingerechnet? Bei E-Mail: 0.",
+            "en": "How many days does delivery take from dispatch to arrival, printing included? For e-mail: 0.",
+            "fr": "Combien de jours dure la remise entre l'envoi et l'arrivée, impression comprise ? Pour un e-mail : 0.",
+            "it": "Quanti giorni servono per la consegna dall'invio all'arrivo, stampa inclusa? Per l'e-mail: 0."
+          },
+          "description": "days from dispatch to arrival including printing; 0 for e-mail"
+        },
+        {
+          "kind": "ask",
+          "slot": "announcementDays",
+          "prompt": "Ask how many days before a period starts the employees must hold the plan. If the context result reported a legal minimum publication lead above 0, name it and say it will be used as the lower limit; otherwise ask for the company's own rule. Ask exactly this one question and nothing else: state no deadline, sum, date or conclusion before the calculation step, and do not offer to store anything yet.",
+          "promptTranslations": {
+            "de": "Wie viele Tage vor Periodenbeginn müssen die Mitarbeitenden den Plan haben? Ist eine gesetzliche Mindestfrist hinterlegt, gilt sie als Untergrenze; sonst gilt Ihre betriebliche Regel.",
+            "en": "How many days before a period starts must the employees hold the plan? If a legal minimum publication lead is configured it counts as the lower limit; otherwise your own company rule applies.",
+            "fr": "Combien de jours avant le début d'une période les collaborateurs doivent-ils avoir le planning ? Si un délai légal minimal est configuré, il sert de limite inférieure ; sinon, c'est la règle de votre entreprise.",
+            "it": "Quanti giorni prima dell'inizio di un periodo i collaboratori devono avere il piano? Se è configurato un preavviso legale minimo, vale come limite inferiore; altrimenti vale la regola della vostra azienda."
+          },
+          "description": "days before a period starts by which the employees must hold the plan"
+        },
+        {
+          "kind": "ask",
+          "slot": "reviewDays",
+          "prompt": "Ask how many days the internal check and approval need between the finished plan and dispatch. Zero is a valid answer. Ask exactly this one question and nothing else: state no deadline, sum, date or conclusion before the calculation step, and do not offer to store anything yet.",
+          "promptTranslations": {
+            "de": "Wie viele Tage braucht die interne Prüfung und Freigabe zwischen fertigem Plan und Versand? Null ist möglich.",
+            "en": "How many days do the internal check and approval need between the finished plan and dispatch? Zero is fine.",
+            "fr": "Combien de jours le contrôle interne et la validation nécessitent-ils entre le planning terminé et l'envoi ? Zéro est possible.",
+            "it": "Quanti giorni servono per la verifica e l'approvazione interna tra il piano finito e l'invio? Zero è possibile."
+          },
+          "description": "days the internal review and approval take before dispatch"
+        },
+        {
+          "kind": "search",
+          "skill": "get_planning_deadline",
+          "note": "RECIPE step 5 of 5: call the skill with the numbers from the known values. Map the delivery slot to deliveryChannel (email or post), the transitDays slot to transitDays, the announcementDays slot to announcementDays, the reviewDays slot to reviewDays — all whole numbers (transitDays 0 for e-mail). Your NEXT reply states the calculated deadline and offers to store it. Part one, from the result: Data.DeadlineLeadDays with its three parts; per group in Data.Groups the period start, the latest send date and the latest planning-done date; for a group with NextPeriodOverdue true say that its next period (NextPeriodStart) is already past its deadline and the listed period is the first one that can still be met; if Data.Groups is empty say that no group with members and a derivable period exists yet; if the user chose post say that post is only calculated; if Data.AnnouncementFloorApplied is true say that the legal minimum replaced a shorter answer; if Data.StoredDeadlineLeadDays is above 0 name the lead currently stored. Use only facts from Data and never invent a date. Part two, the LAST sentence: offer to store this lead of N days as the standard lead, so the assistant reports and prepares the next period's plan earlier, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the store skill in the user's language, a colon and the number of days: German \"Planungsvorlauf speichern: N Tage\", English \"Store the planning lead: N days\", French \"Enregistrer le délai de planification : N jours\", Italian \"Salvare l'anticipo di pianificazione: N giorni\"; for any other language use that skill's label in that language. Nothing is stored by this recipe: never say that anything was stored, and never call any skill that stores or confirms anything in this reply."
+        }
+      ]
     }
   ]
 }

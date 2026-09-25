@@ -224,5 +224,11 @@
     "käyttöönotto",
     "perehdytys",
     "ensimmäiset askeleet"
+  ],
+  "plan-delivery-deadline": [
+    "työvuorolista",
+    "vuorosuunnitelma",
+    "määräpäivä",
+    "takaraja"
   ]
 }

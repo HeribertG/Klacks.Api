@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "ספירת ימי עבודה בלבד",
   "setting.complianceEnforcement.roster-publication-header": "פרסום לוח המשמרות",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "זמן הקדמה מינימלי (ימים)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "זמן הקדמה לתכנון (ימים לפני תחילת תקופה)",
   "setting.complianceEnforcement.rule.compensatoryRest": "מנוחה מפצה",
   "setting.complianceEnforcement.rule.counterRule": "כלל מונה",
   "setting.complianceEnforcement.rule.holidayWork": "עבודה בחגים",

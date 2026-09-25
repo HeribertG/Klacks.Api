@@ -2111,6 +2111,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "นับเฉพาะวันทำงาน",
   "setting.complianceEnforcement.roster-publication-header": "การเผยแพร่ตารางเวร",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "ระยะเวลาแจ้งล่วงหน้าขั้นต่ำ (วัน)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "ระยะเวลาวางแผนล่วงหน้า (วันก่อนเริ่มงวด)",
   "setting.complianceEnforcement.rule.compensatoryRest": "การพักชดเชย",
   "setting.complianceEnforcement.rule.counterRule": "กฎตัวนับ",
   "setting.complianceEnforcement.rule.holidayWork": "การทำงานในวันหยุดนักขัตฤกษ์",

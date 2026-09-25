@@ -44354,6 +44354,191 @@
         "it": "Stato di configurazione dell'installazione"
       },
       "version": 3
+    },
+    {
+      "name": "get_planning_deadline",
+      "area": "schedule",
+      "description": "Works out by when planning has to be finished so the plan is delivered in time: from the announcement days the employees must hold the plan, the postal transit days and the internal review days it reports per group the period start, the latest send date and the latest planning-done date. Without numbers it reports today, the legal minimum publication lead and any stored deadline lead. Use when asked by when planning must be done or when the plan has to go out. Do NOT use to store a value.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "deliveryChannel",
+          "description": "How the plan reaches the employees: email or post",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transitDays",
+          "description": "Days from dispatch to arrival including printing; 0 or omitted for email",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "announcementDays",
+          "description": "Days before a period starts by which the employees must hold the plan",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reviewDays",
+          "description": "Days the internal check and approval need between finished plan and dispatch",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "planungsschluss",
+          "bis wann planen",
+          "versandfrist plan"
+        ],
+        "en": [
+          "planning deadline",
+          "planning cutoff",
+          "latest planning date"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "bis wann muss der plan fertig sein",
+          "planungsschluss berechnen",
+          "wann muss ich mit der planung fertig sein",
+          "spätester versandtermin plan"
+        ],
+        "en": [
+          "by when must the plan be finished",
+          "calculate the planning deadline",
+          "when do i have to finish planning",
+          "latest date to send the roster"
+        ],
+        "fr": [
+          "jusqu'à quand le planning doit être terminé",
+          "calculer la date limite de planification",
+          "date limite d'envoi du planning"
+        ],
+        "it": [
+          "entro quando deve essere pronto il piano",
+          "calcolare la scadenza della pianificazione",
+          "data limite di invio del piano"
+        ]
+      },
+      "labels": {
+        "de": "Planungs-Stichtag berechnen",
+        "en": "Calculate the planning deadline",
+        "fr": "Calculer la date limite de planification",
+        "it": "Calcolare la scadenza della pianificazione"
+      },
+      "version": 1
+    },
+    {
+      "name": "set_planning_deadline_lead",
+      "area": "settings",
+      "description": "Stores how many days before a period starts the planning has to be finished, worked out from the announcement days, the delivery days and the internal review days the user gave; a legal minimum publication lead raises a shorter announcement. The stored value makes the assistant report or prepare the next period's plan earlier; zero inputs remove the deadline and restore the default window. Do NOT use to merely calculate or show a deadline.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "announcementDays",
+          "description": "Days before a period starts by which the employees must hold the plan",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transitDays",
+          "description": "Days from dispatch to arrival including printing; 0 or omitted for email",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reviewDays",
+          "description": "Days the internal check and approval need between finished plan and dispatch",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "planungsvorlauf speichern"
+        ],
+        "en": [
+          "store the planning lead",
+          "store planning lead"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "planungsvorlauf speichern",
+          "planungsvorlauf hinterlegen",
+          "vorlauf speichern",
+          "vorlauf hinterlegen",
+          "frist speichern",
+          "frist hinterlegen",
+          "frist fest hinterlegen",
+          "frist als vorgabe speichern",
+          "als vorgabe speichern",
+          "planungsfrist speichern",
+          "planungsvorlauf"
+        ],
+        "en": [
+          "store the planning lead time",
+          "save the planning deadline lead",
+          "save the deadline",
+          "store the deadline",
+          "save the lead",
+          "store the lead",
+          "planning lead"
+        ],
+        "fr": [
+          "enregistrer le délai de planification",
+          "enregistrer le délai",
+          "enregistrer cette échéance",
+          "délai de planification"
+        ],
+        "it": [
+          "salvare l'anticipo di pianificazione",
+          "salvare l'anticipo",
+          "salvare la scadenza",
+          "anticipo di pianificazione"
+        ]
+      },
+      "labels": {
+        "de": "Planungsvorlauf speichern",
+        "en": "Store the planning lead",
+        "fr": "Enregistrer le délai de planification",
+        "it": "Salvare l'anticipo di pianificazione"
+      },
+      "version": 1
     }
   ]
 }

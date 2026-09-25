@@ -1626,6 +1626,11 @@
     "kontrollera planstatus",
     "är planen klar"
   ],
+  "get_planning_deadline": [
+    "till när måste schemat vara klart",
+    "beräkna planeringens slutdatum",
+    "senaste datum för att skicka ut schemat"
+  ],
   "get_proactive_governance": [
     "vad kan du sköta själv",
     "visa gränsen för självständigt handlande",
@@ -2516,6 +2521,10 @@
     "ändra färgschemat",
     "använd ljust utseende",
     "stark kontrast för mina ögon"
+  ],
+  "set_planning_deadline_lead": [
+    "spara planeringens framförhållning",
+    "ange framförhållningen för schemaplaneringen"
   ],
   "set_planning_profile_parameters": [
     "ange parametrar för planeringsprofilen",

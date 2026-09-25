@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Timing of the next-period scheduling readiness check. Defined here, like ProactiveHeartbeat,
-/// so the lead window is a named installation constant rather than a magic number inside the
+/// so the planning window is a named installation constant rather than a magic number inside the
 /// detector that watches it.
 /// </summary>
 
@@ -10,8 +10,13 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class NextPeriodScheduling
 {
-    /// <summary>Days before the next pay-period's start by which a schedule draft should exist.</summary>
-    public const int LeadTimeDays = 7;
+    /// <summary>
+    /// Days of planning work that sit ABOVE the configured planning deadline: the detector reacts this many
+    /// days before the latest allowed finish date, so a draft can still be prepared and reviewed in time.
+    /// With no PLANNING_DEADLINE_LEAD_DAYS configured the deadline lead is 0 and this alone decides, which
+    /// keeps the behavior every installation had before the setting existed.
+    /// </summary>
+    public const int PlanningWindowDays = 7;
 
     /// <summary>Minutes the auto-commit watcher waits for the wizard chain before it gives up.</summary>
     public const int AutoCommitWatchTimeoutMinutes = 20;

@@ -1640,6 +1640,11 @@
     "zkontrolovat stav plánu",
     "je plán hotový"
   ],
+  "get_planning_deadline": [
+    "dokdy musí být plán hotový",
+    "vypočítat termín plánování",
+    "nejzazší den odeslání rozpisu"
+  ],
   "get_proactive_governance": [
     "co můžeš vyřídit sám",
     "zobraz meze samostatného jednání",
@@ -2561,6 +2566,10 @@
     "změnit barevné schéma",
     "použít světlý vzhled",
     "vysoký kontrast pro oči"
+  ],
+  "set_planning_deadline_lead": [
+    "uložit plánovací předstih",
+    "zapsat předstih plánování ve dnech"
   ],
   "set_planning_profile_parameters": [
     "nastavit parametry plánovacího profilu",

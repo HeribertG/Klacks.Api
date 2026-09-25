@@ -2111,6 +2111,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Chỉ tính ngày làm việc",
   "setting.complianceEnforcement.roster-publication-header": "Công bố lịch công",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Thời gian báo trước tối thiểu (ngày)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Thời gian chuẩn bị lập kế hoạch (số ngày trước khi kỳ bắt đầu)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Nghỉ bù",
   "setting.complianceEnforcement.rule.counterRule": "Quy tắc đếm",
   "setting.complianceEnforcement.rule.holidayWork": "Làm việc ngày lễ",

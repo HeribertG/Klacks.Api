@@ -1632,6 +1632,11 @@
     "consultar el estado del plan",
     "el plan ha terminado"
   ],
+  "get_planning_deadline": [
+    "para cuándo debe estar listo el plan",
+    "calcular la fecha límite de planificación",
+    "última fecha para enviar el plan de turnos"
+  ],
   "get_proactive_governance": [
     "qué puedes resolver por tu cuenta",
     "muestra el margen de actuación",
@@ -2552,6 +2557,10 @@
     "usar el tema claro",
     "poner alto contraste para mis ojos",
     "cambiar los colores de la pantalla"
+  ],
+  "set_planning_deadline_lead": [
+    "guardar la antelación de planificación",
+    "definir con cuántos días de antelación se planifica"
   ],
   "set_planning_profile_parameters": [
     "definir parámetros del perfil de planificación",

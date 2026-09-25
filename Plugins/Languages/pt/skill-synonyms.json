@@ -1636,6 +1636,11 @@
     "verificar o status do plano",
     "o plano já terminou"
   ],
+  "get_planning_deadline": [
+    "até quando o plano precisa estar pronto",
+    "calcular o prazo do planeamento",
+    "última data para enviar a escala"
+  ],
   "get_proactive_governance": [
     "o que podes resolver sozinho",
     "mostra a margem de atuação",
@@ -2548,6 +2553,10 @@
     "mudar o esquema de cores da tela",
     "preciso de mais contraste na tela",
     "deixar a tela mais confortável para os olhos"
+  ],
+  "set_planning_deadline_lead": [
+    "gravar a antecedência do planeamento",
+    "gravar a antecedência do planejamento"
   ],
   "set_planning_profile_parameters": [
     "definir parâmetros do perfil de planeamento",

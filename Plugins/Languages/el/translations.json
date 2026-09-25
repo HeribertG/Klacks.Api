@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Καταμέτρηση μόνο εργάσιμων ημερών",
   "setting.complianceEnforcement.roster-publication-header": "Δημοσίευση προγράμματος υπηρεσιών",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Ελάχιστος χρόνος προειδοποίησης (ημέρες)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Χρονικό περιθώριο προγραμματισμού (ημέρες πριν την έναρξη της περιόδου)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Αντισταθμιστική ανάπαυση",
   "setting.complianceEnforcement.rule.counterRule": "Κανόνας μετρητή",
   "setting.complianceEnforcement.rule.holidayWork": "Εργασία σε αργίες",

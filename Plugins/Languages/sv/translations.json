@@ -2111,6 +2111,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Räkna endast arbetsdagar",
   "setting.complianceEnforcement.roster-publication-header": "Schemapublicering",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minsta framförhållning (dagar)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Planeringens framförhållning (dagar före periodens start)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Kompensationsledighet",
   "setting.complianceEnforcement.rule.counterRule": "Räknarregel",
   "setting.complianceEnforcement.rule.holidayWork": "Helgdagsarbete",

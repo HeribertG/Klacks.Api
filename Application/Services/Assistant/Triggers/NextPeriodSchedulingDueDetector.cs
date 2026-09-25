@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Detects groups whose NEXT pay-period starts within NextPeriodScheduling.LeadTimeDays and has no
+/// Detects groups whose NEXT pay-period starts within the planning window (NextPeriodScheduling.PlanningWindowDays
+/// plus the optional PLANNING_DEADLINE_LEAD_DAYS setting, 0 when unset) and has no
 /// AnalyseScenario covering it yet. Period boundaries follow the group's PaymentInterval exactly like
 /// PeriodCloseDueDetector, shifted one period into the future; Individual is skipped (custom, no
 /// derivable cycle), as are groups without any clients or shifts in themselves or a descendant group,
@@ -44,6 +45,7 @@
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="timeProvider">Ages the ledger row of an automatic start against the interrupted grace window.</param>
 
+using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Exceptions;
@@ -66,8 +68,6 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
 {
-    private const int WeeklyPeriodDays = 7;
-    private const int BiweeklyCycleDays = 14;
     private const int UnprocessedEmailProbeCount = 1;
     private const int NoNewComplianceIssues = 0;
 
@@ -142,8 +142,9 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
+        var deadlineLeadDays = await ReadDeadlineLeadDaysAsync();
         var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
-        var nextWeekStart = weekStart.AddDays(WeeklyPeriodDays);
+        var nextWeekStart = weekStart.AddDays(NextPeriodBoundaries.WeeklyPeriodDays);
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
@@ -157,7 +158,7 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
 
         foreach (var group in groups)
         {
-            if (group.PaymentInterval == PaymentInterval.Individual)
+            if (!NextPeriodBoundaries.HasDerivableCycle(group.PaymentInterval))
             {
                 _logger.LogDebug(
                     "NextPeriodSchedulingDue: group {GroupName} uses PaymentInterval Individual, which has no derivable cycle — skipped",
@@ -168,11 +169,11 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
 
             if (!staffing.IsStaffed(group.Id)) continue;
 
-            var periodStart = ComputeNextPeriodStart(group, today, nextWeekStart);
+            var periodStart = NextPeriodBoundaries.ComputeStart(group, today, nextWeekStart);
             var daysUntilStart = periodStart.DayNumber - today.DayNumber;
-            if (daysUntilStart > NextPeriodScheduling.LeadTimeDays) continue;
+            if (daysUntilStart > deadlineLeadDays + NextPeriodScheduling.PlanningWindowDays) continue;
 
-            var periodEnd = ComputeNextPeriodEnd(group, periodStart);
+            var periodEnd = NextPeriodBoundaries.ComputeEnd(group, periodStart);
             var covering = await FindCoveringScenarioAsync(group.Id, periodStart, periodEnd, cancellationToken);
             if (covering != null)
             {
@@ -224,6 +225,19 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
             groups.Count, events.Count, autofillStarts, skippedWithoutShifts, interruptedAutoCommits);
 
         return events;
+    }
+
+    private async Task<int> ReadDeadlineLeadDaysAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.PlanningDeadlineLeadDays);
+        if (setting?.Value == null
+            || !int.TryParse(setting.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var days)
+            || days <= 0)
+        {
+            return 0;
+        }
+
+        return Math.Min(days, PlanningDeadlineCalculator.MaxLeadDays);
     }
 
     private async Task<bool> HasUnprocessedEmailBacklogAsync()
@@ -432,50 +446,5 @@ public class NextPeriodSchedulingDueDetector : IAgentTriggerDetector
 
             return (null, true);
         }
-    }
-
-    private static DateOnly ComputeNextPeriodStart(Group group, DateOnly today, DateOnly nextWeekStart)
-    {
-        return group.PaymentInterval switch
-        {
-            PaymentInterval.Weekly => nextWeekStart,
-            PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom).AddDays(1),
-            PaymentInterval.Monthly => FirstOfNextMonth(today),
-            PaymentInterval.MonthlyTargetHours => FirstOfNextMonth(today),
-            _ => throw new ArgumentOutOfRangeException(nameof(group),
-                $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
-        };
-    }
-
-    private static DateOnly ComputeNextPeriodEnd(Group group, DateOnly periodStart)
-    {
-        return group.PaymentInterval switch
-        {
-            PaymentInterval.Weekly => periodStart.AddDays(WeeklyPeriodDays - 1),
-            PaymentInterval.Biweekly => periodStart.AddDays(BiweeklyCycleDays - 1),
-            PaymentInterval.Monthly => EndOfMonth(periodStart),
-            PaymentInterval.MonthlyTargetHours => EndOfMonth(periodStart),
-            _ => throw new ArgumentOutOfRangeException(nameof(group),
-                $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
-        };
-    }
-
-    private static DateOnly FirstOfNextMonth(DateOnly today)
-    {
-        return new DateOnly(today.Year, today.Month, 1).AddMonths(1);
-    }
-
-    private static DateOnly EndOfMonth(DateOnly date)
-    {
-        var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
-        return new DateOnly(date.Year, date.Month, daysInMonth);
-    }
-
-    private static DateOnly EndOfBiweekly(DateOnly today, DateTime groupAnchor)
-    {
-        var anchor = DateOnly.FromDateTime(groupAnchor);
-        var daysSinceAnchor = today.DayNumber - anchor.DayNumber;
-        var positionInCycle = ((daysSinceAnchor % BiweeklyCycleDays) + BiweeklyCycleDays) % BiweeklyCycleDays;
-        return today.AddDays(BiweeklyCycleDays - 1 - positionInCycle);
     }
 }

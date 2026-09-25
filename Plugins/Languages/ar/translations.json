@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "احتساب أيام العمل فقط",
   "setting.complianceEnforcement.roster-publication-header": "نشر جدول الدوام",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "الحد الأدنى للمهلة المسبقة (أيام)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "مهلة التخطيط المسبقة (أيام قبل بدء الفترة)",
   "setting.complianceEnforcement.rule.compensatoryRest": "الراحة التعويضية",
   "setting.complianceEnforcement.rule.counterRule": "قاعدة العدّاد",
   "setting.complianceEnforcement.rule.holidayWork": "العمل في العطل الرسمية",

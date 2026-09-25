@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Contar solo días laborables",
   "setting.complianceEnforcement.roster-publication-header": "Publicación del plan de turnos",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Antelación mínima (días)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Antelación de planificación (días antes del inicio del período)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Descanso compensatorio",
   "setting.complianceEnforcement.rule.counterRule": "Regla de contador",
   "setting.complianceEnforcement.rule.holidayWork": "Trabajo en festivos",

@@ -1648,6 +1648,11 @@
     "sprawdź status planu",
     "czy plan jest gotowy"
   ],
+  "get_planning_deadline": [
+    "do kiedy plan musi być gotowy",
+    "oblicz termin planowania",
+    "najpóźniejsza data wysłania grafiku"
+  ],
   "get_proactive_governance": [
     "co możesz załatwić samodzielnie",
     "pokaż granicę samodzielnego działania",
@@ -2576,6 +2581,10 @@
     "zmień kolory na wysokokontrastowe",
     "użyj jasnego motywu",
     "przyciemnij ekran"
+  ],
+  "set_planning_deadline_lead": [
+    "ustaw czas wyprzedzenia planowania",
+    "ustaw wyprzedzenie planowania w dniach"
   ],
   "set_planning_profile_parameters": [
     "ustaw parametry profilu planowania",

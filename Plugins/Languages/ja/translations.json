@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "稼働日のみカウント",
   "setting.complianceEnforcement.roster-publication-header": "勤務表の公開",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "最小リードタイム（日）",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "計画リードタイム（期間開始の何日前）",
   "setting.complianceEnforcement.rule.compensatoryRest": "代償休息",
   "setting.complianceEnforcement.rule.counterRule": "カウンタールール",
   "setting.complianceEnforcement.rule.holidayWork": "祝日勤務",

@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Licz tylko dni robocze",
   "setting.complianceEnforcement.roster-publication-header": "Publikacja planu pracy",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minimalny czas wyprzedzenia (dni)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Wyprzedzenie planowania (dni przed rozpoczęciem okresu)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Odpoczynek wyrównawczy",
   "setting.complianceEnforcement.rule.counterRule": "Reguła licznika",
   "setting.complianceEnforcement.rule.holidayWork": "Praca w święta",

@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Počítat pouze pracovní dny",
   "setting.complianceEnforcement.roster-publication-header": "Zveřejnění plánu nasazení",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minimální předstih (dny)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Plánovací předstih (dny před začátkem období)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Náhradní odpočinek",
   "setting.complianceEnforcement.rule.counterRule": "Čítací pravidlo",
   "setting.complianceEnforcement.rule.holidayWork": "Práce ve svátek",

@@ -2111,6 +2111,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Numără doar zilele lucrătoare",
   "setting.complianceEnforcement.roster-publication-header": "Publicarea programului de lucru",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Anticipare minimă (zile)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Anticipare planificare (zile înainte de începutul perioadei)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Repaus compensatoriu",
   "setting.complianceEnforcement.rule.counterRule": "Regulă de contorizare",
   "setting.complianceEnforcement.rule.holidayWork": "Munca în sărbători",

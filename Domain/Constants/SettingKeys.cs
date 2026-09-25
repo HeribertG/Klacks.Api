@@ -103,6 +103,8 @@ public static class SettingKeys
     public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";
     public const string ComplianceRosterPublicationCountWorkdaysOnly = "COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY";
 
+    public const string PlanningDeadlineLeadDays = "PLANNING_DEADLINE_LEAD_DAYS";
+
     public const string ComplianceCompensatoryRestEnabled = "COMPLIANCE_COMPENSATORY_REST_ENABLED";
     public const string ComplianceCompensatoryRestDeadlineDays = "COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS";
 

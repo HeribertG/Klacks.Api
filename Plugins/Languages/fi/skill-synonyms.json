@@ -1624,6 +1624,11 @@
     "tarkista suunnitelman tila",
     "onko suunnitelma valmis"
   ],
+  "get_planning_deadline": [
+    "mihin mennessä suunnitelman pitää olla valmis",
+    "laske suunnittelun määräpäivä",
+    "viimeinen päivä lähettää työvuorolista"
+  ],
   "get_proactive_governance": [
     "mitä voit hoitaa itse",
     "näytä itsenäisen toiminnan raja",
@@ -2535,6 +2540,10 @@
     "vaihda väriteemaa",
     "haluan vaalean näkymän",
     "käytä korkeaa kontrastia silmieni takia"
+  ],
+  "set_planning_deadline_lead": [
+    "tallenna suunnittelun varoaika",
+    "aseta suunnittelun varoaika päivinä"
   ],
   "set_planning_profile_parameters": [
     "aseta suunnitteluprofiilin parametrit",

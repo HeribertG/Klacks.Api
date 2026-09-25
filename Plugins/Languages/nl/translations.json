@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Alleen werkdagen tellen",
   "setting.complianceEnforcement.roster-publication-header": "Roosterpublicatie",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minimale doorlooptijd (dagen)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Planningsvoorlooptijd (dagen voor aanvang van een periode)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Compensatierust",
   "setting.complianceEnforcement.rule.counterRule": "Tellerregel",
   "setting.complianceEnforcement.rule.holidayWork": "Feestdagenwerk",

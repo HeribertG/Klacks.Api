@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Tæl kun arbejdsdage",
   "setting.complianceEnforcement.roster-publication-header": "Offentliggørelse af vagtplan",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Mindste varsel (dage)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Planlægningsvarsel (dage før en periode starter)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Kompenserende hvile",
   "setting.complianceEnforcement.rule.counterRule": "Tællerregel",
   "setting.complianceEnforcement.rule.holidayWork": "Helligdagsarbejde",

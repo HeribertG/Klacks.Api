@@ -1597,6 +1597,11 @@
     "kiểm tra trạng thái kế hoạch",
     "kế hoạch đã xong chưa"
   ],
+  "get_planning_deadline": [
+    "kế hoạch phải xong trước ngày nào",
+    "tính hạn chót lập kế hoạch",
+    "ngày muộn nhất để gửi lịch làm việc"
+  ],
   "get_proactive_governance": [
     "bạn có thể tự xử lý những gì",
     "hiển thị giới hạn hành động tự chủ",
@@ -2504,6 +2509,10 @@
     "đổi giao diện màu sắc",
     "dùng giao diện sáng",
     "tăng độ tương phản cho mắt"
+  ],
+  "set_planning_deadline_lead": [
+    "lưu thời gian chuẩn bị lập kế hoạch",
+    "lưu số ngày báo trước của hạn chót"
   ],
   "set_planning_profile_parameters": [
     "đặt tham số hồ sơ lập kế hoạch",

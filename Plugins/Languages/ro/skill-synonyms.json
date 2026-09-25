@@ -1628,6 +1628,11 @@
     "verifică starea planului",
     "planul s-a terminat"
   ],
+  "get_planning_deadline": [
+    "până când trebuie terminat planul",
+    "calculează termenul limită al planificării",
+    "ultima dată pentru trimiterea planului"
+  ],
   "get_proactive_governance": [
     "ce poți rezolva singur",
     "arată limita acțiunii independente",
@@ -2531,6 +2536,10 @@
     "vreau contrast ridicat pentru ochi",
     "schimbă schema de culori",
     "pune varianta caldă"
+  ],
+  "set_planning_deadline_lead": [
+    "salvează anticiparea planificării",
+    "memorează timpul de anticipare al planificării"
   ],
   "set_planning_profile_parameters": [
     "setează parametrii profilului de planificare",

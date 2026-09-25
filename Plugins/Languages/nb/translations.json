@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Tell kun arbeidsdager",
   "setting.complianceEnforcement.roster-publication-header": "Publisering av vaktplan",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Minste forhåndsvarsel (dager)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Forhåndstid for planlegging (dager før perioden starter)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Erstatningshvile",
   "setting.complianceEnforcement.rule.counterRule": "Tellerregel",
   "setting.complianceEnforcement.rule.holidayWork": "Helligdagsarbeid",

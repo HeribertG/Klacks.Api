@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "Hitung hanya hari kerja",
   "setting.complianceEnforcement.roster-publication-header": "Publikasi jadwal kerja",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "Tenggang waktu minimum (hari)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "Tenggang waktu perencanaan (hari sebelum periode dimulai)",
   "setting.complianceEnforcement.rule.compensatoryRest": "Istirahat pengganti",
   "setting.complianceEnforcement.rule.counterRule": "Aturan penghitung",
   "setting.complianceEnforcement.rule.holidayWork": "Kerja hari libur",

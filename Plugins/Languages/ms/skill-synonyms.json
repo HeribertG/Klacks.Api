@@ -1606,6 +1606,11 @@
     "semak status pelan",
     "adakah pelan selesai"
   ],
+  "get_planning_deadline": [
+    "menjelang bila jadual perlu siap",
+    "kira tarikh akhir perancangan",
+    "tarikh terakhir untuk menghantar jadual tugas"
+  ],
   "get_proactive_governance": [
     "apa yang boleh anda uruskan sendiri",
     "tunjukkan had tindakan sendiri",
@@ -2501,6 +2506,10 @@
     "saya nak tema kontras tinggi",
     "tukar warna skrin",
     "guna mod terang"
+  ],
+  "set_planning_deadline_lead": [
+    "simpan tempoh pendahuluan perancangan",
+    "simpan pendahuluan tarikh akhir perancangan"
   ],
   "set_planning_profile_parameters": [
     "tetapkan parameter profil perancangan",

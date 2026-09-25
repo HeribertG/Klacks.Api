@@ -24,5 +24,6 @@
   "close-payroll-period": ["zamknij okres rozliczeniowy", "zapieczętuj miesiąc"],
   "bundle-mobile-services-into-container": ["połącz mobilne usługi w nowy kontener", "utwórz kontener z pobliskich usług", "zbuduj kontener z optymalizacją trasy"],
   "setup-planning-profile": ["skonfigurować własny profil planowania", "ustalić własne reguły planowania w firmie"],
-  "setup-consultation": ["jak w ogóle zacząć korzystać z systemu", "jakie są pierwsze kroki w systemie", "w kalendarzu nie ma jeszcze zupełnie nic zaplanowanego", "jak skonfigurować Klacks od podstaw"]
+  "setup-consultation": ["jak w ogóle zacząć korzystać z systemu", "jakie są pierwsze kroki w systemie", "w kalendarzu nie ma jeszcze zupełnie nic zaplanowanego", "jak skonfigurować Klacks od podstaw"],
+  "plan-delivery-deadline": ["termin ostateczny na przygotowanie planu pracy przed wysłaniem pocztą", "ostateczny termin gotowości grafiku do wysyłki e-mailem", "termin graniczny dla planu pracy przed wysyłką pocztą tradycyjną"]
 }

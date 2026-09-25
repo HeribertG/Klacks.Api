@@ -181,5 +181,11 @@
   "setup-consultation": [
     "opstart",
     "kom godt i gang"
+  ],
+  "plan-delivery-deadline": [
+    "vagtplan",
+    "planlægning",
+    "frist",
+    "deadline"
   ]
 }

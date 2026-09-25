@@ -2111,6 +2111,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "仅计算工作日",
   "setting.complianceEnforcement.roster-publication-header": "排班表发布",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "最短提前天数",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "规划提前期（周期开始前的天数）",
   "setting.complianceEnforcement.rule.compensatoryRest": "调休",
   "setting.complianceEnforcement.rule.counterRule": "计数规则",
   "setting.complianceEnforcement.rule.holidayWork": "法定节假日工作",

@@ -2115,6 +2115,7 @@
   "setting.complianceEnforcement.roster-publication-count-workdays-only": "근무일만 계산",
   "setting.complianceEnforcement.roster-publication-header": "근무표 공개",
   "setting.complianceEnforcement.roster-publication-min-lead-days": "최소 사전 공지 기간(일)",
+  "setting.complianceEnforcement.planning-deadline-lead-days": "계획 선행 기간(기간 시작 전 일수)",
   "setting.complianceEnforcement.rule.compensatoryRest": "보상휴식",
   "setting.complianceEnforcement.rule.counterRule": "카운터 규칙",
   "setting.complianceEnforcement.rule.holidayWork": "공휴일 근무",

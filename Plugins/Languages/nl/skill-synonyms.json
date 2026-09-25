@@ -1645,6 +1645,11 @@
     "controleer de planstatus",
     "is het plan klaar"
   ],
+  "get_planning_deadline": [
+    "voor wanneer moet het rooster klaar zijn",
+    "bereken de uiterste planningsdatum",
+    "laatste datum om het rooster te versturen"
+  ],
   "get_proactive_governance": [
     "wat kun je zelf afhandelen",
     "toon de grens van zelfstandig handelen",
@@ -2556,6 +2561,10 @@
     "verander het kleurenschema",
     "gebruik licht thema",
     "hoog contrast voor mijn ogen"
+  ],
+  "set_planning_deadline_lead": [
+    "sla de planningsvoorlooptijd op",
+    "bewaar de voorlooptijd van de planning"
   ],
   "set_planning_profile_parameters": [
     "stel parameters van het planningsprofiel in",

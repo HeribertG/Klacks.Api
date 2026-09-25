@@ -1634,6 +1634,11 @@
     "tjek planens status",
     "er planen færdig"
   ],
+  "get_planning_deadline": [
+    "hvornår skal vagtplanen være færdig",
+    "beregn planlægningsfristen",
+    "seneste dato for udsendelse af vagtplanen"
+  ],
   "get_proactive_governance": [
     "hvad kan du klare selv",
     "vis grænsen for selvstændig handling",
@@ -2525,6 +2530,10 @@
     "skift farveskema",
     "brug lys udseende",
     "høj kontrast for mine øjne"
+  ],
+  "set_planning_deadline_lead": [
+    "gem planlægningsvarslet",
+    "gem varslet for planlægningsfristen"
   ],
   "set_planning_profile_parameters": [
     "angiv parametre for planlægningsprofilen",

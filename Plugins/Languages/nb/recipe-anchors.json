@@ -191,5 +191,13 @@
   "setup-consultation": [
     "første steg",
     "oppstart"
+  ],
+  "plan-delivery-deadline": [
+    "vaktplan",
+    "arbeidsplan",
+    "turnusplan",
+    "frist",
+    "stikkdato",
+    "planleggingsfrist"
   ]
 }
