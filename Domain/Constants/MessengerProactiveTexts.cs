@@ -10,23 +10,23 @@
 /// this is a handful of strings and not a second translation system. A new key belongs here ONLY
 /// when it is also added to that policy.
 ///
-/// ============================ DUPLICATED TEXT - KEEP IN SYNC ============================
-/// Every sentence below is a verbatim copy of the same key in the frontend catalogues:
-///     Klacks.Ui/src/assets/i18n/de.json
-///     Klacks.Ui/src/assets/i18n/en.json
-///     Klacks.Ui/src/assets/i18n/fr.json
-///     Klacks.Ui/src/assets/i18n/it.json
+/// ONE SOURCE PER LANGUAGE, NO SECOND TRANSLATION. The four core languages live in the table below, as
+/// verbatim copies of the same key in the frontend catalogues Klacks.Ui/src/assets/i18n/{de,en,fr,it}.json
+/// (drift is caught by MessengerProactiveTextsTests.CatalogueMatchesTheFrontendTranslationFiles, which reads
+/// the Ui JSON files whenever the frontend repository sits next to this one). The 21 plugin languages are
+/// NOT copied: AssistantTextsPluginLoader reads the same keys, unchanged, from each pack's
+/// translations.json - the very file the frontend gets - and merges them in at startup, so inbox and
+/// messenger cannot tell one recipient two different sentences. Resolution is LocalizedTextCatalogue's:
+/// English for a tag that no core table and no loaded pack claims; a language whose loaded pack lacks a key
+/// resolves to nothing (ProactiveMessengerTextComposer then uses English and logs a warning), a gap the
+/// catalogue guard keeps from shipping.
 /// Affected keys: assistant.proactive.unstaffedShift, assistant.proactive.workDroppedByErpImport,
 /// assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert,
 /// assistant.proactive.dailyDigest.
-/// Change one of those four files and the same edit belongs here, otherwise the inbox and the
-/// messenger tell the same recipient two different sentences. The drift is caught by
-/// MessengerProactiveTextsTests.CatalogueMatchesTheFrontendTranslationFiles, which reads the Ui
-/// JSON files directly whenever the frontend repository sits next to this one.
-/// =======================================================================================
 ///
-/// Placeholders use the frontend's ngx-translate form ({{name}}) so the two catalogues stay
-/// literally comparable; ProactiveMessengerTextComposer substitutes them from SummaryParams.
+/// Placeholders use the frontend's ngx-translate form ({{name}}) so the catalogues stay literally
+/// comparable; ProactiveMessengerTextComposer substitutes them from SummaryParams through
+/// DoubleBraceTemplate.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -35,15 +35,12 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class MessengerProactiveTexts
 {
-    public const string PlaceholderPrefix = "{{";
-    public const string PlaceholderSuffix = "}}";
-
     private const string German = "de";
     private const string English = "en";
     private const string French = "fr";
     private const string Italian = "it";
 
-    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Texts =
+    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> CoreTexts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
         {
             [ProactiveMessageI18nKeys.UnstaffedShift] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -83,40 +80,53 @@ public static class MessengerProactiveTexts
             }
         };
 
+    private static readonly LocalizedTextCatalogue Catalogue = new(CoreTexts);
+
+    /// <summary>
+    /// The languages whose sentences are authored in code rather than read from a pack's translations.json:
+    /// MultiLanguage.CoreLanguages, so a fifth core language cannot be added without the catalogue guard
+    /// going red.
+    /// </summary>
+    public static readonly IReadOnlyList<string> CoreLanguages = MultiLanguage.CoreLanguages;
+
     /// <summary>
     /// The i18n keys this catalogue covers, exposed so a test can assert it stays aligned with
-    /// both MessengerWakeUpPolicy and the frontend catalogues.
+    /// both MessengerWakeUpPolicy and the frontend catalogues, and so the pack loader knows which keys of a
+    /// translations.json to read.
     /// </summary>
-    public static IEnumerable<string> CoveredKeys => Texts.Keys;
+    public static IEnumerable<string> CoveredKeys => CoreTexts.Keys;
+
+    /// <summary>Whether the messenger can carry this key at all.</summary>
+    /// <param name="i18nKey">Key without the i18n marker prefix</param>
+    public static bool Covers(string i18nKey) => !string.IsNullOrWhiteSpace(i18nKey) && CoreTexts.ContainsKey(i18nKey);
 
     /// <summary>
-    /// Looks up the sentence for an i18n key. Falls back to the installation fallback language
-    /// when the requested language is not carried for that key, so a language pack installed after
-    /// this table was written still yields a readable message instead of nothing.
+    /// Adds (or replaces) the sentences of one language pack. Called once per pack at startup by
+    /// AssistantTextsPluginLoader with the CoveredKeys read from the pack's translations.json.
+    /// </summary>
+    /// <param name="languageCode">Locale of the pack the texts were read from</param>
+    /// <param name="texts">The pack's sentences, keyed by i18n key</param>
+    public static void Configure(string languageCode, IReadOnlyDictionary<string, string> texts) =>
+        Catalogue.Configure(languageCode, texts);
+
+    /// <summary>
+    /// Looks up the sentence for an i18n key. False when the key is not covered or when a loaded pack lacks
+    /// it; an unknown language (including one whose pack was never loaded) resolves to English.
     /// </summary>
     /// <param name="i18nKey">Key without the i18n marker prefix.</param>
-    /// <param name="language">Two-letter language code to render in.</param>
+    /// <param name="language">Installation language, possibly regional (de-CH), or null.</param>
     /// <param name="text">The sentence, still containing its placeholders.</param>
-    public static bool TryGetText(string i18nKey, string language, out string text)
-    {
-        text = string.Empty;
-        if (string.IsNullOrWhiteSpace(i18nKey) || !Texts.TryGetValue(i18nKey, out var byLanguage))
-        {
-            return false;
-        }
+    public static bool TryGetText(string i18nKey, string? language, out string text) =>
+        Catalogue.TryGetText(i18nKey, language, out text);
 
-        if (!string.IsNullOrWhiteSpace(language) && byLanguage.TryGetValue(language, out var localized))
-        {
-            text = localized;
-            return true;
-        }
+    /// <summary>The English sentence of a covered key: the floor when a loaded pack lacks a key.</summary>
+    /// <param name="i18nKey">A covered key</param>
+    public static string EnglishOf(string i18nKey) => CoreTexts[i18nKey][LanguageConfig.DefaultLanguageFallback];
 
-        if (byLanguage.TryGetValue(LanguageConfig.DefaultLanguageFallback, out var fallback))
-        {
-            text = fallback;
-            return true;
-        }
+    /// <summary>The per-language core variants of one key, for the guard tests.</summary>
+    /// <param name="i18nKey">A covered key</param>
+    internal static IReadOnlyDictionary<string, string> VariantsOf(string i18nKey) => Catalogue.VariantsOf(i18nKey);
 
-        return false;
-    }
+    /// <summary>Discards every configured pack. Test-only, see LocalizedTextCatalogue.Reset.</summary>
+    internal static void Reset() => Catalogue.Reset();
 }

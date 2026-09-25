@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "僅建議給排班人員，尚未送出",
   "assistant.inboundClarification.status.undelivered": "問題無法送達",
   "assistant.inboundClarification.status.unknown": "未知",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: 您傳送給排班團隊的訊息"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: 您傳送給排班團隊的訊息",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "感謝您，您現在已接手 {{employee}} 在 {{date}} 的班次。",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} 已接手 {{employee}} 在 {{date}} 的班次。",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "感謝您，您已批准針對發現 {{finding}} 的操作 {{action}}。Klacksy 將在您的授權下盡快執行，並向您回報結果。",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} 已批准針對發現 {{finding}} 的操作 {{action}}；您無需再採取任何行動。",
+  "assistant.escalationHandoff.approvalExhaustedNote": "無人批准針對發現 {{finding}} 的操作 {{action}}；核准時限已過。Klacksy 將於下一個公司日再次詢問。若您仍希望今日執行，請直接指派該發現。"
 }

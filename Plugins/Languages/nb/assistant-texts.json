@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "bare foreslått til planleggerne, ikke sendt",
   "assistant.inboundClarification.status.undelivered": "spørsmålet kunne ikke leveres",
   "assistant.inboundClarification.status.unknown": "ukjent",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Din melding til planleggingsteamet"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Din melding til planleggingsteamet",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Takk, du dekker nå skiftet {{date}} for {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} har tatt over skiftet {{date}} for {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Takk, du godkjente handlingen {{action}} for funnet {{finding}}. Klacksy vil utføre den snart under dine rettigheter og rapportere resultatet til deg.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkjent handlingen {{action}} for funnet {{finding}}; det gjenstår ingenting for deg å gjøre.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen har godkjent handlingen {{action}} for funnet {{finding}}; tidsfristen er utløpt. Klacksy vil spørre igjen neste bedriftsdag. For å likevel få den utført i dag, deleger funnet direkte."
 }

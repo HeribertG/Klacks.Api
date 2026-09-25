@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "hanya disarankan kepada penjadwal, tidak dikirim",
   "assistant.inboundClarification.status.undelivered": "pertanyaan tidak dapat dikirimkan",
   "assistant.inboundClarification.status.unknown": "tidak diketahui",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Pesan Anda kepada tim perencanaan"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Pesan Anda kepada tim perencanaan",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Terima kasih, Anda sekarang menggantikan shift {{date}} untuk {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} telah mengambil alih shift {{date}} untuk {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Terima kasih, Anda telah menyetujui tindakan {{action}} untuk temuan {{finding}}. Klacksy akan segera menjalankannya berdasarkan hak Anda dan melaporkan hasilnya kepada Anda.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} telah menyetujui tindakan {{action}} untuk temuan {{finding}}; tidak ada lagi yang perlu Anda lakukan.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Tidak ada yang menyetujui tindakan {{action}} untuk temuan {{finding}}; jangka waktu telah berakhir. Klacksy akan menanyakan kembali pada hari kerja perusahaan berikutnya. Untuk tetap menjalankannya hari ini, delegasikan temuan tersebut secara langsung."
 }

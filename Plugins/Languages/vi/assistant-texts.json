@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "chỉ đề xuất cho người lập lịch, chưa gửi đi",
   "assistant.inboundClarification.status.undelivered": "không thể gửi được câu hỏi",
   "assistant.inboundClarification.status.unknown": "không xác định",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Tin nhắn của bạn gửi tới đội lập lịch"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Tin nhắn của bạn gửi tới đội lập lịch",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Cảm ơn bạn, giờ bạn sẽ phụ trách ca làm việc vào {{date}} thay cho {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} đã nhận ca làm việc vào {{date}} thay cho {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Cảm ơn bạn, bạn đã phê duyệt hành động {{action}} cho phát hiện {{finding}}. Klacksy sẽ thực hiện ngay dưới quyền của bạn và báo cáo kết quả lại cho bạn.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} đã phê duyệt hành động {{action}} cho phát hiện {{finding}}; bạn không cần làm gì thêm nữa.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Không ai phê duyệt hành động {{action}} cho phát hiện {{finding}}; thời gian chờ đã hết. Klacksy sẽ hỏi lại vào ngày làm việc tiếp theo của công ty. Nếu vẫn muốn thực hiện hôm nay, hãy giao trực tiếp phát hiện này cho ai đó."
 }

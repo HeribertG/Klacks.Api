@@ -9,6 +9,12 @@
 /// second time. Deliberately separate from MessengerProactiveTexts, whose own test enforces a strict 1:1
 /// with MessengerWakeUpPolicy - none of these messages is a wake-up alert, so they do not belong in that
 /// bijection.
+/// The four core languages live in the table below, the 21 plugin languages are merged in at startup from
+/// each pack's assistant-texts.json by AssistantTextsPluginLoader (the key IS the pack key). Resolution is
+/// LocalizedTextCatalogue's: English for a tag that no core table and no loaded pack claims; a language
+/// whose loaded pack lacks a key resolves to nothing (EscalationHandoffTextService then uses English and
+/// logs a warning) - a gap the catalogue guard keeps from shipping. Placeholders are {{name}}, filled by
+/// DoubleBraceTemplate in a single pass.
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -22,13 +28,28 @@ public static class EscalationHandoffTexts
     private const string French = "fr";
     private const string Italian = "it";
 
-    public const string AcknowledgedConfirmation = "escalation.acknowledgedConfirmation";
-    public const string HandoffQuietNote = "escalation.handoffQuietNote";
-    public const string ApprovalAcknowledgedConfirmation = "escalation.approvalAcknowledgedConfirmation";
-    public const string ApprovalHandoffQuietNote = "escalation.approvalHandoffQuietNote";
-    public const string ApprovalExhaustedNote = "escalation.approvalExhaustedNote";
+    private const string Prefix = "assistant.escalationHandoff.";
 
-    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Texts =
+    public const string AcknowledgedConfirmation = Prefix + "acknowledgedConfirmation";
+    public const string HandoffQuietNote = Prefix + "handoffQuietNote";
+    public const string ApprovalAcknowledgedConfirmation = Prefix + "approvalAcknowledgedConfirmation";
+    public const string ApprovalHandoffQuietNote = Prefix + "approvalHandoffQuietNote";
+    public const string ApprovalExhaustedNote = Prefix + "approvalExhaustedNote";
+
+    /// <summary>Every key a language pack has to ship in assistant-texts.json. The catalogue guard reads exactly this list.</summary>
+    public static readonly IReadOnlyList<string> RequiredKeys =
+    [
+        AcknowledgedConfirmation, HandoffQuietNote, ApprovalAcknowledgedConfirmation, ApprovalHandoffQuietNote,
+        ApprovalExhaustedNote
+    ];
+
+    /// <summary>
+    /// The languages whose texts are authored in code rather than shipped by a pack: MultiLanguage.CoreLanguages,
+    /// so a fifth core language cannot be added without the catalogue guard going red.
+    /// </summary>
+    public static readonly IReadOnlyList<string> CoreLanguages = MultiLanguage.CoreLanguages;
+
+    private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> CoreTexts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
         {
             [AcknowledgedConfirmation] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -68,26 +89,38 @@ public static class EscalationHandoffTexts
             }
         };
 
-    public static bool TryGetText(string key, string language, out string text)
-    {
-        text = string.Empty;
-        if (string.IsNullOrWhiteSpace(key) || !Texts.TryGetValue(key, out var byLanguage))
-        {
-            return false;
-        }
+    private static readonly LocalizedTextCatalogue Catalogue = new(CoreTexts);
 
-        if (!string.IsNullOrWhiteSpace(language) && byLanguage.TryGetValue(language, out var localized))
-        {
-            text = localized;
-            return true;
-        }
+    /// <summary>
+    /// Adds (or replaces) the texts of one language pack. Called once per pack at startup by
+    /// AssistantTextsPluginLoader.
+    /// </summary>
+    /// <param name="languageCode">Locale of the pack the texts were read from</param>
+    /// <param name="texts">The pack's texts, keyed by the keys of RequiredKeys</param>
+    public static void Configure(string languageCode, IReadOnlyDictionary<string, string> texts) =>
+        Catalogue.Configure(languageCode, texts);
 
-        if (byLanguage.TryGetValue(LanguageConfig.DefaultLanguageFallback, out var fallback))
-        {
-            text = fallback;
-            return true;
-        }
+    /// <summary>
+    /// Resolves one text for a language. False only when a loaded pack lacks the key; an unknown language
+    /// (including one whose pack was never loaded) resolves to English.
+    /// </summary>
+    /// <param name="key">One of RequiredKeys</param>
+    /// <param name="language">Installation language, possibly regional (de-CH), or null</param>
+    /// <param name="text">The resolved template, empty when nothing resolves</param>
+    public static bool TryGetText(string key, string? language, out string text) =>
+        Catalogue.TryGetText(key, language, out text);
 
-        return false;
-    }
+    /// <summary>The English text of a key: the floor when a loaded pack lacks a key.</summary>
+    /// <param name="key">One of RequiredKeys</param>
+    public static string EnglishOf(string key) => CoreTexts[key][LanguageConfig.DefaultLanguageFallback];
+
+    /// <summary>Every key of the core catalogue, for the guard tests.</summary>
+    internal static IReadOnlyCollection<string> Keys => Catalogue.Keys;
+
+    /// <summary>The per-language core variants of one key, for the guard tests.</summary>
+    /// <param name="key">One of RequiredKeys</param>
+    internal static IReadOnlyDictionary<string, string> VariantsOf(string key) => Catalogue.VariantsOf(key);
+
+    /// <summary>Discards every configured pack. Test-only, see LocalizedTextCatalogue.Reset.</summary>
+    internal static void Reset() => Catalogue.Reset();
 }

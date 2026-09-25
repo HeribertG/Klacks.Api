@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "プランナーへの提案のみで、送信はされていません",
   "assistant.inboundClarification.status.undelivered": "質問を配信できませんでした",
   "assistant.inboundClarification.status.unknown": "不明",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: シフト計画チーム宛てのメッセージについて"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: シフト計画チーム宛てのメッセージについて",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "{{employee}}さんの{{date}}のシフトを引き受けていただき、ありがとうございます。",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}}さんが{{employee}}さんの{{date}}のシフトを引き受けました。",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "アクション{{action}}（検出事項{{finding}}）を承認いただき、ありがとうございます。Klacksyはまもなくお客様に代わってこれを実行し、結果をご報告します。",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}}さんが検出事項{{finding}}についてアクション{{action}}を承認しました。対応が必要な作業は残っていません。",
+  "assistant.escalationHandoff.approvalExhaustedNote": "検出事項{{finding}}についてアクション{{action}}を承認した方がおらず、承認期限が過ぎました。Klacksyは次の営業日に再度確認します。本日中に実行させたい場合は、その検出事項を直接誰かに割り当ててください。"
 }

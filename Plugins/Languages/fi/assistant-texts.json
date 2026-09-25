@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "vain ehdotettu suunnittelijoille, ei lähetetty",
   "assistant.inboundClarification.status.undelivered": "kysymystä ei voitu toimittaa",
   "assistant.inboundClarification.status.unknown": "tuntematon",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Viestisi suunnittelutiimille"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Viestisi suunnittelutiimille",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Kiitos, olet nyt vastuussa työntekijän {{employee}} vuorosta {{date}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} on ottanut vastuun työntekijän {{employee}} vuorosta {{date}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Kiitos, hyväksyit toiminnon {{action}} havainnolle {{finding}}. Klacksy suorittaa sen pian sinun oikeuksillasi ja ilmoittaa tuloksen sinulle.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} on hyväksynyt toiminnon {{action}} havainnolle {{finding}}; sinun ei tarvitse tehdä mitään.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Kukaan ei hyväksynyt toimintoa {{action}} havainnolle {{finding}}; aikaraja on umpeutunut. Klacksy kysyy uudelleen seuraavana yrityspäivänä. Jos haluat silti suorittaa sen tänään, delegoi havainto suoraan."
 }

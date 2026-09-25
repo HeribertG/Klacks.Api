@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Wires the escalation chain: its repository, the absence roster, the notifier, the reply observer,
+/// Wires the escalation chain: its repository, the absence roster, the notifier and its handoff text service, the reply observer,
 /// the chain service itself, the approval roster resolver, the approval chain starter for proactive
 /// conditions and the standing-approval store that lets a granted kind skip that chain. Kept separate
 /// from AddLLMCoreServices for the same reason AddSkillToolsetServices is - one cohesive group that
@@ -28,6 +28,7 @@ public static class EscalationServiceCollectionExtensions
         services.AddScoped<IEscalationChainRepository, EscalationChainRepository>();
         services.AddScoped<IEscalationRosterService, EscalationRosterService>();
         services.AddScoped<IEscalationNotifier, EscalationNotifier>();
+        services.AddScoped<IEscalationHandoffTextService, EscalationHandoffTextService>();
         services.AddScoped<IEscalationChainService, EscalationChainService>();
         services.AddScoped<ISkillPermissionGate, SkillPermissionGate>();
         services.AddScoped<IConditionApprovalRosterResolver, ConditionApprovalRosterResolver>();

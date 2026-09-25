@@ -32,8 +32,8 @@ public sealed record EscalationApprovalRequestTriggerEvent(
     DateTime DueAtUtc,
     TimeZoneInfo CompanyTimeZone) : IAgentTriggerEvent
 {
-    public const string FindingParameter = "finding";
-    public const string ActionParameter = "action";
+    public const string FindingParameter = EscalationHandoffPlaceholders.Finding;
+    public const string ActionParameter = EscalationHandoffPlaceholders.Action;
     public const string DueTimeParameter = "dueTime";
 
     private const string DueTimeFormat = "HH:mm";

@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "doar sugerat planificatorilor, neexpediat",
   "assistant.inboundClarification.status.undelivered": "întrebarea nu a putut fi livrată",
   "assistant.inboundClarification.status.unknown": "necunoscut",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Mesajul tău către echipa de planificare"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Mesajul tău către echipa de planificare",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Mulțumim, acum acoperi tura din {{date}} pentru {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} a preluat tura din {{date}} pentru {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Mulțumim, ai aprobat acțiunea {{action}} pentru constatarea {{finding}}. Klacksy o va executa în curând în baza drepturilor tale și îți va raporta rezultatul.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} a aprobat acțiunea {{action}} pentru constatarea {{finding}}; nu mai ai nimic de făcut.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nimeni nu a aprobat acțiunea {{action}} pentru constatarea {{finding}}; intervalul a expirat. Klacksy va întreba din nou în următoarea zi lucrătoare. Pentru a o executa totuși astăzi, delegă direct constatarea."
 }

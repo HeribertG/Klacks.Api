@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "endast föreslagen till schemaläggarna, inte skickad",
   "assistant.inboundClarification.status.undelivered": "frågan kunde inte levereras",
   "assistant.inboundClarification.status.unknown": "okänd",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Ditt meddelande till planeringsteamet"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Ditt meddelande till planeringsteamet",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Tack, du täcker nu skiftet den {{date}} för {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} har tagit över skiftet den {{date}} för {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Tack, du godkände åtgärden {{action}} för observationen {{finding}}. Klacksy kommer snart genomföra åtgärden med dina rättigheter och rapportera resultatet till dig.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkänt åtgärden {{action}} för observationen {{finding}}; det finns inget kvar för dig att göra.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkände åtgärden {{action}} för observationen {{finding}}; tidsfönstret har gått ut. Klacksy kommer fråga igen nästa företagsdag. Vill du ändå genomföra åtgärden idag, delegera observationen direkt."
 }

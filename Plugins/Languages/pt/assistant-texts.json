@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "apenas sugerido aos planeadores, não enviado",
   "assistant.inboundClarification.status.undelivered": "a pergunta não pôde ser entregue",
   "assistant.inboundClarification.status.unknown": "desconhecido",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: A tua mensagem para a equipa de planeamento"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: A tua mensagem para a equipa de planeamento",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Obrigado, agora estás a cobrir o turno de {{date}} para {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} assumiu o turno de {{date}} para {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Obrigado, aprovaste a ação {{action}} para a constatação {{finding}}. O Klacksy irá executá-la em breve sob os teus direitos e reportar-te o resultado.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} aprovou a ação {{action}} para a constatação {{finding}}; não tens mais nada a fazer.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ninguém aprovou a ação {{action}} para a constatação {{finding}}; o prazo expirou. O Klacksy voltará a perguntar no próximo dia útil da empresa. Para que ainda seja executada hoje, delega diretamente a constatação."
 }

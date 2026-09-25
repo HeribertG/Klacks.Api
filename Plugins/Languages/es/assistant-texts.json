@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "solo sugerido a los planificadores, no enviado",
   "assistant.inboundClarification.status.undelivered": "la pregunta no se pudo entregar",
   "assistant.inboundClarification.status.unknown": "desconocido",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Tu mensaje al equipo de planificación"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Tu mensaje al equipo de planificación",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Gracias, ahora cubres el turno del {{date}} para {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} ha asumido el turno del {{date}} para {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Gracias, aprobaste la acción {{action}} para el hallazgo {{finding}}. Klacksy la ejecutará en breve bajo tus derechos y te informará del resultado.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} ha aprobado la acción {{action}} para el hallazgo {{finding}}; ya no tienes nada que hacer.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nadie aprobó la acción {{action}} para el hallazgo {{finding}}; el plazo ha expirado. Klacksy volverá a preguntar el próximo día hábil de la empresa. Para ejecutarla hoy mismo, delega directamente el hallazgo."
 }

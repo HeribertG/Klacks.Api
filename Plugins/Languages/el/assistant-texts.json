@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "προτάθηκε μόνο στους προγραμματιστές βαρδιών, δεν αποστάληκε",
   "assistant.inboundClarification.status.undelivered": "η ερώτηση δεν μπόρεσε να παραδοθεί",
   "assistant.inboundClarification.status.unknown": "άγνωστο",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Το μήνυμά σας προς την ομάδα προγραμματισμού"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Το μήνυμά σας προς την ομάδα προγραμματισμού",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Ευχαριστούμε, έχετε πλέον αναλάβει τη βάρδια της {{date}} για τον/την {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "Ο/Η {{responder}} έχει αναλάβει τη βάρδια της {{date}} για τον/την {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Ευχαριστούμε, εγκρίνατε την ενέργεια {{action}} για το εύρημα {{finding}}. Ο Klacksy θα την εκτελέσει σύντομα με τα δικαιώματά σας και θα σας αναφέρει το αποτέλεσμα.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "Ο/Η {{responder}} έχει εγκρίνει την ενέργεια {{action}} για το εύρημα {{finding}}· δεν απομένει τίποτα άλλο για εσάς να κάνετε.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Κανείς δεν ενέκρινε την ενέργεια {{action}} για το εύρημα {{finding}}· το χρονικό περιθώριο έληξε. Ο Klacksy θα ξαναρωτήσει την επόμενη ημέρα λειτουργίας της εταιρείας. Για να εκτελεστεί σήμερα, αναθέστε το εύρημα απευθείας."
 }

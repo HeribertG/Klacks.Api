@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "alleen voorgesteld aan de planners, niet verzonden",
   "assistant.inboundClarification.status.undelivered": "de vraag kon niet worden afgeleverd",
   "assistant.inboundClarification.status.unknown": "onbekend",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Uw bericht aan het planningsteam"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Uw bericht aan het planningsteam",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Dank u, u dekt nu de dienst op {{date}} voor {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} heeft de dienst op {{date}} voor {{employee}} overgenomen.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Dank u, u hebt de actie {{action}} voor de bevinding {{finding}} goedgekeurd. Klacksy voert deze binnenkort uit onder uw rechten en meldt u het resultaat.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} heeft de actie {{action}} voor de bevinding {{finding}} goedgekeurd; er is niets meer voor u te doen.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Niemand heeft de actie {{action}} voor de bevinding {{finding}} goedgekeurd; de termijn is verstreken. Klacksy zal opnieuw vragen op de volgende bedrijfsdag. Delegeer de bevinding direct om deze vandaag alsnog uit te laten voeren."
 }

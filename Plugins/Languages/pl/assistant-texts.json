@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "tylko zaproponowane planistom, nie wysłane",
   "assistant.inboundClarification.status.undelivered": "pytanie nie mogło zostać dostarczone",
   "assistant.inboundClarification.status.unknown": "nieznany",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Twoja wiadomość do zespołu planującego"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Twoja wiadomość do zespołu planującego",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Dziękujemy, od teraz obsadzasz zmianę dnia {{date}} za {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} przejął(a) zmianę dnia {{date}} za {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Dziękujemy, zatwierdzono akcję {{action}} dla wykrycia {{finding}}. Klacksy wykona ją wkrótce w oparciu o Twoje uprawnienia i zgłosi wynik.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} zatwierdził(a) akcję {{action}} dla wykrycia {{finding}}; nie pozostało nic do zrobienia.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nikt nie zatwierdził akcji {{action}} dla wykrycia {{finding}}; okno czasowe upłynęło. Klacksy zapyta ponownie następnego dnia firmowego. Aby akcja została wykonana jeszcze dzisiaj, przekaż wykrycie bezpośrednio."
 }

@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "רק הוצע למתכננים, לא נשלח",
   "assistant.inboundClarification.status.undelivered": "לא ניתן היה למסור את השאלה",
   "assistant.inboundClarification.status.unknown": "לא ידוע",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: ההודעה שלך לצוות התכנון"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: ההודעה שלך לצוות התכנון",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "תודה, כעת אתה מכסה את המשמרת של {{employee}} בתאריך {{date}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} לקח על עצמו את המשמרת של {{employee}} בתאריך {{date}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "אושרה הפעולה {{action}} עבור הממצא {{finding}}. Klacksy יבצע אותה בקרוב בזכות ההרשאה שלך וידיווח על התוצאה.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} אישר את הפעולה {{action}} עבור הממצא {{finding}}; אין עוד מה לעשות מצדך.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "אף אחד לא אישר את הפעולה {{action}} עבור הממצא {{finding}}; חלון הזמן פג. Klacksy ישאל שוב ביום העסקים הבא. כדי להריץ זאת עדיין היום, העבר את הממצא ישירות."
 }

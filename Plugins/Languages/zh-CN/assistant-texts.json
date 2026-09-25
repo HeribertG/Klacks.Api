@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "仅向排班员建议，未实际发送",
   "assistant.inboundClarification.status.undelivered": "问题未能送达",
   "assistant.inboundClarification.status.unknown": "未知",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: 您发送给排班团队的消息"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: 您发送给排班团队的消息",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "感谢您，您现在已接手{{employee}}在{{date}}的班次。",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}}已接手{{employee}}在{{date}}的班次。",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "感谢您，您已批准针对发现项{{finding}}的操作{{action}}。Klacksy将立即以您的权限执行该操作，并向您报告结果。",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}}已批准针对发现项{{finding}}的操作{{action}}；您无需再进行任何操作。",
+  "assistant.escalationHandoff.approvalExhaustedNote": "无人批准针对发现项{{finding}}的操作{{action}}；授权窗口已过期。Klacksy将在下一个公司日再次询问。如仍希望今日执行，请直接委派该发现项。"
 }

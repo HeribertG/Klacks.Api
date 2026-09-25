@@ -13,7 +13,7 @@
 /// <param name="notificationService">Live SignalR push and connection lookup for connected recipients.</param>
 /// <param name="offlineMessengerNotifier">The loud channel; tried unconditionally for absence stages, never for approvals.</param>
 /// <param name="messengerTextComposer">Renders the absence wake-up sentence in the installation language.</param>
-/// <param name="settingsReader">Reads DEFAULT_LANGUAGE for the handoff sentences, mirroring ProactiveMessengerTextComposer.</param>
+/// <param name="handoffTextService">Renders the handoff sentences (confirmation, quiet note, exhausted note) in the installation language.</param>
 /// <param name="companyClock">Resolves the company's configured time zone for rendering shift/due times.</param>
 /// <param name="conditionRepository">Names the finding an approval chain is about.</param>
 /// <param name="remediationRegistry">Names the remediation an approval chain would release.</param>
@@ -26,7 +26,6 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 
@@ -42,7 +41,7 @@ public class EscalationNotifier : IEscalationNotifier
     private readonly IAssistantNotificationService _notificationService;
     private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
     private readonly IProactiveMessengerTextComposer _messengerTextComposer;
-    private readonly ISettingsReader _settingsReader;
+    private readonly IEscalationHandoffTextService _handoffTextService;
     private readonly ICompanyClock _companyClock;
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IConditionRemediationRegistry _remediationRegistry;
@@ -53,7 +52,7 @@ public class EscalationNotifier : IEscalationNotifier
         IAssistantNotificationService notificationService,
         IOfflineMessengerNotifier offlineMessengerNotifier,
         IProactiveMessengerTextComposer messengerTextComposer,
-        ISettingsReader settingsReader,
+        IEscalationHandoffTextService handoffTextService,
         ICompanyClock companyClock,
         IAgentConditionRepository conditionRepository,
         IConditionRemediationRegistry remediationRegistry,
@@ -63,7 +62,7 @@ public class EscalationNotifier : IEscalationNotifier
         _notificationService = notificationService;
         _offlineMessengerNotifier = offlineMessengerNotifier;
         _messengerTextComposer = messengerTextComposer;
-        _settingsReader = settingsReader;
+        _handoffTextService = handoffTextService;
         _companyClock = companyClock;
         _conditionRepository = conditionRepository;
         _remediationRegistry = remediationRegistry;
@@ -124,7 +123,6 @@ public class EscalationNotifier : IEscalationNotifier
         IReadOnlyList<EscalationStage> previouslyNotifiedStages,
         CancellationToken cancellationToken = default)
     {
-        var language = await ResolveLanguageAsync(cancellationToken);
         var isApproval = chain.Purpose == EscalationChainPurpose.ProactiveApproval;
         var parameters = isApproval
             ? await ApprovalHandoffParametersAsync(chain, cancellationToken)
@@ -137,25 +135,17 @@ public class EscalationNotifier : IEscalationNotifier
             ? EscalationHandoffTexts.ApprovalHandoffQuietNote
             : EscalationHandoffTexts.HandoffQuietNote;
 
-        if (EscalationHandoffTexts.TryGetText(confirmationKey, language, out var confirmTemplate))
-        {
-            var confirmText = Substitute(confirmTemplate, parameters);
-            await RecordInboxOnlyAsync(acknowledgedStage.UserId, confirmText, cancellationToken);
+        var confirmText = await _handoffTextService.RenderAsync(confirmationKey, parameters, cancellationToken);
+        await RecordInboxOnlyAsync(acknowledgedStage.UserId, confirmText, cancellationToken);
 
-            if (!isApproval)
-            {
-                await TrySendMessengerAsync(
-                    acknowledgedStage.UserId, confirmText, AgentTriggerKinds.EscalationStageAlert, cancellationToken);
-            }
+        if (!isApproval)
+        {
+            await TrySendMessengerAsync(
+                acknowledgedStage.UserId, confirmText, AgentTriggerKinds.EscalationStageAlert, cancellationToken);
         }
 
-        if (!EscalationHandoffTexts.TryGetText(quietNoteKey, language, out var noteTemplate))
-        {
-            return;
-        }
-
-        parameters["responder"] = acknowledgedStage.UserDisplayName;
-        var noteText = Substitute(noteTemplate, parameters);
+        parameters[EscalationHandoffPlaceholders.Responder] = acknowledgedStage.UserDisplayName;
+        var noteText = await _handoffTextService.RenderAsync(quietNoteKey, parameters, cancellationToken);
 
         foreach (var previous in previouslyNotifiedStages)
         {
@@ -185,13 +175,10 @@ public class EscalationNotifier : IEscalationNotifier
             return;
         }
 
-        var language = await ResolveLanguageAsync(cancellationToken);
-        if (!EscalationHandoffTexts.TryGetText(EscalationHandoffTexts.ApprovalExhaustedNote, language, out var template))
-        {
-            return;
-        }
-
-        var noteText = Substitute(template, await ApprovalHandoffParametersAsync(chain, cancellationToken));
+        var noteText = await _handoffTextService.RenderAsync(
+            EscalationHandoffTexts.ApprovalExhaustedNote,
+            await ApprovalHandoffParametersAsync(chain, cancellationToken),
+            cancellationToken);
 
         foreach (var stage in notifiedStages)
         {
@@ -233,8 +220,8 @@ public class EscalationNotifier : IEscalationNotifier
 
         return new Dictionary<string, string>
         {
-            ["date"] = dateText,
-            ["employee"] = chain.AbsentClientName
+            [EscalationHandoffPlaceholders.Date] = dateText,
+            [EscalationHandoffPlaceholders.Employee] = chain.AbsentClientName
         };
     }
 
@@ -384,40 +371,6 @@ public class EscalationNotifier : IEscalationNotifier
         }
     }
 
-    private async Task<string> ResolveLanguageAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            var setting = await _settingsReader.GetSetting(SettingKeys.DefaultLanguage);
-            var configured = setting?.Value;
-            if (!string.IsNullOrWhiteSpace(configured)
-                && LanguageConfig.SupportedLanguages.Contains(configured, StringComparer.OrdinalIgnoreCase))
-            {
-                return configured;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Could not read the installation language for an escalation handoff note; falling back to {Language}", LanguageConfig.DefaultLanguageFallback);
-        }
-
-        return LanguageConfig.DefaultLanguageFallback;
-    }
-
     /// <summary>The moment the absence texts refer to: the shift start, or the deadline for a chain without one.</summary>
     private static DateTime ResolveAnchorUtc(EscalationChain chain) => chain.ShiftStartUtc ?? chain.DeadlineUtc;
-
-    private static string Substitute(string template, IReadOnlyDictionary<string, string> parameters)
-    {
-        var text = template;
-        foreach (var pair in parameters)
-        {
-            text = text.Replace(
-                MessengerProactiveTexts.PlaceholderPrefix + pair.Key + MessengerProactiveTexts.PlaceholderSuffix,
-                pair.Value,
-                StringComparison.Ordinal);
-        }
-
-        return text;
-    }
 }

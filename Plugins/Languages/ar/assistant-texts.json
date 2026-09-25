@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "اقتُرحت فقط على المخططين، ولم تُرسَل",
   "assistant.inboundClarification.status.undelivered": "تعذّر تسليم السؤال",
   "assistant.inboundClarification.status.unknown": "غير معروف",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: رسالتك إلى فريق التخطيط"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: رسالتك إلى فريق التخطيط",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "شكرًا لك، أنت الآن تغطي نوبة {{date}} لصالح {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "لقد تولى {{responder}} نوبة {{date}} لصالح {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "شكرًا لك، لقد اعتمدت الإجراء {{action}} للملاحظة {{finding}}. سيقوم Klacksy بتنفيذه قريبًا بموجب صلاحياتك وسيرسل إليك تقريرًا بالنتيجة.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "لقد اعتمد {{responder}} الإجراء {{action}} للملاحظة {{finding}}؛ ولا يلزمك اتخاذ أي إجراء آخر.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "لم يعتمِد أحد الإجراء {{action}} للملاحظة {{finding}}؛ وقد انتهت المدة المخصصة لذلك. سيقوم Klacksy بإعادة الطلب في يوم الشركة التالي. ولتنفيذ الإجراء اليوم، يُرجى تفويض الملاحظة مباشرةً."
 }

@@ -22,5 +22,10 @@
   "assistant.inboundClarification.status.suggested": "pouze navrženo plánovačům, neodesláno",
   "assistant.inboundClarification.status.undelivered": "otázku se nepodařilo doručit",
   "assistant.inboundClarification.status.unknown": "neznámý",
-  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Vaše zpráva týmu pro plánování"
+  "assistant.inboundClarification.mail.neutralReplySubject": "Re: Vaše zpráva týmu pro plánování",
+  "assistant.escalationHandoff.acknowledgedConfirmation": "Děkujeme, nyní přebíráte směnu dne {{date}} za zaměstnance {{employee}}.",
+  "assistant.escalationHandoff.handoffQuietNote": "{{responder}} převzal směnu dne {{date}} za zaměstnance {{employee}}.",
+  "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Děkujeme, schválili jste akci {{action}} pro zjištění {{finding}}. Klacksy ji brzy provede pod vašimi právy a výsledek vám oznámí.",
+  "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} schválil akci {{action}} pro zjištění {{finding}}; není třeba, abyste něco dále dělali.",
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nikdo neschválil akci {{action}} pro zjištění {{finding}}; časové okno vypršelo. Klacksy se zeptá znovu příští firemní den. Pokud chcete akci spustit ještě dnes, předejte zjištění přímo."
 }
