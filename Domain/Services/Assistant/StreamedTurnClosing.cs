@@ -3,10 +3,11 @@
 /// <summary>
 /// The closing of a streamed turn after its tool loop: the empty-answer recovery call, the deterministic
 /// re-ask of a recipe question the turn answered around, the recipe run bookkeeping and the closing
-/// notices. Everything is streamed to the client and appended to the turn's stored text, so the stored
-/// answer equals what the user saw. Also hosts the closing guard both chat loops share. A stop request ends
-/// the closing before the recovery call and again after it, without touching the recipe run: the turn is
-/// then persisted as a stopped one and the recipe stays where it is.
+/// notices. Everything is streamed to the client and appended to the turn's stored text - each piece BEFORE it
+/// is offered to the consumer, so the stored answer equals what the user saw even when the consumer walks
+/// away. Also hosts the closing guard both chat loops share. A stop request ends the closing before the
+/// recovery call, cancels that call while it runs and ends the closing again after it, without touching
+/// the recipe run: the turn is then persisted as a stopped one and the recipe stays where it is.
 /// </summary>
 /// <param name="logger">The chat service's logger, so log categories stay unchanged</param>
 /// <param name="functionExecutor">Tells whether the last tool batch ended the turn on a UI passthrough</param>
@@ -49,8 +50,9 @@ internal sealed class StreamedTurnClosing
         var recovery = RecoveryFor(
             _logger, input.Provider, turn.Usage, input.Model, input.CurrentMessage, input.SystemPrompt,
             input.VolatilePrompt, input.RunningHistory, input.HistoryBudget, context.Language);
+        using var recoveryToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, turn.StopToken);
         await foreach (var recoveryChunk in StreamRecoveryAsync(
-                           recovery, turn, input.LastCallStart, recipe.PausedOnAsk, cancellationToken))
+                           recovery, turn, input.LastCallStart, recipe.PausedOnAsk, cancellationToken, recoveryToken.Token))
         {
             yield return recoveryChunk;
         }
@@ -87,8 +89,8 @@ internal sealed class StreamedTurnClosing
                      input.IsMutationIntent, recipe.ForceConfirm, turn.StreamedContent.ToString(), turn.Calls,
                      recipe.PausedOnAsk, _logger))
         {
-            yield return SseChunk.Content(notice);
             turn.StreamedContent.Append(notice);
+            yield return SseChunk.Content(notice);
         }
 
         turn.AnsweredWithNotice = recovery.AnsweredWithNotice;
@@ -105,9 +107,11 @@ internal sealed class StreamedTurnClosing
     /// <param name="turn">The turn; its calls and streamed text are read and the recovered text is added to the latter.</param>
     /// <param name="lastCallStart">Offset in the streamed text where the last provider call's content starts.</param>
     /// <param name="pausedOnRecipeStep">True when a recipe paused on its confirmation or ask step this turn.</param>
-    /// <param name="cancellationToken">Cancels the extra call.</param>
+    /// <param name="requestToken">The request token; a dropped connection propagates.</param>
+    /// <param name="cancellationToken">Cancels the extra call; linked to the turn's stop token, so a stop ends the call and the text of a stopped recovery is neither shown nor stored.</param>
     private async IAsyncEnumerable<SseChunk> StreamRecoveryAsync(
         EmptyAnswerRecovery recovery, TurnRunState turn, int lastCallStart, bool pausedOnRecipeStep,
+        CancellationToken requestToken,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var streamedContent = turn.StreamedContent;
@@ -121,12 +125,30 @@ internal sealed class StreamedTurnClosing
         yield return SseChunk.Status(SseStatusStages.CallingModel, LLMService.ElapsedMsFor(turn.Context!), turn.ToolIterations);
 
         var continuesEarlierContent = !string.IsNullOrWhiteSpace(streamedContent.ToString());
-        await foreach (var token in recovery.StreamAsync(turn.Calls.Count, continuesEarlierContent, cancellationToken))
+        await using var tokens = recovery.StreamAsync(turn.Calls.Count, continuesEarlierContent, cancellationToken)
+            .GetAsyncEnumerator(cancellationToken);
+        while (true)
         {
-            yield return SseChunk.Content(token);
-        }
+            try
+            {
+                if (!await tokens.MoveNextAsync())
+                {
+                    break;
+                }
+            }
+            catch (OperationCanceledException) when (turn.StopRequested && !requestToken.IsCancellationRequested)
+            {
+                break;
+            }
 
-        streamedContent.Append(recovery.AppendedText);
+            if (turn.StopRequested)
+            {
+                break;
+            }
+
+            streamedContent.Append(tokens.Current);
+            yield return SseChunk.Content(tokens.Current);
+        }
     }
 
     /// <summary>
