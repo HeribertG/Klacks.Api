@@ -356,18 +356,29 @@ public class ChatController : ControllerBase
         }
         finally
         {
-            try
+            await FinalizeTurnAsync(turnId, userId, endedInError, stopEscaped && !stopReported, cancellationToken);
+        }
+    }
+
+    /// <param name="turnId">The turn that just ended</param>
+    /// <param name="userId">The turn's user</param>
+    /// <param name="endedInError">Whether the turn ended in an unexpected failure</param>
+    /// <param name="mustConfirmStop">Whether the stop escaped as an exception and the client has not been told yet</param>
+    /// <param name="cancellationToken">Aborts the confirmation write when the client disconnects</param>
+    private async Task FinalizeTurnAsync(
+        Guid turnId, string userId, bool endedInError, bool mustConfirmStop, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var persistedAsStopped = await _turnFinalizer.FinalizeAsync(userId, turnId, endedInError);
+            if (mustConfirmStop && persistedAsStopped != null)
             {
-                var persistedAsStopped = await _turnFinalizer.FinalizeAsync(userId, turnId, endedInError);
-                if (stopEscaped && !stopReported && persistedAsStopped != null)
-                {
-                    await WriteStopConfirmationAsync(turnId, persistedAsStopped, userId, cancellationToken);
-                }
+                await WriteStopConfirmationAsync(turnId, persistedAsStopped, userId, cancellationToken);
             }
-            finally
-            {
-                _turnRegistry.Complete(turnId);
-            }
+        }
+        finally
+        {
+            _turnRegistry.Complete(turnId);
         }
     }
 

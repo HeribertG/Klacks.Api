@@ -35,7 +35,7 @@ public class LLMFunctionExecutor
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
-    private readonly ICancellableSkillPolicy? _cancellableSkillPolicy;
+    private readonly ICancellableSkillPolicy _cancellableSkillPolicy;
     private readonly ITurnConfirmationScope _turnScope;
 
     private Dictionary<string, AgentSkill>? _skillCache;
@@ -46,8 +46,8 @@ public class LLMFunctionExecutor
         IAgentRepository agentRepository,
         IPendingConfirmationStore pendingConfirmationStore,
         ITurnConfirmationScope turnScope,
-        ILLMSkillBridge? skillBridge = null,
-        ICancellableSkillPolicy? cancellableSkillPolicy = null)
+        ICancellableSkillPolicy cancellableSkillPolicy,
+        ILLMSkillBridge? skillBridge = null)
     {
         _logger = logger;
         _agentSkillRepository = agentSkillRepository;
@@ -297,7 +297,7 @@ public class LLMFunctionExecutor
             Parameters = call.Parameters
         };
 
-        var skillToken = stopToken.CanBeCanceled && _cancellableSkillPolicy?.ReceivesStopToken(call.FunctionName) == true
+        var skillToken = stopToken.CanBeCanceled && _cancellableSkillPolicy.ReceivesStopToken(call.FunctionName)
             ? stopToken
             : CancellationToken.None;
         var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext, skillToken);
