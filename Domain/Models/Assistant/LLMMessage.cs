@@ -7,7 +7,7 @@ using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
-public class LLMMessage : BaseEntity
+public class LLMMessage : BaseEntity, IKeepsExplicitCreateTime
 {
     [Required]
     public Guid ConversationId { get; set; }

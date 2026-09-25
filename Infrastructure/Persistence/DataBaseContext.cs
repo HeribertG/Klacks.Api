@@ -557,7 +557,9 @@ public class DataBaseContext : IdentityDbContext
                     break;
 
                 case EntityState.Added:
-                    entityBase.CreateTime = now;
+                    entityBase.CreateTime = entityBase is IKeepsExplicitCreateTime && entityBase.CreateTime != null
+                        ? entityBase.CreateTime
+                        : now;
                     entityBase.CurrentUserCreated = currentUserName!;
 
                     break;
