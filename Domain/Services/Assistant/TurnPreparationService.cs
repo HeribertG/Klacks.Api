@@ -278,8 +278,8 @@ public class TurnPreparationService : ITurnPreparationService
         var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, context.UserRights, cancellationToken);
         if (fresh != null)
         {
-            var extracted = await _slotExtractor.ExtractAsync(
-                provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
+            var extracted = await ExtractSlotsAsync(
+                context, provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
             fresh.PrefillSlots(extracted);
             fresh.AdvanceOverSatisfied();
             _logger.LogInformation(
@@ -330,12 +330,37 @@ public class TurnPreparationService : ITurnPreparationService
             return null;
         }
 
-        var extracted = await _slotExtractor.ExtractAsync(
-            provider, model, composite, fresh.AskSlotHints(), cancellationToken);
+        var extracted = await ExtractSlotsAsync(
+            context, provider, model, composite, fresh.AskSlotHints(), cancellationToken);
         fresh.PrefillSlots(extracted);
         fresh.AdvanceOverSatisfied();
 
         return fresh.CurrentIsAsk ? fresh : null;
+    }
+
+    /// <summary>
+    /// The slot-extraction model call, cut short by the turn's stop token as well as by the request token.
+    /// The extractor degrades every failure, a cancellation included, to "no slots", so a stop simply
+    /// yields an empty extraction here and the turn ends at its next safe point. Both callers reach this call
+    /// on the fresh-match branch, which writes nothing before it; what the preparation decided earlier
+    /// (abort, decline, correction) stays, as for every stopped turn.
+    /// </summary>
+    /// <param name="context">The turn context; its stop token is linked to the call</param>
+    /// <param name="provider">The provider the extraction is put to</param>
+    /// <param name="model">The model the extraction is put to</param>
+    /// <param name="message">The message to extract the slots from</param>
+    /// <param name="slotHints">The ask slots of the matched recipe with their hints</param>
+    /// <param name="cancellationToken">The request token</param>
+    private async Task<Dictionary<string, string>> ExtractSlotsAsync(
+        LLMContext context,
+        ILLMProvider provider,
+        LLMModel model,
+        string message,
+        IReadOnlyDictionary<string, string> slotHints,
+        CancellationToken cancellationToken)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, context.StopToken);
+        return await _slotExtractor.ExtractAsync(provider, model, message, slotHints, linked.Token);
     }
 
     public void RecordLastAction(
