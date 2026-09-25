@@ -307,6 +307,11 @@ public class LLMFunctionExecutor
         }
 
         call.Success = result.Success;
+        if (!string.IsNullOrEmpty(result.ConfirmationToken))
+        {
+            _turnScope?.MarkIssued(result.ConfirmationToken);
+        }
+
         call.ContainsExternalContent = result.ContainsExternalContent;
         call.RequiresConfirmation =
             result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);

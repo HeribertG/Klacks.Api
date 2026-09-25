@@ -12,4 +12,9 @@ public class SkillBridgeResult
     public Dictionary<string, object>? UiActionParameters { get; set; }
     public Guid? UiActionTrackingId { get; set; }
     public bool ContainsExternalContent { get; set; }
+
+    /// <summary>
+    /// The one-time token of a confirmation result, whichever skill minted it. Null for every other result.
+    /// </summary>
+    public string? ConfirmationToken { get; set; }
 }

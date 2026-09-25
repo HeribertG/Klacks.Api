@@ -11,10 +11,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ITurnConfirmationDiscarder
 {
     /// <summary>
-    /// Drops every confirmation token and proposal hint the current turn issued, and the correction-undo
-    /// offer when the turn made one. What earlier turns left is not touched.
+    /// Drops every confirmation token and proposal hint the current turn issued, the correction-undo offer
+    /// included. What earlier turns left is not touched.
     /// </summary>
     /// <param name="userId">The user the turn ran for</param>
-    /// <param name="correctionUndoOffered">True when the turn held a correction-undo offer</param>
-    void DiscardIssuedThisTurn(Guid userId, bool correctionUndoOffered);
+    void DiscardIssuedThisTurn(Guid userId);
 }

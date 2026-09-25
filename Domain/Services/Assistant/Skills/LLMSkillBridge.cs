@@ -16,6 +16,8 @@ public class LLMSkillBridge : ILLMSkillBridge
     private readonly ISkillAdapterFactory _adapterFactory;
     private readonly ILogger<LLMSkillBridge> _logger;
 
+    private const string ConfirmationTokenMetadataKey = "confirmationToken";
+
     public LLMSkillBridge(
         ISkillRegistry skillRegistry,
         ISkillExecutor skillExecutor,
@@ -70,7 +72,11 @@ public class LLMSkillBridge : ILLMSkillBridge
             UiActionSteps = result.UiActionSteps,
             UiActionParameters = result.UiActionParameters,
             UiActionTrackingId = result.UiActionTrackingId,
-            ContainsExternalContent = result.ContainsExternalContent
+            ContainsExternalContent = result.ContainsExternalContent,
+            ConfirmationToken = result.Type == SkillResultType.Confirmation
+                && result.Metadata?.GetValueOrDefault(ConfirmationTokenMetadataKey) is string token
+                    ? token
+                    : null
         };
     }
 

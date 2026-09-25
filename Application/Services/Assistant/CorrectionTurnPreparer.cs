@@ -38,6 +38,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
     private readonly ISkillRegistry _skillRegistry;
     private readonly ISkillPermissionGate _permissionGate;
     private readonly ILogger<CorrectionTurnPreparer> _logger;
+    private readonly ITurnConfirmationScope? _turnScope;
 
     public CorrectionTurnPreparer(
         IAssistantLastActionStore lastActionStore,
@@ -47,7 +48,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         IPendingConfirmationStore pendingConfirmationStore,
         ISkillRegistry skillRegistry,
         ISkillPermissionGate permissionGate,
-        ILogger<CorrectionTurnPreparer> logger)
+        ILogger<CorrectionTurnPreparer> logger,
+        ITurnConfirmationScope? turnScope = null)
     {
         _lastActionStore = lastActionStore;
         _pendingRecipeStore = pendingRecipeStore;
@@ -57,6 +59,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         _skillRegistry = skillRegistry;
         _permissionGate = permissionGate;
         _logger = logger;
+        _turnScope = turnScope;
     }
 
     public async Task<CorrectionTurnPreparation> PrepareAsync(
@@ -155,11 +158,12 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
         {
             try
             {
-                _pendingConfirmationStore.Create(
+                var undoToken = _pendingConfirmationStore.Create(
                     userGuid,
                     correction.Undo.SkillName,
                     correction.Undo.Arguments,
                     PendingConfirmationPurposes.CorrectionUndo);
+                _turnScope?.MarkIssued(undoToken);
                 undoWasHeld = true;
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

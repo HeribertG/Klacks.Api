@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Drops what a stopped turn left in the pending-confirmation store: the tokens and proposal hints the turn
-/// registered on its scope, and the correction-undo offer when the turn made one. Tokens of earlier turns
-/// stay redeemable. A hint created this turn has already replaced the user's earlier hint (the store keeps
+/// registered on its scope, the correction-undo offer included. Tokens of earlier turns stay redeemable.
+/// A hint created this turn has already replaced the user's earlier hint (the store keeps
 /// one hint per user), so discarding it by name loses nothing the turn had not already replaced.
 /// </summary>
 /// <param name="turnScope">The confirmations this turn issued</param>
@@ -30,7 +30,7 @@ public class TurnConfirmationDiscarder : ITurnConfirmationDiscarder
         _logger = logger;
     }
 
-    public void DiscardIssuedThisTurn(Guid userId, bool correctionUndoOffered)
+    public void DiscardIssuedThisTurn(Guid userId)
     {
         try
         {
@@ -42,11 +42,6 @@ public class TurnConfirmationDiscarder : ITurnConfirmationDiscarder
             foreach (var applySkill in _turnScope.ProposalHintSkills)
             {
                 _confirmationStore.DiscardProposalHints(userId, applySkill);
-            }
-
-            if (correctionUndoOffered)
-            {
-                _confirmationStore.DiscardCorrectionUndo(userId);
             }
         }
         catch (Exception ex)
