@@ -7,7 +7,9 @@
 /// token stamps the turn's time to first token, and a failed call is reported through Error instead of
 /// an event so the turn decides how it ends. The call runs on a token linked to the request token and the
 /// turn's stop token; a call that either token cut short is reported through Cancelled, and tool calls
-/// that were still being received are then not completed. One instance covers exactly one call.
+/// that were still being received are then not completed. Everything streamed goes into the turn's run state
+/// as it is offered to the client, so the state holds the text even when the consumer abandons the stream.
+/// One instance covers exactly one call.
 /// </summary>
 /// <param name="logger">The chat service's logger, so log categories stay unchanged</param>
 
@@ -66,6 +68,7 @@ internal sealed class StreamedModelCall
                         "LLM TTFT: {Ms}ms turn={Turn}", turn.TtftMs, LLMService.TurnCorrelationFor(turn.Context!));
                 }
 
+                turn.StreamedContent.Append(token);
                 yield return SseChunk.Content(token);
             }
 
@@ -88,7 +91,7 @@ internal sealed class StreamedModelCall
         {
             var response = await StopAwareCall.RunAsync(
                 turn, cancellationToken, token => TransientProviderRetry.ProcessAsync(provider, request, _logger, token));
-            if (response == null)
+            if (response == null || (!response.Success && (turn.StopRequested || cancellationToken.IsCancellationRequested)))
             {
                 Cancelled = true;
                 yield break;
@@ -104,6 +107,7 @@ internal sealed class StreamedModelCall
 
             var visibleContent = AnswerPlaceholder.Visible(response.Content);
             Accumulator.AppendContent(visibleContent);
+            turn.StreamedContent.Append(visibleContent);
             yield return SseChunk.Content(visibleContent);
             hasToolEnd = Accumulator.AppendCompleteFunctionCalls(response.FunctionCalls);
         }

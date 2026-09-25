@@ -56,10 +56,12 @@ internal static class RecipePauseStep
                 model, currentMessage, systemPrompt, volatilePrompt, confirmInstruction, runningHistory);
             var confirmResponse = await StopAwareCall.RunAsync(
                 turn, cancellationToken, token => TransientProviderRetry.ProcessAsync(provider, confirmRequest, logger, token));
-            if (confirmResponse == null)
+            if (confirmResponse == null || (!confirmResponse.Success && turn.StopRequested))
             {
                 yield break;
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             LLMUsageAccumulator.Add(turn.Usage, confirmResponse.Usage);
             var confirmText = RecipeReplyGuard.WithConfirmationChip(RecipeReplyGuard.SafeConfirmation(
@@ -85,10 +87,12 @@ internal static class RecipePauseStep
                 model, currentMessage, systemPrompt, volatilePrompt, askInstruction, runningHistory);
             var askResponse = await StopAwareCall.RunAsync(
                 turn, cancellationToken, token => TransientProviderRetry.ProcessAsync(provider, askRequest, logger, token));
-            if (askResponse == null)
+            if (askResponse == null || (!askResponse.Success && turn.StopRequested))
             {
                 yield break;
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             LLMUsageAccumulator.Add(turn.Usage, askResponse.Usage);
             var askText = RecipeReplyGuard.SafeAsk(

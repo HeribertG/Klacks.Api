@@ -376,7 +376,6 @@ public class LLMService : ILLMService
             }
 
             var accumulator = modelCall.Accumulator;
-            turn.StreamedContent.Append(accumulator.AccumulatedContent);
 
             if (modelCall.Cancelled && !turn.StopRequested)
             {

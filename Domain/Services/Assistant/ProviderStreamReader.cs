@@ -129,8 +129,10 @@ internal sealed class ProviderStreamReader
                 await enumerator.DisposeAsync();
             }
 
-            if (Cancelled)
+            // The streaming loops of the real providers do not throw on cancellation, they simply end.
+            if (Cancelled || cancellationToken.IsCancellationRequested)
             {
+                Cancelled = true;
                 yield break;
             }
 
