@@ -12,7 +12,9 @@
 /// executes, so a zero-real-tool-call turn containing it is the same no-action lie. A clarifying question
 /// (or a [REPLIES:] affordance) is not a false success claim and is skipped, otherwise the well-behaved
 /// default path (Gemini/Anthropic ignore tool_choice) would regress; a recipe deliberately paused on an
-/// ask is not a no-action lie either. The non-streaming path has no equivalent: nothing is sent before the
+/// ask is not a no-action lie either, and neither is an answer that itself states that nothing was done
+/// (ClaimNegationDetector.DeniesCompletion, e.g. "Nein – gespeichert ist nichts"); tool-call markup still counts.
+/// The non-streaming path has no notice: nothing is sent before the
 /// loop ends there, so it suppresses the claim with a forced retry (ForceToolNudgePolicy) instead, and a
 /// claim made by its empty-answer recovery call is replaced by EmptyAnswerRecovery with the no-action notice.
 ///
@@ -29,11 +31,14 @@
 /// while only the read skill ran. The claim cannot be retracted once streamed, so the notice states the truth
 /// in the turn's language. The detector is applied sentence by sentence: over the whole reply an auxiliary of one
 /// sentence and a participle of another ("... noch kein Nachlauf gespeichert. ... gewählt haben") made an honest
-/// answer look like a claim (live 2026-09-26). A remaining false positive (a negation such as "Sie haben noch
-/// keinen Wert gespeichert") costs one redundant but still true sentence.
+/// answer look like a claim (live 2026-09-26). A sentence that negates the claim ("Sie haben noch keinen Wert
+/// gespeichert") is not a claim either (ClaimNegationDetector, de/en/fr/it). Whether a call of the turn was
+/// side-effecting is judged by the same predicate the write guard uses (ReadOnlyRecipeWriteGuard.IsSideEffectFree),
+/// so an explain_* call the guard lets through does not suppress the notice as if it had stored something.
 /// </summary>
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Domain.Services.Assistant;
@@ -65,7 +70,8 @@ internal static class TurnClosingNotices
             CompletionClaimDetector.ClaimsCompletion(responseContent),
             functionCallCount,
             recipePausedOnAsk,
-            isClarifyingResponse)
+            isClarifyingResponse,
+            ClaimNegationDetector.DeniesCompletion(responseContent))
             ? MutationGuardConstants.NoActionStreamNotice
             : null;
 
@@ -78,15 +84,18 @@ internal static class TurnClosingNotices
     /// <param name="responseContent">The turn's answer.</param>
     /// <param name="allFunctionCalls">Every call of the turn; a successful side-effecting call suppresses the notice.</param>
     /// <param name="language">The turn's language, used to localize the notice.</param>
+    /// <param name="availableFunctions">The turn's toolset, source of each skill's curated effect.</param>
     internal static string NothingStored(
         bool readOnlyRecipeCompleted,
         string responseContent,
         IReadOnlyList<LLMFunctionCall> allFunctionCalls,
-        string? language)
+        string? language,
+        IReadOnlyList<LLMFunction>? availableFunctions = null)
     {
         if (!readOnlyRecipeCompleted
-            || !SentenceBoundary.Split(responseContent).Any(CompletionClaimDetector.ClaimsCompletion)
-            || allFunctionCalls.Any(call => call.Success && !RepeatedWriteCallGuard.IsRepeatable(call)))
+            || !SentenceBoundary.Split(responseContent).Any(ClaimsUnnegatedCompletion)
+            || allFunctionCalls.Any(call =>
+                call.Success && !ReadOnlyRecipeWriteGuard.IsSideEffectFree(call, availableFunctions)))
         {
             return string.Empty;
         }
@@ -97,6 +106,9 @@ internal static class TurnClosingNotices
             : RecipeEngineDefaults.NothingStoredNotice;
         return RecipeEngineDefaults.NothingStoredNoticeSeparator + text;
     }
+
+    private static bool ClaimsUnnegatedCompletion(string sentence) =>
+        CompletionClaimDetector.ClaimsCompletion(sentence) && !ClaimNegationDetector.IsNegated(sentence);
 
     /// <summary>
     /// The call whose failure message has to be surfaced because the turn produced no prose at all and
@@ -131,6 +143,7 @@ internal static class TurnClosingNotices
     /// <param name="logger">Receives the raw message of a surfaced failure, which the notice itself redacts.</param>
     /// <param name="readOnlyRecipeCompleted">True when a read-only recipe executed its final step this turn.</param>
     /// <param name="language">The turn's language, used to localize the nothing-stored notice.</param>
+    /// <param name="availableFunctions">The turn's toolset, source of each skill's curated effect.</param>
     internal static IReadOnlyList<string> Collect(
         bool isMutationIntent,
         bool forceConfirmation,
@@ -139,7 +152,8 @@ internal static class TurnClosingNotices
         bool recipePausedOnAsk,
         ILogger logger,
         bool readOnlyRecipeCompleted = false,
-        string? language = null)
+        string? language = null,
+        IReadOnlyList<LLMFunction>? availableFunctions = null)
     {
         var notices = new List<string>();
         var content = responseContent;
@@ -153,7 +167,8 @@ internal static class TurnClosingNotices
             content += noActionNotice;
         }
 
-        var nothingStoredNotice = NothingStored(readOnlyRecipeCompleted, content, allFunctionCalls, language);
+        var nothingStoredNotice = NothingStored(
+            readOnlyRecipeCompleted, content, allFunctionCalls, language, availableFunctions);
         if (nothingStoredNotice.Length > 0)
         {
             notices.Add(nothingStoredNotice);

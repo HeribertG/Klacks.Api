@@ -19,6 +19,11 @@
 /// <param name="toolCallCount">Number of tool calls executed this turn.</param>
 /// <param name="recipePausedOnAsk">A recipe deliberately paused on an ask step.</param>
 /// <param name="isClarifyingResponse">The response is a clarifying question or a [REPLIES:] affordance.</param>
+/// <param name="deniesCompletion">
+/// The response states that nothing was done and claims nothing (ClaimNegationDetector.DeniesCompletion); forcing a
+/// tool call after such an honest answer would push the model into a write the user never asked for. Tool-call
+/// markup that never executed still gets the nudge.
+/// </param>
 
 using Klacks.Api.Domain.Constants;
 using LLMMessage = Klacks.Api.Domain.Services.Assistant.Providers.LLMMessage;
@@ -36,12 +41,14 @@ public static class ForceToolNudgePolicy
         bool claimsCompletion,
         int toolCallCount,
         bool recipePausedOnAsk,
-        bool isClarifyingResponse)
+        bool isClarifyingResponse,
+        bool deniesCompletion = false)
     {
         return (isMutationIntent || forceConfirmation || containsMarkup || claimsCompletion)
             && toolCallCount == 0
             && !recipePausedOnAsk
-            && !isClarifyingResponse;
+            && !isClarifyingResponse
+            && !(deniesCompletion && !containsMarkup);
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Exports;
 
@@ -17,7 +18,7 @@ namespace Klacks.Api.Domain.Models.Exports;
 /// </remarks>
 public class ExportLog : BaseEntity
 {
-    [MaxLength(16)]
+    [MaxLength(ExportLogLimits.FormatMaxLength)]
     public string Format { get; set; } = string.Empty;
 
     public DateOnly StartDate { get; set; }

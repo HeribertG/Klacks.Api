@@ -13,8 +13,17 @@
 ///    are skipped silently. The candidate is ONE period per group: the latest one whose close date has come
 ///    (PeriodBoundaries.LastEndBefore on PeriodCloseDateCalculator.DuePeriodEndBound). Never a global close.
 /// 2. IPeriodAutoCloseResolver must allow the close for this group (kill switch off; the period_auto_close
-///    rule enabled at Execute; global level and admin minimum FullyAutonomous). Otherwise nothing happens and
-///    nothing is reported - automatic closing is simply not switched on, and the reminders remain.
+///    rule enabled at Execute; global level and admin minimum FullyAutonomous). When the RULE is not armed
+///    (kill switch on, rule disabled or configured below Execute) nothing happens and nothing is reported -
+///    automatic closing is simply not switched on, and the reminders remain. The kill switch stays silent on
+///    purpose: it is an explicit, visible emergency stop of ALL self-directed action, set by an administrator
+///    who knows what it stops, and a message per group and period would only repeat that. When the rule IS
+///    armed but an autonomy level brakes (global level or admin minimum below FullyAutonomous, an admin
+///    without a stored level, no usable admin), the administrator's consent would otherwise be void without
+///    anybody noticing - a new admin who never chose a level switches the close off. Such a group runs through
+///    the gates below like an allowed one and, exactly where the close would run, is reported as
+///    AutonomyBelowFull or AdminAutonomyMissing instead (so only for a due period inside the window, with a
+///    stored lag; without a lag or outside the window it stays silent - that brake was not decisive then).
 /// 3. A period whose last day is sealed (group or installation-wide lock) is skipped silently: it is closed, a
 ///    second close would re-run the payroll export. A period without work on the group's OWN shifts is skipped
 ///    silently too: the seal, the day locks and the payroll export act on the direct GroupItem of the group
@@ -28,19 +37,20 @@
 /// 5. Outside PeriodAutoClose.WindowDays after the first allowed day: left to a person.
 /// 6. Any day of the period already sealed (group or installation-wide lock, but not the last day): left to a
 ///    person and reported as PartiallySealed.
-/// 7. In a FRESH DI scope, directly before the seal: the autonomy decision and the sealed state are read
+/// 7. At most PeriodAutoClose.MaxClosesPerTick closes are ATTEMPTED per scan (every attempt that reaches step 8
+///    counts, whatever its outcome); a further due group is reported as TickLimitReached and tried again by the
+///    next scan. See PeriodAutoClose for the choice of a fixed cap over the governance budget fields.
+/// 8. In a FRESH DI scope, directly before the seal: the autonomy decision and the sealed state are read
 ///    again, and the period issues are loaded (GetPeriodIssuesQuery, the source of list_period_issues) - any
 ///    error blocks. Then ClosePeriodByGroupCommand runs with the deciding admin as ActingAdminUserId (there
 ///    is no HttpContext in the tick) and a constant reason, never with AcknowledgeViolations, so the
 ///    handler's own error check stays fail-closed as well. The fresh scope keeps a failed close - and the
 ///    issue loader, which refreshes materialised rest-obligation state - from leaving staged rows in the
 ///    tick's shared DbContext, where the next ledger write would flush them.
-/// 8. The fresh read-back must show every day of the period sealed; only then is the close reported.
+/// 9. The fresh read-back must show every day of the period sealed; only then is the close reported.
 /// A close that throws unexpectedly is re-read in another fresh scope (ResolveFailedCloseAsync): a concurrent
 /// close by a person is recognised and stays silent instead of being reported as a failure.
 /// A failure in one group is caught, logged and reported for that group and never stops the others.
-/// Not applied: the DailyActionBudget/WindowActionLimit of the governance rule - one scan may close every
-/// armed group whose period is due. The per-group gates above are the brake, not a rate limit.
 /// A reported close proves the seal (read back), NOT the payroll export: the close handler dispatches the
 /// PeriodClosedEvent after its commit and only logs a failing hook.
 /// </summary>
@@ -131,6 +141,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
         var events = new List<IAgentTriggerEvent>();
         var armedGroups = 0;
+        var closeBudget = new PeriodAutoCloseBudget(PeriodAutoClose.MaxClosesPerTick);
         foreach (var group in groups)
         {
             if (!NextPeriodBoundaries.HasDerivableCycle(group.PaymentInterval) || !staffing.IsStaffed(group.Id))
@@ -148,13 +159,20 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
             var candidate = new Candidate(group, periodStart, periodEnd);
 
             var decision = await TryResolveAsync(candidate, cancellationToken);
-            if (decision is not { CanClose: true })
+            if (decision == null)
+            {
+                continue;
+            }
+
+            var autonomyBlock = ReportableAutonomyBlock(decision.BlockedBy);
+            if (!decision.CanClose && autonomyBlock == null)
             {
                 continue;
             }
 
             armedGroups++;
-            var triggerEvent = await EvaluateArmedGroupAsync(candidate, today, lagDays, cancellationToken);
+            var triggerEvent = await EvaluateArmedGroupAsync(
+                candidate, today, lagDays, autonomyBlock, closeBudget, cancellationToken);
             if (triggerEvent != null)
             {
                 events.Add(triggerEvent);
@@ -162,7 +180,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         }
 
         _logger.LogInformation(
-            "PeriodAutoClose scan: {Total} group(s), {Armed} with automatic closing allowed, {Closed} closed, {Blocked} blocked",
+            "PeriodAutoClose scan: {Total} group(s), {Armed} with the automatic close armed, {Closed} closed, {Blocked} blocked",
             groups.Count,
             armedGroups,
             events.Count(e => e is PeriodAutoClosedTriggerEvent),
@@ -204,12 +222,32 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
         }
     }
 
+    /// <summary>
+    /// The block reason under which an ARMED period_auto_close rule is reported when an autonomy level keeps the
+    /// close from running, or null when the brake is not reportable: None (the close may run), and the brakes
+    /// that mean the rule itself is not armed - KillSwitch, KindDisabled, MaxAction - which stay silent.
+    /// </summary>
+    internal static PeriodAutoCloseBlockReason? ReportableAutonomyBlock(PeriodAutoCloseBlockedBy blockedBy) => blockedBy switch
+    {
+        PeriodAutoCloseBlockedBy.AdminLevelMissing => PeriodAutoCloseBlockReason.AdminAutonomyMissing,
+        PeriodAutoCloseBlockedBy.GlobalLevel => PeriodAutoCloseBlockReason.AutonomyBelowFull,
+        PeriodAutoCloseBlockedBy.AdminLevel => PeriodAutoCloseBlockReason.AutonomyBelowFull,
+        PeriodAutoCloseBlockedBy.NoAdmins => PeriodAutoCloseBlockReason.AutonomyBelowFull,
+        PeriodAutoCloseBlockedBy.NoDecidingAdmin => PeriodAutoCloseBlockReason.AutonomyBelowFull,
+        _ => null
+    };
+
     private async Task<IAgentTriggerEvent?> EvaluateArmedGroupAsync(
-        Candidate candidate, DateOnly today, int? lagDays, CancellationToken cancellationToken)
+        Candidate candidate,
+        DateOnly today,
+        int? lagDays,
+        PeriodAutoCloseBlockReason? autonomyBlock,
+        PeriodAutoCloseBudget closeBudget,
+        CancellationToken cancellationToken)
     {
         try
         {
-            return await EvaluateCoreAsync(candidate, today, lagDays, cancellationToken);
+            return await EvaluateCoreAsync(candidate, today, lagDays, autonomyBlock, closeBudget, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -226,7 +264,12 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     }
 
     private async Task<IAgentTriggerEvent?> EvaluateCoreAsync(
-        Candidate candidate, DateOnly today, int? lagDays, CancellationToken cancellationToken)
+        Candidate candidate,
+        DateOnly today,
+        int? lagDays,
+        PeriodAutoCloseBlockReason? autonomyBlock,
+        PeriodAutoCloseBudget closeBudget,
+        CancellationToken cancellationToken)
     {
         var (group, periodStart, periodEnd) = candidate;
 
@@ -248,6 +291,11 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
         if (lagDays is not { } lag)
         {
+            if (autonomyBlock != null)
+            {
+                return null;
+            }
+
             _logger.LogInformation(
                 "PeriodAutoClose: no close lag is stored; period {From}..{Until} of group {GroupName} is not closed automatically",
                 periodStart, periodEnd, group.Name);
@@ -262,12 +310,30 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
 
         if (!PeriodCloseDateCalculator.IsWithinAutoCloseWindow(today, periodEnd, lag, PeriodAutoClose.WindowDays))
         {
-            return Blocked(candidate, PeriodAutoCloseBlockReason.CloseWindowMissed);
+            return autonomyBlock != null ? null : Blocked(candidate, PeriodAutoCloseBlockReason.CloseWindowMissed);
+        }
+
+        if (autonomyBlock is { } autonomyReason)
+        {
+            _logger.LogInformation(
+                "PeriodAutoClose: the automatic close is armed but an autonomy level brakes; period {From}..{Until} of group {GroupName} is not closed ({Reason})",
+                periodStart, periodEnd, group.Name, autonomyReason);
+
+            return Blocked(candidate, autonomyReason);
         }
 
         if (await HasAnySealedDayAsync(_sealedDayRepository, candidate, cancellationToken))
         {
             return Blocked(candidate, PeriodAutoCloseBlockReason.PartiallySealed);
+        }
+
+        if (!closeBudget.TryTake())
+        {
+            _logger.LogInformation(
+                "PeriodAutoClose: {Limit} close(s) were already attempted in this scan; period {From}..{Until} of group {GroupName} waits for the next scan",
+                PeriodAutoClose.MaxClosesPerTick, periodStart, periodEnd, group.Name);
+
+            return Blocked(candidate, PeriodAutoCloseBlockReason.TickLimitReached);
         }
 
         return await CloseInFreshScopeAsync(candidate, lag, cancellationToken);

@@ -29,6 +29,14 @@ public static class ProactiveMessageI18nKeys
     public const string PeriodCloseDueWithLag = "assistant.proactive.periodCloseDueWithLag";
 
     /// <summary>
+    /// The form of <see cref="PeriodCloseDue"/> used for a group whose period Klacksy will actually close on its
+    /// own (IPeriodAutoCloseResolver allows it, a lag is stored and the group holds work on its own shifts): it
+    /// announces the automatic close and names the real ways to prevent it. Parameters group, periodEnd, date
+    /// (the first day the automatic close may run) and days (until that day).
+    /// </summary>
+    public const string PeriodCloseDueAutoClose = "assistant.proactive.periodCloseDueAutoClose";
+
+    /// <summary>
     /// Klacksy sealed a group's period on its own (full autonomy). Parameters group, from and until.
     /// </summary>
     public const string PeriodAutoClosed = "assistant.proactive.periodAutoClosed";
@@ -44,6 +52,13 @@ public static class ProactiveMessageI18nKeys
     public const string PeriodAutoCloseBlockedErrors = "assistant.proactive.periodAutoCloseBlockedErrors";
     public const string PeriodAutoCloseBlockedAutonomyLowered = "assistant.proactive.periodAutoCloseBlockedAutonomyLowered";
     public const string PeriodAutoCloseBlockedFailed = "assistant.proactive.periodAutoCloseBlockedFailed";
+    public const string PeriodAutoCloseBlockedAutonomyBelowFull = "assistant.proactive.periodAutoCloseBlockedAutonomyBelowFull";
+    public const string PeriodAutoCloseBlockedAdminAutonomyMissing = "assistant.proactive.periodAutoCloseBlockedAdminAutonomyMissing";
+
+    /// <summary>
+    /// The per-tick cap of the autonomous period close was reached; additionally carries the parameter limit.
+    /// </summary>
+    public const string PeriodAutoCloseBlockedTickLimit = "assistant.proactive.periodAutoCloseBlockedTickLimit";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
     public const string LockConflict = "assistant.proactive.lockConflict";
     public const string ScenarioPending = "assistant.proactive.scenarioPending";

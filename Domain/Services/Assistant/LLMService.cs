@@ -751,10 +751,10 @@ public class LLMService : ILLMService
                 // allFunctionCalls is still empty) before giving up. Also trigger when intent detection
                 // missed the phrasing but the model emitted a text tool-call itself (never executes).
                 if (ForceToolNudgePolicy.ShouldForceToolNudge(
-                        isMutationIntent, recipe.ForceConfirm,
-                        ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content),
+                        isMutationIntent, recipe.ForceConfirm, ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content),
                         CompletionClaimDetector.ClaimsCompletion(lastResponse.Content),
-                        allFunctionCalls.Count, recipe.PausedOnAsk, ClarifyingResponse.IsClarifying(lastResponse.Content))
+                        allFunctionCalls.Count, recipe.PausedOnAsk, ClarifyingResponse.IsClarifying(lastResponse.Content),
+                        ClaimNegationDetector.DeniesCompletion(lastResponse.Content))
                     && !forcedRetryUsed
                     && iteration < maxIterations - 1)
                 {
@@ -895,7 +895,8 @@ public class LLMService : ILLMService
         var answer = await recovery.ResolveAsync(
             responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, recipe.PausedOnAsk, ctx.CancellationToken);
         ctx.AnsweredWithNotice = recovery.AnsweredWithNotice;
-        return answer + TurnClosingNotices.NothingStored(recipe.ReadOnlyRecipeCompleted, answer, allFunctionCalls, ctx.Context.Language);
+        return answer + TurnClosingNotices.NothingStored(
+            recipe.ReadOnlyRecipeCompleted, answer, allFunctionCalls, ctx.Context.Language, ctx.Context.AvailableFunctions);
     }
 
     private static int EstimateTokens(string? text) =>

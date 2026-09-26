@@ -90,6 +90,16 @@ public static class CompletionClaimDetector
         }
     }
 
+    /// <summary>
+    /// True when the lower-case word is one of the core-language completion markers or completion participles
+    /// ("erledigt", "gespeichert", "saved", "enregistré", "salvato"). Used by ClaimNegationDetector to find the
+    /// word a negation has to govern; plugin phrases are not covered, so a claim found only through them is never
+    /// treated as negated.
+    /// </summary>
+    /// <param name="lowerWord">A single word, already lower-cased.</param>
+    internal static bool IsCoreCompletionWord(string lowerWord) =>
+        CompletionMarkerTokens.Contains(lowerWord) || CompletionParticiples.Contains(lowerWord);
+
     public static bool ClaimsCompletion(string? response)
     {
         if (string.IsNullOrWhiteSpace(response))

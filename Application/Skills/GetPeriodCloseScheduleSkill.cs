@@ -2,17 +2,31 @@
 
 /// <summary>
 /// Reports when periods are closed: the close date of a period is its last day plus a lag of days. Without a
-/// lag it reports the facts the conversation needs (today, the stored lag if any, the global autonomy level and,
-/// per group, whether Klacksy would close that group's periods on its own); with a lag it computes, per staffed
-/// group, the close date of the running period and of the previous (last ended) period while that one is still
-/// open: not sealed on its last day (the same check as the period detectors) and holding work on the group's own
-/// shifts (the scope a group seal acts on, as in PeriodAutoCloseService). An open previous period is reported
-/// both while it waits for its close date and once that date has been reached (PreviousPeriodCloseDue), so an
-/// already due period is never hidden. Whether a group is closed automatically is not derived from the global level alone but read from
-/// IPeriodAutoCloseResolver - the same gate PeriodAutoCloseService obeys (kill switch, the period_auto_close
-/// governance rule at Execute, global level and the minimum over ALL admins at FullyAutonomous) - so the skill can
-/// never promise a close that the service would not perform. Period boundaries come from the group's
-/// PaymentInterval exactly like the period detectors. Read-only: nothing is stored here.
+/// lag it reports the facts the conversation needs (today, the stored lag if any, the global autonomy level and
+/// whether Klacksy would close each group's periods on its own); with a lag it computes, per staffed group, the
+/// close date of the running period and of the previous (last ended) period while that one is still open: not
+/// sealed on its last day (the same check as the period detectors) and holding work on the group's own shifts (the
+/// scope a group seal acts on, as in PeriodAutoCloseService). An open previous period is reported both while it
+/// waits for its close date and once that date has been reached (PreviousPeriodCloseDue), so an already due period
+/// is never hidden. Whether a group is closed automatically is not derived from the global level alone but read
+/// from IPeriodAutoCloseResolver - the same gate PeriodAutoCloseService obeys - so the skill can never promise a
+/// close that the service would not perform. Period boundaries come from the group's PaymentInterval exactly like
+/// the period detectors. Read-only: nothing is stored here.
+///
+/// Size: the result is fed back to the model through ToolResultFormatter, which cuts every result at
+/// LLMLoopConstants.DefaultMaxToolResultChars. Live 2026-09-26 fifteen groups produced about 9200 characters - the
+/// conditions text twice and a reason sentence on every row - so the last groups were cut off and the model said
+/// their names were not available. Hence: the conditions are stated once (in the message), each distinct reason
+/// sentence once in AutoCloseReasons with the names of the groups it applies to, and a row carries only the dates
+/// and AutoCloseAllowed (null fields omitted). Rows are ordered so that a period due now comes first, then by close
+/// date and name, and are added only while they fit MaxGroupRowsChars; every group left out (beyond
+/// MaxReportedGroups or the character budget) is counted in OmittedGroups, which the recipe note tells the model to
+/// mention. The reason sentences come from PeriodAutoCloseReasonTexts and name the brakes by the labels of the
+/// settings pages, never by internal values (live 2026-09-26 an answer quoted "BlockedBy: MaxAction").
+/// Which groups are listed: GroupRepository.List() (every group that is not soft-deleted, no visibility or scope
+/// filter), minus Individual groups and groups that neither hold clients or shifts themselves nor have a
+/// descendant that does (GroupStaffingLookup) - so a parent group appears as soon as one of its descendants gets
+/// a member or shift.
 /// </summary>
 /// <param name="groupRepository">Lists the groups and which of them have members</param>
 /// <param name="weekConfiguration">Resolves the configured week start for weekly period boundaries</param>
@@ -24,6 +38,9 @@
 /// <param name="activityProbe">Tells whether the previous period holds work a group seal would act on</param>
 
 using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Application.Services.Assistant.Triggers;
@@ -47,13 +64,16 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
     private const string ContextMode = "Context";
     private const string ComputedMode = "Computed";
     private const int MaxReportedGroups = 25;
+    private const int MaxGroupRowsChars = 4500;
+    private const int RowSeparatorChars = 1;
     private const string Formula = "close date = period end + lag days (never before the period has ended)";
     private const string AutoCloseConditions =
-        "Klacksy closes a group's period on its own only when ALL of these hold: a lag is stored; the governance "
-        + "rule period_auto_close is set to Execute (its default is Hint); the global proactive autonomy level is "
-        + "FullyAutonomous; EVERY admin has chosen the level FullyAutonomous; the kill switch is off. "
-        + "AutoCloseBlockedBy names the brake per group (None = closes automatically). Groups where it is not "
-        + "allowed get no automatic close and no message about it - only the usual reminders.";
+        "Klacksy closes a group's period on its own only when ALL of these hold: a lag is stored; in Klacksy Scope "
+        + "of Action the rule \"Automatic period close\" is set to \"Carry out\" (its default only reports) and the "
+        + "global autonomy level is \"Carry out, including multi-step\"; EVERY administrator has chosen \"Fully "
+        + "autonomous\" under Klacksy Autonomy; the master off switch is off. AutoCloseReasons gives each reason "
+        + "once with the groups it applies to; relay it in the user's language and never quote field names or "
+        + "internal values.";
 
     private readonly IGroupRepository _groupRepository;
     private readonly IWeekConfiguration _weekConfiguration;
@@ -124,7 +144,7 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
             ? $"stored lag {storedLag.Value} day(s) after the period end"
             : "no lag stored, so periods are never closed automatically";
         var autoCloseText = anyGroupAllowed && storedLag.HasValue
-            ? "automatic closing is active for the groups with AutoCloseBlockedBy None"
+            ? "automatic closing is active for the groups whose reason says so"
             : "automatic closing is currently active for no group";
 
         return SkillResult.SuccessResult(
@@ -138,16 +158,11 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
                 MaxLagDays = PeriodCloseDateCalculator.MaxLagDays,
                 GlobalAutonomyLevel = level.ToString(),
                 AutonomyAllowsAutoClose = anyGroupAllowed,
-                AutoCloseConditions,
-                Groups = groups.Select(group => new GroupGateRow(
-                    group.Name,
-                    gates[group.Id].CanClose,
-                    gates[group.Id].BlockedBy.ToString())).ToList(),
                 OmittedGroups = totalGroups - groups.Count,
-                Formula
+                AutoCloseReasons = GroupByReason(groups, gates)
             },
-            $"Period close context: today is {FormatDate(today)}, {storedText}; global autonomy level {level}; "
-            + $"{autoCloseText}. {AutoCloseConditions}");
+            $"Period close context: today is {FormatDate(today)}, {storedText}; {autoCloseText}. {AutoCloseConditions} "
+            + $"Formula: {Formula}.");
     }
 
     private async Task<SkillResult> BuildComputedResultAsync(
@@ -163,16 +178,18 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
     {
         var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
         var nextWeekStart = weekStart.AddDays(NextPeriodBoundaries.WeeklyPeriodDays);
-        var rows = new List<GroupCloseRow>(groups.Count);
+        var rows = new List<(Group Group, GroupCloseRow Row)>(groups.Count);
         foreach (var group in groups)
         {
-            rows.Add(await BuildRowAsync(group, today, lag, nextWeekStart, gates[group.Id], cancellationToken));
+            rows.Add((group, await BuildRowAsync(group, today, lag, nextWeekStart, gates[group.Id], cancellationToken)));
         }
 
-        rows = rows
-            .OrderBy(row => row.CurrentPeriodCloseDate, StringComparer.Ordinal)
-            .ThenBy(row => row.GroupName, StringComparer.Ordinal)
-            .ToList();
+        var reported = FitToBudget(rows
+            .OrderByDescending(entry => entry.Row.PreviousPeriodCloseDue == true)
+            .ThenBy(entry => entry.Row.CurrentPeriodCloseDate, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Row.GroupName, StringComparer.Ordinal)
+            .ToList());
+        var reportedGroups = reported.Select(entry => entry.Group).ToList();
 
         return SkillResult.SuccessResult(
             new
@@ -184,18 +201,49 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
                 LagStored = storedLag.HasValue,
                 GlobalAutonomyLevel = level.ToString(),
                 AutonomyAllowsAutoClose = anyGroupAllowed,
-                AutoCloseConditions,
-                Formula,
-                Groups = rows,
-                OmittedGroups = totalGroups - rows.Count
+                OmittedGroups = totalGroups - reported.Count,
+                AutoCloseReasons = GroupByReason(reportedGroups, gates),
+                Groups = reported.Select(entry => entry.Row).ToList()
             },
-            $"With a lag of {lag} day(s) after the period end, {totalGroups} group(s) with a derivable "
-            + "period have a close date. PreviousPeriod* is only present when the last ended period is still open "
-            + "(not sealed, holding work); PreviousPeriodCloseDue true means its close date has already been "
-            + "reached, so it is due for closing now. Individual groups have no derivable cycle and are not listed. "
-            + "LagStored says whether a lag is stored at all (without one periods are never closed automatically). "
-            + $"{AutoCloseConditions} Nothing is stored by this skill.");
+            $"With a lag of {lag} day(s) after the period end: one row per group in Groups. PreviousPeriod* is only "
+            + "present when the last ended period is still open (not sealed, holding work); PreviousPeriodCloseDue true "
+            + "means that close date has been reached, so the period is due now. OmittedGroups counts groups not listed. "
+            + $"LagStored says whether a lag is stored at all. {AutoCloseConditions} Nothing is stored by this skill.");
     }
+
+    /// <summary>
+    /// The rows in their order, as long as their serialized size fits MaxGroupRowsChars. The first row is always
+    /// kept, so a single very long group name cannot empty the answer.
+    /// </summary>
+    private static List<(Group Group, GroupCloseRow Row)> FitToBudget(IReadOnlyList<(Group Group, GroupCloseRow Row)> ordered)
+    {
+        var kept = new List<(Group Group, GroupCloseRow Row)>(ordered.Count);
+        var used = 0;
+        foreach (var entry in ordered)
+        {
+            var size = JsonSerializer.Serialize(entry.Row).Length + RowSeparatorChars;
+            if (kept.Count > 0 && used + size > MaxGroupRowsChars)
+            {
+                break;
+            }
+
+            kept.Add(entry);
+            used += size;
+        }
+
+        return kept;
+    }
+
+    private static List<ReasonGroups> GroupByReason(
+        IReadOnlyList<Group> groups, IReadOnlyDictionary<Guid, PeriodAutoCloseDecision> gates) =>
+        groups
+            .GroupBy(group => gates[group.Id].BlockedBy)
+            .OrderBy(reason => reason.Key)
+            .Select(reason => new ReasonGroups(
+                PeriodAutoCloseReasonTexts.For(reason.Key),
+                reason.Key == PeriodAutoCloseBlockedBy.None,
+                reason.Select(group => group.Name).OrderBy(name => name, StringComparer.Ordinal).ToList()))
+            .ToList();
 
     /// <summary>
     /// The staffed groups with a derivable cycle, capped at MaxReportedGroups: only those are reported, so the
@@ -247,13 +295,10 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
             group.Name,
             FormatDate(currentEnd),
             FormatDate(currentClose),
-            currentClose.DayNumber - today.DayNumber,
             previousOpen ? FormatDate(previousEnd) : null,
             previousOpen ? FormatDate(previousClose) : null,
-            previousOpen ? previousClose.DayNumber - today.DayNumber : null,
             previousOpen ? previousClose <= today : null,
-            gate.CanClose,
-            gate.BlockedBy.ToString());
+            gate.CanClose);
     }
 
     /// <summary>
@@ -274,17 +319,14 @@ public class GetPeriodCloseScheduleSkill : BaseSkillImplementation
 
     private static string FormatDate(DateOnly date) => date.ToString(IsoDateFormat, CultureInfo.InvariantCulture);
 
-    private sealed record GroupGateRow(string GroupName, bool AutoCloseAllowed, string AutoCloseBlockedBy);
+    private sealed record ReasonGroups(string Reason, bool ClosesAutomatically, IReadOnlyList<string> Groups);
 
     private sealed record GroupCloseRow(
         string GroupName,
         string CurrentPeriodEnd,
         string CurrentPeriodCloseDate,
-        int CurrentPeriodDaysUntilClose,
-        string? PreviousPeriodEnd,
-        string? PreviousPeriodCloseDate,
-        int? PreviousPeriodDaysUntilClose,
-        bool? PreviousPeriodCloseDue,
-        bool AutoCloseAllowed,
-        string AutoCloseBlockedBy);
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PreviousPeriodEnd,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? PreviousPeriodCloseDate,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PreviousPeriodCloseDue,
+        bool AutoCloseAllowed);
 }

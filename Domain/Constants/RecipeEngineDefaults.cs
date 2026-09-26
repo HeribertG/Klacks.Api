@@ -39,6 +39,22 @@ public static class RecipeEngineDefaults
         "confirms anything - storing is always a separate request the user makes afterwards.]\nStep note: ";
 
     /// <summary>
+    /// Heads the note of a WRITING recipe's final step when it is carried into the reply call of the same turn
+    /// (the step note itself follows). The note was written for the forced call of that step ("add ... now"),
+    /// so the prefix states that the step already ran and that the note only says what the reply must contain.
+    /// A further write in that reply is additionally rejected at execution time (ReadOnlyRecipeWriteGuard, whose
+    /// rejection text for this case is LLMLoopConstants.CompletedRecipeWriteRejectedResult), and the step's own
+    /// skill is rejected as a repeat anyway (RepeatedWriteCallGuard).
+    /// </summary>
+    public const string WritingRecipeCompletedNotePrefix =
+        "[RECIPE COMPLETE — the last step of this guided flow has ALREADY RUN; its result is in the function " +
+        "results above. This step is finished: the note below was written for that step's call and is repeated " +
+        "only so your reply contains what it asks for (for example relaying the verified result). Do not carry " +
+        "out its instructions again, do not call the step's skill again and call no other tool that stores, " +
+        "changes, closes or confirms anything - a follow-up change the note mentions needs the user's answer in " +
+        "a later message. Report only what the function results show.]\nStep note: ";
+
+    /// <summary>
     /// English floor of the nothing-stored notice (TurnClosingNotices.NothingStored); the shipped languages
     /// resolve GracefulCorrectionTexts.RecipeNothingStoredNotice instead.
     /// </summary>

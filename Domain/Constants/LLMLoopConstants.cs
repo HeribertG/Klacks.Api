@@ -39,6 +39,11 @@ public static class LLMLoopConstants
         "it and this action did NOT run. Answer from the flow's result and offer the action as a separate " +
         "request the user can send; never say that it was carried out.";
 
+    public const string CompletedRecipeWriteRejectedResult =
+        "Rejected: the last step of this guided flow has already run and its result is above, so nothing " +
+        "further may be stored, changed or confirmed in this turn and this action did NOT run. Reply to the " +
+        "user from that result now; any follow-up change needs the user's answer first.";
+
     public const string RepeatedWriteCallRejectedResult =
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";

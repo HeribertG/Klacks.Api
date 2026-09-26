@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Why a period that Klacksy was allowed to close on its own was NOT closed. Every value is reported as a
+/// Why a period that Klacksy was allowed - or, for AutonomyBelowFull and AdminAutonomyMissing, was meant by an
+/// armed period_auto_close rule - to close on its own was NOT closed. Every value is reported as a
 /// PeriodAutoCloseBlockedTriggerEvent and is part of its DedupKey, so each cause is told once per group and
 /// period instead of on every scan, and a later, different cause is not swallowed by an earlier one.
 /// </summary>
@@ -32,5 +33,17 @@ public enum PeriodAutoCloseBlockReason
     Failed = 6,
 
     /// <summary>The seal ran but the fresh read-back does not show every day of the period sealed.</summary>
-    NotVerified = 7
+    NotVerified = 7,
+
+    /// <summary>
+    /// The period_auto_close rule is armed (Execute), but the global level or the minimum over all admins is below
+    /// FullyAutonomous (or no usable admin exists).
+    /// </summary>
+    AutonomyBelowFull = 8,
+
+    /// <summary>The period_auto_close rule is armed, but at least one admin never stored an autonomy level.</summary>
+    AdminAutonomyMissing = 9,
+
+    /// <summary>This scan already attempted PeriodAutoClose.MaxClosesPerTick closes; the next scan tries again.</summary>
+    TickLimitReached = 10
 }

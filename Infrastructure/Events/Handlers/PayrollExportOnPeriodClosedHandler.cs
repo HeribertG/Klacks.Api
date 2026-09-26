@@ -7,6 +7,11 @@
 /// writing an ExportLog entry. Runs post-commit and non-blocking; a failure is logged and never affects
 /// the already-committed seal. Adding a country pack is purely additive: register a new
 /// IPayrollExportFormatter and point a group's PayrollExportGroupConfig.TargetSystem at its FormatKey.
+/// Order and failure handling: the artifact is uploaded under a deterministic key (group and period), then the
+/// ExportLog row is written. When writing the row fails, the uploaded artifact is deleted again (best effort) and
+/// the failure is rethrown to the event dispatcher, so no orphaned file claims an export that the idempotency guard
+/// (the ExportLog row) does not know; a later run uploads to the same key again. Live 2026-09-26 the row failed on
+/// every group seal because ExportLog.Format was limited to 16 characters (see ExportLogLimits).
 /// </summary>
 /// <param name="featurePluginService">Reads whether the country-pack subsystem is enabled (feature-plugin gate)</param>
 /// <param name="mediator">Loads the employee-centric, day-granular payroll data of the closed period</param>
@@ -172,24 +177,32 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             await _objectStorage.UploadAsync(storageKey, stream, cancellationToken);
         }
 
-        await _exportLogRepository.AddAsync(
-            new ExportLog
-            {
-                Format = config.TargetSystem,
-                StartDate = domainEvent.StartDate,
-                EndDate = domainEvent.EndDate,
-                GroupId = groupId,
-                Language = ExportLanguage,
-                FileName = fileName,
-                FileSize = result.Content.LongLength,
-                RecordCount = result.RecordCount,
-                ExportedAt = DateTime.UtcNow,
-                ExportedBy = domainEvent.SealedBy,
-                OverrideApplied = overrideApplied,
-            },
-            cancellationToken);
+        try
+        {
+            await _exportLogRepository.AddAsync(
+                new ExportLog
+                {
+                    Format = config.TargetSystem,
+                    StartDate = domainEvent.StartDate,
+                    EndDate = domainEvent.EndDate,
+                    GroupId = groupId,
+                    Language = ExportLanguage,
+                    FileName = fileName,
+                    FileSize = result.Content.LongLength,
+                    RecordCount = result.RecordCount,
+                    ExportedAt = DateTime.UtcNow,
+                    ExportedBy = domainEvent.SealedBy,
+                    OverrideApplied = overrideApplied,
+                },
+                cancellationToken);
 
-        await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            await DeleteOrphanedArtifactAsync(storageKey, groupId, domainEvent, ex);
+            throw;
+        }
 
         if (result.SkippedAbsenceCount > 0)
         {
@@ -210,6 +223,32 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             groupId,
             fileName,
             result.RecordCount);
+    }
+
+    private async Task DeleteOrphanedArtifactAsync(
+        string storageKey, Guid groupId, PeriodClosedEvent domainEvent, Exception logFailure)
+    {
+        _logger.LogError(
+            logFailure,
+            "Payroll-export pack '{Plugin}': writing the export log for period {Start}..{End} (group {GroupId}) failed; the uploaded artifact '{StorageKey}' is removed again. The seal itself is unaffected.",
+            FeaturePluginName,
+            domainEvent.StartDate,
+            domainEvent.EndDate,
+            groupId,
+            storageKey);
+
+        try
+        {
+            await _objectStorage.DeleteAsync(storageKey, CancellationToken.None);
+        }
+        catch (Exception deleteFailure)
+        {
+            _logger.LogError(
+                deleteFailure,
+                "Payroll-export pack '{Plugin}': the orphaned artifact '{StorageKey}' could not be removed; a later export of the period overwrites it.",
+                FeaturePluginName,
+                storageKey);
+        }
     }
 
     private async Task<bool> AlreadyExportedAsync(

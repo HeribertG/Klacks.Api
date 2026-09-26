@@ -62,8 +62,9 @@ public static class ProactiveGovernanceDtoMapper
 
     /// <summary>
     /// period_auto_close is not acted on by the dispatching tick but by its own chain (PeriodAutoCloseResolver /
-    /// PeriodAutoCloseService), which reads the rule's EffectiveMaxAction directly and seals only on Execute
-    /// with the global level at FullyAutonomous. Its effective level is therefore reported as that chain
+    /// PeriodAutoCloseService), which checks kill switch and Enabled, then the rule's configured MaxAction, and
+    /// seals only on Execute with the global level at FullyAutonomous - for this display the same as an
+    /// EffectiveMaxAction of Execute under that level. Its effective level is therefore reported as that chain
     /// obeys it - Execute exactly then, Hint otherwise (Prepare does nothing there) - and not through the
     /// remediation registry, which knows no entry for it and would always show Hint while closes run. The
     /// per-admin autonomy minimum is not part of this rule-level value. Every other kind, next_period_scheduling_due

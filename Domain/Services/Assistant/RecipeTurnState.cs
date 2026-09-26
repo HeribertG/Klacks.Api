@@ -101,21 +101,38 @@ internal sealed class RecipeTurnState
     internal bool ReadOnlyRecipeCompleted => Plan is { CompletedThisTurn: true, IsReadOnly: true };
 
     /// <summary>
-    /// The note that carries the final step's reply instructions into the reply call of a read-only recipe,
-    /// or null when no read-only recipe completed this turn. Mutating recipes are deliberately left out: their
-    /// final notes were never written for, nor verified in, a reply call.
+    /// True once any recipe (read-only or writing) executed its final step in this turn. A final step held by the
+    /// autonomy gate does not count: its call returns a confirmation, which is not a success, so the plan never
+    /// observes it as executed.
     /// </summary>
-    internal string? CompletionNote => ReadOnlyRecipeCompleted
-        ? RecipeEngineDefaults.ReadOnlyRecipeCompletedNotePrefix + Plan!.CompletionNote
-        : null;
+    internal bool RecipeCompleted => Plan is { CompletedThisTurn: true };
 
     /// <summary>
-    /// Rejects the side-effecting calls of an iteration that follows a completed read-only recipe and returns
-    /// the calls that may execute; see ReadOnlyRecipeWriteGuard.
+    /// The note that carries the final step's reply instructions into the reply call of the turn that completed
+    /// the recipe, or null when no recipe completed this turn. A read-only recipe gets a prefix saying that
+    /// nothing was stored; a writing recipe gets one saying that its last step already ran and the note only tells
+    /// the reply what to contain (its notes were written for the forced call - "add ... now" - and used to reach
+    /// the reply call never, so "relay the verified count" instructions were lost).
+    /// </summary>
+    internal string? CompletionNote => !RecipeCompleted
+        ? null
+        : (Plan!.IsReadOnly
+            ? RecipeEngineDefaults.ReadOnlyRecipeCompletedNotePrefix
+            : RecipeEngineDefaults.WritingRecipeCompletedNotePrefix) + Plan.CompletionNote;
+
+    /// <summary>
+    /// Rejects the side-effecting calls of an iteration that follows a completed recipe and returns the calls
+    /// that may execute; see ReadOnlyRecipeWriteGuard.
     /// </summary>
     /// <param name="executableCalls">The calls the repeat guard already let through.</param>
     internal List<LLMFunctionCall> RejectWrites(List<LLMFunctionCall> executableCalls) =>
-        ReadOnlyRecipeWriteGuard.Reject(executableCalls, ReadOnlyRecipeCompleted);
+        ReadOnlyRecipeWriteGuard.Reject(
+            executableCalls,
+            RecipeCompleted,
+            ReadOnlyRecipeCompleted
+                ? LLMLoopConstants.ReadOnlyRecipeWriteRejectedResult
+                : LLMLoopConstants.CompletedRecipeWriteRejectedResult,
+            _context.AvailableFunctions);
 
     /// <summary>
     /// Recipe forcing spine shared by both chat loops, so a hook can never land on only one path: while a

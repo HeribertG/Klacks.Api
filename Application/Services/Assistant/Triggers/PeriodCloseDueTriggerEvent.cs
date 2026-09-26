@@ -5,11 +5,14 @@
 /// is still open. The close date is the period end plus LagDays; without a stored lag LagDays is 0 and
 /// the close date is the period end. With a lag the message switches to PeriodCloseDueWithLag, which names
 /// the period end and the close date separately; without one the message and its parameters are exactly the
-/// ones from before the lag existed.
+/// ones from before the lag existed. With AutoCloseDate set (Klacksy will close this period on its own, see
+/// PeriodCloseDueDetector) the message switches to PeriodCloseDueAutoClose, which announces the automatic close on
+/// that day and how to prevent it; without it nothing changes.
 /// </summary>
 /// <param name="PeriodEndDate">Last day of the period; identifies the period and is where the action route opens</param>
 /// <param name="DaysUntilDue">Days from today to the close date</param>
 /// <param name="LagDays">Days after the period end on which the period is closed, 0 when no lag is stored</param>
+/// <param name="AutoCloseDate">First day Klacksy's automatic close may run; null when no automatic close is announced</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -22,7 +25,8 @@ public sealed record PeriodCloseDueTriggerEvent(
     string GroupName,
     DateOnly PeriodEndDate,
     int DaysUntilDue,
-    int LagDays = 0) : IAgentTriggerEvent
+    int LagDays = 0,
+    DateOnly? AutoCloseDate = null) : IAgentTriggerEvent
 {
     public DateOnly CloseDate => PeriodEndDate.AddDays(LagDays);
 
@@ -32,12 +36,25 @@ public sealed record PeriodCloseDueTriggerEvent(
         : AgentTriggerSeverity.Low;
     public bool PlannersOnly => true;
     public string Summary => ProactiveMessageMarkers.I18nPrefix
-        + (LagDays > 0 ? ProactiveMessageI18nKeys.PeriodCloseDueWithLag : ProactiveMessageI18nKeys.PeriodCloseDue);
+        + (AutoCloseDate != null ? ProactiveMessageI18nKeys.PeriodCloseDueAutoClose
+            : LagDays > 0 ? ProactiveMessageI18nKeys.PeriodCloseDueWithLag
+            : ProactiveMessageI18nKeys.PeriodCloseDue);
 
     public IReadOnlyDictionary<string, string> SummaryParams
     {
         get
         {
+            if (AutoCloseDate is { } autoCloseDate)
+            {
+                return new Dictionary<string, string>
+                {
+                    ["group"] = GroupName,
+                    ["periodEnd"] = PeriodEndDate.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
+                    ["date"] = autoCloseDate.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
+                    ["days"] = (DaysUntilDue + autoCloseDate.DayNumber - CloseDate.DayNumber).ToString(CultureInfo.InvariantCulture)
+                };
+            }
+
             var summaryParams = new Dictionary<string, string>
             {
                 ["group"] = GroupName,
@@ -85,6 +102,11 @@ public sealed record PeriodCloseDueTriggerEvent(
             {
                 payload["lagDays"] = LagDays;
                 payload["closeDate"] = CloseDate;
+            }
+
+            if (AutoCloseDate is { } autoCloseDate)
+            {
+                payload["autoCloseDate"] = autoCloseDate;
             }
 
             return payload;

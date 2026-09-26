@@ -16,6 +16,12 @@
 /// <param name="toolCallCount">Number of tool calls executed this turn.</param>
 /// <param name="recipePausedOnAsk">A recipe deliberately paused on an ask step.</param>
 /// <param name="isClarifyingResponse">The response is a clarifying question or a [REPLIES:] affordance.</param>
+/// <param name="deniesCompletion">
+/// The response states that nothing was done and claims nothing (ClaimNegationDetector.DeniesCompletion). Such an
+/// answer already says what the notice would say; appending "please repeat or confirm the request" to it misleads,
+/// typically after a yes/no question such as "Hast du etwas gespeichert?" that the intent detector took for a
+/// mutation request. Tool-call markup that never executed still gets the notice.
+/// </param>
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -28,11 +34,13 @@ public static class NoActionNoticePolicy
         bool claimsCompletion,
         int toolCallCount,
         bool recipePausedOnAsk,
-        bool isClarifyingResponse)
+        bool isClarifyingResponse,
+        bool deniesCompletion = false)
     {
         return (isMutationIntent || forceConfirmation || emittedTextToolCall || claimsCompletion)
             && toolCallCount == 0
             && !recipePausedOnAsk
-            && !isClarifyingResponse;
+            && !isClarifyingResponse
+            && !(deniesCompletion && !emittedTextToolCall);
     }
 }

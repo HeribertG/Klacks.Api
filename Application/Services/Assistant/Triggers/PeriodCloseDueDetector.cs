@@ -22,6 +22,18 @@
 /// only (a still-unplanned group counts as an active fingerprint, a sealed one never does). That is
 /// the safe direction — see IAgentConditionFingerprintSource's own summary for why a narrower set
 /// would be the dangerous one.
+///
+/// Announcement of the automatic close: for an emitted event whose group Klacksy will close on its own, the
+/// event carries the first day that close may run and switches to the PeriodCloseDueAutoClose message. That is
+/// claimed only when every precondition PeriodAutoCloseService checks up front holds as well: a lag is STORED
+/// (without one the service never closes, so the resolver is not even asked and the event stays byte-identical),
+/// IPeriodAutoCloseResolver allows the close for the group, the period does not end before the group's ValidFrom,
+/// and the group holds work on its OWN shifts (the service seals nothing else - a parent group whose work hangs on
+/// child groups would otherwise be promised a close that never happens). Not mirrored, and named in or left to
+/// the message instead: open errors on the day of the close (the text says "if it then contains no errors") and a
+/// reopen in the period's audit history (the service then leaves the period to a person; rare, not announced).
+/// A resolver failure only drops the announcement, never the reminder. The dedup key is unchanged, so arming or
+/// disarming during the warn window keeps the condition row and its fingerprint.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
@@ -30,6 +42,7 @@
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
 /// <param name="settingsReader">Reads the optional PERIOD_CLOSE_LAG_DAYS setting.</param>
+/// <param name="autoCloseResolver">Whether Klacksy will close the group's period on its own (announcement only).</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant;
@@ -54,6 +67,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly ILogger<PeriodCloseDueDetector> _logger;
     private readonly ICompanyClock _companyClock;
     private readonly ISettingsReader _settingsReader;
+    private readonly IPeriodAutoCloseResolver _autoCloseResolver;
 
     public PeriodCloseDueDetector(
         IGroupRepository groupRepository,
@@ -62,7 +76,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         IScheduleActivityProbe activityProbe,
         ILogger<PeriodCloseDueDetector> logger,
         ICompanyClock companyClock,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        IPeriodAutoCloseResolver autoCloseResolver)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
@@ -71,6 +86,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         _logger = logger;
         _companyClock = companyClock;
         _settingsReader = settingsReader;
+        _autoCloseResolver = autoCloseResolver;
     }
 
     public string Kind => AgentTriggerKinds.PeriodCloseDue;
@@ -81,6 +97,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
 
         var events = new List<IAgentTriggerEvent>();
         var skippedUnplanned = 0;
+        var announced = 0;
         foreach (var match in matches)
         {
             var periodStart = PeriodBoundaries.StartFor(match.Group.PaymentInterval, match.PeriodEnd);
@@ -90,19 +107,68 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
                 continue;
             }
 
+            var autoCloseDate = await ResolveAutoCloseDateAsync(match, periodStart, cancellationToken);
+            if (autoCloseDate != null)
+            {
+                announced++;
+            }
+
             events.Add(new PeriodCloseDueTriggerEvent(
                 match.Group.Id,
                 match.Group.Name,
                 match.PeriodEnd,
                 match.DaysUntilDue,
-                match.LagDays));
+                match.LagDays,
+                autoCloseDate));
         }
 
         _logger.LogInformation(
-            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted, {SkippedUnplanned} skipped because the period holds no work",
-            totalGroups, events.Count, skippedUnplanned);
+            "PeriodCloseDue scan: {Total} group(s) scanned, {Events} close-due events emitted ({Announced} announcing the automatic close), {SkippedUnplanned} skipped because the period holds no work",
+            totalGroups, events.Count, announced, skippedUnplanned);
 
         return events;
+    }
+
+    /// <summary>
+    /// The first day Klacksy's automatic close may run for this period, or null when the reminder must not
+    /// announce one (see the class summary for the preconditions mirrored from PeriodAutoCloseService).
+    /// </summary>
+    private async Task<DateOnly?> ResolveAutoCloseDateAsync(
+        GroupPeriodEndMatch match, DateOnly periodStart, CancellationToken cancellationToken)
+    {
+        if (match.StoredLagDays is not { } storedLag
+            || match.PeriodEnd < DateOnly.FromDateTime(match.Group.ValidFrom))
+        {
+            return null;
+        }
+
+        try
+        {
+            var decision = await _autoCloseResolver.ResolveAsync(match.Group.Id, cancellationToken);
+            if (decision is not { CanClose: true })
+            {
+                return null;
+            }
+
+            if (!await _activityProbe.HasDirectWorkInRangeAsync(match.Group, periodStart, match.PeriodEnd, cancellationToken))
+            {
+                return null;
+            }
+
+            return PeriodCloseDateCalculator.FirstAutoCloseDay(match.PeriodEnd, storedLag);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "PeriodCloseDue: resolving the automatic close for group {GroupName} failed; the reminder does not announce it",
+                match.Group.Name);
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -143,7 +209,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
             return (0, Array.Empty<GroupPeriodEndMatch>());
         }
 
-        var lagDays = await PeriodCloseLagReader.ReadAsync(_settingsReader) ?? 0;
+        var storedLagDays = await PeriodCloseLagReader.ReadAsync(_settingsReader);
+        var lagDays = storedLagDays ?? 0;
         var referenceDay = today.AddDays(-lagDays);
         var weekStart = await _weekConfiguration.GetWeekStartAsync(referenceDay, cancellationToken);
         var endOfConfiguredWeek = weekStart.AddDays(6);
@@ -164,7 +231,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
             var existingSeals = await _sealedDayRepository.GetRangeAsync(periodEnd, periodEnd, group.Id, cancellationToken);
             if (existingSeals.Count > 0) continue;
 
-            matches.Add(new GroupPeriodEndMatch(group, periodEnd, daysUntil, lagDays));
+            matches.Add(new GroupPeriodEndMatch(group, periodEnd, daysUntil, lagDays, storedLagDays));
         }
 
         return (groups.Count, matches);
@@ -172,9 +239,11 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
 
     /// <summary>
     /// One group whose close date falls inside the warn window and whose period is not yet sealed, before
-    /// the activity check that only DetectAsync applies. DaysUntilDue counts to the close date.
+    /// the activity check that only DetectAsync applies. DaysUntilDue counts to the close date. StoredLagDays is
+    /// null when no lag is stored (LagDays is 0 then).
     /// </summary>
-    private sealed record GroupPeriodEndMatch(Group Group, DateOnly PeriodEnd, int DaysUntilDue, int LagDays);
+    private sealed record GroupPeriodEndMatch(
+        Group Group, DateOnly PeriodEnd, int DaysUntilDue, int LagDays, int? StoredLagDays);
 
     private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly endOfConfiguredWeek)
     {

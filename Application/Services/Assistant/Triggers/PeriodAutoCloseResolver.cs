@@ -5,7 +5,7 @@
 /// is not cleanly reversible and fires the payroll export. ALL of the following must hold, otherwise the
 /// decision is blocked with the strongest brake:
 /// the global kill switch is off; the governance rule of period_auto_close (the group's own rule when one
-/// exists, otherwise the installation-wide one) is enabled and its effective MaxAction is Execute; the raw
+/// exists, otherwise the installation-wide one) is enabled and its configured MaxAction is Execute; the raw
 /// installation-wide proactive autonomy level is FullyAutonomous; and the minimum autonomy level over all
 /// admins is FullyAutonomous, with a usable deciding admin id.
 ///
@@ -23,6 +23,13 @@
 /// stored autonomy row BLOCK the aggregation (AdminAutonomyMissingPreferencePolicy.Block, the unattended
 /// precedent of GoalPlanExecutionService) instead of counting as the shared default - nobody consented to a
 /// default.
+///
+/// The rule check reads the CONFIGURED MaxAction, not the effective one: the effective value is already capped
+/// by the global level, so a rule an administrator raised to Execute under a global level below Autonomous used
+/// to be reported as MaxAction ("rule not armed") instead of GlobalLevel. The distinction matters because an
+/// armed rule blocked only by an autonomy level is reported to the planners (PeriodAutoCloseService), while a
+/// rule that is not armed stays silent. CanClose is unaffected: kill switch and a disabled rule are checked
+/// before, and the global level still has to be exactly FullyAutonomous, whose cap is Execute.
 /// </summary>
 /// <param name="adminAutonomy">Minimum autonomy level over all admin users and the admin who holds it.</param>
 /// <param name="governanceResolver">Kill switch, global level and the period_auto_close governance rule.</param>
@@ -85,7 +92,7 @@ public sealed class PeriodAutoCloseResolver : IPeriodAutoCloseResolver
             return PeriodAutoCloseBlockedBy.KindDisabled;
         }
 
-        if (governance.EffectiveMaxAction < RequiredAction)
+        if (governance.ConfiguredMaxAction < RequiredAction)
         {
             return PeriodAutoCloseBlockedBy.MaxAction;
         }
