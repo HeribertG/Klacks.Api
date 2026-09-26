@@ -27,6 +27,13 @@ public class LLMFunctionCall
     /// skip, last-error notice) and the record of what the turn executed must exclude it.
     /// </summary>
     public bool SkippedByStop { get; set; }
+
+    /// <summary>
+    /// True when the skill's result was a navigation: the server only worked out where to go, and the page is
+    /// opened by the client once it receives the metadata event. Such a call changed nothing on the server, so
+    /// the record of what a stopped turn did leaves it out.
+    /// </summary>
+    public bool IsNavigation { get; set; }
     public string? UiActionSteps { get; set; }
     public Guid? UiActionTrackingId { get; set; }
     public LLMFunctionResultKind ResultKind { get; set; }

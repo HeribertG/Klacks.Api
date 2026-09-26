@@ -308,6 +308,7 @@ public class LLMFunctionExecutor
         }
 
         call.Success = result.Success;
+        call.IsNavigation = result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation);
         if (!string.IsNullOrEmpty(result.ConfirmationToken))
         {
             _turnScope.MarkIssued(result.ConfirmationToken);

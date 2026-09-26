@@ -469,7 +469,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             Description = skill.Description,
             Parameters = parameters,
             RequiredParameters = requiredParameters,
-            Labels = skill.Labels
+            Labels = skill.Labels,
+            Effect = skill.Effect
         };
 
         if (provenance != null && provenance.TryGetValue(skill.Name, out var skillProvenance))

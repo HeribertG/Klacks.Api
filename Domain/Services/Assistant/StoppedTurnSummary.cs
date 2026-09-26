@@ -5,13 +5,16 @@
 /// purpose. The calls that RAN are those the server finished: not skipped by the stop, not rejected as a repeat
 /// and not handed to the browser (UI actions and UI passthrough calls only run once the client received the
 /// metadata event, which a stopped turn never sends). What the client is TOLD is narrower: only successful,
-/// non-repeatable server actions - the writes - because "nothing was executed" means "nothing was changed",
-/// and a held confirmation or a plain lookup changed nothing. Labels are resolved in the user's language
+/// non-repeatable server actions that change data - skills whose effect is Mutate - because "nothing was
+/// executed" means "nothing was changed". A held confirmation, a lookup, an explanation, advice and a
+/// navigation (the server only names the route, the client opens the page) changed nothing and are never
+/// named: the user is not told about internals he cannot judge. Labels are resolved in the user's language
 /// without any fallback; an action without a label in that language is not named but still counted, so the
-/// client can tell "nothing ran" from "something ran that I cannot name".
+/// client can tell "nothing ran" from "something ran that I cannot name". Labels and count come from the same
+/// list, so the client's "something ran that I cannot name" reading never fires for a call left out here.
 /// </summary>
-/// <param name="Labels">User-facing labels of the write actions that ran, one per skill, in call order</param>
-/// <param name="ExecutedCount">Number of distinct write skills that ran, labelled or not</param>
+/// <param name="Labels">User-facing labels of the data changes that ran, one per skill, in call order</param>
+/// <param name="ExecutedCount">Number of distinct data-changing skills that ran, labelled or not</param>
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
@@ -51,15 +54,16 @@ public sealed record StoppedTurnSummary(IReadOnlyList<string> Labels, int Execut
             : streamedContent + "\n" + marker;
 
     /// <summary>
-    /// Builds the summary of the write actions a stopped turn ran. Its count is also what tells a turn that
+    /// Builds the summary of the data changes a stopped turn ran. Its count is also what tells a turn that
     /// changed something from one that did not.
     /// </summary>
-    /// <param name="context">The turn context; its language and toolset resolve the labels</param>
+    /// <param name="context">The turn context; its language and toolset resolve the labels and the effects</param>
     /// <param name="calls">Every call of the turn</param>
     public static StoppedTurnSummary From(LLMContext? context, IEnumerable<LLMFunctionCall> calls)
     {
         var writes = ExecutedCalls(calls)
-            .Where(call => call.Success && !call.RequiresConfirmation && !RepeatedWriteCallGuard.IsRepeatable(call))
+            .Where(call => call.Success && !call.RequiresConfirmation && !call.IsNavigation
+                && !RepeatedWriteCallGuard.IsRepeatable(call) && ChangesData(context, call.FunctionName))
             .GroupBy(call => call.FunctionName, StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First())
             .ToList();
@@ -75,8 +79,13 @@ public sealed record StoppedTurnSummary(IReadOnlyList<string> Labels, int Execut
         return new StoppedTurnSummary(labels, writes.Count);
     }
 
+    private static bool ChangesData(LLMContext? context, string functionName) =>
+        (FunctionOf(context, functionName)?.Effect ?? SkillEffect.Mutate) == SkillEffect.Mutate;
+
     private static IReadOnlyDictionary<string, string>? LabelsOf(LLMContext? context, string functionName) =>
+        FunctionOf(context, functionName)?.Labels;
+
+    private static LLMFunction? FunctionOf(LLMContext? context, string functionName) =>
         context?.AvailableFunctions?
-            .FirstOrDefault(function => string.Equals(function.Name, functionName, StringComparison.OrdinalIgnoreCase))?
-            .Labels;
+            .FirstOrDefault(function => string.Equals(function.Name, functionName, StringComparison.OrdinalIgnoreCase));
 }

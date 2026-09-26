@@ -42,4 +42,12 @@ public class LLMFunction
     /// </summary>
     [JsonIgnore]
     public IReadOnlyDictionary<string, string>? Labels { get; set; }
+
+    /// <summary>
+    /// The skill's effect taxonomy value, copied from AgentSkill by the toolset assembler. Never part of the
+    /// provider payload. Read by the stopped-turn summary alone, which names only Mutate skills to the user;
+    /// null (a function that did not come from the assembler) is treated as Mutate, the fail-closed default.
+    /// </summary>
+    [JsonIgnore]
+    public SkillEffect? Effect { get; set; }
 }
