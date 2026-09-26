@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.PeriodClosing;
+using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -14,9 +15,11 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 
 /// <summary>
 /// Handler for unsealing a period by group, or the entire period when no group is specified.
-/// A non-empty reason is mandatory for every reopen operation.
+/// A non-empty reason is mandatory for every reopen operation. Each reopened work and break entry goes back to
+/// the lock level it had before the period seal (Confirmed and Approved survive a close/reopen); entries sealed
+/// before that level was recorded reopen to None. The result reports which is which.
 /// </summary>
-public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ReopenPeriodByGroupCommand, int>
+public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ReopenPeriodByGroupCommand, PeriodReopenResult>
 {
     private readonly IWorkRepository _workRepository;
     private readonly IBreakRepository _breakRepository;
@@ -51,7 +54,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
     /// Validates the request, checks permissions, performs the unseal operation, and writes the audit log entry.
     /// </summary>
     /// <param name="request">Contains StartDate, EndDate, optional GroupId and mandatory Reason</param>
-    public async Task<int> Handle(ReopenPeriodByGroupCommand request, CancellationToken cancellationToken)
+    public async Task<PeriodReopenResult> Handle(ReopenPeriodByGroupCommand request, CancellationToken cancellationToken)
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
@@ -70,24 +73,31 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? AuditActorDefaults.UnknownActor;
 
-            int workCount;
-            int breakCount;
+            PeriodUnsealCounts workCounts;
+            PeriodUnsealCounts breakCounts;
 
             if (request.GroupId.HasValue)
             {
-                workCount = await _workRepository.UnsealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, cancellationToken);
-                breakCount = await _breakRepository.UnsealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, cancellationToken);
+                workCounts = await _workRepository.UnsealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, cancellationToken);
+                breakCounts = await _breakRepository.UnsealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, cancellationToken);
             }
             else
             {
-                workCount = await _workRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
-                breakCount = await _breakRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
+                workCounts = await _workRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
+                breakCounts = await _breakRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
             }
 
             var sealedDayCount = await _sealedDayRepository.SoftDeleteRangeAsync(
                 request.StartDate, request.EndDate, request.GroupId, userName, cancellationToken);
 
-            var total = workCount + breakCount + sealedDayCount;
+            var entries = workCounts + breakCounts;
+            var total = entries.Total + sealedDayCount;
+
+            _logger.LogInformation(
+                "Reopened period {Start}..{End} (group {GroupId}): {Confirmed} entries back to Confirmed, {Approved} to Approved, " +
+                "{None} to None, {WithoutRecord} without recorded pre-seal level reopened to None, {SealedDays} day locks lifted",
+                request.StartDate, request.EndDate, request.GroupId, entries.RestoredConfirmed, entries.RestoredApproved,
+                entries.RestoredNone, entries.WithoutRecordedLevel, sealedDayCount);
 
             await _auditLogRepository.AddAsync(
                 PeriodAuditLog.For(
@@ -101,7 +111,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
                     _userService.GetDisplayName()),
                 cancellationToken);
 
-            return total;
+            return new PeriodReopenResult(total, sealedDayCount, entries);
         },
         "reopening period (group-aware)",
         new { request.StartDate, request.EndDate, request.GroupId });

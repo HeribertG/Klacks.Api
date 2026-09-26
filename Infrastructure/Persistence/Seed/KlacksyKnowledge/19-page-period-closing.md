@@ -280,8 +280,13 @@ Anker der Unter-Tabs (`...-tab-single`, `...-tab-employee`, `...-tab-range`) sin
   übersprungen; verbindlich wird die Sperre erst beim Übernehmen ins echte Schedule. Auch die
   Problemliste berücksichtigt nur reale Planungs-Notizen (keine Szenario-Notizen).
 - **Entsiegeln**: verlangt zwingend eine Begründung (das Backend lehnt ohne Begründung ab),
-  setzt die Sperrstufe der Dienst- und Pausen-Einträge auf die unterste Stufe zurück und löscht die Tagessiegel (sie wandern in den
-  Papierkorb); auch dies schreibt einen Protokoll-Eintrag (Wieder geöffnet) mit der Begründung.
+  setzt jeden Dienst- und Pausen-Eintrag auf die Sperrstufe zurück, die er VOR dem Versiegeln hatte
+  (Bestätigt bleibt Bestätigt, Freigegeben bleibt Freigegeben, offene Einträge werden wieder offen) und
+  löscht die Tagessiegel (sie wandern in den Papierkorb); auch dies schreibt einen Protokoll-Eintrag
+  (Wieder geöffnet) mit der Begründung. Ausnahme: Einträge, die schon vor Einführung dieser Speicherung
+  versiegelt wurden, haben keinen gespeicherten Vorzustand und werden offen (unterste Stufe) — eine
+  frühere Bestätigung/Freigabe ist bei ihnen verloren. Klacksy nennt nach dem Wiederöffnen, wie viele
+  Einträge auf welche Stufe zurückgingen.
   Bereits erzeugte Exporte bleiben im Export-Protokoll erhalten — ein erneuter Export nach
   Korrekturen kann anderen Inhalt haben; das System warnt davor nicht automatisch.
 - **Berechtigungen**: Versiegeln auf Stufe Closed und Entsiegeln von Closed kann **nur die
@@ -368,7 +373,8 @@ her, und bei einer Gruppe mit Lohn-/ERP-Übergabe löst der Abschluss den Export
 - Ist die Periode versiegelt? Wie viele Tage offen? → Badge-Zeile; per Chat:
   `get_period_status` (versiegelt/teilweise/offen/leer, nennt offene Tage).
 - Periode wieder öffnen → Skill `reopen_period` (Begründung PFLICHT, landet im Protokoll;
-  warnt, dass bestehende Exporte danach nicht mehr stimmen); Tage freigeben/Freigabe
+  meldet, wie viele Einträge auf Bestätigt/Freigegeben/offen zurückgingen und wie viele ohne
+  gespeicherten Vorzustand offen wurden; warnt, dass bestehende Exporte danach nicht mehr stimmen); Tage freigeben/Freigabe
   zurücknehmen vor dem Abschluss: `approve_day` / `revoke_day_approval`.
 - Leistungsnachweis für einen Kunden exportieren → Bestellung suchen, Format wählen,
   **Exportieren** — Skills: `list_sealed_orders`, `open_order_export`.

@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Re-opens a sealed billing period — the same group-aware path as the period-closing page:
-/// drops the LockLevel back to editable, removes the SealedDay day locks and writes the
+/// puts each sealed entry back to the LockLevel it had before the close (entries sealed before
+/// that level was recorded go to None), removes the SealedDay day locks and writes the
 /// period audit log with the MANDATORY reason (as the UI enforces). The group can be
 /// addressed by UUID or by name; without a group the unseal is global. Warns that existing
 /// payroll exports of the period may no longer match after the re-open. Verified by
@@ -19,6 +20,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -72,7 +74,7 @@ public class ReopenPeriodSkill : BaseSkillImplementation
             return SkillResult.Error(groupError);
         }
 
-        var count = await _mediator.Send(
+        var result = await _mediator.Send(
             new ReopenPeriodByGroupCommand(startDate, endDate, groupId, reason.Trim()), cancellationToken);
 
         var days = await _mediator.Send(
@@ -86,6 +88,7 @@ public class ReopenPeriodSkill : BaseSkillImplementation
         }
 
         var scopeLabel = groupId.HasValue ? $"group '{groupName}'" : "ALL groups (global)";
+        var entries = result.Entries;
 
         return SkillResult.SuccessResult(
             new
@@ -95,10 +98,36 @@ public class ReopenPeriodSkill : BaseSkillImplementation
                 GroupId = groupId,
                 GroupName = groupName,
                 Reason = reason,
-                AffectedItems = count
+                AffectedItems = result.AffectedCount,
+                ReopenedEntries = entries.Total,
+                RestoredConfirmed = entries.RestoredConfirmed,
+                RestoredApproved = entries.RestoredApproved,
+                OpenAgain = entries.RestoredNone,
+                WithoutRecordedLevel = entries.WithoutRecordedLevel,
+                LiftedDayLocks = result.SealedDayCount
             },
-            $"Re-opened period {startDate}..{endDate} for {scopeLabel}: {count} item(s) editable again, day locks " +
-            "removed and confirmed in the database (verified). Note: payroll exports already created for this " +
+            $"Re-opened period {startDate}..{endDate} for {scopeLabel}: day locks removed and confirmed in the " +
+            $"database (verified). {DescribeEntries(entries)}Note: payroll exports already created for this " +
             "period may no longer match — re-seal after the correction.");
+    }
+
+    /// <summary>
+    /// States what the reopen did with the sealed entries, so the answer never claims more than happened:
+    /// restored Confirmed/Approved entries stay locked at that level, and entries without a recorded level
+    /// lost whatever confirmation or approval they had before the close.
+    /// </summary>
+    private static string DescribeEntries(PeriodUnsealCounts entries)
+    {
+        var text = $"{entries.Total} work/break entry(ies) reopened: {entries.RestoredConfirmed} back to Confirmed and " +
+            $"{entries.RestoredApproved} back to Approved as they were before the close (they stay locked at that level), " +
+            $"{entries.RestoredNone} open again. ";
+
+        if (entries.WithoutRecordedLevel > 0)
+        {
+            text += $"{entries.WithoutRecordedLevel} entry(ies) were sealed before the pre-close state was recorded and " +
+                "are now open (None): a confirmation or approval they may have had before the close is NOT restored. ";
+        }
+
+        return text;
     }
 }

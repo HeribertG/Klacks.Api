@@ -36,8 +36,8 @@ public class PeriodClosingController : BaseController
     [HttpPost("Unseal")]
     public async Task<ActionResult<int>> Unseal([FromBody] ReopenPeriodByGroupCommand command)
     {
-        var affected = await _mediator.Send(command);
-        return Ok(affected);
+        var result = await _mediator.Send(command);
+        return Ok(result.AffectedCount);
     }
 
     [HttpGet("SealedPeriods")]

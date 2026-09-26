@@ -46,8 +46,14 @@ public static class InverseSkillRegistry
             ["unconfirm_work"] = new("confirm_work", "Same workId."),
             ["approve_day"] = new("revoke_day_approval", "Same date + groupId."),
             ["revoke_day_approval"] = new("approve_day", "Same date + groupId."),
-            ["close_period"] = new("reopen_period", "Same startDate + endDate."),
-            ["reopen_period"] = new("close_period", "Same startDate + endDate."),
+            ["close_period"] = new(
+                "reopen_period",
+                "Same startDate, endDate and group (groupId or groupName); a reason is required. Restores the " +
+                "recorded Confirmed/Approved levels, but not a payroll export the close already started."),
+            ["reopen_period"] = new(
+                "close_period",
+                "Same startDate, endDate and group (groupId or groupName). The automatic payroll export does not run " +
+                "again for a range it already handed over."),
             ["accept_scenario"] = new(ManualMarker, "Accepting merges scenario into main; rollback is manual or requires a fresh scenario producer."),
             ["reject_scenario"] = new(ManualMarker, "Rejected scenarios cannot be revived — the data is soft-deleted."),
             ["add_client_to_group"] = new(ManualMarker, "remove_client_from_group skill TODO."),

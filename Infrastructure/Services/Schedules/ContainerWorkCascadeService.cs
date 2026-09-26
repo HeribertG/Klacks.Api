@@ -136,20 +136,30 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
 
         foreach (var work in childWorks)
         {
-            work.LockLevel = lockLevel;
-            work.SealedAt = sealedAt;
-            work.SealedBy = resolvedSealedBy;
+            ApplyLockLevel(work, lockLevel, sealedAt, resolvedSealedBy);
         }
 
         foreach (var breakEntry in childBreaks)
         {
-            breakEntry.LockLevel = lockLevel;
-            breakEntry.SealedAt = sealedAt;
-            breakEntry.SealedBy = resolvedSealedBy;
+            ApplyLockLevel(breakEntry, lockLevel, sealedAt, resolvedSealedBy);
         }
 
         _logger.LogDebug(
             "Updated lock level to {LockLevel} on {WorkCount} child works and {BreakCount} child breaks for parentWorkId={ParentWorkId}",
             lockLevel, childWorks.Count, childBreaks.Count, parentWorkId);
+    }
+
+    /// <summary>
+    /// Mirrors the parent's single-entry lock change onto a child. Like WorkLockLevelService it drops the
+    /// pre-seal state a period seal recorded, because that state no longer describes the entry.
+    /// </summary>
+    private static void ApplyLockLevel(ScheduleEntryBase entry, WorkLockLevel lockLevel, DateTime? sealedAt, string? sealedBy)
+    {
+        entry.LockLevel = lockLevel;
+        entry.SealedAt = sealedAt;
+        entry.SealedBy = sealedBy;
+        entry.PreSealLockLevel = null;
+        entry.PreSealSealedAt = null;
+        entry.PreSealSealedBy = null;
     }
 }

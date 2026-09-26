@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "Công việc bị loại bỏ khi nhập dữ liệu",
   "setting.proactiveGovernance.load-failed": "Không thể tải phạm vi hành động.",
   "setting.proactiveGovernance.loading": "Đang tải phạm vi hành động …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "Thay vào đó, quy tắc này áp dụng giới hạn cố định là {{limit}} lần tự động đóng kỳ mỗi lượt chạy.",
   "setting.proactiveGovernance.maxAction-0": "Chỉ báo cáo",
   "setting.proactiveGovernance.maxAction-1": "Chuẩn bị kịch bản",
   "setting.proactiveGovernance.maxAction-2": "Thực hiện",

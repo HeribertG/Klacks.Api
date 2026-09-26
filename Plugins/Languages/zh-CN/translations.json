@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "被导入移除的工作",
   "setting.proactiveGovernance.load-failed": "无法加载自主行动范围。",
   "setting.proactiveGovernance.loading": "正在加载自主行动范围 …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "此规则改为适用固定上限：每次运行最多 {{limit}} 次自动结算。",
   "setting.proactiveGovernance.maxAction-0": "仅通知",
   "setting.proactiveGovernance.maxAction-1": "准备场景",
   "setting.proactiveGovernance.maxAction-2": "执行",

@@ -32,5 +32,15 @@ public class ProactiveGovernanceRuleDto
 
     public int WindowMinutes { get; set; }
 
+    /// <summary>
+    /// False when this kind's action path ignores DailyActionBudget, WindowActionLimit and WindowMinutes, so
+    /// the settings card must not present them as effective. Comes from ProactiveGovernanceDefaults, not from
+    /// the stored rule.
+    /// </summary>
+    public bool BudgetApplies { get; set; } = true;
+
+    /// <summary>The fixed per-run cap that replaces the budget fields when BudgetApplies is false, otherwise null.</summary>
+    public int? FixedRunLimit { get; set; }
+
     public bool IsStored { get; set; }
 }

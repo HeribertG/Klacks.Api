@@ -85,48 +85,37 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
                 .SetProperty(b => b.SealedBy, (string?)null), cancellationToken);
     }
 
-    public async Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    public Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Break
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.LockLevel < level)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(b => b.LockLevel, level)
-                .SetProperty(b => b.SealedAt, DateTime.UtcNow)
-                .SetProperty(b => b.SealedBy, sealedBy), cancellationToken);
+        return PeriodSealUpdates.SealAsync(MainScheduleBreaksIn(startDate, endDate), level, sealedBy, cancellationToken);
     }
 
-    public async Task<int> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
+    public Task<PeriodUnsealCounts> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return await _context.Break
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.LockLevel == level)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(b => b.LockLevel, WorkLockLevel.None)
-                .SetProperty(b => b.SealedAt, (DateTime?)null)
-                .SetProperty(b => b.SealedBy, (string?)null), cancellationToken);
+        return PeriodSealUpdates.UnsealAsync(MainScheduleBreaksIn(startDate, endDate), level, cancellationToken);
     }
 
-    public async Task<int> SealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
+    public Task<int> SealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        return await _context.Break
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.LockLevel < level)
+        return PeriodSealUpdates.SealAsync(GroupBreaksIn(startDate, endDate, groupId), level, sealedBy, cancellationToken);
+    }
+
+    public Task<PeriodUnsealCounts> UnsealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
+    {
+        return PeriodSealUpdates.UnsealAsync(GroupBreaksIn(startDate, endDate, groupId), level, cancellationToken);
+    }
+
+    private IQueryable<Break> MainScheduleBreaksIn(DateOnly startDate, DateOnly endDate)
+    {
+        return _context.Break
+            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate >= startDate && b.CurrentDate <= endDate);
+    }
+
+    private IQueryable<Break> GroupBreaksIn(DateOnly startDate, DateOnly endDate, Guid groupId)
+    {
+        return MainScheduleBreaksIn(startDate, endDate)
             .Where(b => _context.Work.Any(w => !w.IsDeleted && w.ClientId == b.ClientId && w.CurrentDate == b.CurrentDate
-                && _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted)))
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(b => b.LockLevel, level)
-                .SetProperty(b => b.SealedAt, DateTime.UtcNow)
-                .SetProperty(b => b.SealedBy, sealedBy), cancellationToken);
-    }
-
-    public async Task<int> UnsealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
-    {
-        return await _context.Break
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate >= startDate && b.CurrentDate <= endDate && b.LockLevel == level)
-            .Where(b => _context.Work.Any(w => !w.IsDeleted && w.ClientId == b.ClientId && w.CurrentDate == b.CurrentDate
-                && _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted)))
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(b => b.LockLevel, WorkLockLevel.None)
-                .SetProperty(b => b.SealedAt, (DateTime?)null)
-                .SetProperty(b => b.SealedBy, (string?)null), cancellationToken);
+                && _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted)));
     }
 
     public async Task<List<(DateOnly Date, int Total, int Sealed)>> GetSealingSummaryAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default)

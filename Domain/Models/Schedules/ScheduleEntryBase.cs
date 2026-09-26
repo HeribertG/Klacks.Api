@@ -32,5 +32,21 @@ public abstract class ScheduleEntryBase : BaseEntity
 
     public string? SealedBy { get; set; }
 
+    /// <summary>
+    /// Lock level the entry had right before a period seal raised it to Closed; the period unseal writes it
+    /// back. Null means no seal state was recorded (entries sealed before the column existed, or never
+    /// period-sealed) and the unseal falls back to None.
+    /// </summary>
+    [JsonIgnore]
+    public WorkLockLevel? PreSealLockLevel { get; set; }
+
+    /// <summary>SealedAt as it was right before the period seal; restored by the period unseal.</summary>
+    [JsonIgnore]
+    public DateTime? PreSealSealedAt { get; set; }
+
+    /// <summary>SealedBy as it was right before the period seal; restored by the period unseal.</summary>
+    [JsonIgnore]
+    public string? PreSealSealedBy { get; set; }
+
     public Guid? AnalyseToken { get; set; }
 }

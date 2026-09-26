@@ -13971,7 +13971,7 @@
     {
       "name": "reopen_period",
       "area": "period",
-      "description": "Re-opens a sealed payment period the same way the period-closing page does: unlocks the works/breaks, removes the SealedDay day locks and writes the period audit log with the MANDATORY reason. Optionally group-scoped (UUID or name); without a group the unseal is global. Warns that payroll exports already created for the period may no longer match. Verified against the day-lock state.",
+      "description": "Re-opens a sealed payment period the same way the period-closing page does: restores the works/breaks to their pre-close lock level (Confirmed/Approved kept, unrecorded ones open), removes the SealedDay day locks and writes the period audit log with the MANDATORY reason. Optionally group-scoped (UUID or name); without a group the unseal is global. Warns that payroll exports already created for the period may no longer match. Verified against the day-lock state.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [

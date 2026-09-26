@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "Praca usunięta przez import",
   "setting.proactiveGovernance.load-failed": "Nie udało się wczytać zakresu działania.",
   "setting.proactiveGovernance.loading": "Wczytywanie zakresu działania …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "Dla tej reguły obowiązuje zamiast tego stały limit {{limit}} automatycznych zamknięć na przebieg.",
   "setting.proactiveGovernance.maxAction-0": "Tylko zgłoszenie",
   "setting.proactiveGovernance.maxAction-1": "Przygotowanie scenariusza",
   "setting.proactiveGovernance.maxAction-2": "Wykonanie",

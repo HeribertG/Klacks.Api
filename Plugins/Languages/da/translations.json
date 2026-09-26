@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "Arbejde fjernet af importen",
   "setting.proactiveGovernance.load-failed": "Handlerummet kunne ikke indlæses.",
   "setting.proactiveGovernance.loading": "Handlerummet indlæses …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "For denne regel gælder i stedet en fast grænse på {{limit}} automatiske afslutninger pr. kørsel.",
   "setting.proactiveGovernance.maxAction-0": "Kun rapportere",
   "setting.proactiveGovernance.maxAction-1": "Klargøre scenarie",
   "setting.proactiveGovernance.maxAction-2": "Udføre",

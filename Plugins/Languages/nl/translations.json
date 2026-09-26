@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "Door de import verwijderd werk",
   "setting.proactiveGovernance.load-failed": "De handelingsruimte kon niet worden geladen.",
   "setting.proactiveGovernance.loading": "Handelingsruimte wordt geladen …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "Voor deze regel geldt in plaats daarvan een vaste bovengrens van {{limit}} automatische afsluitingen per run.",
   "setting.proactiveGovernance.maxAction-0": "Alleen melden",
   "setting.proactiveGovernance.maxAction-1": "Scenario voorbereiden",
   "setting.proactiveGovernance.maxAction-2": "Uitvoeren",

@@ -40,10 +40,10 @@ public class ReopenPeriodCommandHandler : BaseHandler, IRequestHandler<ReopenPer
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to reopen periods.");
 
-            var workCount = await _workRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
-            var breakCount = await _breakRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
+            var workCounts = await _workRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
+            var breakCounts = await _breakRepository.UnsealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, cancellationToken);
 
-            return workCount + breakCount;
+            return workCounts.Total + breakCounts.Total;
         },
         "reopening period",
         new { request.StartDate, request.EndDate });

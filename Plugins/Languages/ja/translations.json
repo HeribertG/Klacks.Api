@@ -2539,6 +2539,7 @@
   "setting.proactiveGovernance.kind.work_dropped_by_erp_import": "インポートで削除された作業",
   "setting.proactiveGovernance.load-failed": "裁量範囲を読み込めませんでした。",
   "setting.proactiveGovernance.loading": "裁量範囲を読み込んでいます …",
+  "setting.proactiveGovernance.fixed-run-limit-note": "このルールには、代わりに1回の実行あたり{{limit}}件の自動締めという固定の上限が適用されます。",
   "setting.proactiveGovernance.maxAction-0": "通知のみ",
   "setting.proactiveGovernance.maxAction-1": "シナリオを準備",
   "setting.proactiveGovernance.maxAction-2": "実行",

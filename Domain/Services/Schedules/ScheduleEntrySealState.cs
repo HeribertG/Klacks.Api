@@ -1,10 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Carries the server-owned seal state (LockLevel / SealedAt / SealedBy) of a schedule entry from the
-/// persisted row onto an entity rebuilt from a client resource. ScheduleMapper deliberately does not map
-/// these three fields, so a mapped entity carries the enum default; since the repositories persist with a
-/// full-row update, saving it unchanged would silently unseal the entry. Only the seal paths that enforce
+/// Carries the server-owned seal state (LockLevel / SealedAt / SealedBy and the pre-seal state a period seal
+/// recorded) of a schedule entry from the persisted row onto an entity rebuilt from a client resource.
+/// ScheduleMapper deliberately does not map these fields, so a mapped entity carries the defaults; since the
+/// repositories persist with a full-row update, saving it unchanged would silently unseal the entry or drop
+/// the state a period unseal restores. Only the seal paths that enforce
 /// <see cref="IWorkLockLevelService.CanSeal"/> may change the values, never a PUT payload.
 /// </summary>
 
@@ -27,5 +28,8 @@ public static class ScheduleEntrySealState
         target.LockLevel = stored?.LockLevel ?? WorkLockLevel.None;
         target.SealedAt = stored?.SealedAt;
         target.SealedBy = stored?.SealedBy;
+        target.PreSealLockLevel = stored?.PreSealLockLevel;
+        target.PreSealSealedAt = stored?.PreSealSealedAt;
+        target.PreSealSealedBy = stored?.PreSealSealedBy;
     }
 }

@@ -60,6 +60,11 @@ Closing is the final freeze for payroll and is **administrator-only** — includ
 
 So a period can perfectly well contain approved days and still be open.
 
+Reopening a closed period puts every entry back to the level it had before the close: confirmed
+entries stay confirmed, approved ones stay approved, open ones become open again. Only entries that
+were closed before this was recorded have no stored previous level; they come back open, and an
+earlier confirmation or approval of theirs is lost.
+
 ## How the balance is made up
 
 The balance shown in a person's schedule row is the difference between two figures:

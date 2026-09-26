@@ -56,6 +56,8 @@ public static class ProactiveGovernanceDtoMapper
             DailyActionBudget = decision.DailyActionBudget,
             WindowActionLimit = decision.WindowActionLimit,
             WindowMinutes = decision.WindowMinutes,
+            BudgetApplies = ProactiveGovernanceDefaults.BudgetApplies(decision.TriggerKind),
+            FixedRunLimit = ProactiveGovernanceDefaults.FixedRunLimitFor(decision.TriggerKind),
             IsStored = decision.IsStored
         };
     }

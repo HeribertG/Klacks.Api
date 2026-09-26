@@ -98,4 +98,20 @@ public static class ProactiveGovernanceDefaults
     /// <summary>The seeded max action for one kind: its override if one exists, otherwise <see cref="MaxAction"/>.</summary>
     public static ProactiveMaxAction SeededMaxActionFor(string triggerKind) =>
         SeededMaxActionOverrides.TryGetValue(triggerKind, out var overrideAction) ? overrideAction : MaxAction;
+
+    /// <summary>
+    /// Kinds whose action path does not obey DailyActionBudget, WindowActionLimit and WindowMinutes and is
+    /// capped by a fixed constant per run instead (kind to that cap). The settings card reads this to show the
+    /// cap in place of the three inert fields, so it can never offer a limit that has no effect.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, int> FixedRunLimits =
+        new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [AgentTriggerKinds.PeriodAutoClose] = PeriodAutoClose.MaxClosesPerTick
+        };
+
+    public static bool BudgetApplies(string triggerKind) => !FixedRunLimits.ContainsKey(triggerKind);
+
+    public static int? FixedRunLimitFor(string triggerKind) =>
+        FixedRunLimits.TryGetValue(triggerKind, out var limit) ? limit : null;
 }
