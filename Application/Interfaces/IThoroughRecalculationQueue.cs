@@ -21,4 +21,10 @@ public interface IThoroughRecalculationQueue
         Guid? selectedGroup,
         Guid? analyseToken,
         IReadOnlyCollection<Guid>? clientIds = null);
+
+    /// <summary>
+    /// Enqueues a thorough recalculation of every unsealed real-mode work and every unsealed break, whatever its date.
+    /// The service finds the first and last day itself and works month by month. Returns false when the queue is full.
+    /// </summary>
+    bool QueueRecalculationOfAllUnsealed();
 }

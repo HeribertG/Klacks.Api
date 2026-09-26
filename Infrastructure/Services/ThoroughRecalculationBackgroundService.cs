@@ -15,6 +15,9 @@
 /// client set regardless of the order the ids were passed in) are coalesced; when the queue is
 /// full a new request is rejected visibly (return value false plus warning log) instead of
 /// silently dropping an older one. Notifies clients via SignalR when finished.
+/// A request for all unsealed entries carries no window: it finds the first and last day of every unsealed real-mode
+/// work and every unsealed break itself, recalculates them month by month (each month in its own scope, so memory stays
+/// bounded) and sends one completion notification for the whole span.
 /// </summary>
 /// <param name="serviceProvider">Root service provider for scoped resolution per queued recalculation request</param>
 /// <param name="logger">Logger for diagnostics</param>
@@ -73,17 +76,26 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         Guid? analyseToken,
         IReadOnlyCollection<Guid>? clientIds = null)
     {
-        var request = new ThoroughRecalculationRequest(startDate, endDate, selectedGroup, analyseToken, clientIds);
+        return Enqueue(new ThoroughRecalculationRequest(startDate, endDate, selectedGroup, analyseToken, clientIds));
+    }
 
+    public bool QueueRecalculationOfAllUnsealed()
+    {
+        return Enqueue(ThoroughRecalculationRequest.ForAllUnsealed());
+    }
+
+    private bool Enqueue(ThoroughRecalculationRequest request)
+    {
         lock (_pendingLock)
         {
             if (_pendingRequests.Contains(request))
             {
                 _logger.LogInformation(
-                    "Thorough recalculation for {StartDate} to {EndDate} (group={Group}) is already queued - coalescing",
-                    startDate,
-                    endDate,
-                    selectedGroup);
+                    "Thorough recalculation for {StartDate} to {EndDate} (group={Group}, allUnsealed={AllUnsealed}) is already queued - coalescing",
+                    request.StartDate,
+                    request.EndDate,
+                    request.SelectedGroup,
+                    request.AllUnsealed);
                 return true;
             }
 
@@ -95,10 +107,11 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         }
 
         _logger.LogWarning(
-            "Failed to queue thorough recalculation for {StartDate} to {EndDate} (group={Group}): queue is full",
-            startDate,
-            endDate,
-            selectedGroup);
+            "Failed to queue thorough recalculation for {StartDate} to {EndDate} (group={Group}, allUnsealed={AllUnsealed}): queue is full",
+            request.StartDate,
+            request.EndDate,
+            request.SelectedGroup,
+            request.AllUnsealed);
         return false;
     }
 
@@ -136,6 +149,106 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
 
     private async Task ProcessRequestAsync(ThoroughRecalculationRequest request, CancellationToken cancellationToken)
     {
+        if (request.AllUnsealed)
+        {
+            await ProcessAllUnsealedAsync(cancellationToken);
+            return;
+        }
+
+        await RecalculateWindowAsync(request, notifyCompletion: true, cancellationToken);
+    }
+
+    private async Task ProcessAllUnsealedAsync(CancellationToken cancellationToken)
+    {
+        var (firstDay, lastDay) = await FindUnsealedSpanAsync(cancellationToken);
+        if (firstDay is null || lastDay is null)
+        {
+            _logger.LogInformation("Thorough recalculation of all unsealed entries: nothing to recalculate");
+            await NotifyCompletionAsync(
+                ThoroughRecalculationRequest.ForAllUnsealed(),
+                default,
+                cancellationToken);
+            return;
+        }
+
+        _logger.LogInformation(
+            "Thorough recalculation of all unsealed entries from {First} to {Last}",
+            firstDay,
+            lastDay);
+
+        var totals = default(RecalculationCounts);
+        for (var windowStart = firstDay.Value; windowStart <= lastDay.Value;)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var windowEnd = EndOfMonth(windowStart) < lastDay.Value ? EndOfMonth(windowStart) : lastDay.Value;
+            try
+            {
+                var counts = await RecalculateWindowAsync(
+                    new ThoroughRecalculationRequest(windowStart, windowEnd, null, null, null),
+                    notifyCompletion: false,
+                    cancellationToken);
+                totals += counts;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Thorough recalculation of all unsealed entries failed in the window {Start} - {End}; windows before it are done, the rest was not processed",
+                    windowStart,
+                    windowEnd);
+                throw;
+            }
+
+            windowStart = windowEnd.AddDays(1);
+        }
+
+        await NotifyCompletionAsync(
+            new ThoroughRecalculationRequest(firstDay.Value, lastDay.Value, null, null, null),
+            totals,
+            cancellationToken);
+    }
+
+    private async Task<(DateOnly? First, DateOnly? Last)> FindUnsealedSpanAsync(CancellationToken cancellationToken)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+
+        var works = context.Work.Where(w => !w.IsDeleted && w.LockLevel == WorkLockLevel.None && w.AnalyseToken == null);
+        var breaks = context.Break.Where(b => !b.IsDeleted && b.LockLevel == WorkLockLevel.None);
+
+        var firstWork = await works.MinAsync(w => (DateOnly?)w.CurrentDate, cancellationToken);
+        var lastWork = await works.MaxAsync(w => (DateOnly?)w.CurrentDate, cancellationToken);
+        var firstBreak = await breaks.MinAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
+        var lastBreak = await breaks.MaxAsync(b => (DateOnly?)b.CurrentDate, cancellationToken);
+
+        return (EarlierOf(firstWork, firstBreak), LaterOf(lastWork, lastBreak));
+    }
+
+    private static DateOnly? EarlierOf(DateOnly? left, DateOnly? right) =>
+        left is null ? right : right is null ? left : left < right ? left : right;
+
+    private static DateOnly? LaterOf(DateOnly? left, DateOnly? right) =>
+        left is null ? right : right is null ? left : left > right ? left : right;
+
+    private static DateOnly EndOfMonth(DateOnly day) =>
+        new(day.Year, day.Month, DateTime.DaysInMonth(day.Year, day.Month));
+
+    private async Task NotifyCompletionAsync(
+        ThoroughRecalculationRequest request,
+        RecalculationCounts counts,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var scope = _serviceProvider.CreateScope();
+        var notificationService = scope.ServiceProvider.GetRequiredService<IWorkNotificationService>();
+        await SendCompletion(notificationService, request, counts.Works, counts.WorkChanges, counts.Breaks);
+    }
+
+    private async Task<RecalculationCounts> RecalculateWindowAsync(
+        ThoroughRecalculationRequest request,
+        bool notifyCompletion,
+        CancellationToken cancellationToken)
+    {
         using var scope = _serviceProvider.CreateScope();
         var sp = scope.ServiceProvider;
 
@@ -169,8 +282,12 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
                 "Thorough recalc: client scope (group={Group}, explicit clients={ClientCount}) resolved to no clients - skipping",
                 request.SelectedGroup,
                 request.ClientIds.Count);
-            await SendCompletion(notificationService, request, processedWorks: 0, processedWorkChanges: 0, processedBreaks: 0);
-            return;
+            if (notifyCompletion)
+            {
+                await SendCompletion(notificationService, request, processedWorks: 0, processedWorkChanges: 0, processedBreaks: 0);
+            }
+
+            return default;
         }
 
         var sealedWorkCount = await CountSealedWorksAsync(context, request, clientIdFilter, cancellationToken);
@@ -233,7 +350,12 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
             workChanges.Count,
             breakCount);
 
-        await SendCompletion(notificationService, request, works.Count, workChanges.Count, breakCount);
+        if (notifyCompletion)
+        {
+            await SendCompletion(notificationService, request, works.Count, workChanges.Count, breakCount);
+        }
+
+        return new RecalculationCounts(works.Count, workChanges.Count, breakCount);
     }
 
     private static Task<List<Domain.Models.Schedules.Work>> LoadWorksAsync(
@@ -348,6 +470,12 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
     /// the synthesized record equality would compare the collection by reference and break the pending
     /// dedupe set, therefore both members are implemented manually over the normalized sequence.
     /// </summary>
+    private readonly record struct RecalculationCounts(int Works, int WorkChanges, int Breaks)
+    {
+        public static RecalculationCounts operator +(RecalculationCounts left, RecalculationCounts right) =>
+            new(left.Works + right.Works, left.WorkChanges + right.WorkChanges, left.Breaks + right.Breaks);
+    }
+
     private sealed record ThoroughRecalculationRequest
     {
         public ThoroughRecalculationRequest(
@@ -366,6 +494,10 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
                 : [];
         }
 
+        public static ThoroughRecalculationRequest ForAllUnsealed() =>
+            new(DateOnly.MinValue, DateOnly.MaxValue, null, null, null) { AllUnsealed = true };
+
+        public bool AllUnsealed { get; private init; }
         public DateOnly StartDate { get; }
         public DateOnly EndDate { get; }
         public Guid? SelectedGroup { get; }
@@ -375,6 +507,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         public bool Equals(ThoroughRecalculationRequest? other)
         {
             return other is not null
+                && AllUnsealed == other.AllUnsealed
                 && StartDate == other.StartDate
                 && EndDate == other.EndDate
                 && SelectedGroup == other.SelectedGroup
@@ -385,6 +518,7 @@ public class ThoroughRecalculationBackgroundService : BackgroundService, IThorou
         public override int GetHashCode()
         {
             var hash = default(HashCode);
+            hash.Add(AllUnsealed);
             hash.Add(StartDate);
             hash.Add(EndDate);
             hash.Add(SelectedGroup);

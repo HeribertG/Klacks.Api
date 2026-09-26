@@ -190,6 +190,14 @@ public class WorksController : BaseController
         return Accepted(new { queued });
     }
 
+    [HttpPost("RecalculateAllUnsealed")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<bool>> RecalculateAllUnsealed()
+    {
+        var queued = await _mediator.Send(new RecalculateAllUnsealedCommand());
+        return Accepted(new { queued });
+    }
+
     [HttpGet("{workId}/Children")]
     public async Task<ActionResult<ContainerWorkChildrenResource>> GetChildren(Guid workId, [FromQuery] bool isHoliday = false)
     {
