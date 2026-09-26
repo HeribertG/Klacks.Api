@@ -23,6 +23,8 @@ public class LLMConversationManager
 
     private const int MessagesPerTurn = 2;
 
+    private const int TitleWordCount = 5;
+
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
@@ -153,7 +155,21 @@ public class LLMConversationManager
 
     private string GenerateConversationTitle(string userMessage, string assistantMessage)
     {
-        var words = userMessage.Split(' ').Take(5);
-        return string.Join(' ', words) + (words.Count() >= 5 ? "..." : "");
+        var words = userMessage.Split(' ').Take(TitleWordCount).ToList();
+        var title = string.Join(' ', words) + (words.Count >= TitleWordCount ? "..." : "");
+        return FitToTitleColumn(title);
+    }
+
+    private static string FitToTitleColumn(string title)
+    {
+        if (title.Length <= LLMConversation.TitleMaxLength)
+        {
+            return title;
+        }
+
+        var length = char.IsHighSurrogate(title[LLMConversation.TitleMaxLength - 1])
+            ? LLMConversation.TitleMaxLength - 1
+            : LLMConversation.TitleMaxLength;
+        return title[..length];
     }
 }

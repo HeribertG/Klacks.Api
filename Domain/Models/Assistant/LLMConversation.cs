@@ -9,14 +9,16 @@ namespace Klacks.Api.Domain.Models.Assistant;
 
 public class LLMConversation : BaseEntity
 {
+    public const int TitleMaxLength = 200;
+
     [Required]
     [MaxLength(100)]
     public string ConversationId { get; set; } = string.Empty;
-    
+
     [Required]
     public string UserId { get; set; } = string.Empty;
-    
-    [MaxLength(200)]
+
+    [MaxLength(TitleMaxLength)]
     public string? Title { get; set; }
     
     [MaxLength(2000)]
