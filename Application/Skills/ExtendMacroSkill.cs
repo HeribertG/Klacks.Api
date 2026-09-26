@@ -11,25 +11,22 @@
 /// origin AssistantExtension, so it can never take a standard function away from the original; the assistant may
 /// later rename or delete it, but not change its script (a new extended copy of the original is the way to change
 /// it). The regression check runs under the cancellation token of the skill call, so a stopped turn stops it.
-/// Known interpreter limitation, kept on purpose: every OUTPUT statement discards the oldest declared variable
-/// of the script (inside a loop it destroys the loop state). The appended block therefore can neither read the
-/// variables of the original script nor call its FUNCTIONs; it may only use IMPORT symbols, variables it declares
-/// itself and FUNCTIONs it declares itself under a new name, computes its values first and puts its OUTPUT
-/// statements at the end, outside of loops, in declaration order. A block that sets channel 1 must therefore
-/// compute the whole new total from the IMPORT symbols. A refusal
-/// by the validator, or a regression check aborted because the copy fails at runtime where the original runs,
-/// repeats this guidance; an abort caused by the original or by the check itself (original does not compile, no
-/// comparable input, time budget) does not. The OUTPUT channel scan runs on the trimmed block that is stored.
+/// The appended block runs after the original script and sees everything the original declared: its IMPORT symbols,
+/// its variables (with the values the original left in them) and its FUNCTIONs, so a block that sets channel 1 can
+/// build the new total on the original total. OUTPUT statements may stand anywhere and in any order. A refusal by the
+/// validator, or a regression check aborted because the copy fails at runtime where the original runs, repeats this
+/// guidance; an abort caused by the original or by the check itself (original does not compile, no comparable input,
+/// time budget) does not. The OUTPUT channel scan runs on the trimmed block that is stored.
 /// </summary>
 /// <param name="macroId">Optional. Id of the macro to extend; preferred over macroName.</param>
 /// <param name="macroName">Optional. Name of the macro to extend, resolved via <see cref="MacroResolver"/>.</param>
 /// <param name="name">Required. Name of the copy; must not match an existing macro name or the name of a template
 /// shipped with Klacks (<see cref="MacroNameCollision"/>).</param>
-/// <param name="additionalScript">Required. Script block appended to the original script. It may use the IMPORT
-/// symbols of the original without importing them again, new IMPORT symbols, variables it declares with DIM and
-/// FUNCTIONs it declares under a new name, but neither the variables nor the FUNCTIONs of the original script. It may
-/// add surcharges on channels 10-14 the original leaves at zero; channel 1 stays unchanged or is set to the original
-/// result plus exactly the added surcharges, computed from the IMPORT symbols.</param>
+/// <param name="additionalScript">Required. Script block appended to the original script. It may read the IMPORT
+/// symbols, variables and FUNCTIONs of the original (without importing or declaring them again) and declare new IMPORT
+/// symbols, variables with DIM and FUNCTIONs under names the original does not use. It may add surcharges on channels
+/// 10-14 the original leaves at zero; channel 1 stays unchanged or is set to the original result plus exactly the added
+/// surcharges.</param>
 /// <param name="description">Optional. Description of the copy, applied to all core languages.</param>
 
 using System.Globalization;
@@ -64,24 +61,22 @@ public class ExtendMacroSkill : BaseSkillImplementation
     private const string SourceMissingMessage = "Either macroId or macroName must be provided.";
     private const string InvalidIdMessage = "'{0}' is not a valid macro id.";
     private const string IdNotFoundMessage = "No macro found with id '{0}'.";
-    private const string OutputLimitationHint =
-        "Known interpreter limitation: every OUTPUT statement discards the oldest declared variable of the script "
-        + "(inside a FOR or DO loop it destroys the loop state), so the appended block can neither read variables of "
-        + "the original script nor call its FUNCTIONs. The block may only use the IMPORT symbols of the original "
-        + "(without importing them again), new IMPORT symbols, variables it declares itself with DIM and FUNCTIONs it "
-        + "declares itself under a new name (a function of the original may be copied under a new name). Compute all "
-        + "values first, then put the OUTPUT statements at the end of the block, outside of any loop, and OUTPUT each "
-        + "variable once, in the order the variables were declared.";
+    private const string AppendedBlockHint =
+        "The appended block runs after the original script and can read everything the original declared: its IMPORT "
+        + "symbols (do not import them again), its variables with the values the original left in them and its "
+        + "FUNCTIONs. It must not IMPORT, DIM or declare a FUNCTION under a name the original already uses; new names "
+        + "are fine. OUTPUT statements may stand anywhere in the block, also inside IF, loops or FUNCTIONs, and in any "
+        + "order.";
     private const string ResultChannelRule =
         "Allowed changes: a surcharge on a channel 10-14 that the original leaves at 0 for that input. Channel 1 (the "
         + "result, 0 included) must either stay exactly as the original produces it, or be set by the block to the "
-        + "original result plus exactly the surcharges the block adds; because the block cannot read the original "
-        + "total, it has to compute that total itself from the IMPORT symbols.";
+        + "original result plus exactly the surcharges the block adds, for example the variable or expression the "
+        + "original outputs on channel 1 plus the new surcharge.";
     private const string ScriptInvalidMessage =
-        "The extended script is not valid: {0} The appended block must not IMPORT or DIM names the original "
-        + "script already declares; list the macro with its script to see them. " + OutputLimitationHint;
+        "The extended script is not valid: {0} " + AppendedBlockHint
+        + " List the macro with its script to see the names it declares.";
     private const string RegressionAbortedMessage = "The extended copy was not saved: {0}";
-    private const string CopyRuntimeFailedMessage = RegressionAbortedMessage + " " + OutputLimitationHint;
+    private const string CopyRuntimeFailedMessage = RegressionAbortedMessage + " " + AppendedBlockHint;
     private const string RegressionFailedMessage =
         "The extended copy was not saved because it changes what the original macro '{0}' outputs. "
         + ResultChannelRule + " {1} deviation(s) in total, first {2}: {3}";

@@ -20864,7 +20864,7 @@
         },
         {
           "name": "additionalScript",
-          "description": "Script block appended after the original script. It may use the IMPORT symbols of the original without importing them again, new IMPORTs, variables it declares itself with DIM and FUNCTIONs it declares itself under a new name, but never the variables or FUNCTIONs of the original script, which are no longer usable after its OUTPUT statements (copy a function under a new name if needed). Compute all values first, then put the OUTPUT statements at the end, outside of loops, each variable once and in the order the variables were declared. OUTPUT only on channel 1 or 10-14. A surcharge may only go to a channel 10-14 that the original leaves at 0; channel 1 (the result) either stays untouched or is set to the original result plus exactly the added surcharges, computed from the IMPORT symbols.",
+          "description": "Script block appended after the original script. It runs after the original and may read the original's IMPORT symbols (without importing them again), variables and FUNCTIONs; new IMPORTs, DIM variables and FUNCTIONs need names the original does not use. OUTPUT only on channel 1 or 10-14, anywhere in the block. A surcharge may only go to a channel 10-14 that the original leaves at 0; channel 1 (the result) either stays untouched or is set to the original result plus exactly the added surcharges, for example the original total variable plus the new surcharge.",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -20924,7 +20924,7 @@
         "fr": "Étendre une macro de calcul en copie",
         "it": "Estendi una macro di calcolo come copia"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "assign_macro_to_shift",

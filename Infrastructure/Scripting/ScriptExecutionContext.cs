@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Executes a compiled macro script instruction by instruction on a value stack that shares its scopes with the
+/// variables. OUTPUT (Message) keeps that stack balanced: it consumes its channel and value and leaves one
+/// empty value, which the OUTPUT statement drops again and the expression form x = OUTPUT(...) assigns, so an OUTPUT
+/// never removes a variable, a loop's bookkeeping or a function's return address.
+/// </summary>
+/// <param name="script">The compiled script to execute; its external symbols form the outermost scope</param>
+
 namespace Klacks.Api.Infrastructure.Scripting;
 
 public sealed class ScriptExecutionContext
@@ -423,6 +431,8 @@ public sealed class ScriptExecutionContext
         {
             Message?.Invoke(-1, string.Empty);
         }
+
+        scopes!.Push(ScriptValue.Null);
     }
 
     private void ExecuteBinaryOp(Opcodes opcode)
