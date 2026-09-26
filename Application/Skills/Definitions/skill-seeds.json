@@ -21075,7 +21075,7 @@
     {
       "name": "revert_macro_assignment",
       "area": "settings",
-      "description": "Undoes an earlier switch of the calculation macro on a shift order or an absence type and puts each previous formula back, all cuts of one switch at once. If any of them was changed since, nothing is undone and the conflicts are listed. Before anything changes, the administrator sees the affected entries and a sample comparison of the values. Stored values stay until edited or recalculated. Requires admin permissions.",
+      "description": "Undoes an earlier switch of the calculation macro on a shift order or an absence type, identified by the switch id reported when it was switched, and puts each previous formula back, all cuts of one switch at once. If any of them was changed since, nothing is undone and the conflicts are listed. Before anything changes, the administrator sees the affected entries and a sample comparison of the values. Stored values stay until edited or recalculated. Requires admin permissions.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -21084,25 +21084,9 @@
       "parameters": [
         {
           "name": "switchId",
-          "description": "Id of the switch to undo, as reported when the macro was switched (one id for all cuts switched together). Pass exactly one of switchId, shiftId or absenceTypeId.",
+          "description": "Id of the switch to undo, exactly as reported in the result of the switch (one id for all cuts switched together). Required: a shift or absence type id cannot identify the switch.",
           "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "shiftId",
-          "description": "Undo the whole latest macro switch that changed the shift with this id, including the other cuts switched with it.",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "absenceTypeId",
-          "description": "Undo the latest macro switch that changed the absence type with this id.",
-          "type": "String",
-          "required": false,
+          "required": true,
           "defaultValue": null,
           "enumValues": null
         }
@@ -21150,7 +21134,7 @@
         "fr": "Annuler l'attribution d'une macro",
         "it": "Annulla l'assegnazione di una macro"
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_qualification",

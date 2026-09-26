@@ -3,10 +3,10 @@
 /// <summary>
 /// Undoes a macro switch the assistant made as a whole and puts each switched shift (or the absence type) back on its
 /// previous macro (owner decisions F2 and F6: one switch of a shift covers every cut of its order, and an undo itself is
-/// final). The caller must hold the Admin role itself. The switch is identified by exactly one of switchId, shiftId or
-/// absenceTypeId (the latter two mean the switch that recorded the latest change of that holder when the confirmed call
-/// runs). The skill only sends <see cref="RevertMacroAssignmentCommand"/> with the selector unchanged: its handler resolves
-/// the switch, plans the undo and runs the dry run exactly like the confirmation preview did, once per call — a refusal
+/// final). The caller must hold the Admin role itself. The switch is identified by its switchId alone: a holder id would
+/// mean the holder's latest switch when the confirmed call runs, which can be a younger switch than the one the user
+/// confirmed. The skill only sends <see cref="RevertMacroAssignmentCommand"/> with the id unchanged: its handler plans the
+/// undo and runs the dry run exactly like the confirmation preview did, once per call — a refusal
 /// (unknown, itself an undo, already undone, or any shift of the switch in conflict: switched again later, changed
 /// elsewhere, macro to restore deleted or unable to run; the refusal lists the conflicts) comes back as an error and
 /// nothing is written. The answer carries the undo id, the id of the undone switch and the entry counts of that dry run.
@@ -16,9 +16,7 @@
 /// wording, confirm_pending_action can redeem the token in a later turn without an explicit yes, and the chat UI does not
 /// show skill results; that is why every confirmed call checks the role here and the handler plans again.
 /// </summary>
-/// <param name="switchId">Optional. Id of the recorded switch, as reported when the macro was switched</param>
-/// <param name="shiftId">Optional. Undo the latest switch that changed this shift</param>
-/// <param name="absenceTypeId">Optional. Undo the latest switch that changed this absence type</param>
+/// <param name="switchId">Id of the recorded switch, as reported when the macro was switched</param>
 
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Domain.Attributes;
@@ -54,8 +52,7 @@ public class RevertMacroAssignmentSkill : BaseSkillImplementation
             return SkillResult.Error(parameterError);
         }
 
-        var command = new RevertMacroAssignmentCommand(
-            request!.SwitchId, request.ShiftId, request.AbsenceTypeId, context.UserId);
+        var command = new RevertMacroAssignmentCommand(request!.SwitchId, context.UserId);
         var (outcome, error) = await MacroAssignmentCommandSender.SendAsync(_mediator, command, cancellationToken);
         if (outcome == null)
         {

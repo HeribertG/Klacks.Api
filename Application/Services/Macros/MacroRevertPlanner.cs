@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Plans the undo of a recorded macro switch before anything is written; the confirmation preview, the skills and the
-/// revert command handler all use it, so they apply the same rules. An undo is identified by exactly one of switch id,
-/// shift id or absence type id (the latter two mean the switch that recorded the latest change of that holder) and covers
-/// every row of that switch. It is refused when the switch is itself an undo or was undone already (an undo is final,
+/// revert command handler all use it, so they apply the same rules. An undo is identified by its switch id alone (a holder
+/// id would resolve to the holder's latest switch at the moment of the call, possibly a younger one than the user
+/// confirmed) and covers every row of that switch. It is refused when the switch is itself an undo or was undone already (an undo is final,
 /// owner decision F6), and when any row conflicts with the current state — holder gone or no longer switchable, switched
 /// again later, changed elsewhere since, or its previous macro deleted; one conflict refuses the whole switch, and the
 /// refusal lists the conflicts. The preview adds the dry run backwards over the same scope, refuses a macro that cannot
@@ -29,15 +29,10 @@ namespace Klacks.Api.Application.Services.Macros;
 
 public class MacroRevertPlanner : IMacroRevertPlanner
 {
-    private const int SingleSelector = 1;
     private const int MaxConflictLines = 8;
     private const string LineBreak = "\n";
     private const string ConflictBullet = "- ";
-    private const string SelectorMessage =
-        "Provide exactly one of switchId, shiftId or absenceTypeId to identify the macro switch to undo.";
     private const string SwitchNotFoundMessage = "No macro switch with id '{0}' is recorded.";
-    private const string NoSwitchRecordedMessage =
-        "No macro switch made by the assistant is recorded for the {0} with id '{1}'.";
     private const string UndoOfUndoMessage =
         "This switch is itself an undo and cannot be undone; an undo is final, so switch the macro again instead.";
     private const string AlreadyUndoneMessage = "This macro switch was already undone.";
@@ -71,10 +66,10 @@ public class MacroRevertPlanner : IMacroRevertPlanner
     internal async Task<MacroRevertPlan> PlanRevertAsync(
         MacroRevertRequest request, CancellationToken cancellationToken = default)
     {
-        var (rows, selectedHolderId, selectorRefusal) = await FindSwitchAsync(request, cancellationToken);
-        if (selectorRefusal != null)
+        var rows = await _history.GetSwitchAsync(request.SwitchId, cancellationToken);
+        if (rows.Count == 0)
         {
-            return MacroRevertPlan.Refused(selectorRefusal);
+            return MacroRevertPlan.Refused(MacroAssignmentPlanning.Format(SwitchNotFoundMessage, request.SwitchId));
         }
 
         if (rows.Any(row => row.RevertOfHistoryId.HasValue))
@@ -108,7 +103,7 @@ public class MacroRevertPlanner : IMacroRevertPlanner
             return MacroRevertPlan.Refused(DescribeConflicts(switchId, rows.Count, conflicts));
         }
 
-        var holder = changes.FirstOrDefault(change => change.Holder.Id == selectedHolderId)?.Holder ?? changes[0].Holder;
+        var holder = changes[0].Holder;
         var warnings = MacroAssignmentPlanning.CollectWarnings(_channelInspector, holder, changes, 0);
         return new MacroRevertPlan(switchId, holder, changes, warnings, null);
     }
@@ -127,47 +122,6 @@ public class MacroRevertPlanner : IMacroRevertPlanner
         var warnings = MacroAssignmentPlanning.WithDryRunWarnings(plan.Warnings, holders, dryRun);
         return new MacroRevertPreview(
             plan with { Warnings = warnings }, dryRun, MacroAssignmentPlanning.DescribeUnusableMacro(plan.Changes, dryRun));
-    }
-
-    private async Task<(IReadOnlyList<MacroAssignmentHistory> Rows, Guid? SelectedHolderId, string? Refusal)>
-        FindSwitchAsync(MacroRevertRequest request, CancellationToken cancellationToken)
-    {
-        if (request.SelectorCount != SingleSelector)
-        {
-            return (Array.Empty<MacroAssignmentHistory>(), null, SelectorMessage);
-        }
-
-        if (request.SwitchId.HasValue)
-        {
-            var byId = await _history.GetSwitchAsync(request.SwitchId.Value, cancellationToken);
-            if (byId.Count > 0)
-            {
-                return (byId, null, null);
-            }
-
-            return (
-                Array.Empty<MacroAssignmentHistory>(),
-                null,
-                MacroAssignmentPlanning.Format(SwitchNotFoundMessage, request.SwitchId.Value));
-        }
-
-        var (target, holderId) = request.ShiftId.HasValue
-            ? (MacroAssignmentTarget.Shift, request.ShiftId.Value)
-            : (MacroAssignmentTarget.AbsenceType, request.AbsenceTypeId!.Value);
-        var latest = await _history.GetLatestAsync(target, holderId, cancellationToken);
-        if (latest != null)
-        {
-            var rows = await _history.GetSwitchAsync(latest.SwitchId, cancellationToken);
-            if (rows.Count > 0)
-            {
-                return (rows, holderId, null);
-            }
-        }
-
-        return (
-            Array.Empty<MacroAssignmentHistory>(),
-            null,
-            MacroAssignmentPlanning.Format(NoSwitchRecordedMessage, MacroAssignmentPolicy.NounOf(target), holderId));
     }
 
     private async Task<(MacroReferenceChange? Change, string? Conflict)> CheckRowAsync(

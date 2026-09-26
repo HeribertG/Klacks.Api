@@ -57,8 +57,8 @@ public static class MacroAssignmentTextFormatter
         "Nothing is recalculated automatically: open entries keep their stored values until edited or recalculated; "
         + "recalculations skip sealed ones, but saving one recalculates it with the switched macro.";
     private const string UndoHint =
-        "The whole switch can be undone by its switch id while its references stay unchanged; an undo itself is "
-        + "final.";
+        "To undo the whole switch, call {0} with switchId {1} while its references stay unchanged; "
+        + "an undo itself is final.";
     private const string SampleHeadline =
         "Dry run, {0} newest open entries: {1} would change (not simulated: overtime stacking, container breaks, "
         + "work changes).";
@@ -122,7 +122,13 @@ public static class MacroAssignmentTextFormatter
                 outcome.Changes.Count,
                 DescribeFrom(outcome.Changes),
                 outcome.SwitchId);
-        return Compose(headline, outcome.Warnings, outcome.DryRun, ResultSampleLines, MixedStateNotice, UndoHint);
+        return Compose(
+            headline,
+            outcome.Warnings,
+            outcome.DryRun,
+            ResultSampleLines,
+            MixedStateNotice,
+            Format(UndoHint, MacroAssignmentSkillNames.Revert, outcome.SwitchId));
     }
 
     public static string DescribeReverted(MacroAssignmentOutcome outcome)

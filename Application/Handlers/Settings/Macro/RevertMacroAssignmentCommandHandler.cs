@@ -61,8 +61,7 @@ public class RevertMacroAssignmentCommandHandler : IRequestHandler<RevertMacroAs
     public async Task<MacroAssignmentOutcome> Handle(
         RevertMacroAssignmentCommand request, CancellationToken cancellationToken)
     {
-        var preview = await _planner.PreviewRevertAsync(
-            new MacroRevertRequest(request.SwitchId, request.ShiftId, request.AbsenceTypeId), cancellationToken);
+        var preview = await _planner.PreviewRevertAsync(new MacroRevertRequest(request.SwitchId), cancellationToken);
         if (preview.Refusal != null)
         {
             throw new InvalidRequestException(preview.Refusal);

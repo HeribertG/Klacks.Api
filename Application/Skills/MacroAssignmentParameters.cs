@@ -28,6 +28,9 @@ public static class MacroAssignmentParameters
         "{0} is required: pass the id of the {1}. Names are not accepted; look the {1} up first.";
     private const string InvalidIdMessage = "'{0}' is not a valid id for {1}.";
     private const string MacroNoun = "macro";
+    private const string MissingSwitchIdMessage =
+        "switchId is required: pass the switch id reported when the macro was switched. A shift or absence type id cannot "
+        + "identify the switch to undo, because that holder may have been switched again since.";
 
     public static (Guid HolderId, Guid MacroId, string? Error) ReadAssign(
         Dictionary<string, object> parameters, MacroAssignmentTarget target)
@@ -45,11 +48,15 @@ public static class MacroAssignmentParameters
 
     public static (MacroRevertRequest? Request, string? Error) ReadRevert(Dictionary<string, object> parameters)
     {
-        var (switchId, switchError) = ReadOptional(parameters, SwitchId);
-        var (shiftId, shiftError) = ReadOptional(parameters, ShiftId);
-        var (absenceTypeId, absenceTypeError) = ReadOptional(parameters, AbsenceTypeId);
-        var error = switchError ?? shiftError ?? absenceTypeError;
-        return error != null ? (null, error) : (new MacroRevertRequest(switchId, shiftId, absenceTypeId), null);
+        var raw = SkillParameterReader.Read<string>(parameters, SwitchId);
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return (null, MissingSwitchIdMessage);
+        }
+
+        return Guid.TryParse(raw, out var switchId)
+            ? (new MacroRevertRequest(switchId), null)
+            : (null, DescribeInvalid(raw, SwitchId));
     }
 
     private static (Guid Id, string? Error) ReadRequired(
@@ -62,17 +69,6 @@ public static class MacroAssignmentParameters
         }
 
         return Guid.TryParse(raw, out var id) ? (id, null) : (Guid.Empty, DescribeInvalid(raw, name));
-    }
-
-    private static (Guid? Id, string? Error) ReadOptional(Dictionary<string, object> parameters, string name)
-    {
-        var raw = SkillParameterReader.Read<string>(parameters, name);
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return (null, null);
-        }
-
-        return Guid.TryParse(raw, out var id) ? (id, null) : (null, DescribeInvalid(raw, name));
     }
 
     private static string DescribeInvalid(string raw, string name) =>
