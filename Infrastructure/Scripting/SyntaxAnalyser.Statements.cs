@@ -190,7 +190,7 @@ namespace Klacks.Api.Infrastructure.Scripting
             switch (sym.Token)
             {
                 case Symbol.Tokens.tokDo:
-                    if (exitsAllowed + Exits.ExitDo == Exits.ExitDo)
+                    if ((Convert.ToByte(exitsAllowed) & Convert.ToByte(Exits.ExitDo)) == Convert.ToByte(Exits.ExitDo))
                         code!.Add(Opcodes.JumpPop);
                     else
                         errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.Statement", "'EXIT DO' not allowed at this point", sym.Line, sym.Col, sym.Index, sym.Text));
