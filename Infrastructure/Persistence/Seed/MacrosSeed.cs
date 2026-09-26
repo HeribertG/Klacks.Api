@@ -82,7 +82,8 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
     SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours < 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+    NightHours = 0
+    IF SegmentHours > 0 THEN NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime) ENDIF
     NonNightHours = SegmentHours - NightHours
 
     HasHoliday = HolidayFlag = 1
@@ -144,18 +145,26 @@ DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
 WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF TimeToHours(UntilHour) <= TimeToHours(FromHour) THEN
-    BonusNight = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 10) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
-    BonusWeekend1 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 11) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
-    BonusWeekend2 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 12) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
-    BonusWeekend3 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 13) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
-    BonusHoliday = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 14) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
+IF TimeToHours(UntilHour) = TimeToHours(FromHour) AndAlso Hour <= 0 THEN
+    BonusNight = 0
+    BonusWeekend1 = 0
+    BonusWeekend2 = 0
+    BonusWeekend3 = 0
+    BonusHoliday = 0
 ELSE
-    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
-    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
-    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
-    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
-    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
+    IF TimeToHours(UntilHour) <= TimeToHours(FromHour) THEN
+        BonusNight = SegBonusForType(FromHour, ""24:00"", Holiday, Weekday, 10) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+        BonusWeekend1 = SegBonusForType(FromHour, ""24:00"", Holiday, Weekday, 11) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+        BonusWeekend2 = SegBonusForType(FromHour, ""24:00"", Holiday, Weekday, 12) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+        BonusWeekend3 = SegBonusForType(FromHour, ""24:00"", Holiday, Weekday, 13) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+        BonusHoliday = SegBonusForType(FromHour, ""24:00"", Holiday, Weekday, 14) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
+    ELSE
+        BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+        BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+        BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+        BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+        BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
+    ENDIF
 ENDIF
 
 TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
