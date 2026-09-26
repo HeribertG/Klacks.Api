@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Nee",
   "assistant.emptyAnswer.fallbackNotice": "Ik heb de gevraagde stappen uitgevoerd, maar kon geen antwoord formuleren. Stel de vraag opnieuw.",
   "assistant.emptyAnswer.noActionNotice": "Ik kon geen antwoord formuleren en er is niets uitgevoerd. Probeer het opnieuw.",
+  "assistant.recipe.nothingStoredNotice": "Let op: in deze stap is niets opgeslagen of gewijzigd.",
   "assistant.inboundClarification.planner.started": "💬 **Verduidelijking aangevraagd** — {sender}\nHet bericht was onduidelijk: {summary}\nKlacksy stelde de vraag in een privébericht: \"{question}\"\nBetrokken dienst: {shiftContext}\nAntwoord verwacht vóór {deadline}. U ontvangt bericht zodra er een antwoord is, of wanneer er op tijd geen antwoord komt.",
   "assistant.inboundClarification.planner.shiftNone": "geen dienst gevonden in het rooster",
   "assistant.inboundClarification.planner.answerContext": "💬 Antwoord op Klacksy's vraag \"{question}\" (gesteld op {asked}).\nOrigineel bericht: {originalText}",

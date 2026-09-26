@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Nie",
   "assistant.emptyAnswer.fallbackNotice": "Wykonałem wymagane kroki, ale nie udało się sformułować odpowiedzi. Proszę zapytać ponownie.",
   "assistant.emptyAnswer.noActionNotice": "Nie udało się sformułować odpowiedzi i nic nie zostało wykonane. Proszę spróbować ponownie.",
+  "assistant.recipe.nothingStoredNotice": "Uwaga: w tym kroku nic nie zostało zapisane ani zmienione.",
   "assistant.inboundClarification.planner.started": "💬 **Poproszono o wyjaśnienie** — {sender}\nWiadomość była niejasna: {summary}\nKlacksy wysłał prywatne pytanie: „{question}”\nDotyczy zmiany: {shiftContext}\nOdpowiedź oczekiwana do {deadline}. Zostaniesz poinformowany o odpowiedzi lub o jej braku w terminie.",
   "assistant.inboundClarification.planner.shiftNone": "nie znaleziono w planie",
   "assistant.inboundClarification.planner.answerContext": "💬 Odpowiedź na pytanie Klacksy'ego „{question}” (zadane {asked}).\nPierwotna wiadomość: {originalText}",

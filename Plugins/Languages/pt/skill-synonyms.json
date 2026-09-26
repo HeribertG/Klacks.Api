@@ -1638,6 +1638,11 @@
   "get_page_controls": [
     "controles da página"
   ],
+  "get_period_close_schedule": [
+    "quando é que os períodos são encerrados automaticamente",
+    "quantos dias após o fim do período se faz o encerramento",
+    "mostrar o calendário do encerramento automático dos períodos"
+  ],
   "get_period_hours": [
     "saldo de horas do funcionário no período",
     "comparar horas alvo e reais"
@@ -2569,6 +2574,11 @@
     "mudar o esquema de cores da tela",
     "preciso de mais contraste na tela",
     "deixar a tela mais confortável para os olhos"
+  ],
+  "set_period_close_lag": [
+    "gravar o atraso do encerramento",
+    "definir os dias até ao encerramento após o fim do período",
+    "registar o desfasamento do encerramento automático"
   ],
   "set_planning_deadline_lead": [
     "gravar a antecedência do planeamento",

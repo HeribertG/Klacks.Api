@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["sloučit mobilní služby do nového kontejneru", "vytvořit kontejner z blízkých služeb", "sestavit kontejner s optimalizovanou trasou"],
   "setup-planning-profile": ["nastavit vlastní plánovací profil", "zavést vlastní pravidla plánování pro firmu"],
   "setup-consultation": ["jak vůbec začít v systému", "jaké jsou první kroky po přihlášení", "v kalendáři zatím není nic naplánováno", "jak si nastavit Klacks od začátku"],
-  "plan-delivery-deadline": ["termín dokončení plánu směn pro doručení e-mailem nebo poštou", "poslední termín odeslání rozpisu služeb zaměstnancům e-mailem či poštou", "lhůta pro sestavení směnného plánu s ohledem na doručení poštou"]
+  "plan-delivery-deadline": ["termín dokončení plánu směn pro doručení e-mailem nebo poštou", "poslední termín odeslání rozpisu služeb zaměstnancům e-mailem či poštou", "lhůta pro sestavení směnného plánu s ohledem na doručení poštou"],
+  "period-close-schedule": ["kdy se mají období automaticky uzavírat", "kolik dní po konci období se má automaticky uzavřít", "v jakém okamžiku se má období uzavřít samo"]
 }

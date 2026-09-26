@@ -199,5 +199,12 @@
     "frist",
     "stikkdato",
     "planleggingsfrist"
+  ],
+  "period-close-schedule": [
+    "periodeavslutning",
+    "automatisk avslutning",
+    "avslutningstidspunkt",
+    "avslutningsfrist",
+    "avslutningsforsinkelse"
   ]
 }

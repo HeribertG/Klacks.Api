@@ -207,5 +207,12 @@
     "rencana kerja",
     "tenggat",
     "batas akhir"
+  ],
+  "period-close-schedule": [
+    "penutupan otomatis",
+    "penutupan periode",
+    "jeda penutupan",
+    "jadwal penutupan",
+    "tenggat penutupan"
   ]
 }

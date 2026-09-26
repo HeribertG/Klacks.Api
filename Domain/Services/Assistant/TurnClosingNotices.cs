@@ -22,7 +22,17 @@
 /// would see literally nothing. The last failure's own message is already actionable (it often lists the
 /// real options), so it is surfaced. Because it bypasses the model entirely, no prompt rule can strip
 /// internal names from it, which is why it is redacted here while the caller logs the raw message.
+///
+/// Nothing-stored notice (both paths): a read-only recipe (only ask/search steps) cannot store anything, and
+/// every write call after its final step is rejected (ReadOnlyRecipeWriteGuard). A completion claim in such a
+/// turn is therefore false by construction - live 2026-09-26 the reply said a lag of 3 days had been stored
+/// while only the read skill ran. The claim cannot be retracted once streamed, so the notice states the truth
+/// in the turn's language. The detector is applied sentence by sentence: over the whole reply an auxiliary of one
+/// sentence and a participle of another ("... noch kein Nachlauf gespeichert. ... gewählt haben") made an honest
+/// answer look like a claim (live 2026-09-26). A remaining false positive (a negation such as "Sie haben noch
+/// keinen Wert gespeichert") costs one redundant but still true sentence.
 /// </summary>
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -30,6 +40,8 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 internal static class TurnClosingNotices
 {
+    private static readonly Regex SentenceBoundary = new(@"(?<=[.!?])\s+|[。！？\n]+", RegexOptions.Compiled);
+
     /// <summary>
     /// The no-action notice for a streaming turn, or null when the turn made no false success claim.
     /// </summary>
@@ -58,6 +70,35 @@ internal static class TurnClosingNotices
             : null;
 
     /// <summary>
+    /// The nothing-stored notice for a turn that completed a read-only recipe and nevertheless claims a
+    /// completed action, or an empty string when no notice is owed. Empty rather than null so both chat paths
+    /// can append it unconditionally.
+    /// </summary>
+    /// <param name="readOnlyRecipeCompleted">True when a read-only recipe executed its final step this turn.</param>
+    /// <param name="responseContent">The turn's answer.</param>
+    /// <param name="allFunctionCalls">Every call of the turn; a successful side-effecting call suppresses the notice.</param>
+    /// <param name="language">The turn's language, used to localize the notice.</param>
+    internal static string NothingStored(
+        bool readOnlyRecipeCompleted,
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> allFunctionCalls,
+        string? language)
+    {
+        if (!readOnlyRecipeCompleted
+            || !SentenceBoundary.Split(responseContent).Any(CompletionClaimDetector.ClaimsCompletion)
+            || allFunctionCalls.Any(call => call.Success && !RepeatedWriteCallGuard.IsRepeatable(call)))
+        {
+            return string.Empty;
+        }
+
+        var text = GracefulCorrectionTexts.TryGetText(
+            GracefulCorrectionTexts.RecipeNothingStoredNotice, language, out var localized)
+            ? localized
+            : RecipeEngineDefaults.NothingStoredNotice;
+        return RecipeEngineDefaults.NothingStoredNoticeSeparator + text;
+    }
+
+    /// <summary>
     /// The call whose failure message has to be surfaced because the turn produced no prose at all and
     /// every call it made failed, or null when there is nothing to surface. A rejected repeat carries only
     /// the generic rejection text, so the genuine failure of an earlier iteration is preferred.
@@ -79,7 +120,7 @@ internal static class TurnClosingNotices
 
     /// <summary>
     /// The notices a streaming turn appends after its loop, in the order they reach the user: the no-action
-    /// notice first, then the every-step-failed notice, which is judged against the answer INCLUDING the
+    /// notice first, then the nothing-stored notice, then the every-step-failed notice, which is judged against the answer INCLUDING the
     /// first notice. Empty when the turn owes the user neither.
     /// </summary>
     /// <param name="isMutationIntent">True when the user's message was detected as a mutation request.</param>
@@ -88,13 +129,17 @@ internal static class TurnClosingNotices
     /// <param name="allFunctionCalls">Every call of the turn, in call order.</param>
     /// <param name="recipePausedOnAsk">True when the turn deliberately stopped on a recipe ask step.</param>
     /// <param name="logger">Receives the raw message of a surfaced failure, which the notice itself redacts.</param>
+    /// <param name="readOnlyRecipeCompleted">True when a read-only recipe executed its final step this turn.</param>
+    /// <param name="language">The turn's language, used to localize the nothing-stored notice.</param>
     internal static IReadOnlyList<string> Collect(
         bool isMutationIntent,
         bool forceConfirmation,
         string responseContent,
         IReadOnlyList<LLMFunctionCall> allFunctionCalls,
         bool recipePausedOnAsk,
-        ILogger logger)
+        ILogger logger,
+        bool readOnlyRecipeCompleted = false,
+        string? language = null)
     {
         var notices = new List<string>();
         var content = responseContent;
@@ -106,6 +151,13 @@ internal static class TurnClosingNotices
         {
             notices.Add(noActionNotice);
             content += noActionNotice;
+        }
+
+        var nothingStoredNotice = NothingStored(readOnlyRecipeCompleted, content, allFunctionCalls, language);
+        if (nothingStoredNotice.Length > 0)
+        {
+            notices.Add(nothingStoredNotice);
+            content += nothingStoredNotice;
         }
 
         var failedCall = LastUnrecoveredFailure(allFunctionCalls, content);

@@ -31,14 +31,17 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     // per planner every day by design, not because of a recurring problem, so reflecting on "reduce daily
     // digests" would be meaningless. ScenarioPrepared is the same category: it announces what Klacksy
     // itself just did, so a goal derived from it would say "prepare fewer remediations" - a target on
-    // Klacksy's own helpfulness rather than on any business condition.
+    // Klacksy's own helpfulness rather than on any business condition. PeriodAutoClose is the same again:
+    // it reports what Klacksy's own period close did or withheld; the business signal behind it - a period
+    // that is due or overdue - is already reflected through period_close_due and period_overdue.
     private static readonly HashSet<string> ExcludedTriggerKinds = new(StringComparer.Ordinal)
     {
         AgentTriggerKinds.CuriosityQuestion,
         AgentTriggerKinds.MuteSuggestion,
         AgentTriggerKinds.DailyDigest,
         AgentTriggerKinds.ScenarioPrepared,
-        AgentTriggerKinds.KlacksyLearnedDigest
+        AgentTriggerKinds.KlacksyLearnedDigest,
+        AgentTriggerKinds.PeriodAutoClose
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;

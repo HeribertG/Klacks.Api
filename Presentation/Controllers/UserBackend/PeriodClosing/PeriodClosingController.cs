@@ -28,7 +28,7 @@ public class PeriodClosingController : BaseController
     [HttpPost("Seal")]
     public async Task<ActionResult<int>> Seal([FromBody] ClosePeriodByGroupCommand command)
     {
-        var affected = await _mediator.Send(command);
+        var affected = await _mediator.Send(command with { ActingAdminUserId = null });
         return Ok(affected);
     }
 

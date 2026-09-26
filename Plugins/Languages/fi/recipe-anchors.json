@@ -230,5 +230,13 @@
     "vuorosuunnitelma",
     "määräpäivä",
     "takaraja"
+  ],
+  "period-close-schedule": [
+    "automaattinen sulkeminen",
+    "automaattisen sulkemisen",
+    "jakson sulkemi",
+    "sulkemisviive",
+    "sulkemisajankohta",
+    "jaksojen sulkemi"
   ]
 }

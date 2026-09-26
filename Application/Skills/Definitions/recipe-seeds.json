@@ -6192,6 +6192,115 @@
           "note": "RECIPE step 5 of 5: call the skill with the numbers from the known values. Map the delivery slot to deliveryChannel (email or post), the transitDays slot to transitDays, the announcementDays slot to announcementDays, the reviewDays slot to reviewDays — all whole numbers (transitDays 0 for e-mail). Your NEXT reply states the calculated deadline and offers to store it. Part one, from the result: Data.DeadlineLeadDays with its three parts; per group in Data.Groups the period start, the latest send date and the latest planning-done date; for a group with NextPeriodOverdue true say that its next period (NextPeriodStart) is already past its deadline and the listed period is the first one that can still be met; if Data.Groups is empty say that no group with members and a derivable period exists yet; if the user chose post say that post is only calculated; if Data.AnnouncementFloorApplied is true say that the legal minimum replaced a shorter answer; if Data.StoredDeadlineLeadDays is above 0 name the lead currently stored. Use only facts from Data and never invent a date. Part two, the LAST sentence: offer to store this lead of N days as the standard lead, so the assistant reports and prepares the next period's plan earlier, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the store skill in the user's language, a colon and the number of days: German \"Planungsvorlauf speichern: N Tage\", English \"Store the planning lead: N days\", French \"Enregistrer le délai de planification : N jours\", Italian \"Salvare l'anticipo di pianificazione: N giorni\"; for any other language use that skill's label in that language. Nothing is stored by this recipe: never say that anything was stored, and never call any skill that stores or confirms anything in this reply."
         }
       ]
+    },
+    {
+      "name": "period-close-schedule",
+      "goal": "Find out how many days after the end of a period the periods are to be closed: explain that without a stored value Klacksy never closes a period by itself and that it does so only when the rule 'Automatic period close' in the Klacksy action settings is set to 'Carry out', the global autonomy level is fully autonomous and every admin has chosen fully autonomous, ask for the number of days, show the resulting close date per group and whether it is closed automatically, and offer to store the lag, which is a separate, confirmed step outside this recipe.",
+      "goalTranslations": {
+        "de": "Klärt, wie viele Tage nach Periodenende Perioden abgeschlossen werden sollen: erklärt, dass Klacksy ohne gespeicherten Wert nie von selbst abschliesst und nur, wenn die Regel «Automatischer Periodenabschluss» im Klacksy-Handlungsspielraum auf «Ausführen» steht, die globale Autonomiestufe und alle Admins «Voll autonom» sind, fragt die Tage, nennt den Abschlusstermin je Gruppe und ob sie automatisch abgeschlossen wird, und bietet an, den Nachlauf zu speichern (eigener, bestätigter Schritt).",
+        "en": "Finds out how many days after a period ends periods are to be closed: explains that without a stored value Klacksy never closes on its own and does so only when the rule \"Automatic period close\" in the Klacksy action settings is set to \"Carry out\" and the global autonomy level and every admin are fully autonomous, asks for the days, states the close date per group and whether it is closed automatically, and offers to store the lag (a separate, confirmed step).",
+        "fr": "Détermine combien de jours après la fin d'une période les périodes doivent être clôturées : explique que sans valeur enregistrée Klacksy ne clôture jamais seul, et seulement si la règle « Clôture automatique de période » est réglée sur « Exécuter » et que le niveau global et tous les admins sont entièrement autonomes, demande le nombre de jours, indique la date de clôture par groupe et si elle est automatique, et propose d'enregistrer le délai (étape distincte et confirmée).",
+        "it": "Determina quanti giorni dopo la fine di un periodo i periodi vanno chiusi: spiega che senza un valore salvato Klacksy non chiude mai da solo, e solo se la regola «Chiusura automatica del periodo» è impostata su «Eseguire» e il livello globale e tutti gli admin sono completamente autonomi, chiede i giorni, indica la data di chiusura per gruppo e se è automatica, e propone di salvare il ritardo (passo separato e confermato)."
+      },
+      "version": 3,
+      "isEnabled": true,
+      "sortOrder": 71,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "wann",
+              "wie viele",
+              "when",
+              "how many",
+              "quand",
+              "quando"
+            ]
+          },
+          {
+            "anySubstring": [
+              "periode",
+              "period",
+              "période",
+              "periodo",
+              "monat",
+              "month",
+              "mois",
+              "mese"
+            ]
+          },
+          {
+            "anySubstring": [
+              "abschliess",
+              "abschließ",
+              "abgeschlossen",
+              "abschluss",
+              "schliess",
+              "schließ",
+              "versiegel",
+              "close",
+              "closing",
+              "seal",
+              "clôtur",
+              "clotur",
+              "ferm",
+              "chiud",
+              "chius",
+              "sigill"
+            ]
+          },
+          {
+            "anySubstring": [
+              "soll",
+              "automat",
+              "selbst",
+              "nachlauf",
+              "tage",
+              "tagen",
+              "should",
+              "itself",
+              "days",
+              "doit",
+              "faut",
+              "jours",
+              "dovrebbe",
+              "deve",
+              "giorni"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "erfass",
+              "create",
+              "crée",
+              "crea"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "lagDays",
+          "prompt": "Ask how many days after the end of a period the period should be closed: 0 means as soon as the period is over, the maximum is 31. Explain in the same message that without a stored value Klacksy never closes a period by itself, and that even with a stored value Klacksy closes automatically only when ALL of these hold: the rule 'Automatic period close' in the Klacksy action settings is set to 'Carry out' (German UI: 'Automatischer Periodenabschluss' / 'Ausführen'; its default only reports), the global autonomy level is 'Fully autonomous' (German UI: 'Voll autonom') and every admin has chosen 'Fully autonomous'; otherwise it only reminds. Ask exactly this one question and nothing else: state no date, conclusion or stored value before the calculation step, and do not offer to store anything yet.",
+          "promptTranslations": {
+            "de": "Wie viele Tage nach Periodenende soll eine Periode abgeschlossen werden? 0 heisst: sobald die Periode vorbei ist, erlaubt sind 0 bis 31. Ohne gespeicherten Wert schliesst Klacksy Perioden nie von selbst ab, und selbst mit gespeichertem Wert nur, wenn die Regel «Automatischer Periodenabschluss» im Klacksy-Handlungsspielraum auf «Ausführen» steht (Standard: nur melden), die globale Autonomiestufe «Voll autonom» ist und alle Admins «Voll autonom» gewählt haben; sonst erinnert Klacksy nur.",
+            "en": "How many days after the end of a period should the period be closed? 0 means as soon as the period is over, the maximum is 31. Without a stored value Klacksy never closes a period by itself, and even with a stored value only when the rule \"Automatic period close\" in the Klacksy action settings is set to \"Carry out\" (default: report only), the global autonomy level is \"Fully autonomous\" and every admin has chosen \"Fully autonomous\"; otherwise Klacksy only reminds.",
+            "fr": "Combien de jours après la fin d'une période celle-ci doit-elle être clôturée ? 0 signifie dès que la période est terminée, le maximum est 31. Sans valeur enregistrée, Klacksy ne clôture jamais une période seul, et même avec une valeur enregistrée seulement si la règle « Clôture automatique de période » est réglée sur « Exécuter » (par défaut : signaler uniquement), que le niveau d'autonomie global est « Entièrement autonome » et que tous les admins ont choisi « Entièrement autonome » ; sinon, Klacksy se contente de rappeler.",
+            "it": "Quanti giorni dopo la fine di un periodo il periodo va chiuso? 0 significa non appena il periodo è terminato, il massimo è 31. Senza un valore salvato Klacksy non chiude mai un periodo da solo, e anche con un valore salvato solo se la regola «Chiusura automatica del periodo» è impostata su «Eseguire» (predefinito: solo segnalare), il livello di autonomia globale è «Completamente autonomo» e tutti gli admin hanno scelto «Completamente autonomo»; altrimenti Klacksy si limita a ricordare."
+          },
+          "description": "days after the end of a period on which the period is closed, 0 to 31"
+        },
+        {
+          "kind": "search",
+          "skill": "get_period_close_schedule",
+          "note": "RECIPE step 2 of 2: call the skill with lagDays = the lagDays slot value from the known values, a whole number between 0 and 31. The user's number is only the value to calculate with; it is NOT an instruction to store it. Your NEXT reply states the result and offers to store it. Part one, from the result, starting with the dates: one line per group in Data.Groups with the group name, the end of its running period (CurrentPeriodEnd) and its close date (CurrentPeriodCloseDate); when PreviousPeriodEnd is present, add on that group's line that its previous period (ended PreviousPeriodEnd) is still open with the close date PreviousPeriodCloseDate, and if PreviousPeriodCloseDue is true that this close date has already been reached, so that period is due for closing now. List every group with its close date; never replace the list by a summary. If Data.Groups is empty say that no group with members and a derivable period exists yet. Then the two facts about automation: if Data.LagStored is false say that no lag is stored yet, so Klacksy closes no period by itself; if it is true name the lag currently stored (Data.StoredLagDays). If Data.AutonomyAllowsAutoClose is false say that Klacksy currently closes no period automatically and name what is missing from Data.AutoCloseConditions - the rule 'Automatic period close' set to 'Carry out' (BlockedBy MaxAction or KindDisabled), the global level 'Fully autonomous' (GlobalLevel), every admin on 'Fully autonomous' (AdminLevel or AdminLevelMissing), the kill switch off (KillSwitch) - and that until then it only reminds; if it is true say that Klacksy may close a period of the groups with AutoCloseAllowed true by itself once its close date has been reached and the period is over, group by group and only when the check for open issues shows no errors, and that groups without it get no automatic close and no message about it. Use only facts from Data and never invent a date. Part two, the LAST sentence: ask whether to store this lag of N days, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the store skill in the user's language, a colon and the number of days: German \"Abschlussnachlauf speichern: N Tage\", English \"Store the close delay: N days\", French \"Enregistrer le délai de clôture : N jours\", Italian \"Salvare il ritardo di chiusura: N giorni\"; for any other language use that skill's label in that language. Nothing is stored by this recipe: never say that anything was stored, saved or changed, never phrase the offer as if it were already decided (no \"I would store\" or \"I have noted\"), and never call any skill that stores, closes or confirms anything in this reply."
+        }
+      ]
     }
   ]
 }

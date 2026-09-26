@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Όχι",
   "assistant.emptyAnswer.fallbackNotice": "Εκτέλεσα τα ζητούμενα βήματα, αλλά δεν μπόρεσα να διατυπώσω απάντηση. Ρωτήστε ξανά, παρακαλώ.",
   "assistant.emptyAnswer.noActionNotice": "Δεν μπόρεσα να διατυπώσω απάντηση και δεν εκτελέστηκε τίποτα. Δοκιμάστε ξανά, παρακαλώ.",
+  "assistant.recipe.nothingStoredNotice": "Σημείωση: Σε αυτό το βήμα δεν αποθηκεύτηκε ούτε άλλαξε τίποτα.",
   "assistant.inboundClarification.planner.started": "💬 **Ζητήθηκε διευκρίνιση** — {sender}\nΤο μήνυμα ήταν ασαφές: {summary}\nΟ Klacksy έστειλε ιδιωτικά την ερώτηση: «{question}»\nΕπηρεαζόμενη βάρδια: {shiftContext}\nΑναμένεται απάντηση έως {deadline}. Θα ενημερωθείτε για την απάντηση ή αν δεν υπάρξει έγκαιρη απάντηση.",
   "assistant.inboundClarification.planner.shiftNone": "δεν βρέθηκε καμία στο πρόγραμμα",
   "assistant.inboundClarification.planner.answerContext": "💬 Απάντηση στην ερώτηση του Klacksy «{question}» (έγινε στις {asked}).\nΑρχικό μήνυμα: {originalText}",

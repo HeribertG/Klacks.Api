@@ -1630,6 +1630,11 @@
   "get_page_controls": [
     "controalele paginii"
   ],
+  "get_period_close_schedule": [
+    "când se închid automat perioadele",
+    "câte zile după sfârșitul perioadei se face închiderea",
+    "afișează calendarul închiderii automate a perioadelor"
+  ],
   "get_period_hours": [
     "soldul de ore al angajatului pe perioadă",
     "compară orele țintă cu cele reale"
@@ -2552,6 +2557,11 @@
     "vreau contrast ridicat pentru ochi",
     "schimbă schema de culori",
     "pune varianta caldă"
+  ],
+  "set_period_close_lag": [
+    "salvează întârzierea închiderii",
+    "stabilește numărul de zile până la închidere după sfârșitul perioadei",
+    "înregistrează amânarea închiderii automate"
   ],
   "set_planning_deadline_lead": [
     "salvează anticiparea planificării",

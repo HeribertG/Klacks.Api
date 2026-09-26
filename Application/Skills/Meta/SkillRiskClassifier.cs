@@ -215,6 +215,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // calculates and offers; storing is a separate request the user makes afterwards, and the
         // confirmation gate holds that call until the user has said yes.
         "set_planning_deadline_lead",
+        // The period close lag is the stored proof that the user was asked when periods are closed: it
+        // moves the close reminders and, at autonomy level FullyAutonomous, the automatic close of a
+        // period, which is not cleanly reversible (reopening does not restore Confirmed/Approved).
+        // Storing it is a separate request the user makes; the confirmation gate holds the call until
+        // the user has said yes.
+        "set_period_close_lag",
         // Installing a feature plugin ADDS SKILLS to the assistant (the messaging plugin is what brings
         // send_message), which is mandate widening in its most literal form; uninstalling removes them
         // again together with the plugin's data. The Whisper pair is the same decision one layer down: it

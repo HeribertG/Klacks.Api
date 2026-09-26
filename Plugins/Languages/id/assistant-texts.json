@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Tidak",
   "assistant.emptyAnswer.fallbackNotice": "Saya telah menjalankan langkah-langkah yang diminta, tetapi tidak dapat merumuskan jawaban. Silakan tanya lagi.",
   "assistant.emptyAnswer.noActionNotice": "Saya tidak dapat merumuskan jawaban dan tidak ada yang dijalankan. Silakan coba lagi.",
+  "assistant.recipe.nothingStoredNotice": "Catatan: tidak ada yang disimpan atau diubah pada langkah ini.",
   "assistant.inboundClarification.planner.started": "💬 **Permintaan klarifikasi** — {sender}\nPesan tidak jelas: {summary}\nKlacksy mengajukan pertanyaan balik secara pribadi: \"{question}\"\nShift yang terdampak: {shiftContext}\nJawaban diharapkan sebelum {deadline}. Anda akan diberi tahu tentang jawabannya, atau jika tidak ada jawaban tepat waktu.",
   "assistant.inboundClarification.planner.shiftNone": "tidak ditemukan dalam jadwal",
   "assistant.inboundClarification.planner.answerContext": "💬 Jawaban atas pertanyaan Klacksy \"{question}\" (diajukan {asked}).\nPesan asli: {originalText}",

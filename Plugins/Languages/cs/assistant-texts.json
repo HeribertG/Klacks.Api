@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Ne",
   "assistant.emptyAnswer.fallbackNotice": "Provedl jsem požadované kroky, ale nepodařilo se mi zformulovat odpověď. Zeptejte se prosím znovu.",
   "assistant.emptyAnswer.noActionNotice": "Nepodařilo se mi zformulovat odpověď a nic nebylo provedeno. Zkuste to prosím znovu.",
+  "assistant.recipe.nothingStoredNotice": "Upozornění: V tomto kroku nebylo nic uloženo ani změněno.",
   "assistant.inboundClarification.planner.started": "💬 **Požadováno upřesnění** — {sender}\nZpráva nebyla jednoznačná: {summary}\nKlacksy poslal soukromě následující dotaz: „{question}“\nDotčená směna: {shiftContext}\nOdpověď se očekává do {deadline}. Budete informováni o odpovědi, případně o tom, že odpověď v termínu nedorazí.",
   "assistant.inboundClarification.planner.shiftNone": "v plánu nenalezena žádná",
   "assistant.inboundClarification.planner.answerContext": "💬 Odpověď na Klacksyho otázku „{question}“ (dotaz položen {asked}).\nPůvodní zpráva: {originalText}",

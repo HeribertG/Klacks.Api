@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Detects groups whose current pay-period end is within 3 days but the period is still open
-/// (no SealedDay covering the end date). Period end is computed from the group's PaymentInterval:
+/// Detects groups whose period close date is within 3 days but the period is still open
+/// (no SealedDay covering the end date). The close date is the period end plus the optional
+/// PERIOD_CLOSE_LAG_DAYS setting (0 when unset, in which case it IS the period end and the behaviour is
+/// exactly the one from before the setting existed); with a lag the relevant period may already have ended.
+/// Period end is computed from the group's PaymentInterval:
 /// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly and
 /// MonthlyTargetHours = end of calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
 /// clients or shifts in themselves or in a descendant group. Emits one PeriodCloseDueTriggerEvent per match.
@@ -26,8 +29,10 @@
 /// <param name="activityProbe">Answers whether the period holds any real work assignment at all.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
+/// <param name="settingsReader">Reads the optional PERIOD_CLOSE_LAG_DAYS setting.</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -48,6 +53,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<PeriodCloseDueDetector> _logger;
     private readonly ICompanyClock _companyClock;
+    private readonly ISettingsReader _settingsReader;
 
     public PeriodCloseDueDetector(
         IGroupRepository groupRepository,
@@ -55,7 +61,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         IWeekConfiguration weekConfiguration,
         IScheduleActivityProbe activityProbe,
         ILogger<PeriodCloseDueDetector> logger,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ISettingsReader settingsReader)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
@@ -63,6 +70,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
         _activityProbe = activityProbe;
         _logger = logger;
         _companyClock = companyClock;
+        _settingsReader = settingsReader;
     }
 
     public string Kind => AgentTriggerKinds.PeriodCloseDue;
@@ -86,7 +94,8 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
                 match.Group.Id,
                 match.Group.Name,
                 match.PeriodEnd,
-                match.DaysUntilDue));
+                match.DaysUntilDue,
+                match.LagDays));
         }
 
         _logger.LogInformation(
@@ -116,7 +125,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
 
     /// <summary>
     /// The window computation shared by DetectAsync and GetActiveFingerprintsAsync: which groups have a
-    /// period end within WarnWithinDays days AND are not already sealed at that end date - a sealed
+    /// close date (period end + lag) within WarnWithinDays days AND are not already sealed at that end date - a sealed
     /// period is the resolved condition itself, so both paths must drop it together, or a sealed group
     /// would linger in the fingerprint scan for up to WarnWithinDays days after it was actually closed.
     /// Whether the period holds any work is deliberately NOT part of this shared predicate; that check
@@ -134,7 +143,9 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
             return (0, Array.Empty<GroupPeriodEndMatch>());
         }
 
-        var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
+        var lagDays = await PeriodCloseLagReader.ReadAsync(_settingsReader) ?? 0;
+        var referenceDay = today.AddDays(-lagDays);
+        var weekStart = await _weekConfiguration.GetWeekStartAsync(referenceDay, cancellationToken);
         var endOfConfiguredWeek = weekStart.AddDays(6);
         var staffing = GroupStaffingLookup.Build(
             groups,
@@ -146,24 +157,24 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector, IAgentConditionFing
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
             if (!staffing.IsStaffed(group.Id)) continue;
 
-            var periodEnd = ComputePeriodEnd(group, today, endOfConfiguredWeek);
-            var daysUntil = periodEnd.DayNumber - today.DayNumber;
+            var periodEnd = ComputePeriodEnd(group, referenceDay, endOfConfiguredWeek);
+            var daysUntil = periodEnd.DayNumber - referenceDay.DayNumber;
             if (daysUntil < 0 || daysUntil > WarnWithinDays) continue;
 
             var existingSeals = await _sealedDayRepository.GetRangeAsync(periodEnd, periodEnd, group.Id, cancellationToken);
             if (existingSeals.Count > 0) continue;
 
-            matches.Add(new GroupPeriodEndMatch(group, periodEnd, daysUntil));
+            matches.Add(new GroupPeriodEndMatch(group, periodEnd, daysUntil, lagDays));
         }
 
         return (groups.Count, matches);
     }
 
     /// <summary>
-    /// One group whose period end falls inside the warn window and is not yet sealed, before the
-    /// activity check that only DetectAsync applies.
+    /// One group whose close date falls inside the warn window and whose period is not yet sealed, before
+    /// the activity check that only DetectAsync applies. DaysUntilDue counts to the close date.
     /// </summary>
-    private sealed record GroupPeriodEndMatch(Group Group, DateOnly PeriodEnd, int DaysUntilDue);
+    private sealed record GroupPeriodEndMatch(Group Group, DateOnly PeriodEnd, int DaysUntilDue, int LagDays);
 
     private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly endOfConfiguredWeek)
     {

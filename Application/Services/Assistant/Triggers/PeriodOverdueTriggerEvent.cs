@@ -1,10 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Fired when a group's last completed pay period ended DaysOverdue days ago and is still
-/// not sealed. Severity rises to high once the period end lies HighSeverityOverdueDays
-/// or more in the past.
+/// Fired when a group's last completed pay period reached its close date DaysOverdue days ago and is
+/// still not sealed. The close date is the period end plus LagDays; without a stored lag LagDays is 0 and
+/// the close date is the period end. Severity rises to high once the close date lies
+/// HighSeverityOverdueDays or more in the past.
 /// </summary>
+/// <param name="PeriodEndDate">Last day of the period; identifies the period and is where the action route opens</param>
+/// <param name="DaysOverdue">Days from the close date to today</param>
+/// <param name="LagDays">Days after the period end on which the period is closed, 0 when no lag is stored</param>
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
@@ -16,7 +20,8 @@ public sealed record PeriodOverdueTriggerEvent(
     Guid GroupId,
     string GroupName,
     DateOnly PeriodEndDate,
-    int DaysOverdue) : IAgentTriggerEvent
+    int DaysOverdue,
+    int LagDays = 0) : IAgentTriggerEvent
 {
     private const int HighSeverityOverdueDays = 21;
 
@@ -34,7 +39,7 @@ public sealed record PeriodOverdueTriggerEvent(
     {
         ["group"] = GroupName,
         ["periodEnd"] = PeriodEndDate.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
-        ["days"] = DaysOverdue.ToString(CultureInfo.InvariantCulture)
+        ["days"] = (DaysOverdue + LagDays).ToString(CultureInfo.InvariantCulture)
     };
 
     public string DedupKey => $"{GroupId}:{PeriodEndDate:yyyy-MM-dd}";
@@ -51,11 +56,23 @@ public sealed record PeriodOverdueTriggerEvent(
         [ProactiveActionParamKeys.Date] = PeriodEndDate.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
     };
 
-    public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
+    public IReadOnlyDictionary<string, object?> Payload
     {
-        ["groupId"] = GroupId,
-        ["groupName"] = GroupName,
-        ["periodEndDate"] = PeriodEndDate,
-        ["daysOverdue"] = DaysOverdue
-    };
+        get
+        {
+            var payload = new Dictionary<string, object?>
+            {
+                ["groupId"] = GroupId,
+                ["groupName"] = GroupName,
+                ["periodEndDate"] = PeriodEndDate,
+                ["daysOverdue"] = DaysOverdue
+            };
+            if (LagDays > 0)
+            {
+                payload["lagDays"] = LagDays;
+            }
+
+            return payload;
+        }
+    }
 }

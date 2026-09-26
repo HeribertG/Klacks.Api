@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "いいえ",
   "assistant.emptyAnswer.fallbackNotice": "ご依頼の手順を実行しましたが、回答をまとめることができませんでした。もう一度お尋ねください。",
   "assistant.emptyAnswer.noActionNotice": "回答をまとめることができず、何も実行されていません。もう一度お試しください。",
+  "assistant.recipe.nothingStoredNotice": "注意：この手順では何も保存・変更されていません。",
   "assistant.inboundClarification.planner.started": "💬 **確認の依頼あり** — {sender}\nメッセージが不明確でした: {summary}\nKlacksyが個別に次のように再質問しました: 「{question}」\n対象シフト: {shiftContext}\n回答期限: {deadline}。回答があった場合、または期限までに回答がない場合にお知らせします。",
   "assistant.inboundClarification.planner.shiftNone": "スケジュール上に該当するものなし",
   "assistant.inboundClarification.planner.answerContext": "💬 Klacksyの質問「{question}」（{asked}に質問）への回答です。\n元のメッセージ: {originalText}",

@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Ei",
   "assistant.emptyAnswer.fallbackNotice": "Suoritin pyydetyt vaiheet, mutta en pystynyt muotoilemaan vastausta. Kysy uudelleen.",
   "assistant.emptyAnswer.noActionNotice": "En pystynyt muotoilemaan vastausta, eikä mitään suoritettu. Yritä uudelleen.",
+  "assistant.recipe.nothingStoredNotice": "Huomautus: tässä vaiheessa mitään ei tallennettu eikä muutettu.",
   "assistant.inboundClarification.planner.started": "💬 **Selvennys pyydetty** — {sender}\nViesti oli epäselvä: {summary}\nKlacksy kysyi yksityisesti takaisin: \"{question}\"\nVaikuttanut vuoro: {shiftContext}\nVastaus odotetaan viimeistään {deadline}. Saat tiedon vastauksesta tai siitä, jos vastausta ei saavu ajoissa.",
   "assistant.inboundClarification.planner.shiftNone": "suunnitelmasta ei löytynyt",
   "assistant.inboundClarification.planner.answerContext": "💬 Vastaus Klacksyn kysymykseen \"{question}\" (kysytty {asked}).\nAlkuperäinen viesti: {originalText}",

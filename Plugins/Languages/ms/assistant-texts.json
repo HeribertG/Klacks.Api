@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Tak",
   "assistant.emptyAnswer.fallbackNotice": "Saya telah menjalankan langkah yang diminta, tetapi tidak dapat merangka jawapan. Sila tanya semula.",
   "assistant.emptyAnswer.noActionNotice": "Saya tidak dapat merangka jawapan dan tiada apa-apa yang dijalankan. Sila cuba semula.",
+  "assistant.recipe.nothingStoredNotice": "Nota: tiada apa-apa yang disimpan atau diubah dalam langkah ini.",
   "assistant.inboundClarification.planner.started": "💬 **Permintaan penjelasan** — {sender}\nMesej tidak jelas: {summary}\nKlacksy telah bertanya secara peribadi: \"{question}\"\nSyif terjejas: {shiftContext}\nJawapan dijangka menjelang {deadline}. Anda akan dimaklumkan tentang jawapan tersebut, atau jika tiada jawapan diterima tepat pada masanya.",
   "assistant.inboundClarification.planner.shiftNone": "tiada ditemui dalam jadual",
   "assistant.inboundClarification.planner.answerContext": "💬 Jawapan kepada soalan Klacksy \"{question}\" (diajukan pada {asked}).\nMesej asal: {originalText}",

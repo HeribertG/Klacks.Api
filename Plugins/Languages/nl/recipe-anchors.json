@@ -193,5 +193,13 @@
     "deadline",
     "uiterste datum",
     "uiterlijke datum"
+  ],
+  "period-close-schedule": [
+    "automatisch afsluiten",
+    "automatische afsluiting",
+    "periodeafsluiting",
+    "afsluitmoment",
+    "afsluitvertraging",
+    "afsluittermijn"
   ]
 }

@@ -87,7 +87,7 @@ internal sealed class StreamedTurnClosing
 
         foreach (var notice in TurnClosingNotices.Collect(
                      input.IsMutationIntent, recipe.ForceConfirm, turn.StreamedContent.ToString(), turn.Calls,
-                     recipe.PausedOnAsk, _logger))
+                     recipe.PausedOnAsk, _logger, recipe.ReadOnlyRecipeCompleted, context.Language))
         {
             turn.StreamedContent.Append(notice);
             yield return SseChunk.Content(notice);

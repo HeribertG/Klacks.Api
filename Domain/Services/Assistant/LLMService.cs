@@ -334,8 +334,8 @@ public class LLMService : ILLMService
                 iterationFunctions = new List<LLMFunction> { recipe.ConfirmFunction! };
             }
 
-            var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
-                recipe.Forcing, confirmThisIteration, context.AvailableFunctions, iterationFunctions);
+            var (forceRecipe, recipeFunctions, recipeNote) = recipe.ResolveIteration(
+                confirmThisIteration, context.AvailableFunctions, iterationFunctions);
             iterationFunctions = recipeFunctions;
             if (forceRecipe)
             {
@@ -347,7 +347,7 @@ public class LLMService : ILLMService
                 model!, currentMessage, systemPrompt!,
                 CombineVolatile(volatilePrompt, IterationNotePolicy.Select(
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
-                    recipe.SuggestPlan, turn.Calls.Count)),
+                    recipe.SuggestPlan, turn.Calls.Count, recipe.CompletionNote)),
                 runningHistory, iterationFunctions,
                 ToolChoicePolicy.ResolveToolChoice(
                     forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, turn.Calls.Count),
@@ -394,7 +394,7 @@ public class LLMService : ILLMService
             turn.RegisterCalls(functionCalls);
             ApplyRecipeInjections(recipe.Forcing, functionCalls);
 
-            var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe);
+            var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(functionCalls, calledFunctionNames, forceRecipe));
 
             var toolRound = new StreamedToolRound(_functionExecutor);
             await foreach (var roundChunk in toolRound.RunAsync(turn, recipe, functionCalls, executableCalls))
@@ -699,8 +699,8 @@ public class LLMService : ILLMService
                 iterationFunctions = new List<LLMFunction> { recipe.ConfirmFunction! };
             }
 
-            var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
-                recipe.Forcing, confirmThisIteration, ctx.Context.AvailableFunctions, iterationFunctions);
+            var (forceRecipe, recipeFunctions, recipeNote) = recipe.ResolveIteration(
+                confirmThisIteration, ctx.Context.AvailableFunctions, iterationFunctions);
             iterationFunctions = recipeFunctions;
             if (forceRecipe)
             {
@@ -712,7 +712,7 @@ public class LLMService : ILLMService
                 ctx.Model, currentMessage, ctx.SystemPrompt,
                 CombineVolatile(ctx.VolatilePrompt, IterationNotePolicy.Select(
                     confirmThisIteration, recipe.PendingNote, forceRecipe, recipeNote,
-                    recipe.SuggestPlan, allFunctionCalls.Count)),
+                    recipe.SuggestPlan, allFunctionCalls.Count, recipe.CompletionNote)),
                 runningHistory, iterationFunctions,
                 ToolChoicePolicy.ResolveToolChoice(
                     forceRecipe, isMutationIntent, isNavigationIntent, recipe.ForceConfirm, allFunctionCalls.Count));
@@ -780,8 +780,8 @@ public class LLMService : ILLMService
             allFunctionCalls.AddRange(lastResponse.FunctionCalls);
             ApplyRecipeInjections(recipe.Forcing, lastResponse.FunctionCalls);
 
-            var executableCalls = RepeatedWriteCallGuard.RejectAndRecord(
-                lastResponse.FunctionCalls, calledFunctionNames, forceRecipe);
+            var executableCalls = recipe.RejectWrites(RepeatedWriteCallGuard.RejectAndRecord(
+                lastResponse.FunctionCalls, calledFunctionNames, forceRecipe));
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
             recipe.Forcing?.Observe(lastResponse.FunctionCalls);
@@ -804,7 +804,7 @@ public class LLMService : ILLMService
         }
 
         responseContent = await RecoverAnswerAsync(
-            ctx, currentMessage, runningHistory, historyBudget, responseContent, lastResponse, allFunctionCalls, recipe.PausedOnAsk, forcedRetryUsed);
+            ctx, currentMessage, runningHistory, historyBudget, responseContent, lastResponse, allFunctionCalls, recipe, forcedRetryUsed);
 
         // Mirrors the streaming loop: the turn above ran normally (full toolset) because the user's reply
         // to the pending ask was recognized as an independent question, not a slot answer. The plan is
@@ -851,32 +851,6 @@ public class LLMService : ILLMService
     internal static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null) =>
         ToolResultFormatter.Format(functionCalls, maxToolResultChars ?? LLMLoopConstants.DefaultMaxToolResultChars);
 
-    // Recipe forcing spine (shared by both the streaming and non-streaming loops so a hook can never
-    // land on only one path): while a recipe plan is active and a confirmation is not already being
-    // forced, narrow the iteration's tool scope to the recipe's current step skill and report that the
-    // step is being forced (the caller sets tool_choice=required and appends the step note). This forces
-    // the ordered chain step by step, not just a single skill.
-    private static (bool Forcing, List<LLMFunction> Functions, string? StepNote) ResolveRecipeIteration(
-        IRecipeForcingPlan? recipePlan,
-        bool confirmThisIteration,
-        List<LLMFunction> availableFunctions,
-        List<LLMFunction> iterationFunctions)
-    {
-        if (confirmThisIteration || recipePlan?.IsActive != true)
-        {
-            return (false, iterationFunctions, null);
-        }
-
-        var recipeFunction = availableFunctions.FirstOrDefault(
-            f => string.Equals(f.Name, recipePlan.CurrentSkill, StringComparison.OrdinalIgnoreCase));
-        if (recipeFunction == null)
-        {
-            return (false, iterationFunctions, null);
-        }
-
-        return (true, new List<LLMFunction> { recipeFunction }, recipePlan.CurrentStepNote);
-    }
-
     // Recipe forcing data flow (shared by both loops): deterministically inject captured values (the
     // resolved clientId from find_customer_candidates) into the next forced step's parameters before it
     // executes — reliable in-code data flow between steps, not a fragile model-carries-the-id hop.
@@ -900,11 +874,12 @@ public class LLMService : ILLMService
     /// Non-streaming side of the closing guard. A failed last response (a recipe confirmation or ask call)
     /// turns the whole turn into an error response, so recovering its answer would be a wasted call. A turn
     /// without tool calls recovers against the user's message, never against a force-tool nudge, and
-    /// without the nudge's exchange, which would otherwise repeat that message in the history.
+    /// without the nudge's exchange, which would otherwise repeat that message in the history. After a read-only
+    /// recipe a completion claim gets the nothing-stored notice, exactly like on the streaming path.
     /// </summary>
     private async Task<string> RecoverAnswerAsync(
         MultiTurnContext ctx, string currentMessage, List<Providers.LLMMessage> runningHistory, int historyBudget,
-        string responseContent, LLMProviderResponse? lastResponse, List<LLMFunctionCall> allFunctionCalls, bool pausedOnRecipeStep,
+        string responseContent, LLMProviderResponse? lastResponse, List<LLMFunctionCall> allFunctionCalls, RecipeTurnState recipe,
         bool nudged)
     {
         if (lastResponse is { Success: false })
@@ -918,9 +893,9 @@ public class LLMService : ILLMService
             noToolRan && nudged ? ForceToolNudgePolicy.WithoutNudgeExchange(runningHistory, ctx.Context.Message) : runningHistory,
             historyBudget, ctx.Context.Language);
         var answer = await recovery.ResolveAsync(
-            responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, pausedOnRecipeStep, ctx.CancellationToken);
+            responseContent, allFunctionCalls, () => _functionExecutor.LastBatchWasUiPassthroughOnly, recipe.PausedOnAsk, ctx.CancellationToken);
         ctx.AnsweredWithNotice = recovery.AnsweredWithNotice;
-        return answer;
+        return answer + TurnClosingNotices.NothingStored(recipe.ReadOnlyRecipeCompleted, answer, allFunctionCalls, ctx.Context.Language);
     }
 
     private static int EstimateTokens(string? text) =>

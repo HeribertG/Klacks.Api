@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Nej",
   "assistant.emptyAnswer.fallbackNotice": "Jag utförde de begärda stegen, men kunde inte formulera ett svar. Fråga gärna igen.",
   "assistant.emptyAnswer.noActionNotice": "Jag kunde inte formulera ett svar, och ingenting utfördes. Försök gärna igen.",
+  "assistant.recipe.nothingStoredNotice": "Obs: ingenting sparades eller ändrades i det här steget.",
   "assistant.inboundClarification.planner.started": "💬 **Förtydligande begärt** — {sender}\nMeddelandet var otydligt: {summary}\nKlacksy frågade tillbaka privat: \"{question}\"\nSkiftet som påverkas: {shiftContext}\nSvar förväntas senast {deadline}. Du får veta om svaret kommer, eller om det inte kommer i tid.",
   "assistant.inboundClarification.planner.shiftNone": "inget hittades i schemat",
   "assistant.inboundClarification.planner.answerContext": "💬 Svar på Klacksys fråga \"{question}\" (ställd {asked}).\nUrsprungligt meddelande: {originalText}",

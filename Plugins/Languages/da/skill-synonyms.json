@@ -1636,6 +1636,11 @@
   "get_page_controls": [
     "sidekontroller"
   ],
+  "get_period_close_schedule": [
+    "hvornår afsluttes perioder automatisk",
+    "hvor mange dage efter periodens slutning afsluttes der",
+    "vis planen for den automatiske periodeafslutning"
+  ],
   "get_period_hours": [
     "medarbejderens timesaldo for perioden",
     "sammenligne mål- og faktiske timer"
@@ -2546,6 +2551,11 @@
     "skift farveskema",
     "brug lys udseende",
     "høj kontrast for mine øjne"
+  ],
+  "set_period_close_lag": [
+    "gem afslutningsforsinkelsen",
+    "fastsæt antal dage til afslutning efter periodens slutning",
+    "registrer forsinkelsen for afslutningen af perioden"
   ],
   "set_planning_deadline_lead": [
     "gem planlægningsvarslet",

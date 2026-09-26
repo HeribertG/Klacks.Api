@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Detects groups whose last completed pay period ended OverdueDaysThreshold or more days ago
-/// and is still not sealed (no SealedDay covering the period end). Period ends are computed
+/// Detects groups whose last completed pay period reached its close date OverdueDaysThreshold or more days
+/// ago and is still not sealed (no SealedDay covering the period end). The close date is the period end plus
+/// the optional PERIOD_CLOSE_LAG_DAYS setting; with no setting or a lag of 0 it is the period end itself and
+/// the behaviour is exactly the one from before the setting existed. Period ends are computed
 /// from the group's PaymentInterval exactly like PeriodCloseDueDetector, shifted one period
 /// into the past; Individual is skipped and period ends before the group's ValidFrom are
 /// ignored. Groups without any clients or shifts, in themselves or in a descendant group, are
@@ -23,21 +25,21 @@
 /// <param name="activityProbe">Answers whether the period holds any real work assignment at all.</param>
 /// <param name="logger">Structured log per tick.</param>
 /// <param name="companyClock">Resolves "today" as the company's own local day, not the server's UTC day.</param>
+/// <param name="settingsReader">Reads the optional PERIOD_CLOSE_LAG_DAYS setting.</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
-using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class PeriodOverdueDetector : IAgentTriggerDetector
 {
     private const int OverdueDaysThreshold = 7;
-    private const int BiweeklyCycleDays = 14;
 
     private readonly IGroupRepository _groupRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
@@ -45,6 +47,7 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
     private readonly IScheduleActivityProbe _activityProbe;
     private readonly ILogger<PeriodOverdueDetector> _logger;
     private readonly ICompanyClock _companyClock;
+    private readonly ISettingsReader _settingsReader;
 
     public PeriodOverdueDetector(
         IGroupRepository groupRepository,
@@ -52,7 +55,8 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
         IWeekConfiguration weekConfiguration,
         IScheduleActivityProbe activityProbe,
         ILogger<PeriodOverdueDetector> logger,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        ISettingsReader settingsReader)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
@@ -60,6 +64,7 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
         _activityProbe = activityProbe;
         _logger = logger;
         _companyClock = companyClock;
+        _settingsReader = settingsReader;
     }
 
     public string Kind => AgentTriggerKinds.PeriodOverdue;
@@ -73,8 +78,9 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
-        var lastWeekEnd = weekStart.AddDays(-1);
+        var lagDays = await PeriodCloseLagReader.ReadAsync(_settingsReader) ?? 0;
+        var referenceDay = today.AddDays(-lagDays);
+        var weekStart = await _weekConfiguration.GetWeekStartAsync(referenceDay, cancellationToken);
         var staffing = GroupStaffingLookup.Build(
             groups,
             await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
@@ -86,10 +92,10 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
             if (!staffing.IsStaffed(group.Id)) continue;
 
-            var periodEnd = ComputeLastPeriodEnd(group, today, lastWeekEnd);
+            var periodEnd = PeriodBoundaries.LastEndBefore(group, referenceDay, weekStart);
             if (periodEnd < DateOnly.FromDateTime(group.ValidFrom)) continue;
 
-            var daysOverdue = today.DayNumber - periodEnd.DayNumber;
+            var daysOverdue = referenceDay.DayNumber - periodEnd.DayNumber;
             if (daysOverdue < OverdueDaysThreshold) continue;
 
             var existingSeals = await _sealedDayRepository.GetRangeAsync(periodEnd, periodEnd, group.Id, cancellationToken);
@@ -106,7 +112,8 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
                 group.Id,
                 group.Name,
                 periodEnd,
-                daysOverdue));
+                daysOverdue,
+                lagDays));
         }
 
         _logger.LogInformation(
@@ -114,31 +121,5 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
             groups.Count, events.Count, skippedUnplanned);
 
         return events;
-    }
-
-    private static DateOnly ComputeLastPeriodEnd(Group group, DateOnly today, DateOnly lastWeekEnd)
-    {
-        return group.PaymentInterval switch
-        {
-            PaymentInterval.Weekly => lastWeekEnd,
-            PaymentInterval.Biweekly => LastBiweeklyEnd(today, group.ValidFrom),
-            PaymentInterval.Monthly => LastMonthEnd(today),
-            PaymentInterval.MonthlyTargetHours => LastMonthEnd(today),
-            _ => throw new ArgumentOutOfRangeException(nameof(group),
-                $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
-        };
-    }
-
-    private static DateOnly LastMonthEnd(DateOnly today)
-    {
-        return new DateOnly(today.Year, today.Month, 1).AddDays(-1);
-    }
-
-    private static DateOnly LastBiweeklyEnd(DateOnly today, DateTime groupAnchor)
-    {
-        var anchor = DateOnly.FromDateTime(groupAnchor);
-        var daysSinceAnchor = today.DayNumber - anchor.DayNumber;
-        var positionInCycle = ((daysSinceAnchor % BiweeklyCycleDays) + BiweeklyCycleDays) % BiweeklyCycleDays;
-        return today.AddDays(BiweeklyCycleDays - 1 - positionInCycle).AddDays(-BiweeklyCycleDays);
     }
 }

@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["agrupar servicios móviles en un nuevo contenedor", "crear contenedor a partir de servicios cercanos", "construir contenedor con ruta optimizada"],
   "setup-planning-profile": ["configurar un perfil de planificación propio", "establecer nuestras propias reglas de planificación"],
   "setup-consultation": ["cómo empiezo a usar el sistema desde cero", "cuáles son los primeros pasos en el sistema", "todavía no hay absolutamente nada planificado", "cómo configuro Klacks desde el principio"],
-  "plan-delivery-deadline": ["plazo límite del plan de turnos para el envío por correo electrónico", "fecha límite de entrega del plan de servicios por correo postal", "fecha tope para tener listo el plan antes del envío al personal"]
+  "plan-delivery-deadline": ["plazo límite del plan de turnos para el envío por correo electrónico", "fecha límite de entrega del plan de servicios por correo postal", "fecha tope para tener listo el plan antes del envío al personal"],
+  "period-close-schedule": ["cuándo deben cerrarse los períodos automáticamente", "cuántos días después del fin del período debe cerrarse automáticamente", "en qué momento debe cerrarse el período por sí solo"]
 }

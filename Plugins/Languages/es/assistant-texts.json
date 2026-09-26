@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "No",
   "assistant.emptyAnswer.fallbackNotice": "Ejecuté los pasos solicitados, pero no pude formular una respuesta. Por favor, vuelva a preguntar.",
   "assistant.emptyAnswer.noActionNotice": "No pude formular una respuesta y no se ejecutó nada. Por favor, vuelva a intentarlo.",
+  "assistant.recipe.nothingStoredNotice": "Nota: en este paso no se guardó ni se modificó nada.",
   "assistant.inboundClarification.planner.started": "💬 **Se solicitó una clarificación** — {sender}\nEl mensaje no estaba claro: {summary}\nKlacksy preguntó en privado: \"{question}\"\nTurno afectado: {shiftContext}\nRespuesta esperada antes de {deadline}. Se te informará sobre la respuesta, o si no llega a tiempo.",
   "assistant.inboundClarification.planner.shiftNone": "ninguno encontrado en el plan",
   "assistant.inboundClarification.planner.answerContext": "💬 Respuesta a la pregunta de Klacksy \"{question}\" (preguntada el {asked}).\nMensaje original: {originalText}",

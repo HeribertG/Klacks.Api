@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["samla mobila tjänster i en ny container", "skapa container från närliggande tjänster", "bygg container med ruttoptimering"],
   "setup-planning-profile": ["ställa in en egen planeringsprofil", "fastställa egna planeringsregler för företaget"],
   "setup-consultation": ["hur kommer jag egentligen igång", "vilka är de första stegen i systemet", "det finns absolut ingenting planerat än", "hur ställer jag in Klacks från grunden"],
-  "plan-delivery-deadline": ["tidsfrist för schemat vid utskick via e-post eller post", "sista datum för färdigställande av schemat inför brevutskick", "deadline för schemaläggningen vid utskick av arbetsschemat med post"]
+  "plan-delivery-deadline": ["tidsfrist för schemat vid utskick via e-post eller post", "sista datum för färdigställande av schemat inför brevutskick", "deadline för schemaläggningen vid utskick av arbetsschemat med post"],
+  "period-close-schedule": ["när ska perioder avslutas automatiskt", "hur många dagar efter periodens slut ska det avslutas automatiskt", "vid vilken tidpunkt ska perioden avslutas av sig själv"]
 }

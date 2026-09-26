@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json.Serialization;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.PeriodClosing;
@@ -18,11 +19,19 @@ namespace Klacks.Api.Application.Commands.PeriodClosing;
 /// refusal and the confirmation is sealed over unseen. Null keeps the legacy behaviour of sealing on
 /// the confirmation alone.
 /// </param>
+/// <param name="ActingAdminUserId">
+/// The admin the seal is recorded under when there is no HTTP request at all - only the autonomous
+/// period close (PeriodAutoCloseService) sets it, with the admin whose autonomy preference released the
+/// close. The handler honours it ONLY when no HttpContext exists and the id still belongs to an admin; a
+/// request always keeps its own identity and rights. It is never read from a request body: the property
+/// is ignored by the JSON serializer and PeriodClosingController clears it again before sending.
+/// </param>
 public record ClosePeriodByGroupCommand(
     DateOnly StartDate,
     DateOnly EndDate,
     Guid? GroupId,
     string? Reason,
     bool AcknowledgeViolations = false,
-    int? AcknowledgedErrorCount = null
+    int? AcknowledgedErrorCount = null,
+    [property: JsonIgnore] Guid? ActingAdminUserId = null
 ) : IRequest<int>;

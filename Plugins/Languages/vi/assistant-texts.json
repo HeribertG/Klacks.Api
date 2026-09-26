@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Không",
   "assistant.emptyAnswer.fallbackNotice": "Tôi đã thực hiện các bước được yêu cầu, nhưng không thể đưa ra câu trả lời. Vui lòng hỏi lại.",
   "assistant.emptyAnswer.noActionNotice": "Tôi không thể đưa ra câu trả lời và chưa có thao tác nào được thực hiện. Vui lòng thử lại.",
+  "assistant.recipe.nothingStoredNotice": "Lưu ý: không có gì được lưu hoặc thay đổi trong bước này.",
   "assistant.inboundClarification.planner.started": "💬 **Đã yêu cầu làm rõ** — {sender}\nTin nhắn không rõ ràng: {summary}\nKlacksy đã hỏi lại riêng tư: \"{question}\"\nCa làm việc bị ảnh hưởng: {shiftContext}\nCần trả lời trước {deadline}. Bạn sẽ được thông báo khi có câu trả lời, hoặc nếu không có câu trả lời nào kịp giờ.",
   "assistant.inboundClarification.planner.shiftNone": "không tìm thấy trong kế hoạch",
   "assistant.inboundClarification.planner.answerContext": "💬 Trả lời cho câu hỏi của Klacksy \"{question}\" (đã hỏi lúc {asked}).\nTin nhắn gốc: {originalText}",

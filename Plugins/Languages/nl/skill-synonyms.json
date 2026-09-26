@@ -1647,6 +1647,11 @@
   "get_page_controls": [
     "paginabediening"
   ],
+  "get_period_close_schedule": [
+    "wanneer worden perioden automatisch afgesloten",
+    "hoeveel dagen na het einde van de periode wordt afgesloten",
+    "het schema voor het automatisch afsluiten van perioden weergeven"
+  ],
   "get_period_hours": [
     "urensaldo van een medewerker voor de periode",
     "doeluren en werkelijke uren vergelijken"
@@ -2577,6 +2582,11 @@
     "verander het kleurenschema",
     "gebruik licht thema",
     "hoog contrast voor mijn ogen"
+  ],
+  "set_period_close_lag": [
+    "de afsluitvertraging opslaan",
+    "het aantal dagen tot het afsluiten na periode-einde instellen",
+    "de wachttijd voor het afsluiten vastleggen"
   ],
   "set_planning_deadline_lead": [
     "sla de planningsvoorlooptijd op",

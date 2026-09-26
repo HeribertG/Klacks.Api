@@ -209,5 +209,13 @@
     "fecha tope",
     "plan de turnos",
     "planificación"
+  ],
+  "period-close-schedule": [
+    "cierre automático",
+    "cierre del período",
+    "cierre del periodo",
+    "cierre de período",
+    "cierre de periodo",
+    "plazo de cierre"
   ]
 }

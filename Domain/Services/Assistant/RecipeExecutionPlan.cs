@@ -129,6 +129,27 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     public bool IsActive => !_deactivated && _index < _steps.Count;
 
     /// <summary>
+    /// True when every step only asks or searches, i.e. the recipe never writes. Unknown or dead step kinds
+    /// (guard, verify) do not count as read-only, so the classification can only err towards "writes".
+    /// </summary>
+    public bool IsReadOnly => _steps.All(step =>
+        string.Equals(step.Kind, RecipeStepKinds.Ask, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(step.Kind, RecipeStepKinds.Search, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// True once THIS turn executed the recipe's final step. Not persisted: a plan is rebuilt from the
+    /// pending store every turn, so the flag can only describe the turn that observed the final step.
+    /// </summary>
+    public bool CompletedThisTurn { get; private set; }
+
+    /// <summary>
+    /// The final step's note (with the known values) captured when this turn executed that step. The step
+    /// note usually tells the model what its NEXT reply must contain, but CurrentStepNote is gone once the
+    /// plan is inactive, so without this capture the reply call would never see those instructions.
+    /// </summary>
+    public string? CompletionNote { get; private set; }
+
+    /// <summary>
     /// Ends the flow when the autonomy gate holds a forced step for confirmation. Control passes to the
     /// gate's own pending-confirmation store, and a recipe that stayed active would be resumed from the
     /// step index of its LAST ask pause on the following turn — filling the user's "yes" into that ask
@@ -400,6 +421,12 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
             }
 
             _slots[slot] = value;
+        }
+
+        if (_index == _steps.Count - 1)
+        {
+            CompletionNote = CurrentStepNote;
+            CompletedThisTurn = true;
         }
 
         _index++;

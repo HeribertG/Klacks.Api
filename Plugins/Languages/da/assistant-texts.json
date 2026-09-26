@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Nej",
   "assistant.emptyAnswer.fallbackNotice": "Jeg udførte de ønskede trin, men kunne ikke formulere et svar. Spørg venligst igen.",
   "assistant.emptyAnswer.noActionNotice": "Jeg kunne ikke formulere et svar, og intet blev udført. Prøv venligst igen.",
+  "assistant.recipe.nothingStoredNotice": "Bemærk: Intet blev gemt eller ændret i dette trin.",
   "assistant.inboundClarification.planner.started": "💬 **Afklaring anmodet** — {sender}\nBeskeden var uklar: {summary}\nKlacksy spurgte tilbage privat: \"{question}\"\nBerørt vagt: {shiftContext}\nSvar forventes senest {deadline}. Du får besked om svaret – eller hvis der ikke kommer noget i tide.",
   "assistant.inboundClarification.planner.shiftNone": "ingen fundet i planen",
   "assistant.inboundClarification.planner.answerContext": "💬 Svar på Klacksys spørgsmål \"{question}\" (stillet {asked}).\nOriginal besked: {originalText}",

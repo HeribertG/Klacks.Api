@@ -34,6 +34,7 @@ public static class AgentConditionActionRoutes
         [AgentTriggerKinds.EmptyContainer] = ProactiveActionRoutes.Schedule,
         [AgentTriggerKinds.AvailabilityGap] = ProactiveActionRoutes.ClientAvailability,
         [AgentTriggerKinds.PeriodOverdue] = ProactiveActionRoutes.PeriodClosing,
+        [AgentTriggerKinds.PeriodAutoClose] = ProactiveActionRoutes.PeriodClosing,
         [AgentTriggerKinds.ClientMissingCoreData] = ProactiveActionRoutes.ClientList,
         [AgentTriggerKinds.NoScheduleYet] = ProactiveActionRoutes.Schedule,
         [AgentTriggerKinds.UngroupedWorkforce] = ProactiveActionRoutes.GroupList,

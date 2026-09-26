@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "ไม่",
   "assistant.emptyAnswer.fallbackNotice": "ฉันดำเนินการตามขั้นตอนที่ร้องขอแล้ว แต่ไม่สามารถสรุปคำตอบได้ กรุณาถามอีกครั้ง",
   "assistant.emptyAnswer.noActionNotice": "ฉันไม่สามารถสรุปคำตอบได้ และไม่มีการดำเนินการใด ๆ กรุณาลองอีกครั้ง",
+  "assistant.recipe.nothingStoredNotice": "หมายเหตุ: ในขั้นตอนนี้ไม่มีการบันทึกหรือเปลี่ยนแปลงสิ่งใด",
   "assistant.inboundClarification.planner.started": "💬 **ร้องขอคำชี้แจง** — {sender}\nข้อความไม่ชัดเจน: {summary}\nKlacksy ได้ส่งคำถามกลับไปแบบส่วนตัว: \"{question}\"\nกะที่ได้รับผลกระทบ: {shiftContext}\nคาดว่าจะได้รับคำตอบภายใน {deadline} คุณจะได้รับแจ้งเมื่อมีคำตอบ หรือหากไม่มีคำตอบทันเวลา",
   "assistant.inboundClarification.planner.shiftNone": "ไม่พบในแผน",
   "assistant.inboundClarification.planner.answerContext": "💬 คำตอบสำหรับคำถามของ Klacksy \"{question}\" (ถามเมื่อ {asked})\nข้อความต้นฉบับ: {originalText}",

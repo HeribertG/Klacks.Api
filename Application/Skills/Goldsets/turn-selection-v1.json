@@ -1478,6 +1478,17 @@
       "expectedRecipe": "plan-delivery-deadline"
     },
     {
+      "id": "w05-recipe-period-close-schedule",
+      "message": "Wann soll die Periode automatisch abgeschlossen werden?",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: period-close-schedule",
+      "expectedRecipe": "period-close-schedule"
+    },
+    {
       "id": "w05-messaging-send-message",
       "message": "Sende eine Nachricht an Max",
       "locale": "de",

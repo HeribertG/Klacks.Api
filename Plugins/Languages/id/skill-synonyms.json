@@ -1601,6 +1601,11 @@
   "get_page_controls": [
     "kontrol halaman"
   ],
+  "get_period_close_schedule": [
+    "kapan periode ditutup secara otomatis",
+    "berapa hari setelah akhir periode penutupan dilakukan",
+    "tampilkan jadwal penutupan periode otomatis"
+  ],
   "get_period_hours": [
     "saldo jam karyawan untuk periode",
     "bandingkan jam target dan aktual"
@@ -2510,6 +2515,11 @@
     "ubah skema warna",
     "pakai tampilan terang",
     "kontras tinggi untuk mataku"
+  ],
+  "set_period_close_lag": [
+    "simpan jeda penutupan",
+    "tetapkan jumlah hari sampai penutupan setelah akhir periode",
+    "catat tenggang waktu penutupan otomatis"
   ],
   "set_planning_deadline_lead": [
     "simpan tenggang waktu perencanaan",

@@ -1626,6 +1626,11 @@
   "get_page_controls": [
     "sivun säätimet"
   ],
+  "get_period_close_schedule": [
+    "milloin jaksot suljetaan automaattisesti",
+    "montako päivää jakson päättymisen jälkeen sulkeminen tapahtuu",
+    "näytä jaksojen automaattisen sulkemisen aikataulu"
+  ],
   "get_period_hours": [
     "työntekijän tuntisaldo jaksolla",
     "vertaa tavoite- ja toteutuneita tunteja"
@@ -2556,6 +2561,11 @@
     "vaihda väriteemaa",
     "haluan vaalean näkymän",
     "käytä korkeaa kontrastia silmieni takia"
+  ],
+  "set_period_close_lag": [
+    "tallenna sulkemisen viive",
+    "määritä päivien määrä jakson päättymisestä sulkemiseen",
+    "kirjaa sulkemisviive ylös"
   ],
   "set_planning_deadline_lead": [
     "tallenna suunnittelun varoaika",

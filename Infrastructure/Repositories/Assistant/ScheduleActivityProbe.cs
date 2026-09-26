@@ -58,6 +58,23 @@ public class ScheduleActivityProbe : IScheduleActivityProbe
             .AnyAsync(cancellationToken);
     }
 
+    public async Task<bool> HasDirectWorkInRangeAsync(
+        Group group,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken cancellationToken = default)
+    {
+        var directItems = _context.GroupItem
+            .Where(item => !item.IsDeleted && item.ShiftId != null && item.GroupId == group.Id)
+            .Where(item => item.AnalyseToken == null && item.ScenarioSourceGroupItemId == null);
+
+        return await _context.Work
+            .Where(work => !work.IsDeleted && work.AnalyseToken == null)
+            .Where(work => work.CurrentDate >= from && work.CurrentDate <= to)
+            .Where(work => directItems.Any(item => item.ShiftId == work.ShiftId))
+            .AnyAsync(cancellationToken);
+    }
+
     public async Task<bool> HasPlannableShiftsInRangeAsync(
         Group group,
         DateOnly from,

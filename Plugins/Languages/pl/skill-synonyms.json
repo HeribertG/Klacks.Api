@@ -1650,6 +1650,11 @@
   "get_page_controls": [
     "sterowanie stroną"
   ],
+  "get_period_close_schedule": [
+    "kiedy okresy są zamykane automatycznie",
+    "ile dni po końcu okresu następuje zamknięcie",
+    "pokaż harmonogram automatycznego zamykania okresów"
+  ],
   "get_period_hours": [
     "bilans godzin pracownika za okres",
     "porównaj godziny docelowe i rzeczywiste"
@@ -2597,6 +2602,11 @@
     "zmień kolory na wysokokontrastowe",
     "użyj jasnego motywu",
     "przyciemnij ekran"
+  ],
+  "set_period_close_lag": [
+    "ustaw opóźnienie zamknięcia",
+    "określ liczbę dni do zamknięcia po końcu okresu",
+    "wprowadź zwłokę przed zamknięciem okresu"
   ],
   "set_planning_deadline_lead": [
     "ustaw czas wyprzedzenia planowania",

@@ -229,5 +229,13 @@
     "planeamento",
     "planejamento",
     "plano"
+  ],
+  "period-close-schedule": [
+    "encerramento automático",
+    "encerramento do período",
+    "fecho automático",
+    "fecho do período",
+    "prazo de encerramento",
+    "atraso do encerramento"
   ]
 }

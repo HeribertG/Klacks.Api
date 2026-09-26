@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["mobiele diensten bundelen in een nieuwe container", "container maken van nabijgelegen diensten", "container bouwen met routeoptimalisatie"],
   "setup-planning-profile": ["een eigen planningsprofiel instellen", "eigen planningsregels voor het bedrijf vastleggen"],
   "setup-consultation": ["hoe begin ik eigenlijk met het systeem", "wat zijn de eerste stappen in het systeem", "er staat nog helemaal niets gepland", "hoe stel ik Klacks helemaal vanaf het begin in"],
-  "plan-delivery-deadline": ["uiterste datum voor het rooster bij verzending per e-mail of post", "deadline voor de afronding van het dienstrooster voor verzending per post", "uiterste opleverdatum van de planning voor verzending per e-mail"]
+  "plan-delivery-deadline": ["uiterste datum voor het rooster bij verzending per e-mail of post", "deadline voor de afronding van het dienstrooster voor verzending per post", "uiterste opleverdatum van de planning voor verzending per e-mail"],
+  "period-close-schedule": ["wanneer moeten perioden automatisch worden afgesloten", "hoeveel dagen na het einde van de periode moet automatisch worden afgesloten", "op welk moment moet de periode vanzelf worden afgesloten"]
 }

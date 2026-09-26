@@ -2,7 +2,11 @@
 
 /// <summary>
 /// Seals a period (optionally scoped to a group) and raises a post-commit PeriodClosedEvent for country-pack hooks.
+/// Rights come from the request's principal. Only when there is no HttpContext at all (a background caller)
+/// does the command's ActingAdminUserId count, and only while that id still belongs to an admin; the seal and
+/// the audit entry are then recorded under that admin's id with AuditActorDefaults.AutonomousActorName.
 /// </summary>
+/// <param name="audienceResolver">Lists the current admins, to confirm a background acting admin still is one</param>
 
 using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
@@ -12,6 +16,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -34,6 +39,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     private readonly IPeriodValidationLoader _validationLoader;
     private readonly IComplianceEscalationService _escalationService;
     private readonly IUserService _userService;
+    private readonly IPlanningAudienceResolver _audienceResolver;
 
     public ClosePeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -46,6 +52,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         IPeriodValidationLoader validationLoader,
         IComplianceEscalationService escalationService,
         IUserService userService,
+        IPlanningAudienceResolver audienceResolver,
         IUnitOfWork unitOfWork,
         ILogger<ClosePeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -60,6 +67,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _validationLoader = validationLoader;
         _escalationService = escalationService;
         _userService = userService;
+        _audienceResolver = audienceResolver;
     }
 
     /// <summary>
@@ -78,16 +86,23 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
             if (request.StartDate > request.EndDate)
                 throw new Domain.Exceptions.InvalidRequestException("Start date must be before or equal to end date.");
 
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
+            var httpContext = _httpContextAccessor.HttpContext;
+            var actingAdminUserId = await ResolveActingAdminAsync(httpContext, request, cancellationToken);
+            var isAdmin = actingAdminUserId is not null
+                || httpContext?.User?.IsInRole(Roles.Admin) == true;
+            var isAuthorised = httpContext?.User?.IsInRole(Roles.Authorised) == true;
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");
 
             await EnsureViolationsAcknowledgedAsync(request, cancellationToken);
 
-            var sealedBy = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            var sealedBy = actingAdminUserId?.ToString()
+                ?? httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? AuditActorDefaults.UnknownActor;
+            var performedByName = actingAdminUserId is not null
+                ? AuditActorDefaults.AutonomousActorName
+                : _userService.GetDisplayName();
 
             int workCount;
             int breakCount;
@@ -137,7 +152,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
                     request.Reason,
                     affected,
                     sealedBy,
-                    _userService.GetDisplayName()),
+                    performedByName),
                 cancellationToken);
 
             capturedSealedBy = sealedBy;
@@ -153,6 +168,43 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         await DispatchPeriodClosedAsync(request, capturedSealedBy, capturedWorkCount, capturedBreakCount, capturedSealedDayCount);
 
         return total;
+    }
+
+    /// <summary>
+    /// The admin a background seal acts for, or null when the request's own principal decides. The order
+    /// is a security property: whenever an HttpContext exists - authenticated or not - the command's
+    /// ActingAdminUserId is ignored, so no request can borrow an admin identity through it. Without an
+    /// HttpContext the id is only accepted when it is in the admin list of IPlanningAudienceResolver. That
+    /// list is cached for up to five minutes (PlanningAudienceResolver), so this is a check against the
+    /// admin set of the last few minutes, not a live role lookup: it rejects an id that never was an admin,
+    /// but an admin demoted within that window can still be accepted until the cache expires. Withdrawing
+    /// consent immediately is done through the autonomy gates (kill switch, autonomy level, governance
+    /// rule), which the caller re-reads right before sending the command.
+    /// </summary>
+    private async Task<Guid?> ResolveActingAdminAsync(
+        HttpContext? httpContext,
+        ClosePeriodByGroupCommand request,
+        CancellationToken cancellationToken)
+    {
+        if (httpContext is not null
+            || request.ActingAdminUserId is not { } actingAdminUserId
+            || actingAdminUserId == Guid.Empty)
+        {
+            return null;
+        }
+
+        var adminIds = await _audienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        var stillAdmin = adminIds.Any(id => Guid.TryParse(id, out var adminId) && adminId == actingAdminUserId);
+        if (!stillAdmin)
+        {
+            _logger.LogWarning(
+                "Background period close for {Start}..{End} names acting admin {AdminUserId}, who is no longer an admin; refused",
+                request.StartDate, request.EndDate, actingAdminUserId);
+
+            return null;
+        }
+
+        return actingAdminUserId;
     }
 
     /// <summary>

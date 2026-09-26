@@ -63,6 +63,7 @@ public static class ProactiveGovernanceDefaults
         AgentTriggerKinds.NoScheduleYet,
         AgentTriggerKinds.OpenOrder,
         AgentTriggerKinds.OrderImportFailed,
+        AgentTriggerKinds.PeriodAutoClose,
         AgentTriggerKinds.PeriodCloseDue,
         AgentTriggerKinds.PeriodOverdue,
         AgentTriggerKinds.ScenarioPending,
@@ -85,6 +86,8 @@ public static class ProactiveGovernanceDefaults
     /// admins' own preferences already allow it, and nobody would know why. Every other kind keeps the
     /// fail-safe Hint default. This only sets the CEILING an admin can raise a rule to - the global
     /// level, admin preferences, the kill switch and Enabled remain the actual brakes.
+    /// period_auto_close is deliberately NOT listed: its rule is the explicit opt-in for sealing periods
+    /// unattended (see PeriodAutoCloseResolver), so it starts at Hint and only an administrator raises it.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, ProactiveMaxAction> SeededMaxActionOverrides =
         new Dictionary<string, ProactiveMaxAction>(StringComparer.Ordinal)

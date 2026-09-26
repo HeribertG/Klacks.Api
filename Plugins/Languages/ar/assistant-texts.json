@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "لا",
   "assistant.emptyAnswer.fallbackNotice": "قمت بتنفيذ الخطوات المطلوبة، لكنني لم أتمكن من صياغة إجابة. يُرجى إعادة طرح السؤال.",
   "assistant.emptyAnswer.noActionNotice": "لم أتمكن من صياغة إجابة، ولم يتم تنفيذ أي شيء. يُرجى المحاولة مرة أخرى.",
+  "assistant.recipe.nothingStoredNotice": "ملاحظة: لم يتم حفظ أو تغيير أي شيء في هذه الخطوة.",
   "assistant.inboundClarification.planner.started": "💬 **طلب توضيح** — {sender}\nالرسالة كانت غير واضحة: {summary}\nوجّه Klacksy سؤالًا خاصًا: \"{question}\"\nالنوبة المتأثرة: {shiftContext}\nيُتوقَّع الرد بحلول {deadline}. سيتم إعلامك بالرد، أو في حال عدم ورود رد في الوقت المحدد.",
   "assistant.inboundClarification.planner.shiftNone": "لم يتم العثور على أي نوبة في الجدول",
   "assistant.inboundClarification.planner.answerContext": "💬 رد على سؤال Klacksy \"{question}\" (تم طرحه في {asked}).\nالرسالة الأصلية: {originalText}",

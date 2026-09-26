@@ -38,6 +38,7 @@ public static class AgentTriggerKinds
     public const string EvalRegression = "eval_regression";
     public const string UngroupedWorkforce = "ungrouped_workforce";
     public const string UngroupedShifts = "ungrouped_shifts";
+    public const string PeriodAutoClose = "period_auto_close";
 
     /// <summary>
     /// Every kind declared above, in declaration order. AgentTriggerPreferencesController validates an
@@ -82,7 +83,8 @@ public static class AgentTriggerKinds
         NoScheduleYet,
         EvalRegression,
         UngroupedWorkforce,
-        UngroupedShifts
+        UngroupedShifts,
+        PeriodAutoClose
     ];
 }
 

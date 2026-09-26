@@ -95,6 +95,58 @@ internal sealed class RecipeTurnState
     internal bool GateHoldNoteDue { get; private set; }
 
     /// <summary>
+    /// True once a read-only recipe (only ask/search steps) executed its final step in this turn. From then on
+    /// the turn's reply must not write anything (ReadOnlyRecipeWriteGuard) or claim that it did.
+    /// </summary>
+    internal bool ReadOnlyRecipeCompleted => Plan is { CompletedThisTurn: true, IsReadOnly: true };
+
+    /// <summary>
+    /// The note that carries the final step's reply instructions into the reply call of a read-only recipe,
+    /// or null when no read-only recipe completed this turn. Mutating recipes are deliberately left out: their
+    /// final notes were never written for, nor verified in, a reply call.
+    /// </summary>
+    internal string? CompletionNote => ReadOnlyRecipeCompleted
+        ? RecipeEngineDefaults.ReadOnlyRecipeCompletedNotePrefix + Plan!.CompletionNote
+        : null;
+
+    /// <summary>
+    /// Rejects the side-effecting calls of an iteration that follows a completed read-only recipe and returns
+    /// the calls that may execute; see ReadOnlyRecipeWriteGuard.
+    /// </summary>
+    /// <param name="executableCalls">The calls the repeat guard already let through.</param>
+    internal List<LLMFunctionCall> RejectWrites(List<LLMFunctionCall> executableCalls) =>
+        ReadOnlyRecipeWriteGuard.Reject(executableCalls, ReadOnlyRecipeCompleted);
+
+    /// <summary>
+    /// Recipe forcing spine shared by both chat loops, so a hook can never land on only one path: while a
+    /// recipe plan is active and a confirmation is not already being forced, the iteration's tool scope is
+    /// narrowed to the recipe's current step skill and the step is reported as forced (the caller sets
+    /// tool_choice=required and appends the step note). This forces the ordered chain step by step.
+    /// </summary>
+    /// <param name="confirmThisIteration">True while the pending-confirmation gate narrows the iteration.</param>
+    /// <param name="availableFunctions">The turn's full toolset, searched for the step skill.</param>
+    /// <param name="iterationFunctions">The toolset the iteration would use without forcing.</param>
+    internal (bool Forcing, List<LLMFunction> Functions, string? StepNote) ResolveIteration(
+        bool confirmThisIteration,
+        List<LLMFunction> availableFunctions,
+        List<LLMFunction> iterationFunctions)
+    {
+        if (confirmThisIteration || Forcing?.IsActive != true)
+        {
+            return (false, iterationFunctions, null);
+        }
+
+        var recipeFunction = availableFunctions.FirstOrDefault(
+            f => string.Equals(f.Name, Forcing.CurrentSkill, StringComparison.OrdinalIgnoreCase));
+        if (recipeFunction == null)
+        {
+            return (false, iterationFunctions, null);
+        }
+
+        return (true, new List<LLMFunction> { recipeFunction }, Forcing.CurrentStepNote);
+    }
+
+    /// <summary>
     /// Runs the shared pre-loop preparation and opens the run row. The write to
     /// <see cref="LLMContext.ActiveRecipeName"/> happens here because the post-turn hooks read the name
     /// off the very same context instance, for cut plans just as much as for data-driven ones (W1.5). No run

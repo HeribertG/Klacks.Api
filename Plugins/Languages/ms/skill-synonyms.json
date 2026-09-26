@@ -1608,6 +1608,11 @@
   "get_page_controls": [
     "kawalan halaman"
   ],
+  "get_period_close_schedule": [
+    "bilakah tempoh ditutup secara automatik",
+    "berapa hari selepas tamat tempoh penutupan dibuat",
+    "tunjukkan jadual penutupan tempoh automatik"
+  ],
   "get_period_hours": [
     "baki jam pekerja untuk tempoh",
     "banding jam sasaran dan sebenar"
@@ -2522,6 +2527,11 @@
     "saya nak tema kontras tinggi",
     "tukar warna skrin",
     "guna mod terang"
+  ],
+  "set_period_close_lag": [
+    "simpan kelewatan penutupan",
+    "tetapkan bilangan hari sehingga penutupan selepas tamat tempoh",
+    "rekodkan tempoh tunggu penutupan automatik"
   ],
   "set_planning_deadline_lead": [
     "simpan tempoh pendahuluan perancangan",

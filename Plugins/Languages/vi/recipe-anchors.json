@@ -203,5 +203,13 @@
     "hạn chót",
     "hạn cuối",
     "ngày chốt"
+  ],
+  "period-close-schedule": [
+    "chốt kỳ tự động",
+    "tự động chốt kỳ",
+    "lịch chốt kỳ",
+    "độ trễ chốt",
+    "hạn chốt kỳ",
+    "ngày chốt kỳ"
   ]
 }

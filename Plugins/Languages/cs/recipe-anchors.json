@@ -224,5 +224,13 @@
     "nejzazší termín",
     "lhůt",
     "uzávěrk"
+  ],
+  "period-close-schedule": [
+    "automatické uzavření",
+    "automatického uzavření",
+    "automatická uzávěrka",
+    "uzavření období",
+    "termín uzavření",
+    "prodleva uzavření"
   ]
 }

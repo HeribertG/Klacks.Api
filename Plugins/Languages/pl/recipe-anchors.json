@@ -230,5 +230,13 @@
     "harmonogram",
     "termin",
     "deadline"
+  ],
+  "period-close-schedule": [
+    "automatyczne zamknięcie",
+    "automatycznego zamknięcia",
+    "zamknięcie okresu",
+    "zamknięcia okresu",
+    "opóźnienie zamknięcia",
+    "termin zamknięcia"
   ]
 }

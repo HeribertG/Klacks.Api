@@ -34,6 +34,11 @@ public static class LLMLoopConstants
     // turn. The toolset is kept identical across loop iterations so provider prompt caches stay
     // valid; the once-per-turn rule for write skills is enforced at execution time via this
     // rejection, not by shrinking the tool array.
+    public const string ReadOnlyRecipeWriteRejectedResult =
+        "Rejected: this turn ran a read-only guided flow, so nothing may be stored, closed or confirmed in " +
+        "it and this action did NOT run. Answer from the flow's result and offer the action as a separate " +
+        "request the user can send; never say that it was carried out.";
+
     public const string RepeatedWriteCallRejectedResult =
         "Rejected: this action already ran in this turn and must not run twice. " +
         "Use its earlier result from the previous function results instead of calling it again.";

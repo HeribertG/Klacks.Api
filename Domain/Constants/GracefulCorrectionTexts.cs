@@ -41,6 +41,8 @@ public static class GracefulCorrectionTexts
     public const string EmptyAnswerFallbackNotice = "assistant.emptyAnswer.fallbackNotice";
     public const string EmptyAnswerNoActionNotice = "assistant.emptyAnswer.noActionNotice";
 
+    public const string RecipeNothingStoredNotice = "assistant.recipe.nothingStoredNotice";
+
     public const string PreviousActionPlaceholder = "{previousAction}";
     public const string FirstOptionPlaceholder = "{optionA}";
     public const string SecondOptionPlaceholder = "{optionB}";
@@ -54,7 +56,8 @@ public static class GracefulCorrectionTexts
 
     /// <summary>Every key a language pack has to ship. The coverage guard reads exactly this list.</summary>
     public static readonly IReadOnlyList<string> RequiredKeys =
-        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo, EmptyAnswerFallbackNotice, EmptyAnswerNoActionNotice];
+        [ClarificationQuestion, RecipeConfirmYes, RecipeConfirmNo, EmptyAnswerFallbackNotice, EmptyAnswerNoActionNotice,
+            RecipeNothingStoredNotice];
 
     /// <summary>Every placeholder the clarification question must contain, in every language.</summary>
     public static readonly IReadOnlyList<string> RequiredPlaceholders =
@@ -110,6 +113,13 @@ public static class GracefulCorrectionTexts
                 [French] = "Je n'ai pas pu formuler de réponse et rien n'a été exécuté. Merci de réessayer.",
                 [Italian] = "Non sono riuscito a formulare una risposta e non è stato eseguito nulla. " +
                     "Si prega di riprovare."
+            },
+            [RecipeNothingStoredNotice] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "Hinweis: In diesem Schritt wurde nichts gespeichert oder geändert.",
+                [English] = RecipeEngineDefaults.NothingStoredNotice,
+                [French] = "Remarque : rien n'a été enregistré ni modifié à cette étape.",
+                [Italian] = "Nota: in questo passaggio non è stato salvato né modificato nulla."
             }
         };
 

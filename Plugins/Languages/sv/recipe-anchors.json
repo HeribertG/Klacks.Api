@@ -221,5 +221,12 @@
     "deadline",
     "arbetsschema",
     "tjänstgöringsschema"
+  ],
+  "period-close-schedule": [
+    "periodavslut",
+    "avslutstidpunkt",
+    "avslutsfördröjning",
+    "automatiska avslut",
+    "avslutsfrist"
   ]
 }

@@ -243,6 +243,9 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INextPeriodAutonomyResolver, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutonomyResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EvalRegressionDetector>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.INextPeriodAutoCommitService, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutoCommitService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.PeriodAutoCloseDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPeriodAutoCloseResolver, Klacks.Api.Application.Services.Assistant.Triggers.PeriodAutoCloseResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPeriodAutoCloseService, Klacks.Api.Application.Services.Assistant.Triggers.PeriodAutoCloseService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentSkillExecutionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillExecutionRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientContractReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientContractReadRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IClientAvailabilityReadRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ClientAvailabilityReadRepository>();

@@ -23,6 +23,15 @@ public interface IScheduleActivityProbe
     Task<bool> HasWorkInRangeAsync(Group group, DateOnly from, DateOnly to, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// True when at least one real work assignment falls into [from, to] on a shift that hangs DIRECTLY on
+    /// the group (its own GroupItem), descendants excluded. This is the scope a group-aware seal, the day
+    /// locks and the payroll export act on (WorkRepository.SealByPeriodAndGroup joins the group's own
+    /// GroupItem only), so it answers "would closing this group seal any work at all" - unlike
+    /// HasWorkInRangeAsync, which also counts work of child groups.
+    /// </summary>
+    Task<bool> HasDirectWorkInRangeAsync(Group group, DateOnly from, DateOnly to, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// True when at least one staffable shift of the group or one of its descendants is valid within
     /// [from, to]. Answers "is there anything to plan", which is a different question from
     /// "has anything been planned" — a period with shifts but no assignments is precisely what the

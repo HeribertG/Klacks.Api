@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["saml mobile tjenester i en ny container", "opret container fra nærliggende tjenester", "byg container med ruteoptimering"],
   "setup-planning-profile": ["opsætte en egen planlægningsprofil", "fastlægge egne planlægningsregler for virksomheden"],
   "setup-consultation": ["hvordan kommer jeg overhovedet i gang", "hvad er de første skridt i systemet", "der er slet ikke planlagt noget endnu", "hvordan sætter jeg Klacks op fra bunden"],
-  "plan-delivery-deadline": ["seneste frist for en færdig vagtplan ved udsendelse med e-mail eller brev", "deadline for vagtplanens færdiggørelse ved forsendelse med post", "sidste frist for planlægningen af vagtplanen til udsendelse pr. post"]
+  "plan-delivery-deadline": ["seneste frist for en færdig vagtplan ved udsendelse med e-mail eller brev", "deadline for vagtplanens færdiggørelse ved forsendelse med post", "sidste frist for planlægningen af vagtplanen til udsendelse pr. post"],
+  "period-close-schedule": ["hvornår skal perioder afsluttes automatisk", "hvor mange dage efter periodens slutning skal der afsluttes automatisk", "på hvilket tidspunkt skal perioden afsluttes af sig selv"]
 }

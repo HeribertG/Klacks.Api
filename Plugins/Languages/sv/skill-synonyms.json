@@ -1628,6 +1628,11 @@
   "get_page_controls": [
     "sidkontroller"
   ],
+  "get_period_close_schedule": [
+    "när avslutas perioder automatiskt",
+    "hur många dagar efter periodens slut avslutas det",
+    "visa tidplanen för det automatiska periodavslutet"
+  ],
   "get_period_hours": [
     "medarbetarens timsaldo för perioden",
     "jämför mål- och faktiska timmar"
@@ -2537,6 +2542,11 @@
     "ändra färgschemat",
     "använd ljust utseende",
     "stark kontrast för mina ögon"
+  ],
+  "set_period_close_lag": [
+    "spara avslutsfördröjningen",
+    "fastställ antalet dagar till avslut efter periodens slut",
+    "registrera fördröjningen för periodavslutet"
   ],
   "set_planning_deadline_lead": [
     "spara planeringens framförhållning",

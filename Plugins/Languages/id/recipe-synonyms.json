@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["gabungkan layanan mobile ke kontainer baru", "buat kontainer dari layanan terdekat", "susun kontainer dengan rute optimal"],
   "setup-planning-profile": ["menyiapkan profil perencanaan sendiri", "menetapkan aturan perencanaan sendiri untuk perusahaan"],
   "setup-consultation": ["bagaimana cara memulai menggunakan sistem ini", "apa saja langkah pertama dalam sistem", "belum ada sama sekali yang direncanakan", "bagaimana cara mengatur Klacks dari awal"],
-  "plan-delivery-deadline": ["batas waktu penyelesaian jadwal kerja untuk pengiriman lewat email atau pos", "tenggat jadwal dinas agar sampai ke karyawan lewat surel atau surat", "tenggat akhir penyusunan rencana jadwal sebelum dikirim ke karyawan"]
+  "plan-delivery-deadline": ["batas waktu penyelesaian jadwal kerja untuk pengiriman lewat email atau pos", "tenggat jadwal dinas agar sampai ke karyawan lewat surel atau surat", "tenggat akhir penyusunan rencana jadwal sebelum dikirim ke karyawan"],
+  "period-close-schedule": ["kapan periode harus ditutup secara otomatis", "berapa hari setelah akhir periode harus ditutup otomatis", "pada saat apa periode ditutup dengan sendirinya"]
 }

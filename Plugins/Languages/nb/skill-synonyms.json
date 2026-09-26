@@ -1612,6 +1612,11 @@
   "get_page_controls": [
     "sidekontroller"
   ],
+  "get_period_close_schedule": [
+    "når blir periodene avsluttet automatisk",
+    "hvor mange dager etter periodeslutt avsluttes det",
+    "vise planen for automatisk periodeavslutning"
+  ],
   "get_period_hours": [
     "den ansattes timesaldo for perioden",
     "sammenligne mål- og faktiske timer"
@@ -2517,6 +2522,11 @@
     "endre fargevalget",
     "bruk lyst tema",
     "høy kontrast for øynene"
+  ],
+  "set_period_close_lag": [
+    "lagre avslutningsforsinkelsen",
+    "fastsette antall dager til avslutning etter periodeslutt",
+    "registrere forsinkelsen for avslutning av perioden"
   ],
   "set_planning_deadline_lead": [
     "lagre forhåndstiden for planleggingen",

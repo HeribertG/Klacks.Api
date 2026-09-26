@@ -180,5 +180,12 @@
     "tarikh akhir",
     "tarikh tutup",
     "perancangan jadual"
+  ],
+  "period-close-schedule": [
+    "penutupan automatik",
+    "penutupan tempoh",
+    "kelewatan penutupan",
+    "jadual penutupan",
+    "tempoh tunggu penutupan"
   ]
 }

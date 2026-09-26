@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "否",
   "assistant.emptyAnswer.fallbackNotice": "我已执行所需的步骤，但无法给出回答。请重新提问。",
   "assistant.emptyAnswer.noActionNotice": "我无法给出回答，也没有执行任何操作。请重试。",
+  "assistant.recipe.nothingStoredNotice": "提示：此步骤中没有保存或更改任何内容。",
   "assistant.inboundClarification.planner.started": "💬 **已请求澄清** — {sender}\n消息内容不明确：{summary}\nKlacksy 已私下追问：“{question}”\n涉及班次：{shiftContext}\n预计在 {deadline} 前收到回复。您将收到答复通知，或在未按时收到答复时获知此情况。",
   "assistant.inboundClarification.planner.shiftNone": "计划中未找到",
   "assistant.inboundClarification.planner.answerContext": "💬 对 Klacksy 问题“{question}”的答复（提问时间：{asked}）。\n原始消息：{originalText}",

@@ -25,5 +25,6 @@
   "bundle-mobile-services-into-container": ["grupează serviciile mobile într-un container nou", "creează container din servicii apropiate", "construiește container cu rută optimizată"],
   "setup-planning-profile": ["configurează un profil de planificare propriu", "stabilește reguli de planificare proprii pentru firmă"],
   "setup-consultation": ["cum încep de fapt să folosesc sistemul", "care sunt primii pași în sistem", "nu este încă absolut nimic planificat", "cum configurez Klacks de la zero"],
-  "plan-delivery-deadline": ["termenul limită al planului de servicii pentru trimiterea prin e-mail", "data limită a planificării pentru expedierea prin poștă", "termen limită plan de servicii livrare pe e-mail sau prin poștă"]
+  "plan-delivery-deadline": ["termenul limită al planului de servicii pentru trimiterea prin e-mail", "data limită a planificării pentru expedierea prin poștă", "termen limită plan de servicii livrare pe e-mail sau prin poștă"],
+  "period-close-schedule": ["când trebuie închise automat perioadele", "câte zile după sfârșitul perioadei trebuie închis automat", "în ce moment trebuie să se închidă perioada de la sine"]
 }

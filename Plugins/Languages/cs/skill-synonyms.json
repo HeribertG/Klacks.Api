@@ -1642,6 +1642,11 @@
   "get_page_controls": [
     "ovládací prvky stránky"
   ],
+  "get_period_close_schedule": [
+    "kdy se období automaticky uzavírají",
+    "kolik dní po konci období se uzavírá",
+    "zobrazit plán automatického uzavření období"
+  ],
   "get_period_hours": [
     "bilance hodin zaměstnance za období",
     "porovnat cílové a skutečné hodiny"
@@ -2582,6 +2587,11 @@
     "změnit barevné schéma",
     "použít světlý vzhled",
     "vysoký kontrast pro oči"
+  ],
+  "set_period_close_lag": [
+    "uložit prodlevu uzavření",
+    "nastavit počet dnů do uzavření po konci období",
+    "zadat zpoždění uzavření období"
   ],
   "set_planning_deadline_lead": [
     "uložit plánovací předstih",

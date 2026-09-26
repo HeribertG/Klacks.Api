@@ -150,8 +150,10 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
         // Direct-apply captures carry GroupId=null, so a group-scoped seal misses them above. Recover the ones
         // whose created works belong to clients that are members of the sealed group over the seal period, so a
         // group seal still measures the direct-apply plans it finalised instead of letting them expire later.
-        var periodFromDt = periodFrom.ToDateTime(TimeOnly.MinValue);
-        var periodUntilDt = periodUntil.ToDateTime(TimeOnly.MaxValue);
+        // group_item.valid_from/valid_until are timestamptz: Npgsql rejects Kind=Unspecified parameters, which
+        // made every group-scoped seal's measurement sweep fail (live 2026-09-26).
+        var periodFromDt = periodFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var periodUntilDt = periodUntil.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
         var groupClientIds = await _context.GroupItem
             .Where(gi => gi.GroupId == groupId
@@ -202,7 +204,7 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
     public async Task<WizardRunMeasurementData> LoadMeasurementDataAsync(
         WizardRunCapture capture, string recoveryMarker, CancellationToken ct = default)
     {
-        var anchor = capture.CreateTime ?? DateTime.MinValue;
+        var anchor = capture.CreateTime ?? DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
 
         var workIds = await _context.WizardRunCaptureWork
             .Where(l => l.CaptureId == capture.Id && !l.IsDeleted)

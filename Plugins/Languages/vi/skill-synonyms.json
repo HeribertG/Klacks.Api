@@ -1599,6 +1599,11 @@
   "get_page_controls": [
     "điều khiển trang"
   ],
+  "get_period_close_schedule": [
+    "khi nào các kỳ được chốt tự động",
+    "bao nhiêu ngày sau khi kết thúc kỳ thì chốt",
+    "xem lịch chốt kỳ tự động"
+  ],
   "get_period_hours": [
     "số dư giờ của nhân viên trong kỳ",
     "so sánh giờ mục tiêu và giờ thực tế"
@@ -2525,6 +2530,11 @@
     "đổi giao diện màu sắc",
     "dùng giao diện sáng",
     "tăng độ tương phản cho mắt"
+  ],
+  "set_period_close_lag": [
+    "lưu độ trễ chốt kỳ",
+    "đặt số ngày từ khi kết thúc kỳ đến khi chốt",
+    "ghi nhận thời gian chờ trước khi tự động chốt kỳ"
   ],
   "set_planning_deadline_lead": [
     "lưu thời gian chuẩn bị lập kế hoạch",

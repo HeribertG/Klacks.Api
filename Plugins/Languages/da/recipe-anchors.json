@@ -187,5 +187,12 @@
     "planlægning",
     "frist",
     "deadline"
+  ],
+  "period-close-schedule": [
+    "periodeafslutning",
+    "automatisk afslutning",
+    "afslutningstidspunkt",
+    "afslutningsfrist",
+    "afslutningsforsinkelse"
   ]
 }

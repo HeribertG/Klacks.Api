@@ -315,7 +315,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-exports,closing-periods}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-employee-group,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -361,7 +361,7 @@
         "fr": "Naviguer vers une page",
         "it": "Naviga a una pagina"
       },
-      "version": 27
+      "version": 28
     },
     {
       "name": "get_page_controls",
@@ -44853,6 +44853,150 @@
         "en": "Store the planning lead",
         "fr": "Enregistrer le délai de planification",
         "it": "Salvare l'anticipo di pianificazione"
+      },
+      "version": 1
+    },
+    {
+      "name": "get_period_close_schedule",
+      "area": "period",
+      "description": "Reports when periods are closed: a period is closed lagDays after its last day. Without lagDays it reports today, the stored lag, the global autonomy level and whether that level allows closing without a person. With lagDays it reports per group the close date of the running period and of a previous one still waiting. Use when asked when or how many days after the period end periods are closed. Do NOT use to close a period or to store a value.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "lagDays",
+          "description": "Days after the period end on which the period is closed, 0 to 31; omit to get the context only",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "abschlusszeitpunkt",
+          "abschlussnachlauf",
+          "automatischer abschluss"
+        ],
+        "en": [
+          "auto-close schedule",
+          "automatic close schedule",
+          "close delay days"
+        ],
+        "fr": [
+          "date de clôture automatique",
+          "délai de clôture"
+        ],
+        "it": [
+          "data di chiusura automatica",
+          "ritardo di chiusura"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wann werden perioden automatisch abgeschlossen",
+          "wie viele tage nach periodenende wird abgeschlossen",
+          "zeitplan für den automatischen periodenabschluss anzeigen"
+        ],
+        "en": [
+          "when are periods closed automatically",
+          "how many days after the period ends is it closed",
+          "show the automatic period closing schedule"
+        ],
+        "fr": [
+          "quand les périodes sont-elles clôturées automatiquement",
+          "combien de jours après la fin de la période clôture-t-on",
+          "afficher le calendrier de clôture automatique"
+        ],
+        "it": [
+          "quando vengono chiusi automaticamente i periodi",
+          "quanti giorni dopo la fine del periodo avviene la chiusura",
+          "mostrare il calendario della chiusura automatica"
+        ]
+      },
+      "labels": {
+        "de": "Automatischen Abschlusszeitpunkt anzeigen",
+        "en": "Show the automatic close schedule",
+        "fr": "Afficher le moment de la clôture automatique",
+        "it": "Mostrare il momento della chiusura automatica"
+      },
+      "version": 1
+    },
+    {
+      "name": "set_period_close_lag",
+      "area": "settings",
+      "description": "Stores how many days after a period ends it is closed (0 to 31). The stored value is the proof that the user was asked when periods are to be closed: without it Klacksy never closes a period on its own. It moves the close reminders and, only at the autonomy level fully autonomous, the automatic close. Do NOT use to merely calculate or show the close date and do NOT use to close a period now.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "lagDays",
+          "description": "Days after the period end on which the period is closed, 0 to 31",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "abschlussnachlauf speichern"
+        ],
+        "en": [
+          "store the close delay"
+        ],
+        "fr": [
+          "enregistrer le délai de clôture"
+        ],
+        "it": [
+          "salvare il ritardo di chiusura"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "abschlussnachlauf speichern",
+          "abschlussnachlauf festlegen",
+          "abschlussnachlauf hinterlegen",
+          "abschluss-nachlauf speichern"
+        ],
+        "en": [
+          "store the close delay",
+          "save the close delay",
+          "set the close delay",
+          "save the closing delay in days"
+        ],
+        "fr": [
+          "enregistrer le délai de clôture",
+          "sauvegarder le délai de clôture",
+          "définir le délai de clôture"
+        ],
+        "it": [
+          "salvare il ritardo di chiusura",
+          "impostare il ritardo di chiusura",
+          "memorizzare il ritardo di chiusura"
+        ]
+      },
+      "labels": {
+        "de": "Abschlussnachlauf speichern",
+        "en": "Store the close delay",
+        "fr": "Enregistrer le délai de clôture",
+        "it": "Salvare il ritardo di chiusura"
       },
       "version": 1
     }

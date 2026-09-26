@@ -4,6 +4,7 @@
   "assistant.recipe.confirmNo": "Nu",
   "assistant.emptyAnswer.fallbackNotice": "Am executat pașii solicitați, dar nu am putut formula un răspuns. Vă rog să întrebați din nou.",
   "assistant.emptyAnswer.noActionNotice": "Nu am putut formula un răspuns și nu s-a executat nimic. Vă rog să încercați din nou.",
+  "assistant.recipe.nothingStoredNotice": "Notă: în acest pas nu s-a salvat și nu s-a modificat nimic.",
   "assistant.inboundClarification.planner.started": "💬 **Clarificare solicitată** — {sender}\nMesajul a fost neclar: {summary}\nKlacksy a întrebat înapoi în privat: \"{question}\"\nTură afectată: {shiftContext}\nRăspunsul era așteptat până la {deadline}. Veți fi informat despre răspuns sau dacă acesta nu sosește la timp.",
   "assistant.inboundClarification.planner.shiftNone": "nu s-a găsit nicio tură în plan",
   "assistant.inboundClarification.planner.answerContext": "💬 Răspuns la întrebarea lui Klacksy \"{question}\" (întrebată la {asked}).\nMesajul original: {originalText}",

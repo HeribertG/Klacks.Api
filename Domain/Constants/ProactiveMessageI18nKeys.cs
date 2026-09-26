@@ -19,6 +19,31 @@ public static class ProactiveMessageI18nKeys
     /// </summary>
     public const string TargetHoursDriftSummary = "assistant.proactive.targetHoursDriftSummary";
     public const string PeriodCloseDue = "assistant.proactive.periodCloseDue";
+
+    /// <summary>
+    /// The form of <see cref="PeriodCloseDue"/> used when a close lag is stored: the period end and the close
+    /// date are different days then, and the plain sentence ("ends on {date}") would present the close date
+    /// as the period end. Parameters group, periodEnd, date (the close date) and days (until the close date).
+    /// Without a lag the plain key keeps being sent unchanged.
+    /// </summary>
+    public const string PeriodCloseDueWithLag = "assistant.proactive.periodCloseDueWithLag";
+
+    /// <summary>
+    /// Klacksy sealed a group's period on its own (full autonomy). Parameters group, from and until.
+    /// </summary>
+    public const string PeriodAutoClosed = "assistant.proactive.periodAutoClosed";
+
+    /// <summary>
+    /// One key per cause for a period Klacksy was allowed to close but did not, all with the parameters group,
+    /// from, until and errors (only meaningful for the errors key). Refused, Failed and NotVerified share the
+    /// Failed sentence: for a planner all three mean "check the period and close it yourself if needed".
+    /// </summary>
+    public const string PeriodAutoCloseBlockedNoLag = "assistant.proactive.periodAutoCloseBlockedNoLag";
+    public const string PeriodAutoCloseBlockedWindowMissed = "assistant.proactive.periodAutoCloseBlockedWindowMissed";
+    public const string PeriodAutoCloseBlockedPartiallySealed = "assistant.proactive.periodAutoCloseBlockedPartiallySealed";
+    public const string PeriodAutoCloseBlockedErrors = "assistant.proactive.periodAutoCloseBlockedErrors";
+    public const string PeriodAutoCloseBlockedAutonomyLowered = "assistant.proactive.periodAutoCloseBlockedAutonomyLowered";
+    public const string PeriodAutoCloseBlockedFailed = "assistant.proactive.periodAutoCloseBlockedFailed";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
     public const string LockConflict = "assistant.proactive.lockConflict";
     public const string ScenarioPending = "assistant.proactive.scenarioPending";
