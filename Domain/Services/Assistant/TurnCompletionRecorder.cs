@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
+using ProviderUsage = Klacks.Api.Domain.Services.Assistant.Providers.LLMUsage;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -205,7 +206,7 @@ public class TurnCompletionRecorder
                 conversation, context.Message, storedAnswer, model.ModelId, _turnState.StartedAtUtc));
 
             await TryRecordAsync(UsagePart, turnKind, context.UserId, () => _conversationManager.TrackUsageAsync(
-                context.UserId, model, conversation, _turnState.Usage, _turnState.ElapsedMs,
+                context.UserId, model, conversation, UsageWithEstimatedOutput(), _turnState.ElapsedMs,
                 hasError: hasError,
                 errorMessage: hasError ? TurnInterruptionDefaults.ErroredUsageMessage : null,
                 ttftMs: _turnState.TtftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs,
@@ -237,6 +238,23 @@ public class TurnCompletionRecorder
                 _logger.LogError(ex, "Error starting the background tasks of a cut-off turn for user {UserId}", context.UserId);
             }
         }
+    }
+
+    /// <summary>
+    /// The turn's usage for its row. A provider reports usage only when a call ends, so a turn cut off mid-text
+    /// reports none and would be stored with zero output tokens; then the streamed characters are counted with
+    /// the same chars-per-token estimate the history budget uses. Reported usage is never replaced.
+    /// </summary>
+    private ProviderUsage UsageWithEstimatedOutput()
+    {
+        var usage = new ProviderUsage();
+        LLMUsageAccumulator.Add(usage, _turnState.Usage);
+        if (usage.OutputTokens == 0)
+        {
+            usage.OutputTokens = _turnState.StreamedContent.Length / LLMService.CharsPerToken;
+        }
+
+        return usage;
     }
 
     private void RecordStoppedTurnAnchor(
