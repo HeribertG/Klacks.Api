@@ -42,6 +42,13 @@ public class AgentSkill : BaseEntity
 
     public int Version { get; set; } = 1;
 
+    /// <summary>
+    /// The skill-seeds.json version this row was last written from. Only SkillSeedLoader writes it; the
+    /// learning loop and administrators raise Version alone, so a local change can no longer hide a newer
+    /// curated or exported definition from the loader.
+    /// </summary>
+    public int SeedVersion { get; set; } = AgentSkillDefaults.UnseededVersion;
+
     public Dictionary<string, List<string>>? Synonyms { get; set; }
 
     /// <summary>

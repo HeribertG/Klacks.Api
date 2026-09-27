@@ -1,11 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Loads skill definitions from skill-seeds.json and syncs them with the AgentSkill database table.
-/// INSERT for a name the table does not hold yet, UPDATE only when the seed version is strictly
-/// greater than the stored one, SKIP otherwise. The comparison is on version alone — an edited
-/// description whose version stayed the same is silently skipped, which reads as "the change had no
-/// effect" rather than as an error, so bump the version with every content change.
+/// Loads skill definitions from skill-seeds.json (and the seed files of installed feature plugins) and syncs
+/// them with the AgentSkill table. INSERT for a name the table does not hold yet. For a stored row the seed
+/// version is compared with SeedVersion, which only this loader writes: the learning loop and administrators
+/// raise Version alone, so their changes no longer hide a newer curated or exported definition. UPDATE in full
+/// when the seed version is greater than SeedVersion; SKIP otherwise - an edited description whose version
+/// stayed the same is still silently skipped, so bump the version with every content change.
+/// A row never written under this rule (SeedVersion 0, every row right after the migration that introduced
+/// the column) is adopted once: behind its seed it is updated in full as before, otherwise only its
+/// description, Version and SeedVersion follow the seed, so an administrator's enabled flag, keywords or
+/// handler config survive the adoption.
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -97,6 +102,7 @@ public class SkillSeedLoader
 
         var inserted = 0;
         var updated = 0;
+        var adopted = 0;
         var skipped = 0;
 
         foreach (var seedDefinition in seedFile.Skills)
@@ -110,16 +116,17 @@ public class SkillSeedLoader
 
             if (existingByName.TryGetValue(seedDefinition.Name, out var existing))
             {
-                if (seedDefinition.Version > existing.Version)
+                switch (await SyncExistingAsync(existing, seedDefinition, cancellationToken))
                 {
-                    ApplyDefinitionToSkill(existing, seedDefinition);
-                    await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
-                    await WritePhrasesAsync(seedDefinition, cancellationToken);
-                    updated++;
-                }
-                else
-                {
-                    skipped++;
+                    case SeedSyncOutcome.Updated:
+                        updated++;
+                        break;
+                    case SeedSyncOutcome.Adopted:
+                        adopted++;
+                        break;
+                    default:
+                        skipped++;
+                        break;
                 }
             }
             else
@@ -133,8 +140,8 @@ public class SkillSeedLoader
         }
 
         _logger.LogInformation(
-            "Skill seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, skipped: {Skipped})",
-            seedFile.Skills.Count, inserted, updated, skipped);
+            "Skill seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, adopted: {Adopted}, skipped: {Skipped})",
+            seedFile.Skills.Count, inserted, updated, adopted, skipped);
 
         await LoadPluginSkillSeedsAsync(agent, existingByName, cancellationToken);
     }
@@ -257,11 +264,8 @@ public class SkillSeedLoader
 
                 if (existingByName.TryGetValue(definition.Name, out var existing))
                 {
-                    if (definition.Version > existing.Version)
+                    if (await SyncExistingAsync(existing, definition, cancellationToken) != SeedSyncOutcome.Skipped)
                     {
-                        ApplyDefinitionToSkill(existing, definition);
-                        await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
-                        await WritePhrasesAsync(definition, cancellationToken);
                         updated++;
                     }
                 }
@@ -347,6 +351,46 @@ public class SkillSeedLoader
         return agent;
     }
 
+    private async Task<SeedSyncOutcome> SyncExistingAsync(
+        AgentSkill existing, SkillSeedDefinition definition, CancellationToken cancellationToken)
+    {
+        var neverSeeded = existing.SeedVersion == AgentSkillDefaults.UnseededVersion;
+        var appliesInFull = neverSeeded
+            ? definition.Version > existing.Version
+            : definition.Version > existing.SeedVersion;
+
+        if (appliesInFull)
+        {
+            ApplyDefinitionToSkill(existing, definition);
+            await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
+            await WritePhrasesAsync(definition, cancellationToken);
+            return SeedSyncOutcome.Updated;
+        }
+
+        if (!neverSeeded)
+        {
+            return SeedSyncOutcome.Skipped;
+        }
+
+        AdoptSeedDescription(existing, definition);
+        await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
+        return SeedSyncOutcome.Adopted;
+    }
+
+    private static void AdoptSeedDescription(AgentSkill skill, SkillSeedDefinition definition)
+    {
+        skill.Description = definition.Description;
+        skill.Version = definition.Version;
+        skill.SeedVersion = definition.Version;
+    }
+
+    private enum SeedSyncOutcome
+    {
+        Updated,
+        Adopted,
+        Skipped
+    }
+
     /// <summary>
     /// Mirrors the phrases of a seeded skill into skill_phrase alongside the legacy jsonb columns.
     /// The seed owns its own origin only: replacing the Seed rows leaves the rows a language pack or
@@ -399,7 +443,8 @@ public class SkillSeedLoader
             AlwaysOn = definition.AlwaysOn,
             PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill),
             Effect = ParseEffect(definition.Effect),
-            Version = definition.Version
+            Version = definition.Version,
+            SeedVersion = definition.Version
         };
     }
 
@@ -428,6 +473,7 @@ public class SkillSeedLoader
         skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
         skill.Effect = ParseEffect(definition.Effect);
         skill.Version = definition.Version;
+        skill.SeedVersion = definition.Version;
     }
 
     /// <summary>

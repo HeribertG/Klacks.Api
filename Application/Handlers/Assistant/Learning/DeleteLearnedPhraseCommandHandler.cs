@@ -10,6 +10,12 @@
 /// overwriting that would be the silent data loss the stale check in the approval path exists to prevent.
 /// That skip is reported as a conflict instead of as plain success, because the outcome differs from what
 /// the administrator asked for: the row is discarded, the live description is not the one they saw.
+/// A proposal already exported into skill-seeds.json is left untouched only while the live description still
+/// equals what was exported - the export reached a release and the seed loader reseeded it, so rejecting here
+/// would disagree with what is actually still live. mark-exported runs before a human reviews the export
+/// branch, so an exported proposal whose live description differs (still the old wording, or something else
+/// entirely) never got that far: the export branch was discarded and this rejection is the reviewer's veto, not
+/// a disagreement with a release.
 /// </summary>
 /// <param name="phraseRepository">Learned trigger phrases</param>
 /// <param name="proposalRepository">Proposed description changes</param>
@@ -68,6 +74,11 @@ public class DeleteLearnedPhraseCommandHandler
             return LearningMutationResult.NotFound();
         }
 
+        if (proposal.Status == ProposedChangeStatuses.Exported && await IsReseededAsync(proposal, cancellationToken))
+        {
+            return LearningMutationResult.AlreadyExported();
+        }
+
         var wasApplied = proposal.Status == ProposedChangeStatuses.AppliedAuto;
         var reverted = await TryRevertAppliedChangeAsync(proposal, cancellationToken);
 
@@ -93,6 +104,15 @@ public class DeleteLearnedPhraseCommandHandler
         }
 
         return LearningMutationResult.Success();
+    }
+
+    // The seed loader reseeds a skill from an exported proposal only after the release that shipped it. Until
+    // then, or when the export branch was discarded, the live description never reached this proposal's
+    // ValueAfter and rejecting the proposal here does not disagree with anything actually live.
+    private async Task<bool> IsReseededAsync(ProposedSkillChange proposal, CancellationToken cancellationToken)
+    {
+        var skill = await _agentSkillRepository.GetByIdAsync(proposal.SkillId, cancellationToken);
+        return skill != null && string.Equals(skill.Description, proposal.ValueAfter, StringComparison.Ordinal);
     }
 
     private async Task<bool> TryRevertAppliedChangeAsync(

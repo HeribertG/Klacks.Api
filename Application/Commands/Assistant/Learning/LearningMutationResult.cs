@@ -26,4 +26,14 @@ public sealed record LearningMutationResult(bool Found, bool Conflict, string? E
             + "was therefore left as it is.");
 
     public static LearningMutationResult Invalid(string error) => new(true, false, error);
+
+    /// <summary>
+    /// The row was exported and the shipped description is already live: a release reseeded the skill from
+    /// skill-seeds.json. Rejecting it now would disagree with what is actually still live, so it is left
+    /// exactly as it was and reported as a conflict rather than as success.
+    /// </summary>
+    public static LearningMutationResult AlreadyExported() => new(
+        true,
+        true,
+        "The proposal was already exported into skill-seeds.json and can no longer be withdrawn here.");
 }

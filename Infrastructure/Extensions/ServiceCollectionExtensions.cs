@@ -397,6 +397,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILearnedArtefactResolver, Klacks.Api.Application.Services.Assistant.Learning.LearnedArtefactResolver>();
         services.AddScoped<ISkillLearningFitnessService, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningFitnessService>();
         services.AddScoped<ISkillLearningPruner, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningPruner>();
+        services.AddScoped<ISkillIndexStateVerifier, Klacks.Api.Application.Services.Assistant.Learning.SkillIndexStateVerifier>();
         services.AddScoped<IGoldsetHoldoutReplayGate, Klacks.Api.Application.Services.Assistant.Learning.GoldsetHoldoutReplayGate>();
         services.AddScoped<ISkillDescriptionSharpener, Klacks.Api.Application.Services.Assistant.Learning.SkillDescriptionSharpener>();
         services.AddScoped<ISkillLearningLoop, Klacks.Api.Application.Services.Assistant.Learning.SkillLearningLoop>();

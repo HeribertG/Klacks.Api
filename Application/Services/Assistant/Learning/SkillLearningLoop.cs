@@ -9,7 +9,12 @@
 /// Failure is per cluster, never per run: an exception or an unusable model answer sends that one cluster
 /// back to ready with the reason recorded, and the run continues. Only a cluster that survived its
 /// attempt budget becomes unfulfillable, so an outage cannot quietly declare wishes unservable - the
-/// attempt counter is raised for a real failed attempt, not for a missing model.
+/// attempt counter is raised for a real failed attempt, not for a missing model. The one exception is
+/// SkillIndexNotRestoredException, which fails the whole run on purpose: a description nothing measured
+/// may still be what retrieval searches.
+/// Outside AutoApply no cluster is claimed at all - a learned phrase or recipe goes live the moment it is
+/// written, and Collect and Gate never write live. Cases and clusters keep being collected by the case
+/// collector.
 /// </summary>
 /// <param name="clusterRepository">Claims, finishes and releases clusters</param>
 /// <param name="caseRepository">Supplies the evidence behind a cluster</param>
@@ -17,13 +22,16 @@
 /// <param name="routingOracle">Assembles the current toolset per cluster</param>
 /// <param name="phraseLearner">Runs one phrase round for a phrase gap</param>
 /// <param name="capabilityLearner">Runs one composition round for a wish several skills could serve together</param>
-/// <param name="descriptionSharpener">Applies the pending description proposals behind the same gate</param>
+/// <param name="descriptionSharpener">Decides the pending description proposals for the run's trigger</param>
 /// <param name="proposalRepository">Opens the narrowing proposal a too-broad recipe trigger produces</param>
+/// <param name="optionsProvider">Supplies the learning mode; cluster rounds run only in AutoApply</param>
 /// <param name="logger">One summary line per run</param>
 
 using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -44,6 +52,7 @@ public class SkillLearningLoop : ISkillLearningLoop
     private readonly ICapabilityLearner _capabilityLearner;
     private readonly ISkillDescriptionSharpener _descriptionSharpener;
     private readonly IProposedSkillChangeRepository _proposalRepository;
+    private readonly ISkillLearningOptionsProvider _optionsProvider;
     private readonly ILogger<SkillLearningLoop> _logger;
 
     public SkillLearningLoop(
@@ -55,6 +64,7 @@ public class SkillLearningLoop : ISkillLearningLoop
         ICapabilityLearner capabilityLearner,
         ISkillDescriptionSharpener descriptionSharpener,
         IProposedSkillChangeRepository proposalRepository,
+        ISkillLearningOptionsProvider optionsProvider,
         ILogger<SkillLearningLoop> logger)
     {
         _clusterRepository = clusterRepository;
@@ -65,14 +75,42 @@ public class SkillLearningLoop : ISkillLearningLoop
         _capabilityLearner = capabilityLearner;
         _descriptionSharpener = descriptionSharpener;
         _proposalRepository = proposalRepository;
+        _optionsProvider = optionsProvider;
         _logger = logger;
     }
 
-    public async Task<SkillLearningRunSummary> RunAsync(CancellationToken cancellationToken = default)
+    public async Task<SkillLearningRunSummary> RunAsync(
+        SkillLearningRunTrigger trigger, CancellationToken cancellationToken = default)
     {
         await _clusterRepository.ReleaseStaleClaimsAsync(
             DateTime.UtcNow.AddMinutes(-SkillLearningDefaults.StaleClaimMinutes), cancellationToken);
 
+        var options = await _optionsProvider.GetAsync(cancellationToken);
+        var rounds = options.Mode == SkillLearningMode.AutoApply
+            ? await RunClusterRoundsAsync(cancellationToken)
+            : SkipClusterRounds(options.Mode);
+
+        var sharpenResult = await TrySharpenAsync(trigger, cancellationToken);
+
+        var summary = new SkillLearningRunSummary(
+            rounds.Claimed, rounds.Learned, rounds.AlreadyRouted, rounds.Unfulfillable, rounds.Failed,
+            sharpenResult.Applied, sharpenResult.Blocked, rounds.RecipeTriggerProposals,
+            sharpenResult.OptimizerAttempts, sharpenResult.OptimizerFailures);
+
+        _logger.LogInformation(
+            "Skill learning run finished: claimed={Processed}, learned={Learned}, sharpened={Sharpened}, "
+            + "blocked={Blocked}, unfulfillable={Unfulfillable}, alreadyRouted={AlreadyRouted}, "
+            + "recipeTriggerProposals={RecipeTriggerProposals}, failed={Failed}, "
+            + "optimizerAttempts={OptimizerAttempts}, optimizerFailures={OptimizerFailures}",
+            summary.Processed, summary.Learned, summary.Sharpened, summary.Blocked,
+            summary.Unfulfillable, summary.AlreadyRouted, summary.RecipeTriggerProposals, summary.Failed,
+            summary.OptimizerAttempts, summary.OptimizerFailures);
+
+        return summary;
+    }
+
+    private async Task<ClusterRounds> RunClusterRoundsAsync(CancellationToken cancellationToken)
+    {
         var claimed = await ClaimAsync(cancellationToken);
         var triage = await TriageAsync(claimed, cancellationToken);
 
@@ -111,20 +149,15 @@ public class SkillLearningLoop : ISkillLearningLoop
             }
         }
 
-        var (sharpened, blocked) = await TrySharpenAsync(cancellationToken);
+        return new ClusterRounds(
+            claimed.Count, learned, alreadyRouted, unfulfillable, failed, triage.RecipeTriggerProposals);
+    }
 
-        var summary = new SkillLearningRunSummary(
-            claimed.Count, learned, alreadyRouted, unfulfillable, failed, sharpened, blocked,
-            triage.RecipeTriggerProposals);
-
+    private ClusterRounds SkipClusterRounds(SkillLearningMode mode)
+    {
         _logger.LogInformation(
-            "Skill learning run finished: claimed={Processed}, learned={Learned}, sharpened={Sharpened}, "
-            + "blocked={Blocked}, unfulfillable={Unfulfillable}, alreadyRouted={AlreadyRouted}, "
-            + "recipeTriggerProposals={RecipeTriggerProposals}, failed={Failed}",
-            summary.Processed, summary.Learned, summary.Sharpened, summary.Blocked,
-            summary.Unfulfillable, summary.AlreadyRouted, summary.RecipeTriggerProposals, summary.Failed);
-
-        return summary;
+            "Cluster rounds skipped: learning mode {Mode} writes no phrase or recipe live", mode);
+        return ClusterRounds.None;
     }
 
     // The classifier answers for the whole batch at once, so its failure is the whole batch's failure.
@@ -158,17 +191,19 @@ public class SkillLearningLoop : ISkillLearningLoop
 
     // The sharpening is a second, independent half of the run. It must not take the phrase learning down
     // with it: the clusters are already finished at this point, and losing their outcome to an unrelated
-    // failure would make the next run redo work that already succeeded.
-    private async Task<(int Sharpened, int Blocked)> TrySharpenAsync(CancellationToken cancellationToken)
+    // failure would make the next run redo work that already succeeded - except when a restored description
+    // did not reach the index, which fails the run on purpose.
+    private async Task<SkillDescriptionSharpenerResult> TrySharpenAsync(
+        SkillLearningRunTrigger trigger, CancellationToken cancellationToken)
     {
         try
         {
-            return await _descriptionSharpener.RunAsync(cancellationToken);
+            return await _descriptionSharpener.RunAsync(trigger, cancellationToken);
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception) when (exception is not OperationCanceledException and not SkillIndexNotRestoredException)
         {
             _logger.LogWarning(exception, "Description sharpening failed");
-            return (0, 0);
+            return SkillDescriptionSharpenerResult.Empty;
         }
     }
 
@@ -604,4 +639,10 @@ public class SkillLearningLoop : ISkillLearningLoop
 
     private sealed record TriageResult(
         IReadOnlyList<SkillLearningTriageInput> Pending, int AlreadyRouted, int RecipeTriggerProposals);
+
+    private sealed record ClusterRounds(
+        int Claimed, int Learned, int AlreadyRouted, int Unfulfillable, int Failed, int RecipeTriggerProposals)
+    {
+        public static ClusterRounds None { get; } = new(0, 0, 0, 0, 0, 0);
+    }
 }

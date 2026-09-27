@@ -26,6 +26,9 @@ public class AgentSkillConfiguration : IEntityTypeConfiguration<AgentSkill>
         builder.Property(e => e.Effect)
             .HasDefaultValue(AgentSkillDefaults.Effect)
             .ValueGeneratedNever();
+        builder.Property(e => e.SeedVersion)
+            .HasDefaultValue(AgentSkillDefaults.UnseededVersion)
+            .ValueGeneratedNever();
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
         builder.Property(e => e.Labels)

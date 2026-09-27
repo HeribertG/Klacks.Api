@@ -6,6 +6,8 @@
 /// <param name="AlreadyRouted">Clusters whose target was retrievable before anything was learned</param>
 /// <param name="Blocked">Description proposals withheld because the regression gate turned red</param>
 /// <param name="RecipeTriggerProposals">Clusters closed as a too-broad recipe trigger, each with one pending narrowing proposal</param>
+/// <param name="OptimizerAttempts">Suggestion requests the description optimizer sent to the model this run</param>
+/// <param name="OptimizerFailures">Of those, the ones whose answer could not be used (provider error, empty, or unparseable)</param>
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed record SkillLearningRunSummary(
@@ -16,7 +18,9 @@ public sealed record SkillLearningRunSummary(
     int Failed,
     int Sharpened,
     int Blocked,
-    int RecipeTriggerProposals)
+    int RecipeTriggerProposals,
+    int OptimizerAttempts,
+    int OptimizerFailures)
 {
-    public static SkillLearningRunSummary Empty { get; } = new(0, 0, 0, 0, 0, 0, 0, 0);
+    public static SkillLearningRunSummary Empty { get; } = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }

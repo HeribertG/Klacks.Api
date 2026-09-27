@@ -86,7 +86,15 @@ public class ProposedSkillChangeRepository : IProposedSkillChangeRepository
             .AnyAsync(p => p.SkillId == skillId
                         && p.Field == field
                         && (p.Status == ProposedChangeStatuses.Pending
-                            || p.Status == ProposedChangeStatuses.AppliedAuto),
+                            || (p.Status == ProposedChangeStatuses.AppliedAuto
+                                && (p.Field != ProposedChangeFields.Description
+                                    || _context.AgentSkills.Any(s => s.Id == p.SkillId && s.Description == p.ValueAfter)))
+                            || (p.Status == ProposedChangeStatuses.GatePassed
+                                && (p.Field != ProposedChangeFields.Description
+                                    || _context.AgentSkills.Any(s => s.Id == p.SkillId && s.Description == p.ValueBefore)))
+                            || (p.Status == ProposedChangeStatuses.Exported
+                                && p.Field == ProposedChangeFields.Description
+                                && _context.AgentSkills.Any(s => s.Id == p.SkillId && s.Description == p.ValueBefore))),
                 cancellationToken);
     }
 }

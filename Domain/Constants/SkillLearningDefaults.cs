@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Domain.Constants;
@@ -152,12 +153,14 @@ public static class SkillLearningDefaults
     public const int MaxProposalsPerRun = 3;
 
     /// <summary>
-    /// How many unconsumed selection misses of the latest full eval run are read per learning run. It is
-    /// a safety ceiling, not a sample: the query is already narrowed to the train items of the goldset,
-    /// so the value only has to stay above the goldset size, or misses would be cut off by a limit rather
-    /// than by the partition and the tail could never be reached.
+    /// How many unconsumed selection misses of the latest full eval run are read per learning goldset and
+    /// learning run. It is a safety ceiling, not a sample: the query is already narrowed to the train items
+    /// of that goldset, so the value has to stay above the train item count of the largest learning goldset
+    /// (the paraphrase goldset holds up to three paraphrases per train item of the default goldset), or misses
+    /// would be cut off by the limit rather than by the partition and could only be reached once a later run
+    /// consumed the ones in front. LearningGoldsetMissLimitGuardTests checks this against the goldset files.
     /// </summary>
-    public const int MaxGoldsetMissesPerRun = 400;
+    public const int MaxGoldsetMissesPerRun = 1000;
 
     /// <summary>
     /// How many goldset-born description proposals one run may open. Every group is one paid model call
@@ -229,4 +232,45 @@ public static class SkillLearningDefaults
     /// How many activated artefacts one fitness or pruning pass may look at.
     /// </summary>
     public const int MaxArtefactsPerFitnessRun = 200;
+
+    /// <summary>
+    /// Learning mode of an installation whose settings carry no, or no known, KLACKSY_LEARNING_MODE. Collect
+    /// records cases, clusters and pending proposals but measures and applies nothing, so an installation
+    /// only rewrites its own catalogue after somebody deliberately chose another mode.
+    /// </summary>
+    public const SkillLearningMode Mode = SkillLearningMode.Collect;
+
+    /// <summary>
+    /// Smallest net gain - fixed minus regressed items over the paired replay of train misses and holdout
+    /// items - a description proposal must show to pass the gate. Settings-backed via
+    /// KLACKSY_LEARNING_GATE_MIN_NET_GAIN, to be raised above the noise a null proposal measures.
+    /// </summary>
+    public const int GateMinNetGain = 1;
+
+    /// <summary>
+    /// Upper bound on train misses replayed per proposal. Each replay runs twice (old and new description)
+    /// and is a paid provider call; the optimizer attaches at most five misses, so this only guards against
+    /// evidence written by hand.
+    /// </summary>
+    public const int MaxTargetedTrainReplaysPerProposal = 25;
+
+    /// <summary>
+    /// Gate runs in which a description proposal may come out not measurable - no replayed item answered on
+    /// both sides, or none of its planned holdout items - before it is rejected. The first such run leaves it
+    /// pending, because a provider outage is transient; the count is kept in gate_metrics_json.
+    /// </summary>
+    public const int MaxUnmeasuredGateAttempts = 2;
+
+    /// <summary>
+    /// How many pending description proposals a learning run checks, before anything else, for a candidate an
+    /// interrupted run left live. Wider than MaxProposalsPerRun because newer proposals of other skills can push
+    /// the interrupted one out of the per-run window.
+    /// </summary>
+    public const int MaxPendingProposalsCheckedForInterruptedGate = 500;
+
+    /// <summary>
+    /// How many gate-passed proposals one export request returns and how many ids one mark-exported request
+    /// may name.
+    /// </summary>
+    public const int MaxExportCandidates = 200;
 }

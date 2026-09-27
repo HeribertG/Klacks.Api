@@ -62,7 +62,7 @@ public static class LLMSeed
 
         migrationBuilder.Sql($@"
             INSERT INTO llm_models (id, model_id, model_name, api_model_id, provider_id, is_enabled, is_default, cost_per_input_token, cost_per_output_token, max_tokens, context_window, category, create_time, update_time, is_deleted) VALUES
-            (gen_random_uuid(), 'gpt-54', 'GPT-5.4', 'gpt-5.4', 'openai', true, true, 0.0025, 0.015, 128000, 1050000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'gpt-54', 'GPT-5.4', 'gpt-5.4', 'openai', true, false, 0.0025, 0.015, 128000, 1050000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-54-mini', 'GPT-5.4 Mini', 'gpt-5.4-mini', 'openai', true, false, 0.00075, 0.0045, 128000, 400000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-54-nano', 'GPT-5.4 Nano', 'gpt-5.4-nano', 'openai', true, false, 0.0002, 0.00125, 128000, 400000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-53-codex', 'GPT-5.3 Codex', 'gpt-5.3-codex', 'openai', true, false, 0.00175, 0.014, 128000, 400000, 'coding', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
@@ -70,7 +70,7 @@ public static class LLMSeed
             (gen_random_uuid(), 'claude-sonnet-5', 'Claude Sonnet 5', 'claude-sonnet-5', 'anthropic', true, false, 0.003, 0.015, 128000, 1000000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'claude-fable-5', 'Claude Fable 5', 'claude-fable-5', 'anthropic', true, false, 0.010, 0.050, 128000, 1000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'claude-haiku-45', 'Claude Haiku 4.5', 'claude-haiku-4-5-20251001', 'anthropic', false, false, 0.001, 0.005, 64000, 200000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'gemini-31-pro', 'Gemini 3.1 Pro', 'gemini-3.1-pro-preview', 'google', true, true, 0.002, 0.012, 64000, 2000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'gemini-31-pro', 'Gemini 3.1 Pro', 'gemini-3.1-pro-preview', 'google', true, false, 0.002, 0.012, 64000, 2000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemini-3-flash', 'Gemini 3 Flash', 'gemini-3-flash-preview', 'google', true, false, 0.0005, 0.003, 64000, 1000000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemini-31-flash-lite', 'Gemini 3.1 Flash Lite', 'gemini-3.1-flash-lite-preview', 'google', true, false, 0.0001, 0.0004, 8192, 1000000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemini-25-flash', 'Gemini 2.5 Flash', 'gemini-2.5-flash', 'google', true, false, 0.0003, 0.0025, 8192, 1000000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
@@ -98,8 +98,8 @@ public static class LLMSeed
             (gen_random_uuid(), 'gemma-4-31b', 'Gemma 4 31B', 'gemma-4-31b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
 
-        SeedModelIfMissing(migrationBuilder, now, "deepseek-flash", "DeepSeek V4.1 Flash", "deepseek-flash", "deepseek", 0.000300, 0.001200, 8192, 128000, "balanced");
-        SeedModelIfMissing(migrationBuilder, now, "deepseek-v4-pro", "DeepSeek V4 Pro", "deepseek-v4-pro", "deepseek", 0.001320, 0.003960, 8192, 128000, "powerful");
+        SeedModelIfMissing(migrationBuilder, now, "deepseek-flash", "DeepSeek V4.1 Flash", "deepseek-flash", "deepseek", 0.000300, 0.001200, 8192, 128000, "balanced", isEnabled: true, isDefault: true);
+        SeedModelIfMissing(migrationBuilder, now, "deepseek-v4-pro", "DeepSeek V4 Pro", "deepseek-v4-pro", "deepseek", 0.001320, 0.003960, 8192, 128000, "powerful", isEnabled: true, isDefault: false);
 
         SeedModelIfMissing(migrationBuilder, now, "gpt-oss-120b-cerebras", "GPT-OSS 120B (Cerebras)", "gpt-oss-120b", "cerebras", 0.00035, 0.00075, 32768, 131072, "balanced");
         SeedModelIfMissing(migrationBuilder, now, "gemma-4-31b-cerebras", "Gemma 4 31B (Cerebras)", "gemma-4-31b", "cerebras", 0.001, 0.0015, 8192, 131072, "powerful");
@@ -122,11 +122,13 @@ public static class LLMSeed
         double costPerOutputToken,
         int maxTokens,
         int contextWindow,
-        string category)
+        string category,
+        bool isEnabled = false,
+        bool isDefault = false)
     {
         migrationBuilder.Sql(FormattableString.Invariant($@"
             INSERT INTO llm_models (id, model_id, model_name, api_model_id, provider_id, is_enabled, is_default, cost_per_input_token, cost_per_output_token, max_tokens, context_window, category, create_time, update_time, is_deleted)
-            SELECT gen_random_uuid(), '{modelId}', '{modelName}', '{apiModelId}', '{providerId}', false, false, {costPerInputToken}, {costPerOutputToken}, {maxTokens}, {contextWindow}, '{category}', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            SELECT gen_random_uuid(), '{modelId}', '{modelName}', '{apiModelId}', '{providerId}', {isEnabled.ToString().ToLowerInvariant()}, {isDefault.ToString().ToLowerInvariant()}, {costPerInputToken}, {costPerOutputToken}, {maxTokens}, {contextWindow}, '{category}', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
             WHERE NOT EXISTS (SELECT 1 FROM llm_models WHERE model_id = '{modelId}');
         "));
     }

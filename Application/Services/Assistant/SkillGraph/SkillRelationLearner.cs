@@ -6,9 +6,14 @@
 /// and sequential edges (conditional probability that B follows A). Confidence rises slowly on
 /// positive evidence and falls fast on genuine contradiction; pairs with too little data are left
 /// unchanged (cold-start safe). It corrects the substrate prior up or down but never deletes edges.
+/// Promotion to Active widens the toolset of every turn, so it happens only in the AutoApply learning
+/// mode; in Collect and Gate edges are still created, reinforced and decayed - Confidence, SupportCount
+/// and ContradictionCount keep moving - but outside AutoApply the Status of an existing Active edge never
+/// changes, and no Candidate edge is newly promoted to Active either.
 /// </summary>
 /// <param name="usageRepository">Source of recent per-session skill usage records.</param>
 /// <param name="relationRepository">Persistence of the skill-relationship edges.</param>
+/// <param name="optionsProvider">Supplies the learning mode that decides whether edges may be promoted.</param>
 /// <param name="logger">Diagnostic logging of the learning outcome.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -22,15 +27,18 @@ public class SkillRelationLearner : ISkillRelationLearner
 {
     private readonly ISkillUsageRepository _usageRepository;
     private readonly ISkillRelationRepository _relationRepository;
+    private readonly ISkillLearningOptionsProvider _optionsProvider;
     private readonly ILogger<SkillRelationLearner> _logger;
 
     public SkillRelationLearner(
         ISkillUsageRepository usageRepository,
         ISkillRelationRepository relationRepository,
+        ISkillLearningOptionsProvider optionsProvider,
         ILogger<SkillRelationLearner> logger)
     {
         _usageRepository = usageRepository;
         _relationRepository = relationRepository;
+        _optionsProvider = optionsProvider;
         _logger = logger;
     }
 
@@ -48,6 +56,9 @@ public class SkillRelationLearner : ISkillRelationLearner
             return 0;
         }
 
+        var options = await _optionsProvider.GetAsync(cancellationToken);
+        var mayPromote = options.Mode == SkillLearningMode.AutoApply;
+
         var stats = ComputeStats(sessions);
         var existing = await _relationRepository.GetAllAsync(cancellationToken);
         var agentIds = existing.Select(e => e.AgentId).Distinct().ToList();
@@ -58,8 +69,8 @@ public class SkillRelationLearner : ISkillRelationLearner
         foreach (var agentId in agentIds)
         {
             var agentEdges = existing.Where(e => e.AgentId == agentId).ToList();
-            ApplyCoRequired(agentId, agentEdges, stats, toAdd, toUpdate);
-            ApplySequential(agentId, agentEdges, stats, toAdd, toUpdate);
+            ApplyCoRequired(agentId, agentEdges, stats, toAdd, toUpdate, mayPromote);
+            ApplySequential(agentId, agentEdges, stats, toAdd, toUpdate, mayPromote);
         }
 
         if (toUpdate.Count > 0)
@@ -81,7 +92,7 @@ public class SkillRelationLearner : ISkillRelationLearner
 
     private void ApplyCoRequired(
         Guid agentId, List<SkillRelation> agentEdges, UsageStats stats,
-        List<SkillRelation> toAdd, List<SkillRelation> toUpdate)
+        List<SkillRelation> toAdd, List<SkillRelation> toUpdate, bool mayPromote)
     {
         var edges = agentEdges
             .Where(e => e.Type == SkillRelationType.CoRequired)
@@ -103,18 +114,19 @@ public class SkillRelationLearner : ISkillRelationLearner
             {
                 if (edge != null)
                 {
-                    Reinforce(edge, SkillGraphConstants.CoRequiredActiveThreshold);
+                    Reinforce(edge, SkillGraphConstants.CoRequiredActiveThreshold, mayPromote);
                     toUpdate.Add(edge);
                 }
                 else
                 {
                     toAdd.Add(NewLearnedEdge(agentId, key.Item1, key.Item2, SkillRelationType.CoRequired,
-                        SkillGraphConstants.LearnedCoOccurrenceProvenance, SkillGraphConstants.CoRequiredActiveThreshold));
+                        SkillGraphConstants.LearnedCoOccurrenceProvenance, SkillGraphConstants.CoRequiredActiveThreshold,
+                        mayPromote));
                 }
             }
             else if (edge != null && lift < SkillGraphConstants.MaxLiftForContradiction)
             {
-                Decay(edge, SkillGraphConstants.CoRequiredActiveThreshold);
+                Decay(edge, SkillGraphConstants.CoRequiredActiveThreshold, mayPromote);
                 toUpdate.Add(edge);
             }
         }
@@ -127,14 +139,14 @@ public class SkillRelationLearner : ISkillRelationLearner
                 continue;
             }
 
-            Decay(edge, SkillGraphConstants.CoRequiredActiveThreshold);
+            Decay(edge, SkillGraphConstants.CoRequiredActiveThreshold, mayPromote);
             toUpdate.Add(edge);
         }
     }
 
     private void ApplySequential(
         Guid agentId, List<SkillRelation> agentEdges, UsageStats stats,
-        List<SkillRelation> toAdd, List<SkillRelation> toUpdate)
+        List<SkillRelation> toAdd, List<SkillRelation> toUpdate, bool mayPromote)
     {
         var edges = agentEdges
             .Where(e => e.Type == SkillRelationType.Sequential)
@@ -156,18 +168,19 @@ public class SkillRelationLearner : ISkillRelationLearner
             {
                 if (edge != null)
                 {
-                    Reinforce(edge, SkillGraphConstants.SequentialActiveThreshold);
+                    Reinforce(edge, SkillGraphConstants.SequentialActiveThreshold, mayPromote);
                     toUpdate.Add(edge);
                 }
                 else
                 {
                     toAdd.Add(NewLearnedEdge(agentId, key.Item1, key.Item2, SkillRelationType.Sequential,
-                        SkillGraphConstants.LearnedSequentialProvenance, SkillGraphConstants.SequentialActiveThreshold));
+                        SkillGraphConstants.LearnedSequentialProvenance, SkillGraphConstants.SequentialActiveThreshold,
+                        mayPromote));
                 }
             }
             else if (edge != null && probability < SkillGraphConstants.MinSequentialProbability)
             {
-                Decay(edge, SkillGraphConstants.SequentialActiveThreshold);
+                Decay(edge, SkillGraphConstants.SequentialActiveThreshold, mayPromote);
                 toUpdate.Add(edge);
             }
         }
@@ -180,7 +193,7 @@ public class SkillRelationLearner : ISkillRelationLearner
                 continue;
             }
 
-            Decay(edge, SkillGraphConstants.SequentialActiveThreshold);
+            Decay(edge, SkillGraphConstants.SequentialActiveThreshold, mayPromote);
             toUpdate.Add(edge);
         }
     }
@@ -198,34 +211,47 @@ public class SkillRelationLearner : ISkillRelationLearner
         return (double)coOccur * stats.TotalSessions / ((double)countA * countB);
     }
 
-    private static void Reinforce(SkillRelation edge, double activeThreshold)
+    private static void Reinforce(SkillRelation edge, double activeThreshold, bool mayPromote)
     {
         edge.Confidence = Math.Min(SkillGraphConstants.MaxLearnedConfidence,
             edge.Confidence + SkillGraphConstants.ReinforcementStep);
         edge.SupportCount += 1;
         edge.LastReinforcedAt = DateTime.UtcNow;
         edge.Source = SkillRelationSource.Learned;
-        SetStatus(edge, activeThreshold);
+        SetStatus(edge, activeThreshold, mayPromote);
     }
 
-    private static void Decay(SkillRelation edge, double activeThreshold)
+    private static void Decay(SkillRelation edge, double activeThreshold, bool mayPromote)
     {
         edge.Confidence = Math.Max(0, edge.Confidence - SkillGraphConstants.DecayStep);
         edge.ContradictionCount += 1;
-        SetStatus(edge, activeThreshold);
+        SetStatus(edge, activeThreshold, mayPromote);
     }
 
-    private static void SetStatus(SkillRelation edge, double activeThreshold)
+    private static void SetStatus(SkillRelation edge, double activeThreshold, bool mayPromote)
     {
-        edge.Status = edge.Confidence <= SkillGraphConstants.RetireConfidence
+        if (!mayPromote && edge.Status == SkillRelationStatus.Active)
+        {
+            return;
+        }
+
+        var target = edge.Confidence <= SkillGraphConstants.RetireConfidence
             ? SkillRelationStatus.Retired
             : edge.Confidence >= activeThreshold
                 ? SkillRelationStatus.Active
                 : SkillRelationStatus.Candidate;
+
+        if (target == SkillRelationStatus.Active && !mayPromote)
+        {
+            target = SkillRelationStatus.Candidate;
+        }
+
+        edge.Status = target;
     }
 
     private static SkillRelation NewLearnedEdge(
-        Guid agentId, string skillAName, string skillBName, SkillRelationType type, string provenance, double activeThreshold)
+        Guid agentId, string skillAName, string skillBName, SkillRelationType type, string provenance,
+        double activeThreshold, bool mayPromote)
     {
         var edge = new SkillRelation
         {
@@ -240,7 +266,7 @@ public class SkillRelationLearner : ISkillRelationLearner
             Source = SkillRelationSource.Learned,
             LastReinforcedAt = DateTime.UtcNow,
         };
-        SetStatus(edge, activeThreshold);
+        SetStatus(edge, activeThreshold, mayPromote);
         return edge;
     }
 

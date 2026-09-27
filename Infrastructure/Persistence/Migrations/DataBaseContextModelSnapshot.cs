@@ -1041,6 +1041,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("required_permission");
 
+                    b.Property<int>("SeedVersion")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("seed_version");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer")
                         .HasColumnName("sort_order");
@@ -3729,6 +3734,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasColumnName("field");
+
+                    b.Property<string>("GateMetricsJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("gate_metrics_json");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")

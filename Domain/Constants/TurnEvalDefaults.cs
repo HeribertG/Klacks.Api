@@ -18,6 +18,32 @@ public static class TurnEvalDefaults
     /// </summary>
     public const string DefaultGoldset = "turn-selection-v1";
 
+    /// <summary>
+    /// Train-only paraphrases of the train half of the default goldset. Its selection misses feed the
+    /// description optimizer like those of the default goldset; it has no holdout half and is never seeded as
+    /// golden cases.
+    /// </summary>
+    public const string ParaphraseGoldset = "turn-selection-v1-paraphrases";
+
+    /// <summary>
+    /// Prefix of every paraphrase item id (para-&lt;sourceId&gt;-&lt;n&gt;). GoldsetPartitioner puts every id with
+    /// it into the train half, so a paraphrase can never become holdout evidence.
+    /// </summary>
+    public const string ParaphraseItemIdPrefix = "para-";
+
+    /// <summary>
+    /// Most paraphrases the generator may write per train item of the default goldset, and the highest value
+    /// the id suffix &lt;n&gt; may carry (1..Max). Matches the three variants the generator produces per item
+    /// (spec 3.6); the quality gate rejects a file that carries more, which would silently overweight one
+    /// train item's misses against every other item's in the description optimizer.
+    /// </summary>
+    public const int MaxParaphrasesPerSourceItem = 3;
+
+    /// <summary>
+    /// The goldsets whose selection misses the description optimizer learns from, default goldset first.
+    /// </summary>
+    public static readonly IReadOnlyList<string> LearningGoldsets = [DefaultGoldset, ParaphraseGoldset];
+
     public const int ItemIdMaxLength = 128;
 
     public const int LocaleMaxLength = 8;

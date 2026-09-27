@@ -237,10 +237,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
     private static string BuildEmbeddingText(SkillDescriptor skill, IndexPhraseSet phrases)
     {
         var sb = new StringBuilder();
-        sb.Append(skill.Name);
-        sb.Append(". ");
-        sb.Append(skill.Description);
-        sb.Append('\n');
+        sb.Append(SkillEmbeddingTextPrefix.Build(skill.Name, skill.Description));
         sb.Append("Parameters: ");
         sb.Append(string.Join(", ", skill.Parameters.Select(p => $"{p.Name} ({p.Type})")));
 

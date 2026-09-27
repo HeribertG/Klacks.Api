@@ -6,9 +6,12 @@
 /// picked skill so it stops matching such queries.
 /// </summary>
 
+using Klacks.Api.Domain.Models.Assistant;
+
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface ISkillDescriptionOptimizer
 {
-    Task<int> GenerateProposalsAsync(int maxTrajectoriesToAnalyze, CancellationToken cancellationToken = default);
+    Task<SkillDescriptionOptimizerResult> GenerateProposalsAsync(
+        int maxTrajectoriesToAnalyze, CancellationToken cancellationToken = default);
 }

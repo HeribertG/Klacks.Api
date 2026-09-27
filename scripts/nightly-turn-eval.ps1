@@ -48,11 +48,17 @@
         Precedence: 3 beats 2, because a broken apparatus makes the numbers untrustworthy.
 
 .PARAMETER Models
-    Comma-separated llm_models.model_id values to evaluate. Default is the production model only,
-    per owner decision 2026-08-30 (D1: "Prod-Modell + Haiku 4.5, nicht mehr"; claude-haiku-45 is
-    disabled in the current dev DB, so only the prod-default model runs until it is re-enabled).
-    Prod default switched from deepseek-v4-pro to deepseek-flash per owner decision 2026-09-18.
-    Verify availability yourself before trusting a default: the live catalog differs per machine.
+    Comma-separated llm_models.model_id values to evaluate, per owner decision 2026-08-30 (D1:
+    "Prod-Modell + Haiku 4.5, nicht mehr"; claude-haiku-45 is disabled in the current dev DB, so only
+    the prod-default model runs until it is re-enabled). Default (empty) resolves the SAME reference
+    model the central learning loop uses (Klacks.Api SkillLearningOptionsProvider), per owner decision
+    2026-09-27: KLACKSY_LEARNING_REFERENCE_MODEL if that setting is non-blank, else llm_models.is_default
+    (the database's own default model, requiring is_enabled and not is_deleted); if neither resolves,
+    the script throws rather than guess a model name. An explicit -Models always overrides this
+    resolution. Because the default is resolved from the database instead of hardcoded, dev and prod
+    automatically pick up the same model as long as their llm_models.is_default agree - prod switched
+    its default from deepseek-v4-pro to deepseek-flash per owner decision 2026-09-18.
+    Verify availability yourself before trusting the resolved default: the live catalog differs per machine.
     Query:  SELECT model_id, is_default, cost_per_input_token FROM llm_models WHERE is_enabled AND NOT is_deleted;
 
 .PARAMETER Goldset
@@ -142,7 +148,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Models = "deepseek-flash",
+    [string]$Models = "",
     [string]$Goldset = "turn-selection-v1",
     [ValidateSet("daily", "weekly")]
     [string]$Profile = "daily",
@@ -172,6 +178,9 @@ $IntegrationProjectRelative = "Klacks.IntegrationTest/Klacks.IntegrationTest.csp
 $TestFullName         = "Klacks.IntegrationTest.Assistant.TurnSelectionGoldenSetTests.TurnSelectionGoldset_ReplaysAllItemsAndReportsScorecard"
 $TestFilter           = "FullyQualifiedName=$TestFullName"
 $EvalRunsTable        = "eval_runs"
+$ReferenceModelSettingKey = "KLACKSY_LEARNING_REFERENCE_MODEL"
+$ReferenceModelSettingSql = "SELECT value FROM settings WHERE type = '$ReferenceModelSettingKey';"
+$DefaultModelSql      = "SELECT model_id FROM llm_models WHERE is_default AND NOT is_deleted AND is_enabled;"
 $DailyMaxItems        = 70
 $DbHost               = "localhost"
 $DbPort               = "5434"
@@ -215,8 +224,7 @@ if (-not $RepoRoot)  { $RepoRoot  = Split-Path -Parent $PSScriptRoot }
 if (-not $OutputDir) { $OutputDir = Join-Path $RepoRoot "artifacts/turn-eval" }
 $IntegrationProject = Join-Path $SolutionRoot $IntegrationProjectRelative
 
-$ModelList = @($Models -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
-if ($ModelList.Count -eq 0) { throw "No models provided." }
+# $ModelList is resolved further below, once $psql/$dbReachable are known (an empty -Models needs the DB).
 
 $EffectiveMaxItems = if ($MaxItems -gt 0) { $MaxItems } elseif ($Profile -eq "daily") { $DailyMaxItems } else { 0 }
 $ScopeText = if ($EffectiveMaxItems -gt 0) { "first $EffectiveMaxItems items (PARTIAL run - never a baseline)" } else { "full goldset" }
@@ -298,6 +306,37 @@ if (-not $DryRun) {
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
     if (-not $dotnet) { throw ".NET SDK (dotnet) not found on PATH." }
 }
+
+# -Models resolution: an explicit value always wins. An empty value resolves the SAME reference model
+# the central learning loop uses (SkillLearningOptionsProvider) - setting first, then the database's own
+# default model - so this script and the learning loop can never silently diverge on which model is "the"
+# one being measured. Needs $psql/$dbReachable from the preflight above, which is why this runs after it.
+if ([string]::IsNullOrWhiteSpace($Models)) {
+    if (-not $psql -or -not $dbReachable) {
+        throw "No -Models given and the reference model could not be resolved: PostgreSQL not reachable at ${DbHost}:${DbPort}/${DbName}."
+    }
+    $resolvedModel = $null
+    $resolvedModelSource = $null
+    $settingResult = Invoke-PsqlScalar -PsqlPath $psql -Sql $ReferenceModelSettingSql
+    if ($settingResult.Ok -and -not [string]::IsNullOrWhiteSpace($settingResult.Value)) {
+        $resolvedModel = $settingResult.Value.Trim()
+        $resolvedModelSource = "setting $ReferenceModelSettingKey"
+    }
+    if (-not $resolvedModel) {
+        $defaultResult = Invoke-PsqlScalar -PsqlPath $psql -Sql $DefaultModelSql
+        if ($defaultResult.Ok -and -not [string]::IsNullOrWhiteSpace($defaultResult.Value)) {
+            $resolvedModel = $defaultResult.Value.Trim()
+            $resolvedModelSource = "llm_models.is_default (database default model)"
+        }
+    }
+    if (-not $resolvedModel) {
+        throw "No -Models given and no reference model could be resolved (neither setting $ReferenceModelSettingKey nor a default model in llm_models)."
+    }
+    Write-Host "Resolved -Models from ${resolvedModelSource}: $resolvedModel" -ForegroundColor Cyan
+    $Models = $resolvedModel
+}
+$ModelList = @($Models -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
+if ($ModelList.Count -eq 0) { throw "No models provided." }
 
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $sw = [System.IO.StreamWriter]::new($ScorecardOut, $false, [System.Text.UTF8Encoding]::new($false))

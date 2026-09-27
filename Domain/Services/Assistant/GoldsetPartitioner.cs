@@ -7,6 +7,8 @@
 /// apart the moment one of the two was rebuilt, and the learner would end up optimising against the
 /// exact cases its gate replays. An id nobody supplied lands in the holdout half: an unidentifiable item
 /// must never become training data.
+/// Paraphrase items (id prefix para-) are always train: they are rewordings of train items, and a rewording
+/// of a train item in the holdout half would leak training data into the gate.
 /// </summary>
 using System.Text;
 using Klacks.Api.Domain.Constants;
@@ -25,6 +27,11 @@ public static class GoldsetPartitioner
         if (string.IsNullOrWhiteSpace(itemId))
         {
             return GoldenCasePartitions.Holdout;
+        }
+
+        if (itemId.StartsWith(TurnEvalDefaults.ParaphraseItemIdPrefix, StringComparison.Ordinal))
+        {
+            return GoldenCasePartitions.Train;
         }
 
         return Bucket(itemId) < TrainBucketCeiling

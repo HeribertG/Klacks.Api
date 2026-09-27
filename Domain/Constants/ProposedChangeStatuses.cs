@@ -20,6 +20,18 @@ public static class ProposedChangeStatuses
     public const string BlockedRegression = "blocked_regression";
 
     /// <summary>
+    /// Passed the paired gate in Gate mode. The description was measured live and put back; the change waits
+    /// for the export script to write it into skill-seeds.json on a review branch.
+    /// </summary>
+    public const string GatePassed = "gate_passed";
+
+    /// <summary>
+    /// Written into skill-seeds.json by the export script. The installation receives it with the next release,
+    /// when the seed loader applies the raised seed version.
+    /// </summary>
+    public const string Exported = "exported";
+
+    /// <summary>
     /// The statuses the "Klacksy learned" card shows as editable description rows: still open, applied
     /// automatically, or blocked. Approved and rejected rows are history and stay out.
     /// </summary>

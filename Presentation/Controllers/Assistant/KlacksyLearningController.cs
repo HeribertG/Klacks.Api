@@ -7,6 +7,8 @@
 /// artefacts would let the assistant reinforce itself.
 /// The JWT scheme is pinned explicitly on the class: AddIdentity overrides the runtime default to cookie
 /// authentication, so a bare role gate would answer 401 to every JWT caller.
+/// The export surface (export-candidates, mark-exported, run-status) serves scripts/export-learned-descriptions.ps1
+/// and scripts/weekly-learning-pipeline.ps1 on the dev machine.
 /// </summary>
 /// <param name="mediator">Dispatches the learning queries and commands</param>
 
@@ -30,6 +32,9 @@ public class KlacksyLearningController : ControllerBase
 {
     private const int DefaultLimit = 50;
     private const int MaxLimit = 200;
+
+    private static readonly string ProposalIdsRangeError =
+        $"proposalIds must name between 1 and {SkillLearningDefaults.MaxExportCandidates} proposals.";
 
     private readonly IMediator _mediator;
 
@@ -147,6 +152,55 @@ public class KlacksyLearningController : ControllerBase
     {
         var response = await _mediator.Send(new RunSkillLearningCommand(), cancellationToken);
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Whether a learning run is under way and how the latest one ended. POST run starts detached, so a script
+    /// polls here to know that the run finished before it exports anything.
+    /// </summary>
+    [HttpGet("run-status")]
+    public async Task<ActionResult<SkillLearningRunStatusResponse>> GetRunStatus(CancellationToken cancellationToken)
+    {
+        var status = await _mediator.Send(new GetSkillLearningRunStatusQuery(), cancellationToken);
+        return Ok(status);
+    }
+
+    /// <summary>
+    /// The gate-passed description proposals the export script writes into skill-seeds.json.
+    /// </summary>
+    [HttpGet("export-candidates")]
+    public async Task<ActionResult<IReadOnlyList<LearnedDescriptionExportCandidateDto>>> GetExportCandidates(
+        [FromQuery] int? limit, CancellationToken cancellationToken)
+    {
+        var effectiveLimit = Math.Clamp(limit ?? SkillLearningDefaults.MaxExportCandidates, 1, SkillLearningDefaults.MaxExportCandidates);
+        var candidates = await _mediator.Send(
+            new GetLearnedDescriptionExportCandidatesQuery(effectiveLimit), cancellationToken);
+        return Ok(candidates);
+    }
+
+    /// <summary>
+    /// Marks proposals as exported after the export script wrote them. The reviewer comes from the JWT.
+    /// </summary>
+    [HttpPost("mark-exported")]
+    public async Task<ActionResult<MarkProposalsExportedResult>> MarkExported(
+        [FromBody] MarkProposalsExportedRequest request, CancellationToken cancellationToken)
+    {
+        var reviewedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(reviewedBy))
+        {
+            return Unauthorized();
+        }
+
+        if (request.ProposalIds == null
+            || request.ProposalIds.Count == 0
+            || request.ProposalIds.Count > SkillLearningDefaults.MaxExportCandidates)
+        {
+            return BadRequest(new { error = ProposalIdsRangeError });
+        }
+
+        var result = await _mediator.Send(
+            new MarkProposalsExportedCommand(request.ProposalIds, reviewedBy), cancellationToken);
+        return Ok(result);
     }
 
     private static int Clamp(int? limit) => Math.Clamp(limit ?? DefaultLimit, 1, MaxLimit);

@@ -27,6 +27,13 @@ public class ProposedSkillChange : BaseEntity
 
     public string EvidenceJson { get; set; } = "[]";
 
+    /// <summary>
+    /// What the gate measured for this proposal, as JSON (GoldsetGateMetrics): reference run, model, scorer
+    /// version, paired replay counts, fixed and regressed item ids, net gain and verdict. Null for a proposal
+    /// no gate has measured.
+    /// </summary>
+    public string? GateMetricsJson { get; set; }
+
     public string? ReviewedBy { get; set; }
 
     public DateTime? ReviewedAt { get; set; }

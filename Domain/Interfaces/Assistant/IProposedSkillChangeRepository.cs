@@ -30,11 +30,15 @@ public interface IProposedSkillChangeRepository
         string field, int limit, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Whether this skill already carries a proposal the loop must not stack another one on: one still
-    /// awaiting a verdict, or one the loop applied by itself. The applied case is what stops the
-    /// sharpening from turning its own ratchet - a description narrowed automatically stays as it is until
-    /// an administrator has seen it, because the corrections a narrowing produces would otherwise justify
-    /// the next narrowing.
+    /// Whether this skill already carries a proposal the loop must not stack another one on: one still awaiting
+    /// a verdict; one the loop applied by itself, while the skill's description field still carries the applied
+    /// value (ValueAfter) - a seed update that replaced it makes the row stale; one that passed the gate, while
+    /// the description still carries the value it was measured against (ValueBefore) - a seed update that
+    /// replaced it makes the row stale too; or an exported one whose description field still carries the value
+    /// the proposal was written against (ValueBefore) - the release that ships it has not reseeded this
+    /// installation yet. Non-description fields skip the description comparison and stay open for the applied
+    /// and gate-passed statuses unconditionally. The applied case stops the sharpening from turning its own
+    /// ratchet: the corrections a narrowing produces would otherwise justify the next narrowing.
     /// </summary>
     Task<bool> HasOpenProposalForSkillAsync(Guid skillId, string field, CancellationToken cancellationToken = default);
 

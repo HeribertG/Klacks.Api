@@ -32,5 +32,6 @@ public class ProposedSkillChangeConfiguration : IEntityTypeConfiguration<Propose
             .IsRequired();
         builder.Property(p => p.ReviewedBy).HasMaxLength(128);
         builder.Property(p => p.EvidenceJson).HasColumnType("jsonb");
+        builder.Property(p => p.GateMetricsJson).HasColumnType("jsonb");
     }
 }

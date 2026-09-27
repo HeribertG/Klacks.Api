@@ -48,12 +48,15 @@ public interface IEvalRunRepository
     Task<List<EvalRun>> GetHistoryAsync(string goldset, int limit, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// The newest COMPLETED run of a goldset under the given scoring rules, whatever model produced it.
-    /// Partial runs are excluded: they cover a different population, so a miss in one says nothing about
-    /// the goldset as a whole. Returns null when no such run exists yet.
+    /// The newest COMPLETED run of a goldset under the given scoring rules and produced by the given model
+    /// (matched case-insensitively - model ids are lowercase-ASCII tokens, so this is ordinal in practice).
+    /// Partial runs are excluded: they cover a different population, so a miss in one says nothing about the
+    /// goldset as a whole. The model filter exists because the same database can carry full runs of several
+    /// models (e.g. a nightly comparison run of another model) - without it the learning loop could gate
+    /// against, or learn from, a run nobody intended as its reference. Returns null when no such run exists yet.
     /// </summary>
     Task<EvalRun?> GetLatestFullRunAsync(
-        string goldset, int scorerVersion, CancellationToken cancellationToken = default);
+        string goldset, int scorerVersion, string model, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Recent COMPLETED runs of one goldset, newest first, across all models and scorer versions. The

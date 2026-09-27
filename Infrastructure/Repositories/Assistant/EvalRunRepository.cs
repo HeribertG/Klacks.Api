@@ -106,14 +106,22 @@ public class EvalRunRepository : IEvalRunRepository
     }
 
     public async Task<EvalRun?> GetLatestFullRunAsync(
-        string goldset, int scorerVersion, CancellationToken cancellationToken = default)
+        string goldset, int scorerVersion, string model, CancellationToken cancellationToken = default)
     {
+        // string.Equals(..., StringComparison.OrdinalIgnoreCase) does not translate on the Npgsql provider
+        // (EvalRunRepositoryNpgsqlTranslationTests.GetLatestFullRunAsync_TranslatesToSql pins this). Model ids
+        // ("deepseek-v4-pro") are plain lowercase-ASCII tokens, so ToLower() on both sides is equivalent to an
+        // ordinal case-insensitive compare here and is the comparison this codebase already uses everywhere
+        // else a case-insensitive filter has to run on the server (see ClientSearchRepository, BranchRepository).
+        var normalizedModel = model.ToLower();
         return await _context.EvalRuns
             .AsNoTracking()
             .Where(r => r.Goldset == goldset
                 && r.ScorerVersion == scorerVersion
                 && !r.IsPartial
-                && r.ItemsTotal > 0)
+                && r.ItemsTotal > 0
+                && r.Model != null
+                && r.Model.ToLower() == normalizedModel)
             .OrderByDescending(r => r.CreateTime)
             .FirstOrDefaultAsync(cancellationToken);
     }

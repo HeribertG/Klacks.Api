@@ -13,13 +13,21 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface ISkillLearningRunLauncher
 {
     /// <summary>
-    /// Runs to completion, or reports that a run was already under way. Used by the background tick.
+    /// Runs to completion, or reports that a run was already under way. Used by the background tick;
+    /// the run is Scheduled, so in Gate it measures no description proposal.
     /// </summary>
     Task<SkillLearningRunTicket> RunAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts a run in the background and returns as soon as it is under way. Used by the manual
-    /// endpoint, which must not hold an HTTP request open for the length of a run.
+    /// endpoint, which must not hold an HTTP request open for the length of a run. The run is Manual, so
+    /// in Gate it measures.
     /// </summary>
     SkillLearningRunTicket StartDetached();
+
+    /// <summary>
+    /// Whether a run is under way and how the latest one ended. The manual endpoint starts runs detached, so
+    /// this is the only way for a caller to learn that a run finished and whether it failed.
+    /// </summary>
+    SkillLearningRunStatus GetStatus();
 }

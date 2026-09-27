@@ -158,6 +158,22 @@ namespace Klacks.Api.Application.Constants
         public const string KLACKSY_LEARNING_PRUNE_DAYS = "KLACKSY_LEARNING_PRUNE_DAYS";
         public const string KLACKSY_LEARNING_RETENTION_DAYS = "KLACKSY_LEARNING_RETENTION_DAYS";
         public const string KLACKSY_LEARNING_MIN_GOLDEN_CASES = "KLACKSY_LEARNING_MIN_GOLDEN_CASES";
+        /// <summary>
+        /// Collect, Gate or AutoApply; missing or unknown means Collect. Gate mutates the live catalogue for
+        /// minutes per proposal and is only for installations without real users; it measures only when
+        /// explicitly triggered.
+        /// </summary>
+        public const string KLACKSY_LEARNING_MODE = "KLACKSY_LEARNING_MODE";
+        public const string KLACKSY_LEARNING_GATE_MIN_NET_GAIN = "KLACKSY_LEARNING_GATE_MIN_NET_GAIN";
+
+        /// <summary>
+        /// Optional override for the model whose full eval runs the learning loop reads as "the" reference
+        /// run. The database also receives full eval runs of other models (nightly comparisons, other eval
+        /// invocations); without a reference model the loop could pick up a run of a model nobody intended to
+        /// learn from. Empty or missing falls back to the database's own default model (llm_models.is_default);
+        /// if that is also absent, the learning loop has no reference run at all rather than guess one.
+        /// </summary>
+        public const string KLACKSY_LEARNING_REFERENCE_MODEL = "KLACKSY_LEARNING_REFERENCE_MODEL";
     }
 }
 
