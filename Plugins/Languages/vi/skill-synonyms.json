@@ -269,7 +269,7 @@
   ],
   "close_period": [
     "chốt kỳ lương tháng 5",
-    "đóng kỳ thanh toán từ 1/5 đến 31/5",
+    "chốt kỳ thanh toán từ 1/5 đến 31/5",
     "khóa kỳ công tháng này",
     "seal period tháng 6",
     "kết thúc kỳ lương và không cho sửa"
@@ -1121,7 +1121,7 @@
   ],
   "explain_page_period_closing": [
     "trang chốt kỳ là gì? hướng dẫn trang niêm phong kỳ",
-    "giải thích trang đóng kỳ thanh toán",
+    "giải thích trang chốt kỳ thanh toán",
     "các thẻ trên trang period closing có ý nghĩa gì?",
     "làm sao để niêm phong hoặc mở lại một kỳ?",
     "tại sao không sửa được lịch sau khi niêm phong?",
@@ -1171,7 +1171,7 @@
   ],
   "explain_period_closing_model": [
     "tại sao ngày này không sửa được nữa",
-    "phê duyệt và đóng kỳ khác nhau thế nào",
+    "phê duyệt và chốt kỳ khác nhau thế nào",
     "số dư giờ được tính ra sao"
   ],
   "explain_personal_access_tokens": [
