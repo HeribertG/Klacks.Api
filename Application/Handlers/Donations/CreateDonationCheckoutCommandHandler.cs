@@ -56,7 +56,7 @@ public class CreateDonationCheckoutCommandHandler : BaseHandler, IRequestHandler
                 return new CreateDonationCheckoutResponse
                 {
                     ErrorMessage = "Unsupported currency. Only " +
-                        $"{string.Join(" and ", DonationCheckoutLimits.SupportedCurrencies)} are allowed."
+                        $"{string.Join(", ", DonationCheckoutLimits.SupportedCurrencies)} are allowed."
                 };
             }
 

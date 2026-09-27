@@ -11,7 +11,7 @@
 /// concrete cause is relayed unchanged.
 /// </summary>
 /// <param name="amount">Donation amount, between DonationCheckoutLimits.MinAmount and MaxAmount (required).</param>
-/// <param name="currency">Currency of the donation: CHF or EUR; defaults to CHF when omitted.</param>
+/// <param name="currency">Currency of the donation: CHF, EUR or USD; defaults to CHF when omitted.</param>
 
 using Klacks.Api.Application.DTOs.Donations;
 using Klacks.Api.Domain.Attributes;

@@ -44245,7 +44245,7 @@
     {
       "name": "create_donation_checkout",
       "area": "system",
-      "description": "Creates a Stripe Checkout session for a donation to the Klacks project and returns the hosted payment link, which the user opens themselves; this skill charges nothing on its own. The amount must be between 1 and 10000, the currency is CHF or EUR and defaults to CHF. Reports the concrete reason when the donation checkout is not configured on this installation. Requires an explicit user confirmation and never runs unattended, because it starts a payment flow.",
+      "description": "Creates a Stripe Checkout session for a donation to the Klacks project and returns the hosted payment link, which the user opens themselves; this skill charges nothing on its own. The amount must be between 1 and 10000, the currency is CHF, EUR or USD and defaults to CHF. Reports the concrete reason when the donation checkout is not configured on this installation. Requires an explicit user confirmation and never runs unattended, because it starts a payment flow.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -44266,7 +44266,8 @@
           "defaultValue": "CHF",
           "enumValues": [
             "CHF",
-            "EUR"
+            "EUR",
+            "USD"
           ]
         }
       ],
@@ -44325,7 +44326,7 @@
         "fr": "Créer un lien de paiement pour un don",
         "it": "Crea un link di pagamento per una donazione"
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "check_erp_drop_point_folder_health",

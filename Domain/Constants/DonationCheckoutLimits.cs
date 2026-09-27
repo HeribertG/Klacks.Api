@@ -17,6 +17,8 @@ public static class DonationCheckoutLimits
 
     public const string CurrencyEur = "EUR";
 
+    public const string CurrencyUsd = "USD";
+
     /// <summary>
     /// Currency used when a caller names none. Mirrors the donation dialog in the Klacks.Ui footer,
     /// which also opens on CHF.
@@ -27,5 +29,5 @@ public static class DonationCheckoutLimits
 
     public const decimal MaxAmount = 10000m;
 
-    public static readonly IReadOnlyList<string> SupportedCurrencies = [CurrencyChf, CurrencyEur];
+    public static readonly IReadOnlyList<string> SupportedCurrencies = [CurrencyChf, CurrencyEur, CurrencyUsd];
 }
