@@ -1489,6 +1489,28 @@
       "expectedRecipe": "period-close-schedule"
     },
     {
+      "id": "w05-recipe-create-branch",
+      "message": "Erstelle eine neue Filiale",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: create-branch",
+      "expectedRecipe": "create-branch"
+    },
+    {
+      "id": "w05-recipe-create-calendar-selection",
+      "message": "Erstelle einen neuen Feiertagskalender für Bern und Zürich",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: create-calendar-selection",
+      "expectedRecipe": "create-calendar-selection"
+    },
+    {
       "id": "w05-messaging-send-message",
       "message": "Sende eine Nachricht an Max",
       "locale": "de",

@@ -164,6 +164,17 @@
   "setup-owner-address": [
     "日历"
   ],
+  "create-calendar-selection": [
+    "节假日日历",
+    "假日日历",
+    "日历选择"
+  ],
+  "create-branch": [
+    "分公司",
+    "分店",
+    "分支机构",
+    "网点"
+  ],
   "create-shift-order": [
     "班次",
     "服务订单",

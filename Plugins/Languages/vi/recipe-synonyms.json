@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["gán một nhân viên bên ngoài vào nhóm gần nhất", "chuyển nhân viên ngoài biên chế đến nhóm gần nhất theo địa chỉ"],
   "bulk-add-externs-to-nearest-group": ["phân bổ lại toàn bộ nhân viên bên ngoài theo nhóm gần nhất", "sắp xếp lại tất cả nhân viên bên ngoài vào nhóm gần nhất theo vị trí"],
   "setup-owner-address": ["cấu hình lịch nghỉ lễ chung của công ty", "thiết lập lịch làm việc toàn công ty"],
+  "create-calendar-selection": ["tạo lịch nghỉ lễ mới", "thêm lịch ngày lễ mới", "tạo lựa chọn lịch mới"],
+  "create-branch": ["tạo chi nhánh mới", "thêm chi nhánh mới", "mở chi nhánh mới"],
   "create-shift-order": ["tạo đơn hàng ca mới cho khách hàng", "mở đơn dịch vụ mới với giờ và các ngày trong tuần", "đăng ký đơn hàng ca mới kèm nhóm"],
   "add-task-to-container": ["thêm công việc vào mẫu ca container", "đưa công việc vào mẫu tuần của container", "đặt task lên một ngày trong mẫu container"],
   "remove-absence-for-employee": ["xóa lịch nghỉ đã đặt trước của nhân viên khỏi lịch vắng mặt", "hủy đăng ký nghỉ đã lên kế hoạch của một nhân viên vào ngày", "bỏ dấu nghỉ phép đã giữ chỗ của nhân viên này"],

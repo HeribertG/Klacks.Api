@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"],
   "bulk-add-externs-to-nearest-group": ["agrupar a todos los empleados externos por ubicación", "trasladar a todos los empleados externos a su grupo más cercano"],
   "setup-owner-address": ["configurar el calendario de la empresa"],
+  "create-calendar-selection": ["crear un nuevo calendario de festivos", "crear un calendario de días festivos nuevo", "crear una nueva selección de calendario"],
+  "create-branch": ["crear una nueva sucursal", "dar de alta una sucursal nueva", "abrir una nueva sucursal"],
   "create-shift-order": ["crear un nuevo pedido de turno para un cliente", "abrir un pedido de servicio nuevo con horarios y días", "registrar un nuevo pedido de turno con grupo"],
   "add-task-to-container": ["añadir una tarea a la plantilla del turno contenedor", "incluir una tarea en la plantilla semanal del contenedor", "poner una tarea en un día de la plantilla del contenedor"],
   "remove-absence-for-employee": ["eliminar una ausencia planificada de un empleado del calendario", "borrar la reserva de ausencia de un empleado en una fecha", "cancelar la ausencia prevista de un empleado"],

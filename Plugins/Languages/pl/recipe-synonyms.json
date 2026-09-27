@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["przydzielić zewnętrznego pracownika do najbliższej grupy", "umieścić jednego zewnętrznego współpracownika w najbliższej grupie"],
   "bulk-add-externs-to-nearest-group": ["przenieść wszystkich pracowników zewnętrznych do ich najbliższych grup", "masowo przypisać pracowników zewnętrznych według bliskości geograficznej"],
   "setup-owner-address": ["skonfigurować globalny kalendarz firmy i święta", "ustawić siedzibę firmy do planowania zmian"],
+  "create-calendar-selection": ["utworzyć nowy kalendarz świąt", "dodać nowy kalendarz dni wolnych", "utworzyć nowy wybór kalendarza"],
+  "create-branch": ["utworzyć nową filię", "dodać nową filię firmy", "założyć nową placówkę firmy"],
   "create-shift-order": ["utwórz nowe zamówienie zmiany dla klienta", "załóż nowe zlecenie usługi z godzinami i dniami", "zarejestruj nowe zamówienie zmiany z grupą"],
   "add-task-to-container": ["dodaj zadanie do szablonu zmiany kontenerowej", "wstaw zadanie do tygodniowego szablonu kontenera", "umieść zadanie na dniu w szablonie kontenera"],
   "remove-absence-for-employee": ["usunąć zaplanowaną nieobecność pracownika z kalendarza", "skasować wstępnie zapisaną nieobecność pracownika w dniu", "anulować zaplanowany urlop tego pracownika"],

@@ -153,6 +153,28 @@
     "onko ",
     "voiko "
   ],
+  "create-calendar-selection": [
+    "miten ",
+    "kuinka ",
+    "mitä ",
+    "miksi ",
+    "milloin ",
+    "missä ",
+    "kuka ",
+    "onko ",
+    "voiko "
+  ],
+  "create-branch": [
+    "miten ",
+    "kuinka ",
+    "mitä ",
+    "miksi ",
+    "milloin ",
+    "missä ",
+    "kuka ",
+    "onko ",
+    "voiko "
+  ],
   "create-shift-order": [
     "miten ",
     "kuinka ",

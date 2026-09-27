@@ -151,6 +151,15 @@
     "kalender",
     "helgdagskalender"
   ],
+  "create-calendar-selection": [
+    "helgdagskalender",
+    "kalenderurval"
+  ],
+  "create-branch": [
+    "filial",
+    "lokalkontor",
+    "avdelningskontor"
+  ],
   "create-shift-order": [
     "arbetspass",
     "tjänstgöring",

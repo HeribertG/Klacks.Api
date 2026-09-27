@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["kohdista yksi ulkoinen työntekijä lähimpään ryhmään", "liitä ulkopuolinen alihankkija lähimpään maantieteelliseen ryhmään"],
   "bulk-add-externs-to-nearest-group": ["kohdista kaikki ulkoiset työntekijät uudelleen heidän lähimpiin ryhmiinsä", "jaa kaikki ulkoiset työntekijät joukolla lähimmän sijainnin mukaan"],
   "setup-owner-address": ["määritä yrityksen yleinen juhlapyhäkalenteri", "aseta yrityksen keskuspaikka vuorosuunnittelua varten"],
+  "create-calendar-selection": ["luo uusi juhlapyhäkalenteri", "perusta uusi pyhäpäiväkalenteri", "luo uusi kalenterivalinta"],
+  "create-branch": ["luo uusi sivutoimipiste", "perusta uusi toimipiste", "lisää uusi sivukonttori"],
   "create-shift-order": ["luo uusi vuorotilaus asiakkaalle", "avaa uusi palvelutilaus ajoilla ja viikonpäivillä", "kirjaa uusi vuorotilaus ryhmän kanssa"],
   "add-task-to-container": ["lisää tehtävä konttivuoron viikkomalliin", "liitä tehtävä kontin viikkomalliin", "vie tehtävävuoro konttipohjan viikonpäivälle"],
   "remove-absence-for-employee": ["poista työntekijän suunniteltu poissaolo kalenterista", "poista varattu loma työntekijältä tietyltä päivältä", "peruuta työntekijän ennakkoon merkitty poissaolo"],

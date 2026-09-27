@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["repartizează un colaborator extern în grupa cea mai apropiată de el", "atribuie un singur lucrător extern grupei celei mai apropiate"],
   "bulk-add-externs-to-nearest-group": ["realocă toți colaboratorii externi către grupele lor cele mai apropiate", "atribuie în bloc toți lucrătorii externi după apropierea geografică"],
   "setup-owner-address": ["configurează calendarul global al firmei și sărbătorile", "setează sediul firmei pentru planificarea turelor"],
+  "create-calendar-selection": ["creează un calendar de sărbători nou", "creează un nou calendar de sărbători legale", "creează o selecție de calendar nouă"],
+  "create-branch": ["creează o filială nouă", "adaugă o filială nouă", "deschide o sucursală nouă"],
   "create-shift-order": ["creează o comandă nouă de tură pentru un client", "deschide o comandă nouă de serviciu cu ore și zile", "înregistrează o comandă nouă de tură cu grup"],
   "add-task-to-container": ["adaugă o sarcină în șablonul turei container", "include o sarcină în șablonul săptămânal al containerului", "pune o sarcină pe o zi din șablonul containerului"],
   "remove-absence-for-employee": ["șterge o absență planificată a unui angajat din calendar", "elimină absența preînregistrată a unui angajat la o dată", "anulează absența planificată a acestui angajat"],

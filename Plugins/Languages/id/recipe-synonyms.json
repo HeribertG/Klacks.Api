@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["menghubungkan satu karyawan eksternal ke grup terdekat secara geografis", "menugaskan seorang tenaga kerja eksternal ke grup yang paling dekat dengannya"],
   "bulk-add-externs-to-nearest-group": ["menetapkan ulang semua karyawan eksternal ke grup terdekat secara geografis", "mendistribusikan ulang seluruh karyawan eksternal menurut kedekatan lokasi secara massal"],
   "setup-owner-address": ["mengatur kalender libur global milik perusahaan", "menetapkan alamat kantor pusat perusahaan untuk penjadwalan"],
+  "create-calendar-selection": ["buat kalender libur baru", "membuat kalender hari libur baru", "buat pilihan kalender baru"],
+  "create-branch": ["buat kantor cabang baru", "membuat cabang baru", "tambahkan kantor cabang baru"],
   "create-shift-order": ["buat pesanan shift baru untuk pelanggan", "buka order layanan baru dengan jam dan hari", "daftarkan pesanan shift baru dengan grup"],
   "add-task-to-container": ["tambahkan tugas ke template shift container", "masukkan tugas ke template mingguan container", "letakkan task pada hari di template container"],
   "remove-absence-for-employee": ["menghapus ketidakhadiran terencana seorang karyawan dari kalender", "membatalkan cuti yang sudah direncanakan untuk karyawan pada tanggal", "menghilangkan penanda absen terencana milik karyawan"],

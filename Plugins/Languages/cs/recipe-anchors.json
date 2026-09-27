@@ -159,6 +159,18 @@
     "svátek",
     "den pracovního klidu"
   ],
+  "create-calendar-selection": [
+    "kalendář svátk",
+    "kalendáře svátk",
+    "kalendářů svátk",
+    "výběr kalendář",
+    "sváteční kalendář"
+  ],
+  "create-branch": [
+    "poboč",
+    "filiál",
+    "provozovn"
+  ],
   "create-shift-order": [
     "směn",
     "služb",

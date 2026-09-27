@@ -124,6 +124,15 @@
     "helligdagskalender",
     "feriekalender"
   ],
+  "create-calendar-selection": [
+    "helligdagskalender",
+    "kalendervalg"
+  ],
+  "create-branch": [
+    "filial",
+    "lokalkontor",
+    "afdelingskontor"
+  ],
   "create-shift-order": [
     "vagt",
     "serviceordre",

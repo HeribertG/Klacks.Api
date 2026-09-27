@@ -137,6 +137,15 @@
     "planleggingskalender",
     "feriekalender"
   ],
+  "create-calendar-selection": [
+    "helligdagskalender",
+    "kalendervalg"
+  ],
+  "create-branch": [
+    "filial",
+    "lokalkontor",
+    "avdelingskontor"
+  ],
   "create-shift-order": [
     "vakt",
     "oppdrag",

@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["zařadit externího zaměstnance do nejbližší skupiny", "přiřadit jednoho externího pracovníka k nejbližší skupině"],
   "bulk-add-externs-to-nearest-group": ["přeřadit všechny externí zaměstnance k jejich nejbližším skupinám", "hromadně přiřadit externí zaměstnance podle geografické blízkosti"],
   "setup-owner-address": ["nastavit globální kalendář firmy a svátky", "konfigurovat sídlo firmy pro plánování směn"],
+  "create-calendar-selection": ["vytvořit nový kalendář svátků", "založit nový kalendář svátků", "vytvořit nový výběr kalendáře"],
+  "create-branch": ["vytvořit novou pobočku", "založit novou pobočku", "přidat novou pobočku firmy"],
   "create-shift-order": ["vytvořit novou objednávku směny pro zákazníka", "založit novou zakázku služby s časy a dny", "zaevidovat novou objednávku směny se skupinou"],
   "add-task-to-container": ["vložit úkol do šablony kontejnerové směny", "přidat úkolovou směnu do týdenní šablony kontejneru", "zařadit úkol do šablony kontejneru na den"],
   "remove-absence-for-employee": ["odstranit plánovanou absenci zaměstnance z kalendáře", "smazat předem zapsanou dovolenou zaměstnance k datu", "zrušit rezervovanou absenci tohoto zaměstnance"],

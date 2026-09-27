@@ -169,6 +169,20 @@
     "kalendarz",
     "święta"
   ],
+  "create-calendar-selection": [
+    "kalendarz świąt",
+    "kalendarza świąt",
+    "kalendarzu świąt",
+    "kalendarz dni wolnych",
+    "wybór kalendarz"
+  ],
+  "create-branch": [
+    "filia",
+    "filii",
+    "filię",
+    "filią",
+    "placówk"
+  ],
   "create-shift-order": [
     "zlecenie",
     "usługa",

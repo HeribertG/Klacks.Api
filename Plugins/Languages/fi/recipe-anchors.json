@@ -160,6 +160,16 @@
     "pyhäkalenteri",
     "vuosilomakalenteri"
   ],
+  "create-calendar-selection": [
+    "juhlapyhäkalenter",
+    "pyhäpäiväkalenter",
+    "kalenterivalin"
+  ],
+  "create-branch": [
+    "toimipiste",
+    "sivukonttori",
+    "sivuliik"
+  ],
   "create-shift-order": [
     "työvuoro",
     "vuoro",

@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["vincular um colaborador externo ao grupo geograficamente mais próximo", "atribuir um único prestador externo ao grupo mais próximo"],
   "bulk-add-externs-to-nearest-group": ["reatribuir todos os colaboradores externos aos grupos geograficamente mais próximos", "redistribuir em massa os colaboradores externos conforme a proximidade geográfica"],
   "setup-owner-address": ["configurar o calendário global de feriados da empresa", "definir o endereço-sede da empresa para o planejamento de escalas"],
+  "create-calendar-selection": ["criar um novo calendário de feriados", "cadastrar um calendário de feriados novo", "criar uma nova seleção de calendário"],
+  "create-branch": ["criar uma nova filial", "cadastrar uma nova filial", "abrir uma nova sucursal"],
   "create-shift-order": ["criar um novo pedido de turno para um cliente", "abrir uma nova ordem de serviço com horários e dias", "registrar um novo pedido de turno com grupo"],
   "add-task-to-container": ["adicionar uma tarefa ao modelo do turno contêiner", "incluir uma tarefa no modelo semanal do contêiner", "colocar uma tarefa num dia do modelo do contêiner"],
   "remove-absence-for-employee": ["remover uma ausência planejada de um funcionário do calendário", "apagar a ausência pré-marcada de um funcionário numa data", "cancelar a ausência prevista deste funcionário"],

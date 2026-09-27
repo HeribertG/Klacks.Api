@@ -145,6 +145,15 @@
     "hari libur",
     "tanggal merah"
   ],
+  "create-calendar-selection": [
+    "kalender libur",
+    "kalender hari libur",
+    "pilihan kalender"
+  ],
+  "create-branch": [
+    "cabang",
+    "kantor cabang"
+  ],
   "create-shift-order": [
     "shift",
     "dinas",

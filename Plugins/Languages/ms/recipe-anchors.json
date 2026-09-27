@@ -118,6 +118,14 @@
   "setup-owner-address": [
     "kalendar"
   ],
+  "create-calendar-selection": [
+    "kalendar cuti",
+    "pilihan kalendar"
+  ],
+  "create-branch": [
+    "cawangan",
+    "pejabat cawangan"
+  ],
   "create-shift-order": [
     "syif",
     "pesanan"

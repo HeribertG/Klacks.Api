@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["menetapkan seorang pekerja luaran ke kumpulan paling hampir dengannya", "kaitkan kakitangan luaran ini dengan kumpulan terdekat mengikut geografi"],
   "bulk-add-externs-to-nearest-group": ["menyusun semula semua pekerja luaran ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pekerja luaran kepada kumpulan paling hampir secara pukal"],
   "setup-owner-address": ["menetapkan kalendar cuti global dan tetapan penjadualan syarikat", "konfigurasikan alamat pemilik syarikat untuk perancangan jadual"],
+  "create-calendar-selection": ["cipta kalendar cuti baharu", "wujudkan kalendar cuti umum baharu", "cipta pilihan kalendar baharu"],
+  "create-branch": ["cipta cawangan baharu", "wujudkan cawangan baharu", "tambah pejabat cawangan baharu"],
   "create-shift-order": ["cipta tempahan syif baharu untuk pelanggan", "buka pesanan perkhidmatan baharu dengan masa dan hari", "daftar tempahan syif baharu dengan kumpulan"],
   "add-task-to-container": ["tambah tugasan ke template syif container", "masukkan tugasan ke template mingguan container", "letakkan task pada hari dalam template container"],
   "remove-absence-for-employee": ["memadam ketidakhadiran terancang seorang pekerja dari kalendar", "membatalkan cuti yang telah dirancang untuk pekerja pada tarikh", "menghapuskan penanda absen terancang milik pekerja"],

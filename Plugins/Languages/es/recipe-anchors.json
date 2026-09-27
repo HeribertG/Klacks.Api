@@ -148,6 +148,17 @@
     "festivos",
     "días festivos"
   ],
+  "create-calendar-selection": [
+    "calendario de festivos",
+    "calendario de días festivos",
+    "calendario festivo",
+    "selección de calendario"
+  ],
+  "create-branch": [
+    "sucursal",
+    "filial",
+    "delegación"
+  ],
   "create-shift-order": [
     "turno",
     "servicio",

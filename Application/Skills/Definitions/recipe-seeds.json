@@ -3969,6 +3969,360 @@
       ]
     },
     {
+      "name": "create-calendar-selection",
+      "goal": "Set up a new named holiday calendar that merges one or more country or regional holiday calendars, asking for its name and regions.",
+      "goalTranslations": {
+        "de": "Einen neuen, benannten Feiertagskalender einrichten, der einen oder mehrere Landes- oder Regionalkalender zusammenführt; Name und Regionen werden erfragt.",
+        "en": "Set up a new named holiday calendar that merges one or more country or regional holiday calendars, asking for its name and regions.",
+        "fr": "Créer un nouveau calendrier des jours fériés nommé qui réunit un ou plusieurs calendriers nationaux ou régionaux, en demandant son nom et ses régions.",
+        "it": "Creare un nuovo calendario festivo con nome che unisce uno o più calendari nazionali o regionali, chiedendo nome e regioni."
+      },
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 64,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "create",
+              "cré",
+              "crea"
+            ]
+          },
+          {
+            "anySubstring": [
+              "kalenderauswahl",
+              "feiertagskalender",
+              "calendar selection",
+              "holiday calendar",
+              "sélection de calendrier",
+              "calendrier des jours fériés",
+              "calendrier férié",
+              "selezione calendario",
+              "selezione del calendario",
+              "calendario festivo",
+              "calendario delle festività"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "group",
+              "groupe",
+              "gruppo",
+              "mitarbeiter",
+              "employee",
+              "employé",
+              "dipendente",
+              "filiale",
+              "branch",
+              "succursale",
+              "lösch",
+              "delete",
+              "supprim",
+              "elimin",
+              "entfern",
+              "remove",
+              "änder",
+              "bearbeit",
+              "umbenenn",
+              "update",
+              "rename",
+              "edit",
+              "modifi"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "calendarSelectionName",
+          "prompt": "Ask the user what the new holiday calendar should be called (e.g. 'Bern and Zurich'). If they already named it, confirm the name instead of asking again.",
+          "promptTranslations": {
+            "de": "Wie soll der neue Feiertagskalender heissen (z. B. «Bern und Zürich»)?",
+            "en": "What should the new holiday calendar be called (e.g. 'Bern and Zurich')?",
+            "fr": "Quel nom doit porter le nouveau calendrier des jours fériés (p. ex. « Berne et Zurich ») ?",
+            "it": "Come deve chiamarsi il nuovo calendario festivo (per es. «Berna e Zurigo»)?"
+          },
+          "description": "the display name of the new holiday calendar"
+        },
+        {
+          "kind": "ask",
+          "slot": "calendarRegions",
+          "prompt": "Ask the user which countries and regions (states, cantons, provinces) the new holiday calendar should combine, e.g. 'canton of Bern and Germany'. Also ask whether any of them should only appear as a reminder without counting for payroll; that part is optional.",
+          "promptTranslations": {
+            "de": "Welche Länder und Regionen (Kantone, Bundesländer) soll der Kalender zusammenführen, z. B. «Kanton Bern und Deutschland»? Optional: Sollen Feiertage einer Region nur als Hinweis erscheinen, ohne für die Lohnabrechnung zu zählen?",
+            "en": "Which countries and regions (states, cantons) should the calendar combine, e.g. 'canton of Bern and Germany'? Optional: should any region's holidays only appear as a reminder without counting for payroll?",
+            "fr": "Quels pays et régions (cantons, États) le calendrier doit-il réunir, p. ex. « canton de Berne et Allemagne » ? Facultatif : les jours fériés d'une région doivent-ils seulement apparaître comme rappel, sans compter pour la paie ?",
+            "it": "Quali paesi e regioni (cantoni, stati) deve unire il calendario, per es. «Canton Berna e Germania»? Facoltativo: le festività di una regione devono comparire solo come promemoria, senza contare per le paghe?"
+          },
+          "description": "the countries and regions to merge, and optionally which of them are reminder-only"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_calendar_selection",
+          "inject": {
+            "name": "$calendarSelectionName"
+          },
+          "note": "Create the calendar selection now. name is supplied. Convert every country or region the user named into a calendar token: a bare ISO country code for a whole country (e.g. DE, US) or COUNTRY-STATE for a subdivision (e.g. CH-BE for the canton of Bern, DE-BY for Bavaria), and pass them as the calendars array. Pass regions the user wants only as a reminder as reminderOnlyCalendars (same tokens, subset of calendars); otherwise omit it. Relay the result: on success say the holiday calendar was created and verified in the database and list its regions, then offer - without doing it now - to make it the company calendar or to assign it to a group. On an error relay the error text and ask for a corrected region."
+        }
+      ]
+    },
+    {
+      "name": "create-branch",
+      "goal": "Set up a new branch (office location) with name, address and optional contact details, asking for each value.",
+      "goalTranslations": {
+        "de": "Eine neue Filiale (Standort-Büro) mit Name, Adresse und optionalen Kontaktangaben einrichten, Wert für Wert erfragt.",
+        "en": "Set up a new branch (office location) with name, address and optional contact details, asking for each value.",
+        "fr": "Créer une nouvelle succursale (bureau) avec nom, adresse et coordonnées facultatives, en demandant chaque valeur.",
+        "it": "Creare una nuova filiale (sede) con nome, indirizzo e recapiti facoltativi, chiedendo ogni valore."
+      },
+      "version": 3,
+      "isEnabled": true,
+      "sortOrder": 67,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "einricht",
+              "create",
+              "set up",
+              "setup",
+              "cré",
+              "crea"
+            ]
+          },
+          {
+            "anySubstring": [
+              "filiale",
+              "niederlassung",
+              "zweigstelle",
+              "geschäftsstelle",
+              "branch",
+              "succursale",
+              "agence"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "wann ",
+              "wo ",
+              "woher",
+              "wohin",
+              "wem ",
+              "wen ",
+              "wer ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "quand ",
+              "où ",
+              "à qui ",
+              "qui ",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "quando ",
+              "dove ",
+              "a chi ",
+              "chi ",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "is ",
+              "are ",
+              "when ",
+              "where ",
+              "who ",
+              "whom ",
+              "est-ce",
+              "c'est",
+              "cos'è",
+              "è "
+            ]
+          },
+          {
+            "anySubstring": [
+              "gruppe",
+              "group",
+              "groupe",
+              "gruppo",
+              "mitarbeiter",
+              "employee",
+              "employé",
+              "dipendente",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "servizio",
+              "kalender",
+              "calendar",
+              "calendrier",
+              "calendario",
+              "lösch",
+              "delete",
+              "supprim",
+              "elimin",
+              "entfern",
+              "remove",
+              "änder",
+              "bearbeit",
+              "umbenenn",
+              "update",
+              "rename",
+              "edit",
+              "modifi"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "branchName",
+          "prompt": "Ask the user what the new branch (office location) should be called. If they already named it, confirm the name instead of asking again.",
+          "promptTranslations": {
+            "de": "Wie soll die neue Filiale heissen?",
+            "en": "What should the new branch be called?",
+            "fr": "Quel nom doit porter la nouvelle succursale ?",
+            "it": "Come deve chiamarsi la nuova filiale?"
+          },
+          "description": "the name of the new branch"
+        },
+        {
+          "kind": "ask",
+          "slot": "branchAddress",
+          "prompt": "Ask the user for the postal address of the new branch (street, postcode and town).",
+          "promptTranslations": {
+            "de": "Welche Adresse hat die neue Filiale (Strasse, PLZ und Ort)?",
+            "en": "What is the address of the new branch (street, postcode and town)?",
+            "fr": "Quelle est l'adresse de la nouvelle succursale (rue, code postal et localité) ?",
+            "it": "Qual è l'indirizzo della nuova filiale (via, CAP e località)?"
+          },
+          "description": "the postal address of the new branch"
+        },
+        {
+          "kind": "ask",
+          "slot": "branchContact",
+          "prompt": "Ask the user for the branch's phone number and email address. Both are optional; tell them they can answer 'none' to skip.",
+          "promptTranslations": {
+            "de": "Welche Telefonnummer und E-Mail-Adresse hat die Filiale? Beides ist freiwillig – «keine» überspringt es.",
+            "en": "What phone number and email address does the branch have? Both are optional – answer 'none' to skip.",
+            "fr": "Quels numéro de téléphone et adresse e-mail a la succursale ? Les deux sont facultatifs – « aucun » permet de passer.",
+            "it": "Quale numero di telefono e indirizzo e-mail ha la filiale? Entrambi sono facoltativi – «nessuno» salta la domanda."
+          },
+          "description": "the phone number and/or email address of the branch, or 'none'"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_branch",
+          "inject": {
+            "name": "$branchName",
+            "address": "$branchAddress"
+          },
+          "note": "Create the branch now. name and address are supplied. Read the contact answer: pass a phone number as phone and an email address as email; if the user said none or gave neither, omit both. Relay the result: on success say the branch was created and verified in the database and repeat its name, address and contact details; on an error relay the error text and ask for the missing or conflicting value."
+        }
+      ]
+    },
+    {
       "name": "create-shift-order",
       "goal": "Create a new shift order for a customer with times, weekdays and a group; it is sealed and immediately plannable.",
       "goalTranslations": {

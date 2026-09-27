@@ -392,7 +392,6 @@
   "create_group": [
     "crear nuevo grupo",
     "añadir equipo",
-    "abrir nueva sucursal",
     "crear departamento"
   ],
   "create_identity_provider": [

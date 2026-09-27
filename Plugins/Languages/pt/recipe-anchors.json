@@ -167,6 +167,17 @@
     "calendário",
     "feriado"
   ],
+  "create-calendar-selection": [
+    "calendário de feriados",
+    "calendário feriado",
+    "seleção de calendário"
+  ],
+  "create-branch": [
+    "filial",
+    "filiais",
+    "sucursal",
+    "sucursais"
+  ],
   "create-shift-order": [
     "turno",
     "serviço",

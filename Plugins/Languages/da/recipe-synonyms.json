@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["tilknytte en ekstern medarbejder til den nærmeste gruppe", "placere en enkelt ekstern vikar i den geografisk nærmeste gruppe", "knytte en ekstern vikar til den geografisk nærmeste gruppe"],
   "bulk-add-externs-to-nearest-group": ["omfordele alle eksterne medarbejdere til deres nærmeste gruppe", "geografisk gruppere samtlige eksterne medarbejdere efter afstand"],
   "setup-owner-address": ["konfigurere firmaets globale helligdagskalender", "opsætte virksomhedens overordnede kalenderindstillinger", "indstille firmaets overordnede helligdagskalender"],
+  "create-calendar-selection": ["opret en ny helligdagskalender", "oprette en ny helligdagskalender", "opret et nyt kalendervalg"],
+  "create-branch": ["opret en ny filial", "oprette en ny filial", "etablere en ny filial"],
   "create-shift-order": ["opret en ny bestilling for en kunde med tider og ugedage", "lav en ny vagtordre til en kunde", "registrer en ny serviceordre"],
   "add-task-to-container": ["indsæt en opgave i containervagtens skabelon", "tilføj en opgavevagt til containerens ugeskabelon", "optag en task i containerskabelonen for en ugedag"],
   "remove-absence-for-employee": ["fjerne et planlagt fravær for en medarbejder fra kalenderen", "slette en forudanmeldt ferie for en enkelt medarbejder", "annullere medarbejderens planlagte fravær på en dato"],

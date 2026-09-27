@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["een externe medewerker toewijzen aan de dichtstbijzijnde groep", "deze externe medewerker indelen bij de dichtstbijzijnde groep"],
   "bulk-add-externs-to-nearest-group": ["alle externe medewerkers opnieuw indelen bij hun dichtstbijzijnde groep", "alle externe medewerkers automatisch groeperen op basis van locatie"],
   "setup-owner-address": ["de bedrijfskalender instellen", "het bedrijfsadres en de feestdagenkalender configureren"],
+  "create-calendar-selection": ["een nieuwe feestdagenkalender aanmaken", "nieuwe feestdagenkalender toevoegen", "een nieuwe kalenderselectie aanmaken"],
+  "create-branch": ["een nieuwe vestiging aanmaken", "nieuwe vestiging toevoegen", "een nieuw filiaal aanmaken"],
   "create-shift-order": ["maak een nieuwe bestelling voor een klant met tijden en weekdagen", "leg een nieuwe dienstorder aan voor een klant", "registreer een nieuwe bestelling met groep"],
   "add-task-to-container": ["voeg een taak toe aan het sjabloon van de containerdienst", "neem een taakdienst op in het weeksjabloon van de container", "plaats een task op een weekdag in de containertemplate"],
   "remove-absence-for-employee": ["een geplande afwezigheid van een medewerker uit de kalender verwijderen", "de voorgemerkte afwezigheid van een medewerker op een datum schrappen", "de geplande afwezigheid van deze medewerker annuleren"],

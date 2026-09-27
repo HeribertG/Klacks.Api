@@ -122,6 +122,15 @@
     "lịch nghỉ lễ",
     "ngày lễ"
   ],
+  "create-calendar-selection": [
+    "lịch nghỉ lễ",
+    "lịch ngày lễ",
+    "lựa chọn lịch"
+  ],
+  "create-branch": [
+    "chi nhánh",
+    "văn phòng chi nhánh"
+  ],
   "create-shift-order": [
     "ca làm",
     "ca trực",

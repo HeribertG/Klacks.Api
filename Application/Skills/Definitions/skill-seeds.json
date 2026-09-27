@@ -10467,9 +10467,9 @@
     {
       "name": "update_branch",
       "area": "settings",
-      "description": "Updates an existing branch/location. Only provided values will be changed.",
+      "description": "Updates an existing branch (Filiale/office location) directly in the database: name, address, phone or email. Identify the branch by branchId or by its current name via branchName; only provided values change. The change is verified in the database.",
       "category": "Crud",
-      "executionType": "UiAction",
+      "executionType": "Skill",
       "requiredPermissions": [
         "CanEditSettings"
       ],
@@ -10477,8 +10477,15 @@
         {
           "name": "branchId",
           "type": "string",
-          "description": "The branch ID to update",
-          "required": true,
+          "description": "The branch ID to update (optional when branchName is given)",
+          "required": false,
+          "enumValues": null
+        },
+        {
+          "name": "branchName",
+          "type": "string",
+          "description": "Current name of the branch to update, used when no branchId is known",
+          "required": false,
           "enumValues": null
         },
         {
@@ -10510,105 +10517,7 @@
           "enumValues": null
         }
       ],
-      "handlerConfig": {
-        "onError": "continue",
-        "steps": [
-          {
-            "action": "navigate",
-            "route": "/workplace/settings"
-          },
-          {
-            "action": "click",
-            "selector": "open-settings"
-          },
-          {
-            "action": "waitForElement",
-            "selector": "branches-row-name-{branchId}",
-            "timeout": 5000
-          },
-          {
-            "action": "scrollTo",
-            "selector": "settings-branches"
-          },
-          {
-            "action": "click",
-            "selector": "branches-row-name-{branchId}"
-          },
-          {
-            "action": "waitForElement",
-            "selector": "branches-modal-name",
-            "timeout": 3000
-          },
-          {
-            "action": "delay",
-            "delay": 300
-          },
-          {
-            "action": "conditional",
-            "condition": {
-              "type": "paramExists",
-              "key": "name",
-              "operator": "=="
-            },
-            "thenSteps": [
-              {
-                "action": "setValue",
-                "selector": "branches-modal-name",
-                "valueFrom": "params.name"
-              }
-            ]
-          },
-          {
-            "action": "conditional",
-            "condition": {
-              "type": "paramExists",
-              "key": "address",
-              "operator": "=="
-            },
-            "thenSteps": [
-              {
-                "action": "setValue",
-                "selector": "branches-modal-address",
-                "valueFrom": "params.address"
-              }
-            ]
-          },
-          {
-            "action": "conditional",
-            "condition": {
-              "type": "paramExists",
-              "key": "phone",
-              "operator": "=="
-            },
-            "thenSteps": [
-              {
-                "action": "setValue",
-                "selector": "branches-modal-phone",
-                "valueFrom": "params.phone"
-              }
-            ]
-          },
-          {
-            "action": "conditional",
-            "condition": {
-              "type": "paramExists",
-              "key": "email",
-              "operator": "=="
-            },
-            "thenSteps": [
-              {
-                "action": "setValue",
-                "selector": "branches-modal-email",
-                "valueFrom": "params.email"
-              }
-            ]
-          },
-          {
-            "action": "click",
-            "selector": "branches-modal-save-btn"
-          }
-        ]
-      },
+      "handlerConfig": null,
       "handlerType": null,
       "effect": "Mutate",
       "isEnabled": true,
@@ -10668,7 +10577,7 @@
         "fr": "Modifier un site",
         "it": "Modifica una sede"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_email_settings",
@@ -15788,7 +15697,7 @@
     {
       "name": "create_group",
       "area": "group",
-      "description": "Creates a new group (location, branch, organisational unit) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for opening a new branch or splitting a team. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a new group (location, organisational unit or team) with optional parent for the nested-set hierarchy. ValidFrom defaults to today if not given. Use for splitting a team or adding a scheduling unit. Not for a branch office record (Filiale) with its postal address. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15882,7 +15791,6 @@
         "de": [
           "gruppe anlegen",
           "neue gruppe",
-          "filiale eröffnen",
           "team gründen",
           "standort hinzufügen",
           "abteilung anlegen"
@@ -15890,7 +15798,6 @@
         "en": [
           "create group",
           "create a team",
-          "new branch",
           "open location",
           "add department",
           "create unit"
@@ -15898,14 +15805,12 @@
         "fr": [
           "créer groupe",
           "nouvelle équipe",
-          "ouvrir filiale",
           "créer département",
           "ajouter unité"
         ],
         "it": [
           "creare gruppo",
           "nuovo team",
-          "aprire filiale",
           "aggiungere reparto"
         ]
       },
@@ -15915,7 +15820,7 @@
         "fr": "Créer un nouveau groupe",
         "it": "Crea un nuovo gruppo"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_group",

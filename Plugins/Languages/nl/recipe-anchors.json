@@ -129,6 +129,17 @@
     "vakantiekalender",
     "verlofkalender"
   ],
+  "create-calendar-selection": [
+    "feestdagenkalender",
+    "kalenderselectie",
+    "kalenderkeuze"
+  ],
+  "create-branch": [
+    "vestiging",
+    "nevenvestiging",
+    "filiaal",
+    "filialen"
+  ],
   "create-shift-order": [
     "dienst",
     "opdracht",

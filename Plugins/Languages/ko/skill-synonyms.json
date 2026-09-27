@@ -377,8 +377,7 @@
   "create_group": [
     "새 그룹 생성",
     "팀 추가",
-    "부서 개설",
-    "지점 만들기"
+    "부서 개설"
   ],
   "create_identity_provider": [
     "새로운 id 제공자를 추가해 줘",

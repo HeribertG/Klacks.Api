@@ -389,7 +389,6 @@
   ],
   "create_group": [
     "buat grup baru dengan nama [name]",
-    "tambahkan cabang [name]",
     "buka lokasi baru [name]",
     "buat unit organisasi [name]",
     "tambah departemen [name]"

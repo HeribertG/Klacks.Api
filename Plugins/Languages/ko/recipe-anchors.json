@@ -157,6 +157,16 @@
     "공휴일",
     "휴일"
   ],
+  "create-calendar-selection": [
+    "공휴일 캘린더",
+    "휴일 캘린더",
+    "캘린더 선택"
+  ],
+  "create-branch": [
+    "지점",
+    "지사",
+    "영업소"
+  ],
   "create-shift-order": [
     "시프트",
     "교대",

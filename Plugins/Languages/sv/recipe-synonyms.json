@@ -13,6 +13,8 @@
   "add-extern-employee-to-nearest-group": ["koppla en extern medarbetare till den närmaste gruppen", "tilldela en enskild extern resurs till närmaste grupp"],
   "bulk-add-externs-to-nearest-group": ["omfördela alla externa medarbetare till deras respektive närmaste grupp", "massomfördela extern personal efter geografisk närhet"],
   "setup-owner-address": ["konfigurera företagets globala helgdagskalender", "sätta upp huvudkontorets adress för schemaläggningen"],
+  "create-calendar-selection": ["skapa en ny helgdagskalender", "lägga till en ny helgdagskalender", "skapa ett nytt kalenderurval"],
+  "create-branch": ["skapa en ny filial", "lägga till en ny filial", "öppna ett nytt lokalkontor"],
   "create-shift-order": ["skapa en ny beställning för en kund med tider och veckodagar", "lägg upp en ny passorder till en kund", "registrera en ny tjänsteorder med grupp"],
   "add-task-to-container": ["lägg in en uppgift i containerpassets mall", "ta med ett uppgiftspass i containerns veckomall", "placera en task på en veckodag i containermallen"],
   "remove-absence-for-employee": ["ta bort en planerad frånvaro för en medarbetare ur kalendern", "radera en förbokad semester för en enskild anställd", "annullera medarbetarens planerade frånvaro på ett datum"],
