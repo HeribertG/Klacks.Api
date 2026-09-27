@@ -15917,27 +15917,23 @@
         "de": [
           "gruppe ändern",
           "gruppe umbenennen",
-          "filiale anpassen",
           "standort ändern",
           "team bearbeiten"
         ],
         "en": [
           "update group",
           "rename group",
-          "change branch",
           "modify team",
           "edit department"
         ],
         "fr": [
           "modifier groupe",
           "renommer équipe",
-          "modifier filiale",
           "éditer département"
         ],
         "it": [
           "modificare gruppo",
-          "rinominare team",
-          "aggiornare filiale"
+          "rinominare team"
         ]
       },
       "labels": {
@@ -15946,7 +15942,7 @@
         "fr": "Modifier un groupe",
         "it": "Modifica un gruppo"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "get_group_details",
@@ -16233,27 +16229,23 @@
       "synonyms": {
         "de": [
           "gruppe löschen",
-          "filiale schließen",
           "team auflösen",
           "standort entfernen",
           "abteilung schließen"
         ],
         "en": [
           "delete group",
-          "close branch",
           "disband team",
           "remove location",
           "retire department"
         ],
         "fr": [
           "supprimer groupe",
-          "fermer filiale",
           "dissoudre équipe",
           "retirer site"
         ],
         "it": [
           "eliminare gruppo",
-          "chiudere filiale",
           "sciogliere team",
           "rimuovere sede"
         ]
@@ -16264,7 +16256,7 @@
         "fr": "Supprimer un groupe",
         "it": "Elimina un gruppo"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "create_calendar_selection",
@@ -16592,14 +16584,12 @@
           "gruppenhierarchie",
           "gruppenbaum",
           "gruppen anzeigen baum",
-          "filialhierarchie",
           "organigramm"
         ],
         "en": [
           "list groups tree",
           "group hierarchy",
           "show org chart",
-          "branch tree",
           "display hierarchy"
         ],
         "fr": [
@@ -16621,7 +16611,7 @@
         "fr": "Lister l'arborescence des groupes",
         "it": "Elenca l'albero dei gruppi in modo gerarchico"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_absence",

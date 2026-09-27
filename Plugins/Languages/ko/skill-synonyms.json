@@ -632,8 +632,7 @@
   "delete_group": [
     "그룹 삭제",
     "팀 해체",
-    "부서 폐쇄",
-    "지점 제거"
+    "부서 폐쇄"
   ],
   "delete_identity_provider": [
     "id 제공자를 삭제해 줘",

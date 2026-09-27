@@ -2901,8 +2901,7 @@
     "ändra gruppnamn",
     "uppdatera gruppens giltighetstid",
     "redigera gruppbeskrivning",
-    "byta namn på avdelning",
-    "ändra filialens uppgifter"
+    "byta namn på avdelning"
   ],
   "update_identity_provider": [
     "ändra en inloggningsleverantör",

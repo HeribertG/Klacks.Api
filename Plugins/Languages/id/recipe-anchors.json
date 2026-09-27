@@ -148,7 +148,8 @@
   "create-calendar-selection": [
     "kalender libur",
     "kalender hari libur",
-    "pilihan kalender"
+    "pilihan kalender",
+    "pemilihan kalender"
   ],
   "create-branch": [
     "cabang",

@@ -647,7 +647,6 @@
   ],
   "delete_group": [
     "șterge grup",
-    "închide filiala",
     "desființează echipa",
     "elimină grupul",
     "retrage departamentul"
@@ -2915,7 +2914,6 @@
     "actualizează grup",
     "redenumește echipa",
     "modifică grupul",
-    "schimbă numele filialei",
     "editează datele grupului"
   ],
   "update_identity_provider": [

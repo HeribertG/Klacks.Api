@@ -641,7 +641,6 @@
   ],
   "delete_group": [
     "padamkan kumpulan ini",
-    "tutup cawangan tanpa paksa",
     "buang pasukan dan semua anaknya",
     "hapuskan kumpulan secara paksa",
     "retire jabatan ini"
@@ -1895,7 +1894,6 @@
   "list_emails_by_group": [
     "emel untuk pasukan ini",
     "tunjukkan emel dari jabatan pemasaran",
-    "senarai emel untuk cawangan",
     "mel untuk kumpulan projek",
     "saya nak emel dari seluruh jabatan",
     "paparkan emel untuk pasukan ini"
@@ -2879,7 +2877,6 @@
     "tukar nama kumpulan",
     "ubah tarikh sah laku kumpulan",
     "edit keterangan pasukan",
-    "kemas kini cawangan ini",
     "ubah nama lokasi"
   ],
   "update_identity_provider": [

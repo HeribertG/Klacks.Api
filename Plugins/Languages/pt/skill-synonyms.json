@@ -664,7 +664,6 @@
   ],
   "delete_group": [
     "excluir grupo",
-    "fechar filial",
     "remover equipe",
     "apagar departamento",
     "deletar grupo e subgrupos"
@@ -2937,7 +2936,6 @@
     "atualizar grupo",
     "renomear equipe",
     "alterar dados do grupo",
-    "modificar filial",
     "editar departamento"
   ],
   "update_identity_provider": [

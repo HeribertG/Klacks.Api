@@ -662,7 +662,6 @@
   ],
   "delete_group": [
     "eliminar grupo",
-    "cerrar sucursal",
     "disolver equipo",
     "borrar departamento"
   ],
@@ -1928,7 +1927,6 @@
   "list_emails_by_group": [
     "ver los correos del equipo",
     "mostrar los correos del departamento",
-    "ver los mensajes de la sucursal",
     "enséñame los correos de todo el grupo",
     "ver el buzón de este equipo",
     "mostrar los correos de esta área"

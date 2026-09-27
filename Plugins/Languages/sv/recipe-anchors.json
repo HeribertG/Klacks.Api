@@ -153,7 +153,8 @@
   ],
   "create-calendar-selection": [
     "helgdagskalender",
-    "kalenderurval"
+    "kalenderurval",
+    "kalenderval"
   ],
   "create-branch": [
     "filial",

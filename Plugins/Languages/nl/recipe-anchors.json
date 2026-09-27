@@ -132,7 +132,8 @@
   "create-calendar-selection": [
     "feestdagenkalender",
     "kalenderselectie",
-    "kalenderkeuze"
+    "kalenderkeuze",
+    "feestdagkalender"
   ],
   "create-branch": [
     "vestiging",

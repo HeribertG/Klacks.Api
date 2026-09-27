@@ -653,7 +653,6 @@
   ],
   "delete_group": [
     "hapus grup [groupid]",
-    "tutup cabang [groupid]",
     "bubarkan tim [groupid]",
     "nonaktifkan grup [groupid]",
     "hapus paksa grup [groupid] dengan semua anak"
@@ -2866,7 +2865,6 @@
     "ubah nama grup [groupid] menjadi [name]",
     "perbarui deskripsi grup [groupid]",
     "edit tanggal berlaku grup [groupid]",
-    "ganti nama cabang [groupid]",
     "ubah validitas grup [groupid]"
   ],
   "update_identity_provider": [

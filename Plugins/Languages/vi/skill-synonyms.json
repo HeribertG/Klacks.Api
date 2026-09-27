@@ -641,7 +641,6 @@
   "delete_group": [
     "xóa nhóm",
     "giải tán đội",
-    "đóng chi nhánh",
     "xóa bộ phận",
     "hủy nhóm khỏi hệ thống"
   ],
@@ -1892,7 +1891,6 @@
   "list_emails_by_group": [
     "email của nhóm này",
     "thư của phòng ban này",
-    "email của chi nhánh này",
     "lịch sử email của cả nhóm",
     "tổng quan email của nhóm"
   ],
@@ -2878,7 +2876,6 @@
   "update_group": [
     "cập nhật tên nhóm",
     "sửa thông tin nhóm",
-    "đổi tên chi nhánh",
     "chỉnh sửa mô tả nhóm",
     "cập nhật ngày hiệu lực nhóm"
   ],

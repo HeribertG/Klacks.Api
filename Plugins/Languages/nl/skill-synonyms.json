@@ -656,7 +656,6 @@
   ],
   "delete_group": [
     "verwijder de groep",
-    "sluit de vestiging",
     "hef het team op",
     "verwijder de locatie",
     "archiveer de groep",
@@ -2948,7 +2947,6 @@
     "pas de groep aan",
     "verander de omschrijving van het team",
     "werk de geldigheidsdata van de groep bij",
-    "hernoem de vestiging",
     "update de groepsgegevens"
   ],
   "update_identity_provider": [

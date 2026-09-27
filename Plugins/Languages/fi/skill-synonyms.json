@@ -646,7 +646,6 @@
   ],
   "delete_group": [
     "poista ryhmä",
-    "sulje toimipiste",
     "lakkauta tiimi",
     "poista osasto",
     "poista ryhmä ja aliryhmät"
@@ -1918,7 +1917,6 @@
   "list_emails_by_group": [
     "näytä tiimin sähköpostit",
     "näytä osaston sähköpostit",
-    "näytä tämän toimipisteen viestit",
     "näytä tiimin sähköpostihistoria",
     "näytä ryhmän saapuneet sähköpostit",
     "onko ryhmälle tullut sähköposteja?"
@@ -1971,8 +1969,7 @@
     "näytä ryhmähierarkia",
     "lista ryhmät puurakenteena",
     "näytä organisaatiokaavio",
-    "näytä ryhmät ja aliryhmät",
-    "näytä toimipisteiden hierarkia"
+    "näytä ryhmät ja aliryhmät"
   ],
   "list_holidays_for_period": [
     "näytä vapaapäivät ajanjaksolla",
@@ -2913,7 +2910,6 @@
     "päivitä ryhmän tiedot",
     "muuta ryhmän nimeä",
     "vaihda ryhmän voimassaoloaikaa",
-    "päivitä toimipisteen tiedot",
     "muokkaa tiimin tietoja"
   ],
   "update_identity_provider": [

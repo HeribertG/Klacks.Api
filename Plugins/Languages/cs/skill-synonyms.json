@@ -668,7 +668,6 @@
   "delete_group": [
     "zrušit skupinu",
     "smazat tým",
-    "zavřít pobočku",
     "rozpustit oddělení",
     "odebrat skupinu",
     "likvidovat tým"
@@ -1992,8 +1991,7 @@
     "ukázat strom skupin",
     "vypsat skupiny včetně nadřazených",
     "zobrazit organizační strukturu",
-    "zobrazit stromovou strukturu týmů",
-    "hierarchie poboček"
+    "zobrazit stromovou strukturu týmů"
   ],
   "list_holidays_for_period": [
     "ukázat svátky v období",
