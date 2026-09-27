@@ -33,6 +33,13 @@ public static class ProactiveActionRoutes
     /// navigation-targets.json.
     /// </summary>
     public const string ShiftList = "/workplace/shift";
+
+    /// <summary>
+    /// The slot-template page of one container. The frontend route only exists WITH the container
+    /// shift id as path segment (container-template/:id), so the bare path is never a valid target on
+    /// its own - build it through ContainerTemplateFor.
+    /// </summary>
+    public const string ContainerTemplate = "/workplace/container-template";
     public const string PeriodClosing = "/workplace/period-closing";
     public const string Settings = "/workplace/settings";
 
@@ -41,4 +48,6 @@ public static class ProactiveActionRoutes
     /// page. Matches the targetId in navigation-targets.json and the frontend's section mapping.
     /// </summary>
     public const string SettingsTargetKlacksyLearning = "assistant-learning";
+
+    public static string ContainerTemplateFor(Guid containerShiftId) => $"{ContainerTemplate}/{containerShiftId}";
 }

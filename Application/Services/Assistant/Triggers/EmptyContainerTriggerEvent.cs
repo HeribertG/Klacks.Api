@@ -58,12 +58,9 @@ public sealed record EmptyContainerTriggerEvent(
     /// </summary>
     public static string DedupKeyFor(Guid shiftId) => shiftId.ToString();
 
-    public string? ActionRoute => ProactiveActionRoutes.Schedule;
+    public string? ActionRoute => ProactiveActionRoutes.ContainerTemplateFor(ShiftId);
 
-    public IReadOnlyDictionary<string, string>? ActionParams => new Dictionary<string, string>
-    {
-        [ProactiveActionParamKeys.Date] = FromDate.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
-    };
+    public IReadOnlyDictionary<string, string>? ActionParams => null;
 
     /// <summary>
     /// Also the remediation input, not only a description of the finding: the Etappe 5b binder turns

@@ -130,6 +130,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
                 AgentTriggerSeverity.Medium,
                 FreshSetupDetectedAtUtc,
                 null,
+                null,
                 string.Empty,
                 ScheduleSetupStages.For(setupState)));
         }
@@ -149,6 +150,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
                 condition.Severity,
                 condition.DetectedAtUtc,
                 condition.Id,
+                condition.EntityId,
                 condition.PayloadJson,
                 null));
         }
@@ -338,7 +340,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
             },
             ActionKind = WelcomeFocusActionKinds.Navigate,
             ActionLabelKey = WelcomeFocusI18nKeys.GenericAction,
-            ActionRoute = AgentConditionActionRoutes.For(candidate.Kind) ?? ProactiveActionRoutes.Schedule,
+            ActionRoute = AgentConditionActionRoutes.For(candidate.Kind, candidate.EntityId) ?? ProactiveActionRoutes.Schedule,
             ConditionId = candidate.ConditionId
         };
     }
@@ -348,6 +350,7 @@ public class WelcomeFocusResolver : IWelcomeFocusResolver
         string Severity,
         DateTime DetectedAtUtc,
         Guid? ConditionId,
+        Guid? EntityId,
         string PayloadJson,
         ScheduleSetupStage? Stage);
 }

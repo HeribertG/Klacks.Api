@@ -111,7 +111,7 @@ public class ListOpenFindingsSkill : BaseSkillImplementation
             GroupId: condition.GroupId,
             AttemptCount: condition.AttemptCount,
             EscalatedAtUtc: condition.EscalatedAtUtc,
-            ActionRoute: AgentConditionActionRoutes.For(condition.TriggerKind),
+            ActionRoute: AgentConditionActionRoutes.For(condition.TriggerKind, condition.EntityId),
             ReconciliationTracked: isReconciled,
             StalenessNote: isReconciled
                 ? null
