@@ -6,7 +6,9 @@
 /// item, and passes only when fixed minus regressed over holdout and train items reaches the minimum.
 /// The verdict is NotMeasured when no item was answered on both sides, and also when holdout items were planned
 /// but none of them was: without a measured holdout item there is no regression check, so a train gain alone
-/// does not pass. Only a plan without holdout items is decided on the train items alone.
+/// does not pass. The check runs per holdout goldset (default and translated): a measured translated item
+/// cannot stand in for a German holdout half that went entirely unanswered, nor the reverse. Only a plan
+/// without holdout items is decided on the train items alone.
 /// Provider output at temperature 0 is not guaranteed to be deterministic, which is why the comparison is
 /// between two replays of the same run and not against an older eval run.
 /// </summary>
@@ -27,7 +29,9 @@ public static class GoldsetGateJudge
         var train = Compare(plan.TrainItems, before, after);
         var netGain = holdout.Fixed.Count + train.Fixed.Count - holdout.Regressed.Count - train.Regressed.Count;
 
-        var holdoutPlannedButUnmeasured = plan.HoldoutItems.Count > 0 && holdout.Measured == 0;
+        var holdoutPlannedButUnmeasured = plan.HoldoutItems
+            .GroupBy(item => item.Goldset, StringComparer.Ordinal)
+            .Any(group => Compare([.. group], before, after).Measured == 0);
         var verdict = holdout.Measured + train.Measured == 0 || holdoutPlannedButUnmeasured
             ? GoldsetGateVerdicts.NotMeasured
             : holdout.Regressed.Count > 0

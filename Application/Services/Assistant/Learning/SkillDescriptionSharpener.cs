@@ -343,14 +343,15 @@ public class SkillDescriptionSharpener : ISkillDescriptionSharpener
             proposal, skill.Name, measurement, keepChange ? measurement.Failing : population.Baseline, cancellationToken);
     }
 
-    // With planned holdout items the judge needs one of them answered on both sides, otherwise any train item;
-    // an item the first replay did not answer can never complete a pair, so applying would be for nothing.
+    // With planned holdout items the judge needs one item of every holdout goldset answered on both sides,
+    // otherwise any train item; an item the first replay did not answer can never complete a pair, so
+    // applying would be for nothing.
     private static bool CanCompleteAPair(GoldsetReplayPlan plan, IReadOnlyDictionary<GoldsetItemRef, bool?> before)
     {
         bool Answered(GoldsetItemRef item) => before.TryGetValue(item, out var hit) && hit != null;
 
         return plan.HoldoutItems.Count > 0
-            ? plan.HoldoutItems.Any(Answered)
+            ? plan.HoldoutItems.GroupBy(item => item.Goldset, StringComparer.Ordinal).All(group => group.Any(Answered))
             : plan.TrainItems.Any(Answered);
     }
 

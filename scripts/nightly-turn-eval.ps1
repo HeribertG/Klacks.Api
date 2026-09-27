@@ -63,6 +63,7 @@
 
 .PARAMETER Goldset
     Goldset name (without .json). Default: turn-selection-v1. Exported as TURNEVAL_GOLDSET.
+    Passing -Goldset explicitly always evaluates exactly that one goldset, whatever the profile.
 
 .PARAMETER Profile
     daily  - caps the run at the first 70 goldset items (the curated head of turn-selection-v1;
@@ -71,7 +72,12 @@
              daily series does not move the ratchet - its gate is the absolute floor in
              TurnEvalPassRateGate. Only the weekly full run advances the baseline. That is the
              intended trade: cheap daily smoke detection, weekly ratchet.
-    weekly - full goldset, no cap. This is the run that sets the baseline.
+    weekly - full goldset, no cap. This is the run that sets the baseline. Without an explicit -Goldset
+             the weekly profile evaluates TWO goldsets, one run each and in this order: turn-selection-v1
+             (the base goldset, first so the learning gate's reference run always lands) and
+             turn-selection-v1-i18n (translations into every installed language, spec 2026-09-27). Each
+             must add exactly one eval_runs row; the scorecard prints both. About 343 + ~920 items, roughly
+             3.3 h at ~9 s/item with deepseek-flash - the scheduled task's ExecutionTimeLimit must be 6 h.
     Explicitly passing -MaxItems overrides the profile.
 
 .PARAMETER MaxItems
@@ -107,8 +113,12 @@
 .NOTES
     Prerequisites for a REAL run:
         - .NET 10 SDK on PATH.
-        - PostgreSQL reachable at localhost:5434 (db 'klacks', user 'postgres', pw 'admin') - the
-          shared dev/integration DB. psql.exe must be reachable (default path below or on PATH).
+        - PostgreSQL reachable at localhost:5434 (user 'postgres', pw 'admin'). The database is the
+          dev database named in -DevSettingsPath (Klacks.Api/appsettings.Development.json,
+          Database=...; fallback 'klacks'), because the dev backend, the learning gate and
+          weekly-learning-pipeline.ps1 read eval_runs from there. The integration-test host is
+          pointed at the same database through DATABASE_URL (TestHostDatabase), and every psql
+          query of this script uses it too. psql.exe must be reachable (default path below or on PATH).
         - Each evaluated model must be enabled in llm_models AND its provider enabled + keyed in
           llm_providers. The script pre-flights this and FAILS (exit 3) on anything not runnable.
         - No running backend is required: the integration test self-hosts its own host.
@@ -131,7 +141,8 @@
         $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 4) -StartWhenAvailable
         Register-ScheduledTask -TaskPath '\Klacks\' -TaskName 'NightlyTurnEval-Daily' -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force
 
-        # NightlyTurnEval-Weekly: same shape, -Profile weekly, -DaysOfWeek Saturday, -At 02:00.
+        # NightlyTurnEval-Weekly: same shape, -Profile weekly, -DaysOfWeek Saturday, -At 02:00, and
+        # -ExecutionTimeLimit (New-TimeSpan -Hours 6): it now runs the base AND the i18n goldset.
 
     Three scheduling constraints, all of them load-bearing:
       - The weekly run must NOT collide with Klacks-GoldenSet-Nightly-Full (Sunday 00:00), hence
@@ -156,6 +167,7 @@ param(
     [double]$RegressionThreshold = 0.02,
     [string]$OutputDir,
     [string]$RepoRoot,
+    [string]$DevSettingsPath,
     [switch]$DryRun,
     [switch]$MemoryProbe,
     [switch]$DisableThinking
@@ -182,9 +194,17 @@ $ReferenceModelSettingKey = "KLACKSY_LEARNING_REFERENCE_MODEL"
 $ReferenceModelSettingSql = "SELECT value FROM settings WHERE type = '$ReferenceModelSettingKey';"
 $DefaultModelSql      = "SELECT model_id FROM llm_models WHERE is_default AND NOT is_deleted AND is_enabled;"
 $DailyMaxItems        = 70
+$BaseGoldsetName      = "turn-selection-v1"
+$I18nGoldsetName      = "turn-selection-v1-i18n"
+$WeeklyProfileName    = "weekly"
+$GoldsetsRelativePath = "Application\Skills\Goldsets"
+$GoldsetFileExtension = ".json"
 $DbHost               = "localhost"
 $DbPort               = "5434"
-$DbName               = "klacks"
+$DbNameFallback       = "klacks"
+$DevSettingsFileName  = "appsettings.Development.json"
+$DatabasePattern      = 'Database=([^;"]+)'
+$TestDatabaseEnvVar   = "DATABASE_URL"
 $DbUser               = "postgres"
 $DbPassword           = "admin"
 $PsqlDefaultPath      = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
@@ -224,10 +244,35 @@ if (-not $RepoRoot)  { $RepoRoot  = Split-Path -Parent $PSScriptRoot }
 if (-not $OutputDir) { $OutputDir = Join-Path $RepoRoot "artifacts/turn-eval" }
 $IntegrationProject = Join-Path $SolutionRoot $IntegrationProjectRelative
 
+# The dev database, not a hardcoded one: the dev backend, the learning gate and the weekly pipeline read
+# eval_runs from the database in appsettings.Development.json, so the runs have to land there (the same
+# regex daily-learning-check.ps1 uses).
+if (-not $DevSettingsPath) { $DevSettingsPath = Join-Path $RepoRoot $DevSettingsFileName }
+$DbName = $DbNameFallback
+$DbNameSource = "fallback (no Database= in '$DevSettingsPath')"
+if (Test-Path -LiteralPath $DevSettingsPath) {
+    $dbMatch = [regex]::Match((Get-Content -Raw -LiteralPath $DevSettingsPath), $DatabasePattern)
+    if ($dbMatch.Success) {
+        $DbName = $dbMatch.Groups[1].Value
+        $DbNameSource = $DevSettingsPath
+    }
+}
+$TestDatabaseConnection = "User ID=$DbUser;Password=$DbPassword;Host=$DbHost;Port=$DbPort;Database=$DbName"
+# TestHostDatabase (Klacks.IntegrationTest) reads DATABASE_URL as the base connection of every test host.
+$EvalHostEnvOverrides[$TestDatabaseEnvVar] = $TestDatabaseConnection
+
 # $ModelList is resolved further below, once $psql/$dbReachable are known (an empty -Models needs the DB).
 
 $EffectiveMaxItems = if ($MaxItems -gt 0) { $MaxItems } elseif ($Profile -eq "daily") { $DailyMaxItems } else { 0 }
 $ScopeText = if ($EffectiveMaxItems -gt 0) { "first $EffectiveMaxItems items (PARTIAL run - never a baseline)" } else { "full goldset" }
+
+# The weekly profile measures the base goldset AND its translations (one run each, base first); an explicit
+# -Goldset, or the daily profile, measures exactly one goldset as before.
+if ($PSBoundParameters.ContainsKey("Goldset") -or $Profile -ne $WeeklyProfileName) {
+    $GoldsetList = @($Goldset)
+} else {
+    $GoldsetList = @($BaseGoldsetName, $I18nGoldsetName)
+}
 
 $Timestamp    = Get-Date -Format "yyyyMMdd-HHmmss"
 $ScorecardOut = Join-Path $OutputDir "turn-eval-$Timestamp.md"
@@ -349,12 +394,13 @@ try {
     $modeText = if ($DryRun) { "DRY-RUN (no dotnet test, no LLM calls)" } else { "LIVE" }
     Write-Line "# Turn-selection nightly eval - $Timestamp" $sw
     Write-Line "" $sw
-    Write-Line "Goldset:              $Goldset" $sw
+    Write-Line "Goldsets:             $($GoldsetList -join ', ')" $sw
     Write-Line "Profile:              $Profile -> $ScopeText" $sw
     Write-Line "Models:               $($ModelList -join ', ')" $sw
     Write-Line "Thinking:             $ThinkingSettingText" $sw
     Write-Line "Regression threshold: -$RegressionThreshold (composite vs. median of comparable baseline runs, at least $MinBaselineRuns runs)" $sw
     Write-Line "Mode:                 $modeText" $sw
+    Write-Line "Database:             ${DbHost}:${DbPort}/$DbName (from $DbNameSource; test host via $TestDatabaseEnvVar)" $sw
     Write-Line "DB reachable:         $dbReachable" $sw
     Write-Line "" $sw
 
@@ -376,209 +422,220 @@ try {
         Write-Line "" $sw
     }
 
-    foreach ($model in $ModelList) {
-        Write-Line "## Model: $model" $sw
-
-        # -- Enablement pre-flight -------------------------------------------
-        if ($dbReachable) {
-            $sqlEnabled = "SELECT (m.is_enabled AND p.is_enabled AND (NOT p.requires_api_key OR p.api_key IS NOT NULL)) FROM llm_models m JOIN llm_providers p ON p.provider_id = m.provider_id WHERE m.model_id = '$model' AND m.is_deleted = false AND p.is_deleted = false LIMIT 1;"
-            $en = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlEnabled
-            if (-not $en.Ok -or [string]::IsNullOrWhiteSpace($en.Value)) {
-                Write-Line "  FAILURE: model '$model' not found in llm_models - skipped, nothing was measured." $sw "Red"
-                $anyFailure = $true
-                Write-Line "" $sw
-                continue
-            }
-            if ($en.Value -ne "t") {
-                Write-Line "  FAILURE: model '$model' or its provider is disabled / missing an API key - skipped, nothing was measured." $sw "Red"
-                $anyFailure = $true
-                Write-Line "" $sw
-                continue
-            }
-        } elseif (-not $DryRun) {
-            Write-Line "  FAILURE: DB not reachable for the enablement pre-flight." $sw "Red"
+    foreach ($currentGoldset in $GoldsetList) {
+        $goldsetFile = Join-Path (Join-Path $RepoRoot $GoldsetsRelativePath) ($currentGoldset + $GoldsetFileExtension)
+        if (-not (Test-Path -LiteralPath $goldsetFile)) {
+            Write-Line "## Goldset: $currentGoldset" $sw
+            Write-Line "  FAILURE: goldset file '$goldsetFile' not found - nothing was measured for it." $sw "Red"
             $anyFailure = $true
             Write-Line "" $sw
             continue
         }
+        foreach ($model in $ModelList) {
+            Write-Line "## Goldset: $currentGoldset / Model: $model" $sw
 
-        $envText = "$ModelEnvVar=$model $GoldsetEnvVar=$Goldset $MaxItemsEnvVar=$EffectiveMaxItems"
-        $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release (env $envText) after: dotnet build $IntegrationProject --configuration $BuildConfiguration; dotnet build-server shutdown (test runs with --no-build)"
-
-        if ($DryRun) {
-            Write-Line "  [dry-run] would run: $cmd" $sw
-            Write-Line "  [dry-run] would then require exactly one new $EvalRunsTable row for goldset='$Goldset', model='$model'." $sw
-            Write-Line "" $sw
-            continue
-        }
-
-        # -- Row count BEFORE the run ----------------------------------------
-        $sqlCount = "SELECT count(*) FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false;"
-        $before = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
-        if (-not $before.Ok) {
-            Write-Line "  FAILURE: could not read the $EvalRunsTable row count before the run." $sw "Red"
-            $anyFailure = $true
-            Write-Line "" $sw
-            continue
-        }
-        $countBefore = 0
-        [int]::TryParse($before.Value, [ref]$countBefore) | Out-Null
-
-        # -- Run the [Explicit] integration test for this model --------------
-        Write-Host "  Running eval for '$model' ($ScopeText) ..." -ForegroundColor Cyan
-        $logPath = Join-Path $OutputDir "turneval-$model-$Timestamp.log"
-        $prevModel    = $env:TURNEVAL_MODEL_ID
-        $prevGoldset  = $env:TURNEVAL_GOLDSET
-        $prevMaxItems = $env:TURNEVAL_MAX_ITEMS
-        $prevMemoryProbe = [Environment]::GetEnvironmentVariable($MemoryProbeEnvVar)
-        $env:TURNEVAL_MODEL_ID  = $model
-        $env:TURNEVAL_GOLDSET   = $Goldset
-        $env:TURNEVAL_MAX_ITEMS = "$EffectiveMaxItems"
-        if ($MemoryProbe) { [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $MemoryProbeOnValue) }
-        $prevHostEnv = @{}
-        foreach ($name in $EvalHostEnvOverrides.Keys) {
-            $prevHostEnv[$name] = [Environment]::GetEnvironmentVariable($name)
-            [Environment]::SetEnvironmentVariable($name, $EvalHostEnvOverrides[$name])
-        }
-        $testExitCode = -1
-        # The full console output is the only place a provider failure is visible, and losing it is
-        # what made the 01.09. empty nightly undiagnosable. It is streamed to the log, never buffered.
-        Set-Content -Path $logPath -Value "" -Encoding UTF8
-        try {
-            $testExitCode = Invoke-DotnetLogged -LogPath $logPath -Arguments @(
-                "test", $IntegrationProject,
-                "--no-build",
-                "--filter", $TestFilter,
-                "--configuration", $BuildConfiguration,
-                "--logger", "trx;LogFileName=turneval-$model-$Timestamp.trx")
-        } catch {
-            Add-Content -Path $logPath -Value "$($_.Exception.Message)" -Encoding UTF8
-            $testExitCode = -1
-        } finally {
-            $env:TURNEVAL_MODEL_ID  = $prevModel
-            $env:TURNEVAL_GOLDSET   = $prevGoldset
-            $env:TURNEVAL_MAX_ITEMS = $prevMaxItems
-            [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $prevMemoryProbe)
-            foreach ($name in $prevHostEnv.Keys) {
-                [Environment]::SetEnvironmentVariable($name, $prevHostEnv[$name])
-            }
-        }
-
-        if ($testExitCode -eq 0) {
-            $trxPath = Join-Path (Join-Path (Split-Path -Parent $IntegrationProject) $TestResultsFolderName) "turneval-$model-$Timestamp.trx"
-            Add-TrxStdOutToLog -TrxPath $trxPath -LogPath $logPath
-        }
-
-        # -- Guard: exactly one new row. Locale-independent, unlike scraping the vstest summary
-        #    (a German SDK prints "erfolgreich:", so every English "Passed: 0" heuristic is blind).
-        $after = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
-        $countAfter = 0
-        [int]::TryParse($after.Value, [ref]$countAfter) | Out-Null
-        $rowsAdded = $countAfter - $countBefore
-
-        Write-Line "  dotnet test exit code: $testExitCode" $sw
-        Write-Line "  eval_runs rows:        $countBefore -> $countAfter (added $rowsAdded, expected 1)" $sw
-        Write-Line "  test log:              $logPath" $sw
-
-        if ($testExitCode -ne 0) {
-            Write-Line "  FAILURE: dotnet test returned $testExitCode - the eval did not complete cleanly. See the test log." $sw "Red"
-            $anyFailure = $true
-        }
-
-        if ($rowsAdded -ne 1) {
-            Write-Line "  FAILURE: the run added $rowsAdded rows to $EvalRunsTable, expected exactly 1." $sw "Red"
-            Write-Line "           Either no test executed, or the run errored before persisting, or the goldset/model" $sw "Red"
-            Write-Line "           the test used differs from the one queried here. NOTHING WAS MEASURED." $sw "Red"
-            $anyFailure = $true
-            Write-Line "" $sw
-            continue
-        }
-
-        # -- Read the authoritative scorecard back from eval_runs ------------
-        $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider, scorer_version, is_partial, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
-        $row = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatest
-        if (-not $row.Ok -or [string]::IsNullOrWhiteSpace($row.Value)) {
-            Write-Line "  FAILURE: could not read the persisted $EvalRunsTable row for '$model'." $sw "Red"
-            $anyFailure = $true
-            Write-Line "" $sw
-            continue
-        }
-
-        $cols = $row.Value.Split("|")
-        $composite     = $cols[0].Trim()
-        $regression    = $cols[1].Trim()
-        $itemsTotal    = if ($cols.Count -gt 2) { $cols[2].Trim() } else { "?" }
-        $itemsPass     = if ($cols.Count -gt 3) { $cols[3].Trim() } else { "?" }
-        $provider      = if ($cols.Count -gt 4) { $cols[4].Trim() } else { "?" }
-        $scorerVersion = if ($cols.Count -gt 5) { $cols[5].Trim() } else { "?" }
-        $isPartial     = if ($cols.Count -gt 6) { $cols[6].Trim() } else { "?" }
-        $retrieval     = if ($cols.Count -gt 7) { $cols[7].Trim() } else { "n/a" }
-        $selection     = if ($cols.Count -gt 8) { $cols[8].Trim() } else { "n/a" }
-        $reached       = if ($cols.Count -gt 9) { $cols[9].Trim() } else { "n/a" }
-        $detour        = if ($cols.Count -gt 10) { $cols[10].Trim() } else { "n/a" }
-
-        Write-Line "  provider:       $provider" $sw
-        Write-Line "  scorer version: $scorerVersion (composites are comparable only within one version)" $sw
-
-        # Two separate lines on purpose. A partial run covers a different population and has no
-        # comparable baseline, so printing it as "the" score is what made five months of daily
-        # numbers look like a measurement of the product instead of a smoke test of the apparatus.
-        if ($isPartial -eq "t") {
-            Write-Line "  THIS RUN (PARTIAL - NOT the score): composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw "Yellow"
-        } else {
-            Write-Line "  THIS RUN (full):                    composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw
-        }
-
-        $sqlLatestFull = "SELECT composite_score, items_total, items_passed, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), create_time, coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false AND is_partial = false AND scorer_version = $scorerVersion ORDER BY create_time DESC LIMIT 1;"
-        $fullRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatestFull
-        if ($fullRow.Ok -and -not [string]::IsNullOrWhiteSpace($fullRow.Value)) {
-            $fullCols = $fullRow.Value.Split("|")
-            $fullComposite = $fullCols[0].Trim()
-            $fullTotal     = if ($fullCols.Count -gt 1) { $fullCols[1].Trim() } else { "?" }
-            $fullPassed    = if ($fullCols.Count -gt 2) { $fullCols[2].Trim() } else { "?" }
-            $fullRetrieval = if ($fullCols.Count -gt 3) { $fullCols[3].Trim() } else { "n/a" }
-            $fullSelection = if ($fullCols.Count -gt 4) { $fullCols[4].Trim() } else { "n/a" }
-            $fullAt        = if ($fullCols.Count -gt 5) { $fullCols[5].Trim() } else { "?" }
-            $fullReached   = if ($fullCols.Count -gt 6) { $fullCols[6].Trim() } else { "n/a" }
-            $fullDetour    = if ($fullCols.Count -gt 7) { $fullCols[7].Trim() } else { "n/a" }
-            Write-Line "  LATEST FULL RUN (the score):        composite=$fullComposite, retrievalHit=$fullRetrieval, selectionHit=$fullSelection, reachedHit=$fullReached, lookupDetour=$fullDetour, items=$fullPassed/$fullTotal, at=$fullAt" $sw
-        } else {
-            Write-Line "  LATEST FULL RUN (the score):        none yet for scorer version $scorerVersion - run with -Profile weekly." $sw "Yellow"
-        }
-
-        Write-Line "  regression:     $regression" $sw
-
-        $baselineText = "n/a"
-        if ($isPartial -ne "t") {
-            $sqlBaseline = "SELECT count(*), coalesce(round(percentile_cont(0.5) WITHIN GROUP (ORDER BY composite_score)::numeric, 4)::text, 'n/a') FROM $EvalRunsTable b WHERE b.goldset = '$Goldset' AND b.model = '$model' AND b.is_deleted = false AND b.is_partial = false AND b.items_total > 0 AND b.items_total = $itemsTotal AND b.scorer_version = $scorerVersion AND b.id <> (SELECT id FROM $EvalRunsTable WHERE goldset = '$Goldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1);"
-            $baselineRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlBaseline
-            if ($baselineRow.Ok -and -not [string]::IsNullOrWhiteSpace($baselineRow.Value)) {
-                $baselineCols = $baselineRow.Value.Split("|")
-                $baselineN = [int]$baselineCols[0].Trim()
-                $baselineMedian = $baselineCols[1].Trim()
-                if ($baselineN -ge $MinBaselineRuns) {
-                    Write-Line "  baseline:       median $baselineMedian of n=$baselineN comparable full runs" $sw
-                } else {
-                    Write-Line "  baseline:       insufficient baseline (n<$MinBaselineRuns): n=$baselineN comparable full run(s) - NO regression verdict, this is not a pass" $sw "Yellow"
-                    $anyInsufficientBaseline = $true
+            # -- Enablement pre-flight -------------------------------------------
+            if ($dbReachable) {
+                $sqlEnabled = "SELECT (m.is_enabled AND p.is_enabled AND (NOT p.requires_api_key OR p.api_key IS NOT NULL)) FROM llm_models m JOIN llm_providers p ON p.provider_id = m.provider_id WHERE m.model_id = '$model' AND m.is_deleted = false AND p.is_deleted = false LIMIT 1;"
+                $en = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlEnabled
+                if (-not $en.Ok -or [string]::IsNullOrWhiteSpace($en.Value)) {
+                    Write-Line "  FAILURE: model '$model' not found in llm_models - skipped, nothing was measured." $sw "Red"
+                    $anyFailure = $true
+                    Write-Line "" $sw
+                    continue
                 }
-            } else {
-                Write-Line "  baseline:       could not read the baseline runs from $EvalRunsTable" $sw "Yellow"
+                if ($en.Value -ne "t") {
+                    Write-Line "  FAILURE: model '$model' or its provider is disabled / missing an API key - skipped, nothing was measured." $sw "Red"
+                    $anyFailure = $true
+                    Write-Line "" $sw
+                    continue
+                }
+            } elseif (-not $DryRun) {
+                Write-Line "  FAILURE: DB not reachable for the enablement pre-flight." $sw "Red"
+                $anyFailure = $true
+                Write-Line "" $sw
+                continue
             }
+
+            $envText = "$ModelEnvVar=$model $GoldsetEnvVar=$currentGoldset $MaxItemsEnvVar=$EffectiveMaxItems $TestDatabaseEnvVar=<Database=$DbName>"
+            $cmd = "dotnet test $IntegrationProject --filter `"$TestFilter`" --configuration Release (env $envText) after: dotnet build $IntegrationProject --configuration $BuildConfiguration; dotnet build-server shutdown (test runs with --no-build)"
+
+            if ($DryRun) {
+                Write-Line "  [dry-run] would run: $cmd" $sw
+                Write-Line "  [dry-run] would then require exactly one new $EvalRunsTable row for goldset='$currentGoldset', model='$model'." $sw
+                Write-Line "" $sw
+                continue
+            }
+
+            # -- Row count BEFORE the run ----------------------------------------
+            $sqlCount = "SELECT count(*) FROM $EvalRunsTable WHERE goldset = '$currentGoldset' AND model = '$model' AND is_deleted = false;"
+            $before = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
+            if (-not $before.Ok) {
+                Write-Line "  FAILURE: could not read the $EvalRunsTable row count before the run." $sw "Red"
+                $anyFailure = $true
+                Write-Line "" $sw
+                continue
+            }
+            $countBefore = 0
+            [int]::TryParse($before.Value, [ref]$countBefore) | Out-Null
+
+            # -- Run the [Explicit] integration test for this model --------------
+            Write-Host "  Running eval for '$model' ($ScopeText) ..." -ForegroundColor Cyan
+            $logPath = Join-Path $OutputDir "turneval-$currentGoldset-$model-$Timestamp.log"
+            $prevModel    = $env:TURNEVAL_MODEL_ID
+            $prevGoldset  = $env:TURNEVAL_GOLDSET
+            $prevMaxItems = $env:TURNEVAL_MAX_ITEMS
+            $prevMemoryProbe = [Environment]::GetEnvironmentVariable($MemoryProbeEnvVar)
+            $env:TURNEVAL_MODEL_ID  = $model
+            $env:TURNEVAL_GOLDSET   = $currentGoldset
+            $env:TURNEVAL_MAX_ITEMS = "$EffectiveMaxItems"
+            if ($MemoryProbe) { [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $MemoryProbeOnValue) }
+            $prevHostEnv = @{}
+            foreach ($name in $EvalHostEnvOverrides.Keys) {
+                $prevHostEnv[$name] = [Environment]::GetEnvironmentVariable($name)
+                [Environment]::SetEnvironmentVariable($name, $EvalHostEnvOverrides[$name])
+            }
+            $testExitCode = -1
+            # The full console output is the only place a provider failure is visible, and losing it is
+            # what made the 01.09. empty nightly undiagnosable. It is streamed to the log, never buffered.
+            Set-Content -Path $logPath -Value "" -Encoding UTF8
+            try {
+                $testExitCode = Invoke-DotnetLogged -LogPath $logPath -Arguments @(
+                    "test", $IntegrationProject,
+                    "--no-build",
+                    "--filter", $TestFilter,
+                    "--configuration", $BuildConfiguration,
+                    "--logger", "trx;LogFileName=turneval-$currentGoldset-$model-$Timestamp.trx")
+            } catch {
+                Add-Content -Path $logPath -Value "$($_.Exception.Message)" -Encoding UTF8
+                $testExitCode = -1
+            } finally {
+                $env:TURNEVAL_MODEL_ID  = $prevModel
+                $env:TURNEVAL_GOLDSET   = $prevGoldset
+                $env:TURNEVAL_MAX_ITEMS = $prevMaxItems
+                [Environment]::SetEnvironmentVariable($MemoryProbeEnvVar, $prevMemoryProbe)
+                foreach ($name in $prevHostEnv.Keys) {
+                    [Environment]::SetEnvironmentVariable($name, $prevHostEnv[$name])
+                }
+            }
+
+            if ($testExitCode -eq 0) {
+                $trxPath = Join-Path (Join-Path (Split-Path -Parent $IntegrationProject) $TestResultsFolderName) "turneval-$currentGoldset-$model-$Timestamp.trx"
+                Add-TrxStdOutToLog -TrxPath $trxPath -LogPath $logPath
+            }
+
+            # -- Guard: exactly one new row. Locale-independent, unlike scraping the vstest summary
+            #    (a German SDK prints "erfolgreich:", so every English "Passed: 0" heuristic is blind).
+            $after = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlCount
+            $countAfter = 0
+            [int]::TryParse($after.Value, [ref]$countAfter) | Out-Null
+            $rowsAdded = $countAfter - $countBefore
+
+            Write-Line "  dotnet test exit code: $testExitCode" $sw
+            Write-Line "  eval_runs rows:        $countBefore -> $countAfter (added $rowsAdded, expected 1)" $sw
+            Write-Line "  test log:              $logPath" $sw
+
+            if ($testExitCode -ne 0) {
+                Write-Line "  FAILURE: dotnet test returned $testExitCode - the eval did not complete cleanly. See the test log." $sw "Red"
+                $anyFailure = $true
+            }
+
+            if ($rowsAdded -ne 1) {
+                Write-Line "  FAILURE: the run added $rowsAdded rows to $EvalRunsTable, expected exactly 1." $sw "Red"
+                Write-Line "           Either no test executed, or the run errored before persisting, or the goldset/model" $sw "Red"
+                Write-Line "           the test used differs from the one queried here. NOTHING WAS MEASURED." $sw "Red"
+                $anyFailure = $true
+                Write-Line "" $sw
+                continue
+            }
+
+            # -- Read the authoritative scorecard back from eval_runs ------------
+            $sqlLatest = "SELECT composite_score, coalesce(regression_vs_baseline::text, 'n/a'), items_total, items_passed, provider, scorer_version, is_partial, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$currentGoldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1;"
+            $row = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatest
+            if (-not $row.Ok -or [string]::IsNullOrWhiteSpace($row.Value)) {
+                Write-Line "  FAILURE: could not read the persisted $EvalRunsTable row for '$model'." $sw "Red"
+                $anyFailure = $true
+                Write-Line "" $sw
+                continue
+            }
+
+            $cols = $row.Value.Split("|")
+            $composite     = $cols[0].Trim()
+            $regression    = $cols[1].Trim()
+            $itemsTotal    = if ($cols.Count -gt 2) { $cols[2].Trim() } else { "?" }
+            $itemsPass     = if ($cols.Count -gt 3) { $cols[3].Trim() } else { "?" }
+            $provider      = if ($cols.Count -gt 4) { $cols[4].Trim() } else { "?" }
+            $scorerVersion = if ($cols.Count -gt 5) { $cols[5].Trim() } else { "?" }
+            $isPartial     = if ($cols.Count -gt 6) { $cols[6].Trim() } else { "?" }
+            $retrieval     = if ($cols.Count -gt 7) { $cols[7].Trim() } else { "n/a" }
+            $selection     = if ($cols.Count -gt 8) { $cols[8].Trim() } else { "n/a" }
+            $reached       = if ($cols.Count -gt 9) { $cols[9].Trim() } else { "n/a" }
+            $detour        = if ($cols.Count -gt 10) { $cols[10].Trim() } else { "n/a" }
+
+            Write-Line "  provider:       $provider" $sw
+            Write-Line "  scorer version: $scorerVersion (composites are comparable only within one version)" $sw
+
+            # Two separate lines on purpose. A partial run covers a different population and has no
+            # comparable baseline, so printing it as "the" score is what made five months of daily
+            # numbers look like a measurement of the product instead of a smoke test of the apparatus.
+            if ($isPartial -eq "t") {
+                Write-Line "  THIS RUN (PARTIAL - NOT the score): composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw "Yellow"
+            } else {
+                Write-Line "  THIS RUN (full):                    composite=$composite, retrievalHit=$retrieval, selectionHit=$selection, reachedHit=$reached, lookupDetour=$detour, items=$itemsPass/$itemsTotal" $sw
+            }
+
+            $sqlLatestFull = "SELECT composite_score, items_total, items_passed, coalesce(dimensions_json->>'RetrievalHit', 'n/a'), coalesce(dimensions_json->>'SelectionHit', 'n/a'), create_time, coalesce(dimensions_json->>'ReachedHit', 'n/a'), coalesce(dimensions_json->>'LookupDetourRate', 'n/a') FROM $EvalRunsTable WHERE goldset = '$currentGoldset' AND model = '$model' AND is_deleted = false AND is_partial = false AND scorer_version = $scorerVersion ORDER BY create_time DESC LIMIT 1;"
+            $fullRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlLatestFull
+            if ($fullRow.Ok -and -not [string]::IsNullOrWhiteSpace($fullRow.Value)) {
+                $fullCols = $fullRow.Value.Split("|")
+                $fullComposite = $fullCols[0].Trim()
+                $fullTotal     = if ($fullCols.Count -gt 1) { $fullCols[1].Trim() } else { "?" }
+                $fullPassed    = if ($fullCols.Count -gt 2) { $fullCols[2].Trim() } else { "?" }
+                $fullRetrieval = if ($fullCols.Count -gt 3) { $fullCols[3].Trim() } else { "n/a" }
+                $fullSelection = if ($fullCols.Count -gt 4) { $fullCols[4].Trim() } else { "n/a" }
+                $fullAt        = if ($fullCols.Count -gt 5) { $fullCols[5].Trim() } else { "?" }
+                $fullReached   = if ($fullCols.Count -gt 6) { $fullCols[6].Trim() } else { "n/a" }
+                $fullDetour    = if ($fullCols.Count -gt 7) { $fullCols[7].Trim() } else { "n/a" }
+                Write-Line "  LATEST FULL RUN (the score):        composite=$fullComposite, retrievalHit=$fullRetrieval, selectionHit=$fullSelection, reachedHit=$fullReached, lookupDetour=$fullDetour, items=$fullPassed/$fullTotal, at=$fullAt" $sw
+            } else {
+                Write-Line "  LATEST FULL RUN (the score):        none yet for scorer version $scorerVersion - run with -Profile weekly." $sw "Yellow"
+            }
+
+            Write-Line "  regression:     $regression" $sw
+
+            $baselineText = "n/a"
+            if ($isPartial -ne "t") {
+                $sqlBaseline = "SELECT count(*), coalesce(round(percentile_cont(0.5) WITHIN GROUP (ORDER BY composite_score)::numeric, 4)::text, 'n/a') FROM $EvalRunsTable b WHERE b.goldset = '$currentGoldset' AND b.model = '$model' AND b.is_deleted = false AND b.is_partial = false AND b.items_total > 0 AND b.items_total = $itemsTotal AND b.scorer_version = $scorerVersion AND b.id <> (SELECT id FROM $EvalRunsTable WHERE goldset = '$currentGoldset' AND model = '$model' AND is_deleted = false ORDER BY create_time DESC LIMIT 1);"
+                $baselineRow = Invoke-PsqlScalar -PsqlPath $psql -Sql $sqlBaseline
+                if ($baselineRow.Ok -and -not [string]::IsNullOrWhiteSpace($baselineRow.Value)) {
+                    $baselineCols = $baselineRow.Value.Split("|")
+                    $baselineN = [int]$baselineCols[0].Trim()
+                    $baselineMedian = $baselineCols[1].Trim()
+                    if ($baselineN -ge $MinBaselineRuns) {
+                        Write-Line "  baseline:       median $baselineMedian of n=$baselineN comparable full runs" $sw
+                    } else {
+                        Write-Line "  baseline:       insufficient baseline (n<$MinBaselineRuns): n=$baselineN comparable full run(s) - NO regression verdict, this is not a pass" $sw "Yellow"
+                        $anyInsufficientBaseline = $true
+                    }
+                } else {
+                    Write-Line "  baseline:       could not read the baseline runs from $EvalRunsTable" $sw "Yellow"
+                }
+            }
+
+            $regValue = 0.0
+            if ([double]::TryParse($regression, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$regValue)) {
+                if ($regValue -le (-1 * $RegressionThreshold)) {
+                    Write-Line "  >>> REGRESSION: composite dropped by $regValue vs baseline (threshold -$RegressionThreshold) <<<" $sw "Red"
+                    $anyRegression = $true
+                }
+            } elseif ($isPartial -eq "t") {
+                Write-Line "  (no regression figure: partial runs have no comparable baseline by design)" $sw
+            } else {
+                Write-Line "  (no regression figure: fewer than $MinBaselineRuns comparable full runs of the same size and scorer version)" $sw
+            }
+            Write-Line "" $sw
         }
 
-        $regValue = 0.0
-        if ([double]::TryParse($regression, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$regValue)) {
-            if ($regValue -le (-1 * $RegressionThreshold)) {
-                Write-Line "  >>> REGRESSION: composite dropped by $regValue vs baseline (threshold -$RegressionThreshold) <<<" $sw "Red"
-                $anyRegression = $true
-            }
-        } elseif ($isPartial -eq "t") {
-            Write-Line "  (no regression figure: partial runs have no comparable baseline by design)" $sw
-        } else {
-            Write-Line "  (no regression figure: fewer than $MinBaselineRuns comparable full runs of the same size and scorer version)" $sw
-        }
-        Write-Line "" $sw
     }
 
     Write-Line "---" $sw

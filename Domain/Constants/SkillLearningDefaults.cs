@@ -130,6 +130,13 @@ public static class SkillLearningDefaults
     public const int MaxTargetedHoldoutReplaysPerProposal = 25;
 
     /// <summary>
+    /// Upper bound on translated holdout items (turn-selection-v1-i18n) replayed per goldset-born proposal, on
+    /// top of <see cref="MaxTargetedHoldoutReplaysPerProposal"/>. A separate cap, because translated ids sort
+    /// before the default goldset's own ids and one shared cap would let them crowd out the German holdout.
+    /// </summary>
+    public const int MaxTargetedTranslatedHoldoutReplaysPerProposal = 15;
+
+    /// <summary>
     /// How many existing phrases of the target skill are shown to the generator as context, so it does
     /// not propose a wording that is already indexed.
     /// </summary>
@@ -156,7 +163,8 @@ public static class SkillLearningDefaults
     /// How many unconsumed selection misses of the latest full eval run are read per learning goldset and
     /// learning run. It is a safety ceiling, not a sample: the query is already narrowed to the train items
     /// of that goldset, so the value has to stay above the train item count of the largest learning goldset
-    /// (the paraphrase goldset holds up to three paraphrases per train item of the default goldset), or misses
+    /// (the paraphrase goldset holds up to three paraphrases per train item of the default goldset; the i18n
+    /// goldset at most 40 items per non-German language), or misses
     /// would be cut off by the limit rather than by the partition and could only be reached once a later run
     /// consumed the ones in front. LearningGoldsetMissLimitGuardTests checks this against the goldset files.
     /// </summary>

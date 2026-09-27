@@ -3,8 +3,12 @@
 /// <summary>
 /// Plans and runs the paired goldset replay of the description gate. The holdout items come from the latest
 /// full run of the default goldset - the half the optimizer never saw - and only those that involve the skill:
-/// items that expect it, and items it won although something else was expected. The train items are the misses
-/// the proposal was built from, in the default goldset or its paraphrases. Previously passing holdout items
+/// items that expect it, and items it won although something else was expected. The translated goldset adds its
+/// own holdout items the same way, from its latest full run of the reference model and under its own cap - taken in a
+/// stable hash order (GoldsetItemIdHash) instead of ordinal id order, which would always cut the same late locales - so a
+/// change that helps German cannot silently hurt another language; without such a run the plan keeps only the
+/// default goldset's items. The train items are the misses the proposal was built from, in any learning
+/// goldset. Previously passing holdout items
 /// come first because only they can regress; recipe items are left out because a recipe decides them, not a
 /// description. Every replay is a paid provider call, so both lists are capped.
 /// A replay is scored on the tool actually chosen, not on SelectionHit: a narrowed description can drop the
@@ -95,16 +99,10 @@ public class GoldsetHoldoutReplayGate : IGoldsetHoldoutReplayGate
             return null;
         }
 
-        var rows = await _evalRunItemRepository.ListByRunAsync(run.Id, cancellationToken);
-        var holdout = rows
-            .Where(row => GoldsetPartitioner.IsHoldout(row.ItemId))
-            .Where(row => Involves(row, skillName))
-            .Where(row => baseItems.TryGetValue(row.ItemId, out var item) && item.ExpectedRecipe == null)
-            .OrderByDescending(row => row.SelectionHit == true)
-            .ThenBy(row => row.ItemId, StringComparer.Ordinal)
-            .Take(SkillLearningDefaults.MaxTargetedHoldoutReplaysPerProposal)
-            .Select(row => new GoldsetItemRef(TurnEvalDefaults.DefaultGoldset, row.ItemId))
-            .ToList();
+        var holdout = await PlanHoldoutAsync(
+            TurnEvalDefaults.DefaultGoldset, run.Id, baseItems, skillName,
+            SkillLearningDefaults.MaxTargetedHoldoutReplaysPerProposal, scatter: false, cancellationToken);
+        holdout.AddRange(await PlanTranslatedHoldoutAsync(skillName, learningOptions.ReferenceModel, cancellationToken));
 
         var train = await ResolveTrainItemsAsync(trainMisses, cancellationToken);
 
@@ -155,6 +153,76 @@ public class GoldsetHoldoutReplayGate : IGoldsetHoldoutReplayGate
         }
 
         return verdicts;
+    }
+
+    private async Task<List<GoldsetItemRef>> PlanHoldoutAsync(
+        string goldset,
+        Guid runId,
+        IReadOnlyDictionary<string, TurnGoldsetItem> goldsetItems,
+        string skillName,
+        int cap,
+        bool scatter,
+        CancellationToken cancellationToken)
+    {
+        var rows = await _evalRunItemRepository.ListByRunAsync(runId, cancellationToken);
+        var candidates = rows
+            .Where(row => GoldsetPartitioner.IsHoldout(row.ItemId))
+            .Where(row => Involves(row, skillName))
+            .Where(row => goldsetItems.TryGetValue(row.ItemId, out var item) && item.ExpectedRecipe == null);
+
+        return (scatter ? OrderAcrossLocales(candidates) : OrderByPassingThenId(candidates))
+            .Take(cap)
+            .Select(row => new GoldsetItemRef(goldset, row.ItemId))
+            .ToList();
+    }
+
+    private static IEnumerable<EvalRunItem> OrderByPassingThenId(IEnumerable<EvalRunItem> rows) =>
+        rows
+            .OrderByDescending(row => row.SelectionHit == true)
+            .ThenBy(row => row.ItemId, StringComparer.Ordinal);
+
+    // Previously passing items first (only they can regress), and within each half a round-robin over the
+    // locales of the translated items: every locale's first item (stable hash order) comes before any
+    // locale's second one. An ordinal order would always cut the same late locales (th, vi, zh-CN, zh-TW)
+    // at the cap.
+    private static IEnumerable<EvalRunItem> OrderAcrossLocales(IEnumerable<EvalRunItem> rows) =>
+        rows
+            .GroupBy(row => (Passing: row.SelectionHit == true, Locale: LocaleOf(row.ItemId)))
+            .SelectMany(group => group
+                .OrderBy(row => GoldsetItemIdHash.Compute(row.ItemId))
+                .ThenBy(row => row.ItemId, StringComparer.Ordinal)
+                .Select((row, round) => (Row: row, group.Key.Passing, Round: round)))
+            .OrderByDescending(entry => entry.Passing)
+            .ThenBy(entry => entry.Round)
+            .ThenBy(entry => GoldsetItemIdHash.Compute(entry.Row.ItemId))
+            .ThenBy(entry => entry.Row.ItemId, StringComparer.Ordinal)
+            .Select(entry => entry.Row);
+
+    private static string LocaleOf(string itemId) =>
+        GoldsetTranslationId.TryParse(itemId, out var locale, out _) ? locale : string.Empty;
+
+    private async Task<IReadOnlyList<GoldsetItemRef>> PlanTranslatedHoldoutAsync(
+        string skillName, string referenceModel, CancellationToken cancellationToken)
+    {
+        var run = await _evalRunRepository.GetLatestFullRunAsync(
+            TurnEvalDefaults.I18nGoldset, TurnEvalScorer.ScorerVersion, referenceModel, cancellationToken);
+        if (run == null)
+        {
+            _logger.LogInformation(
+                "Goldset gate for {Skill} replays no translated holdout items: no full run of '{Goldset}' for reference model '{ReferenceModel}'",
+                skillName, TurnEvalDefaults.I18nGoldset, referenceModel);
+            return [];
+        }
+
+        var items = await LoadAsync(TurnEvalDefaults.I18nGoldset, cancellationToken);
+        if (items == null)
+        {
+            return [];
+        }
+
+        return await PlanHoldoutAsync(
+            TurnEvalDefaults.I18nGoldset, run.Id, items, skillName,
+            SkillLearningDefaults.MaxTargetedTranslatedHoldoutReplaysPerProposal, scatter: true, cancellationToken);
     }
 
     private async Task<IReadOnlyList<GoldsetItemRef>> ResolveTrainItemsAsync(

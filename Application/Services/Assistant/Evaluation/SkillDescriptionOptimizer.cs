@@ -205,11 +205,49 @@ public class SkillDescriptionOptimizer : ISkillDescriptionOptimizer
 
         return misses
             .GroupBy(miss => miss.Row.ChosenTool!, StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(group => group.Count())
+            .OrderByDescending(group => group.Select(miss => GoldsetItemSource.Resolve(miss.Row.ItemId)).Distinct(StringComparer.Ordinal).Count())
+            .ThenByDescending(group => group.Count())
             .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
             .Take(SkillLearningDefaults.MaxGoldsetProposalsPerRun)
-            .Select(group => new GoldsetMissGroup(group.Key, [.. group.Take(MaxEvidencePerProposal)]))
+            .Select(group => new GoldsetMissGroup(group.Key, [.. SpreadEvidence(group).Take(MaxEvidencePerProposal)]))
             .ToList();
+    }
+
+    // Evidence order: one miss per source item before a second one of the same source, and within that the
+    // learning goldsets take turns, so a translation or paraphrase miss can reach the capped evidence instead
+    // of always losing to the default goldset's rows. Ties break on a stable hash, never on arrival order.
+    private static IEnumerable<GoldsetMiss> SpreadEvidence(IEnumerable<GoldsetMiss> misses)
+    {
+        var bySourceRank = misses
+            .GroupBy(miss => GoldsetItemSource.Resolve(miss.Row.ItemId), StringComparer.Ordinal)
+            .SelectMany(group => group
+                .OrderBy(miss => GoldsetIndex(miss.Goldset))
+                .ThenBy(miss => GoldsetItemIdHash.Compute(miss.Row.ItemId))
+                .Select((miss, sourceRank) => (Miss: miss, SourceRank: sourceRank)));
+
+        return bySourceRank
+            .GroupBy(entry => (entry.SourceRank, entry.Miss.Goldset))
+            .SelectMany(group => group
+                .OrderBy(entry => GoldsetItemIdHash.Compute(entry.Miss.Row.ItemId))
+                .ThenBy(entry => entry.Miss.Row.ItemId, StringComparer.Ordinal)
+                .Select((entry, goldsetRank) => (entry.Miss, entry.SourceRank, GoldsetRank: goldsetRank)))
+            .OrderBy(entry => entry.SourceRank)
+            .ThenBy(entry => entry.GoldsetRank)
+            .ThenBy(entry => GoldsetIndex(entry.Miss.Goldset))
+            .Select(entry => entry.Miss);
+    }
+
+    private static int GoldsetIndex(string goldset)
+    {
+        for (var index = 0; index < TurnEvalDefaults.LearningGoldsets.Count; index++)
+        {
+            if (string.Equals(TurnEvalDefaults.LearningGoldsets[index], goldset, StringComparison.Ordinal))
+            {
+                return index;
+            }
+        }
+
+        return TurnEvalDefaults.LearningGoldsets.Count;
     }
 
     private async Task<IReadOnlyList<GoldsetMiss>> ReadGoldsetMissesAsync(
