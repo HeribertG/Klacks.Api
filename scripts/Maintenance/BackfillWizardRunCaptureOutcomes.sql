@@ -1,4 +1,4 @@
--- Copyright (c) Heribert Gasparoli Private. All rights reserved.
+-- Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 --
 -- Repairs WizardRunCapture rows that the seal sweep stamped as Accepted unconditionally
 -- (behaviour before the MeasureResolvedAsync status gate, captures written since 2026-07-16).

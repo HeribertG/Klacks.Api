@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// Expands a container work into sub-works, sub-breaks, and work changes based on day-specific overrides or weekly ContainerTemplate items.

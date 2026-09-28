@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) Heribert Gasparoli Private. All rights reserved.
+# Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 # Entrypoint that ensures writable mount points are owned by appuser before
 # dropping privileges. Docker named volumes are root:root by default and

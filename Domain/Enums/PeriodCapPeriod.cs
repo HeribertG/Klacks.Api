@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// The recurring window a <see cref="Klacks.Api.Domain.Models.Scheduling.PeriodCapRule"/> caps hours

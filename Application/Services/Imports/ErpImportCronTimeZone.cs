@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// Resolves the time zone the ERP import cron schedule runs in: the explicit ERP_IMPORT_CRON_TIMEZONE

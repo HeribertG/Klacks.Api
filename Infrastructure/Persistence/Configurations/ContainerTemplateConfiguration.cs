@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// EF Core configuration for the ContainerTemplate-Entity with query filter, JSONB conversion, Index and Shift-relationship.

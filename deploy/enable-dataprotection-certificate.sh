@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (c) Heribert Gasparoli Private. All rights reserved.
+# Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
 # Moves the DataProtection key ring from the api-dataprotection volume into the database, wrapped by
 # a generated certificate. Run on the server, in the directory holding docker-compose-server.yml and

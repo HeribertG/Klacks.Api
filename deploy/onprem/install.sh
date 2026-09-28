@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (c) Heribert Gasparoli Private. All rights reserved.
+# Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 #
 # Klacks On-Prem (Docker) bootstrap for Linux. Idempotent: first run generates secrets +
 # a self-signed certificate and pins the released version; re-runs preserve them and just

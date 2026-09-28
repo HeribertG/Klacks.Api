@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// Removes text-emitted tool-call markup (the antml "&lt;function_calls&gt;/&lt;invoke&gt;" syntax) from

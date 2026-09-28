@@ -1,4 +1,4 @@
-// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+// Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
 /// Reads the stored PERIOD_CLOSE_LAG_DAYS setting. A missing, unparsable or out-of-range value reads as null
