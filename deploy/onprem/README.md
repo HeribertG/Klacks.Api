@@ -23,7 +23,11 @@ SERVER_NAME=klacks.example.com REGION=de ./install.sh
 ```
 
 The installer generates secrets + a self-signed certificate, pins the latest released
-version, starts the stack, and waits until it is healthy. `-Region`/`REGION` is optional
+version, starts the stack, and waits until it is healthy. On Windows, install into a folder
+on a local drive (e.g. `C:\klacks`): the script maps that folder into the Docker Desktop VM
+so the auto-updater can recreate containers with the right bind mounts. Installations made
+with an older `install.ps1` must re-run the script once from a current bundle, otherwise
+automatic updates break the API's bind mounts. `-Region`/`REGION` is optional
 and pre-configures the country's locale, holidays, worktime limits, surcharges and
 industry presets on first boot — see [`regions/README.md`](regions/README.md) for the
 list of supported country codes.

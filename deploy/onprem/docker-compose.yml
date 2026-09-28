@@ -160,9 +160,10 @@ services:
   # the updater sees the compose project at the same path as the host. That is required: the daemon
   # resolves the relative bind mounts above (./regions, ./init-scripts) against the project dir as
   # seen by the HOST, so a container-only path (the old /apps) pointed them at empty host directories
-  # and crash-looped the API (production incident 2026-09-10). The /apps defaults only keep the stack
-  # startable on Windows (install.ps1), where a Windows path cannot double as the container path;
-  # the updater is not supported there until DockerApplier passes --project-directory itself.
+  # and crash-looped the API (production incident 2026-09-10). On Windows a Windows path cannot double
+  # as the container path, so install.ps1 sets KLACKS_UPDATER_PROJECT_DIR to the path under which the
+  # Docker Desktop VM reaches the folder (/run/desktop/mnt/host/<drive>/...), probed at install time;
+  # KLACKS_INSTALL_DIR stays the Windows path, which the host compose CLI translates itself.
   klacks-updater:
     image: ghcr.io/heribertg/klacks-updater:${KLACKS_UPDATER_TAG:-latest}
     container_name: klacks-updater

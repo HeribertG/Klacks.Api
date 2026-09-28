@@ -131,6 +131,32 @@ if (-not $envMap['KLACKS_API_TAG'] -or $envMap['KLACKS_API_TAG'] -eq 'latest') {
     }
 }
 
+# --- 4b. Compose project name + host path for the updater --------------------
+# The updater drives compose from inside its container. The Docker daemon resolves the relative
+# bind mounts (./regions, ./init-scripts) against the project directory as the updater sees it, so
+# that directory must be mounted at the path under which the Docker Desktop VM reaches this folder
+# (install.sh uses the identical host path on Linux). A container-only path such as /apps points
+# the mounts at empty directories (production incident 2026-09-10).
+$envMap['KLACKS_INSTALL_DIR'] = $PSScriptRoot
+
+$updaterProjectDir = $null
+if ($PSScriptRoot -match '^([A-Za-z]):\\(.*)$') {
+    $drive = $Matches[1].ToLowerInvariant()
+    $rest = $Matches[2] -replace '\\', '/'
+    $candidates = @("/run/desktop/mnt/host/$drive/$rest", "/host_mnt/$drive/$rest")
+    foreach ($candidate in $candidates) {
+        try { docker run --rm -v "${candidate}:/probe:ro" nginx:alpine test -f /probe/docker-compose.yml 2>$null | Out-Null } catch { }
+        if ($LASTEXITCODE -eq 0) { $updaterProjectDir = $candidate; break }
+    }
+}
+if ($updaterProjectDir) {
+    $envMap['KLACKS_UPDATER_PROJECT_DIR'] = $updaterProjectDir
+    Write-Step "Updater project path: $updaterProjectDir"
+} else {
+    $envMap.Remove('KLACKS_UPDATER_PROJECT_DIR')
+    Write-Warn "Could not map this folder into the Docker VM; automatic updates will not work. Install Klacks on a local drive (e.g. C:\klacks) and re-run this script."
+}
+
 # --- 5. Write .env -----------------------------------------------------------
 $lines = $envMap.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }
 Set-Content -Path $envPath -Value $lines -Encoding ascii
@@ -148,11 +174,20 @@ if ((Test-Path $crt) -and (Test-Path $key)) {
     $subj = "/CN=$serverName"
     $openssl = Get-Command openssl -ErrorAction SilentlyContinue
     if ($openssl) {
-        & openssl req -x509 -newkey rsa:2048 -nodes -days 825 -keyout $key -out $crt -subj $subj | Out-Null
-    } else {
-        # No local openssl: run it inside a throwaway container (Docker is already required).
-        docker run --rm -v "${certDir}:/certs" alpine/openssl req -x509 -newkey rsa:2048 -nodes -days 825 `
-            -keyout /certs/server.key -out /certs/server.crt -subj $subj | Out-Null
+        # A local openssl can be unusable (e.g. OPENSSL_CONF pointing at another product's missing
+        # config), so its result is checked and the container below is the fallback.
+        try { & openssl req -x509 -newkey rsa:2048 -nodes -days 825 -keyout $key -out $crt -subj $subj 2>$null | Out-Null } catch { }
+    }
+    if (-not ((Test-Path $crt) -and (Test-Path $key))) {
+        # No usable local openssl: run it inside a throwaway container (Docker is already required).
+        try {
+            docker run --rm -v "${certDir}:/certs" alpine/openssl req -x509 -newkey rsa:2048 -nodes -days 825 `
+                -keyout /certs/server.key -out /certs/server.crt -subj $subj 2>$null | Out-Null
+        } catch { }
+    }
+    if (-not ((Test-Path $crt) -and (Test-Path $key))) {
+        Write-Warn "Could not create the certificate. Place server.crt and server.key in nginx\certs and re-run this script."
+        exit 1
     }
     Write-Warn "Self-signed certificate created. Browsers will warn until you install a trusted (BYO) cert into nginx\certs."
 }
