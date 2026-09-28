@@ -163,4 +163,11 @@ public static class ProactiveMessageI18nKeys
     /// missing membership alone.
     /// </summary>
     public const string UngroupedShifts = "assistant.proactive.ungroupedShifts";
+
+    /// <summary>
+    /// Daily grouping feasibility report: duties nobody can take, employees who fit no duty and
+    /// rough capacity shortfalls. Parameters shifts, clients, capacity and proposals
+    /// (GroupingFeasibilityTriggerParams).
+    /// </summary>
+    public const string GroupingFeasibility = "assistant.proactive.groupingFeasibility";
 }

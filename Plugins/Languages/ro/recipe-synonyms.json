@@ -28,5 +28,6 @@
   "setup-planning-profile": ["configurează un profil de planificare propriu", "stabilește reguli de planificare proprii pentru firmă"],
   "setup-consultation": ["cum încep de fapt să folosesc sistemul", "care sunt primii pași în sistem", "nu este încă absolut nimic planificat", "cum configurez Klacks de la zero"],
   "plan-delivery-deadline": ["termenul limită al planului de servicii pentru trimiterea prin e-mail", "data limită a planificării pentru expedierea prin poștă", "termen limită plan de servicii livrare pe e-mail sau prin poștă"],
-  "period-close-schedule": ["când trebuie închise automat perioadele", "câte zile după sfârșitul perioadei trebuie închis automat", "în ce moment trebuie să se închidă perioada de la sine"]
+  "period-close-schedule": ["când trebuie închise automat perioadele", "câte zile după sfârșitul perioadei trebuie închis automat", "în ce moment trebuie să se închidă perioada de la sine"],
+  "prepare-groups-for-planning": ["verifică dacă grupurile mele sunt pregătite pentru planificare", "sunt grupurile mele pregătite pentru planificare", "pregătește-mi grupurile pentru planificare"]
 }

@@ -386,6 +386,14 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEligibilityMatrixBuilder,
                            Klacks.Api.Application.Services.Schedules.EligibilityMatrixBuilder>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityDataSource,
+                           Klacks.Api.Infrastructure.Services.Grouping.GroupingFeasibilityDataSource>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityAnalyzer,
+                           Klacks.Api.Application.Services.Grouping.GroupingFeasibilityAnalyzer>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingPlanApplier,
+                           Klacks.Api.Application.Services.Grouping.GroupingPlanApplier>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityNotifier,
+                           Klacks.Api.Application.Services.Grouping.GroupingFeasibilityNotifier>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.Recovery.IRecoverySnapshotBuilder,
                            Klacks.Api.Application.Services.Schedules.Recovery.RecoverySnapshotBuilder>();
         services.AddSingleton<Klacks.ScheduleRecovery.Engine.IRecoveryEngine,

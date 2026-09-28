@@ -45,6 +45,9 @@ public sealed class GroupScopeAccess
     public bool IsInScope(Group group) =>
         IsUnrestricted || _visibleRootIds.Contains(group.Root ?? group.Id);
 
+    public bool IsVisibleRoot(Guid groupId) =>
+        IsUnrestricted || _visibleRootIds.Contains(groupId);
+
     public IReadOnlyList<Group> Filter(IEnumerable<Group> groups) =>
         IsUnrestricted ? groups.ToList() : groups.Where(IsInScope).ToList();
 

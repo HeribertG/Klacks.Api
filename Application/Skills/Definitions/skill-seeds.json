@@ -44895,6 +44895,213 @@
         "it": "Salvare il ritardo di chiusura"
       },
       "version": 1
+    },
+    {
+      "name": "analyze_grouping_feasibility",
+      "area": "group",
+      "description": "Checks whether employees and duties are grouped so that the schedule can be planned right away: finds duties that no employee can take (contract days, shift work, mandatory qualifications, excluded duties, availability), employees who fit no duty, duties and employees without a group and weekdays on which a group has arithmetically too few suitable people, and proposes which employees and duties belong in which group. Changes nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewGroups",
+        "CanViewClients",
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "fromDate",
+          "description": "First day of the checked period (format YYYY-MM-DD). Defaults to today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the checked period (format YYYY-MM-DD). Defaults to 56 days after the first day; at most 366 days.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Optional name of a group; restricts the check to this group and its subgroups. Omit to check the whole company.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "planungsfähig",
+          "gruppencheck"
+        ],
+        "en": [
+          "plannability",
+          "group check"
+        ],
+        "fr": [
+          "planifiabilité",
+          "vérification des groupes"
+        ],
+        "it": [
+          "pianificabilità",
+          "verifica dei gruppi"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sind meine gruppen planungsfähig",
+          "gruppen für den autofill vorbereiten",
+          "gruppenzuordnung auf planbarkeit prüfen",
+          "welche dienste kann in der gruppe niemand übernehmen"
+        ],
+        "en": [
+          "are my groups ready for planning",
+          "prepare groups for autofill",
+          "check group plannability",
+          "which duties can nobody in the group take"
+        ],
+        "fr": [
+          "mes groupes sont-ils planifiables",
+          "préparer les groupes pour la planification",
+          "quels services personne du groupe ne peut assurer"
+        ],
+        "it": [
+          "i miei gruppi sono pianificabili",
+          "preparare i gruppi per la pianificazione",
+          "quali servizi nessuno del gruppo può coprire"
+        ]
+      },
+      "labels": {
+        "de": "Gruppen auf Planbarkeit prüfen",
+        "en": "Check groups for plannability",
+        "fr": "Vérifier la planifiabilité des groupes",
+        "it": "Verificare la pianificabilità dei gruppi"
+      },
+      "version": 2
+    },
+    {
+      "name": "apply_grouping_plan",
+      "area": "group",
+      "pairedApplySkill": "apply_grouping_plan",
+      "description": "Carries out an approved group plan by its plan code: enrols the listed staff members and duties in their target groups, founds one new group only when none exists yet, then takes staff out of groups where they have no work left and no upcoming assignment. Use it when the user wants the proposed membership changes put into effect.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "fingerprint",
+          "description": "The plan code shown together with the proposed group changes (at least its first 12 characters).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) lists the pending changes and writes nothing. Set true only after the user explicitly approved changes that were already shown to them (this plan or its listed changes).",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new group memberships (format YYYY-MM-DD, or 'today'). Optional: when omitted, the start of the checked period (the plan's From date, company today by default) is used and stated in the result. Never invent a different date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newGroupName",
+          "description": "Name of the new group when the plan founds one. Ask the user for it and never invent a name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the period the plan was computed for: pass back the From date shown with the plan (format YYYY-MM-DD), because the default moves with the company day and the plan code would no longer match.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the period the plan was computed for: pass back the Until date shown with the plan (format YYYY-MM-DD) unchanged, else the plan code no longer matches.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "The group the plan was restricted to, if any: pass it back unchanged. Omit it when the plan covers the whole company.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "gruppenplan"
+        ],
+        "en": [
+          "group plan"
+        ],
+        "fr": [
+          "plan de groupes"
+        ],
+        "it": [
+          "piano dei gruppi"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "gruppenplan anwenden",
+          "vorgeschlagene gruppenänderungen übernehmen",
+          "gruppenplan übernehmen"
+        ],
+        "en": [
+          "apply the group plan",
+          "carry out the proposed group changes"
+        ],
+        "fr": [
+          "appliquer le plan de groupes",
+          "effectuer les changements de groupes proposés"
+        ],
+        "it": [
+          "applicare il piano dei gruppi",
+          "eseguire le modifiche ai gruppi proposte"
+        ]
+      },
+      "labels": {
+        "de": "Gruppenplan anwenden",
+        "en": "Apply the group plan",
+        "fr": "Appliquer le plan de groupes",
+        "it": "Applicare il piano dei gruppi"
+      },
+      "version": 3
     }
   ]
 }

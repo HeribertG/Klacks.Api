@@ -34,6 +34,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
     // Klacksy's own helpfulness rather than on any business condition. PeriodAutoClose is the same again:
     // it reports what Klacksy's own period close did or withheld; the business signal behind it - a period
     // that is due or overdue - is already reflected through period_close_due and period_overdue.
+    // GroupingFeasibility is Klacksy's daily grouping report; its business signals have kinds of their own
+    // (ungrouped_shifts, ungrouped_workforce, unstaffed_shift).
     private static readonly HashSet<string> ExcludedTriggerKinds = new(StringComparer.Ordinal)
     {
         AgentTriggerKinds.CuriosityQuestion,
@@ -41,7 +43,8 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
         AgentTriggerKinds.DailyDigest,
         AgentTriggerKinds.ScenarioPrepared,
         AgentTriggerKinds.KlacksyLearnedDigest,
-        AgentTriggerKinds.PeriodAutoClose
+        AgentTriggerKinds.PeriodAutoClose,
+        AgentTriggerKinds.GroupingFeasibility
     };
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;

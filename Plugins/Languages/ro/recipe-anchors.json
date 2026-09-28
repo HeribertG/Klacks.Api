@@ -238,5 +238,10 @@
     "închiderea perioadei",
     "închiderii perioadei",
     "termen de închidere"
+  ],
+  "prepare-groups-for-planning": [
+    "planificabilitate",
+    "alocarea grupurilor",
+    "pregătirea grupurilor"
   ]
 }

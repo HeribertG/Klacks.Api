@@ -240,6 +240,9 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.NoScheduleYetDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UngroupedWorkforceDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UngroupedShiftsDetector>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityDailySnapshotStore, Klacks.Api.Application.Services.Grouping.GroupingFeasibilityDailySnapshotStore>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Grouping.IGroupingPlanPreviewRegistry, Klacks.Api.Application.Services.Grouping.GroupingPlanPreviewRegistry>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.GroupingFeasibilityDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INextPeriodAutonomyResolver, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutonomyResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.EvalRegressionDetector>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.INextPeriodAutoCommitService, Klacks.Api.Application.Services.Assistant.Triggers.NextPeriodAutoCommitService>();

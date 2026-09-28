@@ -143,6 +143,12 @@
     "lajittele työntekijät ryhmiin",
     "miten ryhmät on järjestetty"
   ],
+  "analyze_grouping_feasibility": [
+    "ovatko ryhmäni valmiita suunnittelua varten",
+    "valmistele ryhmät autofillia varten",
+    "tarkista ryhmien suunniteltavuus",
+    "mitä vuoroja kukaan ryhmästä ei voi ottaa"
+  ],
   "apply_company_rule": [
     "ota yrityssääntö käyttöön",
     "tallenna ja vahvista yrityssääntö",
@@ -154,6 +160,10 @@
     "siirrä asiakkaat nyt oikeisiin ryhmiin",
     "aja ehdotettu ryhmittely läpi",
     "tee ryhmittely lopullisesti"
+  ],
+  "apply_grouping_plan": [
+    "ota ryhmäsuunnitelma käyttöön",
+    "toteuta ehdotetut ryhmämuutokset"
   ],
   "apply_planning_profile": [
     "ota suunnitteluprofiili käyttöön",

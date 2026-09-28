@@ -252,5 +252,10 @@
     "zamknięcia okresu",
     "opóźnienie zamknięcia",
     "termin zamknięcia"
+  ],
+  "prepare-groups-for-planning": [
+    "planowalność",
+    "przydział do grup",
+    "gotowość grup"
   ]
 }

@@ -154,6 +154,12 @@
     "rozdělit zaměstnance do skupin",
     "podle čeho jsou skupiny organizovány"
   ],
+  "analyze_grouping_feasibility": [
+    "jsou mé skupiny připravené na plánování",
+    "připravit skupiny pro autofill",
+    "zkontrolovat plánovatelnost skupin",
+    "které služby nemůže nikdo ze skupiny převzít"
+  ],
   "apply_company_rule": [
     "použít firemní pravidlo",
     "uložit a potvrdit firemní pravidlo",
@@ -164,6 +170,10 @@
     "aplikovat navržené rozdělení do skupin",
     "potvrdit a použít rozdělení klientů do skupin",
     "proveď skutečné přiřazení klientů do skupin"
+  ],
+  "apply_grouping_plan": [
+    "použít plán skupin",
+    "provést navržené změny skupin"
   ],
   "apply_planning_profile": [
     "použít plánovací profil",

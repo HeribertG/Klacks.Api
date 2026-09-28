@@ -36,6 +36,9 @@
 /// Reachable independently of the one-off no_schedule_yet notification (which dedups permanently),
 /// which is what makes the guide re-enterable after the user abandons it.
 ///
+/// Once employees and plannable duties both exist, the data carries a grouping-preparation hint so the
+/// conversation can offer the group plannability check before the first automatic planning run.
+///
 /// The same skill also drives the guided setup consultation recipe through the optional
 /// <c>phase</c> parameter, so one implementation stays the single source of truth for the route
 /// logic instead of forking it across skills:
@@ -94,6 +97,10 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
     private const string CutShiftTarget = "cut-shift";
     private const string ScheduleTarget = "schedule";
     private const string ClientlessRouteTarget = "new-plannable-shift";
+    private const string SentenceSeparator = " ";
+    private const string GroupingPreparationHint =
+        "Employees and plannable duties both exist. Before the first automatic planning run, offer to check "
+        + "whether every group can actually be planned with the people in it and to prepare the groups.";
 
     private readonly IMediator _mediator;
     private readonly IScheduleActivityProbe _activityProbe;
@@ -128,6 +135,7 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
     {
         var state = await _activityProbe.GetSetupStateAsync(cancellationToken);
         var timeZone = await BuildTimeZoneAsync(cancellationToken);
+        var grouping = await BuildGroupingPreparationAsync(state, cancellationToken);
         if (state.HasWork)
         {
             return SkillResult.SuccessResult(
@@ -135,11 +143,13 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
                 {
                     SetupComplete = true,
                     TimeZone = timeZone,
-                    Installation = new { state.HasOrders, state.HasShifts, state.HasWork }
+                    Installation = new { state.HasOrders, state.HasShifts, state.HasWork },
+                    GroupingPreparation = grouping
                 },
                 TimeZoneSentence(timeZone)
                 + "Setup is complete — orders, shifts and work assignments all exist, so there is "
-                + "nothing left to set up before scheduling.");
+                + "nothing left to set up before scheduling."
+                + GroupingSentence(grouping));
         }
 
         var phase = GetParameter<string>(parameters, SetupConsultationParameters.Phase);
@@ -156,17 +166,17 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             state, attribution, orderSource, context.UserPermissions.Contains(Roles.Admin));
 
         var isIntro = string.Equals(phase, SetupConsultationPhases.Intro, StringComparison.OrdinalIgnoreCase);
-        var data = BuildData(state, stage, erpRoute, isIntro ? null : route, attribution, orderSource, timeZone);
+        var data = BuildData(state, stage, erpRoute, isIntro ? null : route, attribution, orderSource, timeZone, grouping);
 
         if (string.Equals(phase, SetupConsultationPhases.Act, StringComparison.OrdinalIgnoreCase)
             && nextStep == SetupNextStepChoice.Show)
         {
             return SkillResult.Navigation(
                 new { Route = route.ShowTarget, Target = route.ShowTarget },
-                BuildMessage(stage, erpRoute, timeZone));
+                BuildMessage(stage, erpRoute, timeZone) + GroupingSentence(grouping));
         }
 
-        return SkillResult.SuccessResult(data, BuildMessage(stage, erpRoute, timeZone));
+        return SkillResult.SuccessResult(data, BuildMessage(stage, erpRoute, timeZone) + GroupingSentence(grouping));
     }
 
     private object BuildData(
@@ -176,7 +186,8 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
         SetupRouteFacts? route,
         SetupAttributionAnswer attribution,
         SetupOrderSourceAnswer orderSource,
-        TimeZoneFacts timeZone) => new
+        TimeZoneFacts timeZone,
+        GroupingPreparationFacts? grouping) => new
     {
         SetupComplete = false,
         TimeZone = timeZone,
@@ -207,7 +218,8 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             ? null
             : new { Label = route.HandoffPhrase, Value = route.HandoffPhrase },
         ErpRoute = erpRoute,
-        ManualRoute = BuildManualRoute()
+        ManualRoute = BuildManualRoute(),
+        GroupingPreparation = grouping
     };
 
     private object BuildManualRoute() => new
@@ -336,6 +348,24 @@ public class GetSetupGuidanceSkill : BaseSkillImplementation
             + "New button and seal without one. An import always delivers drafts and seals nothing by "
             + "itself.";
     }
+
+    private async Task<GroupingPreparationFacts?> BuildGroupingPreparationAsync(
+        ScheduleSetupState state, CancellationToken cancellationToken)
+    {
+        if (!state.HasShifts)
+        {
+            return null;
+        }
+
+        var today = await _companyClock.GetTodayDateAsync(cancellationToken);
+        var activeEmployees = await _activityProbe.CountActiveEmployeesAsync(today, cancellationToken);
+        return activeEmployees > 0 ? new GroupingPreparationFacts(true, activeEmployees, GroupingPreparationHint) : null;
+    }
+
+    private static string GroupingSentence(GroupingPreparationFacts? grouping) =>
+        grouping is null ? string.Empty : SentenceSeparator + grouping.Hint;
+
+    private sealed record GroupingPreparationFacts(bool Recommended, int ActiveEmployees, string Hint);
 
     private sealed record TimeZoneFacts(
         bool Configured,

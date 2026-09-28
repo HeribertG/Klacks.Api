@@ -248,5 +248,10 @@
     "sulkemisviive",
     "sulkemisajankohta",
     "jaksojen sulkemi"
+  ],
+  "prepare-groups-for-planning": [
+    "suunniteltavuus",
+    "ryhmäjako",
+    "ryhmien valmius"
   ]
 }

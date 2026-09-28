@@ -222,5 +222,10 @@
     "ngày chốt kỳ",
     "tự động đóng kỳ",
     "đóng kỳ tự động"
+  ],
+  "prepare-groups-for-planning": [
+    "khả năng lập lịch",
+    "sự sẵn sàng của nhóm",
+    "phân bổ nhóm"
   ]
 }

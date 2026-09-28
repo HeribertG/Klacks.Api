@@ -148,6 +148,12 @@
     "mengurutkan karyawan ke dalam kelompok",
     "bagaimana kelompok diorganisir"
   ],
+  "analyze_grouping_feasibility": [
+    "apakah grup saya siap untuk perencanaan",
+    "siapkan grup untuk autofill",
+    "periksa kelayakan perencanaan grup",
+    "dinas mana yang tidak bisa diambil siapa pun di grup"
+  ],
   "apply_company_rule": [
     "terapkan aturan perusahaan",
     "simpan dan konfirmasi aturan perusahaan",
@@ -159,6 +165,10 @@
     "pindahkan klien ke grup mereka sekarang",
     "eksekusi pengelompokan yang diusulkan",
     "terapkan hasil pengelompokan secara permanen"
+  ],
+  "apply_grouping_plan": [
+    "terapkan rencana grup",
+    "jalankan perubahan grup yang diusulkan"
   ],
   "apply_planning_profile": [
     "terapkan profil perencanaan",

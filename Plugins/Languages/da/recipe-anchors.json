@@ -203,5 +203,10 @@
     "afslutningstidspunkt",
     "afslutningsfrist",
     "afslutningsforsinkelse"
+  ],
+  "prepare-groups-for-planning": [
+    "planlægbarhed",
+    "gruppetilknytning",
+    "gruppeinddeling"
   ]
 }

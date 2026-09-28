@@ -150,6 +150,12 @@
     "fordel medarbejderne i grupper",
     "hvordan er grupperne organiseret"
   ],
+  "analyze_grouping_feasibility": [
+    "er mine grupper klar til planlægning",
+    "forbered grupper til autofill",
+    "tjek gruppernes planlægbarhed",
+    "hvilke vagter kan ingen i gruppen overtage"
+  ],
   "apply_company_rule": [
     "anvend virksomhedsreglen",
     "gem og bekræft virksomhedsreglen",
@@ -160,6 +166,10 @@
     "gennemfør den foreslåede gruppeinddeling for alle klienter",
     "bekræft og anvend gruppeinddelingen",
     "flyt alle klienter til deres lokationsgrupper nu"
+  ],
+  "apply_grouping_plan": [
+    "anvend gruppeplanen",
+    "gennemfør de foreslåede gruppeændringer"
   ],
   "apply_planning_profile": [
     "anvend planlægningsprofilen",

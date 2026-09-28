@@ -228,5 +228,10 @@
     "cierre de período",
     "cierre de periodo",
     "plazo de cierre"
+  ],
+  "prepare-groups-for-planning": [
+    "planificabilidad",
+    "asignación de grupos",
+    "preparación de los grupos"
   ]
 }

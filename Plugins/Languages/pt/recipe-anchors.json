@@ -248,5 +248,10 @@
     "fecho do período",
     "prazo de encerramento",
     "atraso do encerramento"
+  ],
+  "prepare-groups-for-planning": [
+    "planeabilidade",
+    "afetação aos grupos",
+    "preparação dos grupos"
   ]
 }

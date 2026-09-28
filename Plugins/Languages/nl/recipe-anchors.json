@@ -213,5 +213,10 @@
     "afsluitmoment",
     "afsluitvertraging",
     "afsluittermijn"
+  ],
+  "prepare-groups-for-planning": [
+    "planbaarheid",
+    "groepsindeling",
+    "groepstoewijzing"
   ]
 }

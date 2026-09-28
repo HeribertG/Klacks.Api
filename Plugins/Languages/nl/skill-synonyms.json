@@ -148,6 +148,12 @@
     "medewerkers in groepen indelen",
     "hoe zijn de groepen georganiseerd"
   ],
+  "analyze_grouping_feasibility": [
+    "zijn mijn groepen klaar voor de planning",
+    "groepen voorbereiden op autofill",
+    "groepen controleren op planbaarheid",
+    "welke diensten kan niemand in de groep overnemen"
+  ],
   "apply_company_rule": [
     "de bedrijfsregel toepassen",
     "de bedrijfsregel opslaan en bevestigen",
@@ -159,6 +165,10 @@
     "verplaats de klanten nu naar hun groepen",
     "voer de voorgestelde indeling definitief door",
     "activeer de groepsindeling"
+  ],
+  "apply_grouping_plan": [
+    "het groepsplan toepassen",
+    "de voorgestelde groepswijzigingen doorvoeren"
   ],
   "apply_planning_profile": [
     "pas het planningsprofiel toe",

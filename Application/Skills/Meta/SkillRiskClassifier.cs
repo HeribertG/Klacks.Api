@@ -396,6 +396,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // parameters, so Sensitive would gate their read-only preview call too and break the dry-run-then-apply
         // idiom (owner decision, see AutonomyGateServiceTests).
         "apply_grouping",
+        "apply_grouping_plan",
         "fill_group_by_criteria",
         "group_ungrouped_by_city_name",
         "partition_clients_by_address",

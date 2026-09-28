@@ -148,6 +148,12 @@
     "ordenar empleados en grupos",
     "según qué criterio están organizados los grupos"
   ],
+  "analyze_grouping_feasibility": [
+    "están mis grupos listos para planificar",
+    "preparar los grupos para el autofill",
+    "comprobar la planificabilidad de los grupos",
+    "qué servicios no puede cubrir nadie del grupo"
+  ],
   "apply_company_rule": [
     "aplicar la regla de empresa",
     "guardar y confirmar la regla de empresa",
@@ -158,6 +164,10 @@
     "mover realmente a todos los clientes a sus grupos de ubicación",
     "confirmar y aplicar la agrupación propuesta",
     "ejecutar la agrupación de clientes de forma definitiva"
+  ],
+  "apply_grouping_plan": [
+    "aplicar el plan de grupos",
+    "realizar los cambios de grupo propuestos"
   ],
   "apply_planning_profile": [
     "aplicar el perfil de planificación",

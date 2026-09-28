@@ -6655,6 +6655,85 @@
           "note": "RECIPE step 2 of 2: call the skill with lagDays = the lagDays slot value from the known values, a whole number between 0 and 31. The user's number is only the value to calculate with; it is NOT an instruction to store it. Your NEXT reply states the result and offers to store it. Part one, from the result, starting with the dates: one line per group in Data.Groups with the group name, the end of its running period (CurrentPeriodEnd) and its close date (CurrentPeriodCloseDate); when PreviousPeriodEnd is present, add on that group's line that its previous period (ended PreviousPeriodEnd) is still open with the close date PreviousPeriodCloseDate, and if PreviousPeriodCloseDue is true that this close date has already been reached, so that period is due for closing now. List every group with its close date; never replace the list by a summary. If Data.OmittedGroups is greater than 0, add that this many further groups are not listed here and can be seen on the period-closing page. If Data.Groups is empty say that no group with members and a derivable period exists yet. Then the two facts about automation: if Data.LagStored is false say that no lag is stored yet, so Klacksy closes no period by itself; if it is true name the lag currently stored (Data.StoredLagDays). If Data.AutonomyAllowsAutoClose is false say that Klacksy currently closes no period automatically and name what is missing in plain words, taken from the Reason sentences in Data.AutoCloseReasons (each reason once, in the user's language, with its groups when not all groups share it), and that until then it only reminds; if it is true say that Klacksy may close a period of the groups whose AutoCloseAllowed is true by itself once its close date has been reached and the period is over, group by group and only when the check for open issues shows no errors, and that groups without it get no automatic close - only the usual reminders, plus a message to the planners when the rule 'Automatic period close' is set to 'Carry out' but an autonomy level keeps a due period from being closed. Use only facts from Data and never invent a date. Never quote field names, enum values or internal identifiers from Data (for example AutoCloseBlockedBy, MaxAction, GlobalLevel, AdminLevelMissing, KillSwitch or period_auto_close); name settings only by their labels as the reason sentences do. Part two, the LAST sentence: ask whether to store this lag of N days, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the store skill in the user's language, a colon and the number of days: German \"Abschlussnachlauf speichern: N Tage\", English \"Store the close delay: N days\", French \"Enregistrer le délai de clôture : N jours\", Italian \"Salvare il ritardo di chiusura: N giorni\"; for any other language use that skill's label in that language. Nothing is stored by this recipe: never say that anything was stored, saved or changed, never phrase the offer as if it were already decided (no \"I would store\" or \"I have noted\"), and never call any skill that stores, closes or confirms anything in this reply."
         }
       ]
+    },
+    {
+      "name": "prepare-groups-for-planning",
+      "goal": "Check whether employees and duties are grouped so the schedule can be planned right away: run the group plannability check, present the duties nobody can take, the employees who fit no duty, the arithmetic capacity shortfalls and the proposed group changes, and offer to carry out the changes, which is a separate, confirmed step outside this recipe.",
+      "goalTranslations": {
+        "de": "Prüft, ob Mitarbeitende und Dienste so in Gruppen stehen, dass sofort geplant werden kann: nennt Dienste, die niemand übernehmen kann, Mitarbeitende ohne passenden Dienst, rechnerische Engpässe und die vorgeschlagenen Gruppenänderungen, und bietet an, die Änderungen anzuwenden (eigener, bestätigter Schritt).",
+        "en": "Checks whether employees and duties are grouped so planning can start right away: names duties nobody can take, employees without a fitting duty, arithmetic shortfalls and the proposed group changes, and offers to apply the changes (a separate, confirmed step).",
+        "fr": "Vérifie si les collaborateurs et les services sont regroupés de façon à pouvoir planifier tout de suite : indique les services que personne ne peut assurer, les collaborateurs sans service adapté, les manques calculés et les modifications de groupes proposées, et propose de les appliquer (étape distincte et confirmée).",
+        "it": "Verifica se collaboratori e servizi sono raggruppati in modo da poter pianificare subito: indica i servizi che nessuno può coprire, i collaboratori senza servizio adatto, le carenze calcolate e le modifiche ai gruppi proposte, e propone di applicarle (passo separato e confermato)."
+      },
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 77,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "prüf",
+              "pruef",
+              "check",
+              "kontrollier",
+              "vorbereit",
+              "prepar",
+              "prépar",
+              "vérifi",
+              "verifi",
+              "verific",
+              "controll",
+              "contrôl",
+              "analys",
+              "analyz",
+              "analizz"
+            ]
+          },
+          {
+            "anySubstring": [
+              "grupp",
+              "group"
+            ]
+          },
+          {
+            "anySubstring": [
+              "planbar",
+              "planungsfähig",
+              "planungsfaehig",
+              "planungsbereit",
+              "für die planung",
+              "zum planen",
+              "autofill",
+              "plannable",
+              "ready for planning",
+              "ready to plan",
+              "planifiable",
+              "pour la planification",
+              "pianificabil",
+              "per la pianificazione"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "anyWordStart": [
+              "erstell",
+              "anleg",
+              "erfass",
+              "create",
+              "crée",
+              "crea"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "search",
+          "skill": "analyze_grouping_feasibility",
+          "note": "RECIPE 'prepare-groups-for-planning' step 1 of 1: call the skill. Pass fromDate/untilDate only if the user named a period and groupName only if the user named a group; otherwise call it without parameters. Your NEXT reply presents the result in the user's language and changes nothing. Part one, from Data: the period (From, Until) and the numbers in Data.Counts; then the findings grouped by their Finding sentence, each with the names it carries (Group, Shift, Client) and, where present, the Reason or ReasonsByCount; say for capacity findings that they are arithmetic only - enough people is necessary, not sufficient; mention Data.Omitted when present; then the proposed changes in their Step order (Action, Group, Client or Shift) and say that employees are always added before anybody is removed. Use only facts from Data, never invent names or numbers, and never quote field names or internal codes other than the plan code. If Data.Proposals is empty say that no group change is needed. Part two, the LAST sentence, only when Data.Proposals is not empty: offer to carry out the changes, followed by [REPLIES:single \"<yes label>=<value>\" | \"<no label>=No\"] where the value of the yes chip is the exact label of the apply skill in the user's language, a colon, Data.PlanCode and then the checked period Data.From to Data.Until and, when Data.Group is set, that group name, because carrying out the plan needs the same period and group: German \"Gruppenplan anwenden: <code>, <From> bis <Until>, <Group>\", English \"Apply the group plan: <code>, <From> to <Until>, <Group>\", French \"Appliquer le plan de groupes : <code>, du <From> au <Until>, <Group>\", Italian \"Applicare il piano dei gruppi: <code>, dal <From> al <Until>, <Group>\", where <Group> is Data.Group and the part \", <Group>\" is left out when Data.Group is not set; for any other language use that skill's label in that language. Nothing is changed by this recipe: never say that anything was changed, and never call any skill that writes or confirms anything in this reply."
+        }
+      ]
     }
   ]
 }

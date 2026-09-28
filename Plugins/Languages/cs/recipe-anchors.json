@@ -244,5 +244,10 @@
     "uzavření období",
     "termín uzavření",
     "prodleva uzavření"
+  ],
+  "prepare-groups-for-planning": [
+    "plánovatelnost",
+    "přiřazení do skupin",
+    "připravenost skupin"
   ]
 }

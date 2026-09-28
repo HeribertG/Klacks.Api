@@ -145,6 +145,12 @@
     "repartizează angajații în grupuri",
     "după ce criteriu sunt organizate grupurile"
   ],
+  "analyze_grouping_feasibility": [
+    "sunt grupurile mele pregătite pentru planificare",
+    "pregătește grupurile pentru autofill",
+    "verifică planificabilitatea grupurilor",
+    "ce ture nu poate prelua nimeni din grup"
+  ],
   "apply_company_rule": [
     "aplică regula de companie",
     "salvează și confirmă regula de companie",
@@ -156,6 +162,10 @@
     "confirmă și aplică gruparea propusă",
     "execută gruparea clienților",
     "salvează gruparea definitiv"
+  ],
+  "apply_grouping_plan": [
+    "aplică planul de grupuri",
+    "efectuează modificările de grup propuse"
   ],
   "apply_planning_profile": [
     "aplică profilul de planificare",

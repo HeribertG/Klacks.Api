@@ -146,6 +146,12 @@
     "fordel ansatte i grupper",
     "hvordan er gruppene organisert"
   ],
+  "analyze_grouping_feasibility": [
+    "er gruppene mine klare for planlegging",
+    "forbered grupper for autofill",
+    "sjekk gruppenes planleggbarhet",
+    "hvilke vakter kan ingen i gruppen ta"
+  ],
   "apply_company_rule": [
     "bruk bedriftsregelen",
     "lagre og bekreft bedriftsregelen",
@@ -156,6 +162,10 @@
     "bekreft og flytt kundene til lokasjonsgruppene",
     "gjennomfør grupperingen nå",
     "gå videre med grupperingen som ble forhåndsvist"
+  ],
+  "apply_grouping_plan": [
+    "bruk gruppeplanen",
+    "gjennomfør de foreslåtte gruppeendringene"
   ],
   "apply_planning_profile": [
     "bruk planleggingsprofilen",

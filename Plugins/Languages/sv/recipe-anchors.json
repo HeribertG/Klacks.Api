@@ -238,5 +238,10 @@
     "avslutsfördröjning",
     "automatiska avslut",
     "avslutsfrist"
+  ],
+  "prepare-groups-for-planning": [
+    "planerbarhet",
+    "grupptillhörighet",
+    "gruppindelning"
   ]
 }

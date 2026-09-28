@@ -195,5 +195,10 @@
     "kelewatan penutupan",
     "jadual penutupan",
     "tempoh tunggu penutupan"
+  ],
+  "prepare-groups-for-planning": [
+    "kebolehrancangan",
+    "pembahagian kumpulan",
+    "kesediaan kumpulan"
   ]
 }

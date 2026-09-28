@@ -28,5 +28,6 @@
   "setup-planning-profile": ["määritä oma suunnitteluprofiili", "aseta omat suunnittelusäännöt yritykselle"],
   "setup-consultation": ["miten tässä oikein pääsee alkuun", "mitkä ovat ensimmäiset askeleet järjestelmässä", "mitään ei ole vielä suunniteltu kalenteriin", "miten Klacks otetaan käyttöön alusta asti"],
   "plan-delivery-deadline": ["työvuorolistan valmistumisen määräpäivä sähköpostitse tapahtuvaa lähetystä varten", "suunnitelman viimeinen jättöpäivä postitse lähetettävälle työvuorolistalle", "vuorosuunnitelman takaraja ennen postitusta työntekijöille"],
-  "period-close-schedule": ["milloin jaksot pitäisi sulkea automaattisesti", "montako päivää jakson päättymisen jälkeen pitää sulkea automaattisesti", "missä vaiheessa jakson pitäisi sulkeutua itsestään"]
+  "period-close-schedule": ["milloin jaksot pitäisi sulkea automaattisesti", "montako päivää jakson päättymisen jälkeen pitää sulkea automaattisesti", "missä vaiheessa jakson pitäisi sulkeutua itsestään"],
+  "prepare-groups-for-planning": ["tarkista, ovatko ryhmäni valmiita suunnittelua varten", "ovatko ryhmäni valmiita suunnittelua varten", "valmistele ryhmäni suunnittelua varten"]
 }

@@ -9,7 +9,9 @@
 /// recipe-forced iteration is exempt: the forcing spine may deliberately re-run a step skill and its calls
 /// are narrowed deterministically, not chosen by the model. Only side-effecting calls are recorded, so a
 /// read-only action never blocks a later write action of the same skill, while a repeated write action is
-/// still rejected on its second and every further attempt.
+/// still rejected on its second and every further attempt. A preview call of a preview/apply skill
+/// (PreviewApplySkillCalls, apply=false or absent) is never rejected, so the preview a refused apply asks for
+/// can run, but it is recorded, so an apply=true of the same skill later in the turn is still rejected.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -47,7 +49,9 @@ internal static class RepeatedWriteCallGuard
         var executable = new List<LLMFunctionCall>(functionCalls.Count);
         foreach (var call in functionCalls)
         {
-            if (!IsRepeatable(call) && previouslyCalledNames.Contains(call.FunctionName))
+            if (!IsRepeatable(call)
+                && !PreviewApplySkillCalls.IsPreviewCall(call.FunctionName, call.Parameters)
+                && previouslyCalledNames.Contains(call.FunctionName))
             {
                 call.Success = false;
                 call.IsRejectedRepeat = true;

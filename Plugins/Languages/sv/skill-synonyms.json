@@ -147,6 +147,12 @@
     "sortera medarbetare i grupper",
     "hur är grupperna organiserade"
   ],
+  "analyze_grouping_feasibility": [
+    "är mina grupper redo för planering",
+    "förbered grupper för autofill",
+    "kontrollera gruppernas planerbarhet",
+    "vilka pass kan ingen i gruppen ta"
+  ],
   "apply_company_rule": [
     "tillämpa företagsregeln",
     "spara och bekräfta företagsregeln",
@@ -158,6 +164,10 @@
     "bekräfta och verkställ den föreslagna grupperingen",
     "genomför grupperingen av kunder",
     "spara grupperingen permanent"
+  ],
+  "apply_grouping_plan": [
+    "tillämpa gruppplanen",
+    "genomför de föreslagna gruppändringarna"
   ],
   "apply_planning_profile": [
     "tillämpa planeringsprofilen",

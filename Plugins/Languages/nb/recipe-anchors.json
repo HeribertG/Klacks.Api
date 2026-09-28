@@ -215,5 +215,10 @@
     "avslutningstidspunkt",
     "avslutningsfrist",
     "avslutningsforsinkelse"
+  ],
+  "prepare-groups-for-planning": [
+    "planleggbarhet",
+    "gruppetilhørighet",
+    "gruppeinndeling"
   ]
 }

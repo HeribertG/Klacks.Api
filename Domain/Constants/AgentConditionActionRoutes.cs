@@ -43,6 +43,7 @@ public static class AgentConditionActionRoutes
         [AgentTriggerKinds.NoScheduleYet] = ProactiveActionRoutes.Schedule,
         [AgentTriggerKinds.UngroupedWorkforce] = ProactiveActionRoutes.GroupList,
         [AgentTriggerKinds.UngroupedShifts] = ProactiveActionRoutes.ShiftList,
+        [AgentTriggerKinds.GroupingFeasibility] = ProactiveActionRoutes.GroupList,
     };
 
     public static string? For(string triggerKind, Guid? entityId)

@@ -142,6 +142,12 @@
     "sắp xếp nhân viên vào các nhóm",
     "các nhóm được tổ chức theo tiêu chí nào"
   ],
+  "analyze_grouping_feasibility": [
+    "các nhóm của tôi đã sẵn sàng để lập lịch chưa",
+    "chuẩn bị các nhóm cho autofill",
+    "kiểm tra khả năng lập lịch của nhóm",
+    "ca nào không ai trong nhóm có thể nhận"
+  ],
   "apply_company_rule": [
     "áp dụng quy tắc công ty",
     "lưu và xác nhận quy tắc công ty",
@@ -153,6 +159,10 @@
     "xác nhận và lưu kết quả phân nhóm",
     "thực hiện phân nhóm khách hàng",
     "lưu vĩnh viễn việc phân nhóm"
+  ],
+  "apply_grouping_plan": [
+    "áp dụng kế hoạch nhóm",
+    "thực hiện các thay đổi nhóm được đề xuất"
   ],
   "apply_planning_profile": [
     "áp dụng hồ sơ lập kế hoạch",

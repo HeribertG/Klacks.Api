@@ -224,5 +224,10 @@
     "jeda penutupan",
     "jadwal penutupan",
     "tenggat penutupan"
+  ],
+  "prepare-groups-for-planning": [
+    "kelayakan perencanaan",
+    "pembagian grup",
+    "kesiapan grup"
   ]
 }

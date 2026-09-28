@@ -1511,6 +1511,17 @@
       "expectedRecipe": "create-calendar-selection"
     },
     {
+      "id": "w05-recipe-prepare-groups-for-planning",
+      "message": "Prüfe, ob meine Gruppen für die Planung bereit sind",
+      "locale": "de",
+      "source": "w0.5-recipe",
+      "expectedTool": null,
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "comment": "recipe coverage from recipe-seeds goal: prepare-groups-for-planning",
+      "expectedRecipe": "prepare-groups-for-planning"
+    },
+    {
       "id": "w05-messaging-send-message",
       "message": "Sende eine Nachricht an Max",
       "locale": "de",
@@ -4666,6 +4677,46 @@
       "tags": [
         "crud"
       ]
+    },
+    {
+      "id": "w05-coverage-apply-grouping-plan",
+      "message": "Der Gruppenplan aus dem Check passt so, übernimm ihn bitte mit dem Code 3f9a2c1b7d4e.",
+      "locale": "de",
+      "source": "w0.5-seed-coverage",
+      "expectedTool": "apply_grouping_plan",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "fingerprint",
+          "match": "exact",
+          "value": "3f9a2c1b7d4e"
+        }
+      ],
+      "comment": "mutating-skill coverage: keyword-carrying natural request",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "w05-coverage-analyze-grouping-feasibility",
+      "message": "Gruppe Pflege Nord, Oktober 2026: Gibt es dort Dienste, für die keine einzige passende Person bereitsteht?",
+      "locale": "de",
+      "source": "curated",
+      "expectedTool": "analyze_grouping_feasibility",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "groupName",
+          "match": "contains",
+          "value": "Pflege Nord"
+        },
+        {
+          "name": "fromDate",
+          "match": "contains",
+          "value": "2026-10"
+        }
+      ],
+      "comment": "direct call of the grouping check without the recipe: named group and period, no check verb"
     }
   ]
 }

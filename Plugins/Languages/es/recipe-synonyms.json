@@ -28,5 +28,6 @@
   "setup-planning-profile": ["configurar un perfil de planificación propio", "establecer nuestras propias reglas de planificación"],
   "setup-consultation": ["cómo empiezo a usar el sistema desde cero", "cuáles son los primeros pasos en el sistema", "todavía no hay absolutamente nada planificado", "cómo configuro Klacks desde el principio"],
   "plan-delivery-deadline": ["plazo límite del plan de turnos para el envío por correo electrónico", "fecha límite de entrega del plan de servicios por correo postal", "fecha tope para tener listo el plan antes del envío al personal"],
-  "period-close-schedule": ["cuándo deben cerrarse los períodos automáticamente", "cuántos días después del fin del período debe cerrarse automáticamente", "en qué momento debe cerrarse el período por sí solo"]
+  "period-close-schedule": ["cuándo deben cerrarse los períodos automáticamente", "cuántos días después del fin del período debe cerrarse automáticamente", "en qué momento debe cerrarse el período por sí solo"],
+  "prepare-groups-for-planning": ["comprueba si mis grupos están listos para la planificación", "están mis grupos listos para planificar", "preparar mis grupos para la planificación"]
 }

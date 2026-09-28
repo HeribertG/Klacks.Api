@@ -28,5 +28,6 @@
   "setup-planning-profile": ["menyediakan profil perancangan sendiri", "menetapkan peraturan perancangan sendiri untuk syarikat"],
   "setup-consultation": ["bagaimana sebenarnya nak bermula dengan sistem ini", "apakah langkah pertama dalam sistem", "belum ada langsung yang dirancang dalam kalendar", "bagaimana cara menyediakan Klacks dari awal"],
   "plan-delivery-deadline": ["tarikh akhir penyiapan jadual tugas untuk penghantaran melalui e-mel atau pos", "had masa perancangan jadual kerja supaya sampai kepada pekerja menerusi surat", "tarikh tutup jadual tugas bagi penghantaran e-mel dan pos"],
-  "period-close-schedule": ["bilakah tempoh perlu ditutup secara automatik", "berapa hari selepas tamat tempoh patut ditutup secara automatik", "pada masa bila tempoh ditutup dengan sendirinya"]
+  "period-close-schedule": ["bilakah tempoh perlu ditutup secara automatik", "berapa hari selepas tamat tempoh patut ditutup secara automatik", "pada masa bila tempoh ditutup dengan sendirinya"],
+  "prepare-groups-for-planning": ["semak sama ada kumpulan saya sedia untuk perancangan", "adakah kumpulan saya sedia untuk perancangan", "sediakan kumpulan saya untuk perancangan"]
 }

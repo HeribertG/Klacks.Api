@@ -139,6 +139,12 @@
     "susun pekerja ke dalam kumpulan",
     "bagaimana kumpulan disusun"
   ],
+  "analyze_grouping_feasibility": [
+    "adakah kumpulan saya sedia untuk perancangan",
+    "sediakan kumpulan untuk autofill",
+    "semak kebolehrancangan kumpulan",
+    "syif mana yang tidak boleh diambil oleh sesiapa dalam kumpulan"
+  ],
   "apply_company_rule": [
     "gunakan peraturan syarikat",
     "simpan dan sahkan peraturan syarikat",
@@ -149,6 +155,10 @@
     "sahkan dan pindahkan pelanggan ke kumpulan lokasi",
     "laksanakan pengumpulan sekarang",
     "teruskan dengan susunan kumpulan yang telah dipratonton"
+  ],
+  "apply_grouping_plan": [
+    "laksanakan pelan kumpulan",
+    "jalankan perubahan kumpulan yang dicadangkan"
   ],
   "apply_planning_profile": [
     "gunakan profil perancangan",

@@ -151,6 +151,12 @@
     "przydziel pracowników do grup",
     "według czego są zorganizowane grupy"
   ],
+  "analyze_grouping_feasibility": [
+    "czy moje grupy są gotowe do planowania",
+    "przygotuj grupy do autofill",
+    "sprawdź planowalność grup",
+    "których dyżurów nikt z grupy nie może przejąć"
+  ],
   "apply_company_rule": [
     "zastosuj regułę firmową",
     "zapisz i potwierdź regułę firmową",
@@ -162,6 +168,10 @@
     "przenieś klientów do ich grup już teraz",
     "wykonaj zaproponowane grupowanie",
     "zatwierdź i uruchom grupowanie klientów"
+  ],
+  "apply_grouping_plan": [
+    "zastosuj plan grup",
+    "wprowadź proponowane zmiany w grupach"
   ],
   "apply_planning_profile": [
     "zastosuj profil planowania",
