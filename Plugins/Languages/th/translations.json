@@ -1441,6 +1441,8 @@
   "legal.license.server": "เซิร์ฟเวอร์ (Klacks.Api):",
   "legal.license.web-client": "เว็บไคลเอนต์ (Klacks.Ui):",
   "legal.license.full-text": "ข้อความสัญญาอนุญาตฉบับเต็ม (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "สำหรับการใช้งานที่ AGPL ไม่ครอบคลุม เช่น การนำไปรวมในผลิตภัณฑ์แบบปิด หรือการแก้ไขที่ยังไม่เผยแพร่ เราเสนอใบอนุญาตเชิงพาณิชย์:",
+  "legal.commercial-license-link": "ใบอนุญาตเชิงพาณิชย์",
   "donation.title": "การบริจาค",
   "donation.text": "Klacks ใช้งานฟรี หาก Klacks ช่วยให้งานของคุณง่ายขึ้น เรายินดีรับการสนับสนุนเล็กน้อย",
   "donation.iban-label": "โอนเงินผ่านธนาคาร",

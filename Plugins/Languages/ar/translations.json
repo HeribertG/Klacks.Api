@@ -1441,6 +1441,8 @@
   "legal.license.server": "الخادم (Klacks.Api):",
   "legal.license.web-client": "عميل الويب (Klacks.Ui):",
   "legal.license.full-text": "النص الكامل للترخيص (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "بالنسبة للاستخدامات التي لا تغطيها رخصة AGPL، مثل دمج البرنامج في منتج مغلق المصدر أو إجراء تعديلات غير منشورة، نقدم ترخيصًا تجاريًا:",
+  "legal.commercial-license-link": "ترخيص تجاري",
   "donation.title": "تبرّع",
   "donation.text": "Klacks مجاني. إذا كان Klacks يسهّل عملك، نقدّر دعمك الصغير.",
   "donation.iban-label": "تحويل بنكي",

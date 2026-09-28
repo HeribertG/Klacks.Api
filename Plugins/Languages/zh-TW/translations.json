@@ -1441,6 +1441,8 @@
   "legal.license.server": "伺服器 (Klacks.Api)：",
   "legal.license.web-client": "Web 用戶端 (Klacks.Ui)：",
   "legal.license.full-text": "授權條款全文 (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "針對 AGPL 未涵蓋的使用情境，例如整合至封閉式產品或未公開發布的修改，我們提供商業授權：",
+  "legal.commercial-license-link": "商業授權",
   "donation.title": "贊助",
   "donation.text": "Klacks 是免費的。如果 Klacks 讓您的工作更輕鬆，我們感謝您的小小支持。",
   "donation.iban-label": "銀行轉帳",

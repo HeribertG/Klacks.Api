@@ -1441,6 +1441,8 @@
   "legal.license.server": "Διακομιστής (Klacks.Api):",
   "legal.license.web-client": "Πρόγραμμα-πελάτης web (Klacks.Ui):",
   "legal.license.full-text": "Πλήρες κείμενο της άδειας (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "Για χρήσεις που δεν καλύπτονται από την AGPL, όπως η ενσωμάτωση σε κλειστό προϊόν ή μη δημοσιευμένες τροποποιήσεις, προσφέρουμε εμπορική άδεια:",
+  "legal.commercial-license-link": "Εμπορική άδεια",
   "donation.title": "Δωρεά",
   "donation.text": "Το Klacks είναι δωρεάν. Αν το Klacks διευκολύνει την εργασία σας, εκτιμούμε μια μικρή υποστήριξη.",
   "donation.iban-label": "Τραπεζικό έμβασμα",

@@ -1441,6 +1441,8 @@
   "legal.license.server": "Máy chủ (Klacks.Api):",
   "legal.license.web-client": "Ứng dụng web (Klacks.Ui):",
   "legal.license.full-text": "Toàn văn giấy phép (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "Đối với các trường hợp sử dụng không được AGPL bao phủ, chẳng hạn như tích hợp vào một sản phẩm đóng hoặc các thay đổi chưa được công bố, chúng tôi cung cấp giấy phép thương mại:",
+  "legal.commercial-license-link": "Giấy phép thương mại",
   "donation.title": "Quyên góp",
   "donation.text": "Klacks là miễn phí. Nếu Klacks giúp công việc của bạn dễ dàng hơn, chúng tôi trân trọng sự hỗ trợ nhỏ.",
   "donation.iban-label": "Chuyển khoản ngân hàng",

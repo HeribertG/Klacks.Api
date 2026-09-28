@@ -1441,6 +1441,8 @@
   "legal.license.server": "Server (Klacks.Api):",
   "legal.license.web-client": "Webový klient (Klacks.Ui):",
   "legal.license.full-text": "Úplné znění licence (GNU AGPL-3.0)",
+  "legal.license.commercial-text": "Pro použití, která licence AGPL nepokrývá, například začlenění do uzavřeného produktu nebo nezveřejněné úpravy, nabízíme komerční licenci:",
+  "legal.commercial-license-link": "Komerční licence",
   "donation.title": "Příspěvek",
   "donation.text": "Klacks je zdarma. Pokud vám Klacks usnadňuje práci, oceníme malý příspěvek.",
   "donation.iban-label": "Bankovní převod",
