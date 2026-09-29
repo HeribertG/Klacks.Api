@@ -20,12 +20,12 @@ namespace Klacks.Api.Application.Skills;
 public class StartWizard2Skill : BaseSkillImplementation
 {
     private readonly IHarmonizerJobRunner _runner;
-    private readonly IClientRepository _clientRepository;
+    private readonly IGroupPlanningAgentRepository _planningAgentRepository;
 
-    public StartWizard2Skill(IHarmonizerJobRunner runner, IClientRepository clientRepository)
+    public StartWizard2Skill(IHarmonizerJobRunner runner, IGroupPlanningAgentRepository planningAgentRepository)
     {
         _runner = runner;
-        _clientRepository = clientRepository;
+        _planningAgentRepository = planningAgentRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -51,9 +51,8 @@ public class StartWizard2Skill : BaseSkillImplementation
             analyseToken = atParsed;
         }
 
-        var agents = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { groupId }, cancellationToken);
-        var agentIds = agents.Select(c => c.Id).Distinct().ToList();
+        var agentIds = await _planningAgentRepository.GetAgentIdsAsync(
+            groupId, periodFrom, periodUntil, cancellationToken);
         if (agentIds.Count == 0)
         {
             return SkillResult.Error($"No agents in group {groupId} — abort.");

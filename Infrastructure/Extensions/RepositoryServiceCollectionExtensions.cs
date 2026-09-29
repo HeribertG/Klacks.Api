@@ -101,6 +101,7 @@ internal static class RepositoryServiceCollectionExtensions
     internal static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IClientRepository, ClientRepository>();
+        services.AddScoped<IGroupPlanningAgentRepository, GroupPlanningAgentRepository>();
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();

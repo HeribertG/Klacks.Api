@@ -54,16 +54,10 @@ public class ClientBaseQueryService : IClientBaseQueryService
 
     public async Task<IQueryable<Client>> BuildBaseQuery(ClientBaseFilter filter)
     {
-        var startDateTime = filter.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var endDateTime = filter.EndDate.ToDateTime(new TimeOnly(23, 59, 59), DateTimeKind.Utc);
-
-        var query = _context.Client
-            .Include(c => c.Membership)
-            .Where(c => c.Type != EntityTypeEnum.Customer)
-            .Where(c => c.Membership != null &&
-                       c.Membership.ValidFrom <= endDateTime &&
-                       (!c.Membership.ValidUntil.HasValue || c.Membership.ValidUntil.Value >= startDateTime))
-            .AsQueryable();
+        var query = ScheduleClientScope.ActiveInPeriod(
+            _context.Client.Include(c => c.Membership),
+            filter.StartDate,
+            filter.EndDate);
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
         query = await ApplySearchWithFuzzyFallback(query, filter.SearchString);

@@ -19,11 +19,11 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("generate_period_summary")]
 public class GeneratePeriodSummarySkill : BaseSkillImplementation
 {
-    private readonly IClientRepository _clientRepository;
+    private readonly IGroupPlanningAgentRepository _planningAgentRepository;
 
-    public GeneratePeriodSummarySkill(IClientRepository clientRepository)
+    public GeneratePeriodSummarySkill(IGroupPlanningAgentRepository planningAgentRepository)
     {
-        _clientRepository = clientRepository;
+        _planningAgentRepository = planningAgentRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -48,21 +48,21 @@ public class GeneratePeriodSummarySkill : BaseSkillImplementation
             return SkillResult.Error("untilDate must be on or after fromDate.");
         }
 
-        var clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(new List<Guid> { groupId }, cancellationToken);
+        var employeeIds = await _planningAgentRepository.GetAgentIdsAsync(groupId, fromDate, untilDate, cancellationToken);
 
         var summary = new
         {
             GroupId = groupId,
             FromDate = fromDate.ToString("yyyy-MM-dd"),
             UntilDate = untilDate.ToString("yyyy-MM-dd"),
-            EmployeeCount = clients.Count,
-            EmployeeIds = clients.Select(c => c.Id).ToList(),
+            EmployeeCount = employeeIds.Count,
+            EmployeeIds = employeeIds,
             DaysInPeriod = (untilDate.DayNumber - fromDate.DayNumber) + 1
         };
 
         return SkillResult.SuccessResult(
             summary,
             $"Period summary for group {groupId} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}: " +
-            $"{clients.Count} employee(s), {summary.DaysInPeriod} day(s).");
+            $"{employeeIds.Count} employee(s), {summary.DaysInPeriod} day(s).");
     }
 }

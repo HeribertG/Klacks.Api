@@ -22,16 +22,16 @@ namespace Klacks.Api.Application.Skills;
 public class StartWizard1Skill : BaseSkillImplementation
 {
     private readonly IWizardJobRunner _runner;
-    private readonly IClientRepository _clientRepository;
+    private readonly IGroupPlanningAgentRepository _planningAgentRepository;
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
 
     public StartWizard1Skill(
         IWizardJobRunner runner,
-        IClientRepository clientRepository,
+        IGroupPlanningAgentRepository planningAgentRepository,
         IShiftScheduleRepository shiftScheduleRepository)
     {
         _runner = runner;
-        _clientRepository = clientRepository;
+        _planningAgentRepository = planningAgentRepository;
         _shiftScheduleRepository = shiftScheduleRepository;
     }
 
@@ -58,9 +58,8 @@ public class StartWizard1Skill : BaseSkillImplementation
             analyseToken = atParsed;
         }
 
-        var agents = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { groupId }, cancellationToken);
-        var agentIds = agents.Select(c => c.Id).Distinct().ToList();
+        var agentIds = await _planningAgentRepository.GetAgentIdsAsync(
+            groupId, periodFrom, periodUntil, cancellationToken);
         if (agentIds.Count == 0)
         {
             return SkillResult.Error($"No agents in group {groupId} — abort.");

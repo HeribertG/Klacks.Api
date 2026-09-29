@@ -9,7 +9,7 @@
 /// <param name="groupId">Required group UUID (the "selectedGroup" of the schedule view).</param>
 /// <param name="periodFrom">Period start date (ISO yyyy-MM-dd).</param>
 /// <param name="periodUntil">Period end date (ISO yyyy-MM-dd, inclusive).</param>
-/// <param name="agentIds">Optional comma-separated client UUIDs; defaults to all clients in the group.</param>
+/// <param name="agentIds">Optional comma-separated client UUIDs; defaults to the clients the schedule shows for the group and its sub-groups in the period.</param>
 /// <param name="shiftIds">Optional comma-separated shift UUIDs; defaults to visible shifts via GetShiftSchedule.</param>
 /// <param name="analyseToken">Optional source scenario token; null = main scenario.</param>
 /// <param name="language">Optional UI language for Wizard 3 (LLM stage), e.g. "de", "en". Falls back to engine default.</param>
@@ -34,18 +34,18 @@ public class StartAutoWizardSkill : BaseSkillImplementation
 {
     private readonly IAutoWizardJobRunner _autoWizardJobRunner;
     private readonly IGroupRepository _groupRepository;
-    private readonly IClientRepository _clientRepository;
+    private readonly IGroupPlanningAgentRepository _planningAgentRepository;
     private readonly IShiftScheduleRepository _shiftScheduleRepository;
 
     public StartAutoWizardSkill(
         IAutoWizardJobRunner autoWizardJobRunner,
         IGroupRepository groupRepository,
-        IClientRepository clientRepository,
+        IGroupPlanningAgentRepository planningAgentRepository,
         IShiftScheduleRepository shiftScheduleRepository)
     {
         _autoWizardJobRunner = autoWizardJobRunner;
         _groupRepository = groupRepository;
-        _clientRepository = clientRepository;
+        _planningAgentRepository = planningAgentRepository;
         _shiftScheduleRepository = shiftScheduleRepository;
     }
 
@@ -94,7 +94,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             analyseToken = parsedToken;
         }
 
-        var agentIds = await ResolveAgentIdsAsync(agentIdsRaw, groupId, cancellationToken);
+        var agentIds = await ResolveAgentIdsAsync(agentIdsRaw, groupId, periodFrom, periodUntil, cancellationToken);
         if (agentIds.Count == 0)
         {
             return SkillResult.Error(
@@ -161,6 +161,8 @@ public class StartAutoWizardSkill : BaseSkillImplementation
     private async Task<IReadOnlyList<Guid>> ResolveAgentIdsAsync(
         string? agentIdsRaw,
         Guid groupId,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
         CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(agentIdsRaw))
@@ -173,10 +175,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
                 .ToList();
         }
 
-        var clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { groupId },
-            cancellationToken);
-        return clients.Select(c => c.Id).Distinct().ToList();
+        return await _planningAgentRepository.GetAgentIdsAsync(groupId, periodFrom, periodUntil, cancellationToken);
     }
 
     private async Task<IReadOnlyList<Guid>> ResolveShiftIdsAsync(
