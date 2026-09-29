@@ -2566,7 +2566,8 @@
     "näyttö on liian kirkas",
     "vaihda väriteemaa",
     "haluan vaalean näkymän",
-    "käytä korkeaa kontrastia silmieni takia"
+    "käytä korkeaa kontrastia silmieni takia",
+    "käytä klacks-väriteemaa"
   ],
   "set_period_close_lag": [
     "tallenna sulkemisen viive",

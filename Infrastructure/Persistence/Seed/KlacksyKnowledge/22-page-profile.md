@@ -6,7 +6,7 @@ description: |
   delete; the picture also becomes the sidebar profile icon), change my login data
   (read-only username, current password with show/hide toggle, new password with live
   strength indicator, repeat field locked until the password is strong, saved via the
-  footer save bar), custom settings (theme with 7 color schemes and the display language,
+  footer save bar), custom settings (theme with 8 color schemes and the display language,
   both applied instantly without saving) and the microphone & voice recognition test
   (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second
   record/playback with level meter and automatic transcription). Use this when the user
@@ -139,8 +139,9 @@ personnalisés", it: "Impostazioni personalizzate"). Beide Auswahlen wirken SOFO
 Speichern-Knopf.
 
 - **Farbschema** (de: "Farbschema", en: "Theme", fr: "Thème", it: "Tema") — Auswahl
-  `profile-custom-setting-theme-select` mit 7 Schemata: Light, Dark, High Contrast,
-  Blue, Warm, OLED Dark, Dimmed. Der Wechsel färbt die ganze App sofort um.
+  `profile-custom-setting-theme-select` mit 8 Schemata: Light, Klacks (Markenschema in
+  Petrol und Amber), Dark, High Contrast, Blue, Warm, OLED Dark, Dimmed. Der Wechsel
+  färbt die ganze App sofort um.
 - **Ausgewählte Sprache** (de: "Ausgewählte Sprache:", en: "Selected language:", fr:
   "Langue sélectionnée :", it: "Lingua selezionata:") — Auswahl
   `profile-custom-setting-language-select`; listet alle verfügbaren Sprachen (die vier

@@ -28124,7 +28124,7 @@
     {
       "name": "explain_page_profile",
       "area": "security",
-      "description": "Explains the My Profile page (Mein Profil) at /workplace/profile — the personal page of the logged-in user with four cards: profile picture (drag & drop upload or click, instant delete; the picture also becomes the sidebar profile icon), change my login data (read-only username, current password with show/hide toggle, new password with live strength indicator, repeat field locked until the password is strong, saved via the footer save bar), custom settings (theme with 7 color schemes and the display language, both applied instantly without saving) and the microphone & voice recognition test (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second record/playback with level meter and automatic transcription). Use this when the user asks what they see on the profile page, how to change their password, picture, theme or language, or how to test the microphone.",
+      "description": "Explains the My Profile page (Mein Profil) at /workplace/profile — the personal page of the logged-in user with four cards: profile picture (drag & drop upload or click, instant delete; the picture also becomes the sidebar profile icon), change my login data (read-only username, current password with show/hide toggle, new password with live strength indicator, repeat field locked until the password is strong, saved via the footer save bar), custom settings (theme with 8 color schemes and the display language, both applied instantly without saving) and the microphone & voice recognition test (device picker shared with the Klacksy voice input, four-step diagnostics, 5-second record/playback with level meter and automatic transcription). Use this when the user asks what they see on the profile page, how to change their password, picture, theme or language, or how to test the microphone.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -28258,7 +28258,7 @@
         "fr": "Aperçu de la page Mon profil",
         "it": "Panoramica della pagina Il mio profilo"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "start_guided_tour",
@@ -42253,7 +42253,7 @@
     {
       "name": "set_my_theme",
       "area": "settings",
-      "description": "Switches the colour scheme of the screen for the person who is signed in: bright, dark, strong contrast for weak eyesight, a blue or a warm tinted variant, deep black for OLED displays, and a dimmed one for working at night. Use when someone finds the screen too bright or too glaring, wants night mode, struggles to read the text, or simply asks for a different look on this device.",
+      "description": "Switches the colour scheme of the screen for the person who is signed in: bright, the Klacks brand scheme in petrol and amber, dark, strong contrast for weak eyesight, a blue or a warm tinted variant, deep black for OLED displays, and a dimmed one for working at night. Use when someone finds the screen too bright or too glaring, wants night mode, struggles to read the text, or simply asks for a different look on this device.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [],
@@ -42266,6 +42266,7 @@
           "defaultValue": null,
           "enumValues": [
             "light",
+            "klacks",
             "dark",
             "high-contrast",
             "blue",
@@ -42310,7 +42311,7 @@
           "colour scheme"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "dunkelmodus einschalten",
@@ -42318,7 +42319,9 @@
           "bildschirm ist zu hell",
           "farbschema wechseln",
           "helles design verwenden",
-          "starker kontrast fuer die augen"
+          "starker kontrast fuer die augen",
+          "klacks-farbschema verwenden",
+          "auf das klacks-design umstellen"
         ],
         "en": [
           "switch to dark mode",
@@ -42326,19 +42329,25 @@
           "the screen is too bright",
           "change the colour scheme",
           "use the light appearance",
-          "high contrast for my eyes"
+          "high contrast for my eyes",
+          "use the klacks colour theme",
+          "switch to the klacks look"
         ],
         "fr": [
           "passer en mode sombre",
           "activer le mode nuit",
           "ecran trop lumineux",
-          "changer le jeu de couleurs"
+          "changer le jeu de couleurs",
+          "utiliser le theme klacks",
+          "passer aux couleurs klacks"
         ],
         "it": [
           "passare alla modalita scura",
           "attivare la modalita notte",
           "schermo troppo luminoso",
-          "cambiare la combinazione di colori"
+          "cambiare la combinazione di colori",
+          "usare il tema klacks",
+          "passare ai colori klacks"
         ]
       },
       "labels": {
