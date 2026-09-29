@@ -111,6 +111,16 @@ jobs:
             src/app/domain/constants
           sparse-checkout-cone-mode: false
 
+      - name: Checkout Klacks.Marketplace (on-prem template for guard test)
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Marketplace
+          path: Klacks.Marketplace
+          token: ${{ secrets.GH_PAT || github.token }}
+          sparse-checkout: |
+            Resources/OnPremTemplate
+          sparse-checkout-cone-mode: false
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
