@@ -122,6 +122,7 @@ public static class ProactiveMessageI18nKeys
     public const string NextPeriodAutoCommitBlockedKillSwitch = "assistant.proactive.nextPeriodAutoCommitBlockedKillSwitch";
     public const string NextPeriodAutoCommitBlockedAutonomyLowered = "assistant.proactive.nextPeriodAutoCommitBlockedAutonomyLowered";
     public const string NextPeriodAutoCommitBlockedInterrupted = "assistant.proactive.nextPeriodAutoCommitBlockedInterrupted";
+    public const string NextPeriodAutoCommitBlockedHarmonizationSkipped = "assistant.proactive.nextPeriodAutoCommitBlockedHarmonizationSkipped";
     public const string KlacksyLearnedDigest = "assistant.proactive.klacksyLearnedDigest";
 
     /// <summary>

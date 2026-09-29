@@ -11,7 +11,8 @@
 /// </summary>
 /// <param name="ScenarioId">
 /// The draft that stays unaccepted. Null for the reasons that occur BEFORE a final scenario is known -
-/// Timeout and NotCommittable - where there is nothing to point a reviewer at yet.
+/// Timeout and NotCommittable - where there is nothing to point a reviewer at yet. HarmonizationSkipped carries
+/// it: the chain did finish, and its unharmonized draft is exactly what the reviewer has to look at.
 /// </param>
 /// <param name="NewIssueCount">Only meaningful for NewViolations; zero for every other reason.</param>
 /// <param name="Reason">Why the acceptance was withheld.</param>
@@ -35,6 +36,12 @@ public sealed record NextPeriodAutoCommitBlockedTriggerEvent(
     private const string CommitBlockedDedupSuffix = ":commit-blocked";
     private const string DedupSeparator = ":";
     private const string PeriodDedupFormat = "yyyy-MM-dd";
+
+    /// <summary>Payload key of the draft that stays unaccepted; read back by ScenarioPendingDetector.</summary>
+    public const string ScenarioIdPayloadKey = "scenarioId";
+
+    /// <summary>Payload key of the block reason; its presence marks a ledger row as a blocked commit outcome.</summary>
+    public const string BlockReasonPayloadKey = "blockReason";
 
     /// <summary>
     /// The prefix every commit outcome of this group and period shares. The detector matches ledger
@@ -106,9 +113,9 @@ public sealed record NextPeriodAutoCommitBlockedTriggerEvent(
         ["groupName"] = GroupName,
         ["periodStartDate"] = PeriodStartDate,
         ["periodEndDate"] = PeriodEndDate,
-        ["scenarioId"] = ScenarioId,
+        [ScenarioIdPayloadKey] = ScenarioId,
         ["newIssueCount"] = NewIssueCount,
-        ["blockReason"] = Reason.ToString(),
+        [BlockReasonPayloadKey] = Reason.ToString(),
         ["autoCommitted"] = false
     };
 
@@ -122,6 +129,7 @@ public sealed record NextPeriodAutoCommitBlockedTriggerEvent(
         NextPeriodAutoCommitBlockReason.KillSwitch => ProactiveMessageI18nKeys.NextPeriodAutoCommitBlockedKillSwitch,
         NextPeriodAutoCommitBlockReason.AutonomyLowered => ProactiveMessageI18nKeys.NextPeriodAutoCommitBlockedAutonomyLowered,
         NextPeriodAutoCommitBlockReason.Interrupted => ProactiveMessageI18nKeys.NextPeriodAutoCommitBlockedInterrupted,
+        NextPeriodAutoCommitBlockReason.HarmonizationSkipped => ProactiveMessageI18nKeys.NextPeriodAutoCommitBlockedHarmonizationSkipped,
         _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, "Unknown auto-commit block reason.")
     };
 }

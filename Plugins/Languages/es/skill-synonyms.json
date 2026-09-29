@@ -2089,7 +2089,10 @@
     "el wizard sigue ejecutándose",
     "estado del proceso de planificación",
     "saber si el asistente ya terminó",
-    "ver si el job del wizard está activo"
+    "ver si el job del wizard está activo",
+    "está listo el cuadrante",
+    "terminó la planificación automática",
+    "estado de la ejecución de planificación"
   ],
   "list_period_audit_log": [
     "protocolo de sellado de periodos",
@@ -2641,7 +2644,12 @@
     "rellenar horario automáticamente",
     "iniciar asistente de planificación",
     "planificar con autofill",
-    "crear propuesta de horario"
+    "crear propuesta de horario",
+    "planifica la semana",
+    "planificar la semana",
+    "planifica el mes",
+    "crear el cuadrante",
+    "planificar automáticamente"
   ],
   "start_company_rule": [
     "crear una nueva regla de empresa",

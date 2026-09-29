@@ -2100,7 +2100,10 @@
     "status van job 123",
     "is het plannen klaar",
     "loopt de autowizard nog",
-    "job voortgang controleren"
+    "job voortgang controleren",
+    "is het rooster klaar",
+    "is de planningsrun klaar",
+    "status van de planningsrun"
   ],
   "list_period_audit_log": [
     "protocol van periodeverzegelingen",
@@ -2645,7 +2648,11 @@
     "laat de wizard het rooster vullen",
     "genereer een voorstel voor de planning",
     "plan automatisch in",
-    "voer autofill uit voor de groep"
+    "voer autofill uit voor de groep",
+    "plan de week",
+    "plan de maand",
+    "maak het rooster",
+    "automatisch plannen"
   ],
   "start_company_rule": [
     "een nieuwe bedrijfsregel aanmaken",

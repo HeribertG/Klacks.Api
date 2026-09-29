@@ -2053,7 +2053,10 @@
     "adakah wizard masih berjalan?",
     "tunjukkan status terkini untuk job ini",
     "apakah status pelaksanaan wizard?",
-    "cek sama ada wizard dah selesai"
+    "cek sama ada wizard dah selesai",
+    "adakah jadual syif sudah siap",
+    "adakah proses perancangan sudah selesai",
+    "status proses perancangan"
   ],
   "list_period_audit_log": [
     "log pemeteraian tempoh",
@@ -2587,7 +2590,11 @@
     "autofill jadual kerja",
     "jana plan secara automatik",
     "buat cadangan jadual",
-    "hasilkan jadual auto"
+    "hasilkan jadual auto",
+    "rancang minggu",
+    "rancang bulan",
+    "buat jadual kerja",
+    "rancang secara automatik"
   ],
   "start_company_rule": [
     "cipta peraturan syarikat baharu",

@@ -2098,7 +2098,10 @@
     "kontrola wizard jobu",
     "status plánování",
     "je hotovo?",
-    "jak daleko je wizard"
+    "jak daleko je wizard",
+    "je rozpis směn hotový",
+    "skončilo plánování",
+    "stav plánovacího běhu"
   ],
   "list_period_audit_log": [
     "protokol pečetění období",
@@ -2648,7 +2651,11 @@
     "spustit autofill",
     "nechat naplánovat směny",
     "automaticky vytvořit plán",
-    "generovat návrh rozvrhu"
+    "generovat návrh rozvrhu",
+    "naplánuj týden",
+    "naplánuj měsíc",
+    "vytvoř rozpis směn",
+    "naplánuj automaticky"
   ],
   "start_company_rule": [
     "vytvořit nové firemní pravidlo",

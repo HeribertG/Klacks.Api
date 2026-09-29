@@ -2051,7 +2051,10 @@
     "xem trạng thái job wizard",
     "wizard đã chạy xong chưa",
     "job id 123 còn đang xử lý?",
-    "kiểm tra tiến độ phân ca"
+    "kiểm tra tiến độ phân ca",
+    "lịch trực đã xong chưa",
+    "lượt lập kế hoạch đã xong chưa",
+    "trạng thái lượt lập kế hoạch"
   ],
   "list_period_audit_log": [
     "nhật ký niêm phong kỳ",
@@ -2590,7 +2593,11 @@
     "tự động điền ca",
     "lập kế hoạch tự động",
     "chạy wizard tạo lịch",
-    "bắt đầu autofill cho nhóm"
+    "bắt đầu autofill cho nhóm",
+    "lập lịch tuần",
+    "lập lịch tháng",
+    "tạo lịch trực",
+    "xếp lịch tự động"
   ],
   "start_company_rule": [
     "tạo quy tắc công ty mới",

@@ -12729,7 +12729,7 @@
     {
       "name": "start_autowizard",
       "area": "wizard",
-      "description": "Runs the AutoWizard chain (Wizard 1 Planner + Wizard 2 Harmonizer + Wizard 3 Holistic Harmonizer) sequentially to auto-fill a schedule for a group and period. Mirrors what the 'Autofill-Assistent' button in the schedule header triggers: takes group and period, resolves visible agents and shifts automatically, kicks off the orchestrator job, returns the jobId. Final completion arrives via the AutoWizard SignalR hub (event OnCompleted).",
+      "description": "Plans a group's duty schedule automatically for a period - a week, an ISO calendar week (KW) or a month: fills the open shifts with suitable employees and harmonizes the result. Call this directly when the user asks to plan, fill or create the roster of a group for a period. The group may be given by its name and a calendar week by its number. Runs in the background and returns a jobId; the result is a proposal scenario the user reviews before the real schedule changes.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12737,26 +12737,50 @@
       ],
       "parameters": [
         {
-          "name": "groupId",
-          "description": "UUID of the group to plan for (e.g. the schedule view's selectedGroup like Bern).",
+          "name": "groupName",
+          "description": "Name of the group to plan as the user said it (e.g. 'Winterthur'); resolved with fuzzy matching. Pass it directly instead of looking up the group id first.",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "Optional UUID of the group to plan (e.g. the schedule view's selectedGroup); takes precedence over groupName.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "calendarWeek",
+          "description": "ISO calendar week number (1-53) when the user names a week such as 'KW 45' or 'week 45'; the skill resolves it to Monday..Sunday itself. Without a year it plans the next occurrence of that week (a week number already past this year means next year). Takes precedence over periodFrom/periodUntil.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "year",
+          "description": "Optional ISO week-based year of calendarWeek (e.g. 2027), only when the user names one; must be within one year of the current year. Omit it otherwise - the skill then picks the next occurrence of the week.",
+          "type": "Integer",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
           "name": "periodFrom",
-          "description": "Period start date in ISO format YYYY-MM-DD (e.g. 2026-05-01).",
+          "description": "Period start date in ISO format YYYY-MM-DD (e.g. 2026-11-02). Not needed when calendarWeek is given.",
           "type": "Date",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
           "name": "periodUntil",
-          "description": "Period end date in ISO format YYYY-MM-DD, inclusive (e.g. 2026-05-31).",
+          "description": "Period end date in ISO format YYYY-MM-DD, inclusive (e.g. 2026-11-08). Not needed when calendarWeek is given.",
           "type": "Date",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -12824,7 +12848,35 @@
           "vorschlag erzeugen",
           "automatisch planen",
           "autopilot",
-          "dienstplan automatisch"
+          "dienstplan automatisch",
+          "plane die woche",
+          "plane bitte die woche",
+          "plane die nächste woche",
+          "plane die kw",
+          "plane bitte die kw",
+          "plane die kalenderwoche",
+          "plane den monat",
+          "plane bitte den monat",
+          "plane den nächsten monat",
+          "woche planen",
+          "monat planen",
+          "kw planen",
+          "kalenderwoche planen",
+          "plane automatisch",
+          "dienstplan erstellen",
+          "erstelle den dienstplan",
+          "erstelle einen dienstplan",
+          "einsatzplan erstellen",
+          "planassistent",
+          "starte den planassistent",
+          "planassistent starten",
+          "füll mir bitte den dienstplan",
+          "füll den dienstplan",
+          "fülle den dienstplan",
+          "dienstplan ausfüllen",
+          "automatisch ausfüllen",
+          "fülle automatisch",
+          "füll automatisch"
         ],
         "en": [
           "autowizard",
@@ -12834,19 +12886,46 @@
           "plan the schedule",
           "run wizards",
           "autopilot",
-          "auto schedule"
+          "auto schedule",
+          "plan the week",
+          "plan next week",
+          "plan calendar week",
+          "plan the calendar week",
+          "plan the month",
+          "plan next month",
+          "plan automatically",
+          "create the roster",
+          "build the roster",
+          "create the duty roster",
+          "fill the roster automatically",
+          "fill the schedule automatically",
+          "start the planning assistant"
         ],
         "fr": [
           "auto-planification",
           "generer planning",
           "remplissage automatique",
-          "autopilote"
+          "autopilote",
+          "planifie la semaine",
+          "planifier la semaine",
+          "planifie le mois",
+          "planifier le mois",
+          "planifier automatiquement",
+          "créer le planning",
+          "établir le planning"
         ],
         "it": [
           "pianificazione automatica",
           "genera piano",
           "riempimento automatico",
-          "autopilota"
+          "autopilota",
+          "pianifica la settimana",
+          "pianificare la settimana",
+          "pianifica il mese",
+          "pianificare il mese",
+          "pianifica automaticamente",
+          "crea la pianificazione dei turni",
+          "crea il piano dei turni"
         ]
       },
       "labels": {
@@ -12855,7 +12934,7 @@
         "fr": "Démarrer l'assistant de remplissage automatique",
         "it": "Avvia l'assistente di riempimento automatico"
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "place_work",
@@ -13562,7 +13641,7 @@
     {
       "name": "list_scenarios",
       "area": "schedule",
-      "description": "Lists AnalyseScenarios, optionally filtered by group. Use after start_autowizard finishes to show the user what's available to accept or reject. By default only open (Active) scenarios are returned so already accepted/rejected ones are hidden; pass onlyOpen=false to include the full history. Returns each scenario's id, name, token, status, group, and create time. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Lists AnalyseScenarios (proposal plans) of all groups the user may see, or of one group. Use it to show which proposals - e.g. the result of an automatic planning run - wait to be accepted or rejected. Only open (Active) ones by default; onlyOpen=false adds the history. Returns id, name, description (notes a failed or partial run), token, status, group, period. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13571,7 +13650,7 @@
       "parameters": [
         {
           "name": "groupId",
-          "description": "Optional group UUID filter. If omitted, returns scenarios across all groups.",
+          "description": "Optional group UUID filter. If omitted, returns the scenarios of all groups the user may see.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -13633,7 +13712,7 @@
         "fr": "Lister les scénarios de planification",
         "it": "Elenca gli scenari di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "approve_day",
@@ -14532,7 +14611,7 @@
     {
       "name": "list_open_wizard_jobs",
       "area": "wizard",
-      "description": "Polls each wizard registry (AutoWizard / Wizard 1 / Wizard 2 / Wizard 3) for a given jobId and returns whether it is still running. Used after start_autowizard or start_wizardN to check status without waiting for the SignalR hub event. Registries are in-memory ConcurrentDictionaries without an enumeration API; pass a concrete jobId.",
+      "description": "Reports the status of an automatic planning (wizard) job by its jobId: still running, completed (and whether the holistic harmonization was skipped), failed with its reason, or cancelled - plus the resulting scenario that can be accepted. Use it when the user asks whether the planning run is finished or what came out of it.",
       "category": "Read",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14541,7 +14620,7 @@
       "parameters": [
         {
           "name": "jobId",
-          "description": "Optional UUID. If omitted returns a hint that enumeration is unsupported.",
+          "description": "UUID of the job returned when the planning run was started.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -14566,14 +14645,19 @@
           "plan status",
           "läuft noch",
           "job status",
-          "fertig"
+          "fertig",
+          "ist der plan fertig",
+          "planung fertig",
+          "planungslauf"
         ],
         "en": [
           "wizard status",
           "plan status",
           "still running",
           "job status",
-          "done yet"
+          "done yet",
+          "is the plan ready",
+          "planning run"
         ],
         "fr": [
           "statut du wizard",
@@ -14590,7 +14674,7 @@
         "fr": "Vérifier le statut d'un job d'assistant",
         "it": "Verifica lo stato di un job wizard"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "bulk_add_absence_for_group",
@@ -17340,7 +17424,7 @@
     {
       "name": "read_schedule_state",
       "area": "schedule",
-      "description": "Reads the actual schedule grid of a group + period: which employee is assigned to which shift on which day, including lock level and group-restriction flags. Use this to SEE the current plan before answering questions about assignments, gaps or before proposing changes. Optional analyseToken reads an isolated scenario instead of the real plan. Returns the assigned entries (not the empty slots); each entry carries its Id.",
+      "description": "Reads the actual schedule grid of a group + period: which employee is assigned to which shift on which day, including lock level and group-restriction flags. Use this to SEE the current plan before answering questions about assignments or gaps. It only reads: it never plans, fills or changes the schedule. Optional analyseToken reads an isolated scenario instead of the real plan. Returns the assigned entries (not the empty slots); each entry carries its Id.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17433,7 +17517,7 @@
         "fr": "Lire l'état actuel du planning",
         "it": "Leggi lo stato attuale del planning"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "detect_conflicts",
@@ -17722,7 +17806,7 @@
     {
       "name": "propose_plan",
       "area": "schedule",
-      "description": "Materializes a set of chosen placements into an isolated AnalyseScenario for supervised approval, then leave it for accept_scenario / reject_scenario. Does NOT find gaps — choose placements first (e.g. with read_schedule_state + find_replacement); for bulk auto-fill use start_autowizard.",
+      "description": "Materializes a set of already chosen placements (client, shift, date) into an isolated AnalyseScenario for supervised approval. Only for placements the conversation has picked one by one: it does NOT find gaps and does NOT plan or fill a whole week or month automatically.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17811,7 +17895,7 @@
         "fr": "Proposer des affectations sous forme de scénario",
         "it": "Proponi assegnazioni come scenario"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "cover_absence",

@@ -17,6 +17,8 @@
 /// watcher reads the decision's gate, it never re-checks any of those four inputs itself. The accept is
 /// not anonymous either: it is sent under the admin whose preference released the run, and the same id
 /// is recorded as the ledger row's approving user.
+/// A chain that completed without its holistic harmonization (HarmonizationSkipped) is never accepted
+/// automatically: it is reported with its own block reason and stays a draft for a human.
 /// EVERY way of not committing raises a NextPeriodAutoCommitBlockedTriggerEvent with its own reason.
 /// A silent failure is the one outcome this branch must never produce - the planners would keep
 /// believing the period was committed while it is still a draft.
@@ -155,6 +157,24 @@ public sealed class NextPeriodAutoCommitService : INextPeriodAutoCommitService
                 BlockedEvent(
                     groupId, groupName, periodStart, periodEnd, null, NoNewIssues,
                     NextPeriodAutoCommitBlockReason.NotCommittable),
+                cancellationToken);
+
+            return;
+        }
+
+        if (terminal.Result.HarmonizationSkipped)
+        {
+            // Owner decision: the autonomy consent covers the full chain. A plan whose holistic harmonization
+            // was skipped - no model, a text-only model - is a usable draft, but not the plan that consent
+            // was given for, so it waits for a human instead of being accepted automatically.
+            _logger.LogWarning(
+                "NextPeriodAutoCommit: job {JobId} for group {GroupName} completed without the holistic harmonization ({Reason}); scenario {ScenarioId} stays a draft",
+                jobId, groupName, terminal.Result.HarmonizationSkippedReason, scenarioId);
+
+            await PublishBlockedAsync(
+                BlockedEvent(
+                    groupId, groupName, periodStart, periodEnd, scenarioId, NoNewIssues,
+                    NextPeriodAutoCommitBlockReason.HarmonizationSkipped),
                 cancellationToken);
 
             return;

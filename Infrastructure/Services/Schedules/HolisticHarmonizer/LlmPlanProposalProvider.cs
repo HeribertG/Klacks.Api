@@ -253,7 +253,7 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         var capabilityError = ValidateVisionResponse(content, expectedToken);
         if (capabilityError is not null)
         {
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, capabilityError);
+            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, capabilityError, AnsweredButFailedImageCheck: true);
         }
 
         return new PlanProposalPingResult(true, stopwatch.ElapsedMilliseconds, null);

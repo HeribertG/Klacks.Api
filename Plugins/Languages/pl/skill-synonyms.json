@@ -2107,7 +2107,9 @@
     "czy planowanie się zakończyło",
     "status zadania wizarda",
     "czy wizard jeszcze działa",
-    "jaki jest postęp planowania"
+    "jaki jest postęp planowania",
+    "czy grafik jest gotowy",
+    "status przebiegu planowania"
   ],
   "list_period_audit_log": [
     "dziennik pieczętowania okresów",
@@ -2666,7 +2668,11 @@
     "generuj propozycję planu",
     "zaplanuj automatycznie dla grupy",
     "stwórz plan autofill",
-    "wykonaj autowizard na okres"
+    "wykonaj autowizard na okres",
+    "zaplanuj tydzień",
+    "zaplanuj miesiąc",
+    "utwórz grafik",
+    "zaplanuj automatycznie"
   ],
   "start_company_rule": [
     "utwórz nową regułę firmową",

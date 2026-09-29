@@ -2079,7 +2079,10 @@
     "încă rulează planificarea?",
     "statusul jobului wizard",
     "s-a terminat wizard-ul?",
-    "arată dacă wizard-ul este activ"
+    "arată dacă wizard-ul este activ",
+    "este gata programul de ture",
+    "s-a terminat rularea planificării",
+    "starea rulării planificării"
   ],
   "list_period_audit_log": [
     "jurnalul sigilării perioadelor",
@@ -2618,7 +2621,11 @@
     "planifică automat programul",
     "generează propunerea de plan",
     "rulează asistentul de planificare",
-    "auto-completează schimburile"
+    "auto-completează schimburile",
+    "planifică săptămâna",
+    "planifică luna",
+    "creează programul de ture",
+    "planifică automat"
   ],
   "start_company_rule": [
     "creează o nouă regulă de companie",

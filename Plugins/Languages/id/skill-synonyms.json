@@ -2044,7 +2044,10 @@
     "apakah job wizard selesai",
     "lihat progres perencanaan",
     "cek apakah proposan siap",
-    "status job wizard"
+    "status job wizard",
+    "apakah jadwal shift sudah siap",
+    "apakah proses perencanaan sudah selesai",
+    "status proses perencanaan"
   ],
   "list_period_audit_log": [
     "log penyegelan periode",
@@ -2576,7 +2579,11 @@
     "buat jadwal otomatis",
     "generate rencana shift dengan wizard",
     "autofill jadwal untuk grup",
-    "jalankan auto plan untuk periode tertentu"
+    "jalankan auto plan untuk periode tertentu",
+    "rencanakan minggu",
+    "rencanakan bulan",
+    "buat jadwal kerja",
+    "rencanakan otomatis"
   ],
   "start_company_rule": [
     "buat aturan perusahaan baru",

@@ -2050,7 +2050,10 @@
     "sjekk status på veiviserjobb",
     "kjører veiviseren fortsatt?",
     "status for jobb",
-    "er planleggingsjobben ferdig?"
+    "er planleggingsjobben ferdig?",
+    "er vaktplanen ferdig",
+    "er planleggingskjøringen ferdig",
+    "status for planleggingskjøringen"
   ],
   "list_period_audit_log": [
     "protokoll over periodeforseglinger",
@@ -2586,7 +2589,11 @@
     "generer forslag til skiftplan",
     "kjør autofill-assistenten",
     "planlegg automagisk",
-    "lag forslag med autowizard"
+    "lag forslag med autowizard",
+    "planlegg uken",
+    "planlegg måneden",
+    "lag vaktplanen",
+    "planlegg automatisk"
   ],
   "start_company_rule": [
     "opprett en ny bedriftsregel",

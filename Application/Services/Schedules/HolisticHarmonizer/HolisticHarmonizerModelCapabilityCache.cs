@@ -7,7 +7,8 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <summary>
 /// Remembers per model whether it can actually read the schedule bitmap image. The capability check is a
 /// full PNG round-trip that costs up to 90 seconds, so it must not run on every job. Negative verdicts
-/// expire quickly so a freshly repaired API key is not locked out for hours.
+/// expire quickly so a freshly repaired API key is not locked out for hours. A negative verdict is only ever
+/// stored for a model that answered the image round-trip wrongly - never for a timeout or an unavailable provider.
 /// </summary>
 public sealed class HolisticHarmonizerModelCapabilityCache
 {

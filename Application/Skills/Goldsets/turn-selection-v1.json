@@ -4717,6 +4717,96 @@
         }
       ],
       "comment": "direct call of the grouping check without the recipe: named group and period, no check verb"
+    },
+    {
+      "id": "live-2026-09-29-autowizard-week-dates",
+      "message": "Plane bitte die Woche vom 2. bis 8. November 2026 für Winterthur.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "start_autowizard",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "groupName",
+          "match": "contains",
+          "value": "Winterthur"
+        },
+        {
+          "name": "periodFrom",
+          "match": "exact",
+          "value": "2026-11-02"
+        }
+      ],
+      "source": "curated",
+      "comment": "Live miss 2026-09-29 (marketing video): the natural week-planning request only reached read_schedule_state; the group is named, not given as id.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "live-2026-09-29-autowizard-calendar-week",
+      "message": "Plane die KW 45 für Winterthur automatisch.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "start_autowizard",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "groupName",
+          "match": "contains",
+          "value": "Winterthur"
+        },
+        {
+          "name": "calendarWeek",
+          "match": "exact",
+          "value": "45"
+        }
+      ],
+      "source": "curated",
+      "comment": "Live miss 2026-09-29: calendar-week request without dates; the skill resolves the ISO week itself.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "live-2026-09-29-autowizard-planning-assistant",
+      "message": "Starte den Planassistenten für Winterthur vom 2. bis 8. November 2026.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "start_autowizard",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "groupName",
+          "match": "contains",
+          "value": "Winterthur"
+        }
+      ],
+      "source": "curated",
+      "comment": "Live 2026-09-29: chosen only 3 of 4 times; the explain skill of the planning assistant competed for the same words.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-autowizard-plan-week-en",
+      "message": "Plan the week from November 2 to 8 for the Winterthur team, please.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "start_autowizard",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "groupName",
+          "match": "contains",
+          "value": "Winterthur"
+        }
+      ],
+      "source": "curated",
+      "comment": "English counterpart of the live week-planning miss.",
+      "tags": [
+        "crud"
+      ]
     }
   ]
 }

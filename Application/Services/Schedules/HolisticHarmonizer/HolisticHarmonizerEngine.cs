@@ -77,22 +77,7 @@ public sealed class HolisticHarmonizerEngine
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
 
-        // A text ping only proves the model answers at all - a text-only model passes it and then fails
-        // on every bitmap. On a cache miss the (expensive, up to 90 s) capability round-trip runs instead
-        // and subsumes the ping; on the first run per model that shortens the inner loop, which is
-        // accepted because the verdict is then cached for hours.
-        PlanProposalPingResult ping;
-        if (_capabilityCache.TryGet(request.LlmModelId, out var cachedCapable, out var cachedError))
-        {
-            ping = cachedCapable
-                ? await _proposalProvider.PingAsync(request.LlmModelId, cancellationToken)
-                : new PlanProposalPingResult(IsHealthy: false, LatencyMs: 0, Error: $"model is not vision-capable: {cachedError}");
-        }
-        else
-        {
-            ping = await _proposalProvider.CapabilityCheckAsync(request.LlmModelId, cancellationToken);
-            _capabilityCache.Store(request.LlmModelId, ping.IsHealthy, ping.Error);
-        }
+        var ping = await RunPreflightAsync(request.LlmModelId, cancellationToken);
 
         _logger.LogInformation(
             "Holistic Harmonizer pre-flight: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
@@ -359,6 +344,32 @@ public sealed class HolisticHarmonizerEngine
             LlmParsingError: lastParsingError,
             LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null,
             AbortedOnUnusableResponses: abortedOnUnusableResponses);
+    }
+
+    /// <summary>
+    /// A text ping only proves the model answers at all - a text-only model passes it and then fails on every
+    /// bitmap. On a cache miss the (expensive, up to 90 s) capability round-trip runs instead and subsumes the
+    /// ping; on the first run per model that shortens the inner loop, which is accepted because the verdict is
+    /// then cached for hours. Only a real verdict is cached: a timeout or an unavailable provider says nothing
+    /// about vision, and caching it as "not vision-capable" would make readers treat a transient outage as a
+    /// text-only model.
+    /// </summary>
+    private async Task<PlanProposalPingResult> RunPreflightAsync(string modelId, CancellationToken cancellationToken)
+    {
+        if (_capabilityCache.TryGet(modelId, out var cachedCapable, out var cachedError))
+        {
+            return cachedCapable
+                ? await _proposalProvider.PingAsync(modelId, cancellationToken)
+                : new PlanProposalPingResult(IsHealthy: false, LatencyMs: 0, Error: $"model is not vision-capable: {cachedError}", AnsweredButFailedImageCheck: true);
+        }
+
+        var ping = await _proposalProvider.CapabilityCheckAsync(modelId, cancellationToken);
+        if (ping.IsHealthy || ping.AnsweredButFailedImageCheck)
+        {
+            _capabilityCache.Store(modelId, ping.IsHealthy, ping.Error);
+        }
+
+        return ping;
     }
 
     internal static string BuildAgentSummary(HarmonyBitmap bitmap)

@@ -2088,7 +2088,10 @@
     "consultar o andamento do job do wizard",
     "o trabalho do wizard terminou?",
     "status da execução do wizard",
-    "o job ainda está em processamento?"
+    "o job ainda está em processamento?",
+    "a escala está pronta",
+    "a execução do planejamento terminou",
+    "status da execução do planejamento"
   ],
   "list_period_audit_log": [
     "protocolo de selagem de períodos",
@@ -2637,7 +2640,12 @@
     "executar autofill",
     "rodar assistente de planejamento",
     "criar sugestão de escala",
-    "preencher cronograma via wizard"
+    "preencher cronograma via wizard",
+    "planejar a semana",
+    "planeje a semana",
+    "planejar o mês",
+    "criar a escala",
+    "planejar automaticamente"
   ],
   "start_company_rule": [
     "criar uma nova regra da empresa",

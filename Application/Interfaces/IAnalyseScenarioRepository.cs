@@ -3,7 +3,7 @@
 /// <summary>
 /// Repository interface for AnalyseScenario CRUD and query operations.
 /// </summary>
-/// <param name="GetByGroupAsync">Returns scenarios, optionally filtered by group. Null returns all scenarios.</param>
+/// <param name="GetByGroupAsync">Returns the scenarios of exactly this group; null returns only the group-less scenarios.</param>
 /// <param name="GetByTokenAsync">Returns a scenario by its unique token</param>
 
 using Klacks.Api.Domain.Interfaces;
@@ -14,6 +14,29 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IAnalyseScenarioRepository : IBaseRepository<AnalyseScenario>
 {
     Task<List<AnalyseScenario>> GetByGroupAsync(Guid? groupId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Scenarios for the assistant's scenario list, filtered in the database: not deleted, optionally one group
+    /// only, optionally only the open (Active) ones, and - for a caller with a restricted group scope - only the
+    /// scenarios of groups under the visible roots (group-less scenarios span all groups and are left out).
+    /// Newest first, each with its group loaded.
+    /// </summary>
+    /// <param name="groupId">Only this group's scenarios; null for every group.</param>
+    /// <param name="onlyOpen">True to return only Active scenarios.</param>
+    /// <param name="visibleRootIds">Root group ids the caller may see; null when the caller is unrestricted.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<List<AnalyseScenario>> ListVisibleAsync(
+        Guid? groupId, bool onlyOpen, IReadOnlyCollection<Guid>? visibleRootIds, CancellationToken ct = default);
+
+    /// <summary>
+    /// Active, not deleted scenarios created inside a window - the proposals that wait for an answer. Filtered
+    /// in the database, each with its group loaded; scenarios without a create time are left out.
+    /// </summary>
+    /// <param name="createdAfterUtc">Oldest create time still reported (exclusive lower bound).</param>
+    /// <param name="createdBeforeUtc">Newest create time reported (inclusive upper bound).</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<List<AnalyseScenario>> GetActiveCreatedBetweenAsync(
+        DateTime createdAfterUtc, DateTime createdBeforeUtc, CancellationToken ct = default);
     Task<AnalyseScenario?> GetByTokenAsync(Guid token, CancellationToken ct = default);
 
     /// <summary>

@@ -36,6 +36,9 @@ public sealed class GroupScopeAccess
 
     public IReadOnlyList<string> VisibleRootNames { get; }
 
+    /// <summary>Root group ids the caller may act on; empty when unrestricted.</summary>
+    public IReadOnlyCollection<Guid> VisibleRootIds => _visibleRootIds;
+
     public static GroupScopeAccess Unrestricted() => new(true, [], []);
 
     public static GroupScopeAccess Restricted(

@@ -45,6 +45,17 @@ public sealed class JobTerminalStateCache<TResult>
     public Task StoreFailedAsync(Guid jobId, string reason, CancellationToken cancellationToken = default) =>
         StoreAsync(jobId, WizardJobStatusValues.Failed, null, reason, cancellationToken);
 
+    /// <summary>
+    /// Records a failure that still left something usable behind, e.g. the partial scenario of a chain that
+    /// stopped in a later stage. The result travels next to the reason so a status poll can point at it.
+    /// </summary>
+    /// <param name="jobId">The failed job.</param>
+    /// <param name="reason">Why the job failed.</param>
+    /// <param name="partialResult">What the job produced before it failed; null when nothing.</param>
+    /// <param name="cancellationToken">Cancels the store.</param>
+    public Task StoreFailedAsync(Guid jobId, string reason, TResult? partialResult, CancellationToken cancellationToken = default) =>
+        StoreAsync(jobId, WizardJobStatusValues.Failed, partialResult, reason, cancellationToken);
+
     public async Task<JobTerminalState<TResult>> TryGetAsync(Guid jobId, CancellationToken cancellationToken = default)
     {
         try

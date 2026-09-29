@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
+using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
 
@@ -55,6 +56,44 @@ public static class AutoWizardStageOutcomePlanner
             partial?.Token,
             partial?.Name);
     }
+
+    /// <summary>
+    /// Decides whether a failed Holistic Harmonizer stage degrades to "completed without harmonization"
+    /// instead of failing the chain. Only a missing prerequisite (no model, or a model now known to be
+    /// text-only) degrades: the Harmonizer result is then a complete plan and the third stage could never
+    /// have improved it. Any other stage failure stays a failure of the chain.
+    /// </summary>
+    /// <param name="readinessAfterFailure">Holistic Harmonizer readiness re-checked after the stage failed.</param>
+    public static bool ShouldSkipHolisticStageAfterFailure(HolisticHarmonizerReadiness readinessAfterFailure)
+        => !readinessAfterFailure.IsReady;
+
+    /// <summary>
+    /// The partial result stored next to a failure so a status poll can name the scenario the operator may
+    /// still accept. Null when the chain failed before any stage produced a scenario.
+    /// </summary>
+    /// <param name="failure">The failure report.</param>
+    /// <param name="elapsedMs">Wall-clock duration of the chain until it failed.</param>
+    public static AutoWizardJobResultDto? BuildPartialResult(AutoWizardJobFailureDto failure, long elapsedMs)
+        => failure.PartialScenarioId is null
+            ? null
+            : new AutoWizardJobResultDto(
+                JobId: failure.JobId,
+                FinalScenarioId: failure.PartialScenarioId,
+                FinalScenarioToken: failure.PartialScenarioToken,
+                FinalScenarioName: failure.PartialScenarioName,
+                ElapsedMs: elapsedMs,
+                QualificationGaps: [],
+                ComplianceViolations: [],
+                ComplianceSkippedPlacements: []);
+
+    /// <summary>
+    /// Note written onto the final scenario when the holistic harmonization was skipped. The chat history
+    /// replays no tool results, so the job id of a run is usually gone on a later turn; the scenario itself
+    /// is what the assistant finds again, and it has to carry the outcome.
+    /// </summary>
+    /// <param name="skippedReason">Why the holistic harmonization was skipped.</param>
+    public static string BuildHarmonizationSkippedNote(string skippedReason)
+        => $"AutoWizard completed without the holistic harmonization (stage 3 skipped: {skippedReason})";
 
     /// <summary>
     /// Human-readable failure text for the status endpoint, which stays string-based.

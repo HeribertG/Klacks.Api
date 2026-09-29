@@ -34,5 +34,11 @@ public enum NextPeriodAutoCommitBlockReason
     AutonomyLowered = 6,
 
     /// <summary>The watcher itself is gone (API restart) while its scenario is still an unaccepted draft.</summary>
-    Interrupted = 7
+    Interrupted = 7,
+
+    /// <summary>
+    /// The chain completed, but without its holistic harmonization (stage 3 was skipped). The scenario is the
+    /// Harmonizer result, not the fully harmonized plan the autonomy consent was given for, so it stays a draft.
+    /// </summary>
+    HarmonizationSkipped = 8
 }

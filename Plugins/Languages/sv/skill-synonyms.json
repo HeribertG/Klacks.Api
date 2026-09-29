@@ -2071,7 +2071,10 @@
     "status på wizardjobbet",
     "är wizardjobbet klart",
     "visa körstatus för jobbet",
-    "kolla om wizardsökningen är färdig"
+    "kolla om wizardsökningen är färdig",
+    "är schemat klart",
+    "är planeringskörningen klar",
+    "status för planeringskörningen"
   ],
   "list_period_audit_log": [
     "protokoll över periodförseglingar",
@@ -2606,7 +2609,11 @@
     "autofyll schemat för maj",
     "planera skift med autowizard",
     "starta automatisk planering",
-    "generera schemaförslag via wizards"
+    "generera schemaförslag via wizards",
+    "planera veckan",
+    "planera månaden",
+    "skapa schemat",
+    "planera automatiskt"
   ],
   "start_company_rule": [
     "skapa en ny företagsregel",

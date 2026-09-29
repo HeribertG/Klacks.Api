@@ -19,6 +19,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="QualificationGaps">Assignments in the final plan whose agent lacks a required mandatory qualification.</param>
 /// <param name="ComplianceViolations">Compliance warnings the Wizard-1 stage surfaced while materialising its scenario.</param>
 /// <param name="ComplianceSkippedPlacements">Placements the Wizard-1 stage's compliance partition blocked.</param>
+/// <param name="HarmonizationSkipped">True when the holistic harmonization (Wizard 3) did not run or could not work, so the final scenario is the Harmonizer (Wizard 2) result.</param>
+/// <param name="HarmonizationSkippedReason">Why the holistic harmonization was skipped; null when it ran.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
@@ -27,4 +29,6 @@ public sealed record AutoWizardJobResultDto(
     long ElapsedMs,
     IReadOnlyList<QualificationGapDetail> QualificationGaps,
     IReadOnlyList<ScheduleValidationNotificationDto> ComplianceViolations,
-    IReadOnlyList<SkippedPlacementDto> ComplianceSkippedPlacements);
+    IReadOnlyList<SkippedPlacementDto> ComplianceSkippedPlacements,
+    bool HarmonizationSkipped = false,
+    string? HarmonizationSkippedReason = null);

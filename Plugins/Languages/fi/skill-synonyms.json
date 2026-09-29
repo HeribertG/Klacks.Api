@@ -2077,7 +2077,10 @@
     "näytä wizardin tila",
     "onko työ valmis",
     "tarkista wizard-työn tila",
-    "onko suunnittelu valmis"
+    "onko suunnittelu valmis",
+    "onko työvuorolista valmis",
+    "onko suunnitteluajo valmis",
+    "suunnitteluajon tila"
   ],
   "list_period_audit_log": [
     "jaksojen sinetöintiloki",
@@ -2621,7 +2624,11 @@
     "käynnistä autowizard",
     "tee ehdotus vuorolistasta",
     "automaattinen suunnittelu",
-    "luo ehdotus automaattisesti"
+    "luo ehdotus automaattisesti",
+    "suunnittele viikko",
+    "suunnittele kuukausi",
+    "luo työvuorolista",
+    "suunnittele automaattisesti"
   ],
   "start_company_rule": [
     "luo uusi yrityssääntö",

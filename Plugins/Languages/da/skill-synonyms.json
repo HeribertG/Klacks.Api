@@ -2074,7 +2074,10 @@
     "status på planlægningsjob",
     "er jobbet færdigt?",
     "tjek wizard-status for job-id",
-    "er planen færdig?"
+    "er planen færdig?",
+    "er vagtplanen færdig",
+    "er planlægningskørslen færdig",
+    "status for planlægningskørslen"
   ],
   "list_period_audit_log": [
     "protokol over periodeforseglinger",
@@ -2612,7 +2615,10 @@
     "planlæg automatisk",
     "autofill skema",
     "generer forslag til vagtplan",
-    "start automatisk planlægning"
+    "start automatisk planlægning",
+    "planlæg ugen",
+    "planlæg måneden",
+    "lav vagtplanen"
   ],
   "start_company_rule": [
     "opret ny virksomhedsregel",
