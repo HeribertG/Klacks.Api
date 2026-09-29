@@ -16,6 +16,7 @@ namespace Klacks.Api.Data.Seed
             MacrosSeed.SeedData(migrationBuilder);
             CalendarRulesSeed.SeedData(migrationBuilder);
             AdditionalCalendarRulesSeed.SeedData(migrationBuilder);
+            UnofficialHolidayDescriptionsSql.Apply(migrationBuilder);
             AbsencesSeed.SeedData(migrationBuilder);
             QualificationsSeed.SeedData(migrationBuilder);
             ReportTemplatesSeed.SeedData(migrationBuilder);
