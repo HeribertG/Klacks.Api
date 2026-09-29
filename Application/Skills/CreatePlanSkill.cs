@@ -2,19 +2,19 @@
 
 /// <summary>
 /// Chat skill that turns a free-text goal into a multi-step AgentPlan. On the first call it decomposes
-/// and persists the plan as a draft, renders the steps as a numbered proposal and stores the EXECUTION
-/// as a one-time pending confirmation (override-flag pattern) — it never runs the plan. Only after the
+/// the goal in memory; only when the draft contains at least one step is it persisted as a draft (an
+/// empty draft is discarded, never stored). The steps are then rendered as a numbered proposal and the
+/// EXECUTION is stored as a one-time pending confirmation (override-flag pattern) — it never runs the plan. Only after the
 /// user confirms and confirm_pending_action replays this skill with the override flag does the
 /// fire-and-forget execution start (same launch path the AgentPlansController uses). The token is
 /// marked as issued-this-turn so it cannot be redeemed in the same turn it was proposed.
 /// </summary>
 /// <param name="planChatService">Shared create-and-start plan lifecycle.</param>
-/// <param name="planRepository">Loads the drafted plan on the confirmed execution replay.</param>
+/// <param name="planRepository">Persists a non-empty draft and loads it again on the confirmed execution replay.</param>
 /// <param name="confirmationStore">Mints the one-time execution confirmation token.</param>
 /// <param name="turnScope">Blocks same-turn redemption of the freshly issued token.</param>
 
 using System.Text;
-using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant.Planning;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -77,16 +77,18 @@ public class CreatePlanSkill : BaseSkillImplementation
 
         var sessionId = Guid.TryParse(context.SessionId, out var s) ? s : (Guid?)null;
 
-        var plan = await _planChatService.CreatePlanAsync(
+        var plan = await _planChatService.DraftPlanAsync(
             goal, context.UserId.ToString(), sessionId, cancellationToken);
 
-        var steps = ParseStepLabels(plan.StepsJson);
+        var steps = BuildStepLabels(plan.StepsJson);
         if (steps.Count == 0)
         {
             return SkillResult.Error(
                 "I could not break this goal down into concrete steps from the available skills. " +
                 "Please rephrase the request or split it into individual actions.");
         }
+
+        await _planRepository.AddAsync(plan, cancellationToken);
 
         var pendingParameters = new Dictionary<string, object>
         {
@@ -165,60 +167,12 @@ public class CreatePlanSkill : BaseSkillImplementation
             "Plan execution started. Progress will stream to the plan panel; tell the user it is running now.");
     }
 
-    private static List<string> ParseStepLabels(string stepsJson)
+    private static List<string> BuildStepLabels(string stepsJson)
     {
-        var labels = new List<string>();
-        if (string.IsNullOrWhiteSpace(stepsJson) || stepsJson == "[]")
-        {
-            return labels;
-        }
-
-        try
-        {
-            using var doc = JsonDocument.Parse(stepsJson);
-            if (doc.RootElement.ValueKind != JsonValueKind.Array)
-            {
-                return labels;
-            }
-
-            foreach (var element in doc.RootElement.EnumerateArray())
-            {
-                if (element.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var skill = ReadString(element, "Skill", "skill");
-                if (string.IsNullOrWhiteSpace(skill))
-                {
-                    continue;
-                }
-
-                var verify = ReadString(element, "VerifySkill", "verifySkill");
-                var label = string.IsNullOrWhiteSpace(verify)
-                    ? skill
-                    : $"{skill} (verified with {verify})";
-                labels.Add(label!);
-            }
-        }
-        catch (JsonException)
-        {
-            return labels;
-        }
-
-        return labels;
-    }
-
-    private static string? ReadString(JsonElement element, params string[] names)
-    {
-        foreach (var name in names)
-        {
-            if (element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
-            {
-                return value.GetString();
-            }
-        }
-
-        return null;
+        return PlanStepsJson.Parse(stepsJson)
+            .Select(step => string.IsNullOrWhiteSpace(step.VerifySkill)
+                ? step.Skill
+                : $"{step.Skill} (verified with {step.VerifySkill})")
+            .ToList();
     }
 }

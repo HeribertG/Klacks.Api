@@ -8,8 +8,8 @@
 /// path. Progress is streamed via SignalR PlanUpdated events; each running execution is tracked in
 /// IPlanExecutionRegistry so an abort can cancel it cooperatively between steps.
 /// </summary>
-/// <param name="planChatService">Shared create-and-start plan lifecycle (create, provider resolution, launch).</param>
-/// <param name="planRepository">Persists the plan + lookups for list/single endpoints.</param>
+/// <param name="planChatService">Shared plan lifecycle (draft, provider resolution, launch).</param>
+/// <param name="planRepository">Persists a non-empty drafted plan + lookups for list/single endpoints.</param>
 /// <param name="executor">Runs the steps one by one with HITL gating.</param>
 /// <param name="executionRegistry">Tracks running executions so an abort can cancel them.</param>
 /// <param name="logger">Structured log of controller-side plan lifecycle events.</param>
@@ -33,6 +33,8 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAssistant)]
 public class AgentPlansController : ControllerBase
 {
+    private const string EmptyPlanMessage = "The goal could not be broken down into steps from the available skills.";
+
     private readonly IPlanChatService _planChatService;
     private readonly IAgentPlanRepository _planRepository;
     private readonly IPlanStepExecutor _executor;
@@ -70,7 +72,13 @@ public class AgentPlansController : ControllerBase
         var userId = GetCurrentUserId();
         var sessionGuid = Guid.TryParse(request.SessionId, out var s) ? s : (Guid?)null;
 
-        var plan = await _planChatService.CreatePlanAsync(request.Goal, userId, sessionGuid, cancellationToken);
+        var plan = await _planChatService.DraftPlanAsync(request.Goal, userId, sessionGuid, cancellationToken);
+        if (PlanStepsJson.CountSteps(plan.StepsJson) == 0)
+        {
+            return UnprocessableEntity(EmptyPlanMessage);
+        }
+
+        await _planRepository.AddAsync(plan, cancellationToken);
 
         var skillContext = BuildSkillExecutionContext(userId, providerResolution.ProviderId);
         _planChatService.StartBackgroundExecution(plan.Id, skillContext, resume: false);

@@ -2,9 +2,9 @@
 
 /// <summary>
 /// Shared plan lifecycle used by both the AgentPlansController and the create_plan chat skill so the
-/// create-and-start path lives in one place. CreatePlanAsync decomposes a goal and persists the plan
-/// WITHOUT running it; ResolveExecutionProviderAsync attributes the execution to the default model's
-/// provider; StartBackgroundExecution kicks off the fire-and-forget executor tracked in the shared
+/// create-and-start path lives in one place. DraftPlanAsync decomposes a goal WITHOUT persisting or
+/// running it, so callers inspect the drafted steps first and persist only a plan that has at least one;
+/// ResolveExecutionProviderAsync attributes the execution to the default model's provider; StartBackgroundExecution kicks off the fire-and-forget executor tracked in the shared
 /// IPlanExecutionRegistry so an abort can cancel it cooperatively.
 /// </summary>
 
@@ -15,7 +15,7 @@ namespace Klacks.Api.Application.Services.Assistant.Planning;
 
 public interface IPlanChatService
 {
-    Task<AgentPlan> CreatePlanAsync(
+    Task<AgentPlan> DraftPlanAsync(
         string goal,
         string userId,
         Guid? sessionId,
