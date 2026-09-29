@@ -22,14 +22,36 @@ public static class ScheduleValidationBuilder
         string clientName,
         SchedulingPolicy policy)
     {
+        AddRestViolations(entries, timeline, clientName, policy, DateOnly.MinValue, DateOnly.MaxValue);
+    }
+
+    /// <summary>
+    /// Reports only the rest violations whose previous block is owned by a day within
+    /// [<paramref name="reportFrom"/>, <paramref name="reportTo"/>]. The entry is dated with that owner
+    /// day, so a caller that loads a wider timeline than it wants to report on (to see pairs across the
+    /// day boundary) can restrict the output to exactly the dates its recipients will clear.
+    /// </summary>
+    /// <param name="reportFrom">First owner day of the previous block that is reported (inclusive)</param>
+    /// <param name="reportTo">Last owner day of the previous block that is reported (inclusive)</param>
+    public static void AddRestViolations(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        SchedulingPolicy policy,
+        DateOnly reportFrom,
+        DateOnly reportTo)
+    {
         foreach (var violation in timeline.GetRestViolations(policy.MinRestHours))
         {
+            var ownerDate = violation.PreviousBlock.OwnerDate;
+            if (ownerDate < reportFrom || ownerDate > reportTo) continue;
+
             entries.Add(new ScheduleValidationNotificationDto
             {
                 Type = ScheduleValidationType.Warning,
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
-                Date = violation.PreviousBlock.OwnerDate,
+                Date = ownerDate,
                 Comment = ScheduleValidationKeys.RestViolation,
                 CommentParams = new Dictionary<string, string>
                 {
