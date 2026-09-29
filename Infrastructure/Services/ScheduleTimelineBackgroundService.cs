@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -32,6 +33,12 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     // upper bound on routing lookups. The routing service caches per address pair for 30 days, so the
     // number of real API calls stays far below this; the cap only guards a cold cache on a huge period.
     private const int MaxTravelTimeLookupsPerRangeCheck = 2000;
+
+    // A single check reports rest violations whose earlier shift is owned by the edited day or the day
+    // before; the client replaces exactly those dates on a single-day push. Loading two days on each side
+    // keeps every such pair visible even when DstAware moves a block's owner date across local midnight.
+    private const int RestReportDaysBefore = 1;
+    private const int RestWindowLoadDays = 2;
 
     private const int MaxTransientRetries = 1;
     private static readonly TimeSpan TransientRetryBaseDelay = TimeSpan.FromMilliseconds(500);
@@ -325,8 +332,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientName ??= string.Empty;
 
         var policy = await policyResolver.GetForClientAsync(clientId, date);
-        ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
-        ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, date, date, policy);
+        var windowTimeline = await ClientTimelineLoader.LoadAsync(
+            dbContext, timelineCalculationService, clientId,
+            date.AddDays(-RestWindowLoadDays), date.AddDays(RestWindowLoadDays), analyseToken, cancellationToken);
+        ScheduleValidationBuilder.AddRestViolations(entries, windowTimeline, clientName, policy, date.AddDays(-RestReportDaysBefore), date);
+        ScheduleValidationBuilder.AddOvertime(entries, windowTimeline, clientName, date, date, policy);
         await AddQualificationEntriesAsync(entries, ownWorks, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
         entries.AddRange(await periodCapEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
         entries.AddRange(await restDayRotationEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
@@ -585,9 +595,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     }
 
     /// <summary>
-    /// Runs the checks that need more than the edited day. The surrounding single check only loads that
-    /// one day, which is too narrow for a weekly cap, a weekly rest-day quota or a run of consecutive
-    /// days, so this loads the full ISO week separately.
+    /// Runs the checks that need more than the edited day. The surrounding single check loads the edited
+    /// day (plus a few days around it for rest and daily overtime only), which is too narrow for a weekly
+    /// cap, a weekly rest-day quota or a run of consecutive days, so this loads the full ISO week separately.
     /// All three report inside the edited day's ISO week, which is the window the client retracts when
     /// that week is re-evaluated: the two weekly checks anchor on the week's Monday exactly like the
     /// range check, the consecutive-day check anchors on the day its run starts. GetConsecutiveWorkDays
@@ -609,47 +619,10 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
     {
         var (weekStart, weekEnd) = ScheduleValidationBuilder.IsoWeekOf(date);
 
-        var ownWorks = await dbContext.Work
-            .AsNoTracking()
-            .Where(w => w.ClientId == clientId && w.CurrentDate >= weekStart && w.CurrentDate <= weekEnd &&
-                        !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
-            .ToListAsync(cancellationToken);
-
-        var worksWithReplacementForClient = await dbContext.Work
-            .AsNoTracking()
-            .Where(w => w.CurrentDate >= weekStart && w.CurrentDate <= weekEnd && !w.IsDeleted &&
-                        w.ParentWorkId == null && w.AnalyseToken == analyseToken &&
-                        dbContext.WorkChange.Any(wc =>
-                            wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
-            .ToListAsync(cancellationToken);
-
-        var allWorks = ownWorks
-            .Union(worksWithReplacementForClient, new WorkIdComparer())
-            .ToList();
-
-        var workIds = allWorks.Select(w => w.Id).ToList();
-        var workChanges = workIds.Count > 0
-            ? await dbContext.WorkChange
-                .AsNoTracking()
-                .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted)
-                .ToListAsync(cancellationToken)
-            : [];
-
-        // Breaks must be loaded over the same window: a break day counts as a rest day, so a narrower
+        // Breaks are loaded over the same window: a break day counts as a rest day, so a narrower
         // break load would make AddMinRestDays under-count rest days and report false positives.
-        var breaks = await dbContext.Break
-            .AsNoTracking()
-            .Where(b => b.ClientId == clientId && b.CurrentDate >= weekStart && b.CurrentDate <= weekEnd &&
-                        !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
-            .ToListAsync(cancellationToken);
-
-        var weekBlocks = timelineCalculationService
-            .CalculateScheduleBlocks(allWorks, workChanges, breaks)
-            .Where(b => b.ClientId == clientId);
-
-        var weekTimeline = new ClientTimeline(clientId);
-        weekTimeline.AddBlocks(weekBlocks);
-        weekTimeline.SortBlocks();
+        var weekTimeline = await ClientTimelineLoader.LoadAsync(
+            dbContext, timelineCalculationService, clientId, weekStart, weekEnd, analyseToken, cancellationToken);
 
         ScheduleValidationBuilder.AddWeeklyOvertime(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
         ScheduleValidationBuilder.AddMinRestDays(entries, weekTimeline, clientName, weekStart, weekEnd, policy);

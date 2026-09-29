@@ -335,8 +335,11 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
+            // The client clears the checked day (and the rest entries of the day before) on every
+            // single-day push, so the push must reach the checked day's subscribers even when every
+            // entry is dated on another day or there are no entries at all.
             var dates = notification.Entries.Select(e => e.Date).Distinct().ToList();
-            if (dates.Count == 0 && notification.CheckedDate.HasValue)
+            if (notification.CheckedDate.HasValue && !dates.Contains(notification.CheckedDate.Value))
             {
                 dates.Add(notification.CheckedDate.Value);
             }
