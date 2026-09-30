@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Diagnostics;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
 
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
@@ -14,6 +15,8 @@ namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 /// <param name="build">Builds a complete lease or throws. It must leave nothing behind on failure, so
 /// that the holder is either fully loaded or holds nothing at all.</param>
 /// <param name="maxConcurrentRuns">Upper bound on simultaneous runs; UnlimitedConcurrency disables the gate.</param>
+/// <param name="disposeWaitTimeout">How long DisposeAsync waits for running inferences to finish before it
+/// gives up and leaves the native session to the process exit; null uses the default.</param>
 internal sealed class OnnxSessionHolder<TLease> : IAsyncDisposable where TLease : struct, IDisposable
 {
     public const int UnlimitedConcurrency = 0;
@@ -21,6 +24,7 @@ internal sealed class OnnxSessionHolder<TLease> : IAsyncDisposable where TLease 
     private readonly Func<CancellationToken, Task<TLease>> _build;
     private readonly SemaphoreSlim? _gate;
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly TimeSpan _disposeWaitTimeout;
 
     private TLease? _lease;
     private int _loaded;
@@ -29,9 +33,14 @@ internal sealed class OnnxSessionHolder<TLease> : IAsyncDisposable where TLease 
     private int _loadCount;
     private int _disposed;
 
-    public OnnxSessionHolder(Func<CancellationToken, Task<TLease>> build, int maxConcurrentRuns)
+    public OnnxSessionHolder(
+        Func<CancellationToken, Task<TLease>> build,
+        int maxConcurrentRuns,
+        TimeSpan? disposeWaitTimeout = null)
     {
         _build = build;
+        _disposeWaitTimeout = disposeWaitTimeout
+            ?? TimeSpan.FromMilliseconds(KnowledgeIndexConstants.OnnxDisposeWaitMilliseconds);
         _gate = maxConcurrentRuns > UnlimitedConcurrency
             ? new SemaphoreSlim(maxConcurrentRuns, maxConcurrentRuns)
             : null;
@@ -58,6 +67,8 @@ internal sealed class OnnxSessionHolder<TLease> : IAsyncDisposable where TLease 
         await _initLock.WaitAsync(ct);
         try
         {
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+
             if (_lease is null)
             {
                 // Assigned only once the build has returned: a builder that throws halfway leaves the
@@ -143,18 +154,48 @@ internal sealed class OnnxSessionHolder<TLease> : IAsyncDisposable where TLease 
         // Taken under the init lock, unlike a plain dispose: it closes the shutdown window in which the
         // idle sweep is mid-unload or a call still holds a lease. Freeing a native InferenceSession
         // while Run() executes on it faults the process instead of throwing.
+        // A run holds a value copy of the lease and does not take the init lock, so the lock alone does
+        // not keep it from finishing on a freed session: shutdown also waits for every active run (a
+        // background index sync can be mid-inference when the container is disposed). If they do not
+        // drain in time the session and the gate are left undisposed - the process is exiting, and a
+        // leak is harmless where a freed session under Run() faults natively.
+        bool drained;
         await _initLock.WaitAsync();
         try
         {
-            DisposeLeaseUnderLock();
+            drained = await WaitForActiveRunsToDrainAsync();
+            if (drained)
+            {
+                DisposeLeaseUnderLock();
+            }
         }
         finally
         {
             _initLock.Release();
         }
 
-        _gate?.Dispose();
+        if (drained)
+        {
+            _gate?.Dispose();
+        }
+
         _initLock.Dispose();
+    }
+
+    private async Task<bool> WaitForActiveRunsToDrainAsync()
+    {
+        var started = Stopwatch.GetTimestamp();
+        while (Volatile.Read(ref _activeRuns) > 0)
+        {
+            if (Stopwatch.GetElapsedTime(started) >= _disposeWaitTimeout)
+            {
+                return false;
+            }
+
+            await Task.Delay(KnowledgeIndexConstants.OnnxDisposePollMilliseconds);
+        }
+
+        return true;
     }
 
     private void DisposeLeaseUnderLock()

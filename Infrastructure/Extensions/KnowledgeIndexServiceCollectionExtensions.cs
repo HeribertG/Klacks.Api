@@ -180,6 +180,7 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         services.AddScoped<IKnowledgeEmbeddingSnapshotExporter, KnowledgeEmbeddingSnapshotExporter>();
 
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
+        services.AddScoped<IKnowledgeIndexCoverageProbe, KnowledgeIndexCoverageProbe>();
 
         // Singleton, because the single-flight gate and the coalescing flag only mean something
         // process-wide. It resolves the scoped synchronizer from a fresh scope per run.
@@ -198,7 +199,9 @@ internal static class KnowledgeIndexServiceCollectionExtensions
         if (bgOptions.KnowledgeIndexStartup)
             services.AddHostedService<KnowledgeIndexStartupService>();
 
-        // Registered after the sync service so the index is current before the sessions are built.
+        // Registered after the sync service, so on a first start (empty index, blocking sync) the index
+        // is filled before the sessions are built; on later starts the sync runs in the background and
+        // may overlap the warm-up, which the session holder's lease protocol handles.
         // It is a BackgroundService, so it does not hold up the host either way.
         // Deliberately NOT behind a BackgroundServices flag, unlike every other hosted service here.
         // The sessions are per-process state, so every instance needs its own warm pair - pinning this

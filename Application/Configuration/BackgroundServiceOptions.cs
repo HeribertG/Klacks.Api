@@ -296,8 +296,8 @@ public class BackgroundServiceOptions
     /// goes stale after a seed change. Pin it to one instance when scaling out - the index lives in the
     /// shared database, and after a deployment that changed the seed every instance would embed the same
     /// content simultaneously, which is paid API traffic whenever the remote embedding provider is
-    /// configured. The sync is awaited inside StartAsync, so switching it off also shortens that
-    /// instance's startup - at the price of silencing its retrieval-stack diagnostic. Override via env
+    /// configured. The sync is awaited inside StartAsync only while the index is empty; otherwise it runs
+    /// in the background. Switching it off silences that instance's retrieval-stack diagnostic. Override via env
     /// <c>BackgroundServices__KnowledgeIndexStartup=false</c>.
     /// </summary>
     public bool KnowledgeIndexStartup { get; set; } = true;
