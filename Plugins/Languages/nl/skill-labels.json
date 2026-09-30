@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Contract op naam toewijzen",
   "assign_contract_to_client": "Een contract aan een medewerker toewijzen",
   "assign_orders_to_groups": "Openstaande opdrachten automatisch aan groepen toewijzen",
+  "assign_shifts_to_city_groups": "Diensten aan stadsgroepen toewijzen op basis van het klantadres",
   "assign_user_permissions": "Een gebruikersrol toewijzen",
   "bulk_add_absence_for_group": "Afwezigheid voor een hele groep registreren",
   "bulk_add_shifts_to_group": "Meerdere lagen aan een groep toewijzen op basis van een zoekterm",

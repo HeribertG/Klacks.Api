@@ -198,6 +198,11 @@
     "agrupar pedidos importados",
     "pedidos sin grupo"
   ],
+  "assign_shifts_to_city_groups": [
+    "repartir los turnos en grupos de ciudades según la dirección del cliente",
+    "turnos sin grupo de ciudad",
+    "añadir turnos a la ciudad o municipio más cercano"
+  ],
   "assign_user_permissions": [
     "asigna rol de administrador al usuario 42",
     "dale permisos de autorizado a juan perez",

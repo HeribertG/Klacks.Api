@@ -30,6 +30,7 @@
   "assign_contract_by_name": "按姓名分配合同",
   "assign_contract_to_client": "将合同分配给员工",
   "assign_orders_to_groups": "自动将待处理订单分配到对应组",
+  "assign_shifts_to_city_groups": "按客户地址将班次分配到城市组",
   "assign_user_permissions": "分配用户角色",
   "bulk_add_absence_for_group": "为整个群组登记缺勤",
   "bulk_add_shifts_to_group": "按关键词批量分配班次到小组",

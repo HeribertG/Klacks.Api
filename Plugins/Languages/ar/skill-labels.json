@@ -30,6 +30,7 @@
   "assign_contract_by_name": "تخصيص العقد بالاسم",
   "assign_contract_to_client": "تعيين عقد إلى أحد الموظفين",
   "assign_orders_to_groups": "تخصيص المهام المفتوحة للمجموعات تلقائيًا",
+  "assign_shifts_to_city_groups": "تعيين نوبات العمل إلى مجموعات المدن حسب عنوان العميل",
   "assign_user_permissions": "تعيين دور المستخدم",
   "bulk_add_absence_for_group": "تسجيل الغياب لمجموعة بأكملها",
   "bulk_add_shifts_to_group": "تخصيص عدة طبقات لمجموعة ما باستخدام مصطلح بحث",

@@ -29,6 +29,7 @@ public static class PreviewApplySkillCalls
         "add_selected_clients_to_group",
         "group_ungrouped_by_city_name",
         "assign_orders_to_groups",
+        "assign_shifts_to_city_groups",
         "seal_open_orders",
         "schedule_recurring_task",
     };

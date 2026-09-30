@@ -18,6 +18,12 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
 
     Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Stages the (soft) deletion of every listed link in one query; the caller commits via IUnitOfWork.
+    /// Returns the number of links found and staged.
+    /// </summary>
+    Task<int> RemoveByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
+
     IQueryable<GroupItem> GetQuery();
 
     Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default);

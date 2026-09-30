@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Tildel kontrakt efter navn",
   "assign_contract_to_client": "Tildele en kontrakt til en medarbejder",
   "assign_orders_to_groups": "Tildel åbne ordrer automatisk til grupper",
+  "assign_shifts_to_city_groups": "Tildel vagter til bygrupper efter kundens adresse",
   "assign_user_permissions": "Tildele brugerrolle",
   "bulk_add_absence_for_group": "Registrere fravær for en hel gruppe",
   "bulk_add_shifts_to_group": "Tildel flere lag til en gruppe ved hjælp af et søgeord",

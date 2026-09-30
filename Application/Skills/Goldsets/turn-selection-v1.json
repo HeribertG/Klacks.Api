@@ -4807,6 +4807,76 @@
       "tags": [
         "crud"
       ]
+    },
+    {
+      "id": "live-2026-09-30-shifts-to-groups-by-customer-address",
+      "message": "Kannst du Dienste gemäss ihrer Kundenadresse auf die Gruppen aufteilen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_shifts_to_city_groups",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Live miss 2026-09-30: only assign_orders_to_groups (open orders) existed and the assistant declared it could not do it for services.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "live-2026-09-30-shifts-without-group",
+      "message": "Dienste ohne Gruppe suchen und der Stadt ihres Kunden zuordnen.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_shifts_to_city_groups",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Live miss 2026-09-30: services without a town group; the preview lists them, the apply moves them.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "live-2026-09-30-all-shifts-to-all-cities",
+      "message": "Alle Dienste zu allen Städten hinzufügen, passend zur Adresse des Kunden.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_shifts_to_city_groups",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Live miss 2026-09-30: bulk placement of every service into a town group by customer address.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "live-2026-09-30-shifts-nearest-municipality",
+      "message": "Shifts, die nicht an einer Stadt oder Gemeinde angehängt sind, zu einer solchen Stadt hinzufügen, und wenn es keinen direkten Treffer gibt, zur nächstgelegenen.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_shifts_to_city_groups",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Live miss 2026-09-30: nearest-town fallback wording, mixed German/English.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-shifts-to-city-groups-en",
+      "message": "Distribute all shifts to the town groups by their customer's address.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "assign_shifts_to_city_groups",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English counterpart of the live miss about placing services into town groups.",
+      "tags": [
+        "crud"
+      ]
     }
   ]
 }

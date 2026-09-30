@@ -200,6 +200,11 @@
     "geïmporteerde orders groeperen",
     "orders zonder groep"
   ],
+  "assign_shifts_to_city_groups": [
+    "diensten verdelen over stadsgroepen op basis van het klantadres",
+    "diensten zonder stadsgroep",
+    "diensten toevoegen aan de dichtstbijzijnde stad of gemeente"
+  ],
   "assign_user_permissions": [
     "wijs rol toe aan gebruiker",
     "geef rechten aan...",

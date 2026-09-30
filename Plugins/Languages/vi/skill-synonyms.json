@@ -193,6 +193,11 @@
     "nhóm các đơn hàng đã nhập",
     "đơn hàng không có nhóm"
   ],
+  "assign_shifts_to_city_groups": [
+    "phân bổ ca làm việc vào các nhóm thành phố theo địa chỉ khách hàng",
+    "ca làm việc chưa có nhóm thành phố",
+    "thêm ca làm việc vào thành phố hoặc xã gần nhất"
+  ],
   "assign_user_permissions": [
     "gán quyền admin cho người dùng 456",
     "đặt vai trò 'authorised' cho user tên nam",

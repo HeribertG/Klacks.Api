@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Tilldela avtal via namn",
   "assign_contract_to_client": "Koppla ett avtal till en medarbetare",
   "assign_orders_to_groups": "Tilldela öppna ordrar automatiskt till grupper",
+  "assign_shifts_to_city_groups": "Tilldela pass till stadsgrupper efter kundens adress",
   "assign_user_permissions": "Tilldela en användarroll",
   "bulk_add_absence_for_group": "Boka frånvaro för en hel grupp",
   "bulk_add_shifts_to_group": "Koppla flera matchande pass till en grupp",

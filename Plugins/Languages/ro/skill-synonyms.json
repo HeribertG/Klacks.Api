@@ -196,6 +196,11 @@
     "grupează comenzile importate",
     "comenzi fără grup"
   ],
+  "assign_shifts_to_city_groups": [
+    "distribuie turele în grupuri de orașe după adresa clientului",
+    "schimburi fără grup de oraș",
+    "adaugă turele la cel mai apropiat oraș sau comună"
+  ],
   "assign_user_permissions": [
     "acordă rol de administrator utilizatorului 123",
     "setează permisiuni de autorizat pentru userul ana",

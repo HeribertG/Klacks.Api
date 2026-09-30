@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Přiřadit smlouvu podle jména",
   "assign_contract_to_client": "Přiřadit smlouvu zaměstnanci",
   "assign_orders_to_groups": "Automatické přiřazování otevřených zakázek do skupin",
+  "assign_shifts_to_city_groups": "Přiřadit směny do městských skupin podle adresy zákazníka",
   "assign_user_permissions": "Přiřadit uživatelskou roli",
   "bulk_add_absence_for_group": "Zaznamenat nepřítomnost celé skupiny",
   "bulk_add_shifts_to_group": "Přiřazení více vrstev ke skupině pomocí vyhledávacího výrazu",

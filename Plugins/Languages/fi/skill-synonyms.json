@@ -195,6 +195,11 @@
     "ryhmittele tuodut tilaukset",
     "tilaukset ilman ryhmää"
   ],
+  "assign_shifts_to_city_groups": [
+    "jaa vuorot kaupunkiryhmiin asiakkaan osoitteen mukaan",
+    "vuorot ilman kaupunkiryhmää",
+    "lisää vuorot lähimpään kaupunkiin tai kuntaan"
+  ],
   "assign_user_permissions": [
     "anna käyttäjälle 123 admin-oikeudet",
     "aseta käyttäjälle matti meikäläinen rooli authorised",

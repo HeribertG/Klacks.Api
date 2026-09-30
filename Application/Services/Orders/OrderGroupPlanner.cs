@@ -172,14 +172,14 @@ public static class OrderGroupPlanner
     private static string DescribeMatch(string matchKind, AddressTypeEnum addressType)
         => $"{matchKind} ({AddressLabel(addressType)})";
 
-    private static string AddressLabel(AddressTypeEnum addressType) => addressType switch
+    internal static string AddressLabel(AddressTypeEnum addressType) => addressType switch
     {
         AddressTypeEnum.Workplace => WorkplaceAddressLabel,
         AddressTypeEnum.InvoicingAddress => InvoicingAddressLabel,
         _ => MainAddressLabel
     };
 
-    private static string DisplayName(Client customer)
+    internal static string DisplayName(Client customer)
     {
         if (!string.IsNullOrWhiteSpace(customer.Company))
         {

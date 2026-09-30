@@ -195,6 +195,11 @@
     "grupper importerte bestillinger",
     "bestillinger uten gruppe"
   ],
+  "assign_shifts_to_city_groups": [
+    "fordel vakter på bygrupper etter kundens adresse",
+    "vakter uten bygruppe",
+    "legg vakter til nærmeste by eller kommune"
+  ],
   "assign_user_permissions": [
     "gi ole admin-tilgang",
     "sett kari som autorisert bruker",

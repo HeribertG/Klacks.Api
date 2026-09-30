@@ -37,6 +37,22 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .CountAsync(cancellationToken);
     }
 
+    public async Task<int> RemoveByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return 0;
+        }
+
+        var idList = ids.ToList();
+        var items = await context.GroupItem
+            .Where(gi => idList.Contains(gi.Id))
+            .ToListAsync(cancellationToken);
+
+        context.GroupItem.RemoveRange(items);
+        return items.Count;
+    }
+
     public IQueryable<GroupItem> GetQuery()
     {
         return context.GroupItem.AsQueryable();

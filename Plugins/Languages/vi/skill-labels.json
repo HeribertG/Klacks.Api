@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Gán hợp đồng theo tên",
   "assign_contract_to_client": "Gán hợp đồng cho nhân viên",
   "assign_orders_to_groups": "Tự động gán đơn hàng mở vào nhóm",
+  "assign_shifts_to_city_groups": "Gán ca làm việc vào nhóm thành phố theo địa chỉ khách hàng",
   "assign_user_permissions": "Gán vai trò người dùng",
   "bulk_add_absence_for_group": "Đăng ký vắng mặt cho cả nhóm",
   "bulk_add_shifts_to_group": "Gán hàng loạt ca khớp từ khóa vào nhóm",

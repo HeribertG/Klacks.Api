@@ -30,6 +30,7 @@
   "assign_contract_by_name": "이름으로 계약 배정",
   "assign_contract_to_client": "직원에게 계약 배정",
   "assign_orders_to_groups": "미결 오더를 그룹에 자동 배정",
+  "assign_shifts_to_city_groups": "고객 주소에 따라 근무를 도시 그룹에 배정",
   "assign_user_permissions": "사용자 역할 할당",
   "bulk_add_absence_for_group": "그룹 전체 부재 등록",
   "bulk_add_shifts_to_group": "검색어로 일치하는 근무 일괄 배정",

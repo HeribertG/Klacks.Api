@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Tetapkan kontrak berdasarkan nama",
   "assign_contract_to_client": "Tetapkan kontrak ke karyawan",
   "assign_orders_to_groups": "Tetapkan otomatis pesanan terbuka ke grupnya",
+  "assign_shifts_to_city_groups": "Tetapkan shift ke grup kota berdasarkan alamat pelanggan",
   "assign_user_permissions": "Tetapkan peran pengguna",
   "bulk_add_absence_for_group": "Catat ketidakhadiran untuk seluruh grup",
   "bulk_add_shifts_to_group": "Tetapkan banyak shift yang cocok ke grup",

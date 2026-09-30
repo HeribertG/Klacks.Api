@@ -189,6 +189,11 @@
     "kumpulkan pesanan yang diimport",
     "pesanan tanpa kumpulan"
   ],
+  "assign_shifts_to_city_groups": [
+    "agihkan syif ke kumpulan bandar mengikut alamat pelanggan",
+    "syif tanpa kumpulan bandar",
+    "tambah syif ke bandar atau perbandaran terdekat"
+  ],
   "assign_user_permissions": [
     "beri kebenaran pentadbir kepada pengguna ahmad",
     "tetapkan peranan 'authorised' untuk user id 5",

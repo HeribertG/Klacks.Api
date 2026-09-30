@@ -408,6 +408,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Sensitive would gate its preview too. Each run writes one group_item row per order; a wrong
         // placement is corrected by remove_shift_from_group and add_shift_to_group.
         "assign_orders_to_groups",
+        // The shift counterpart moves sealed orders, plannable shifts and split shifts into the city group of
+        // their customer's address and replaces their current group links. It also defaults to apply=false, so
+        // Sensitive would gate the preview too; a wrong move is corrected by remove_shift_from_group and
+        // add_shift_to_group.
+        "assign_shifts_to_city_groups",
         // Shift and container structure. delete_shift, reset_container_day and
         // remove_container_template_task all refuse the data-losing case in the handler itself (assigned works,
         // existing cuts), so the destructive edge is blocked below this classification.

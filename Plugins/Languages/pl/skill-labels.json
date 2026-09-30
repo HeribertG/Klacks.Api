@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Przypisanie umowy według nazwiska",
   "assign_contract_to_client": "Przypisanie umowy do pracownika",
   "assign_orders_to_groups": "Automatyczne przypisywanie otwartych zleceń do grup",
+  "assign_shifts_to_city_groups": "Przypisywanie zmian do grup miejskich według adresu klienta",
   "assign_user_permissions": "Przypisanie roli użytkownika",
   "bulk_add_absence_for_group": "Zgłoszenie nieobecności całej grupy",
   "bulk_add_shifts_to_group": "Przypisywanie kilku warstw do grupy na podstawie słowa kluczowego",

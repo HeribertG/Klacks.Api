@@ -19902,6 +19902,113 @@
       "version": 3
     },
     {
+      "name": "assign_shifts_to_city_groups",
+      "area": "shift",
+      "pairedApplySkill": "assign_shifts_to_city_groups",
+      "description": "Moves services (German 'Dienste'), i.e. plannable shifts, split shifts and sealed orders, not yet in a town or municipality group into the town group derived from their customer's address in one call: group named after the city, else one containing it, else the nearest town group. REPLACES region-level group links. Use for 'distribute the services to the town groups by customer address'. Shifts already in a town group are skipped, so a second run changes nothing. Needs unrestricted group scope.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "customerName",
+          "description": "Fragment the customer's name or company must contain, matched case-insensitively; leave out for every customer.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxCount",
+          "description": "Upper bound on how many shifts this run processes; leave out to process every match.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the moves; when true persists them. Only set true after the user explicitly confirmed the preview.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "dienste nach kundenadresse",
+          "dienste gemäss kundenadresse",
+          "dienste ohne gruppe",
+          "dienste ohne stadt",
+          "dienste zu städten",
+          "dienste zu allen städten",
+          "dienste auf gruppen verteilen"
+        ],
+        "en": [
+          "shifts by customer city",
+          "shifts without a town group",
+          "shifts to town groups",
+          "shifts to cities",
+          "services without a group"
+        ],
+        "fr": [
+          "services par adresse du client",
+          "services sans groupe de ville",
+          "services aux communes",
+          "répartir les services par ville"
+        ],
+        "it": [
+          "turni per indirizzo del cliente",
+          "turni senza gruppo di città",
+          "turni ai comuni",
+          "distribuire i turni nelle città"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "dienste gemäss ihrer kundenadresse auf die gruppen aufteilen",
+          "dienste gemäß kundenadresse",
+          "dienste den stadtgruppen nach kundenadresse zuordnen",
+          "dienste ohne stadtgruppe",
+          "dienste ohne gemeinde",
+          "dienste der nächstgelegenen gemeinde zuordnen",
+          "shifts ohne stadt oder gemeinde zu einer stadt hinzufügen"
+        ],
+        "en": [
+          "distribute shifts to city groups by customer address",
+          "assign services to the nearest town group",
+          "shifts not attached to a city or municipality",
+          "add shifts to a nearby city group"
+        ],
+        "fr": [
+          "répartir les services dans les groupes de villes selon l'adresse du client",
+          "affecter les services à la commune la plus proche",
+          "services non rattachés à une ville ou commune"
+        ],
+        "it": [
+          "distribuire i turni nei gruppi di città in base all'indirizzo del cliente",
+          "assegnare i turni al comune più vicino",
+          "turni non collegati a una città o a un comune"
+        ]
+      },
+      "labels": {
+        "de": "Dienste nach Kundenadresse den Stadtgruppen zuordnen",
+        "en": "Assign shifts to city groups by customer address",
+        "fr": "Affecter les services aux groupes de villes selon l'adresse du client",
+        "it": "Assegna i turni ai gruppi di città in base all'indirizzo del cliente"
+      },
+      "version": 1
+    },
+    {
       "name": "seal_open_orders",
       "area": "shift",
       "pairedApplySkill": "seal_open_orders",

@@ -30,6 +30,7 @@
   "assign_contract_by_name": "依名稱指派合約",
   "assign_contract_to_client": "將合約指派給員工",
   "assign_orders_to_groups": "自動分配未結訂單至群組",
+  "assign_shifts_to_city_groups": "依客戶地址將班次指派至城市群組",
   "assign_user_permissions": "指派使用者角色",
   "bulk_add_absence_for_group": "為整個群組登記缺勤",
   "bulk_add_shifts_to_group": "批次指派符合條件的班次至群組",

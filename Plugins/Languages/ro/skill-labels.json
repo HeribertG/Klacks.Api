@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Atribuirea contractului pe nume",
   "assign_contract_to_client": "Atribuirea unui contract unui angajat",
   "assign_orders_to_groups": "Alocarea automată a comenzilor deschise în grupuri",
+  "assign_shifts_to_city_groups": "Atribuirea turelor în grupuri de orașe după adresa clientului",
   "assign_user_permissions": "Atribuirea unui rol de utilizator",
   "bulk_add_absence_for_group": "Înregistrarea absenței unui întreg grup",
   "bulk_add_shifts_to_group": "Atribuirea mai multor straturi unui grup pe baza unui cuvânt cheie",

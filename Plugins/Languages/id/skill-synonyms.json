@@ -200,6 +200,11 @@
     "kelompokkan pesanan impor",
     "pesanan tanpa grup"
   ],
+  "assign_shifts_to_city_groups": [
+    "bagikan shift ke grup kota sesuai alamat pelanggan",
+    "shift tanpa grup kota",
+    "tambahkan shift ke kota atau kabupaten terdekat"
+  ],
   "assign_user_permissions": [
     "beri izin admin ke user",
     "ubah peran pengguna",

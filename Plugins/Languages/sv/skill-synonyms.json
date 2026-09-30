@@ -195,6 +195,11 @@
     "gruppera importerade beställningar",
     "beställningar utan grupp"
   ],
+  "assign_shifts_to_city_groups": [
+    "fördela passen på stadsgrupper efter kundens adress",
+    "pass utan stadsgrupp",
+    "lägg pass till närmaste stad eller kommun"
+  ],
   "assign_user_permissions": [
     "tilldela administratörsroll till användaren",
     "sätt behörigheten för användaren",

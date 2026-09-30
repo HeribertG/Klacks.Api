@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Asignar un contrato por nombre",
   "assign_contract_to_client": "Asignar un contrato a un empleado",
   "assign_orders_to_groups": "Asignar automáticamente los pedidos pendientes a grupos",
+  "assign_shifts_to_city_groups": "Asignar turnos a grupos de ciudades según la dirección del cliente",
   "assign_user_permissions": "Asignar un rol de usuario",
   "bulk_add_absence_for_group": "Registrar la ausencia de todo un grupo",
   "bulk_add_shifts_to_group": "Asignar varias capas a un grupo mediante un término de búsqueda",

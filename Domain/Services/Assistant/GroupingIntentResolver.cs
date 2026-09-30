@@ -32,6 +32,11 @@
 /// is exactly the grouping intent this resolver detects and the skill otherwise loses its place at the
 /// provider cap. It requires CanEditClients/CanCreateGroups/CanViewGroups and is dropped by the
 /// permission filter for users without them.
+/// The set also includes assign_shifts_to_city_groups (moves plannable shifts and sealed orders into the
+/// city group of their customer's address). A request to spread shifts over towns is also a grouping
+/// intent, but it often names no group word at all ("shifts that are not attached to a town or
+/// municipality should be added to one") — so a shift word combined with a town word and a
+/// placement word triggers the same set, unless the message is a question.
 /// </summary>
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 
@@ -47,10 +52,23 @@ public static class GroupingIntentResolver
          "nächst", "naechst", "nearest", "geograf", "geograph", "geographic",
          "zuordn", "zuteil", "zuweis", "assign", "verteil"];
 
+    private static readonly string[] ShiftTokens =
+        ["dienst", "schicht", "shift", "service", "turno", "turni", "servizi"];
+
+    private static readonly string[] TownTokens =
+        ["stadt", "städte", "staedte", "gemeinde", "ortschaft", "city", "cities", "town", "municipalit",
+         "ville", "commune", "città", "citta", "comune", "comuni"];
+
+    private static readonly string[] PlacementTokens =
+        ["zu ", "zuord", "zuteil", "zuweis", "hinzufüg", "hinzufueg", "verteil", "aufteil", "anhäng", "anhaeng",
+         "angehängt", "angehaengt", "assign", "add ", "attach", "distribut", "split", "spread", "move",
+         "affect", "ajout", "répart", "repart", "assegn", "aggiung", "distribu"];
+
     private static readonly string[] GuaranteedGroupingSkills =
         ["propose_grouping", "apply_grouping", "partition_clients_by_address",
          "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
-         "geocode_location_groups", "set_group_location", "check_group_geocoding_status"];
+         "geocode_location_groups", "set_group_location", "check_group_geocoding_status",
+         "assign_shifts_to_city_groups"];
 
     private static readonly object _configureLock = new();
     private static string[] _pluginGroupingTokens = [];
@@ -85,6 +103,19 @@ public static class GroupingIntentResolver
             || (lower.Contains("ordne") && lower.Contains("zu"))
             || AffirmationDetector.IsAffirmation(message);
 
-        return hasGrouping && hasSignal ? GuaranteedGroupingSkills : [];
+        if (hasGrouping && hasSignal)
+        {
+            return GuaranteedGroupingSkills;
+        }
+
+        return IsShiftToTownRequest(lower) ? GuaranteedGroupingSkills : [];
+    }
+
+    private static bool IsShiftToTownRequest(string lower)
+    {
+        return !lower.Contains('?')
+            && ShiftTokens.Any(t => lower.Contains(t))
+            && TownTokens.Any(t => lower.Contains(t))
+            && PlacementTokens.Any(t => lower.Contains(t));
     }
 }

@@ -40,6 +40,14 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<List<Shift>> GetOpenOrdersAsync(OpenOrderFilter filter, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Returns every non-scenario sealed order, plannable shift and split shift, untracked, with its
+    /// customer (addresses and group memberships) and its own group links.
+    /// </summary>
+    /// <param name="customerName">Case-insensitive fragment the customer's name or company must contain; null for every customer.</param>
+    Task<List<Shift>> GetShiftsForCityGroupPlacementAsync(
+        string? customerName, CancellationToken cancellationToken = default);
+
     Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default);
 
     Task<Shift?> FindActiveByExternalReferenceAsync(string sourceSystemId, string externalOrderReference, CancellationToken cancellationToken = default);

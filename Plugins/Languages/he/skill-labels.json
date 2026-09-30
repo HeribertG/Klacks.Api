@@ -30,6 +30,7 @@
   "assign_contract_by_name": "הקצאת חוזה לפי שם",
   "assign_contract_to_client": "הקצאת חוזה לעובד",
   "assign_orders_to_groups": "שייך הזמנות פתוחות לקבוצות באופן אוטומטי",
+  "assign_shifts_to_city_groups": "שייך משמרות לקבוצות ערים לפי כתובת הלקוח",
   "assign_user_permissions": "הקצאת תפקיד משתמש",
   "bulk_add_absence_for_group": "רישום היעדרות של קבוצה שלמה",
   "bulk_add_shifts_to_group": "שייך מספר שכבות לקבוצה אחת באמצעות מילת חיפוש",

@@ -476,6 +476,38 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Shift>> GetShiftsForCityGroupPlacementAsync(
+        string? customerName, CancellationToken cancellationToken = default)
+    {
+        var query = context.Shift
+            .Include(s => s.Client!)
+                .ThenInclude(c => c.Addresses!)
+            .Include(s => s.Client!)
+                .ThenInclude(c => c.GroupItems)
+            .Include(s => s.GroupItems)
+            .Where(s => (s.Status == ShiftStatus.SealedOrder
+                    || s.Status == ShiftStatus.OriginalShift
+                    || s.Status == ShiftStatus.SplitShift)
+                && s.AnalyseToken == null
+                && s.ScenarioSourceShiftId == null
+                && !s.IsDeleted);
+
+        if (!string.IsNullOrWhiteSpace(customerName))
+        {
+            var fragment = customerName.Trim().ToLower();
+            query = query.Where(s => s.Client != null
+                && (s.Client.Name.ToLower().Contains(fragment)
+                    || (s.Client.Company != null && s.Client.Company.ToLower().Contains(fragment))));
+        }
+
+        return await query
+            .OrderBy(s => s.FromDate)
+            .ThenBy(s => s.Name)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Shift> AddWithSealedOrderHandling(Shift shift)
     {
         await Add(shift);

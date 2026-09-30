@@ -30,6 +30,7 @@
   "assign_contract_by_name": "กำหนดสัญญาตามชื่อ",
   "assign_contract_to_client": "กำหนดสัญญาให้พนักงาน",
   "assign_orders_to_groups": "จัดออเดอร์ที่เปิดอยู่เข้ากลุ่มอัตโนมัติ",
+  "assign_shifts_to_city_groups": "กำหนดกะให้กลุ่มเมืองตามที่อยู่ของลูกค้า",
   "assign_user_permissions": "กำหนดบทบาทผู้ใช้",
   "bulk_add_absence_for_group": "บันทึกการลาสำหรับทั้งกลุ่ม",
   "bulk_add_shifts_to_group": "กำหนดกะหลายรายการให้กลุ่มตามคำค้น",

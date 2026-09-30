@@ -197,6 +197,11 @@
     "gruppér importerede ordrer",
     "ordrer uden gruppe"
   ],
+  "assign_shifts_to_city_groups": [
+    "fordel vagter på bygrupper efter kundens adresse",
+    "vagter uden bygruppe",
+    "føj vagter til den nærmeste by eller kommune"
+  ],
   "assign_user_permissions": [
     "giv brugeren administratorrettigheder",
     "tildel rolle til bruger",

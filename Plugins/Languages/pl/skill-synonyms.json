@@ -200,6 +200,11 @@
     "pogrupuj zaimportowane zamówienia",
     "zamówienia bez grupy"
   ],
+  "assign_shifts_to_city_groups": [
+    "rozdziel zmiany na grupy miejskie według adresu klienta",
+    "zmiany bez grupy miejskiej",
+    "dodaj zmiany do najbliższego miasta lub gminy"
+  ],
   "assign_user_permissions": [
     "ustaw rolę admin dla użytkownika jank",
     "przydziel uprawnienia authorized dla usera123",

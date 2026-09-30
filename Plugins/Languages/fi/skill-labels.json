@@ -30,6 +30,7 @@
   "assign_contract_by_name": "Sopimuksen kohdistaminen nimen perusteella",
   "assign_contract_to_client": "Sopimuksen liittäminen työntekijään",
   "assign_orders_to_groups": "Avoimien tilausten automaattinen ryhmittely",
+  "assign_shifts_to_city_groups": "Vuorojen kohdentaminen kaupunkiryhmiin asiakkaan osoitteen mukaan",
   "assign_user_permissions": "Käyttäjäroolin määrittäminen",
   "bulk_add_absence_for_group": "Koko ryhmän poissaolon kirjaaminen",
   "bulk_add_shifts_to_group": "Useiden kerrosten liittäminen ryhmään hakusanan perusteella",

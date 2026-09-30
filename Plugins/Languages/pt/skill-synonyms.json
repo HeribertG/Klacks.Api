@@ -200,6 +200,11 @@
     "agrupar encomendas importadas",
     "encomendas sem grupo"
   ],
+  "assign_shifts_to_city_groups": [
+    "distribuir os turnos por grupos de cidades com base no endereço do cliente",
+    "turnos sem grupo de cidade",
+    "adicionar turnos à cidade ou concelho mais próximo"
+  ],
   "assign_user_permissions": [
     "atribui permissão de administrador ao usuário",
     "define o papel do usuário como autorizado",

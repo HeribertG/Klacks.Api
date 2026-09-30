@@ -36,6 +36,7 @@ public static class SkillEntityMap
         ["assign_contract_by_name"] = new[] { "Client", "Contract" },
         ["assign_contract_to_client"] = new[] { "Client", "Contract" },
         ["assign_orders_to_groups"] = new[] { "Shift", "Client", "Group", "GroupItem" },
+        ["assign_shifts_to_city_groups"] = new[] { "Shift", "Client", "Group", "GroupItem" },
         ["check_group_geocoding_status"] = new[] { "Group" },
         ["close_period"] = new[] { "Work", "Break" },
         ["confirm_work"] = new[] { "Work" },

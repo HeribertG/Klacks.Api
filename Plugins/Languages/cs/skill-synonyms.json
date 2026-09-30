@@ -205,6 +205,11 @@
     "seskupit importované objednávky",
     "objednávky bez skupiny"
   ],
+  "assign_shifts_to_city_groups": [
+    "rozřadit směny do skupin měst podle adresy zákazníka",
+    "směny bez skupiny města",
+    "přidat směny k nejbližšímu městu nebo obci"
+  ],
   "assign_user_permissions": [
     "nastav uživateli administrátorská práva",
     "dej uživateli roli",
