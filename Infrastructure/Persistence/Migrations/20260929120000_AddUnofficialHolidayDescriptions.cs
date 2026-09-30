@@ -17,13 +17,15 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            UnofficialHolidayDescriptionsSql.Apply(migrationBuilder);
+            UnofficialHolidayDescriptionsSql.Apply(
+                migrationBuilder, UnofficialHolidayDescriptionsSql.AddUnofficialHolidayDescriptionsAssignments);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            UnofficialHolidayDescriptionsSql.Remove(migrationBuilder);
+            UnofficialHolidayDescriptionsSql.Remove(
+                migrationBuilder, UnofficialHolidayDescriptionsSql.AddUnofficialHolidayDescriptionsAssignments);
         }
     }
 }

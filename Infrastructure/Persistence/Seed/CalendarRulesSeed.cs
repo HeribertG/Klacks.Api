@@ -56,12 +56,12 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
 ('00319001-0001-0001-0001-000000000001', '03/19', '', false, false, 'GR', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
 ('00319001-0001-0001-0001-000000000002', '03/19', '', false, false, 'LU', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
-('00319001-0001-0001-0001-000000000003', '03/19', '', false, false, 'NW', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
+('00319001-0001-0001-0001-000000000003', '03/19', '', true, false, 'NW', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
 ('00319001-0001-0001-0001-000000000004', '03/19', '', false, false, 'SO', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
-('00319001-0001-0001-0001-000000000005', '03/19', '', false, false, 'SZ', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
-('00319001-0001-0001-0001-000000000006', '03/19', '', false, false, 'TI', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
-('00319001-0001-0001-0001-000000000007', '03/19', '', false, false, 'UR', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
-('00319001-0001-0001-0001-000000000008', '03/19', '', false, false, 'VS', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
+('00319001-0001-0001-0001-000000000005', '03/19', '', true, false, 'SZ', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
+('00319001-0001-0001-0001-000000000006', '03/19', '', true, false, 'TI', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
+('00319001-0001-0001-0001-000000000007', '03/19', '', true, false, 'UR', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
+('00319001-0001-0001-0001-000000000008', '03/19', '', true, false, 'VS', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}'),
 ('00319001-0001-0001-0001-000000000009', '03/19', '', false, false, 'ZG', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Josefstag"",""en"":""St. Joseph''s Day"",""fr"":""Saint-Joseph"",""it"":""San Giuseppe""}');
 
 -- =====================================================
@@ -200,7 +200,7 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 -- =====================================================
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
 ('00629001-0001-0001-0001-000000000001', '06/29', '', false, false, 'GR', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Peter und Paul"",""en"":""Saints Peter and Paul"",""fr"":""Saint-Pierre et Saint-Paul"",""it"":""Santi Pietro e Paolo""}'),
-('00629001-0001-0001-0001-000000000002', '06/29', '', false, false, 'TI', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Peter und Paul"",""en"":""Saints Peter and Paul"",""fr"":""Saint-Pierre et Saint-Paul"",""it"":""Santi Pietro e Paolo""}');
+('00629001-0001-0001-0001-000000000002', '06/29', '', true, false, 'TI', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Peter und Paul"",""en"":""Saints Peter and Paul"",""fr"":""Saint-Pierre et Saint-Paul"",""it"":""Santi Pietro e Paolo""}');
 
 -- =====================================================
 -- MARIÄ HIMMELFAHRT (08/15)
@@ -334,13 +334,13 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 -- =====================================================
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
 ('05a00001-0001-0001-0001-000000000001', '01/01', '', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
-('05a00001-0001-0001-0001-000000000002', '01/15+00+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Martin Luther King Day"",""en"":""Martin Luther King Jr. Day"",""fr"":""Jour de Martin Luther King"",""it"":""Giorno di Martin Luther King""}'),
-('05a00001-0001-0001-0001-000000000003', '02/01+14+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Präsidententag"",""en"":""Presidents'' Day"",""fr"":""Jour des Présidents"",""it"":""Giorno dei Presidenti""}'),
-('05a00001-0001-0001-0001-000000000004', '05/01+27+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Memorial Day"",""en"":""Memorial Day"",""fr"":""Memorial Day"",""it"":""Memorial Day""}'),
+('05a00001-0001-0001-0001-000000000002', '01/15+00+MO', '', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Martin Luther King Day"",""en"":""Martin Luther King Jr. Day"",""fr"":""Jour de Martin Luther King"",""it"":""Giorno di Martin Luther King""}'),
+('05a00001-0001-0001-0001-000000000003', '02/01+14+MO', '', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Präsidententag"",""en"":""Presidents'' Day"",""fr"":""Jour des Présidents"",""it"":""Giorno dei Presidenti""}'),
+('05a00001-0001-0001-0001-000000000004', '05/01+27+MO', '', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Memorial Day"",""en"":""Memorial Day"",""fr"":""Memorial Day"",""it"":""Memorial Day""}'),
 ('05a00001-0001-0001-0001-000000000005', '07/04', 'SA-1;SU+1', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Unabhängigkeitstag"",""en"":""Independence Day"",""fr"":""Jour de l''Indépendance"",""it"":""Giorno dell''Indipendenza""}'),
-('05a00001-0001-0001-0001-000000000006', '09/01+00+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Tag der Arbeit"",""en"":""Labor Day"",""fr"":""Fête du Travail"",""it"":""Festa del Lavoro""}'),
-('05a00001-0001-0001-0001-000000000007', '10/01+07+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Columbus Day"",""en"":""Columbus Day"",""fr"":""Jour de Christophe Colomb"",""it"":""Giorno di Colombo""}'),
-('05a00001-0001-0001-0001-000000000008', '11/11', 'SA-1;SU+1', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Veteranentag"",""en"":""Veterans Day"",""fr"":""Jour des Vétérans"",""it"":""Giorno dei Veterani""}'),
+('05a00001-0001-0001-0001-000000000006', '09/01+00+MO', '', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Tag der Arbeit"",""en"":""Labor Day"",""fr"":""Fête du Travail"",""it"":""Festa del Lavoro""}'),
+('05a00001-0001-0001-0001-000000000007', '10/01+07+MO', '', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Columbus Day"",""en"":""Columbus Day"",""fr"":""Jour de Christophe Colomb"",""it"":""Giorno di Colombo""}'),
+('05a00001-0001-0001-0001-000000000008', '11/11', 'SA-1;SU+1', true, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Veteranentag"",""en"":""Veterans Day"",""fr"":""Jour des Vétérans"",""it"":""Giorno dei Veterani""}'),
 ('05a00001-0001-0001-0001-000000000009', '11/01+21+TH', '', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Thanksgiving"",""en"":""Thanksgiving Day"",""fr"":""Action de grâce"",""it"":""Giorno del Ringraziamento""}'),
 ('05a00001-0001-0001-0001-000000000010', '12/25', '', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}');
 
