@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Klacks.Api.KnowledgeIndex.Presentation.Attributes;
@@ -18,7 +19,8 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <summary>
 /// Synchronizes the knowledge_index table with the current set of registered skills and enabled
 /// recipes. Computes SHA256 of embedding text, diffs against stored hashes, embeds only changed
-/// entries, upserts them, and deletes orphans removed from the skill registry or recipe table.
+/// entries, upserts them chunk by chunk as they are embedded, and deletes orphans removed from the
+/// skill registry or recipe table.
 /// </summary>
 /// <param name="skillRegistry">Registry providing all currently registered skill descriptors.</param>
 /// <param name="recipeRepository">Repository providing all currently enabled recipes.</param>
@@ -64,17 +66,41 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         var existingHashes = await _repository.GetAllHashesAsync(cancellationToken);
         var existingGates = await _repository.GetAllRetrievalGatesAsync(cancellationToken);
         var recipes = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
+        var skills = _skillRegistry.GetAllSkills();
 
         // One query for all owners: this loop covers every registered skill and every enabled recipe,
         // so a per-owner lookup would be several hundred round trips per startup.
         var phraseSets = SkillPhraseGrouper.Group(await _phraseRepository.GetAllActiveAsync(cancellationToken));
 
-        var current = BuildCurrentEntries(recipes, phraseSets);
+        var current = BuildCurrentEntries(skills, recipes, phraseSets);
 
         var toEmbed = current
             .Where(x => !existingHashes.TryGetValue((x.Entry.Kind, x.Entry.SourceId), out var h)
                         || !h.SequenceEqual(x.Entry.TextHash))
             .ToList();
+
+        // Gates and orphans need no vector, so they are written before the embedding pass: the sync
+        // can run in the background for minutes while retrieval serves the stored rows.
+        //
+        // A skill whose required permission (or exposed endpoint key) changes keeps its embedding text,
+        // and therefore its hash, so the diff above cannot see it and the stored row would keep gating
+        // retrieval on the old right - measured live when create_group moved from CanEditSettings to
+        // CanCreateGroups. Written in place without an embedding. A dirty entry is included too: its
+        // stored row keeps serving until its chunk is embedded, and the upsert later writes the same values.
+        var gateDrift = current
+            .Where(x => existingGates.TryGetValue((x.Entry.Kind, x.Entry.SourceId), out var stored)
+                        && (stored.RequiredPermission != x.Entry.RequiredPermission
+                            || stored.ExposedEndpointKey != x.Entry.ExposedEndpointKey))
+            .Select(x => x.Entry)
+            .ToList();
+
+        if (gateDrift.Count > 0)
+            await _repository.UpdateRetrievalGatesAsync(gateDrift, cancellationToken);
+
+        var currentKeys = KnowledgeIndexCatalogueKeys.Build(skills, recipes);
+        var orphans = existingHashes.Keys.Where(k => !currentKeys.Contains(k)).ToList();
+        if (orphans.Count > 0)
+            await _repository.DeleteAsync(orphans, cancellationToken);
 
         var restoredFromSnapshot = 0;
 
@@ -87,13 +113,14 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
                 _embeddingProvider.Dimension,
                 cancellationToken);
 
+            var restored = new List<KnowledgeEntry>();
             var misses = new List<(KnowledgeEntry Entry, string EmbeddingText)>();
             foreach (var candidate in toEmbed)
             {
                 if (snapshot.TryGetValue(KnowledgeEmbeddingCodec.ToHex(candidate.Entry.TextHash), out var stored))
                 {
                     candidate.Entry.Embedding = stored;
-                    restoredFromSnapshot++;
+                    restored.Add(candidate.Entry);
                 }
                 else
                 {
@@ -101,59 +128,54 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
                 }
             }
 
-            if (misses.Count > 0)
-            {
-                var texts = misses.Select(x => x.EmbeddingText).ToList();
-                var vectors = await _embeddingProvider.EmbedBatchAsync(texts, cancellationToken);
-                for (var i = 0; i < misses.Count; i++)
-                    misses[i].Entry.Embedding = vectors[i];
-            }
+            restoredFromSnapshot = restored.Count;
+            if (restored.Count > 0)
+                await _repository.UpsertAsync(restored, cancellationToken);
 
-            var entries = toEmbed.Select(x => x.Entry).ToList();
-            await _repository.UpsertAsync(entries, cancellationToken);
+            await EmbedAndPersistInChunksAsync(misses, cancellationToken);
         }
 
-        // A skill whose required permission (or exposed endpoint key) changes keeps its embedding text,
-        // and therefore its hash, so the diff above cannot see it and the stored row would keep gating
-        // retrieval on the old right - measured live when create_group moved from CanEditSettings to
-        // CanCreateGroups. Written in place without an embedding: the text did not change, so the
-        // vector did not either, and a row already upserted above carries the new values anyway.
         var embeddedKeys = toEmbed.Select(x => (x.Entry.Kind, x.Entry.SourceId)).ToHashSet();
-        var gateDrift = current
-            .Where(x => !embeddedKeys.Contains((x.Entry.Kind, x.Entry.SourceId)))
-            .Where(x => existingGates.TryGetValue((x.Entry.Kind, x.Entry.SourceId), out var stored)
-                        && (stored.RequiredPermission != x.Entry.RequiredPermission
-                            || stored.ExposedEndpointKey != x.Entry.ExposedEndpointKey))
-            .Select(x => x.Entry)
-            .ToList();
-
-        if (gateDrift.Count > 0)
-            await _repository.UpdateRetrievalGatesAsync(gateDrift, cancellationToken);
-
-        var currentKeys = current.Select(x => (x.Entry.Kind, x.Entry.SourceId)).ToHashSet();
-        var orphans = existingHashes.Keys.Where(k => !currentKeys.Contains(k)).ToList();
-        if (orphans.Count > 0)
-            await _repository.DeleteAsync(orphans, cancellationToken);
+        var gateOnlyUpdates = gateDrift.Count(x => !embeddedKeys.Contains((x.Kind, x.SourceId)));
 
         stopwatch.Stop();
         _logger.LogInformation(
             "Knowledge index sync: {Total} entries, {Unchanged} unchanged, {FromSnapshot} restored from snapshot, {Embedded} embedded, {GatesUpdated} permission/endpoint updates, {Orphans} orphans removed, {ElapsedMs} ms",
             current.Count,
-            current.Count - toEmbed.Count - gateDrift.Count,
+            current.Count - toEmbed.Count - gateOnlyUpdates,
             restoredFromSnapshot,
             toEmbed.Count - restoredFromSnapshot,
             gateDrift.Count,
             orphans.Count,
             stopwatch.ElapsedMilliseconds);
     }
+    // Each chunk is written as soon as it is embedded. A full pass over a catalogue with many language
+    // packs takes minutes; persisting only at the end meant a stop or restart mid-pass threw away every
+    // vector already computed, so the next start began from zero again. A persisted chunk carries its
+    // new text hash and is skipped by the next run's diff.
+    private async Task EmbedAndPersistInChunksAsync(
+        IReadOnlyList<(KnowledgeEntry Entry, string EmbeddingText)> misses,
+        CancellationToken cancellationToken)
+    {
+        foreach (var chunk in misses.Chunk(KnowledgeIndexSyncConstants.PersistChunkSize))
+        {
+            var texts = chunk.Select(x => x.EmbeddingText).ToList();
+            var vectors = await _embeddingProvider.EmbedBatchAsync(texts, cancellationToken);
+            for (var i = 0; i < chunk.Length; i++)
+                chunk[i].Entry.Embedding = vectors[i];
+
+            await _repository.UpsertAsync(chunk.Select(x => x.Entry).ToList(), cancellationToken);
+        }
+    }
 
     private List<(KnowledgeEntry Entry, string EmbeddingText)> BuildCurrentEntries(
+        IReadOnlyList<SkillDescriptor> skills,
         IReadOnlyList<AgentRecipe> recipes,
         IReadOnlyDictionary<(string OwnerKind, string OwnerName), IndexPhraseSet> phraseSets)
     {
         var result = new List<(KnowledgeEntry, string)>();
 
-        foreach (var skill in _skillRegistry.GetAllSkills())
+        foreach (var skill in skills)
         {
             var exposedEndpointKey = GetExposedEndpointKey(skill);
             var embeddingText = BuildEmbeddingText(

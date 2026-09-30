@@ -4,7 +4,9 @@
 /// Turns the flat skill_phrase row set into one IndexPhraseSet per owner, reproducing byte for byte
 /// the phrase order and deduplication that the embedding text used to get from the jsonb columns.
 /// Any change in here re-hashes and re-embeds every knowledge index entry, so the rules below are
-/// not stylistic - they are the contract.
+/// not stylistic - they are the contract. The order is total: rows arrive without ORDER BY, so ties on
+/// SortOrder fall back to the phrase (ordinal, unique per owner, language and kind); otherwise the
+/// hash would depend on the row order PostgreSQL returns and a start could re-embed the index.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
@@ -53,6 +55,7 @@ public static class SkillPhraseGrouper
             .OrderBy(p => SkillPhraseLanguages.OrderRank(p.Language))
             .ThenBy(p => p.Language, StringComparer.Ordinal)
             .ThenBy(p => p.SortOrder)
+            .ThenBy(p => p.Phrase, StringComparer.Ordinal)
             .Select(p => p.Phrase)
             .ToList();
     }
@@ -75,6 +78,7 @@ public static class SkillPhraseGrouper
             .OrderBy(p => SkillPhraseLanguages.OrderRank(p.Language))
             .ThenBy(p => p.Language, StringComparer.Ordinal)
             .ThenBy(p => p.SortOrder)
+            .ThenBy(p => p.Phrase, StringComparer.Ordinal)
             .Select(p => p.Phrase)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();

@@ -210,6 +210,11 @@ public static class KnowledgeIndexConstants
     // poll interval, so a coarse poll would silently stretch the configured minutes.
     public const int IdleUnloadPollSeconds = 60;
 
+    // Upper bound on how long disposing an ONNX session holder waits for running inferences at shutdown.
+    public const int OnnxDisposeWaitMilliseconds = 30_000;
+
+    public const int OnnxDisposePollMilliseconds = 10;
+
     // Prefix of the EmbeddingSpaceId produced by the local ONNX provider. Anything else means the
     // process fell back to a remote embedding API, which changes retrieval quality — see the startup
     // warning in KnowledgeIndexStartupService.
