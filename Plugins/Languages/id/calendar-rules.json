@@ -1,6 +1,6 @@
 [
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000001",
+    "id": "afae4776-3b19-41a0-8273-741874dffeb0",
     "rule": "01/01",
     "subRule": "",
     "isMandatory": true,
@@ -63,7 +63,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000002",
+    "id": "7bfae93d-292a-4ada-9e24-35edd2151148",
     "rule": "02/16",
     "subRule": "",
     "isMandatory": true,
@@ -126,7 +126,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000003",
+    "id": "d985c6b6-d8c9-42b3-96b8-cd99cbf594a2",
     "rule": "03/19",
     "subRule": "",
     "isMandatory": true,
@@ -189,7 +189,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000004",
+    "id": "6f1cd60a-9918-46dc-af32-fbdc610758a8",
     "rule": "03/21",
     "subRule": "",
     "isMandatory": true,
@@ -252,7 +252,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000005",
+    "id": "77a43df6-9b2c-4bf2-b40b-5685e30e5bd4",
     "rule": "03/22",
     "subRule": "",
     "isMandatory": true,
@@ -315,7 +315,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000006",
+    "id": "0cd896a6-4d5f-4eb1-b971-3777c776f33b",
     "rule": "EASTER-02",
     "subRule": "",
     "isMandatory": true,
@@ -378,7 +378,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000007",
+    "id": "7db71baf-3bb0-464b-b25e-1a806e118d28",
     "rule": "05/01",
     "subRule": "",
     "isMandatory": true,
@@ -441,7 +441,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000008",
+    "id": "379ab634-59d5-4501-9504-cb9834ab12b7",
     "rule": "EASTER+39",
     "subRule": "",
     "isMandatory": true,
@@ -504,7 +504,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000009",
+    "id": "78bcb7d7-2169-474c-a127-2d94e423a2b8",
     "rule": "05/27",
     "subRule": "",
     "isMandatory": true,
@@ -567,7 +567,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000010",
+    "id": "8269b7a3-e7b9-4234-ab14-b112a26e0b58",
     "rule": "05/31",
     "subRule": "",
     "isMandatory": true,
@@ -630,7 +630,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000011",
+    "id": "cc44516c-841b-4f34-acd0-6471acad5fc0",
     "rule": "06/01",
     "subRule": "",
     "isMandatory": true,
@@ -693,7 +693,7 @@
     }
   },
   {
-    "id": "d1b2c3d4-bb01-4000-8000-000000000012",
+    "id": "29ae4e5a-95b1-4427-b0f6-74dcb1d161ba",
     "rule": "06/16",
     "subRule": "",
     "isMandatory": true,

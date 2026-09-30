@@ -5,7 +5,7 @@
 /// for language plugins.
 /// </summary>
 /// <param name="pluginDirectory">Base directory of the language plugins</param>
-/// <param name="manifests">Registry aller entdeckten Plugin-Manifeste</param>
+/// <param name="manifests">Registry of all discovered plugin manifests</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
 
 using System.Collections.Concurrent;
@@ -44,16 +44,17 @@ public class LanguagePluginGeoDataInstaller
         {
             foreach (var country in countries)
             {
-                var existing = await db.Countries.IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(c => c.Id == country.Id);
+                var match = await LanguagePluginGeoRowResolver.FindCountryAsync(
+                    db, country.Id, country.Abbreviation, code, _logger);
 
-                if (existing != null)
+                if (match.Row != null)
                 {
-                    existing.IsDeleted = false;
-                    existing.DeletedTime = null;
+                    match.Row.IsDeleted = false;
+                    match.Row.DeletedTime = null;
                 }
                 else
                 {
+                    country.Id = match.IdForInsert(country.Id);
                     db.Countries.Add(country);
                 }
             }
@@ -64,16 +65,17 @@ public class LanguagePluginGeoDataInstaller
         {
             foreach (var state in states)
             {
-                var existing = await db.State.IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(s => s.Id == state.Id);
+                var match = await LanguagePluginGeoRowResolver.FindStateAsync(
+                    db, state.Id, state.CountryPrefix, state.Abbreviation, code, _logger);
 
-                if (existing != null)
+                if (match.Row != null)
                 {
-                    existing.IsDeleted = false;
-                    existing.DeletedTime = null;
+                    match.Row.IsDeleted = false;
+                    match.Row.DeletedTime = null;
                 }
                 else
                 {
+                    state.Id = match.IdForInsert(state.Id);
                     db.State.Add(state);
                 }
             }
@@ -84,8 +86,10 @@ public class LanguagePluginGeoDataInstaller
         {
             foreach (var rule in rules)
             {
-                if (!await db.CalendarRule.AnyAsync(r => r.Id == rule.Id))
+                var match = await LanguagePluginGeoRowResolver.FindCalendarRuleAsync(db, rule, code, _logger);
+                if (match.Row == null)
                 {
+                    rule.Id = match.IdForInsert(rule.Id);
                     db.CalendarRule.Add(rule);
                 }
             }

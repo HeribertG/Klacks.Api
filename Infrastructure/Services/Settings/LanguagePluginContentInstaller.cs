@@ -24,6 +24,12 @@ namespace Klacks.Api.Infrastructure.Services.Settings;
 
 public class LanguagePluginContentInstaller
 {
+    private const string CountryProperty = "country";
+    private const string StateProperty = "state";
+    private const string NameProperty = "name";
+    private const string DescriptionProperty = "description";
+    private const string EnglishLanguage = "en";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -474,7 +480,8 @@ public class LanguagePluginContentInstaller
     /// selectable country if it doesn't exist yet, or merges its name translations into the
     /// existing row otherwise. Unlike calendar rules/states, a plugin country is expected to be a
     /// brand-new row (e.g. installing the "ar" plugin should add Saudi Arabia as a country), so it
-    /// needs upsert semantics instead of the update-only merge used for the other content types.
+    /// needs upsert semantics instead of the update-only merge used for the other content types. A soft-deleted
+    /// row is skipped so the startup backfill never writes into or undoes a deletion; reinstalling the pack revives it.
     /// </summary>
     /// <param name="scope">Service scope providing the database context.</param>
     /// <param name="code">Plugin language code being installed.</param>
@@ -498,7 +505,10 @@ public class LanguagePluginContentInstaller
                 if (!Guid.TryParse(entry.Id, out var id) || string.IsNullOrEmpty(entry.Abbreviation))
                     continue;
 
-                var existing = await db.Countries.FirstOrDefaultAsync(c => c.Id == id);
+                var match = await LanguagePluginGeoRowResolver.FindCountryAsync(db, id, entry.Abbreviation, code, _logger);
+                var existing = match.Row;
+                if (existing is { IsDeleted: true })
+                    continue;
 
                 if (existing != null)
                 {
@@ -519,7 +529,7 @@ public class LanguagePluginContentInstaller
 
                     db.Countries.Add(new Countries
                     {
-                        Id = id,
+                        Id = match.IdForInsert(id),
                         Abbreviation = entry.Abbreviation,
                         Name = name,
                         Prefix = entry.Prefix
@@ -556,7 +566,8 @@ public class LanguagePluginContentInstaller
     /// selectable state if it doesn't exist yet, or merges its name translations into the existing
     /// row otherwise. A plugin country ships its own subdivisions (e.g. the Spanish autonomous
     /// communities that come with the "es" plugin) that are not part of the core seed, so those
-    /// rows need upsert semantics instead of the update-only merge used for calendar rules.
+    /// rows need upsert semantics instead of the update-only merge used for calendar rules. A soft-deleted row is
+    /// skipped so the startup backfill never writes into or undoes a deletion; reinstalling the pack revives it.
     /// </summary>
     /// <param name="scope">Service scope providing the database context.</param>
     /// <param name="code">Plugin language code being installed.</param>
@@ -580,7 +591,11 @@ public class LanguagePluginContentInstaller
                 if (!Guid.TryParse(entry.Id, out var id) || string.IsNullOrEmpty(entry.Abbreviation))
                     continue;
 
-                var existing = await db.State.FirstOrDefaultAsync(s => s.Id == id);
+                var match = await LanguagePluginGeoRowResolver.FindStateAsync(
+                    db, id, entry.CountryPrefix, entry.Abbreviation, code, _logger);
+                var existing = match.Row;
+                if (existing is { IsDeleted: true })
+                    continue;
 
                 if (existing != null)
                 {
@@ -601,7 +616,7 @@ public class LanguagePluginContentInstaller
 
                     db.State.Add(new State
                     {
-                        Id = id,
+                        Id = match.IdForInsert(id),
                         Abbreviation = entry.Abbreviation,
                         CountryPrefix = entry.CountryPrefix,
                         Name = name
@@ -739,11 +754,19 @@ public class LanguagePluginContentInstaller
                 if (string.IsNullOrEmpty(id))
                     continue;
 
-                count += await MergeJsonbPropertyAsync(db, tableName, id, element, "name");
+                var country = element.GetProperty(CountryProperty).GetString() ?? string.Empty;
+                var state = element.GetProperty(StateProperty).GetString() ?? string.Empty;
+                var englishName = element.TryGetProperty(NameProperty, out var names)
+                    && names.TryGetProperty(EnglishLanguage, out var english)
+                        ? english.GetString() ?? string.Empty
+                        : string.Empty;
+
+                var ruleKey = new CalendarRuleKey(id, country, state, englishName);
+                count += await MergeJsonbPropertyAsync(db, tableName, ruleKey, element, NameProperty);
 
                 if (hasDescription)
                 {
-                    await MergeJsonbPropertyAsync(db, tableName, id, element, "description");
+                    await MergeJsonbPropertyAsync(db, tableName, ruleKey, element, DescriptionProperty);
                 }
             }
 
@@ -763,7 +786,7 @@ public class LanguagePluginContentInstaller
     }
 
     private static async Task<int> MergeJsonbPropertyAsync(
-        DataBaseContext db, string tableName, string id, JsonElement element, string propertyName)
+        DataBaseContext db, string tableName, CalendarRuleKey ruleKey, JsonElement element, string propertyName)
     {
         if (!element.TryGetProperty(propertyName, out var propObj))
             return 0;
@@ -785,9 +808,17 @@ public class LanguagePluginContentInstaller
             return 0;
 
         var mergeJson = JsonSerializer.Serialize(nonCoreValues);
-        var sql = $"UPDATE {tableName} SET {propertyName} = {propertyName} || {{0}}::jsonb WHERE id = {{1}}::uuid";
-        await db.Database.ExecuteSqlRawAsync(sql, mergeJson, id);
+        var update = $"UPDATE {tableName} SET {propertyName} = {propertyName} || {{0}}::jsonb WHERE country = {{2}} AND state = {{3}} AND ";
+        if (string.IsNullOrEmpty(ruleKey.EnglishName))
+        {
+            return await db.Database.ExecuteSqlRawAsync(
+                update + "id = {1}::uuid", mergeJson, ruleKey.Id, ruleKey.Country, ruleKey.State);
+        }
 
-        return 1;
+        return await db.Database.ExecuteSqlRawAsync(
+            update + $"(id = {{1}}::uuid OR {NameProperty} ->> '{EnglishLanguage}' = {{4}})",
+            mergeJson, ruleKey.Id, ruleKey.Country, ruleKey.State, ruleKey.EnglishName);
     }
+
+    private sealed record CalendarRuleKey(string Id, string Country, string State, string EnglishName);
 }

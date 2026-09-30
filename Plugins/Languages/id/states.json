@@ -1,6 +1,6 @@
 [
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000001",
+    "id": "cf7f7c17-e94e-4fea-9e07-1c84ee481f84",
     "abbreviation": "AC",
     "countryPrefix": "ID",
     "name": {
@@ -32,7 +32,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000002",
+    "id": "a7c57347-82bd-4f01-a100-9914ed88971c",
     "abbreviation": "SU",
     "countryPrefix": "ID",
     "name": {
@@ -64,7 +64,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000003",
+    "id": "18f79a07-5a4f-45c2-9c2e-0ca78a00ec67",
     "abbreviation": "SB",
     "countryPrefix": "ID",
     "name": {
@@ -96,7 +96,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000004",
+    "id": "65c58dd4-5b2d-40d1-a9ab-3e260d8f3bde",
     "abbreviation": "RI",
     "countryPrefix": "ID",
     "name": {
@@ -128,7 +128,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000005",
+    "id": "b830f72d-2806-44d3-96d8-7ec15603425b",
     "abbreviation": "JA",
     "countryPrefix": "ID",
     "name": {
@@ -160,7 +160,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000006",
+    "id": "95f397d1-e782-4ab8-b2b6-f7791bd316d6",
     "abbreviation": "SS",
     "countryPrefix": "ID",
     "name": {
@@ -192,7 +192,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000007",
+    "id": "6380bc5e-27c0-4483-b256-4a4aff67454e",
     "abbreviation": "BE",
     "countryPrefix": "ID",
     "name": {
@@ -224,7 +224,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000008",
+    "id": "2f442c50-2a0d-4ae1-90ed-82170ba9cdec",
     "abbreviation": "LA",
     "countryPrefix": "ID",
     "name": {
@@ -256,7 +256,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000009",
+    "id": "43e63e9b-90b4-42b3-8b8b-7dd400eca93d",
     "abbreviation": "BB",
     "countryPrefix": "ID",
     "name": {
@@ -288,7 +288,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000010",
+    "id": "e41fb17e-08a3-4d07-be71-3bf6b354eacd",
     "abbreviation": "KR",
     "countryPrefix": "ID",
     "name": {
@@ -320,7 +320,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000011",
+    "id": "2bac2b4d-e464-47f9-b3a1-a5c4459d3cdc",
     "abbreviation": "JK",
     "countryPrefix": "ID",
     "name": {
@@ -352,7 +352,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000012",
+    "id": "e1bca33e-fcca-4177-9a4c-b93411a1db69",
     "abbreviation": "JB",
     "countryPrefix": "ID",
     "name": {
@@ -384,7 +384,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000013",
+    "id": "335483dc-1887-45d6-bd1b-1dc9f49cbdd3",
     "abbreviation": "JT",
     "countryPrefix": "ID",
     "name": {
@@ -416,7 +416,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000014",
+    "id": "7bd452d0-c545-4efd-afcf-b572d8c15d44",
     "abbreviation": "YO",
     "countryPrefix": "ID",
     "name": {
@@ -448,7 +448,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000015",
+    "id": "480fcdc9-8e7b-46f4-b340-cbb0265140e1",
     "abbreviation": "JI",
     "countryPrefix": "ID",
     "name": {
@@ -480,7 +480,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000016",
+    "id": "03cf74c2-c38b-4891-8af0-d1d81bd3c954",
     "abbreviation": "BT",
     "countryPrefix": "ID",
     "name": {
@@ -512,7 +512,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000017",
+    "id": "ce6d2c26-3fe0-4bc8-b4fd-4ccc7be58825",
     "abbreviation": "BA",
     "countryPrefix": "ID",
     "name": {
@@ -544,7 +544,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000018",
+    "id": "2b1c8ea5-5f66-4c8e-8db0-5f9fb361279e",
     "abbreviation": "NB",
     "countryPrefix": "ID",
     "name": {
@@ -576,7 +576,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000019",
+    "id": "73e1e105-de89-424b-a17c-a600c1d30064",
     "abbreviation": "NT",
     "countryPrefix": "ID",
     "name": {
@@ -608,7 +608,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000020",
+    "id": "8a98034b-14fd-40dc-8305-62440e743ecc",
     "abbreviation": "KB",
     "countryPrefix": "ID",
     "name": {
@@ -640,7 +640,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000021",
+    "id": "c62eac0e-125c-432a-9099-5e71748e3117",
     "abbreviation": "KT",
     "countryPrefix": "ID",
     "name": {
@@ -672,7 +672,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000022",
+    "id": "83a2bc04-7d43-441e-a434-6b51797935a6",
     "abbreviation": "KS",
     "countryPrefix": "ID",
     "name": {
@@ -704,7 +704,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000023",
+    "id": "1d43d8a9-09c0-42d6-bedc-e9125e6e1cff",
     "abbreviation": "KI",
     "countryPrefix": "ID",
     "name": {
@@ -736,7 +736,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000024",
+    "id": "d0a3e02c-a10f-405f-83d4-57a99ac8000a",
     "abbreviation": "KU",
     "countryPrefix": "ID",
     "name": {
@@ -768,7 +768,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000025",
+    "id": "580e0575-69b6-4dbc-b3db-3c196ccaff63",
     "abbreviation": "SA",
     "countryPrefix": "ID",
     "name": {
@@ -800,7 +800,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000026",
+    "id": "ef34f761-2afc-4534-868d-38a79c15ca56",
     "abbreviation": "ST",
     "countryPrefix": "ID",
     "name": {
@@ -832,7 +832,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000027",
+    "id": "abd19499-e864-4247-8efa-05735b5c02f3",
     "abbreviation": "SG",
     "countryPrefix": "ID",
     "name": {
@@ -864,7 +864,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000028",
+    "id": "77a9094d-ddc3-49b8-95c9-4c0a5b235fa0",
     "abbreviation": "SR",
     "countryPrefix": "ID",
     "name": {
@@ -896,7 +896,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000029",
+    "id": "8a7d4d25-9dc5-4187-ac36-3a54e9f55dd0",
     "abbreviation": "GO",
     "countryPrefix": "ID",
     "name": {
@@ -928,7 +928,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000030",
+    "id": "baec3f8d-068c-43f9-a043-8782ffab257f",
     "abbreviation": "SN",
     "countryPrefix": "ID",
     "name": {
@@ -960,7 +960,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000031",
+    "id": "ad6b3372-3e04-4339-8067-27e39e5f8737",
     "abbreviation": "MA",
     "countryPrefix": "ID",
     "name": {
@@ -992,7 +992,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000032",
+    "id": "3fa2745a-1111-4053-8690-401ffa986ec3",
     "abbreviation": "MU",
     "countryPrefix": "ID",
     "name": {
@@ -1024,7 +1024,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000033",
+    "id": "a893d622-6c47-4f92-8e86-bdfcd0de6923",
     "abbreviation": "PA",
     "countryPrefix": "ID",
     "name": {
@@ -1056,7 +1056,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000034",
+    "id": "61a1234e-0605-45c4-876f-1885283b090c",
     "abbreviation": "PB",
     "countryPrefix": "ID",
     "name": {
@@ -1088,7 +1088,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000035",
+    "id": "285dcd9a-2309-422d-98b7-d9809b3a7842",
     "abbreviation": "PE",
     "countryPrefix": "ID",
     "name": {
@@ -1120,7 +1120,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000036",
+    "id": "7a3b1add-2805-4f21-a89e-9c74b6f90527",
     "abbreviation": "PT",
     "countryPrefix": "ID",
     "name": {
@@ -1152,7 +1152,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000037",
+    "id": "1a4fd85d-8c7f-47a2-9f86-2087de2deba5",
     "abbreviation": "PG",
     "countryPrefix": "ID",
     "name": {
@@ -1184,7 +1184,7 @@
     }
   },
   {
-    "id": "61b2c3d4-bb01-4000-8000-000000000038",
+    "id": "44cb9a88-861c-4834-9d05-55e1adcc02a9",
     "abbreviation": "PD",
     "countryPrefix": "ID",
     "name": {

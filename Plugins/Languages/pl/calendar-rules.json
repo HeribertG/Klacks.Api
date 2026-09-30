@@ -1,6 +1,6 @@
 [
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000001",
+    "id": "6fb8057e-2489-4838-9485-0d1a2f4e1218",
     "rule": "01/01",
     "subRule": "",
     "isMandatory": true,
@@ -63,7 +63,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000002",
+    "id": "4712a244-93d3-461a-950a-989f1ca38eca",
     "rule": "01/06",
     "subRule": "",
     "isMandatory": true,
@@ -126,7 +126,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000003",
+    "id": "dda63a19-cd5d-4ace-abdc-20a9a4144754",
     "rule": "EASTER+00",
     "subRule": "",
     "isMandatory": true,
@@ -189,7 +189,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000004",
+    "id": "04e6c960-0c4f-4b08-abfc-1ce0db84baf6",
     "rule": "EASTER+01",
     "subRule": "",
     "isMandatory": true,
@@ -252,7 +252,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000005",
+    "id": "3dc44967-53fa-4e5d-b600-7680f958ec44",
     "rule": "05/01",
     "subRule": "",
     "isMandatory": true,
@@ -315,7 +315,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000006",
+    "id": "0995f674-6b6e-4bff-802e-8c8ba8fa9c03",
     "rule": "05/03",
     "subRule": "",
     "isMandatory": true,
@@ -378,7 +378,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000007",
+    "id": "ff1dfb94-a01a-41e4-a8b2-15ee6807eb87",
     "rule": "EASTER+49",
     "subRule": "",
     "isMandatory": true,
@@ -441,7 +441,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000008",
+    "id": "add02ad6-b892-423d-ab94-2b40eafc42a3",
     "rule": "EASTER+60",
     "subRule": "",
     "isMandatory": true,
@@ -504,7 +504,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000009",
+    "id": "74dfcbd9-f4de-4a7c-80e2-32a62c4bc7b3",
     "rule": "08/15",
     "subRule": "",
     "isMandatory": true,
@@ -567,7 +567,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000010",
+    "id": "d821fa71-70cd-4688-aa4d-f9fb84235f53",
     "rule": "11/01",
     "subRule": "",
     "isMandatory": true,
@@ -630,7 +630,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000011",
+    "id": "da5fbe02-0522-452c-80e2-8bf4154d1982",
     "rule": "11/11",
     "subRule": "",
     "isMandatory": true,
@@ -693,7 +693,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000012",
+    "id": "9e1beaf3-e7f3-4fc4-955a-859732b06bd8",
     "rule": "12/24",
     "subRule": "",
     "isMandatory": true,
@@ -756,7 +756,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000013",
+    "id": "9b4124a6-aa4a-4086-affc-b65fe7fbd692",
     "rule": "12/25",
     "subRule": "",
     "isMandatory": true,
@@ -819,7 +819,7 @@
     }
   },
   {
-    "id": "d1c2d3e4-bb01-4000-8000-000000000014",
+    "id": "87464509-6075-4cf9-9e7b-46331a5299bf",
     "rule": "12/26",
     "subRule": "",
     "isMandatory": true,
