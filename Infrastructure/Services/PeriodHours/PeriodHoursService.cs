@@ -266,6 +266,52 @@ public class PeriodHoursService : IPeriodHoursService
             calculatedHours.Count);
     }
 
+    public async Task RefreshCachedPeriodHoursAsync(
+        DateOnly fromDate,
+        DateOnly untilDate,
+        Guid? analyseToken = null)
+    {
+        var cachedRows = await _context.ClientPeriodHours
+            .Where(p => p.AnalyseToken == analyseToken
+                && p.StartDate <= untilDate
+                && p.EndDate >= fromDate)
+            .ToListAsync();
+
+        if (cachedRows.Count == 0)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+
+        foreach (var period in cachedRows.GroupBy(p => (p.StartDate, p.EndDate)))
+        {
+            var clientIds = period.Select(p => p.ClientId).Distinct().ToList();
+            var calculated = await CalculatePeriodHoursForClientsAsync(
+                clientIds,
+                period.Key.StartDate,
+                period.Key.EndDate,
+                analyseToken);
+
+            foreach (var row in period)
+            {
+                var hours = calculated[row.ClientId];
+                row.Hours = hours.Hours;
+                row.Surcharges = hours.Surcharges;
+                row.CalculatedAt = now;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Refreshed {RowCount} cached period-hours rows overlapping {FromDate} to {UntilDate} (scenario={Token})",
+            cachedRows.Count,
+            fromDate,
+            untilDate,
+            analyseToken);
+    }
+
     public async Task InvalidateCacheAsync(
         Guid clientId,
         DateOnly date,

@@ -14,6 +14,8 @@
 /// the condition-ledger row it was prepared for: the finding moves Prepared to Executed and records who
 /// released it. Without that write-back a released remediation would leave the finding Prepared for
 /// ever, still pointing at a proposal that has already been applied to the real plan.
+/// The promote bypasses the per-work period-hours hooks, so the real plan's cached period hours
+/// overlapping the accepted range are recomputed afterwards and open schedules are told to reload them.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
 
@@ -28,6 +30,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
@@ -48,6 +51,9 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
     private const string AcceptedDetailFormat = "accepted scenario {0}";
 
+    private const string PeriodHoursRefreshFailedMessage =
+        "Refreshing the real plan's period hours after accepting scenario {ScenarioId} failed; the scenario acceptance itself is stored";
+
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
@@ -58,6 +64,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IAgentConditionLedgerService _ledgerService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IPeriodHoursService _periodHoursService;
+    private readonly IWorkNotificationService _notificationService;
 
     public AcceptAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
@@ -70,6 +78,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         IAgentConditionRepository conditionRepository,
         IAgentConditionLedgerService ledgerService,
         IHttpContextAccessor httpContextAccessor,
+        IPeriodHoursService periodHoursService,
+        IWorkNotificationService notificationService,
         ILogger<AcceptAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
@@ -83,6 +93,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         _conditionRepository = conditionRepository;
         _ledgerService = ledgerService;
         _httpContextAccessor = httpContextAccessor;
+        _periodHoursService = periodHoursService;
+        _notificationService = notificationService;
     }
 
     public async Task<bool> Handle(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
@@ -108,10 +120,33 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             _timelineService.QueueRangeCheck(scenario.FromDate, scenario.UntilDate, null);
 
+            await RefreshRealPeriodHoursAsync(scenario.Id, scenario.FromDate, scenario.UntilDate);
+
             await ExecuteLedgerConditionAsync(command, cancellationToken);
 
             return true;
         }, nameof(Handle), new { command.ScenarioId });
+    }
+
+    /// <summary>
+    /// Recomputes the real plan's cached period hours overlapping the accepted range and notifies open
+    /// schedules. Without it a cache row written before the accept keeps serving the pre-accept total
+    /// (typically 00:00) in the schedule row header, because the read path only falls back to the live
+    /// sum on a cache miss. Runs AFTER CompleteAsync because the period-hours service commits on its own
+    /// and must read the promoted works; best-effort for the same reason as the ledger write-back - the
+    /// accept is durable at this point, and the manual recalculation still repairs the cache.
+    /// </summary>
+    private async Task RefreshRealPeriodHoursAsync(Guid scenarioId, DateOnly fromDate, DateOnly untilDate)
+    {
+        try
+        {
+            await _periodHoursService.RefreshCachedPeriodHoursAsync(fromDate, untilDate, analyseToken: null);
+            await _notificationService.NotifyPeriodHoursRecalculated(fromDate, untilDate, analyseToken: null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, PeriodHoursRefreshFailedMessage, scenarioId);
+        }
     }
 
     /// <summary>

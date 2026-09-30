@@ -31,6 +31,16 @@ public interface IPeriodHoursService
         Guid? groupId = null,
         Guid? analyseToken = null);
 
+    /// <summary>
+    /// Recomputes, in place, every cached period-hours row of the given plan (real plan when
+    /// <paramref name="analyseToken"/> is null) whose pay period overlaps <paramref name="fromDate"/>..<paramref name="untilDate"/>,
+    /// and commits. For bulk writers that bypass the per-work recalculation hooks, e.g. accepting a scenario.
+    /// </summary>
+    Task RefreshCachedPeriodHoursAsync(
+        DateOnly fromDate,
+        DateOnly untilDate,
+        Guid? analyseToken = null);
+
     Task InvalidateCacheAsync(
         Guid clientId,
         DateOnly date,
