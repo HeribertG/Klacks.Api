@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -373,6 +374,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var maxWeekly = contract?.MaxWeeklyHours ?? 0m;
             var maxConsec = contract?.MaxConsecutiveDays > 0 ? contract.MaxConsecutiveDays : 6;
             var minPause = contract?.MinPauseHours ?? 0m;
+            var minRestDays = contract?.MinRestDays > 0 ? contract.MinRestDays : SchedulingPolicyDefaults.MinRestDays;
             var prefs = preferences.TryGetValue(id, out var p) ? p : [];
             var blacklist = blacklists.TryGetValue(id, out var b) ? (IReadOnlySet<Guid>)b : null;
             result.Add(new BitmapAgent(
@@ -383,7 +385,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 MaxWeeklyHours: maxWeekly,
                 MaxConsecutiveDays: maxConsec,
                 MinPauseHours: minPause,
-                BlacklistedShiftIds: blacklist));
+                BlacklistedShiftIds: blacklist,
+                MinRestDays: (int)Math.Ceiling(minRestDays)));
         }
         return result;
     }

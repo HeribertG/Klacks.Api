@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Application.Services.Schedules;
 
 /// <summary>
@@ -12,7 +14,7 @@ public static class WizardSchedulingDefaults
 {
     public const int MaxConsecutiveDays = 6;
 
-    public const double MinRestHours = 11.0;
+    public const double MinRestHours = SchedulingPolicyDefaults.MinRestHours;
 
     public const double MaxWeeklyHours = 50.0;
 

@@ -185,7 +185,15 @@ public class TimelineCalculationService : ITimelineCalculationService
                 endUtc = startUtc.AddTicks(1);
             }
 
-            return new ScheduleBlock(sourceId, blockType, clientId, startUtc, endUtc, shiftId);
+            return new ScheduleBlock(
+                sourceId,
+                blockType,
+                clientId,
+                startUtc,
+                endUtc,
+                shiftId,
+                DateTime.SpecifyKind(startWall, DateTimeKind.Unspecified),
+                DateTime.SpecifyKind(endWall, DateTimeKind.Unspecified));
         }
 
         return new ScheduleBlock(

@@ -15,11 +15,14 @@
 /// <param name="membershipStartResolver">Resolves a client's employment start date for the window clamp</param>
 /// <param name="contractDataProvider">Resolves the client's active SchedulingRule for industry-scoped rules</param>
 /// <remarks>
-/// Occupancy semantics mirror ClientTimeline.HasWorkOnDay: a Work occupies its own calendar day, and a
-/// cross-midnight Work (EndTime &lt;= StartTime) additionally occupies the following day - a Saturday
-/// 22:00-07:00 night shift kills that Sunday's "free" status. Breaks (vacation/sickness) are ignored:
-/// an absence is not a working day, so an absent Sunday counts as free - the same convention
-/// ClientTimeline.GetRestDayCount documents. WorkChange corrections are not folded in (Work rows are
+/// Occupancy uses the shared rest-day definition (CalendarWeekRestDays, owner rule 2026-09-30): a Work
+/// occupies the day it starts on; the morning end of a cross-midnight Work occupies the following day
+/// unless the day after that is free and the free block reaches the package rest of the client's
+/// MinRestDays - so a Saturday night shift followed by a free Monday no longer kills the Sunday. Works
+/// are loaded beyond the window end far enough to know that next shift. Breaks (vacation/sickness) are
+/// ignored: an absence is not a working day, so an absent Sunday counts as free - the same convention
+/// ClientTimeline.GetRestDayCount documents. Industry-scoped rules and MinRestDays are resolved once per
+/// evaluation at the latest candidate date. WorkChange corrections are not folded in (Work rows are
 /// the planning source of truth this rule governs). A window that starts before the client's
 /// Membership.ValidFrom is skipped entirely rather than evaluated pro-rata: a minimum COUNT over a
 /// shortened window has no honest proportional reading, and skipping is the direction that never
@@ -35,6 +38,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.ScheduleOptimizer.Common.RestDays;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -42,6 +46,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
 {
     private const int DaysPerWeek = 7;
+
+    private const int LookAheadPaddingDays = 2;
 
     private readonly IRestDayRotationRuleRepository _ruleRepository;
     private readonly DataBaseContext _context;
@@ -70,7 +76,7 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         Guid? analyseToken = null,
         CancellationToken cancellationToken = default)
     {
-        return await EvaluateCoreAsync(clientId, clientName, [asOfDate], new HashSet<DateOnly>(), analyseToken, cancellationToken);
+        return await EvaluateCoreAsync(clientId, clientName, [asOfDate], [], analyseToken, cancellationToken);
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedAsync(
@@ -86,32 +92,40 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         }
 
         var candidateDates = plannedSlots.Select(s => s.Date).Distinct().ToList();
-        var plannedOccupiedDays = new HashSet<DateOnly>();
-        foreach (var (date, startTime, endTime) in plannedSlots)
-        {
-            plannedOccupiedDays.Add(date);
-            if (IsCrossMidnight(startTime, endTime))
-            {
-                plannedOccupiedDays.Add(date.AddDays(1));
-            }
-        }
+        var plannedWorks = plannedSlots
+            .Select(slot => ToInterval(slot.Date, slot.StartTime, slot.EndTime))
+            .ToList();
 
-        return await EvaluateCoreAsync(clientId, clientName, candidateDates, plannedOccupiedDays, analyseToken, cancellationToken);
+        return await EvaluateCoreAsync(clientId, clientName, candidateDates, plannedWorks, analyseToken, cancellationToken);
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateCoreAsync(
         Guid clientId,
         string clientName,
         IReadOnlyList<DateOnly> candidateDates,
-        IReadOnlySet<DateOnly> plannedOccupiedDays,
+        IReadOnlyList<WorkInterval> plannedWorks,
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var rules = await ResolveApplicableRulesAsync(clientId, candidateDates.Max());
+        var asOfDate = candidateDates.Max();
+        var allRules = await _ruleRepository.GetAllActiveAsync();
+        if (allRules.Count == 0)
+        {
+            return [];
+        }
+
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
+        var rules = allRules
+            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
+            .ToList();
         if (rules.Count == 0)
         {
             return [];
         }
+
+        var minimumRestDays = effectiveData.MinRestDays > 0 ? effectiveData.MinRestDays : SchedulingPolicyDefaults.MinRestDays;
+        var minimumFreeBlock = CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays);
+        var lookAheadDays = (int)Math.Ceiling(minimumFreeBlock.TotalDays) + LookAheadPaddingDays;
 
         var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RestDayRotation);
         var membershipStart = await _membershipStartResolver.GetValidFromAsync(clientId);
@@ -144,14 +158,14 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
                     continue;
                 }
 
-                var occupiedDays = await LoadOccupiedDaysAsync(
-                    clientId, windowStart, windowEnd, analyseToken, cancellationToken);
-                occupiedDays.UnionWith(plannedOccupiedDays);
+                var works = await LoadWorksAsync(
+                    clientId, windowStart.AddDays(-1), windowEnd.AddDays(lookAheadDays), analyseToken, cancellationToken);
+                works.AddRange(plannedWorks);
 
                 var freeCount = 0;
                 for (var occurrence = windowStart; occurrence <= windowEnd; occurrence = occurrence.AddDays(DaysPerWeek))
                 {
-                    if (!occupiedDays.Contains(occurrence))
+                    if (!CalendarWeekRestDays.IsWorkDay(occurrence, works, minimumFreeBlock))
                     {
                         freeCount++;
                     }
@@ -169,55 +183,32 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         return entries;
     }
 
-    // Industry scoping: a rule bound to a SchedulingRule applies only when the client's active contract
-    // references that rule; resolved once per evaluation at the latest candidate date (a contract change
-    // inside a window is deliberately not split per day).
-    private async Task<List<RestDayRotationRule>> ResolveApplicableRulesAsync(Guid clientId, DateOnly asOfDate)
-    {
-        var rules = await _ruleRepository.GetAllActiveAsync();
-        if (rules.Count == 0 || rules.All(r => r.SchedulingRuleId == null))
-        {
-            return rules;
-        }
-
-        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
-        return rules
-            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
-            .ToList();
-    }
-
-    private async Task<HashSet<DateOnly>> LoadOccupiedDaysAsync(
+    private async Task<List<WorkInterval>> LoadWorksAsync(
         Guid clientId,
-        DateOnly windowStart,
-        DateOnly windowEnd,
+        DateOnly loadStart,
+        DateOnly loadEnd,
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var loadStart = windowStart.AddDays(-1);
         var works = await _context.Work
             .AsNoTracking()
             .Where(w => w.ClientId == clientId
                 && !w.IsDeleted
                 && w.AnalyseToken == analyseToken
                 && w.CurrentDate >= loadStart
-                && w.CurrentDate <= windowEnd)
+                && w.CurrentDate <= loadEnd)
             .Select(w => new { w.CurrentDate, w.StartTime, w.EndTime })
             .ToListAsync(cancellationToken);
 
-        var occupied = new HashSet<DateOnly>();
-        foreach (var work in works)
-        {
-            occupied.Add(work.CurrentDate);
-            if (IsCrossMidnight(work.StartTime, work.EndTime))
-            {
-                occupied.Add(work.CurrentDate.AddDays(1));
-            }
-        }
-
-        return occupied;
+        return works.Select(work => ToInterval(work.CurrentDate, work.StartTime, work.EndTime)).ToList();
     }
 
-    private static bool IsCrossMidnight(TimeOnly startTime, TimeOnly endTime) => endTime <= startTime;
+    private static WorkInterval ToInterval(DateOnly date, TimeOnly startTime, TimeOnly endTime)
+    {
+        var start = date.ToDateTime(startTime);
+        var end = endTime <= startTime ? date.AddDays(1).ToDateTime(endTime) : date.ToDateTime(endTime);
+        return new WorkInterval(start, end);
+    }
 
     private static DateOnly MostRecentOccurrenceOnOrBefore(DayOfWeek dayOfWeek, DateOnly date)
     {

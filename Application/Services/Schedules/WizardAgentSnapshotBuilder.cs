@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -112,7 +113,7 @@ public sealed class WizardAgentSnapshotBuilder
             // CoreAgent plans whole calendar days; a fractional legal minimum (e.g. Spain's 1.5/week)
             // is rounded UP so the optimizer never targets fewer rest days than required - the exact
             // decimal threshold is still what ScheduleValidationBuilder checks post-hoc.
-            MinRestDays = data.MinRestDays > 0 ? (int)Math.Ceiling(data.MinRestDays) : 2,
+            MinRestDays = (int)Math.Ceiling(data.MinRestDays > 0 ? data.MinRestDays : SchedulingPolicyDefaults.MinRestDays),
             PerformsShiftWork = data.PerformsShiftWork,
             WorkOnMonday = data.WorkOnMonday,
             WorkOnTuesday = data.WorkOnTuesday,

@@ -1,12 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.ScheduleOptimizer.Common.RestDays;
+
+namespace Klacks.Api.Domain.Models.Schedules;
+
 /// <summary>
 /// Timeline of a client over an arbitrary period.
 /// Not day-bound - blocks are kept sorted for efficient queries.
 /// </summary>
 /// <param name="ClientId">Employee ID</param>
-namespace Klacks.Api.Domain.Models.Schedules;
-
 public class ClientTimeline
 {
     private const int DaysPerWeek = 7;
@@ -100,21 +102,38 @@ public class ClientTimeline
 
     /// <summary>
     /// Number of rest (non-work) days within the 7-day window starting at <paramref name="weekStart"/>.
-    /// A day is rest when no Work block touches it (cross-midnight aware via <see cref="HasWorkOnDay"/>);
-    /// a Break-only day counts as rest, since an absence is not a working day.
+    /// Delegates to <see cref="CalendarWeekRestDays"/>, the same rest-day definition every wizard vetoes
+    /// on: a day touched only by the morning end of a night is rest only when the next day is free and the
+    /// free block reaches the package rest of <paramref name="minimumRestDays"/> (an unknown next start,
+    /// i.e. no later block in this timeline, satisfies the free block). A Break-only day is rest. Days are
+    /// bucketed on the company-local calendar (<see cref="ScheduleBlock.CalendarStart"/>).
     /// </summary>
     /// <param name="weekStart">First day (Monday) of the seven-day window</param>
-    public int GetRestDayCount(DateOnly weekStart)
+    /// <param name="minimumRestDays">Configured MinRestDays; sets the minimum free block</param>
+    public int GetRestDayCount(DateOnly weekStart, decimal minimumRestDays)
+        => CalendarWeekRestDays.Count(weekStart, WorkIntervals(), minimumRestDays);
+
+    /// <summary>
+    /// True when <paramref name="date"/> is a work day under the shared rest-day definition
+    /// (<see cref="CalendarWeekRestDays.IsWorkDay"/>), bucketed on the company-local calendar.
+    /// </summary>
+    /// <param name="date">Calendar day to judge</param>
+    /// <param name="minimumRestDays">Configured MinRestDays; sets the minimum free block</param>
+    public bool IsWorkDay(DateOnly date, decimal minimumRestDays)
+        => CalendarWeekRestDays.IsWorkDay(date, WorkIntervals(), CalendarWeekRestDays.MinimumFreeBlock(minimumRestDays));
+
+    private List<WorkInterval> WorkIntervals()
     {
-        var restDays = 0;
-        for (var offset = 0; offset < DaysPerWeek; offset++)
+        var works = new List<WorkInterval>(Blocks.Count);
+        foreach (var block in Blocks)
         {
-            if (!HasWorkOnDay(weekStart.AddDays(offset)))
+            if (block.BlockType == ScheduleBlockType.Work)
             {
-                restDays++;
+                works.Add(new WorkInterval(block.CalendarStart, block.CalendarEnd));
             }
         }
-        return restDays;
+
+        return works;
     }
 
     public bool HasWorkAnchoredOn(DateOnly date)

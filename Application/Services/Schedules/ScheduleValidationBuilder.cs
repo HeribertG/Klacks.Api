@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.ScheduleOptimizer.Common.RestDays;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -177,8 +178,8 @@ public static class ScheduleValidationBuilder
         {
             if (weekStart < startDate) continue;
 
-            var restDays = timeline.GetRestDayCount(weekStart);
-            if (restDays >= policy.MinRestDays) continue;
+            var restDays = timeline.GetRestDayCount(weekStart, policy.MinRestDays);
+            if (CalendarWeekRestDays.MeetsMinimum(restDays, policy.MinRestDays)) continue;
 
             entries.Add(new ScheduleValidationNotificationDto
             {
@@ -232,9 +233,5 @@ public static class ScheduleValidationBuilder
         return (start, start.AddDays(DaysPerWeek - 1));
     }
 
-    private static DateOnly MondayOf(DateOnly date)
-    {
-        var offsetFromMonday = ((int)date.DayOfWeek + DaysPerWeek - 1) % DaysPerWeek;
-        return date.AddDays(-offsetFromMonday);
-    }
+    private static DateOnly MondayOf(DateOnly date) => CalendarWeekRestDays.WeekStartOf(date);
 }
