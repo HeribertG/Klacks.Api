@@ -3,7 +3,8 @@
 /// <summary>
 /// Facade for language plugin management: discovery, installation, uninstallation and translations.
 /// Delegates geo data operations to <see cref="LanguagePluginGeoDataInstaller"/>,
-/// content operations to <see cref="LanguagePluginContentInstaller"/>
+/// content operations to <see cref="LanguagePluginContentInstaller"/>,
+/// country, state and geo translation operations to <see cref="LanguagePluginGeoContentInstaller"/>
 /// and skill label operations to <see cref="LanguagePluginSkillLabelInstaller"/>.
 /// </summary>
 /// <param name="scopeFactory">Factory for DI scopes in database operations</param>
@@ -38,6 +39,7 @@ public class LanguagePluginService : ILanguagePluginService
 
     private readonly LanguagePluginGeoDataInstaller _geoDataInstaller;
     private readonly LanguagePluginContentInstaller _contentInstaller;
+    private readonly LanguagePluginGeoContentInstaller _geoContentInstaller;
     private readonly LanguagePluginSkillLabelInstaller _skillLabelInstaller;
     private readonly LanguagePluginRecipeVocabularyInstaller _recipeVocabularyInstaller;
 
@@ -63,6 +65,7 @@ public class LanguagePluginService : ILanguagePluginService
 
         _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
+        _geoContentInstaller = new LanguagePluginGeoContentInstaller(_pluginDirectory, _logger);
         _skillLabelInstaller = new LanguagePluginSkillLabelInstaller(_pluginDirectory, _logger);
         _recipeVocabularyInstaller = new LanguagePluginRecipeVocabularyInstaller(_pluginDirectory, _logger);
     }
@@ -82,7 +85,7 @@ public class LanguagePluginService : ILanguagePluginService
     private async Task BackfillDefaultGeoTranslationsAsync()
     {
         await RunForEachInstalledCodeAsync(
-            _contentInstaller.MergeDefaultGeoTranslationsAsync,
+            _geoContentInstaller.MergeDefaultGeoTranslationsAsync,
             "Failed to backfill default geo translations for installed language plugins");
     }
 
@@ -192,8 +195,8 @@ public class LanguagePluginService : ILanguagePluginService
         await RunForEachInstalledCodeAsync(
             async (scope, code) =>
             {
-                await _contentInstaller.InstallCountryAsync(scope, code);
-                await _contentInstaller.InstallStatesAsync(scope, code);
+                await _geoContentInstaller.InstallCountryAsync(scope, code);
+                await _geoContentInstaller.InstallStatesAsync(scope, code);
             },
             "Failed to backfill countries for installed language plugins");
     }
@@ -370,10 +373,10 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
         await _contentInstaller.InstallWakeWordsAsync(code);
         await unitOfWork.CompleteAsync();
-        await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
-        await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
-        await _contentInstaller.InstallCountryAsync(scope, code);
-        await _contentInstaller.InstallStatesAsync(scope, code);
+        await _geoContentInstaller.MergeNonCoreTranslationsAsync(scope, code);
+        await _geoContentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
+        await _geoContentInstaller.InstallCountryAsync(scope, code);
+        await _geoContentInstaller.InstallStatesAsync(scope, code);
 
         // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
         // keeps matching on the pre-install keywords until the next application start. The index sync
@@ -412,7 +415,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
         await _contentInstaller.UninstallDocsAsync(scope, code);
-        await _contentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
+        await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)
