@@ -14,6 +14,12 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
 {
+    private static readonly WorkChangeType[] AfterShiftTypes =
+        [WorkChangeType.CorrectionEnd, WorkChangeType.TravelEnd, WorkChangeType.Debriefing];
+
+    private static readonly WorkChangeType[] BeforeShiftTypes =
+        [WorkChangeType.CorrectionStart, WorkChangeType.TravelStart, WorkChangeType.Briefing];
+
     private readonly DataBaseContext _context;
 
     public WorkChangeEffectiveTimeService(DataBaseContext context)
@@ -41,30 +47,8 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
     private async Task<(TimeOnly Start, TimeOnly End)> ComputeAfterShiftTimesAsync(
         WorkChange workChange, Work work)
     {
-        var siblings = await _context.WorkChange
-            .Where(wc => wc.WorkId == work.Id
-                && (wc.Type == WorkChangeType.CorrectionEnd
-                    || wc.Type == WorkChangeType.TravelEnd
-                    || wc.Type == WorkChangeType.Debriefing))
-            .ToListAsync();
-
-        var ordered = siblings
-            .OrderBy(wc => AfterShiftPriority(wc.Type))
-            .ThenBy(wc => wc.Id)
-            .ToList();
-
-        decimal beforeOffset = 0m, afterOffset = 0m;
-
-        foreach (var entry in ordered)
-        {
-            if (entry.Id == workChange.Id)
-            {
-                afterOffset = beforeOffset + entry.ChangeTime;
-                break;
-            }
-
-            beforeOffset += entry.ChangeTime;
-        }
+        var (beforeOffset, afterOffset) = await ComputeOffsetsAsync(
+            workChange, work.Id, AfterShiftTypes, AfterShiftPriority);
 
         return (AddHours(work.EndTime, beforeOffset), AddHours(work.EndTime, afterOffset));
     }
@@ -72,15 +56,25 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
     private async Task<(TimeOnly Start, TimeOnly End)> ComputeBeforeShiftTimesAsync(
         WorkChange workChange, Work work)
     {
-        var siblings = await _context.WorkChange
-            .Where(wc => wc.WorkId == work.Id
-                && (wc.Type == WorkChangeType.CorrectionStart
-                    || wc.Type == WorkChangeType.TravelStart
-                    || wc.Type == WorkChangeType.Briefing))
-            .ToListAsync();
+        var (beforeOffset, afterOffset) = await ComputeOffsetsAsync(
+            workChange, work.Id, BeforeShiftTypes, BeforeShiftPriority);
+
+        return (SubtractHours(work.StartTime, afterOffset), SubtractHours(work.StartTime, beforeOffset));
+    }
+
+    /// <summary>
+    /// Cumulative offset of <paramref name="workChange"/> among its siblings, ordered like the stored procedure
+    /// (priority, then Id). The siblings are the persisted rows overlaid with the change tracker's unsaved state
+    /// and the passed-in entry itself, so a new or edited entry is placed with its current ChangeTime; the rows are
+    /// read without tracking so a detached entity with the same key can still be attached afterwards.
+    /// </summary>
+    private async Task<(decimal BeforeOffset, decimal AfterOffset)> ComputeOffsetsAsync(
+        WorkChange workChange, Guid workId, WorkChangeType[] types, Func<WorkChangeType, int> priority)
+    {
+        var siblings = await LoadSiblingsAsync(workChange, workId, types);
 
         var ordered = siblings
-            .OrderBy(wc => BeforeShiftPriority(wc.Type))
+            .OrderBy(wc => priority(wc.Type))
             .ThenBy(wc => wc.Id)
             .ToList();
 
@@ -88,7 +82,7 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
 
         foreach (var entry in ordered)
         {
-            if (entry.Id == workChange.Id)
+            if (ReferenceEquals(entry, workChange))
             {
                 afterOffset = beforeOffset + entry.ChangeTime;
                 break;
@@ -97,7 +91,47 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
             beforeOffset += entry.ChangeTime;
         }
 
-        return (SubtractHours(work.StartTime, afterOffset), SubtractHours(work.StartTime, beforeOffset));
+        return (beforeOffset, afterOffset);
+    }
+
+    private async Task<List<WorkChange>> LoadSiblingsAsync(
+        WorkChange workChange, Guid workId, WorkChangeType[] types)
+    {
+        var persisted = await _context.WorkChange
+            .AsNoTracking()
+            .Where(wc => wc.WorkId == workId && types.Contains(wc.Type))
+            .ToListAsync();
+
+        var siblings = persisted.ToDictionary(wc => wc.Id);
+
+        var autoDetectChanges = _context.ChangeTracker.AutoDetectChangesEnabled;
+        _context.ChangeTracker.AutoDetectChangesEnabled = false;
+        try
+        {
+            foreach (var entry in _context.ChangeTracker.Entries<WorkChange>())
+            {
+                var tracked = entry.Entity;
+                var isSibling = tracked.WorkId == workId && types.Contains(tracked.Type)
+                    && entry.State != EntityState.Deleted && !tracked.IsDeleted;
+
+                if (isSibling)
+                {
+                    siblings[tracked.Id] = tracked;
+                }
+                else
+                {
+                    siblings.Remove(tracked.Id);
+                }
+            }
+        }
+        finally
+        {
+            _context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+        }
+
+        siblings[workChange.Id] = workChange;
+
+        return siblings.Values.ToList();
     }
 
     private static int AfterShiftPriority(WorkChangeType type) => type switch

@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Repository for WorkChange entries; runs the surcharge macro on add (after the entity is tracked, so the effective
+/// window sees it) and on put.
+/// </summary>
+/// <param name="workMacroService">Computes surcharges and surcharge items of a WorkChange via the shift macro</param>
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -25,8 +30,8 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
 
     public override async Task Add(WorkChange entity)
     {
-        await _workMacroService.ProcessWorkChangeMacroAsync(entity);
         await base.Add(entity);
+        await _workMacroService.ProcessWorkChangeMacroAsync(entity);
     }
 
     public override async Task<WorkChange?> Put(WorkChange entity)
