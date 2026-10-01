@@ -3,6 +3,7 @@
 /// <summary>
 /// Changes which category a client is classified as (Employee, ExternEmp or Customer) and verifies
 /// the new value against the database after saving.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">Optional. UUID of the client to update.</param>
 /// <param name="firstName">Optional. First name of the client, used together with lastName when clientId is not supplied.</param>
@@ -33,6 +34,7 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
     private const string SkillName = "update_client_type";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IClientSearchRepository _searchRepository;
     private readonly ClientMapper _clientMapper;
     private readonly IKlacksSelfApiClient _selfApi;
@@ -41,6 +43,7 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
 
     public UpdateClientTypeSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IClientSearchRepository searchRepository,
         ClientMapper clientMapper,
         IKlacksSelfApiClient selfApi,
@@ -48,6 +51,7 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
         ILogger<UpdateClientTypeSkill> logger)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _searchRepository = searchRepository;
         _clientMapper = clientMapper;
         _selfApi = selfApi;
@@ -125,7 +129,7 @@ public class UpdateClientTypeSkill : BaseSkillImplementation
                 return (null, $"'{clientIdValue}' is not a valid client id.");
             }
 
-            var byId = await _clientRepository.Get(clientId);
+            var byId = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
             return byId == null
                 ? (null, $"Client with ID '{clientId}' not found.")
                 : (byId, null);

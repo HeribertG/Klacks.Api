@@ -10,6 +10,9 @@
 /// The proposal is partitioned via <see cref="ICompliancePartitionService"/> (pre-commit guardrail plus
 /// the K1 supervisor override); blocked deltas are reported as uncovered, and the non-blocking rule
 /// conflicts on the materialised set are surfaced in the outcome for supervised review.
+/// An absent employee outside the caller's group visibility is refused exactly like an employee that does
+/// not exist, before anything is written; repair options that would write for a replacement or swap partner
+/// outside the caller's visibility are dropped and reported as uncovered (no eligible candidate).
 /// </summary>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
 /// <param name="scenarioService">Clones the real schedule under the scenario token (with the work id map)</param>
@@ -21,6 +24,7 @@
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
 /// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision</param>
 /// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
+/// <param name="clientVisibilityGuard">Decides for which employees the calling user may write</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
@@ -69,6 +73,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEscalationChainService _escalationChainService;
     private readonly ICompanyClock _companyClock;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -82,6 +87,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IUnitOfWork unitOfWork,
         IEscalationChainService escalationChainService,
         ICompanyClock companyClock,
+        IClientVisibilityGuard clientVisibilityGuard,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -94,6 +100,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _unitOfWork = unitOfWork;
         _escalationChainService = escalationChainService;
         _companyClock = companyClock;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _logger = logger;
     }
 
@@ -115,6 +122,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         {
             throw new ArgumentException(
                 $"Absence spans {totalDays} days; the maximum is {MaxAbsenceDays}. Split into smaller periods.");
+        }
+
+        if (!await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken))
+        {
+            throw new KeyNotFoundException($"Client with ID {clientId} not found");
         }
 
         var dates = Enumerable.Range(0, totalDays).Select(offset => date.AddDays(offset)).ToList();
@@ -143,8 +155,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
         await StartEscalationChainsAsync(clientId, groupId, snapshot, absenceDays, cancellationToken);
 
+        var (visibleDeltas, hiddenOptions) = await SplitByAgentVisibilityAsync(
+            proposal.Deltas, clientId, cancellationToken);
+
         var (materializable, blockedOptions, complianceWarnings) = await PartitionDeltasAsync(
-            proposal.Deltas, clientId, workIdMap, token, request.OverrideBlock, cancellationToken);
+            visibleDeltas, clientId, workIdMap, token, request.OverrideBlock, cancellationToken);
 
         // Memberships only make sense for covers that survived the partition; a blocked option would
         // otherwise leave an orphaned cross-group membership behind.
@@ -153,7 +168,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
         var covered = BuildCovered(materializable, clientId, snapshot);
-        var uncovered = BuildUncovered(proposal, blockedOptions, clientId);
+        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId);
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
         var highestTier = materializable.Count > 0 ? materializable.Max(d => (int)d.Tier) : 0;
@@ -318,6 +333,53 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         return (materializable, blockedOptions, partition.ReportableConflicts);
     }
 
+    /// <summary>
+    /// The candidate pool spans the whole root group, so the engine may pick a replacement or swap partner the
+    /// caller cannot see. Every repair option (all hops sharing an OptionId) that touches such an employee is
+    /// dropped as a whole, so no swap is half-applied and nothing is written for a hidden employee.
+    /// </summary>
+    private async Task<(
+        IReadOnlyList<Rec.CellDelta> Visible,
+        IReadOnlyList<IReadOnlyList<Rec.CellDelta>> HiddenOptions)> SplitByAgentVisibilityAsync(
+        IReadOnlyList<Rec.CellDelta> deltas,
+        Guid absentClientId,
+        CancellationToken cancellationToken)
+    {
+        if (deltas.Count == 0)
+        {
+            return (deltas, []);
+        }
+
+        var agentIds = deltas
+            .SelectMany(d => new[] { d.FromAgentId, d.ToAgentId })
+            .Where(id => id != absentClientId)
+            .Distinct()
+            .ToList();
+        var visibleAgents = (await _clientVisibilityGuard.FilterVisibleAsync(agentIds, id => id, cancellationToken))
+            .ToHashSet();
+        visibleAgents.Add(absentClientId);
+
+        var hiddenOptionIds = deltas
+            .Where(d => !visibleAgents.Contains(d.FromAgentId) || !visibleAgents.Contains(d.ToAgentId))
+            .Select(d => d.OptionId)
+            .ToHashSet();
+
+        if (hiddenOptionIds.Count == 0)
+        {
+            return (deltas, []);
+        }
+
+        var visible = deltas.Where(d => !hiddenOptionIds.Contains(d.OptionId)).ToList();
+        var hiddenOptions = deltas
+            .Where(d => hiddenOptionIds.Contains(d.OptionId))
+            .GroupBy(d => d.OptionId)
+            .OrderBy(g => g.Key)
+            .Select(g => (IReadOnlyList<Rec.CellDelta>)g.ToList())
+            .ToList();
+
+        return (visible, hiddenOptions);
+    }
+
     private static IReadOnlyList<CoveredSlot> BuildCovered(
         IReadOnlyList<Rec.CellDelta> deltas, Guid absentClientId, Rec.RecoverySnapshot snapshot)
     {
@@ -337,6 +399,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private static IReadOnlyList<UncoveredSlot> BuildUncovered(
         Rec.RecoveryProposal proposal,
         IReadOnlyList<IReadOnlyList<Rec.CellDelta>> blockedOptions,
+        IReadOnlyList<IReadOnlyList<Rec.CellDelta>> hiddenOptions,
         Guid absentClientId)
     {
         var uncovered = new List<UncoveredSlot>();
@@ -356,6 +419,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             // relocation half would have touched.
             var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
             uncovered.Add(new UncoveredSlot(cover.ShiftId ?? Guid.Empty, cover.Date, BlockedReason));
+        }
+        foreach (var option in hiddenOptions)
+        {
+            var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
+            uncovered.Add(new UncoveredSlot(cover.ShiftId ?? Guid.Empty, cover.Date, NoCandidateReason));
         }
         return uncovered;
     }

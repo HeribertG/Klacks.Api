@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates a membership. Both the stored owning client and the client named in the request must be inside the caller's
+/// group visibility; otherwise the membership is refused exactly like a missing one and nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -12,17 +18,20 @@ namespace Klacks.Api.Application.Handlers.Memberships;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<MembershipResource>, MembershipResource?>
 {
     private readonly IMembershipRepository _membershipRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     
     public PutCommandHandler(
         IMembershipRepository membershipRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _membershipRepository = membershipRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         }
@@ -32,7 +41,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Members
         return await ExecuteAsync(async () =>
         {
             var existingMembership = await _membershipRepository.Get(request.Resource.Id);
-            if (existingMembership == null)
+            if (existingMembership == null
+                || !await _clientVisibilityGuard.AreAllVisibleAsync(
+                    [existingMembership.ClientId, request.Resource.ClientId], cancellationToken))
             {
                 throw new KeyNotFoundException($"Membership with ID {request.Resource.Id} not found.");
             }

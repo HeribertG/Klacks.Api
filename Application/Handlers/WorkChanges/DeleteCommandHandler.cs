@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Deletes a WorkChange and refreshes period hours and schedule entries of the clients it touched. A change
+/// whose parent Work or replacement client is outside the caller's group visibility is answered exactly like
+/// a change that does not exist; nothing is deleted.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
@@ -15,6 +22,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
 {
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
@@ -26,6 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     public DeleteCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
@@ -38,6 +47,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
@@ -63,6 +73,15 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             var workChangeResource = _scheduleMapper.ToWorkChangeResource(existingWorkChange);
 
             var parentWork = await _workRepository.GetNoTracking(workId);
+            var clientIds = new[] { parentWork?.ClientId, replaceClientId }
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            {
+                return null;
+            }
+
             if (parentWork != null)
             {
                 await _dayLockService.EnsureNotLockedAsync(

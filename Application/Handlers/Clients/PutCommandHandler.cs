@@ -9,14 +9,19 @@
 /// Two write surfaces of the aggregate are gated separately, and deliberately not by the same rule.
 /// Client-contract assignments (which contract a person holds, from when, until when) are supervisor
 /// work: a caller holding CanEditContracts may change them, which is Admin and Authorised but not the
-/// Planer floor (Permissions.PlannerFloor carries CanViewContracts only). Group memberships stay
-/// Admin-only because they move the visibility boundary itself.
+/// Planer floor (Permissions.PlannerFloor carries CanViewContracts only). Group memberships may be changed
+/// by a non-admin only within the groups they can see: every added, removed or re-dated group must be visible,
+/// otherwise the request is refused like a missing group. That is the same rule as creating a client and as
+/// the GroupItems endpoints (owner decision 2026-10-01; before, PUT refused every membership change by a
+/// non-admin while GroupItems allowed it).
 ///
 /// Stated honestly: over HTTP this contract check refuses nobody who can reach it. ClientsController.Put
 /// already routes every caller without CanEditClients into the notes-only command, and every role that
 /// holds CanEditClients holds CanEditContracts too. The check is the written decision and the barrier for
 /// callers that reach the handler on another path; it starts separating HTTP callers the moment the two
 /// rights stop travelling together.
+///
+/// A client outside the caller's group visibility is refused exactly like a client that does not exist.
 /// </summary>
 /// <param name="request">Contains the client resource with the new values</param>
 
@@ -41,21 +46,25 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
     private const string ContractsDeniedMessage =
         "Changing client contract assignments requires the right to edit contracts.";
 
-    private const string GroupsDeniedMessage = "Only administrators can modify client groups";
+    private const string GroupNotFoundMessage = "Group with ID {0} not found";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IGroupVisibilityService _groupVisibilityService;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IEmailClientAssignmentService _emailAssignmentService;
     private readonly IDomainEventDispatcher _eventDispatcher;
     private readonly IUserService _userService;
 
     public PutCommandHandler(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         IGroupVisibilityService groupVisibilityService,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IEmailClientAssignmentService emailAssignmentService,
         IDomainEventDispatcher eventDispatcher,
         IUserService userService,
@@ -63,9 +72,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
         : base(logger)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
         _groupVisibilityService = groupVisibilityService;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _emailAssignmentService = emailAssignmentService;
         _eventDispatcher = eventDispatcher;
         _userService = userService;
@@ -77,7 +88,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
 
         var result = await ExecuteAsync(async () =>
         {
-            var existingClient = await _clientRepository.GetTrackedForUpdate(request.Resource.Id);
+            var existingClient = await _clientVisibilityGuard.IsVisibleAsync(request.Resource.Id, cancellationToken)
+                ? await _clientRepository.GetTrackedForUpdate(request.Resource.Id)
+                : null;
             if (existingClient == null)
             {
                 throw new KeyNotFoundException($"Client with ID {request.Resource.Id} not found");
@@ -96,11 +109,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
                     throw new InvalidRequestException(ContractsDeniedMessage);
                 }
 
-                if (HasGroupItemsChanged(existingClient.GroupItems, request.Resource.GroupItems))
-                {
-                    _logger.LogWarning("Non-admin user attempted to modify GroupItems for client {ClientId}", request.Resource.Id);
-                    throw new InvalidRequestException(GroupsDeniedMessage);
-                }
+                await EnsureChangedGroupsVisibleAsync(
+                    existingClient.GroupItems, request.Resource.GroupItems, request.Resource.Id, cancellationToken);
             }
 
             var contractsBefore = SnapshotClientContracts(existingClient.ClientContracts);
@@ -251,35 +261,52 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ClientR
         return false;
     }
 
-    private bool HasGroupItemsChanged(ICollection<Domain.Models.Associations.GroupItem> existing, ICollection<ClientGroupItemResource>? incoming)
+    private async Task EnsureChangedGroupsVisibleAsync(
+        ICollection<Domain.Models.Associations.GroupItem>? existing,
+        ICollection<ClientGroupItemResource>? incoming,
+        Guid clientId,
+        CancellationToken cancellationToken)
     {
-        if (incoming == null || !incoming.Any())
+        var changedGroupIds = ChangedGroupIds(existing, incoming);
+        if (changedGroupIds.Count == 0
+            || await _groupVisibilityGuard.AreAllGroupsVisibleAsync(changedGroupIds, cancellationToken))
         {
-            return existing != null && existing.Any(gi => gi.ClientId.HasValue && !gi.ShiftId.HasValue);
+            return;
         }
 
-        var existingClientGroups = existing.Where(gi => gi.ClientId.HasValue && !gi.ShiftId.HasValue).ToList();
-        if (existingClientGroups.Count != incoming.Count)
+        foreach (var groupId in changedGroupIds)
         {
-            return true;
-        }
-
-        foreach (var incomingItem in incoming)
-        {
-            var existingItem = existingClientGroups.FirstOrDefault(g => g.GroupId == incomingItem.GroupId);
-            if (existingItem == null)
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
             {
-                return true;
-            }
-
-            if (existingItem.ValidFrom != incomingItem.ValidFrom ||
-                existingItem.ValidUntil != incomingItem.ValidUntil)
-            {
-                return true;
+                _logger.LogWarning(
+                    "Non-admin user attempted to change membership of hidden group {GroupId} for client {ClientId}",
+                    groupId,
+                    clientId);
+                throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, groupId));
             }
         }
+    }
 
-        return false;
+    private static List<Guid> ChangedGroupIds(
+        ICollection<Domain.Models.Associations.GroupItem>? existing, ICollection<ClientGroupItemResource>? incoming)
+    {
+        var stored = (existing ?? [])
+            .Where(gi => gi.ClientId.HasValue && !gi.ShiftId.HasValue)
+            .ToList();
+        var requested = (incoming ?? []).ToList();
+
+        var added = requested
+            .Where(item => stored.All(gi => gi.GroupId != item.GroupId))
+            .Select(item => item.GroupId);
+        var removed = stored
+            .Where(gi => requested.All(item => item.GroupId != gi.GroupId))
+            .Select(gi => gi.GroupId);
+        var redated = requested
+            .Where(item => stored.Any(gi => gi.GroupId == item.GroupId
+                && (gi.ValidFrom != item.ValidFrom || gi.ValidUntil != item.ValidUntil)))
+            .Select(item => item.GroupId);
+
+        return added.Concat(removed).Concat(redated).Distinct().ToList();
     }
 
     private sealed record ClientContractSnapshot(Guid Id, Guid ContractId, DateOnly FromDate, DateOnly? UntilDate, bool IsActive);

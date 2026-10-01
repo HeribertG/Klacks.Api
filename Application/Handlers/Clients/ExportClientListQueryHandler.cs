@@ -3,12 +3,15 @@
 /// <summary>
 /// Handler that returns a flat list of clients for CSV export on the frontend.
 /// Applies the active filter and respects the selection (include / inverted-exclude) logic.
+/// Soft-deleted clients are exported only for administrators; for anyone else the ShowDeleteEntries
+/// flag is ignored, exactly as in the client list.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.Clients;
+using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -20,15 +23,18 @@ public class ExportClientListQueryHandler : IRequestHandler<ExportClientListQuer
 {
     private readonly IClientFilterRepository _clientFilterRepository;
     private readonly FilterMapper _filterMapper;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<ExportClientListQueryHandler> _logger;
 
     public ExportClientListQueryHandler(
         IClientFilterRepository clientFilterRepository,
         FilterMapper filterMapper,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<ExportClientListQueryHandler> logger)
     {
         _clientFilterRepository = clientFilterRepository;
         _filterMapper = filterMapper;
+        _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
 
@@ -38,6 +44,11 @@ public class ExportClientListQueryHandler : IRequestHandler<ExportClientListQuer
             throw new InvalidRequestException("Filter is required for client export");
 
         var clientFilter = _filterMapper.ToClientFilter(request.Request.Filter);
+        if (DeletedClientEntriesPolicy.RestrictToAdmins(clientFilter, _httpContextAccessor.HttpContext?.User))
+        {
+            _logger.LogInformation("ShowDeleteEntries was requested for an export by a non-admin user and has been ignored");
+        }
+
         var query = await _clientFilterRepository.FilterClients(clientFilter);
 
         var selection = request.Request.Selection ?? [];

@@ -9,12 +9,16 @@
 /// Group visibility is NOT applied uniformly across this repository, so read the per-method
 /// contract before adding a caller:
 /// <list type="bullet">
-/// <item><description><c>SearchAsync</c> (both overloads, including its fuzzy fallback) and
-/// <c>GetClientsForReplacement</c> run every result through
+/// <item><description><c>SearchAsync</c> (both overloads, including its fuzzy fallback),
+/// <c>IsVisibleToCallerAsync</c>, <c>FilterVisibleToCallerAsync</c> and <c>GetClientsForReplacement</c> run every result through
 /// <see cref="IClientGroupFilterService"/> and are therefore scoped to the caller's visible
 /// groups — the total count is taken after that scoping so an invisible client never shows up
 /// as a hidden remainder either.</description></item>
-/// <item><description><c>FindByMail</c>, <c>FindList</c> and <c>FindStatePostCode</c> are
+/// <item><description><c>FindList</c> is deliberately unscoped: it is the duplicate check when a new client
+/// is created, and a duplicate hidden in a foreign group must still be found (owner decision 2026-10-01 —
+/// knowing who is employed is acceptable, a duplicate is not). It returns nothing when every parameter is
+/// blank, so it cannot be used to list the whole tenant in one call.</description></item>
+/// <item><description><c>FindByMail</c> and <c>FindStatePostCode</c> are
 /// deliberately unscoped identity/synchronisation lookups: they run in contexts that have no
 /// calling user whose visibility could apply, and must not be used to answer user-facing
 /// search requests.</description></item>
@@ -70,6 +74,11 @@ public class ClientSearchRepository : IClientSearchRepository
 
     public async Task<List<Client>> FindList(string? company = null, string? name = null, string? firstname = null)
     {
+        if (string.IsNullOrWhiteSpace(company) && string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(firstname))
+        {
+            return [];
+        }
+
         var query = this.context.Client.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(company))
@@ -88,6 +97,30 @@ public class ClientSearchRepository : IClientSearchRepository
         }
 
         return await query.ToListAsync();
+    }
+
+    public async Task<bool> IsVisibleToCallerAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        var query = await _groupFilterService.FilterClientsByGroupId(
+            null, this.context.Client.Where(client => client.Id == clientId));
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlySet<Guid>> FilterVisibleToCallerAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default)
+    {
+        if (clientIds.Count == 0)
+        {
+            return new HashSet<Guid>();
+        }
+
+        var distinctIds = clientIds.Distinct().ToList();
+        var query = await _groupFilterService.FilterClientsByGroupId(
+            null, this.context.Client.Where(client => distinctIds.Contains(client.Id)));
+
+        var visibleIds = await query.Select(client => client.Id).ToListAsync(cancellationToken);
+        return visibleIds.ToHashSet();
     }
 
     public async Task<string> FindStatePostCode(string zip)

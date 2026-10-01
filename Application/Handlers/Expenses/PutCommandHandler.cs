@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates an expense entry and refreshes the schedule of its owner. An expense whose old or new parent Work
+/// is owned by a client outside the caller's group visibility is answered exactly like an expense that does
+/// not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owners of both parent Works</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
@@ -16,6 +23,7 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ExpensesResource>, ExpensesResource?>
 {
     private readonly IExpensesRepository _expensesRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
@@ -29,6 +37,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
 
     public PutCommandHandler(
         IExpensesRepository expensesRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
@@ -43,6 +52,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         : base(logger)
     {
         _expensesRepository = expensesRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
@@ -71,6 +81,19 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
 
             var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
+            var oldParentWork = existingExpenses.WorkId != expenses.WorkId
+                ? await _workRepository.GetNoTracking(existingExpenses.WorkId)
+                : null;
+
+            var clientIds = new[] { parentWork?.ClientId, oldParentWork?.ClientId }
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            {
+                return null;
+            }
+
             if (parentWork != null)
             {
                 await _dayLockService.EnsureNotLockedAsync(
@@ -82,7 +105,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
 
             if (existingExpenses.WorkId != expenses.WorkId)
             {
-                var oldParentWork = await _workRepository.GetNoTracking(existingExpenses.WorkId);
                 if (oldParentWork != null)
                 {
                     await _dayLockService.EnsureNotLockedAsync(

@@ -6,11 +6,13 @@
 /// null or not in the past) and sets its validUntil to the exit date inside a transaction with
 /// database verification. With zero active memberships it fails; with more than one it fails and
 /// lists the real options instead of guessing (lone-match rule). An explicit membershipId skips the
-/// resolution and ends exactly that membership of the client.
+/// resolution and ends exactly that membership of the client. A client outside the caller's group visibility,
+/// and a membership owned by such a client, are answered exactly like ones that do not exist.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client whose membership is ended.</param>
 /// <param name="exitDate">Required. Last day of employment (YYYY-MM-DD); becomes the membership's validUntil.</param>
 /// <param name="membershipId">Optional. UUID of the membership to end when the client has more than one active membership.</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see a client</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -36,6 +38,7 @@ public class EndClientMembershipSkill : BaseSkillImplementation
 
     private readonly IMembershipRepository _membershipRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
@@ -43,12 +46,14 @@ public class EndClientMembershipSkill : BaseSkillImplementation
     public EndClientMembershipSkill(
         IMembershipRepository membershipRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes,
         ICompanyClock companyClock)
     {
         _membershipRepository = membershipRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _selfApi = selfApi;
         _routes = routes;
         _companyClock = companyClock;
@@ -75,7 +80,8 @@ public class EndClientMembershipSkill : BaseSkillImplementation
             membershipIdOverride = parsedMembershipId;
         }
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await _clientRepository.Exists(clientId)
+            || !await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }
@@ -86,7 +92,9 @@ public class EndClientMembershipSkill : BaseSkillImplementation
         if (membershipIdOverride.HasValue)
         {
             var requested = memberships.FirstOrDefault(m => m.Id == membershipIdOverride.Value);
-            if (requested == null)
+            if (requested == null
+                || (requested.ClientId != clientId
+                    && !await _clientVisibilityGuard.IsVisibleAsync(requested.ClientId, cancellationToken)))
             {
                 return SkillResult.Error($"Membership '{membershipIdOverride.Value}' not found.");
             }

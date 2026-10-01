@@ -5,9 +5,11 @@
 /// that carries no lock at all cannot be unsealed by anybody, which is a state conflict (400); an entry
 /// whose lock sits above the caller's role is a rights problem (403). Reporting the second as 400 told
 /// the planner their request was malformed when in truth they simply may not undo a supervisor's
-/// approval.
+/// approval. A Work owned by a client outside the caller's group visibility is refused exactly like a Work
+/// that does not exist, before either of those checks; nothing is unsealed.
 /// </summary>
 /// <param name="request">Carries the id of the work entry to unseal</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
@@ -30,6 +32,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         "Unsealing this entry needs a higher role than yours.";
 
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
@@ -37,6 +40,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
 
     public UnconfirmWorkCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
@@ -45,6 +49,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
@@ -56,7 +61,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         return await ExecuteAsync(async () =>
         {
             var work = await _workRepository.Get(request.WorkId);
-            if (work == null)
+            if (work == null || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;

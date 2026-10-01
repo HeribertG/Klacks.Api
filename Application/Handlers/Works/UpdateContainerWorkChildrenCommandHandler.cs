@@ -3,7 +3,10 @@
 /// <summary>
 /// Handler for updating all children (sub-works, sub-breaks, and work changes) of a container work using the Savebar pattern.
 /// Delegates business logic to IContainerWorkChildrenManager; handles lock verification, mapping, persistence, and notifications.
+/// A container whose owner, any client of its sub-works or any replacement client of its work changes is outside the
+/// caller's group visibility is refused exactly like a container that does not exist; nothing is written.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the save touches</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -19,8 +22,10 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHandler<UpdateContainerWorkChildrenCommand, ContainerWorkChildrenResource>
 {
     private const string LockResourceType = "ContainerWork";
+    private const string WorkNotFoundMessageFormat = "Work with ID {0} not found.";
 
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationFacade _notificationFacade;
@@ -31,6 +36,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationFacade notificationFacade,
@@ -42,6 +48,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         : base(logger)
     {
         _childrenReadRepository = childrenReadRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationFacade = notificationFacade;
@@ -61,6 +68,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             }
 
             await VerifyLockAsync(request.WorkId, cancellationToken);
+            await EnsureContainerVisibleAsync(request.WorkId, request.Resource, cancellationToken);
 
             var updatedWorks = request.Resource.SubWorks.Select(_scheduleMapper.ToWorkEntity).ToList();
             var updatedBreaks = request.Resource.SubBreaks.Select(_scheduleMapper.ToBreakEntity).ToList();
@@ -107,6 +115,33 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         if (!holdsLock)
         {
             throw new ContainerLockedException("Cannot save: container work is not locked by this session.");
+        }
+    }
+
+    /// <summary>
+    /// Sub-works are persisted with the client id the request carries, so every non-empty one is checked
+    /// together with the container owner and the replacement clients in one query. Sub-breaks are not:
+    /// the children manager overwrites their client with the container owner.
+    /// </summary>
+    private async Task EnsureContainerVisibleAsync(
+        Guid workId, UpdateContainerWorkChildrenResource resource, CancellationToken cancellationToken)
+    {
+        var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(workId, cancellationToken);
+        if (parentWork == null)
+        {
+            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
+        }
+
+        var clientIds = resource.SubWorkChanges
+            .Where(wc => wc.ReplaceClientId.HasValue)
+            .Select(wc => wc.ReplaceClientId!.Value)
+            .Concat(resource.SubWorks.Select(w => w.ClientId).Where(id => id != Guid.Empty))
+            .Append(parentWork.ClientId)
+            .Distinct()
+            .ToList();
+        if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+        {
+            throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
         }
     }
 

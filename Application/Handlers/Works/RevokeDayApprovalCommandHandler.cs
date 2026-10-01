@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Lifts the day approval of every work and break entry of one day within one group. A group outside the
+/// caller's group visibility is answered like a group without entries: nothing is unsealed and the
+/// affected count is zero.
+/// </summary>
+/// <param name="groupVisibilityGuard">Decides whether the calling user may write the group</param>
+
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -11,13 +18,17 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class RevokeDayApprovalCommandHandler : BaseHandler, IRequestHandler<RevokeDayApprovalCommand, int>
 {
+    private const int NoEntriesAffected = 0;
+
     private readonly IWorkRepository _workRepository;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IBreakRepository _breakRepository;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public RevokeDayApprovalCommandHandler(
         IWorkRepository workRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IBreakRepository breakRepository,
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
@@ -25,6 +36,7 @@ public class RevokeDayApprovalCommandHandler : BaseHandler, IRequestHandler<Revo
         : base(logger)
     {
         _workRepository = workRepository;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _breakRepository = breakRepository;
         _lockLevelService = lockLevelService;
         _httpContextAccessor = httpContextAccessor;
@@ -39,6 +51,11 @@ public class RevokeDayApprovalCommandHandler : BaseHandler, IRequestHandler<Revo
 
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Approved, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to revoke day approvals.");
+
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.GroupId, cancellationToken))
+            {
+                return NoEntriesAffected;
+            }
 
             var workCount = await _workRepository.UnsealByDayAndGroup(request.Date, request.GroupId, WorkLockLevel.Approved, cancellationToken);
             var breakCount = await _breakRepository.UnsealByDayAndGroup(request.Date, request.GroupId, WorkLockLevel.Approved, cancellationToken);

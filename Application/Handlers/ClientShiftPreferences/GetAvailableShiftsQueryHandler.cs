@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Returns all shifts available to a client through their group memberships.
+/// Returns all shifts available to a client through their group memberships. A client outside the caller's
+/// group visibility is answered exactly like a client that does not exist: with an empty list.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the client</param>
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ClientShiftPreferences;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -14,13 +17,16 @@ public class GetAvailableShiftsQueryHandler : BaseHandler,
     IRequestHandler<GetAvailableShiftsQuery, List<AvailableShiftResource>>
 {
     private readonly IGroupItemRepository _groupItemRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public GetAvailableShiftsQueryHandler(
         IGroupItemRepository groupItemRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ILogger<GetAvailableShiftsQueryHandler> logger)
         : base(logger)
     {
         _groupItemRepository = groupItemRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<List<AvailableShiftResource>> Handle(
@@ -29,6 +35,9 @@ public class GetAvailableShiftsQueryHandler : BaseHandler,
     {
         return await ExecuteAsync(async () =>
         {
+            if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
+                return [];
+
             var treeGroupIds = await _groupItemRepository
                 .GetGroupTreeIdsForClientAsync(request.ClientId, cancellationToken);
 

@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates a WorkChange and refreshes period hours and schedule entries of every client it touches. A change
+/// whose parent Work (old or new) is owned by a hidden client, or whose stored or new replacement client is
+/// outside the caller's group visibility, is answered exactly like a change that does not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -14,6 +21,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 {
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -24,6 +32,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -35,6 +44,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -59,6 +69,25 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
 
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
+            var oldParentWork = existingWorkChange.WorkId != workChange.WorkId
+                ? await _workRepository.GetNoTracking(existingWorkChange.WorkId)
+                : null;
+
+            var clientIds = new[]
+                {
+                    parentWork?.ClientId,
+                    oldParentWork?.ClientId,
+                    existingWorkChange.ReplaceClientId,
+                    workChange.ReplaceClientId
+                }
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList();
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            {
+                return null;
+            }
+
             if (parentWork != null)
             {
                 await _dayLockService.EnsureNotLockedAsync(
@@ -70,7 +99,6 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 
             if (existingWorkChange.WorkId != workChange.WorkId)
             {
-                var oldParentWork = await _workRepository.GetNoTracking(existingWorkChange.WorkId);
                 if (oldParentWork != null)
                 {
                     await _dayLockService.EnsureNotLockedAsync(

@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates an expense entry on a Work and refreshes the schedule of its owner. An expense on a Work owned by
+/// a client outside the caller's group visibility is refused as if the Work did not exist, without revealing
+/// the owner; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
@@ -16,6 +23,7 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<ExpensesResource>, ExpensesResource?>
 {
     private readonly IExpensesRepository _expensesRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
@@ -29,6 +37,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
 
     public PostCommandHandler(
         IExpensesRepository expensesRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
@@ -43,6 +52,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         : base(logger)
     {
         _expensesRepository = expensesRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
@@ -62,6 +72,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
 
             var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
+            if (parentWork != null && !await _clientVisibilityGuard.IsVisibleAsync(parentWork.ClientId, cancellationToken))
+            {
+                throw new KeyNotFoundException($"Work with ID {expenses.WorkId} not found");
+            }
+
             if (parentWork != null)
             {
                 await _dayLockService.EnsureNotLockedAsync(

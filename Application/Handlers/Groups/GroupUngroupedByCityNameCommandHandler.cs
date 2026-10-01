@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -21,30 +22,37 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// in a single transaction and re-reads them, rolling everything back on a verification mismatch. Cities
 /// without an equally named group and employees without an address are reported back instead of being
 /// silently dropped, and group names that are not unique are ignored so no employee is assigned wrongly.
+/// The run matches against every group of the installation, so only unrestricted callers (admin, background,
+/// installation without groups) may start it; a group-restricted caller is refused before anything is read.
 /// </summary>
 /// <param name="clientRepository">Loads employees with their addresses and memberships.</param>
 /// <param name="groupRepository">Provides the groups whose names are matched against address cities.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits and verifies the new memberships in a single transaction.</param>
 /// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
+/// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
 public sealed class GroupUngroupedByCityNameCommandHandler
     : IRequestHandler<GroupUngroupedByCityNameCommand, GroupUngroupedByCityNameResult>
 {
     private const string SkillName = "group_ungrouped_by_city_name";
+    private const string RestrictedCallerMessage = "Only unrestricted users may group employees across all groups";
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public GroupUngroupedByCityNameCommandHandler(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
@@ -55,6 +63,11 @@ public sealed class GroupUngroupedByCityNameCommandHandler
     public async Task<GroupUngroupedByCityNameResult> Handle(
         GroupUngroupedByCityNameCommand request, CancellationToken cancellationToken)
     {
+        if (!await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken))
+        {
+            throw new ForbiddenException(RestrictedCallerMessage);
+        }
+
         var employees = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
             EntityTypeEnum.Employee, cancellationToken);
 

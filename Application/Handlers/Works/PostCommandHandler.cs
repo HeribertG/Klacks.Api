@@ -3,9 +3,11 @@
 /// <summary>
 /// Creates a Work: day-lock and write guards first, then the Work with its container expansion and
 /// default expenses, commit, overtime successors, period hours, notifications and the three-day
-/// WorkResource the client repaints from.
+/// WorkResource the client repaints from. A Work for a client outside the caller's group visibility is
+/// refused exactly like a Work for a client that does not exist; nothing is written.
 /// </summary>
 /// <param name="request">Carries the WorkResource to persist</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
@@ -22,6 +24,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkResource>, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -38,6 +41,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
     public PostCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -55,6 +59,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -75,6 +80,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         return await ExecuteAsync(async () =>
         {
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
+
+            if (!await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+            {
+                throw new KeyNotFoundException($"Client with ID {work.ClientId} not found");
+            }
 
             await _dayLockService.EnsureNotLockedAsync(
                 work.CurrentDate,

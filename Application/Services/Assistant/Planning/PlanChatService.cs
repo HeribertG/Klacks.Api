@@ -23,6 +23,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Application.Services.Assistant.Planning;
 
@@ -82,6 +83,7 @@ public class PlanChatService : IPlanChatService
     {
         try
         {
+            using var principal = ExecutionPrincipal.Begin(skillContext.UserId);
             using var scope = _scopeFactory.CreateScope();
             var executor = scope.ServiceProvider.GetRequiredService<IPlanStepExecutor>();
             if (resume)

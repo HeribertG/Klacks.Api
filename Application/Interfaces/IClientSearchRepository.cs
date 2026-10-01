@@ -12,6 +12,20 @@ public interface IClientSearchRepository
 
     Task<List<Client>> FindList(string? company = null, string? name = null, string? firstname = null);
 
+    /// <summary>
+    /// Tells whether the calling user may see the client under the group visibility rules of the client
+    /// list. A client that does not exist is reported as not visible, so callers cannot tell the two apart.
+    /// </summary>
+    /// <param name="clientId">Id of the client to check</param>
+    Task<bool> IsVisibleToCallerAsync(Guid clientId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the subset of the given client ids the calling user may see, in a single query.
+    /// </summary>
+    /// <param name="clientIds">Ids of the clients to check; unknown ids are never part of the result</param>
+    Task<IReadOnlySet<Guid>> FilterVisibleToCallerAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken = default);
+
     Task<string> FindStatePostCode(string zip);
 
     Task<List<ClientForReplacementResource>> GetClientsForReplacement();

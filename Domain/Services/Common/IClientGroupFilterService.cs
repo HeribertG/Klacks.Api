@@ -8,4 +8,10 @@ public interface IClientGroupFilterService
 {
     Task<IQueryable<Client>> FilterClientsByGroupId(
         Guid? selectedGroupId, IQueryable<Client> query, bool withoutGroup = false);
+
+    /// <summary>
+    /// True when group visibility does not limit the caller at all: an admin, an installation without groups,
+    /// or work without a calling user (neither an HTTP user nor an execution principal).
+    /// </summary>
+    Task<bool> IsCallerUnrestrictedAsync();
 }

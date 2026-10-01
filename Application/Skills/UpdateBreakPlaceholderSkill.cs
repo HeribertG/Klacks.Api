@@ -5,6 +5,7 @@
 /// absence calendar — the editable counterpart of a drag/resize/convert on the absence gantt.
 /// Booked absences (Breaks) are read-only here and must be changed via update_break. The write is
 /// self-verifying: it runs in a transaction and is re-read from the database before success is reported.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="placeholderId">Optional UUID of the placeholder; alternative to clientId + date</param>
 /// <param name="clientId">UUID of the client, used with date to locate the placeholder</param>
@@ -29,15 +30,18 @@ public class UpdateBreakPlaceholderSkill : BaseSkillImplementation
     private const string SkillName = "update_break_placeholder";
 
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateBreakPlaceholderSkill(
         IBreakPlaceholderRepository breakPlaceholderRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IAbsenceRepository absenceRepository,
         IUnitOfWork unitOfWork)
     {
         _breakPlaceholderRepository = breakPlaceholderRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _absenceRepository = absenceRepository;
         _unitOfWork = unitOfWork;
     }
@@ -74,7 +78,7 @@ public class UpdateBreakPlaceholderSkill : BaseSkillImplementation
         }
 
         var (placeholder, resolveError) = await BreakPlaceholderResolver.ResolveAsync(
-            _breakPlaceholderRepository, placeholderId, clientId, date, cancellationToken);
+            _breakPlaceholderRepository, _clientVisibilityGuard, placeholderId, clientId, date, cancellationToken);
         if (placeholder is null)
         {
             return SkillResult.Error(resolveError!);

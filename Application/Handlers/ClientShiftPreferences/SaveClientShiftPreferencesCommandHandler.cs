@@ -1,8 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handles bulk saving of client shift preferences by replacing all existing entries.
+/// Handles bulk saving of client shift preferences by replacing all existing entries. A client outside the
+/// caller's group visibility is refused exactly like a client that does not exist; nothing is deleted or written.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Commands.ClientShiftPreferences;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.Mappers;
@@ -16,16 +19,19 @@ public class SaveClientShiftPreferencesCommandHandler : BaseTransactionHandler,
     IRequestHandler<SaveClientShiftPreferencesCommand, List<ClientShiftPreferenceResource>>
 {
     private readonly IClientShiftPreferenceRepository _repository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ClientShiftPreferenceMapper _mapper;
 
     public SaveClientShiftPreferencesCommandHandler(
         IClientShiftPreferenceRepository repository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ClientShiftPreferenceMapper mapper,
         IUnitOfWork unitOfWork,
         ILogger<SaveClientShiftPreferencesCommandHandler> logger)
         : base(unitOfWork, logger)
     {
         _repository = repository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _mapper = mapper;
     }
 
@@ -35,6 +41,11 @@ public class SaveClientShiftPreferencesCommandHandler : BaseTransactionHandler,
     {
         return await ExecuteWithTransactionAsync(async () =>
         {
+            if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
+            {
+                throw new KeyNotFoundException($"Client with ID {request.ClientId} not found");
+            }
+
             await _repository.DeleteAllByClientIdAsync(request.ClientId, cancellationToken);
             await _unitOfWork.CompleteAsync();
 

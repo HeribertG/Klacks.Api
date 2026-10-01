@@ -7,6 +7,7 @@
 /// skipped. When the client has no geocoded address, no group carries coordinates, or the client is already
 /// in the nearest group, the skill changes nothing and reports why ("leave it"). Air-line (Haversine)
 /// distance; real road routing (OpenRoute) is a separate follow-up.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client (customer or external employee) to place.</param>
 
@@ -33,6 +34,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
     private const string SkillName = "add_client_to_nearest_group";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
@@ -42,6 +44,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
 
     public AddClientToNearestGroupSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
@@ -50,6 +53,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
@@ -78,7 +82,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validFrom", validFromStr!));
         }
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client == null)
         {
             return SkillResult.Error($"Client with ID {clientId} not found.");

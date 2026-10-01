@@ -56,12 +56,14 @@ public class GroupsController : InputBaseController<GroupResource>
     }
 
     /// <summary>
-    /// Retrieves the tree structure for a specific root or all roots if no ID is specified
+    /// Retrieves the tree structure for a specific root or all roots if no ID is specified. The tree feeds every
+    /// group picker, so it is limited to the groups the caller can see (admins see all; owner decision 2026-10-01):
+    /// a picker must not offer a group whose writes would be refused.
     /// </summary>
     [HttpGet("tree")]
     public async Task<ActionResult<GroupTreeResource>> GetTree([FromQuery] Guid? rootId = null)
     {
-        var tree = await Mediator.Send(new GetGroupTreeQuery(rootId));
+        var tree = await Mediator.Send(new GetGroupTreeQuery(rootId, ApplyVisibilityScope: true));
         return Ok(tree);
     }
 

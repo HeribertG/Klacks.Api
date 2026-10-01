@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for retrieving paginated emails of a specific client.
+/// Handler for retrieving paginated emails of a specific client. A client outside the caller's group
+/// visibility is answered exactly like a client without emails.
 /// @param request - Contains ClientId, Skip and Take for pagination
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the client</param>
 
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
@@ -17,15 +19,18 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class GetEmailsByClientQueryHandler : BaseHandler, IRequestHandler<GetEmailsByClientQuery, ReceivedEmailListResponse>
 {
     private readonly IEmailQueryRepository _emailQueryRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ReceivedEmailMapper _mapper;
 
     public GetEmailsByClientQueryHandler(
         IEmailQueryRepository emailQueryRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ReceivedEmailMapper mapper,
         ILogger<GetEmailsByClientQueryHandler> logger)
         : base(logger)
     {
         _emailQueryRepository = emailQueryRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _mapper = mapper;
     }
 
@@ -33,6 +38,9 @@ public class GetEmailsByClientQueryHandler : BaseHandler, IRequestHandler<GetEma
     {
         return await ExecuteAsync(async () =>
         {
+            if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
+                return new ReceivedEmailListResponse { Items = [], TotalCount = 0, UnreadCount = 0 };
+
             var emailAddresses = await _emailQueryRepository.GetEmailAddressesByClientAsync(request.ClientId, cancellationToken);
 
             if (emailAddresses.Count == 0)

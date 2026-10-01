@@ -5,7 +5,8 @@
 /// country-pack formatter by the requested format key, loads the group's per-group configuration
 /// (wage-type/absence mapping) and the closed period data, then produces the file and writes an
 /// ExportLog audit row. Unlike the automatic period-closed path this returns the bytes directly
-/// for download instead of uploading them to object storage.
+/// for download instead of uploading them to object storage. A group hidden from the caller is answered
+/// exactly like a group without closed data, so its existence and wages never leak.
 /// @param request - Contains the filter with group, date range, localization and format key
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
@@ -25,12 +26,16 @@ namespace Klacks.Api.Application.Handlers.Exports;
 
 public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestHandler<CreatePayrollExportQuery, OrderExportResult>
 {
+    private const string NoClosedDataMessage =
+        "No closed payroll data for the selected group and period. Seal the period first.";
+
     private readonly IMediator _mediator;
     private readonly IEnumerable<IPayrollExportFormatter> _formatters;
     private readonly IPayrollExportConfigRepository _configRepository;
     private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public CreatePayrollExportQueryHandler(
         IMediator mediator,
@@ -39,6 +44,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
         IExportFormatPolicy exportFormatPolicy,
         IExportLogRepository exportLogRepository,
         IHttpContextAccessor httpContextAccessor,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<CreatePayrollExportQueryHandler> logger) : base(unitOfWork, logger)
     {
@@ -48,6 +54,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
         _exportFormatPolicy = exportFormatPolicy;
         _exportLogRepository = exportLogRepository;
         _httpContextAccessor = httpContextAccessor;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<OrderExportResult> Handle(CreatePayrollExportQuery request, CancellationToken cancellationToken)
@@ -79,6 +86,11 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
                 throw new InvalidRequestException($"Payroll export format is not enabled: {filter.Format}");
             }
 
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(filter.GroupId, cancellationToken))
+            {
+                throw new InvalidRequestException(NoClosedDataMessage);
+            }
+
             var config = await _configRepository.GetByGroupAsync(filter.GroupId, cancellationToken);
 
             var data = await _mediator.Send(
@@ -87,8 +99,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
 
             if (data.Employees.Count == 0)
             {
-                throw new InvalidRequestException(
-                    "No closed payroll data for the selected group and period. Seal the period first.");
+                throw new InvalidRequestException(NoClosedDataMessage);
             }
 
             var result = formatter.Format(data, config);

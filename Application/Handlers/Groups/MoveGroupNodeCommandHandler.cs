@@ -9,21 +9,34 @@ using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Application.Handlers.Groups;
 
+/// <summary>
+/// Moves a group (with its subtree) under a new parent. A group-restricted caller may only move a visible
+/// group under a visible parent; a hidden node or a hidden new parent is answered exactly like a missing one,
+/// before the self-committing repository move runs.
+/// </summary>
+/// <param name="groupRepository">Self-committing nested-set aware group store</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may write the node and the new parent</param>
 public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand, GroupResource>
 {
+    private const string NodeNotFoundMessage = "Group to be moved with ID {0} not found";
+    private const string NewParentNotFoundMessage = "New parent group with ID {0} not found";
+
     private readonly IGroupRepository _groupRepository;
     private readonly GroupMapper _groupMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MoveGroupNodeCommandHandler> _logger;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public MoveGroupNodeCommandHandler(
         IGroupRepository groupRepository,
         GroupMapper groupMapper,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<MoveGroupNodeCommandHandler> logger)
     {
         _groupRepository = groupRepository;
         _groupMapper = groupMapper;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -33,6 +46,16 @@ public class MoveGroupNodeCommandHandler : IRequestHandler<MoveGroupNodeCommand,
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             _logger.LogInformation("Move node {NodeId} to new parent {NewParentId}", request.NodeId, request.NewParentId);
+
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.NodeId, cancellationToken))
+            {
+                throw new KeyNotFoundException(string.Format(NodeNotFoundMessage, request.NodeId));
+            }
+
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.NewParentId, cancellationToken))
+            {
+                throw new KeyNotFoundException(string.Format(NewParentNotFoundMessage, request.NewParentId));
+            }
 
             await _groupRepository.MoveNode(request.NodeId, request.NewParentId);
 

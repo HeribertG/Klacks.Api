@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates a WorkChange (correction or replacement) on an existing Work after the day-lock and replacement
+/// guards have passed. A change on a Work owned by a client outside the caller's group visibility, or one
+/// that moves a hidden client in as replacement, is refused exactly like a change on a missing Work.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
@@ -20,6 +27,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 {
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
@@ -33,6 +41,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
@@ -47,6 +56,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
@@ -65,7 +75,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
 
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
-            if (parentWork == null)
+            if (parentWork == null || !await IsEveryClientVisibleAsync(parentWork, workChange, cancellationToken))
             {
                 throw new InvalidRequestException(
                     $"WorkChange references Work {workChange.WorkId}, which does not exist or is deleted. " +
@@ -124,6 +134,17 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             return resource;
         }, "CreateWorkChange", new { request.Resource.WorkId });
+    }
+
+    private Task<bool> IsEveryClientVisibleAsync(
+        Domain.Models.Schedules.Work parentWork,
+        Domain.Models.Schedules.WorkChange workChange,
+        CancellationToken cancellationToken)
+    {
+        var clientIds = workChange.ReplaceClientId.HasValue
+            ? new[] { parentWork.ClientId, workChange.ReplaceClientId.Value }
+            : new[] { parentWork.ClientId };
+        return _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken);
     }
 
     /// <summary>

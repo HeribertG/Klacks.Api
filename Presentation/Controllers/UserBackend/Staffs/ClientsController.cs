@@ -135,7 +135,7 @@ public class ClientsController : BaseController, ICrudResourceController<ClientR
     }
 
     [HttpGet("FindClient/{company}/{Name}/{firstName}")]
-    public async Task<ActionResult<IEnumerable<ClientResource>>> FindClient(string? company = null, string? name = null, string? firstName = null)
+    public async Task<ActionResult<IEnumerable<ClientDuplicateCandidateResource>>> FindClient(string? company = null, string? name = null, string? firstName = null)
     {
         var clients = await _mediator.Send(new FindListQuery(company, name, firstName));
         return Ok(clients);

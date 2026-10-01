@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Deletes several breaks (absence entries) in one call and recalculates the affected period hours. Breaks
+/// owned by clients outside the caller's group visibility are treated exactly like ids that do not exist:
+/// they are not deleted and count as failed.
+/// </summary>
+/// <param name="clientVisibilityGuard">Filters the breaks down to clients the calling user may write for</param>
+
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
@@ -14,17 +21,20 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkDeleteBreaksCommand, BulkBreaksResponse>
 {
     private readonly IBreakRepository _breakRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         ILogger<BulkDeleteBreaksCommandHandler> logger)
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
     }
@@ -39,7 +49,9 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
             var response = new BulkBreaksResponse();
             var affectedClients = new HashSet<Guid>();
 
-            var deletedBreaks = await _breakRepository.GetByIdsAsync(command.Request.BreakIds);
+            var foundBreaks = await _breakRepository.GetByIdsAsync(command.Request.BreakIds);
+            var deletedBreaks = await _clientVisibilityGuard.FilterVisibleAsync(
+                foundBreaks, b => b.ClientId, cancellationToken);
             foreach (var breakEntry in deletedBreaks)
             {
                 _breakRepository.Remove(breakEntry);

@@ -10,7 +10,7 @@
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Clients;
-using Klacks.Api.Domain.Constants;
+using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.DTOs.Filter;
@@ -81,15 +81,8 @@ namespace Klacks.Api.Application.Handlers.Clients
 
         private void RestrictDeletedEntriesToAdmins(ClientFilter clientFilter)
         {
-            if (!clientFilter.ShowDeleteEntries)
+            if (DeletedClientEntriesPolicy.RestrictToAdmins(clientFilter, _httpContextAccessor.HttpContext?.User))
             {
-                return;
-            }
-
-            var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
-            if (!isAdmin)
-            {
-                clientFilter.ShowDeleteEntries = false;
                 _logger.LogInformation("ShowDeleteEntries was requested by a non-admin user and has been ignored");
             }
         }

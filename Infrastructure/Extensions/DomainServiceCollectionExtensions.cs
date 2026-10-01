@@ -71,6 +71,7 @@ using Klacks.Api.Infrastructure.Services.Settings;
 using Klacks.Api.Infrastructure.Services.Shifts;
 using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -149,6 +150,8 @@ internal static class DomainServiceCollectionExtensions
     {
         services.AddScoped<IClientFilterService, ClientFilterService>();
         services.AddScoped<IClientGroupFilterService, ClientGroupFilterService>();
+        services.AddScoped<IClientVisibilityGuard, ClientVisibilityGuard>();
+        services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();
         services.AddScoped<IClientSortingService, ClientSortingService>();

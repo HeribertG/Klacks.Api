@@ -6,7 +6,8 @@
 /// api/backend/Clients: the note card saves the whole client resource, and only the notes out of it are
 /// applied. Nothing is compared against the sent resource, so there is no window between reading the
 /// stored client and writing it, and no false refusal when a field the caller never touched merely
-/// looks different.
+/// looks different. A client outside the caller's group visibility is treated like a missing one: nothing
+/// is written and nothing is returned.
 /// </summary>
 /// <param name="request">Carries the client id and the complete note list as it should be afterwards</param>
 
@@ -23,17 +24,20 @@ public class UpdateClientAnnotationsCommandHandler
     : BaseHandler, IRequestHandler<UpdateClientAnnotationsCommand, ClientResource?>
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ClientMapper _clientMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateClientAnnotationsCommandHandler(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ClientMapper clientMapper,
         IUnitOfWork unitOfWork,
         ILogger<UpdateClientAnnotationsCommandHandler> logger)
         : base(logger)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _clientMapper = clientMapper;
         _unitOfWork = unitOfWork;
     }
@@ -43,6 +47,11 @@ public class UpdateClientAnnotationsCommandHandler
     {
         return await ExecuteAsync(async () =>
         {
+            if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
+            {
+                return null;
+            }
+
             var annotations = request.Annotations
                 .Select(_clientMapper.ToAnnotationEntity)
                 .ToList();

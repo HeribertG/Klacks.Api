@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Soft-deletes several Works in one call and recalculates the affected period hours. Works owned by
+/// clients outside the caller's group visibility are treated exactly like ids that do not exist: they are
+/// not deleted and count as failed.
+/// </summary>
+/// <param name="clientVisibilityGuard">Filters the Works down to clients the calling user may write for</param>
+
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
@@ -15,6 +22,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDeleteWorksCommand, BulkWorksResponse>
 {
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -23,6 +31,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -32,6 +41,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -50,7 +60,9 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
             var affectedClients = new HashSet<Guid>();
 
-            var deletedWorks = await _workRepository.GetByIdsAsync(command.Request.WorkIds);
+            var foundWorks = await _workRepository.GetByIdsAsync(command.Request.WorkIds);
+            var deletedWorks = await _clientVisibilityGuard.FilterVisibleAsync(
+                foundWorks, w => w.ClientId, cancellationToken);
             foreach (var work in deletedWorks)
             {
                 _workRepository.Remove(work);

@@ -4,6 +4,7 @@
 /// Skill that places a key command on a client/date (the admin-configured tokens for FREE, -FREE,
 /// EARLY, -EARLY, LATE, -LATE, NIGHT, -NIGHT — see IScheduleCommandKeywordProvider). Key commands
 /// are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="date">Workday in ISO yyyy-MM-dd.</param>
@@ -25,17 +26,20 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
 {
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public AddScheduleCommandSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IScheduleCommandKeywordProvider keywordProvider)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _keywordProvider = keywordProvider;
     }
@@ -58,7 +62,7 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
                 $"Invalid commandKeyword '{rawKeyword}'. Must be one of: {string.Join(", ", configuredKeywords.ValidTokens)}.");
         }
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }

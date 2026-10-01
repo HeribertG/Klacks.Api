@@ -2,8 +2,12 @@
 
 /// <summary>
 /// Handler for retrieving all children (sub-works, sub-breaks, and work changes) of a container work.
+/// A container owned by a client outside the caller's group visibility is answered exactly like a container
+/// that does not exist: with an empty result.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the container owner</param>
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.Works;
 using Klacks.Api.Infrastructure.Mediator;
@@ -13,15 +17,18 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class GetContainerWorkChildrenQueryHandler : BaseHandler, IRequestHandler<GetContainerWorkChildrenQuery, ContainerWorkChildrenResource>
 {
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetContainerWorkChildrenQueryHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetContainerWorkChildrenQueryHandler> logger)
         : base(logger)
     {
         _childrenReadRepository = childrenReadRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -30,6 +37,10 @@ public class GetContainerWorkChildrenQueryHandler : BaseHandler, IRequestHandler
         return await ExecuteAsync(async () =>
         {
             var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(request.WorkId, cancellationToken);
+            if (parentWork != null && !await _clientVisibilityGuard.IsVisibleAsync(parentWork.ClientId, cancellationToken))
+            {
+                return new ContainerWorkChildrenResource();
+            }
 
             var subWorks = await _childrenReadRepository.GetChildWorksWithShiftClient(request.WorkId, cancellationToken);
 

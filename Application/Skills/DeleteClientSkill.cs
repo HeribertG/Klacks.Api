@@ -6,6 +6,7 @@
 /// preserved. The delete goes to DELETE api/backend/Clients/{id}, so the same authorisation and
 /// logging apply as to a delete from the browser. Reading the client first stays a direct query — it
 /// only supplies the name for the confirmation message.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to delete.</param>
 
@@ -24,15 +25,18 @@ public class DeleteClientSkill : BaseSkillImplementation
     private const string SkillName = "delete_client";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IKlacksSelfApiClient _selfApi;
     private readonly ISelfApiRouteResolver _routes;
 
     public DeleteClientSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _selfApi = selfApi;
         _routes = routes;
     }
@@ -44,7 +48,7 @@ public class DeleteClientSkill : BaseSkillImplementation
     {
         var clientId = GetRequiredGuid(parameters, "clientId");
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client == null)
         {
             return SkillResult.Error($"Client with ID '{clientId}' not found.");

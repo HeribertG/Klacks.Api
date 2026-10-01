@@ -1,6 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Pages the received emails of a folder with total and unread counters. Emails whose sender belongs only
+/// to clients outside the caller's group visibility are left out of the page and the counters.
+/// </summary>
+/// <param name="emailQueryRepository">Resolves the clients that own the sender address</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see those clients</param>
+
 using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Interfaces.Email;
@@ -11,15 +19,21 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class GetReceivedEmailsQueryHandler : BaseHandler, IRequestHandler<GetReceivedEmailsQuery, ReceivedEmailListResponse>
 {
     private readonly IReceivedEmailRepository _repository;
+    private readonly IEmailQueryRepository _emailQueryRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ReceivedEmailMapper _mapper;
 
     public GetReceivedEmailsQueryHandler(
         IReceivedEmailRepository repository,
+        IEmailQueryRepository emailQueryRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ReceivedEmailMapper mapper,
         ILogger<GetReceivedEmailsQueryHandler> logger)
         : base(logger)
     {
         _repository = repository;
+        _emailQueryRepository = emailQueryRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _mapper = mapper;
     }
 
@@ -36,9 +50,13 @@ public class GetReceivedEmailsQueryHandler : BaseHandler, IRequestHandler<GetRec
 
             var sortAsc = string.Equals(request.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
 
-            var emails = await _repository.GetFilteredListAsync(request.Folder, isRead, sortAsc, request.Skip, request.Take);
-            var totalCount = await _repository.GetFilteredCountAsync(request.Folder, isRead);
-            var unreadCount = await _repository.GetFilteredCountAsync(request.Folder, false);
+            var hiddenSenders = await ReceivedEmailVisibility.GetHiddenSenderAddressesAsync(
+                _emailQueryRepository, _clientVisibilityGuard, cancellationToken);
+
+            var emails = await _repository.GetFilteredListAsync(
+                request.Folder, isRead, sortAsc, request.Skip, request.Take, hiddenSenders);
+            var totalCount = await _repository.GetFilteredCountAsync(request.Folder, isRead, hiddenSenders);
+            var unreadCount = await _repository.GetFilteredCountAsync(request.Folder, false, hiddenSenders);
 
             return new ReceivedEmailListResponse
             {

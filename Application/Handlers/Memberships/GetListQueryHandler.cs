@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Lists the memberships of the tenant. Memberships owned by clients outside the caller's group visibility are
+/// left out, as if they did not exist.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
@@ -13,12 +19,18 @@ namespace Klacks.Api.Application.Handlers.Memberships
     public class GetListQueryHandler : IRequestHandler<ListQuery<MembershipResource>, IEnumerable<MembershipResource>>
     {
         private readonly IMembershipRepository _membershipRepository;
+        private readonly IClientVisibilityGuard _clientVisibilityGuard;
         private readonly ScheduleMapper _scheduleMapper;
         private readonly ILogger<GetListQueryHandler> _logger;
 
-        public GetListQueryHandler(IMembershipRepository membershipRepository, ScheduleMapper scheduleMapper, ILogger<GetListQueryHandler> logger)
+        public GetListQueryHandler(
+            IMembershipRepository membershipRepository,
+            IClientVisibilityGuard clientVisibilityGuard,
+            ScheduleMapper scheduleMapper,
+            ILogger<GetListQueryHandler> logger)
         {
             _membershipRepository = membershipRepository;
+            _clientVisibilityGuard = clientVisibilityGuard;
             _scheduleMapper = scheduleMapper;
             _logger = logger;
         }
@@ -30,7 +42,8 @@ namespace Klacks.Api.Application.Handlers.Memberships
             try
             {
                 var memberships = await _membershipRepository.List();
-                var membershipsList = memberships.ToList();
+                var membershipsList = await _clientVisibilityGuard.FilterVisibleAsync(
+                    memberships.ToList(), membership => membership.ClientId, cancellationToken);
 
                 _logger.LogInformation("Retrieved {Count} memberships", membershipsList.Count);
 

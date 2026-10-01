@@ -3,7 +3,8 @@
 /// <summary>
 /// Resolves a single BreakPlaceholder either directly by its id or by a (clientId, date) pair,
 /// requiring exactly one match — ambiguity is reported back with the real candidate ids so the
-/// model can ask the user instead of guessing.
+/// model can ask the user instead of guessing. A placeholder of a client hidden from the caller by group
+/// visibility is reported exactly like a missing one.
 /// </summary>
 /// <param name="placeholderId">Optional id of the placeholder to load directly</param>
 /// <param name="clientId">Client the placeholder belongs to (required when no placeholderId is given)</param>
@@ -18,6 +19,7 @@ public static class BreakPlaceholderResolver
 {
     public static async Task<(BreakPlaceholder? Placeholder, string? Error)> ResolveAsync(
         IBreakPlaceholderRepository repository,
+        IClientVisibilityGuard visibilityGuard,
         Guid? placeholderId,
         Guid? clientId,
         DateOnly? date,
@@ -26,7 +28,7 @@ public static class BreakPlaceholderResolver
         if (placeholderId.HasValue)
         {
             var byId = await repository.Get(placeholderId.Value);
-            return byId is null
+            return byId is null || !await visibilityGuard.IsVisibleAsync(byId.ClientId, cancellationToken)
                 ? (null, $"Break placeholder {placeholderId} not found.")
                 : (byId, null);
         }
@@ -37,7 +39,9 @@ public static class BreakPlaceholderResolver
         }
 
         var dayUtc = date.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var matches = await repository.GetByClientAndRangeAsync(clientId.Value, dayUtc, dayUtc, cancellationToken);
+        var matches = await visibilityGuard.IsVisibleAsync(clientId.Value, cancellationToken)
+            ? await repository.GetByClientAndRangeAsync(clientId.Value, dayUtc, dayUtc, cancellationToken)
+            : new List<BreakPlaceholder>();
 
         if (matches.Count == 0)
         {

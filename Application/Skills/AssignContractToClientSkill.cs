@@ -15,12 +15,17 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Application.Skills;
 
+/// <summary>
+/// Assigns a contract to a client for a validity period through the client update endpoint.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// </summary>
 [SkillImplementation(SkillName)]
 public class AssignContractToClientSkill : BaseSkillImplementation
 {
     private const string SkillName = "assign_contract_to_client";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IContractRepository _contractRepository;
     private readonly ClientMapper _clientMapper;
     private readonly IKlacksSelfApiClient _selfApi;
@@ -28,12 +33,14 @@ public class AssignContractToClientSkill : BaseSkillImplementation
 
     public AssignContractToClientSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IContractRepository contractRepository,
         ClientMapper clientMapper,
         IKlacksSelfApiClient selfApi,
         ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _contractRepository = contractRepository;
         _clientMapper = clientMapper;
         _selfApi = selfApi;
@@ -76,7 +83,7 @@ public class AssignContractToClientSkill : BaseSkillImplementation
             untilDate = parsedUntil;
         }
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client == null)
         {
             return SkillResult.Error($"Client with ID {clientId} not found.");

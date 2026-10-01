@@ -5,6 +5,7 @@
 /// Thin wrapper around <see cref="Klacks.Api.Application.Commands.Qualifications.SetClientQualificationCommand"/>.
 /// Used so eligibility (find_replacement / the pre-commit guardrail) can know who is qualified for a
 /// shift. Calling it again for the same employee + qualification updates the existing entry.
+/// An employee hidden from the caller by group visibility gets the same answer as an unknown id.
 /// </summary>
 /// <param name="clientId">Required. UUID of the employee.</param>
 /// <param name="qualificationId">Required. UUID of an existing qualification.</param>
@@ -65,7 +66,7 @@ public class SetClientQualificationSkill : BaseSkillImplementation
                 new { Id = id, ClientId = clientId, QualificationId = qualificationId, Level = ((QualificationLevel)level).ToString() },
                 $"Qualification set for employee {clientId} at level {(QualificationLevel)level}.");
         }
-        catch (DbUpdateException)
+        catch (Exception ex) when (ex is DbUpdateException or KeyNotFoundException)
         {
             return SkillResult.Error("Could not set the qualification — the employee or qualification id may not exist.");
         }

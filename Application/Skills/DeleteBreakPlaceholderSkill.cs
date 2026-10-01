@@ -6,6 +6,7 @@
 /// only a booked absence exists on the given day the skill reports its breakId and points to
 /// delete_break instead. The soft-delete is self-verifying: it runs in a transaction and the row
 /// must be gone from the filtered view before success is reported.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="placeholderId">Optional UUID of the placeholder; alternative to clientId + date</param>
 /// <param name="clientId">UUID of the client, used with date to locate the placeholder</param>
@@ -25,15 +26,18 @@ public class DeleteBreakPlaceholderSkill : BaseSkillImplementation
     private const string SkillName = "delete_break_placeholder";
 
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakRepository _breakRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteBreakPlaceholderSkill(
         IBreakPlaceholderRepository breakPlaceholderRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakRepository breakRepository,
         IUnitOfWork unitOfWork)
     {
         _breakPlaceholderRepository = breakPlaceholderRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakRepository = breakRepository;
         _unitOfWork = unitOfWork;
     }
@@ -70,11 +74,12 @@ public class DeleteBreakPlaceholderSkill : BaseSkillImplementation
         var date = GetParameter<DateOnly?>(parameters, "date");
 
         var (placeholder, resolveError) = await BreakPlaceholderResolver.ResolveAsync(
-            _breakPlaceholderRepository, placeholderId, clientId, date, cancellationToken);
+            _breakPlaceholderRepository, _clientVisibilityGuard, placeholderId, clientId, date, cancellationToken);
 
         if (placeholder is null)
         {
-            if (clientId.HasValue && date.HasValue)
+            if (clientId.HasValue && date.HasValue
+                && await _clientVisibilityGuard.IsVisibleAsync(clientId.Value, cancellationToken))
             {
                 var booked = await _breakRepository.GetByClientAndDateRangeAsync(
                     clientId.Value, date.Value, date.Value, cancellationToken);

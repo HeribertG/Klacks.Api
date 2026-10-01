@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Confirms a single work entry and records the confirmation in the period audit log, so the level
-/// on which an identity is actually read is no longer the only unprotocolled one.
+/// on which an identity is actually read is no longer the only unprotocolled one. A Work owned by a client
+/// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is sealed.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
@@ -24,6 +26,7 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
     private const int SingleEntryAffectedCount = 1;
 
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
@@ -34,6 +37,7 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
 
     public ConfirmWorkCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
@@ -45,6 +49,7 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
@@ -59,7 +64,7 @@ public class ConfirmWorkCommandHandler : BaseHandler, IRequestHandler<ConfirmWor
         return await ExecuteAsync(async () =>
         {
             var work = await _workRepository.Get(request.WorkId);
-            if (work == null)
+            if (work == null || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;

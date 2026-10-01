@@ -18,37 +18,54 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// the ones already in the target group, and either previews the eligible clients (Apply=false) or adds
 /// them in a single transaction that re-reads the new memberships and rolls back on a verification
 /// mismatch. Mirrors the direct group_item persistence used by the criteria-fill handler, so re-running
-/// it never creates duplicates.
+/// it never creates duplicates. A group-restricted caller may only target a visible group (a hidden one is
+/// answered like a missing one), and selected clients the caller cannot see are counted as not found.
 /// </summary>
 /// <param name="clientRepository">Loads the selected clients by id.</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may write the target group.</param>
+/// <param name="clientVisibilityGuard">Drops the selected clients the caller cannot see.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single verified transaction.</param>
 /// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
 public sealed class AddSelectedClientsToGroupCommandHandler
     : IRequestHandler<AddSelectedClientsToGroupCommand, AddSelectedClientsToGroupResult>
 {
+    private const string GroupNotFoundMessage = "Group with ID {0} not found";
+
     private readonly IClientRepository _clientRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public AddSelectedClientsToGroupCommandHandler(
         IClientRepository clientRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _clientRepository = clientRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _groupVisibilityGuard = groupVisibilityGuard;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<AddSelectedClientsToGroupResult> Handle(
         AddSelectedClientsToGroupCommand request, CancellationToken cancellationToken)
     {
+        if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.GroupId, cancellationToken))
+        {
+            throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, request.GroupId));
+        }
+
         var requestedCount = request.SelectedClientIds.Count;
-        var clients = await _clientRepository.GetByIdsAsync(request.SelectedClientIds, cancellationToken);
+        var loadedClients = await _clientRepository.GetByIdsAsync(request.SelectedClientIds, cancellationToken);
+        var clients = await _clientVisibilityGuard.FilterVisibleAsync(loadedClients, c => c.Id, cancellationToken);
 
         var eligible = new List<Client>();
         var alreadyMember = 0;

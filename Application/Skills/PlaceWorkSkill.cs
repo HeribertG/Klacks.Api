@@ -4,6 +4,7 @@
 /// Skill that assigns an agent (client) to a shift on a specific date — i.e. creates a single Work entry
 /// in the main schedule or in a named scenario. Delegates to the existing BulkAddWorks pipeline so all
 /// period-hour recalculation and validation logic stays in one place.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client (agent) to schedule.</param>
 /// <param name="shiftId">UUID of the shift to assign.</param>
@@ -16,6 +17,7 @@
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
@@ -32,15 +34,21 @@ public class PlaceWorkSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IShiftRepository _shiftRepository;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public PlaceWorkSkill(
         IMediator mediator,
         IShiftRepository shiftRepository,
-        IPreCommitConflictChecker conflictChecker)
+        IPreCommitConflictChecker conflictChecker,
+        IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _mediator = mediator;
         _shiftRepository = shiftRepository;
         _conflictChecker = conflictChecker;
+        _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -57,6 +65,11 @@ public class PlaceWorkSkill : BaseSkillImplementation
         var workTimeRaw = GetParameter<decimal?>(parameters, "workTime");
         var information = GetParameter<string>(parameters, "information");
         var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
+
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
+        {
+            return SkillResult.Error($"Client {clientId} not found.");
+        }
 
         var shift = await _shiftRepository.Get(shiftId);
         if (shift == null)

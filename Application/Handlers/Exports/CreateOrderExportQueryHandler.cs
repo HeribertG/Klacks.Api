@@ -2,6 +2,7 @@
 
 /// <summary>
 /// Handles order export queries by loading data and delegating to the appropriate formatter.
+/// Work entries of employees hidden from the caller by group visibility are left out of the file.
 /// @param request - Contains filter with date range, format key and localization
 /// </summary>
 using Klacks.Api.Application.DTOs.Exports;
@@ -28,6 +29,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public CreateOrderExportQueryHandler(
         IOrderExportDataLoader dataLoader,
@@ -37,6 +39,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
         IExportLogRepository exportLogRepository,
         IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<CreateOrderExportQueryHandler> logger) : base(unitOfWork, logger)
     {
@@ -47,6 +50,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
         _exportLogRepository = exportLogRepository;
         _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<OrderExportResult> Handle(CreateOrderExportQuery request, CancellationToken cancellationToken)
@@ -74,6 +78,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
             }
 
             var exportData = await _dataLoader.LoadAsync(filter.OrderIds, filter.FromDate, filter.UntilDate, cancellationToken);
+            await RemoveHiddenWorkEntriesAsync(exportData, cancellationToken);
             var companyInfo = await _companyInfoLoader.LoadAsync(cancellationToken);
 
             var options = new ExportOptions
@@ -113,6 +118,22 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 ContentType = formatter.ContentType
             };
         }, "CreateOrderExport", new { OrderCount = request.Filter.OrderIds?.Count ?? 0, request.Filter.Format });
+    }
+
+    private async Task RemoveHiddenWorkEntriesAsync(OrderExportData exportData, CancellationToken cancellationToken)
+    {
+        if (exportData.Orders == null)
+        {
+            return;
+        }
+
+        var employeeIds = exportData.Orders.SelectMany(o => o.WorkEntries).Select(w => w.EmployeeId).Distinct().ToList();
+        var visibleIds = (await _clientVisibilityGuard.FilterVisibleAsync(employeeIds, id => id, cancellationToken)).ToHashSet();
+
+        foreach (var order in exportData.Orders)
+        {
+            order.WorkEntries = order.WorkEntries.Where(w => visibleIds.Contains(w.EmployeeId)).ToList();
+        }
     }
 
     private static string BuildFileName(OrderExportData data, string extension)

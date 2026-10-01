@@ -5,6 +5,7 @@
 /// BEFORE it is entered: overlapping planned absences (placeholders), overlapping booked absences
 /// (Breaks), scheduled work assignments in the period, and the client's membership window. The
 /// server itself enforces none of these — this skill is the assistant's pre-flight check.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client the absence is planned for</param>
 /// <param name="fromDate">First day of the planned period (yyyy-MM-dd)</param>
@@ -22,6 +23,7 @@ namespace Klacks.Api.Application.Skills;
 public class CheckAbsenceConflictsSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly IBreakRepository _breakRepository;
     private readonly IWorkRepository _workRepository;
@@ -29,12 +31,14 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
 
     public CheckAbsenceConflictsSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakPlaceholderRepository breakPlaceholderRepository,
         IBreakRepository breakRepository,
         IWorkRepository workRepository,
         IAbsenceRepository absenceRepository)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakPlaceholderRepository = breakPlaceholderRepository;
         _breakRepository = breakRepository;
         _workRepository = workRepository;
@@ -57,7 +61,7 @@ public class CheckAbsenceConflictsSkill : BaseSkillImplementation
             return SkillResult.Error($"untilDate ({untilDate}) must not be before fromDate ({fromDate}).");
         }
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client is null)
         {
             return SkillResult.Error($"Client {clientId} not found.");

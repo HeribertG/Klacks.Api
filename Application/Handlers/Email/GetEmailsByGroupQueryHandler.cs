@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for retrieving paginated emails of all clients in a group and its subgroups.
+/// Handler for retrieving paginated emails of all clients in a group and its subgroups. A group outside the
+/// caller's group visibility is answered exactly like a group without emails.
 /// @param request - Contains GroupId, Skip and Take for pagination
 /// </summary>
+/// <param name="groupVisibilityGuard">Decides whether the calling user may see the group</param>
 
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
@@ -19,17 +21,20 @@ public class GetEmailsByGroupQueryHandler : BaseHandler, IRequestHandler<GetEmai
 {
     private readonly IGroupHierarchyService _groupHierarchyService;
     private readonly IEmailQueryRepository _emailQueryRepository;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly ReceivedEmailMapper _mapper;
 
     public GetEmailsByGroupQueryHandler(
         IGroupHierarchyService groupHierarchyService,
         IEmailQueryRepository emailQueryRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ReceivedEmailMapper mapper,
         ILogger<GetEmailsByGroupQueryHandler> logger)
         : base(logger)
     {
         _groupHierarchyService = groupHierarchyService;
         _emailQueryRepository = emailQueryRepository;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _mapper = mapper;
     }
 
@@ -37,6 +42,9 @@ public class GetEmailsByGroupQueryHandler : BaseHandler, IRequestHandler<GetEmai
     {
         return await ExecuteAsync(async () =>
         {
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.GroupId, cancellationToken))
+                return new ReceivedEmailListResponse { Items = [], TotalCount = 0, UnreadCount = 0 };
+
             var descendants = await _groupHierarchyService.GetDescendantsAsync(request.GroupId, includeParent: true);
             var groupIds = descendants.Select(g => g.Id).ToHashSet();
 

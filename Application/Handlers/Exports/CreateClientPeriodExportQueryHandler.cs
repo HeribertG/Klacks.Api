@@ -2,6 +2,7 @@
 
 /// <summary>
 /// Handles client period export queries by loading data grouped by client and delegating to the formatter.
+/// Clients hidden from the caller by group visibility are left out as if they had no entries.
 /// @param request - Contains filter with date range and localization
 /// </summary>
 using Klacks.Api.Application.Constants;
@@ -27,6 +28,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public CreateClientPeriodExportQueryHandler(
         IClientPeriodExportDataLoader dataLoader,
@@ -34,6 +36,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
         IExportLogRepository exportLogRepository,
         IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<CreateClientPeriodExportQueryHandler> logger) : base(unitOfWork, logger)
     {
@@ -42,6 +45,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
         _exportLogRepository = exportLogRepository;
         _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<OrderExportResult> Handle(CreateClientPeriodExportQuery request, CancellationToken cancellationToken)
@@ -64,6 +68,10 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
                 ?? throw new InvalidRequestException($"Unknown client period export format: {filter.Format}");
 
             var exportData = await _dataLoader.LoadAsync(filter.FromDate, filter.UntilDate, cancellationToken);
+
+            var visibleClientIds = (await _clientVisibilityGuard.FilterVisibleAsync(
+                exportData.Clients.Select(c => c.ClientId).Distinct().ToList(), id => id, cancellationToken)).ToHashSet();
+            exportData.Clients = exportData.Clients.Where(c => visibleClientIds.Contains(c.ClientId)).ToList();
 
             var options = new ExportOptions
             {

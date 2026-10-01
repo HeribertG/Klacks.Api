@@ -25,6 +25,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Logging;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Application.Services.Assistant.Scheduling;
 
@@ -210,7 +211,12 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             Parameters = ParseParameters(task.ParametersJson)
         };
 
-        var result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
+        SkillResult result;
+        using (ExecutionPrincipal.Begin(task.OwnerUserId))
+        {
+            result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
+        }
+
         var message = string.IsNullOrWhiteSpace(result.Message) ? "Done." : result.Message!;
         return result.Success
             ? (ScheduledTaskRunStatus.Ok, message, ScheduledTaskFollowUp.None)

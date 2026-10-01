@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Handler for loading total available hours and days with availability per client.
+/// Requested clients outside the caller's group visibility are dropped like unknown ids.
 /// </summary>
 /// <param name="request">Query with date range and client IDs</param>
+/// <param name="clientVisibilityGuard">Reduces the requested client ids to those the calling user may see</param>
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.ClientAvailabilities;
@@ -14,13 +16,16 @@ namespace Klacks.Api.Application.Handlers.ClientAvailabilities;
 public class GetClientAvailabilityTotalsQueryHandler : BaseHandler, IRequestHandler<GetClientAvailabilityTotalsQuery, List<ClientAvailabilityTotalResource>>
 {
     private readonly IClientAvailabilityRepository _repository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public GetClientAvailabilityTotalsQueryHandler(
         IClientAvailabilityRepository repository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ILogger<GetClientAvailabilityTotalsQueryHandler> logger)
         : base(logger)
     {
         _repository = repository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<List<ClientAvailabilityTotalResource>> Handle(
@@ -29,8 +34,11 @@ public class GetClientAvailabilityTotalsQueryHandler : BaseHandler, IRequestHand
     {
         return await ExecuteAsync(async () =>
         {
+            var visibleClientIds = await _clientVisibilityGuard.FilterVisibleAsync(
+                request.ClientIds, id => id, cancellationToken);
+
             return await _repository.GetTotalsByClientsAndDateRange(
-                request.ClientIds, request.StartDate, request.EndDate);
+                visibleClientIds, request.StartDate, request.EndDate);
         }, "GetClientAvailabilityTotals", new { request.StartDate, request.EndDate });
     }
 }

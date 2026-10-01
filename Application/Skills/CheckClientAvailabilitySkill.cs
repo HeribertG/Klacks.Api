@@ -6,6 +6,7 @@
 /// keywords, keywords override availability, and availability itself is opt-in per date (no record
 /// = fully open; a day with available-hour records restricts work to exactly those hours; an
 /// only-false day blocks just those hours — legacy negative data).
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client to check</param>
 /// <param name="date">The day to check (yyyy-MM-dd)</param>
@@ -28,6 +29,7 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
     private const int MaxHour = 23;
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IBreakRepository _breakRepository;
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
@@ -35,12 +37,14 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
 
     public CheckClientAvailabilitySkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IClientAvailabilityRepository availabilityRepository,
         IBreakRepository breakRepository,
         IScheduleCommandRepository scheduleCommandRepository,
         IScheduleCommandKeywordProvider keywordProvider)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _availabilityRepository = availabilityRepository;
         _breakRepository = breakRepository;
         _scheduleCommandRepository = scheduleCommandRepository;
@@ -64,7 +68,7 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
                 $"Invalid hour window: 'startHour' and 'endHour' must be between {MinHour} and {MaxHour} and 'startHour' must not exceed 'endHour'.");
         }
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client is null)
         {
             return SkillResult.Error($"Client {clientId} not found.");

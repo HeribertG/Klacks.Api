@@ -9,6 +9,7 @@
 /// clarification it is. The employee is named from the client record, never from the sender text of the
 /// inbound message, because an outside sender controls that text and this skill's output is not treated
 /// as untrusted.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clarificationId">Optional. UUID of the open clarification.</param>
 /// <param name="clientId">Optional. UUID of the employee whose open clarification is closed; when given together with the clarification id it must be the employee the clarification belongs to.</param>
@@ -51,15 +52,18 @@ public class CloseClarificationSkill : BaseSkillImplementation
 
     private readonly IInboundClarificationRepository _clarificationRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly TimeProvider _timeProvider;
 
     public CloseClarificationSkill(
         IInboundClarificationRepository clarificationRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         TimeProvider timeProvider)
     {
         _clarificationRepository = clarificationRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _timeProvider = timeProvider;
     }
 
@@ -88,7 +92,8 @@ public class CloseClarificationSkill : BaseSkillImplementation
             return SkillResult.Error(MissingTargetError);
         }
 
-        if (clarification == null)
+        if (clarification == null
+            || !await _clientVisibilityGuard.IsVisibleAsync(clarification.ClientId, cancellationToken))
         {
             return SkillResult.Error(notFoundError);
         }

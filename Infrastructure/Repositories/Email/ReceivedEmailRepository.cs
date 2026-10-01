@@ -123,15 +123,10 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
     }
 
     public async Task<List<ReceivedEmail>> GetFilteredListAsync(
-        string? folder, bool? isRead, bool sortAsc, int skip, int take)
+        string? folder, bool? isRead, bool sortAsc, int skip, int take,
+        IReadOnlyCollection<string>? excludedFromAddresses = null)
     {
-        var query = _context.ReceivedEmails.Where(e => !e.IsDeleted);
-
-        if (!string.IsNullOrWhiteSpace(folder))
-            query = query.Where(e => e.Folder == folder);
-
-        if (isRead.HasValue)
-            query = query.Where(e => e.IsRead == isRead.Value);
+        var query = BuildFilteredQuery(folder, isRead, excludedFromAddresses);
 
         query = sortAsc
             ? query.OrderBy(e => e.ReceivedDate)
@@ -140,7 +135,14 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
         return await query.Skip(skip).Take(take).AsNoTracking().ToListAsync();
     }
 
-    public async Task<int> GetFilteredCountAsync(string? folder, bool? isRead)
+    public async Task<int> GetFilteredCountAsync(
+        string? folder, bool? isRead, IReadOnlyCollection<string>? excludedFromAddresses = null)
+    {
+        return await BuildFilteredQuery(folder, isRead, excludedFromAddresses).CountAsync();
+    }
+
+    private IQueryable<ReceivedEmail> BuildFilteredQuery(
+        string? folder, bool? isRead, IReadOnlyCollection<string>? excludedFromAddresses)
     {
         var query = _context.ReceivedEmails.Where(e => !e.IsDeleted);
 
@@ -150,7 +152,13 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
         if (isRead.HasValue)
             query = query.Where(e => e.IsRead == isRead.Value);
 
-        return await query.CountAsync();
+        if (excludedFromAddresses is { Count: > 0 })
+        {
+            var excluded = excludedFromAddresses.ToList();
+            query = query.Where(e => !excluded.Contains(e.FromAddress.ToLower()));
+        }
+
+        return query;
     }
 
     public async Task MoveToFolderAsync(Guid id, string folder)

@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Deletes an expense entry and refreshes the schedule of its owner. An expense whose parent Work is owned by
+/// a client outside the caller's group visibility is answered exactly like an expense that does not exist;
+/// nothing is deleted.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
@@ -16,6 +23,7 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ExpensesResource>, ExpensesResource?>
 {
     private readonly IExpensesRepository _expensesRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
@@ -28,6 +36,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
@@ -41,6 +50,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         : base(logger)
     {
         _expensesRepository = expensesRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
@@ -64,6 +74,11 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         }
 
         var work = existingExpenses.Work;
+        if (work != null && !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+        {
+            return null;
+        }
+
         var expensesResource = _scheduleMapper.ToExpensesResource(existingExpenses);
 
         if (work != null)

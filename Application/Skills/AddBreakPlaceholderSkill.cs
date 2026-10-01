@@ -4,6 +4,7 @@
 /// Skill that records a vacation/absence WISH as a BreakPlaceholder over a date range. A placeholder
 /// is a pre-booking in the absence calendar — it does not place Breaks in the schedule and stays the
 /// weakest planning layer until a planner materialises it (add_break places the real absence).
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client (employee or extern).</param>
 /// <param name="absenceId">UUID of the absence type (resolve via list_absence_types).</param>
@@ -26,17 +27,20 @@ public class AddBreakPlaceholderSkill : BaseSkillImplementation
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
 
     public AddBreakPlaceholderSkill(
         IBreakPlaceholderRepository breakPlaceholderRepository,
         IAbsenceRepository absenceRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork)
     {
         _breakPlaceholderRepository = breakPlaceholderRepository;
         _absenceRepository = absenceRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -58,7 +62,7 @@ public class AddBreakPlaceholderSkill : BaseSkillImplementation
             return SkillResult.Error($"untilDate ({untilDate}) must not be before fromDate ({fromDate}).");
         }
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }

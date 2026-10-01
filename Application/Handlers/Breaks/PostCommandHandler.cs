@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates a single break (absence entry) and notifies the schedule. A break for a client outside the
+/// caller's group visibility is refused exactly like a break for a client that does not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
@@ -17,6 +23,7 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakMacroService _breakMacroService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
@@ -29,6 +36,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
 
     public PostCommandHandler(
         IBreakRepository breakRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakMacroService breakMacroService,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
@@ -42,6 +50,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakMacroService = breakMacroService;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
@@ -58,6 +67,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Break
         return await ExecuteAsync(async () =>
         {
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
+
+            if (!await _clientVisibilityGuard.IsVisibleAsync(entity.ClientId, cancellationToken))
+            {
+                throw new KeyNotFoundException($"Client with ID {entity.ClientId} not found");
+            }
 
             await _dayLockService.EnsureNotLockedAsync(
                 entity.CurrentDate,

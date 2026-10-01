@@ -4,9 +4,11 @@
 /// Soft-deletes a group together with its children in one transaction. The plain group DELETE removes
 /// exactly one row, so a caller wanting the subtree gone would have to issue one request per child and
 /// could not roll back the ones that already succeeded — a half-deleted tree is worse than no deletion
-/// at all. The atomicity therefore lives here.
+/// at all. The atomicity therefore lives here. A group-restricted caller may only delete a visible group
+/// (its children are visible through the same root); a hidden one is answered exactly like a missing one.
 /// </summary>
 /// <param name="groupRepository">Reads the children and removes the rows</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may write the group</param>
 /// <param name="unitOfWork">Owns the transaction the whole subtree removal runs in</param>
 /// <param name="logger">Structured log of the outcome</param>
 
@@ -22,16 +24,21 @@ namespace Klacks.Api.Application.Handlers.Associations;
 public class DeleteGroupSubtreeCommandHandler
     : BaseHandler, IRequestHandler<DeleteGroupSubtreeCommand, DeleteGroupSubtreeResponse>
 {
+    private const string GroupNotFoundMessage = "Group with ID {0} not found.";
+
     private readonly IGroupRepository _groupRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public DeleteGroupSubtreeCommandHandler(
         IGroupRepository groupRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<DeleteGroupSubtreeCommandHandler> logger)
         : base(logger)
     {
         _groupRepository = groupRepository;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -40,8 +47,13 @@ public class DeleteGroupSubtreeCommandHandler
     {
         return await ExecuteAsync(async () =>
         {
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(command.Id, cancellationToken))
+            {
+                throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, command.Id));
+            }
+
             var group = await _groupRepository.Get(command.Id)
-                ?? throw new KeyNotFoundException($"Group with ID {command.Id} not found");
+                ?? throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, command.Id));
 
             var groupName = group.Name;
             var children = (await _groupRepository.GetChildren(command.Id)).ToList();

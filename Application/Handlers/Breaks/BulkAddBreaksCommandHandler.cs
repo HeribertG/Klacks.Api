@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates several breaks (absence entries) in one call after the day-lock and duplicate-absence guards
+/// have passed. If any break is for a client outside the caller's group visibility, the whole request is
+/// refused exactly like a request for a client that does not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
+
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
@@ -15,7 +22,10 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 
 public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddBreaksCommand, BulkBreaksResponse>
 {
+    private const string ClientsNotFoundMessage = "One or more clients of the request were not found";
+
     private readonly IBreakRepository _breakRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakMacroService _breakMacroService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -23,6 +33,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakMacroService breakMacroService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -31,6 +42,7 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakMacroService = breakMacroService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -132,6 +144,12 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
     private async Task EnsureGuardsPassAsync(BulkAddBreaksCommand command, CancellationToken cancellationToken)
     {
+        var clientIds = command.Request.Breaks.Select(b => b.ClientId).Distinct().ToList();
+        if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+        {
+            throw new KeyNotFoundException(ClientsNotFoundMessage);
+        }
+
         foreach (var (clientId, date, analyseToken) in command.Request.Breaks
             .Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken))
             .Distinct())

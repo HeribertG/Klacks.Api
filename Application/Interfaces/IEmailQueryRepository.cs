@@ -27,6 +27,8 @@ public interface IEmailQueryRepository
 
     Task<List<string>> GetEmailAddressesByClientIdsAsync(List<Guid> clientIds, CancellationToken cancellationToken = default);
 
+    Task<List<Guid>> GetClientIdsByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default);
+
     Task<ReceivedEmailQueryResult> GetEmailsByAddressesAsync(
         string folder,
         List<string> emailAddresses,

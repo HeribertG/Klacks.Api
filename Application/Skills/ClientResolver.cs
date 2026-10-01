@@ -7,6 +7,8 @@
 /// preferred over looser search hits; genuine duplicates are disambiguated via the optional
 /// idNumber parameter (the visible client number), which the ambiguity error instructs the
 /// model to pass on the retry — duplicates are never resolved by silently picking one.
+/// Lookups by an id the model supplied go through the client visibility guard first: a client the
+/// caller may not see is answered exactly like an unknown id and is never loaded.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
@@ -19,6 +21,39 @@ internal static class ClientResolver
     public const string IdNumberParameterName = "idNumber";
 
     private const int SearchResultLimit = 10;
+
+    /// <summary>
+    /// Loads a client by an id the model supplied, or returns null when the client does not exist or
+    /// is hidden from the caller by group visibility - both cases must produce the same answer.
+    /// </summary>
+    /// <param name="clientId">Client id taken from the skill parameters</param>
+    public static async Task<Client?> LoadVisibleByIdAsync(
+        IClientRepository clientRepository,
+        IClientVisibilityGuard visibilityGuard,
+        Guid clientId,
+        CancellationToken cancellationToken)
+    {
+        if (!await visibilityGuard.IsVisibleAsync(clientId, cancellationToken))
+        {
+            return null;
+        }
+
+        return await clientRepository.Get(clientId);
+    }
+
+    /// <summary>
+    /// True only when the client exists and is visible to the caller; a hidden client reads as missing.
+    /// </summary>
+    /// <param name="clientId">Client id taken from the skill parameters</param>
+    public static async Task<bool> ExistsVisibleAsync(
+        IClientRepository clientRepository,
+        IClientVisibilityGuard visibilityGuard,
+        Guid clientId,
+        CancellationToken cancellationToken)
+    {
+        return await visibilityGuard.IsVisibleAsync(clientId, cancellationToken)
+               && await clientRepository.Exists(clientId);
+    }
 
     public static Task<(Client? Client, string? Error)> ResolveByNameAsync(
         IClientSearchRepository searchRepository,

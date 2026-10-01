@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Infrastructure.Persistence;
 
@@ -38,7 +39,7 @@ public class UserService : IUserService
         try
         {
             var claim = httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            return claim?.Value;
+            return claim?.Value ?? ExecutionPrincipal.CurrentUserId;
         }
         catch (Exception ex)
         {

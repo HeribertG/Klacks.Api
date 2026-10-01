@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Confirms a single break entry and records the confirmation in the period audit log, so the level
-/// on which an identity is actually read is no longer the only unprotocolled one.
+/// on which an identity is actually read is no longer the only unprotocolled one. A break owned by a client
+/// outside the caller's group visibility is refused exactly like a break that does not exist; nothing is sealed.
 /// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
 
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
@@ -21,6 +23,7 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
     private const int SingleEntryAffectedCount = 1;
 
     private readonly IBreakRepository _breakRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
@@ -30,6 +33,7 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
 
     public ConfirmBreakCommandHandler(
         IBreakRepository breakRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
@@ -40,6 +44,7 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
@@ -53,7 +58,7 @@ public class ConfirmBreakCommandHandler : BaseHandler, IRequestHandler<ConfirmBr
         return await ExecuteAsync(async () =>
         {
             var breakEntry = await _breakRepository.Get(request.BreakId);
-            if (breakEntry == null)
+            if (breakEntry == null || !await _clientVisibilityGuard.IsVisibleAsync(breakEntry.ClientId, cancellationToken))
                 throw new KeyNotFoundException($"Break with ID {request.BreakId} not found.");
 
             var ctx = _userContextProvider.GetUserContext();

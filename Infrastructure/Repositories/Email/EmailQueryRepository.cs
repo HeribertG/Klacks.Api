@@ -103,6 +103,21 @@ public class EmailQueryRepository : IEmailQueryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Guid>> GetClientIdsByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default)
+    {
+        var normalizedAddress = emailAddress.ToLower();
+
+        return await _context.Set<Domain.Models.Staffs.Communication>()
+            .Where(c => !c.IsDeleted &&
+                        !c.Client.IsDeleted &&
+                        (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
+                        !string.IsNullOrEmpty(c.Value) &&
+                        c.Value.ToLower() == normalizedAddress)
+            .Select(c => c.ClientId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<ReceivedEmailQueryResult> GetEmailsByAddressesAsync(
         string folder,
         List<string> emailAddresses,

@@ -8,14 +8,20 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
+/// <summary>
+/// Returns a client's master data with its contracts, group memberships, addresses and communications.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// </summary>
 [SkillImplementation("get_client_details")]
 public class GetClientDetailsSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
-    public GetClientDetailsSkill(IClientRepository clientRepository)
+    public GetClientDetailsSkill(IClientRepository clientRepository, IClientVisibilityGuard clientVisibilityGuard)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -30,7 +36,7 @@ public class GetClientDetailsSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid client ID format: {clientIdStr}");
         }
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
 
         if (client == null)
         {

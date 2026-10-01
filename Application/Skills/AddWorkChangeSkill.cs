@@ -3,6 +3,7 @@
 /// <summary>
 /// Skill that adds a WorkChange (correction / replacement / travel / briefing) to an existing Work entry.
 /// Wraps PostCommand&lt;WorkChangeResource&gt; so SignalR notifications and period-hour recalculation fire.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="workId">UUID of the parent Work entry.</param>
 /// <param name="type">WorkChangeType: CorrectionEnd / CorrectionStart / ReplacementStart / ReplacementEnd / ReplacementWithin / TravelStart / TravelEnd / TravelWithin / Briefing / Debriefing.</param>
@@ -31,15 +32,18 @@ public class AddWorkChangeSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IWorkRepository _workRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public AddWorkChangeSkill(
         IMediator mediator,
         IWorkRepository workRepository,
-        IClientRepository clientRepository)
+        IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _mediator = mediator;
         _workRepository = workRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -74,7 +78,7 @@ public class AddWorkChangeSkill : BaseSkillImplementation
         }
 
         var work = await _workRepository.Get(workId);
-        if (work == null)
+        if (work == null || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
         {
             return SkillResult.Error($"Work {workId} not found.");
         }
@@ -86,7 +90,7 @@ public class AddWorkChangeSkill : BaseSkillImplementation
             {
                 return SkillResult.Error($"Invalid replaceClientId UUID '{replaceClientIdRaw}'.");
             }
-            if (!await _clientRepository.Exists(parsed))
+            if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, parsed, cancellationToken))
             {
                 return SkillResult.Error($"Replacement client {parsed} not found.");
             }

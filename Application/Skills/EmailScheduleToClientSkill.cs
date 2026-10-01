@@ -5,6 +5,7 @@
 /// period. The actual PDF generation runs on the frontend via SendScheduleReportCommand
 /// (which expects PDF bytes from the rendered schedule), so this skill returns a navigate
 /// UiAction rather than performing the email server-side.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client whose schedule should be emailed.</param>
 /// <param name="fromDate">Optional. ISO date yyyy-MM-dd.</param>
@@ -21,10 +22,12 @@ namespace Klacks.Api.Application.Skills;
 public class EmailScheduleToClientSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
-    public EmailScheduleToClientSkill(IClientRepository clientRepository)
+    public EmailScheduleToClientSkill(IClientRepository clientRepository, IClientVisibilityGuard clientVisibilityGuard)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -36,7 +39,7 @@ public class EmailScheduleToClientSkill : BaseSkillImplementation
         var fromDate = GetParameter<string>(parameters, "fromDate");
         var untilDate = GetParameter<string>(parameters, "untilDate");
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client == null)
         {
             return SkillResult.Error($"Client '{clientId}' not found.");

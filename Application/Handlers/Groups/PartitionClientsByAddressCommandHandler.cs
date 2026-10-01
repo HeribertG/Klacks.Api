@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Domain.Common;
@@ -26,7 +27,9 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// top-down so a parent's nested-set row is committed before its children are inserted, cluster nodes
 /// additionally getting their centroid coordinates and GeocodingAttempted set) and the new memberships in
 /// a single transaction, committing once and re-reading the memberships to confirm the write. Several
-/// client types can be partitioned into the same tree in one call.
+/// client types can be partitioned into the same tree in one call. The run reads and restructures the whole
+/// group tree, so only unrestricted callers (admin, background, installation without groups) may start it; a
+/// group-restricted caller is refused before anything is read.
 /// </summary>
 /// <param name="clientRepository">Loads clients of every requested entity type with their addresses and group memberships.</param>
 /// <param name="groupRepository">Provides the existing groups and creates the missing ones (nested-set aware).</param>
@@ -38,12 +41,14 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="stateRepository">Supplies state display names for the descriptions of state nodes.</param>
 /// <param name="settingsReader">Reads the installation-wide DEFAULT_LANGUAGE setting used to pick the state display name's language.</param>
 /// <param name="visibilityPreservation">Counts the users that keep access to everything when this run introduces the first group, for the advisory the preview shows.</param>
+/// <param name="groupVisibilityGuard">Tells whether the caller is free of group-visibility restrictions.</param>
 public sealed class PartitionClientsByAddressCommandHandler
     : IRequestHandler<PartitionClientsByAddressCommand, PartitionClientsByAddressResult>
 {
     private const string SkillName = "partition_clients_by_address";
     private const string AllEntityTypesLabel = "All";
     private const int MaxUnassignableSample = 20;
+    private const string RestrictedCallerMessage = "Only unrestricted users may partition clients into groups";
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
@@ -55,6 +60,7 @@ public sealed class PartitionClientsByAddressCommandHandler
     private readonly IStateRepository _stateRepository;
     private readonly ISettingsReader _settingsReader;
     private readonly IGroupVisibilityPreservationService _visibilityPreservation;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public PartitionClientsByAddressCommandHandler(
         IClientRepository clientRepository,
@@ -66,8 +72,10 @@ public sealed class PartitionClientsByAddressCommandHandler
         ICountryResolver countryResolver,
         IStateRepository stateRepository,
         ISettingsReader settingsReader,
-        IGroupVisibilityPreservationService visibilityPreservation)
+        IGroupVisibilityPreservationService visibilityPreservation,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
@@ -83,6 +91,11 @@ public sealed class PartitionClientsByAddressCommandHandler
     public async Task<PartitionClientsByAddressResult> Handle(
         PartitionClientsByAddressCommand request, CancellationToken cancellationToken)
     {
+        if (!await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken))
+        {
+            throw new ForbiddenException(RestrictedCallerMessage);
+        }
+
         var clients = new List<Client>();
         foreach (var entityType in request.EntityTypes.Distinct())
         {

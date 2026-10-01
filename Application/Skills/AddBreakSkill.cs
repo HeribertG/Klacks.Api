@@ -6,6 +6,7 @@
 /// After the write it re-reads the database (recount), filtered by the same analyseToken, to confirm the
 /// break was actually persisted; the recount now verifies scenario writes (analyseToken set) as well, not
 /// only main-schedule rows.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="absenceId">UUID of the Absence type (vacation/sick/etc.).</param>
@@ -32,17 +33,20 @@ public class AddBreakSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakRepository _breakRepository;
 
     public AddBreakSkill(
         IMediator mediator,
         IAbsenceRepository absenceRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakRepository breakRepository)
     {
         _mediator = mediator;
         _absenceRepository = absenceRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakRepository = breakRepository;
     }
 
@@ -61,7 +65,7 @@ public class AddBreakSkill : BaseSkillImplementation
         var information = GetParameter<string>(parameters, "information");
         var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }

@@ -7,9 +7,11 @@
 /// rows the same delete cascaded away, clears the delete stamp, then replays the create-side commit
 /// sequence: commit, overtime successors, period hours, created-notifications, and the same three-day
 /// WorkResource the delete answered with. A foreign delete (caller is neither Admin nor the deleting
-/// user) is answered exactly like "not found" so the endpoint reveals nothing about it.
+/// user) is answered exactly like "not found" so the endpoint reveals nothing about it, and so is a Work
+/// owned by a client outside the caller's group visibility.
 /// </summary>
 /// <param name="request">Carries the id of the soft-deleted Work</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
@@ -30,6 +32,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
     public const string MissingDeleteStampMessage = "The work entry carries no delete time and cannot be restored.";
 
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -46,6 +49,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
 
     public RestoreWorkCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -63,6 +67,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -83,7 +88,9 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
         return await ExecuteAsync(async () =>
         {
             var work = await _workRepository.GetDeletedAsync(request.Id, cancellationToken);
-            if (work == null || _authorizer.Resolve(work) == WorkRestoreAccess.Hidden)
+            if (work == null
+                || _authorizer.Resolve(work) == WorkRestoreAccess.Hidden
+                || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
             {
                 throw new KeyNotFoundException($"Deleted work with ID {request.Id} not found.");
             }

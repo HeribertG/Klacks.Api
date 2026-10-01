@@ -3,7 +3,8 @@
 /// <summary>
 /// Handles date-range ZIP export queries: exports every sealed order with period-closed
 /// work entries as one file per order plus a client period export entry, bundled into a
-/// single ZIP archive.
+/// single ZIP archive. Work entries and client period data of clients hidden from the caller by group
+/// visibility are left out before the period-closed filter, so an order with only hidden entries drops out.
 /// @param request - Contains the date range, per-order format key and localization settings
 /// </summary>
 using System.IO.Compression;
@@ -42,6 +43,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public CreateOrderRangeExportQueryHandler(
         ISealedOrderIdLoader sealedOrderIdLoader,
@@ -55,6 +57,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         IExportLogRepository exportLogRepository,
         IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<CreateOrderRangeExportQueryHandler> logger) : base(unitOfWork, logger)
     {
@@ -69,6 +72,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         _exportLogRepository = exportLogRepository;
         _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<OrderExportResult> Handle(CreateOrderRangeExportQuery request, CancellationToken cancellationToken)
@@ -98,6 +102,10 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
             var orderIds = await _sealedOrderIdLoader.LoadIdsForRangeAsync(filter.FromDate, filter.UntilDate, cancellationToken);
             var orderData = await _orderDataLoader.LoadAsync(orderIds, filter.FromDate, filter.UntilDate, cancellationToken);
             var clientPeriodData = await _clientPeriodDataLoader.LoadAsync(filter.FromDate, filter.UntilDate, cancellationToken);
+
+            var visibleClientIds = (await _clientVisibilityGuard.FilterVisibleAsync(
+                CollectClientIds(orderData, clientPeriodData), id => id, cancellationToken)).ToHashSet();
+            RemoveHiddenClients(orderData, clientPeriodData, visibleClientIds);
 
             var clientIds = CollectClientIds(orderData, clientPeriodData);
             var periodClosedLookup = await _periodClosedEntryFilter.BuildAsync(
@@ -173,6 +181,17 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         }
 
         return clientIds;
+    }
+
+    private static void RemoveHiddenClients(
+        OrderExportData orderData, ClientPeriodExportData clientPeriodData, HashSet<Guid> visibleClientIds)
+    {
+        foreach (var order in orderData.Orders)
+        {
+            order.WorkEntries = order.WorkEntries.Where(w => visibleClientIds.Contains(w.EmployeeId)).ToList();
+        }
+
+        clientPeriodData.Clients = clientPeriodData.Clients.Where(c => visibleClientIds.Contains(c.ClientId)).ToList();
     }
 
     private static List<OrderGroup> FilterOrders(List<OrderGroup> orders, IPeriodClosedLookup lookup)

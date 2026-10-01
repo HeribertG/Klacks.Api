@@ -91,6 +91,12 @@ public class ClientGroupFilterService : IClientGroupFilterService
                select client;
     }
 
+    public async Task<bool> IsCallerUnrestrictedAsync()
+    {
+        var scope = await ResolveVisibilityScopeAsync();
+        return scope.IsUnrestricted;
+    }
+
     private async Task<GroupVisibilityScope> ResolveVisibilityScopeAsync()
     {
         if (string.IsNullOrEmpty(_user.GetIdString()))

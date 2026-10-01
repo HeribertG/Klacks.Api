@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Lists the addresses of one client in their simple form. A client outside the caller's group visibility yields an empty list, exactly like a
+/// client without addresses, and the repository is not queried.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see the client</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Addresses;
@@ -14,12 +20,18 @@ namespace Klacks.Api.Application.Handlers.Addresses
     public class GetSimpleAddressListQueryHandler : IRequestHandler<GetSimpleAddressListQuery, IEnumerable<AddressResource>>
     {
         private readonly IAddressRepository _addressRepository;
+        private readonly IClientVisibilityGuard _clientVisibilityGuard;
         private readonly AddressCommunicationMapper _addressCommunicationMapper;
         private readonly ILogger<GetSimpleAddressListQueryHandler> _logger;
 
-        public GetSimpleAddressListQueryHandler(IAddressRepository addressRepository, AddressCommunicationMapper addressCommunicationMapper, ILogger<GetSimpleAddressListQueryHandler> logger)
+        public GetSimpleAddressListQueryHandler(
+            IAddressRepository addressRepository,
+            IClientVisibilityGuard clientVisibilityGuard,
+            AddressCommunicationMapper addressCommunicationMapper,
+            ILogger<GetSimpleAddressListQueryHandler> logger)
         {
             _addressRepository = addressRepository;
+            _clientVisibilityGuard = clientVisibilityGuard;
             _addressCommunicationMapper = addressCommunicationMapper;
             _logger = logger;
         }
@@ -34,6 +46,11 @@ namespace Klacks.Api.Application.Handlers.Addresses
                 {
                     _logger.LogWarning("Invalid ID provided for simple address list: empty GUID");
                     throw new InvalidRequestException("ID cannot be empty for simple address list query");
+                }
+
+                if (!await _clientVisibilityGuard.IsVisibleAsync(request.Id, cancellationToken))
+                {
+                    return [];
                 }
                 
                 var addresses = await _addressRepository.SimpleList(request.Id);

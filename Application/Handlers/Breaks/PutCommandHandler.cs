@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates a single break (absence entry) and notifies the schedule. A break whose stored owner or whose
+/// new owner is outside the caller's group visibility is refused exactly like a break that does not exist;
+/// nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
@@ -18,6 +25,7 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakMacroService _breakMacroService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
@@ -30,6 +38,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakMacroService breakMacroService,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
@@ -43,6 +52,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         : base(logger)
     {
         _breakRepository = breakRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakMacroService = breakMacroService;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
@@ -61,6 +71,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var existing = await _breakRepository.GetNoTracking(request.Resource.Id);
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
             ScheduleEntrySealState.CarryOver(entity, existing);
+
+            var ownerIds = existing != null
+                ? new[] { existing.ClientId, entity.ClientId }
+                : new[] { entity.ClientId };
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
+            {
+                throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
+            }
 
             if (existing != null)
             {

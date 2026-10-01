@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Deletes one client communication entry and afterwards reassigns inbox mails that lost their client.
+/// An entry owned by a client outside the caller's group visibility is refused exactly like a missing
+/// entry: nothing is deleted and no mail is reassigned.
+/// </summary>
+/// <param name="request">Carries the id of the communication entry to delete</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -14,12 +21,14 @@ namespace Klacks.Api.Application.Handlers.Communications;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<CommunicationResource>, CommunicationResource?>
 {
     private readonly ICommunicationRepository _communicationRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IEmailClientAssignmentService _emailAssignmentService;
     private readonly AddressCommunicationMapper _addressCommunicationMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         ICommunicationRepository communicationRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IEmailClientAssignmentService emailAssignmentService,
         AddressCommunicationMapper addressCommunicationMapper,
         IUnitOfWork unitOfWork,
@@ -27,6 +36,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
         : base(logger)
     {
         _communicationRepository = communicationRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _emailAssignmentService = emailAssignmentService;
         _addressCommunicationMapper = addressCommunicationMapper;
         _unitOfWork = unitOfWork;
@@ -37,7 +47,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
         return await ExecuteAsync(async () =>
         {
             var existingCommunication = await _communicationRepository.Get(request.Id);
-            if (existingCommunication == null)
+            if (existingCommunication == null
+                || !await _clientVisibilityGuard.IsVisibleAsync(existingCommunication.ClientId, cancellationToken))
             {
                 throw new KeyNotFoundException($"Communication with ID {request.Id} not found.");
             }

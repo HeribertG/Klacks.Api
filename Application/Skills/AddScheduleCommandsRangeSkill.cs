@@ -6,6 +6,7 @@
 /// day of a date range — the range variant of add_schedule_command, iterating server-side because
 /// callers (recipes, orchestrators) cannot loop. Days that already carry the keyword are skipped
 /// instead of duplicated.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="fromDate">First day of the range in ISO yyyy-MM-dd.</param>
@@ -30,17 +31,20 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
 
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public AddScheduleCommandsRangeSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork,
         IScheduleCommandKeywordProvider keywordProvider)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
         _keywordProvider = keywordProvider;
     }
@@ -77,7 +81,7 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
                 $"Range spans {totalDays} days; the maximum is {MaxRangeDays}. Split the request into smaller ranges.");
         }
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }

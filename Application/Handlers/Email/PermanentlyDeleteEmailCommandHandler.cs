@@ -1,6 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Permanently deletes one received email from the trash, locally and on the IMAP server. An email whose
+/// sender belongs only to clients outside the caller's group visibility is refused exactly like a missing email.
+/// </summary>
+/// <param name="emailQueryRepository">Resolves the clients that own the sender address</param>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may see those clients</param>
+
 using Klacks.Api.Application.Commands.Email;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -12,12 +20,16 @@ namespace Klacks.Api.Application.Handlers.Email;
 public class PermanentlyDeleteEmailCommandHandler : BaseHandler, IRequestHandler<PermanentlyDeleteEmailCommand, bool>
 {
     private readonly IReceivedEmailRepository _repository;
+    private readonly IEmailQueryRepository _emailQueryRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IEmailFolderRepository _folderRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImapEmailService _imapService;
 
     public PermanentlyDeleteEmailCommandHandler(
         IReceivedEmailRepository repository,
+        IEmailQueryRepository emailQueryRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IEmailFolderRepository folderRepository,
         IUnitOfWork unitOfWork,
         IImapEmailService imapService,
@@ -25,6 +37,8 @@ public class PermanentlyDeleteEmailCommandHandler : BaseHandler, IRequestHandler
         : base(logger)
     {
         _repository = repository;
+        _emailQueryRepository = emailQueryRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _folderRepository = folderRepository;
         _unitOfWork = unitOfWork;
         _imapService = imapService;
@@ -35,7 +49,8 @@ public class PermanentlyDeleteEmailCommandHandler : BaseHandler, IRequestHandler
         return await ExecuteAsync(async () =>
         {
             var email = await _repository.GetByIdAsync(request.Id);
-            if (email == null)
+            if (email == null
+                || await ReceivedEmailVisibility.IsHiddenAsync(_emailQueryRepository, _clientVisibilityGuard, email, cancellationToken))
             {
                 throw new KeyNotFoundException($"Email with id {request.Id} not found.");
             }

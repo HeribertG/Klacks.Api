@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates several Works in one call after the day-lock and hard-blocking guards have passed. If any Work
+/// is for a client outside the caller's group visibility, the whole request is refused exactly like a
+/// request for a client that does not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
+
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
@@ -17,7 +24,10 @@ namespace Klacks.Api.Application.Handlers.Works;
 
 public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWorksCommand, BulkWorksResponse>
 {
+    private const string ClientsNotFoundMessage = "One or more clients of the request were not found";
+
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -29,6 +39,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -41,6 +52,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -55,6 +67,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     {
         return await ExecuteAsync(async () =>
         {
+            var clientIds = command.Request.Works.Select(w => w.ClientId).Distinct().ToList();
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            {
+                throw new KeyNotFoundException(ClientsNotFoundMessage);
+            }
+
             await _dayLockService.EnsureNoneLockedAsync(
                 command.Request.Works
                     .Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken))

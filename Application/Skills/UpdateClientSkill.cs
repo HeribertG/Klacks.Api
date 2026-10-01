@@ -7,6 +7,7 @@
 /// entry so the client's history is preserved. The write is self-verifying: it runs in a
 /// transaction and every changed field is re-read fresh from the database; a mismatch rolls
 /// the update back.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to update.</param>
 /// <param name="firstName">Optional. New first name.</param>
@@ -45,6 +46,7 @@ public class UpdateClientSkill : BaseSkillImplementation
     private const string SkillName = "update_client";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IClientSearchRepository _searchRepository;
     private readonly ClientMapper _clientMapper;
     private readonly IKlacksSelfApiClient _selfApi;
@@ -54,6 +56,7 @@ public class UpdateClientSkill : BaseSkillImplementation
 
     public UpdateClientSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IClientSearchRepository searchRepository,
         ClientMapper clientMapper,
         IKlacksSelfApiClient selfApi,
@@ -62,6 +65,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         ICountryResolver countryResolver)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _searchRepository = searchRepository;
         _clientMapper = clientMapper;
         _selfApi = selfApi;
@@ -255,7 +259,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         var clientIdValue = GetParameter<string>(parameters, "clientId");
         if (!string.IsNullOrWhiteSpace(clientIdValue) && Guid.TryParse(clientIdValue, out var clientId))
         {
-            var byId = await _clientRepository.Get(clientId);
+            var byId = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
             return byId == null
                 ? (null, $"Client with ID '{clientId}' not found.")
                 : (byId, null);

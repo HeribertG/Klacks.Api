@@ -4,6 +4,7 @@
 /// Adds an existing client to a group by their UUIDs, writing the membership inside a verified
 /// transaction and rejecting a client that is already a member. Requires an explicit start date
 /// (validFrom); it asks the user for one instead of silently defaulting to today.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client to add to the group.</param>
 /// <param name="groupId">UUID of the target group.</param>
@@ -33,6 +34,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
     private const string SkillName = "add_client_to_group";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
@@ -42,6 +44,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
 
     public AddClientToGroupSkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
@@ -50,6 +53,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
@@ -78,7 +82,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid group ID format: {groupIdStr}");
         }
 
-        var clientExists = await _clientRepository.Exists(clientId);
+        var clientExists = await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (!clientExists)
         {
             return SkillResult.Error($"Client with ID {clientId} not found.");

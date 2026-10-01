@@ -4,6 +4,7 @@
 /// Read-only advisory skill that summarises a client's absences for one year, mirroring the value
 /// column of the absence gantt: per absence type it reports planned days (placeholders, clipped to
 /// the year), booked days (Breaks) and the weighted value (days x the type's DefaultValue).
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client to summarise</param>
 /// <param name="year">Calendar year to summarise (default: current year)</param>
@@ -21,6 +22,7 @@ namespace Klacks.Api.Application.Skills;
 public class GetClientAbsenceSummarySkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IBreakPlaceholderRepository _breakPlaceholderRepository;
     private readonly IBreakRepository _breakRepository;
     private readonly IAbsenceRepository _absenceRepository;
@@ -28,12 +30,14 @@ public class GetClientAbsenceSummarySkill : BaseSkillImplementation
 
     public GetClientAbsenceSummarySkill(
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IBreakPlaceholderRepository breakPlaceholderRepository,
         IBreakRepository breakRepository,
         IAbsenceRepository absenceRepository,
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _breakPlaceholderRepository = breakPlaceholderRepository;
         _breakRepository = breakRepository;
         _absenceRepository = absenceRepository;
@@ -48,7 +52,7 @@ public class GetClientAbsenceSummarySkill : BaseSkillImplementation
         var clientId = GetRequiredGuid(parameters, "clientId");
         var year = GetParameter<int?>(parameters, "year") ?? (await _companyClock.GetTodayDateAsync(cancellationToken)).Year;
 
-        var client = await _clientRepository.Get(clientId);
+        var client = await ClientResolver.LoadVisibleByIdAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken);
         if (client is null)
         {
             return SkillResult.Error($"Client {clientId} not found.");

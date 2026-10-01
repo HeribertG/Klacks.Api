@@ -6,6 +6,7 @@
 /// counterpart of set_client_availability, since a positively marked day restricts work to the
 /// marked hours and only deleting the records fully reopens it. The soft-delete is self-verifying:
 /// it runs in a transaction and the range must read back empty before success is reported.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="clientId">UUID of the client whose availability records are cleared</param>
 /// <param name="startDate">First day of the range (yyyy-MM-dd)</param>
@@ -31,15 +32,18 @@ public class ClearClientAvailabilitySkill : BaseSkillImplementation
 
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IUnitOfWork _unitOfWork;
 
     public ClearClientAvailabilitySkill(
         IClientAvailabilityRepository availabilityRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IUnitOfWork unitOfWork)
     {
         _availabilityRepository = availabilityRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -71,7 +75,7 @@ public class ClearClientAvailabilitySkill : BaseSkillImplementation
                 $"Invalid hour window: 'startHour' and 'endHour' must be between {MinHour} and {MaxHour} and 'startHour' must not exceed 'endHour'.");
         }
 
-        if (!await _clientRepository.Exists(clientId))
+        if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
             return SkillResult.Error($"Client {clientId} not found.");
         }

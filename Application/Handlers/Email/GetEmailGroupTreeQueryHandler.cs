@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for building a group tree with email counters per client and group.
+/// Handler for building a group tree with email counters per client and group. Clients outside the caller's
+/// group visibility are left out of the tree together with their counters.
 /// </summary>
+/// <param name="clientVisibilityGuard">Filters the clients down to those the calling user may see</param>
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Email;
@@ -19,15 +21,18 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 {
     private readonly IGroupHierarchyService _groupHierarchyService;
     private readonly IEmailQueryRepository _emailQueryRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public GetEmailGroupTreeQueryHandler(
         IGroupHierarchyService groupHierarchyService,
         IEmailQueryRepository emailQueryRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ILogger<GetEmailGroupTreeQueryHandler> logger)
         : base(logger)
     {
         _groupHierarchyService = groupHierarchyService;
         _emailQueryRepository = emailQueryRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public async Task<List<EmailGroupTreeNode>> Handle(GetEmailGroupTreeQuery request, CancellationToken cancellationToken)
@@ -42,7 +47,9 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 
             var receivedAddressSet = new HashSet<string>(receivedAddresses, StringComparer.OrdinalIgnoreCase);
 
-            var clientsWithEmails = await _emailQueryRepository.GetClientsWithEmailCommunicationsAsync(cancellationToken);
+            var allClientsWithEmails = await _emailQueryRepository.GetClientsWithEmailCommunicationsAsync(cancellationToken);
+            var clientsWithEmails = await _clientVisibilityGuard.FilterVisibleAsync(
+                allClientsWithEmails, c => c.ClientId, cancellationToken);
 
             var clientEmailCounts = new Dictionary<Guid, int>();
             var clientUnreadCounts = new Dictionary<Guid, int>();

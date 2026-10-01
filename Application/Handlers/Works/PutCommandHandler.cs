@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates a Work: day-lock and hard-blocking guards first, then the write, container-children move,
+/// commit, overtime successors, period hours, notifications and the three-day WorkResource. A Work whose
+/// stored owner or whose new owner is outside the caller's group visibility is answered exactly like a
+/// Work that does not exist; nothing is written.
+/// </summary>
+/// <param name="clientVisibilityGuard">Decides whether the calling user may write for both owners</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Exceptions;
@@ -19,6 +27,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkResource>, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -33,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
     public PutCommandHandler(
         IWorkRepository workRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -48,6 +58,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         : base(logger)
     {
         _workRepository = workRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -71,6 +82,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
             ScheduleEntrySealState.CarryOver(work, existingWork);
+
+            var ownerIds = existingWork != null
+                ? new[] { existingWork.ClientId, work.ClientId }
+                : new[] { work.ClientId };
+            if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
+            {
+                return null;
+            }
 
             if (oldDate.HasValue)
             {

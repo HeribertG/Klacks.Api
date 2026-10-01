@@ -32,9 +32,19 @@ public interface IReceivedEmailRepository
 
     Task DeleteByFolderAsync(string folder);
 
-    Task<List<ReceivedEmail>> GetFilteredListAsync(string? folder, bool? isRead, bool sortAsc, int skip, int take);
+    /// <summary>
+    /// Pages the emails of a folder (or all folders). Emails whose sender address is listed in
+    /// excludedFromAddresses (lower-case) are left out of the page.
+    /// </summary>
+    Task<List<ReceivedEmail>> GetFilteredListAsync(
+        string? folder, bool? isRead, bool sortAsc, int skip, int take,
+        IReadOnlyCollection<string>? excludedFromAddresses = null);
 
-    Task<int> GetFilteredCountAsync(string? folder, bool? isRead);
+    /// <summary>
+    /// Counts the emails of a folder (or all folders), leaving out senders listed in excludedFromAddresses
+    /// (lower-case) exactly like <see cref="GetFilteredListAsync"/>.
+    /// </summary>
+    Task<int> GetFilteredCountAsync(string? folder, bool? isRead, IReadOnlyCollection<string>? excludedFromAddresses = null);
 
     Task MoveToFolderAsync(Guid id, string folder);
 

@@ -5,6 +5,7 @@
 /// to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part
 /// 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut
 /// into parts via <see cref="CutShiftSkill"/> — never by calling this skill several times.
+/// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
 /// </summary>
 /// <param name="name">Name of the shift (e.g. "Early shift Bern")</param>
 /// <param name="clientId">UUID of the customer (EntityTypeEnum.Customer) the order is billed to; mandatory.</param>
@@ -26,6 +27,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -46,6 +48,7 @@ public class CreateShiftSkill : BaseSkillImplementation
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IClientRepository _clientRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
@@ -54,6 +57,7 @@ public class CreateShiftSkill : BaseSkillImplementation
         IShiftRepository shiftRepository,
         IGroupRepository groupRepository,
         IClientRepository clientRepository,
+        IClientVisibilityGuard clientVisibilityGuard,
         IMediator mediator,
         IUnitOfWork unitOfWork,
         IDefaultShiftMacroResolver defaultShiftMacroResolver)
@@ -61,6 +65,7 @@ public class CreateShiftSkill : BaseSkillImplementation
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _clientRepository = clientRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _defaultShiftMacroResolver = defaultShiftMacroResolver;
@@ -92,7 +97,7 @@ public class CreateShiftSkill : BaseSkillImplementation
                 "or create a new one with create_employee using entityType=Customer — then call create_shift again with clientId.");
         }
 
-        var client = (await _clientRepository.GetByIdsAsync(new[] { clientId })).FirstOrDefault();
+        var client = await LoadVisibleCustomerAsync(clientId, cancellationToken);
         if (client == null)
         {
             return SkillResult.Error($"Customer with ID {clientId} not found.");
@@ -286,6 +291,16 @@ public class CreateShiftSkill : BaseSkillImplementation
               "If it is a single shift, the order is already complete.";
 
         return SkillResult.SuccessResult(resultData, message);
+    }
+
+    private async Task<Client?> LoadVisibleCustomerAsync(Guid clientId, CancellationToken cancellationToken)
+    {
+        if (!await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken))
+        {
+            return null;
+        }
+
+        return (await _clientRepository.GetByIdsAsync(new[] { clientId }, cancellationToken)).FirstOrDefault();
     }
 
     private async Task<(Guid? Id, string? Name, string? Error)> ResolveMacroAsync(

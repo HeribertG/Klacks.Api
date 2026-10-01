@@ -17,9 +17,12 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// contract, qualification and entity type, then either previews the matches (Apply=false) or adds the
 /// ones that are not already members to the target group, committing all new memberships in a single
 /// save. Mirrors the direct group_item persistence used by the customer-grouping handler and skips
-/// clients that already belong to the group, so re-running it never creates duplicates.
+/// clients that already belong to the group, so re-running it never creates duplicates. The client search is
+/// already scoped to the caller's visible groups; a group-restricted caller may additionally only target a
+/// visible group, a hidden one being answered like a missing one.
 /// </summary>
 /// <param name="searchRepository">Finds the clients matching the criteria.</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may write the target group.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single save.</param>
 /// <param name="companyClock">Supplies the company-local date used both as the qualification validity
@@ -28,27 +31,36 @@ public sealed class FillGroupByCriteriaCommandHandler
     : IRequestHandler<FillGroupByCriteriaCommand, FillGroupByCriteriaResult>
 {
     private const int DefaultMatchLimit = 100;
+    private const string GroupNotFoundMessage = "Group with ID {0} not found";
 
     private readonly IClientSearchRepository _searchRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public FillGroupByCriteriaCommandHandler(
         IClientSearchRepository searchRepository,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _searchRepository = searchRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<FillGroupByCriteriaResult> Handle(
         FillGroupByCriteriaCommand request, CancellationToken cancellationToken)
     {
+        if (!await _groupVisibilityGuard.IsGroupVisibleAsync(request.GroupId, cancellationToken))
+        {
+            throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, request.GroupId));
+        }
+
         var limit = request.Count is > 0 ? request.Count.Value : DefaultMatchLimit;
         var companyToday = await _companyClock.GetTodayAsync(cancellationToken);
 
