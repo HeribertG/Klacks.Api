@@ -43,16 +43,16 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
         When(x => !x.Resource.LegalEntity, () =>
         {
             RuleFor(x => x.Resource.FirstName)
-                .NotEmpty()
-                .WithMessage("address.edit-address.address-persona.validation.firstname-required");
+                .Must(ClientPersonRules.HasName)
+                .WithMessage(ClientPersonRules.FirstNameRequiredMessage);
 
             RuleFor(x => x.Resource.Name)
-                .NotEmpty()
-                .WithMessage("address.edit-address.address-persona.validation.name-required");
+                .Must(ClientPersonRules.HasName)
+                .WithMessage(ClientPersonRules.NameRequiredMessage);
 
             RuleFor(x => x.Resource.Gender)
-                .Must(gender => gender == GenderEnum.Female || gender == GenderEnum.Male || gender == GenderEnum.Intersexuality)
-                .WithMessage("address.edit-address.address-persona.validation.gender-required");
+                .Must(ClientPersonRules.IsPersonGender)
+                .WithMessage(ClientPersonRules.GenderRequiredMessage);
         });
 
         RuleFor(x => x.Resource.ClientContracts)

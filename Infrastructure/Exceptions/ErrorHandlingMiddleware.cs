@@ -45,35 +45,25 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (ClientImportRejectedException ex)
+        {
+            _logger.LogWarning(ex, "ClientImportRejectedException caught by middleware: {Code}", ex.Code);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Bad Request", ex.Message, ex.Code);
+        }
+        catch (ClientImportConflictException ex)
+        {
+            _logger.LogWarning(ex, "ClientImportConflictException caught by middleware: {Code}", ex.Code);
+            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Conflict", ex.Message, ex.Code);
+        }
         catch (InvalidRequestException ex)
         {
             _logger.LogWarning(ex, "InvalidRequestException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Invalid request",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Invalid request", ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
             _logger.LogWarning(ex, "KeyNotFoundException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Not Found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
+            await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
         }
         catch (DbUpdateException ex)
         {
@@ -306,5 +296,26 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+    }
+
+    private static async Task WriteProblemAsync(HttpContext context, int status, string title, string detail, string? code = null)
+    {
+        context.Response.StatusCode = status;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Title = title,
+            Status = status,
+            Detail = detail
+        };
+
+        if (code != null)
+        {
+            problem.Extensions["errorCode"] = code;
+            problem.Extensions["code"] = code;
+        }
+
+        await context.Response.WriteAsJsonAsync(problem);
     }
 }

@@ -8,4 +8,9 @@ public class InvalidRequestException : Exception
         : base(message)
     {
     }
+
+    public InvalidRequestException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 }

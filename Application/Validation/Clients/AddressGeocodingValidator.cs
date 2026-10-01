@@ -14,6 +14,7 @@
 using FluentValidation;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Geocoding;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Common;
@@ -57,16 +58,10 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
             return true;
         }
 
-        // Resolve country: prefer the address's stored country code; fall back to the
-        // configured default. Pass the German name to Nominatim's country= parameter —
-        // Nominatim treats country= as free-text, not as an ISO code (ISO goes to countrycodes=).
         var resolvedCountry = await _countryResolver.ResolveAsync(address.Country, cancellationToken)
             ?? await _countryResolver.GetDefaultAsync(cancellationToken);
 
-        var geocodingCountry = resolvedCountry?.Name.De
-            ?? resolvedCountry?.Name.En
-            ?? resolvedCountry?.Abbreviation
-            ?? string.Empty;
+        var geocodingCountry = AddressGeocodingRules.CountryQueryName(resolvedCountry);
 
         try
         {
@@ -78,9 +73,7 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
                 return true;
             }
 
-            var hasStreet = !string.IsNullOrWhiteSpace(address.Street);
-
-            if (result.Found && (!hasStreet || result.ExactMatch || result.MatchType == "exact"))
+            if (AddressGeocodingRules.IsAcceptedHit(result, address.Street))
             {
                 var stateAbbreviation = await _stateResolver.ResolveAsync(result.State);
 

@@ -71,6 +71,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Client> Client { get; set; }  
 
+    public DbSet<ClientImportBatch> ClientImportBatches { get; set; }
+
     public DbSet<ClientScheduleDetail> ClientScheduleDetail { get; set; }  
 
     public DbSet<Communication> Communication { get; set; }  

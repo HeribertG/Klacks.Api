@@ -71,6 +71,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Infrastructure\Persistence\StoredProcedures\*.sql" />
 		<EmbeddedResource Include="Infrastructure\Persistence\Seed\Dumps\*.sql" />
+		<Content Remove="Application\Services\ClientImport\Resources\client-import-header-synonyms.json" />
+		<EmbeddedResource Include="Application\Services\ClientImport\Resources\client-import-header-synonyms.json" LogicalName="Klacks.Api.ClientImport.HeaderSynonyms.json" />
 	</ItemGroup>
 
 	<ItemGroup>

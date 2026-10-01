@@ -39,12 +39,14 @@ public class UnitOfWork : IUnitOfWork
         catch (DbUpdateException ex)
         {
             var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var sqlState = (ex.InnerException as PostgresException)?.SqlState;
+            var postgresException = ex.InnerException as PostgresException;
+            var sqlState = postgresException?.SqlState;
             var isDuplicate = sqlState == UniqueViolationSqlState;
             var isForeignKey = sqlState == ForeignKeyViolationSqlState;
 
             throw new DatabaseUpdateException(innerMessage, ex,
-                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey);
+                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey,
+                constraintName: postgresException?.ConstraintName);
         }
     }
 
@@ -62,12 +64,14 @@ public class UnitOfWork : IUnitOfWork
         catch (DbUpdateException ex)
         {
             var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var sqlState = (ex.InnerException as PostgresException)?.SqlState;
+            var postgresException = ex.InnerException as PostgresException;
+            var sqlState = postgresException?.SqlState;
             var isDuplicate = sqlState == UniqueViolationSqlState;
             var isForeignKey = sqlState == ForeignKeyViolationSqlState;
 
             throw new DatabaseUpdateException(innerMessage, ex,
-                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey);
+                isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey,
+                constraintName: postgresException?.ConstraintName);
         }
     }
 

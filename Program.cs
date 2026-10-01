@@ -220,6 +220,7 @@ Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddKlacksMcpServer();
 builder.Services.AddErpImportServices(builder.Configuration);
+builder.Services.AddClientImportServices(builder.Configuration);
 builder.Services.AddKlacksBotAuthentication();
 
 var signalRBackplaneOptions = builder.Configuration
@@ -418,6 +419,17 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = RateLimitingPolicies.ConnectionTestPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
+
+    options.AddPolicy(RateLimitingPolicies.ClientImport, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User?.Identity?.Name
+                ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.ClientImportPermitLimit,
                 Window = RateLimitingPolicies.DefaultWindow
             }));
 });

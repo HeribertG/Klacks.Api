@@ -229,6 +229,18 @@ public class BackgroundServiceOptions
     public bool GroupGeocoding { get; set; } = true;
 
     /// <summary>
+    /// Enables the address geocoding worker (AddressGeocodingBackgroundService), which drains the
+    /// in-process queue the employee import fills with the ids of the addresses it created and resolves
+    /// their coordinates through Nominatim, one address at a time with a pause in between. Default ON:
+    /// without it imported addresses never get coordinates. There is no startup resume scan, so ids still
+    /// queued at a restart are lost (those addresses stay without coordinates). With the flag off the
+    /// import queues nothing and reports geocodingQueued = 0. The queue lives in the process that accepted
+    /// the import, so keep it on for every instance that serves imports when scaling out.
+    /// Override via env <c>BackgroundServices__AddressGeocoding=false</c>.
+    /// </summary>
+    public bool AddressGeocoding { get; set; } = true;
+
+    /// <summary>
     /// Enables the skill-relation learning worker, which derives and persists relations between
     /// skills. Default ON: it is the behaviour every installation runs today. Pin it to one instance
     /// when scaling out - every instance would derive the same relations from the same shared data

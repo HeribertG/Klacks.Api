@@ -15,6 +15,7 @@ public static class RateLimitingPolicies
     public const string Mcp = "mcp";
     public const string BotQuery = "bot-query";
     public const string ConnectionTest = "connection-test";
+    public const string ClientImport = "client-import";
 
     public const int LoginPermitLimit = 20;
     public const int UploadPermitLimit = 30;
@@ -24,6 +25,7 @@ public static class RateLimitingPolicies
     public const int McpPermitLimit = 60;
     public const int BotQueryPermitLimit = 20;
     public const int ConnectionTestPermitLimit = 10;
+    public const int ClientImportPermitLimit = 120;
     public const int MaxBulkOperationItems = 500;
     public const int MaxFunctionBatchSize = 20;
 

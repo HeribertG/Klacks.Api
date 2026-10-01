@@ -19,7 +19,6 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
-using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -167,7 +166,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             state = await _searchRepository.FindStatePostCode(zip!);
         }
 
-        var (phonePrefix, phoneNumber) = SplitPhone(phone, resolvedCountry);
+        var (phonePrefix, phoneNumber) = PhoneNumberSplitter.Split(phone, resolvedCountry?.Prefix);
 
         var now = DateTime.UtcNow;
 
@@ -336,38 +335,4 @@ public class CreateEmployeeSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(resultData, message);
     }
-
-    private static (string Prefix, string Number) SplitPhone(string? phone, Countries? country)
-    {
-        if (string.IsNullOrWhiteSpace(phone))
-        {
-            return (string.Empty, string.Empty);
-        }
-
-        var cleaned = new string(phone.Where(ch => char.IsDigit(ch) || ch == '+').ToArray());
-        if (cleaned.StartsWith("00", StringComparison.Ordinal))
-        {
-            cleaned = "+" + cleaned[2..];
-        }
-
-        var prefix = country?.Prefix ?? string.Empty;
-
-        if (!string.IsNullOrEmpty(prefix) && cleaned.StartsWith(prefix, StringComparison.Ordinal))
-        {
-            return (prefix, cleaned[prefix.Length..].TrimStart('0'));
-        }
-
-        if (cleaned.StartsWith('+'))
-        {
-            return (string.Empty, cleaned);
-        }
-
-        if (!string.IsNullOrEmpty(prefix))
-        {
-            return (prefix, cleaned.TrimStart('0'));
-        }
-
-        return (string.Empty, cleaned);
-    }
-
 }
