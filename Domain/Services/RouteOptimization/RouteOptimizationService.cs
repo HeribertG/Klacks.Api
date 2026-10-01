@@ -76,10 +76,10 @@ public class RouteOptimizationService : IRouteOptimizationService
             return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
         }
 
-        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
+        var distanceMatrix = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
 
         _logger.LogInformation("Distance matrix calculated: {Size}x{Size}", locations.Count, locations.Count);
-        return new DistanceMatrix(locations, distanceMatrix, durationMatrix, durationMatricesByProfile);
+        return distanceMatrix;
     }
 
     public async Task<RouteOptimizationResult> OptimizeRouteAsync(
@@ -189,7 +189,8 @@ public class RouteOptimizationService : IRouteOptimizationService
             distanceMatrix.DurationMatricesByProfile,
             transportMode,
             segmentDirections,
-            totalBriefingDebriefingTime);
+            totalBriefingDebriefingTime,
+            IsEstimated: distanceMatrix.IsEstimated);
     }
 
     public async Task<RouteOptimizationResult> OptimizeRouteByShiftIdsAsync(
@@ -216,8 +217,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             return new RouteOptimizationResult(new List<Location>(), 0.0, TimeSpan.Zero, new double[0, 0], new double[0, 0], TimeSpan.Zero, new List<int>(), 0.0, 0.0, TimeSpan.Zero, new List<int>());
         }
 
-        var (distMatrix, durationMatrix, durationMatricesByProfile) = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
-        var distanceMatrix = new DistanceMatrix(locations, distMatrix, durationMatrix, durationMatricesByProfile);
+        var distanceMatrix = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
 
         distanceMatrix = await AddBranchesToDistanceMatrixAsync(distanceMatrix, startBase, endBase, transportMode);
 
@@ -286,7 +286,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             distanceMatrix.Matrix, distanceMatrix.DurationMatrix,
             travelTimeFromStartBase, route, distanceFromStartBase, distanceToEndBase, travelTimeToEndBase,
             fullRouteIndices, distanceMatrix.DurationMatricesByProfile, transportMode,
-            segmentDirections, totalBriefingDebriefingTime, placedTimeBlocks);
+            segmentDirections, totalBriefingDebriefingTime, placedTimeBlocks, distanceMatrix.IsEstimated);
     }
 
     private static List<int> ApplyTimeAwareImprovement(
@@ -398,8 +398,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             return new DistanceMatrix(locations, new double[0, 0], new double[0, 0]);
         }
 
-        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
-        return new DistanceMatrix(locations, distanceMatrix, durationMatrix, durationMatricesByProfile);
+        return await _distanceMatrixBuilder.BuildDistanceMatrixAsync(locations, transportMode);
     }
 
     private int? FindLocationIndex(DistanceMatrix distanceMatrix, string? baseAddress, string label)
@@ -663,8 +662,7 @@ public class RouteOptimizationService : IRouteOptimizationService
             }
         }
 
-        var (distanceMatrix, durationMatrix, durationMatricesByProfile) = await _distanceMatrixBuilder.BuildDistanceMatrixAsync(newLocations, transportMode);
-        return new DistanceMatrix(newLocations, distanceMatrix, durationMatrix, durationMatricesByProfile);
+        return await _distanceMatrixBuilder.BuildDistanceMatrixAsync(newLocations, transportMode);
     }
 }
 
@@ -688,7 +686,8 @@ public record DistanceMatrix(
     List<Location> Locations,
     double[,] Matrix,
     double[,] DurationMatrix,
-    Dictionary<string, double[,]>? DurationMatricesByProfile = null);
+    Dictionary<string, double[,]>? DurationMatricesByProfile = null,
+    bool IsEstimated = false);
 
 public record RouteOptimizationResult(
     List<Location> OptimizedRoute,
@@ -706,7 +705,8 @@ public record RouteOptimizationResult(
     ContainerTransportMode TransportMode = ContainerTransportMode.ByCar,
     List<RouteSegmentDirections>? SegmentDirections = null,
     TimeSpan TotalBriefingDebriefingTime = default,
-    List<PlacedTimeBlock>? PlacedTimeBlocks = null);
+    List<PlacedTimeBlock>? PlacedTimeBlocks = null,
+    bool IsEstimated = false);
 
 public record RouteSegmentDirections(
     string FromName,

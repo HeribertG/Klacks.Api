@@ -7,6 +7,7 @@
 /// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (500ms)
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.Caching.Memory;
@@ -31,8 +32,7 @@ public class GeocodingService : IGeocodingService
         IMemoryCache cache,
         ILogger<GeocodingService> logger)
     {
-        _httpClient = httpClientFactory.CreateClient("Nominatim");
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "Klacks Application (contact: admin@klacks.com)");
+        _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.NominatimClientName);
         _cache = cache;
         _logger = logger;
         _rateLimiter = new SemaphoreSlim(1, 1);

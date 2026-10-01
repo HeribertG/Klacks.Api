@@ -8,6 +8,7 @@
 /// <param name="availableTasksService">Service for available shifts</param>
 /// <param name="routeOptimizationService">Service for distance matrix calculation</param>
 /// <param name="geocodingService">Service for address geocoding</param>
+/// <param name="routeDirectionsBuilder">Retrieves turn-by-turn directions for the final route segments</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
@@ -33,6 +34,7 @@ public class ContainerAutofillService : IContainerAutofillService
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
     private readonly ISettingsReader _settingsReader;
+    private readonly IRouteDirectionsBuilder _routeDirectionsBuilder;
     private readonly ILogger<ContainerAutofillService> _logger;
 
     public ContainerAutofillService(
@@ -41,6 +43,7 @@ public class ContainerAutofillService : IContainerAutofillService
         IGeocodingService geocodingService,
         IAddressCoordinateWriter coordinateWriter,
         ISettingsReader settingsReader,
+        IRouteDirectionsBuilder routeDirectionsBuilder,
         ILogger<ContainerAutofillService> logger)
     {
         _availableTasksService = availableTasksService;
@@ -48,6 +51,7 @@ public class ContainerAutofillService : IContainerAutofillService
         _geocodingService = geocodingService;
         _coordinateWriter = coordinateWriter;
         _settingsReader = settingsReader;
+        _routeDirectionsBuilder = routeDirectionsBuilder;
         _logger = logger;
     }
 
@@ -162,7 +166,9 @@ public class ContainerAutofillService : IContainerAutofillService
         optimizedRoute = PostOptimizationInsertion(context, optimizedRoute, remainingCandidates);
         _logger.LogInformation("Post-insertion complete: route with {Count} stops", optimizedRoute.Count);
 
-        return BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode, allTimeBlocks);
+        var result = BuildResult(context, optimizedRoute, timeRangeTasks.Count, request.TransportMode, allTimeBlocks);
+        var segmentDirections = await _routeDirectionsBuilder.GetRouteDirectionsAsync(result.OptimizedRoute, distanceMatrix, request.TransportMode);
+        return result with { SegmentDirections = segmentDirections, IsEstimated = distanceMatrix.IsEstimated };
     }
 
     private async Task<List<Location>> ExtractLocationsFromShiftsAsync(List<Shift> shifts, ContainerTransportMode containerTransportMode, CancellationToken cancellationToken)
@@ -428,7 +434,7 @@ public class ContainerAutofillService : IContainerAutofillService
             }
         }
 
-        var subMatrix = new DistanceMatrix(subLocations, subDistanceMatrix, subDurationMatrix, distanceMatrix.DurationMatricesByProfile);
+        var subMatrix = new DistanceMatrix(subLocations, subDistanceMatrix, subDurationMatrix, distanceMatrix.DurationMatricesByProfile, distanceMatrix.IsEstimated);
         var optimizer = new AntColonyOptimizer(subMatrix, _logger);
 
         int subStartIndex = 0;
@@ -791,8 +797,9 @@ public class ContainerAutofillService : IContainerAutofillService
         var estimatedTravelTime = TimeSpan.FromSeconds(totalTravelSeconds) + totalWorkTime;
         var remainingTime = timeBudget - estimatedTravelTime;
 
-        var placedTimeBlocks = BuildPlacedTimeBlocks(
-            allTimeBlocks, optimizedRoute, context);
+        var placedTimeBlocks = TimeBlockScheduler.PlaceAllBlocks(
+            allTimeBlocks, optimizedRoute, context.DistanceMatrix,
+            context.StartBaseIndex, context.EndBaseIndex, context.ContainerFromTimeSeconds);
 
         return new ContainerAutofillResult(
             fullRoute,
@@ -815,31 +822,6 @@ public class ContainerAutofillService : IContainerAutofillService
             transportMode,
             TotalBriefingDebriefingTime: totalWorkTime,
             PlacedTimeBlocks: placedTimeBlocks);
-    }
-
-    private static List<PlacedTimeBlock>? BuildPlacedTimeBlocks(
-        List<TimeBlock>? allTimeBlocks,
-        List<int> optimizedRoute,
-        RouteEvaluationContext context)
-    {
-        if (allTimeBlocks == null || allTimeBlocks.Count == 0)
-        {
-            return null;
-        }
-
-        var unmovable = allTimeBlocks.Where(b => !b.IsMovable).ToList();
-        var movable = allTimeBlocks.Where(b => b.IsMovable).ToList();
-
-        var placedUnmovable = TimeBlockScheduler.PlaceUnmovableBlocks(
-            unmovable, optimizedRoute, context.DistanceMatrix,
-            context.StartBaseIndex, context.ContainerFromTimeSeconds);
-
-        var placedMovable = TimeBlockScheduler.PlaceMovableBlocks(
-            movable, optimizedRoute, context.DistanceMatrix,
-            context.StartBaseIndex, context.EndBaseIndex,
-            context.ContainerFromTimeSeconds, placedUnmovable);
-
-        return placedUnmovable.Concat(placedMovable).ToList();
     }
 
     private static ContainerAutofillResult CreateEmptyResult(
