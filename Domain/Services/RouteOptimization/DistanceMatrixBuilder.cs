@@ -6,10 +6,11 @@
 /// <param name="_settingsReader">Repository for reading application settings (e.g. API keys)</param>
 /// <param name="_encryptionService">Decrypts encrypted setting values</param>
 /// <param name="_cache">In-memory cache for distance/duration matrices</param>
-/// <param name="_httpClient">HTTP client for external routing API calls</param>
+/// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
 
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -25,8 +26,6 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     private readonly IMemoryCache _cache;
     private readonly ILogger<DistanceMatrixBuilder> _logger;
     private readonly HttpClient _httpClient;
-    private const string OSRM_BASE_URL = "https://router.project-osrm.org";
-    private const string OPENROUTESERVICE_BASE_URL = "https://api.openrouteservice.org/v2";
 
     public DistanceMatrixBuilder(
         ISettingsReader settingsReader,
@@ -39,10 +38,10 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         _encryptionService = encryptionService;
         _cache = cache;
         _logger = logger;
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.RoutingClientName);
     }
 
-    public async Task<(double[,] distanceMatrix, double[,] durationMatrix, Dictionary<string, double[,]>? durationMatricesByProfile)> BuildDistanceMatrixAsync(
+    public async Task<DistanceMatrix> BuildDistanceMatrixAsync(
         List<Location> locations,
         ContainerTransportMode transportMode)
     {
@@ -70,7 +69,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         if (_cache.TryGetValue(cacheKey, out (double[,] dist, double[,] dur)? cached) && cached != null)
         {
             _logger.LogInformation("CACHE HIT - Using cached distance/duration matrix for TransportMode '{TransportMode}'", transportMode);
-            return (cached.Value.dist, cached.Value.dur, null);
+            return new DistanceMatrix(locations, cached.Value.dist, cached.Value.dur);
         }
 
         _logger.LogInformation("CACHE MISS - Fetching new data for TransportMode '{TransportMode}'", transportMode);
@@ -92,18 +91,18 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
             _cache.Set(cacheKey, result, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7)).SetSize(1));
             _logger.LogInformation("Successfully retrieved distance/duration matrix");
-            return (result.distanceMatrix, result.durationMatrix, null);
+            return new DistanceMatrix(locations, result.distanceMatrix, result.durationMatrix);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to get routing matrix, falling back to Haversine distances with estimated times");
             distanceMatrix = BuildHaversineDistanceMatrix(locations);
             durationMatrix = BuildEstimatedDurationMatrix(distanceMatrix, transportMode);
-            return (distanceMatrix, durationMatrix, null);
+            return new DistanceMatrix(locations, distanceMatrix, durationMatrix, IsEstimated: true);
         }
     }
 
-    public async Task<(double[,] distanceMatrix, double[,] durationMatrix, Dictionary<string, double[,]> durationMatricesByProfile)> BuildMixedDistanceMatrixAsync(
+    public async Task<DistanceMatrix> BuildMixedDistanceMatrixAsync(
         List<Location> locations)
     {
         var size = locations.Count;
@@ -111,6 +110,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var durationMatricesByProfile = new Dictionary<string, double[,]>();
         double[,] distanceMatrix = new double[size, size];
         double[,] defaultDurationMatrix = new double[size, size];
+        var isEstimated = false;
 
         _logger.LogInformation("Building mixed transport matrices - fetching all profiles (driving, cycling, foot)");
 
@@ -156,6 +156,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to get OSRM matrix for profile '{Profile}', using fallback", profile);
+                isEstimated = true;
 
                 var haversineMatrix = BuildHaversineDistanceMatrix(locations);
                 var transportMode = profile switch
@@ -176,7 +177,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             }
         }
 
-        return (distanceMatrix, defaultDurationMatrix, durationMatricesByProfile);
+        return new DistanceMatrix(locations, distanceMatrix, defaultDurationMatrix, durationMatricesByProfile, isEstimated);
     }
 
     public double[,] BuildEstimatedDurationMatrix(double[,] distanceMatrix, ContainerTransportMode transportMode)
@@ -281,7 +282,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var durationMatrix = new double[size, size];
 
         var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
-        var url = $"{OSRM_BASE_URL}/table/v1/driving/{coordinates}?annotations=distance,duration";
+        var url = $"{RoutingServiceUrls.OsrmBaseUrl}/table/v1/driving/{coordinates}?annotations=distance,duration";
 
         _logger.LogInformation("Requesting OSRM table API for distances (driving profile): {Url}", url);
 
@@ -350,7 +351,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var durationMatrix = new double[size, size];
 
         var profile = GetOpenRouteServiceProfile(transportMode);
-        var url = $"{OPENROUTESERVICE_BASE_URL}/matrix/{profile}";
+        var url = $"{RoutingServiceUrls.OpenRouteServiceBaseUrl}/matrix/{profile}";
 
         _logger.LogInformation("Requesting OpenRouteService matrix API with profile '{Profile}': {Url}", profile, url);
 
@@ -367,7 +368,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
 
         var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Content = httpContent;
-        request.Headers.Add("Authorization", apiKey);
+        request.Headers.TryAddWithoutValidation("Authorization", apiKey);
 
         var response = await _httpClient.SendAsync(request);
 
