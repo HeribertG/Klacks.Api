@@ -9,6 +9,7 @@
 /// <param name="geocodingService">Coordinate resolution for addresses without lat/lon</param>
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Models.Staffs;
@@ -26,8 +27,6 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     private readonly HttpClient _httpClient;
     private readonly ILogger<TravelTimeCalculationService> _logger;
 
-    private const string OPENROUTE_DIRECTIONS_URL = "https://api.openrouteservice.org/v2/directions/driving-car";
-    private const string OSRM_ROUTE_URL = "http://router.project-osrm.org/route/v1/driving";
     private const string API_KEY_CACHE_KEY = "travel_time_api_key_configured";
     private const string TRAVEL_TIME_CACHE_PREFIX = "travel_time_";
     private const double AVERAGE_SPEED_KMH = 40.0;
@@ -45,7 +44,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
         _encryptionService = encryptionService;
         _geocodingService = geocodingService;
         _cache = cache;
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.RoutingClientName);
         _logger = logger;
     }
 
@@ -150,10 +149,10 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     {
         try
         {
-            var url = $"{OPENROUTE_DIRECTIONS_URL}?start={from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}&end={to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+            var url = $"{RoutingServiceUrls.OpenRouteServiceDirectionsDrivingUrl}?start={from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}&end={to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Authorization", apiKey);
+            request.Headers.TryAddWithoutValidation("Authorization", apiKey);
 
             using var response = await _httpClient.SendAsync(request, ct);
             if (!response.IsSuccessStatusCode)
@@ -193,7 +192,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     {
         try
         {
-            var url = $"{OSRM_ROUTE_URL}/{from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)};{to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}?overview=false";
+            var url = $"{RoutingServiceUrls.OsrmRouteDrivingUrl}/{from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)};{to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}?overview=false";
 
             using var response = await _httpClient.GetAsync(url, ct);
             if (!response.IsSuccessStatusCode)

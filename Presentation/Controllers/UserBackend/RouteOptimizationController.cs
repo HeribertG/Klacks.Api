@@ -142,23 +142,6 @@ public class RouteOptimizationController : BaseController
                 });
             }
 
-            var segmentDirections = result.SegmentDirections?.Select(s => new RouteSegmentDirectionsDto
-            {
-                FromName = s.FromName,
-                ToName = s.ToName,
-                TransportMode = s.TransportMode,
-                DistanceKm = s.DistanceKm,
-                Duration = s.Duration,
-                Steps = s.Steps.Select(step => new DirectionStepDto
-                {
-                    Instruction = step.Instruction,
-                    StreetName = step.StreetName,
-                    DistanceMeters = step.DistanceMeters,
-                    DurationSeconds = step.DurationSeconds,
-                    ManeuverType = step.ManeuverType
-                }).ToList()
-            }).ToList();
-
             var response = new RouteOptimizationResponse
             {
                 OptimizedRoute = routeSteps,
@@ -168,8 +151,9 @@ public class RouteOptimizationController : BaseController
                 DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
                 DistanceToEndBaseKm = result.DistanceToEndBaseKm,
                 TravelTimeToEndBase = result.TravelTimeToEndBase,
-                SegmentDirections = segmentDirections,
-                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks)
+                SegmentDirections = ConvertSegmentDirections(result.SegmentDirections),
+                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks),
+                IsEstimated = result.IsEstimated
             };
 
             return Ok(response);
@@ -264,7 +248,9 @@ public class RouteOptimizationController : BaseController
                 DistanceFromStartBaseKm = result.DistanceFromStartBaseKm,
                 DistanceToEndBaseKm = result.DistanceToEndBaseKm,
                 TravelTimeToEndBase = result.TravelTimeToEndBase,
-                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks)
+                SegmentDirections = ConvertSegmentDirections(result.SegmentDirections),
+                PlacedTimeBlocks = ConvertPlacedTimeBlocks(result.PlacedTimeBlocks),
+                IsEstimated = result.IsEstimated
             };
 
             return Ok(response);
@@ -285,6 +271,26 @@ public class RouteOptimizationController : BaseController
             string.IsNullOrEmpty(dto.FixedEndTime) ? null : TimeOnly.Parse(dto.FixedEndTime),
             TimeSpan.FromMinutes(dto.DurationMinutes),
             dto.IsMovable)).ToList();
+    }
+
+    private static List<RouteSegmentDirectionsDto>? ConvertSegmentDirections(List<RouteSegmentDirections>? segmentDirections)
+    {
+        return segmentDirections?.Select(s => new RouteSegmentDirectionsDto
+        {
+            FromName = s.FromName,
+            ToName = s.ToName,
+            TransportMode = s.TransportMode,
+            DistanceKm = s.DistanceKm,
+            Duration = s.Duration,
+            Steps = s.Steps.Select(step => new DirectionStepDto
+            {
+                Instruction = step.Instruction,
+                StreetName = step.StreetName,
+                DistanceMeters = step.DistanceMeters,
+                DurationSeconds = step.DurationSeconds,
+                ManeuverType = step.ManeuverType
+            }).ToList()
+        }).ToList();
     }
 
     private static List<TimeBlockResultDto> ConvertPlacedTimeBlocks(List<PlacedTimeBlock>? placedBlocks)

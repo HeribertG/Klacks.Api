@@ -20,4 +20,6 @@ public class RouteOptimizationResponse
 
     public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
     public List<TimeBlockResultDto> PlacedTimeBlocks { get; set; } = new();
+
+    public bool IsEstimated { get; set; }
 }

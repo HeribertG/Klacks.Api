@@ -11,6 +11,7 @@
 /// <param name="RemainingTime">Remaining time in the budget</param>
 /// <param name="TotalAvailableShifts">Number of available shifts</param>
 /// <param name="SelectedShiftCount">Number of selected shifts</param>
+/// <param name="IsEstimated">True when the routing service was unreachable and travel times are Haversine estimates</param>
 
 using Klacks.Api.Domain.Enums;
 
@@ -37,4 +38,5 @@ public record ContainerAutofillResult(
     Klacks.Api.Domain.Enums.ContainerTransportMode TransportMode = Klacks.Api.Domain.Enums.ContainerTransportMode.ByCar,
     List<RouteSegmentDirections>? SegmentDirections = null,
     TimeSpan TotalBriefingDebriefingTime = default,
-    List<PlacedTimeBlock>? PlacedTimeBlocks = null);
+    List<PlacedTimeBlock>? PlacedTimeBlocks = null,
+    bool IsEstimated = false);

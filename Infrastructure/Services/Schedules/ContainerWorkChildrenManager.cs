@@ -2,13 +2,16 @@
 
 /// <summary>
 /// Manages updating container work children: collection sync, macro execution for sub-works/breaks/work-changes,
-/// unpaid break surcharge negation, and parent work time/surcharge recalculation.
+/// unpaid break surcharge negation, and parent work time/surcharge recalculation. When a save moves the container
+/// bounds, all children must lie inside the new bounds (no overhang), so a container split can never cut through an item.
 /// </summary>
 /// <param name="workId">The parent container work ID</param>
 /// <param name="updatedWorks">Sub-work entities to sync</param>
 /// <param name="updatedBreaks">Sub-break entities to sync</param>
 /// <param name="updatedWorkChanges">Work change entities to sync</param>
 
+using System.Globalization;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -20,6 +23,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 {
+    private const string TimeFormat = "HH:mm";
+    private const string OverhangListSeparator = ", ";
+
     private readonly DataBaseContext _context;
     private readonly EntityCollectionUpdateService _collectionUpdateService;
     private readonly IWorkMacroService _workMacroService;
@@ -54,6 +60,7 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         var parentWork = await _context.Work
             .FirstOrDefaultAsync(w => w.Id == workId && !w.IsDeleted, cancellationToken);
 
+        EnsureChildrenInsideMovedBounds(parentWork, parentStartTime, parentEndTime, updatedWorks, updatedBreaks);
         UpdateParentProperties(parentWork, parentStartBase, parentEndBase, parentStartTime, parentEndTime);
         InheritParentDefaults(parentWork, updatedBreaks);
 
@@ -65,6 +72,31 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
 
         return parentWork;
     }
+
+    private static void EnsureChildrenInsideMovedBounds(
+        Work? parentWork,
+        TimeOnly? startTime,
+        TimeOnly? endTime,
+        List<Work> updatedWorks,
+        List<Break> updatedBreaks)
+    {
+        if (parentWork == null || (!startTime.HasValue && !endTime.HasValue)) return;
+
+        var envelopeStart = startTime ?? parentWork.StartTime;
+        var envelopeEnd = endTime ?? parentWork.EndTime;
+        var items = updatedWorks.Select(w => (w.StartTime, w.EndTime))
+            .Concat(updatedBreaks.Select(b => (b.StartTime, b.EndTime)));
+
+        var overhangs = ContainerChildrenEnvelopeValidator.FindOverhangs(envelopeStart, envelopeEnd, items);
+        if (overhangs.Count == 0) return;
+
+        var listed = string.Join(OverhangListSeparator, overhangs.Select(o => FormatSpan(o.Start, o.End)));
+        throw new InvalidRequestException(
+            $"The container {FormatSpan(envelopeStart, envelopeEnd)} must cover all of its tasks and absences without overhang; outside: {listed}.");
+    }
+
+    private static string FormatSpan(TimeOnly start, TimeOnly end)
+        => $"{start.ToString(TimeFormat, CultureInfo.InvariantCulture)}-{end.ToString(TimeFormat, CultureInfo.InvariantCulture)}";
 
     private static void UpdateParentProperties(
         Work? parentWork,

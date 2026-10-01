@@ -10,6 +10,7 @@
 /// <param name="EstimatedTravelTime">Estimated total time (travel + on-site)</param>
 /// <param name="TotalWorkTime">Total on-site time (briefing + work + debriefing)</param>
 /// <param name="RemainingTime">Remaining time in the container budget</param>
+/// <param name="IsEstimated">True when the routing service was unreachable and travel times are Haversine estimates</param>
 
 namespace Klacks.Api.Application.DTOs.RouteOptimization;
 
@@ -29,4 +30,5 @@ public class ContainerAutofillResponse
     public TimeSpan TravelTimeToEndBase { get; set; }
     public List<RouteSegmentDirectionsDto>? SegmentDirections { get; set; }
     public List<TimeBlockResultDto> PlacedTimeBlocks { get; set; } = new();
+    public bool IsEstimated { get; set; }
 }

@@ -432,7 +432,7 @@ public static class ServiceCollectionExtensions
                 : new Persistence.Adapters.GroupTreeProductionAdapter(context);
         });
 
-        services.AddHttpClient("Nominatim");
+        services.AddExternalHttpClients();
         services.AddMemoryCache();
         services.AddSingleton<IGeocodingService, GeocodingService>();
         services.AddScoped<IAddressCoordinateWriter, AddressCoordinateWriter>();

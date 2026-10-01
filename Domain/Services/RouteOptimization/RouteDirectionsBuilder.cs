@@ -3,10 +3,11 @@
 /// <summary>
 /// Retrieves turn-by-turn route directions from OSRM for each segment in a route.
 /// </summary>
-/// <param name="_httpClient">HTTP client for OSRM API calls</param>
+/// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
 /// <param name="_logger">Logger for diagnostic output</param>
 
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Staffs;
 
@@ -16,14 +17,13 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
 {
     private readonly ILogger<RouteDirectionsBuilder> _logger;
     private readonly HttpClient _httpClient;
-    private const string OSRM_BASE_URL = "https://router.project-osrm.org";
 
     public RouteDirectionsBuilder(
         ILogger<RouteDirectionsBuilder> logger,
         IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.RoutingClientName);
     }
 
     public async Task<List<RouteSegmentDirections>> GetRouteDirectionsAsync(
@@ -75,7 +75,7 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
     private async Task<RouteSegmentDirections> GetOsrmDirectionsAsync(Location from, Location to, string profile)
     {
         var coordinates = $"{from.Longitude:F6},{from.Latitude:F6};{to.Longitude:F6},{to.Latitude:F6}";
-        var url = $"{OSRM_BASE_URL}/route/v1/{profile}/{coordinates}?steps=true&overview=false";
+        var url = $"{RoutingServiceUrls.OsrmBaseUrl}/route/v1/{profile}/{coordinates}?steps=true&overview=false";
 
         _logger.LogInformation("Requesting OSRM directions: {Url}", url);
 

@@ -40,6 +40,31 @@ public static class TimeBlockScheduler
         return Math.Max(0, totalBudgetSeconds - totalBlockDuration);
     }
 
+    public static List<PlacedTimeBlock>? PlaceAllBlocks(
+        List<TimeBlock>? allTimeBlocks,
+        List<int> route,
+        DistanceMatrix distanceMatrix,
+        int startBaseIndex,
+        int endBaseIndex,
+        double containerFromTimeSeconds)
+    {
+        if (allTimeBlocks == null || allTimeBlocks.Count == 0)
+        {
+            return null;
+        }
+
+        var unmovable = allTimeBlocks.Where(b => !b.IsMovable).ToList();
+        var movable = allTimeBlocks.Where(b => b.IsMovable).ToList();
+
+        var placedUnmovable = PlaceUnmovableBlocks(
+            unmovable, route, distanceMatrix, startBaseIndex, containerFromTimeSeconds);
+        var placedMovable = PlaceMovableBlocks(
+            movable, route, distanceMatrix, startBaseIndex, endBaseIndex,
+            containerFromTimeSeconds, placedUnmovable);
+
+        return placedUnmovable.Concat(placedMovable).ToList();
+    }
+
     public static List<PlacedTimeBlock> PlaceUnmovableBlocks(
         List<TimeBlock> unmovableBlocks,
         List<int> route,
