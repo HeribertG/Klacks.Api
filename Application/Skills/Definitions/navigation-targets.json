@@ -3297,6 +3297,18 @@
     "obsolete": false
   },
   {
+    "targetId": "import-employees",
+    "route": "/workplace/client/import",
+    "labelKey": "nav.import-employees",
+    "category": "page",
+    "requiredPermission": "Admin",
+    "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
+    "lastScannedAt": "2026-10-01T07:24:57.083Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "inbox",
     "route": "/workplace/inbox",
     "labelKey": "nav.inbox",

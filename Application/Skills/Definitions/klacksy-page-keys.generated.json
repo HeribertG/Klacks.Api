@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T12:16:44.358Z",
+  "generatedAt": "2026-10-01T07:24:57.083Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -14,6 +14,13 @@
       "requiredPermission": null,
       "hasEntityParam": false,
       "llmHint": "employee overview"
+    },
+    {
+      "pageKey": "import-employees",
+      "route": "/workplace/client/import",
+      "requiredPermission": "Admin",
+      "hasEntityParam": false,
+      "llmHint": "import employees from an Excel or CSV file"
     },
     {
       "pageKey": "new-employee",
