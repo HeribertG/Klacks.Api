@@ -11,6 +11,7 @@
 /// <param name="groupName">Optional. Display name of the group; resolved with fuzzy matching.</param>
 /// <param name="limit">Optional. Maximum number of findings to return (default 50).</param>
 
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
@@ -87,7 +88,7 @@ public class ListPeriodIssuesSkill : BaseSkillImplementation
                 Severity = i.Severity.ToString(),
                 i.Code,
                 i.MessageKey,
-                i.MessageParams
+                MessageParams = LocalizedCommentParams.ForLanguage(i.MessageParams, context.UserLanguage)
             })
             .ToList();
 

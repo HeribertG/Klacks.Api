@@ -197,6 +197,13 @@ public class LanguagePluginService : ILanguagePluginService
     }
 
     /// <summary>
+    /// Drops the cached holiday calculators after a pack changed holiday rule names by raw SQL, so findings and
+    /// skills built from them carry the new language without a restart.
+    /// </summary>
+    private static void InvalidateHolidayCalculators(IServiceScope scope) =>
+        scope.ServiceProvider.GetService<IHolidayCalculatorCache>()?.InvalidateAll();
+
+    /// <summary>
     /// Maps any spelling of a pack code (zh-cn, ZH-CN) to the one its manifest declares (zh-CN). Every
     /// installed code is held in that spelling: it keys synonyms, labels, skill_phrase rows and docs, and
     /// it names the pack directory, which a case-sensitive file system only finds under that spelling.
@@ -429,6 +436,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _calendarRuleNameInstaller.MergeDefaultCalendarRuleTranslationsAsync(scope, code);
         await _geoContentInstaller.InstallCountryAsync(scope, code);
         await _geoContentInstaller.InstallStatesAsync(scope, code);
+        InvalidateHolidayCalculators(scope);
 
         // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
         // keeps matching on the pre-install keywords until the next application start. The index sync
@@ -470,6 +478,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
         await _qualificationInstaller.RemoveDefaultQualificationTranslationsAsync(scope, code);
         await _calendarRuleNameInstaller.RemoveDefaultCalendarRuleTranslationsAsync(scope, code);
+        InvalidateHolidayCalculators(scope);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)

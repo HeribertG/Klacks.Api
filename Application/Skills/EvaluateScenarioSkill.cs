@@ -11,6 +11,7 @@
 /// <param name="scenarioId">UUID of the scenario (from list_scenarios); required if analyseToken is omitted.</param>
 /// <param name="analyseToken">UUID isolation token of the scenario; required if scenarioId is omitted.</param>
 
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
@@ -77,6 +78,13 @@ public class EvaluateScenarioSkill : BaseSkillImplementation
             $"({result.AddedWorkEntries} work, {result.AddedReplacementEntries} replacement, {result.AddedBreakEntries} break), " +
             $"{result.RemovedEntryCount} removed. {result.Recommendation}";
 
-        return SkillResult.SuccessResult(result, message);
+        var localized = result with
+        {
+            Conflicts = result.Conflicts
+                .Select(c => c with { MessageParams = LocalizedCommentParams.ForLanguage(c.MessageParams, context.UserLanguage) })
+                .ToList(),
+        };
+
+        return SkillResult.SuccessResult(localized, message);
     }
 }

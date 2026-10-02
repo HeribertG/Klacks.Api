@@ -11,6 +11,7 @@
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (period end, inclusive).</param>
 /// <param name="analyseToken">Optional. UUID of a scenario; when set the isolated scenario is validated instead of the real plan.</param>
 
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
@@ -74,7 +75,7 @@ public class DetectConflictsSkill : BaseSkillImplementation
             Severity = i.Severity.ToString(),
             i.Code,
             i.MessageKey,
-            Params = i.MessageParams
+            Params = LocalizedCommentParams.ForLanguage(i.MessageParams, context.UserLanguage)
         }).ToList();
 
         var errors = issues.Count(i => i.Severity == ScheduleValidationType.Error);
