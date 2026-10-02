@@ -3298,7 +3298,7 @@
   },
   {
     "targetId": "import-employees",
-    "route": "/workplace/client/import",
+    "route": "/workplace/settings/client-import",
     "labelKey": "nav.import-employees",
     "category": "page",
     "requiredPermission": "Admin",

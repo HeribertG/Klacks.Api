@@ -17,7 +17,7 @@
     },
     {
       "pageKey": "import-employees",
-      "route": "/workplace/client/import",
+      "route": "/workplace/settings/client-import",
       "requiredPermission": "Admin",
       "hasEntityParam": false,
       "llmHint": "import employees from an Excel or CSV file"
