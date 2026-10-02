@@ -5,7 +5,8 @@
 /// Delegates geo data operations to <see cref="LanguagePluginGeoDataInstaller"/>,
 /// content operations to <see cref="LanguagePluginContentInstaller"/>,
 /// country, state and geo translation operations to <see cref="LanguagePluginGeoContentInstaller"/>,
-/// the one-time calendar rule heal to <see cref="LanguagePluginCalendarRuleBackfiller"/>
+/// the one-time calendar rule heal to <see cref="LanguagePluginCalendarRuleBackfiller"/>,
+/// the default qualification names to <see cref="LanguagePluginQualificationInstaller"/>
 /// and skill label operations to <see cref="LanguagePluginSkillLabelInstaller"/>.
 /// </summary>
 /// <param name="scopeFactory">Factory for DI scopes in database operations</param>
@@ -41,6 +42,7 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly LanguagePluginGeoDataInstaller _geoDataInstaller;
     private readonly LanguagePluginContentInstaller _contentInstaller;
     private readonly LanguagePluginGeoContentInstaller _geoContentInstaller;
+    private readonly LanguagePluginQualificationInstaller _qualificationInstaller;
     private readonly LanguagePluginSkillLabelInstaller _skillLabelInstaller;
     private readonly LanguagePluginRecipeVocabularyInstaller _recipeVocabularyInstaller;
     private readonly LanguagePluginCalendarRuleBackfiller _calendarRuleBackfiller;
@@ -68,6 +70,7 @@ public class LanguagePluginService : ILanguagePluginService
         _geoDataInstaller = new LanguagePluginGeoDataInstaller(_pluginDirectory, _manifests, _logger);
         _contentInstaller = new LanguagePluginContentInstaller(_pluginDirectory, _logger);
         _geoContentInstaller = new LanguagePluginGeoContentInstaller(_pluginDirectory, _logger);
+        _qualificationInstaller = new LanguagePluginQualificationInstaller(_pluginDirectory, _logger);
         _skillLabelInstaller = new LanguagePluginSkillLabelInstaller(_pluginDirectory, _logger);
         _recipeVocabularyInstaller = new LanguagePluginRecipeVocabularyInstaller(_pluginDirectory, _logger);
         _calendarRuleBackfiller = new LanguagePluginCalendarRuleBackfiller(_pluginDirectory, _logger);
@@ -80,6 +83,7 @@ public class LanguagePluginService : ILanguagePluginService
         DiscoverPlugins();
         await LoadInstalledCodesFromDatabaseAsync();
         await BackfillDefaultGeoTranslationsAsync();
+        await BackfillDefaultQualificationTranslationsAsync();
         await BackfillDocsAsync();
         await BackfillCountriesAsync();
         await BackfillCalendarRulesAsync();
@@ -91,6 +95,18 @@ public class LanguagePluginService : ILanguagePluginService
         await RunForEachInstalledCodeAsync(
             _geoContentInstaller.MergeDefaultGeoTranslationsAsync,
             "Failed to backfill default geo translations for installed language plugins");
+    }
+
+    /// <summary>
+    /// Writes the installed packs' names of the pre-seeded default qualifications on every startup, so an
+    /// installation whose packs were installed before the names existed - or whose qualifications were seeded
+    /// after the packs - gets them without a reinstall. Names a customer already set are not overwritten.
+    /// </summary>
+    private async Task BackfillDefaultQualificationTranslationsAsync()
+    {
+        await RunForEachInstalledCodeAsync(
+            _qualificationInstaller.MergeDefaultQualificationTranslationsAsync,
+            "Failed to backfill default qualification translations for installed language plugins");
     }
 
     /// <summary>
@@ -392,6 +408,7 @@ public class LanguagePluginService : ILanguagePluginService
         await unitOfWork.CompleteAsync();
         await _geoContentInstaller.MergeNonCoreTranslationsAsync(scope, code);
         await _geoContentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
+        await _qualificationInstaller.MergeDefaultQualificationTranslationsAsync(scope, code);
         await _geoContentInstaller.InstallCountryAsync(scope, code);
         await _geoContentInstaller.InstallStatesAsync(scope, code);
 
@@ -433,6 +450,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
         await _contentInstaller.UninstallDocsAsync(scope, code);
         await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
+        await _qualificationInstaller.RemoveDefaultQualificationTranslationsAsync(scope, code);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)

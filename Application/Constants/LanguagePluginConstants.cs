@@ -13,6 +13,7 @@ public static class LanguagePluginConstants
     public const string CountriesFileName = "countries.json";
     public const string StatesFileName = "states.json";
     public const string DefaultGeoTranslationsFileName = "default-geo-translations.json";
+    public const string DefaultQualificationTranslationsFileName = "default-qualification-translations.json";
     public const string CalendarRulesFileName = "calendar-rules.json";
     public const string CalendarRuleLegacyIdsFileName = "calendar-rule-legacy-ids.json";
     public const string CalendarRuleBackfillSettingPrefix = "LANGUAGE_CALENDAR_RULES_BACKFILLED_";
