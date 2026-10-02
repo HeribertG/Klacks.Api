@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Giờ tăng ca {{actualHours}}h vượt quá ngưỡng tăng ca {{capHours}}h trong {{windowWeeks}} tuần gần nhất",
   "schedule.error-list.period-cap-overtime-window-approaching": "Giờ tăng ca {{actualHours}}h đang tiến gần đến giới hạn tối đa {{capHours}}h trong {{windowWeeks}} tuần qua (ngưỡng cảnh báo {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Trình độ chuyên môn bắt buộc đã hết hạn",
+  "schedule.error-list.qualification-expiring-soon": "Trình độ chuyên môn bắt buộc sắp hết hạn (có hiệu lực đến {{validUntil}})",
   "schedule.error-list.qualification-level": "Cấp độ trình độ chuyên môn quá thấp",
   "schedule.error-list.qualification-missing": "Thiếu trình độ chuyên môn bắt buộc",
   "schedule.error-list.rest-day-rotation": "Vi phạm luân phiên ngày nghỉ: chỉ có {{actualFree}} ngày nghỉ ({{dayOfWeek}}) trong {{windowWeeks}} tuần (tối thiểu {{minFree}})",

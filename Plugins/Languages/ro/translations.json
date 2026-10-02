@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Orele suplimentare de {{actualHours}}h depășesc plafonul de {{capHours}}h în ultimele {{windowWeeks}} săptămâni",
   "schedule.error-list.period-cap-overtime-window-approaching": "Orele suplimentare {{actualHours}} ore se apropie de limita maximă de {{capHours}} ore în ultimele {{windowWeeks}} săptămâni (prag de avertizare {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Calificarea necesară a expirat",
+  "schedule.error-list.qualification-expiring-soon": "Calificarea necesară expiră în curând (valabilă până la {{validUntil}})",
   "schedule.error-list.qualification-level": "Nivelul de calificare este prea scăzut",
   "schedule.error-list.qualification-missing": "Lipsește calificarea necesară",
   "schedule.error-list.rest-day-rotation": "Rotația zilelor de repaus încălcată: doar {{actualFree}} zile libere ({{dayOfWeek}}) în {{windowWeeks}} săptămâni (min. {{minFree}})",

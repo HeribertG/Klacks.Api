@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Jam lembur {{actualHours}}h melebihi batas maksimal lembur {{capHours}}h dalam {{windowWeeks}} minggu terakhir",
   "schedule.error-list.period-cap-overtime-window-approaching": "Lembur {{actualHours}}j mendekati batas atas lembur {{capHours}}j dalam {{windowWeeks}} minggu terakhir (ambang peringatan {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Kualifikasi yang diperlukan telah kedaluwarsa",
+  "schedule.error-list.qualification-expiring-soon": "Kualifikasi yang diperlukan akan segera kedaluwarsa (berlaku hingga {{validUntil}})",
   "schedule.error-list.qualification-level": "Tingkat kualifikasi terlalu rendah",
   "schedule.error-list.qualification-missing": "Kualifikasi yang diperlukan tidak ada",
   "schedule.error-list.rest-day-rotation": "Rotasi hari istirahat dilanggar: hanya {{actualFree}} hari libur ({{dayOfWeek}}) dalam {{windowWeeks}} minggu (min. {{minFree}})",

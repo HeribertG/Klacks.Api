@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Jam kerja lebih masa {{actualHours}}h melebihi had lebih masa {{capHours}}h dalam {{windowWeeks}} minggu terakhir",
   "schedule.error-list.period-cap-overtime-window-approaching": "Jam lebih masa {{actualHours}}j menghampiri had maksimum lebih masa {{capHours}}j dalam {{windowWeeks}} minggu terakhir (ambang amaran {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Kelayakan yang diperlukan telah luput",
+  "schedule.error-list.qualification-expiring-soon": "Kelayakan yang diperlukan akan luput tidak lama lagi (sah sehingga {{validUntil}})",
   "schedule.error-list.qualification-level": "Tahap kelayakan terlalu rendah",
   "schedule.error-list.qualification-missing": "Kelayakan yang diperlukan tiada",
   "schedule.error-list.rest-day-rotation": "Putaran hari rehat dilanggar: hanya {{actualFree}} hari bebas ({{dayOfWeek}}) dalam {{windowWeeks}} minggu (min. {{minFree}})",

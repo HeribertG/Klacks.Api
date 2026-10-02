@@ -14,6 +14,7 @@
 /// <param name="placements">Required. JSON array of {clientId, shiftId, date} placements to propose.</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
@@ -128,7 +129,7 @@ public class ProposePlanSkill : BaseSkillImplementation
                 c.Comment,
                 Date = c.Date.ToString("yyyy-MM-dd"),
                 c.ClientId,
-                c.CommentParams
+                CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage)
             })
         };
 

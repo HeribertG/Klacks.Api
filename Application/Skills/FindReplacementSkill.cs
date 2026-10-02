@@ -17,6 +17,7 @@
 /// <param name="analyseToken">Optional. UUID of a scenario; when set, candidates are checked against the isolated scenario.</param>
 /// <param name="overrideBlock">Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false.</param>
 
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -79,7 +80,7 @@ public class FindReplacementSkill : BaseSkillImplementation
             c.IsPreferred,
             c.TargetHoursDeficit,
             SoftConflictCount = c.SoftConflicts.Count,
-            SoftConflicts = c.SoftConflicts.Select(Project)
+            SoftConflicts = c.SoftConflicts.Select(conflict => Project(conflict, context.UserLanguage))
         });
 
         var data = new
@@ -103,12 +104,14 @@ public class FindReplacementSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(data, message);
     }
 
-    private static object Project(Klacks.Api.Application.DTOs.Notifications.ScheduleValidationNotificationDto conflict)
+    private static object Project(
+        Klacks.Api.Application.DTOs.Notifications.ScheduleValidationNotificationDto conflict,
+        string? language)
         => new
         {
             Severity = conflict.Type.ToString(),
             conflict.Comment,
             Date = conflict.Date.ToString("yyyy-MM-dd"),
-            conflict.CommentParams
+            CommentParams = LocalizedCommentParams.ForLanguage(conflict.CommentParams, language)
         };
 }

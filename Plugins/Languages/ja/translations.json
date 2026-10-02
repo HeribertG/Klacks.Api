@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "残業時間 {{actualHours}}時間が、直近{{windowWeeks}}週間の残業上限 {{capHours}}時間を超えています",
   "schedule.error-list.period-cap-overtime-window-approaching": "残業時間{{actualHours}}時間が過去{{windowWeeks}}週間の残業上限{{capHours}}時間に近づいています（警告しきい値{{warnAtPercent}}%）",
   "schedule.error-list.qualification-expired": "必要な資格の有効期限が切れています",
+  "schedule.error-list.qualification-expiring-soon": "必要な資格の有効期限が間もなく切れます（有効期限：{{validUntil}}）",
   "schedule.error-list.qualification-level": "資格レベルが不足しています",
   "schedule.error-list.qualification-missing": "必要な資格がありません",
   "schedule.error-list.rest-day-rotation": "休日ローテーション違反: {{windowWeeks}}週間で{{dayOfWeek}}の休日が{{actualFree}}日のみ（最低{{minFree}}日必要）",

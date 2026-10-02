@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Nadgodziny {{actualHours}}h przekraczają limit nadgodzin {{capHours}}h w ciągu ostatnich {{windowWeeks}} tygodni",
   "schedule.error-list.period-cap-overtime-window-approaching": "Liczba nadgodzin {{actualHours}} godz. zbliża się do górnego limitu nadgodzin wynoszącego {{capHours}} godz. w ciągu ostatnich {{windowWeeks}} tygodni (próg ostrzegawczy {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Wymagana kwalifikacja wygasła",
+  "schedule.error-list.qualification-expiring-soon": "Wymagana kwalifikacja wkrótce wygaśnie (ważna do {{validUntil}})",
   "schedule.error-list.qualification-level": "Zbyt niski poziom kwalifikacji",
   "schedule.error-list.qualification-missing": "Brak wymaganej kwalifikacji",
   "schedule.error-list.rest-day-rotation": "Naruszono rotację dni wolnych: tylko {{actualFree}} dni wolnych ({{dayOfWeek}}) w ciągu {{windowWeeks}} tygodni (min. {{minFree}})",

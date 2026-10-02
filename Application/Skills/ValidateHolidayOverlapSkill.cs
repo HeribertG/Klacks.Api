@@ -70,6 +70,8 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
                 $"{date:yyyy-MM-dd} is NOT a holiday in {country}/{(string.IsNullOrEmpty(state) ? "—" : state)}.");
         }
 
+        var holidayName = hit.Name.GetValueOrFirstAvailable(context.UserLanguage);
+
         return SkillResult.SuccessResult(
             new
             {
@@ -77,11 +79,11 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
                 Country = country,
                 State = state,
                 IsHoliday = true,
-                HolidayName = hit.CurrentName,
+                HolidayName = holidayName,
                 hit.Officially,
                 DayOfWeek = date.DayOfWeek.ToString(),
                 DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
             },
-            $"{date:yyyy-MM-dd} is a holiday: {hit.CurrentName}" + (hit.Officially ? " (officially observed)." : "."));
+            $"{date:yyyy-MM-dd} is a holiday: {holidayName}" + (hit.Officially ? " (officially observed)." : "."));
     }
 }

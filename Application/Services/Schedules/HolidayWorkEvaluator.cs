@@ -9,6 +9,8 @@
 /// Exemptions are scoped like PeriodCapRule - a row without a scheduling rule exempts everyone, a row
 /// with one exempts only clients whose active contract references that rule (the industry axis).
 /// The finding is a Warning and escalates to Error when the holidayWork rule is configured as Block.
+/// The holiday name travels as a MultiLanguage parameter: the finding is broadcast to every planner of the
+/// group, each in their own language, so it is localized at display time, not here.
 /// </summary>
 /// <param name="exemptionRepository">Reads the active exemptions</param>
 /// <param name="holidayCalendarResolver">Answers which days are holidays for this client</param>
@@ -16,7 +18,9 @@
 /// <param name="enforcementResolver">Resolves warn/block for the holidayWork compliance rule</param>
 
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -89,7 +93,7 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
                 continue;
             }
 
-            entries.Add(BuildEntry(clientId, clientName, date, calculator.GetHolidayInfo(date)?.CurrentName, isBlocked));
+            entries.Add(BuildEntry(clientId, clientName, date, calculator.GetHolidayInfo(date)?.Name, isBlocked));
         }
 
         return entries;
@@ -119,13 +123,11 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
         Guid clientId,
         string clientName,
         DateOnly date,
-        string? holidayName,
+        MultiLanguage? holidayName,
         bool isBlocked)
     {
-        var commentParams = new Dictionary<string, string>
-        {
-            ["holiday"] = holidayName ?? string.Empty,
-        };
+        var commentParams = new Dictionary<string, string>();
+        LocalizedCommentParams.Add(commentParams, LocalizedCommentParamKeys.Holiday, holidayName ?? new MultiLanguage());
 
         if (isBlocked)
         {

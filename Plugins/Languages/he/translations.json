@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "שעות נוספות {{actualHours}}h חורגות מתקרת השעות הנוספות של {{capHours}}h ב-{{windowWeeks}} השבועות האחרונים",
   "schedule.error-list.period-cap-overtime-window-approaching": "שעות נוספות {{actualHours}} שעות מתקרבות למגבלה העליונה של שעות נוספות, העומדת על {{capHours}} שעות, ב-{{windowWeeks}} השבועות האחרונים (סף אזהרה {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "כישור נדרש פג תוקף",
+  "schedule.error-list.qualification-expiring-soon": "כישור נדרש יפוג בקרוב (בתוקף עד {{validUntil}})",
   "schedule.error-list.qualification-level": "רמת הכישור נמוכה מדי",
   "schedule.error-list.qualification-missing": "כישור נדרש חסר",
   "schedule.error-list.rest-day-rotation": "רוטציית ימי מנוחה הופרה: רק {{actualFree}} ימים חופשיים ({{dayOfWeek}}) ב-{{windowWeeks}} שבועות (מינ' {{minFree}})",

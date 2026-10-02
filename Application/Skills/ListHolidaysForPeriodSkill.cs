@@ -75,7 +75,7 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
             .Select(h => new
             {
                 Date = h.CurrentDate.ToString("yyyy-MM-dd"),
-                h.CurrentName,
+                CurrentName = h.Name.GetValueOrFirstAvailable(context.UserLanguage),
                 h.Officially,
                 DayOfWeek = h.CurrentDate.DayOfWeek.ToString(),
                 DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, h.CurrentDate.DayOfWeek)

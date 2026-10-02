@@ -61,6 +61,36 @@ public class MultiLanguage
         return _values.GetValueOrDefault(language.ToLowerInvariant());
     }
 
+    /// <summary>
+    /// Returns the value in the requested language; if that language is empty, the first populated core
+    /// language (in CoreLanguages order), then any populated language, else an empty string. For texts a
+    /// server hands to a single known reader (an assistant answer in the user's language), not for texts
+    /// broadcast to readers of different languages, which must carry the whole MultiLanguage instead.
+    /// </summary>
+    /// <param name="language">Requested language code in any casing (e.g. "ja", "zh-CN"); null or empty skips it</param>
+    public string GetValueOrFirstAvailable(string? language)
+    {
+        if (!string.IsNullOrWhiteSpace(language))
+        {
+            var requested = GetValue(language);
+            if (!string.IsNullOrEmpty(requested))
+            {
+                return requested;
+            }
+        }
+
+        foreach (var core in CoreLanguages)
+        {
+            var value = GetValue(core);
+            if (!string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+        }
+
+        return _values.Values.FirstOrDefault(v => !string.IsNullOrEmpty(v)) ?? string.Empty;
+    }
+
     public void SetValue(string language, string? value)
     {
         var key = language.ToLowerInvariant();

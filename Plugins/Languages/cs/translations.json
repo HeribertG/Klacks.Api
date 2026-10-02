@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Přesčasové hodiny {{actualHours}}h překračují limit přesčasu {{capHours}}h za posledních {{windowWeeks}} týdnů",
   "schedule.error-list.period-cap-overtime-window-approaching": "Počet přesčasových hodin {{actualHours}} h se blíží horní hranici pro přesčasy ve výši {{capHours}} h za posledních {{windowWeeks}} týdnů (varovná hranice {{warnAtPercent}} %)",
   "schedule.error-list.qualification-expired": "Požadovaná kvalifikace vypršela",
+  "schedule.error-list.qualification-expiring-soon": "Požadovaná kvalifikace brzy vyprší (platná do {{validUntil}})",
   "schedule.error-list.qualification-level": "Úroveň kvalifikace je příliš nízká",
   "schedule.error-list.qualification-missing": "Chybí požadovaná kvalifikace",
   "schedule.error-list.rest-day-rotation": "Porušena rotace dnů volna: pouze {{actualFree}} volných dnů ({{dayOfWeek}}) za {{windowWeeks}} týdnů (min. {{minFree}})",

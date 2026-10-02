@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Οι ώρες υπερωρίας {{actualHours}}ω υπερβαίνουν το όριο υπερωρίας των {{capHours}}ω τις τελευταίες {{windowWeeks}} εβδομάδες",
   "schedule.error-list.period-cap-overtime-window-approaching": "Οι υπερωρίες {{actualHours}} ώρες πλησιάζουν το ανώτατο όριο υπερωριών των {{capHours}} ωρών τις τελευταίες {{windowWeeks}} εβδομάδες (όριο προειδοποίησης {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "Το απαιτούμενο προσόν έχει λήξει",
+  "schedule.error-list.qualification-expiring-soon": "Το απαιτούμενο προσόν λήγει σύντομα (ισχύει έως {{validUntil}})",
   "schedule.error-list.qualification-level": "Το επίπεδο προσόντος είναι πολύ χαμηλό",
   "schedule.error-list.qualification-missing": "Λείπει το απαιτούμενο προσόν",
   "schedule.error-list.rest-day-rotation": "Παραβίαση εναλλαγής ημερών ανάπαυσης: μόνο {{actualFree}} ελεύθερες ημέρες ({{dayOfWeek}}) σε {{windowWeeks}} εβδομάδες (ελάχ. {{minFree}})",

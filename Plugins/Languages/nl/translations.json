@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Overuren {{actualHours}}u overschrijden de overurengrens van {{capHours}}u in de afgelopen {{windowWeeks}} weken",
   "schedule.error-list.period-cap-overtime-window-approaching": "Het aantal overuren {{actualHours}} uur nadert de bovengrens van {{capHours}} uur in de afgelopen {{windowWeeks}} weken (waarschuwingsdrempel {{warnAtPercent}} %)",
   "schedule.error-list.qualification-expired": "Vereiste kwalificatie verlopen",
+  "schedule.error-list.qualification-expiring-soon": "Vereiste kwalificatie verloopt binnenkort (geldig tot {{validUntil}})",
   "schedule.error-list.qualification-level": "Kwalificatieniveau te laag",
   "schedule.error-list.qualification-missing": "Vereiste kwalificatie ontbreekt",
   "schedule.error-list.rest-day-rotation": "Rustdagrotatie geschonden: slechts {{actualFree}} vrije dagen ({{dayOfWeek}}) in {{windowWeeks}} weken (min. {{minFree}})",

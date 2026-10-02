@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "加班 {{actualHours}} 小时超过最近 {{windowWeeks}} 周内的加班上限 {{capHours}} 小时",
   "schedule.error-list.period-cap-overtime-window-approaching": "过去{{windowWeeks}}周的加班小时数{{actualHours}}小时接近加班上限{{capHours}}小时（警告阈值{{warnAtPercent}}%）",
   "schedule.error-list.qualification-expired": "所需资质已过期",
+  "schedule.error-list.qualification-expiring-soon": "所需资质即将过期（有效期至 {{validUntil}}）",
   "schedule.error-list.qualification-level": "资质级别过低",
   "schedule.error-list.qualification-missing": "缺少所需资质",
   "schedule.error-list.rest-day-rotation": "违反休息日轮换规则：{{windowWeeks}}周内仅有{{actualFree}}天休息日（{{dayOfWeek}}），至少需要{{minFree}}天",

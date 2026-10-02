@@ -15,6 +15,7 @@
 /// <param name="information">Free-text note.</param>
 /// <param name="analyseToken">Optional scenario token; null = write to main schedule.</param>
 
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -98,7 +99,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
         {
             var blocking = conflictCheck.NewConflicts
                 .Where(c => c.Type == ScheduleValidationType.Error)
-                .Select(c => new { c.Comment, c.Date, c.CommentParams })
+                .Select(c => new { c.Comment, c.Date, CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage) })
                 .ToList();
             return SkillResult.Error(
                 $"Placement blocked: client {clientId} on shift '{shift.Name}' for {date} would introduce " +
@@ -107,7 +108,7 @@ public class PlaceWorkSkill : BaseSkillImplementation
         }
 
         var warnings = conflictCheck.NewConflicts
-            .Select(c => new { Severity = c.Type.ToString(), c.Comment, c.Date, c.CommentParams })
+            .Select(c => new { Severity = c.Type.ToString(), c.Comment, c.Date, CommentParams = LocalizedCommentParams.ForLanguage(c.CommentParams, context.UserLanguage) })
             .ToList();
 
         var request = new BulkAddWorksRequest

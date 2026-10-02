@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Ylityöt {{actualHours}}t ylittävät ylityökaton {{capHours}}t viimeisen {{windowWeeks}} viikon aikana",
   "schedule.error-list.period-cap-overtime-window-approaching": "Ylityötunnit {{actualHours}} h lähestyvät ylityötuntien ylärajaa {{capHours}} h viimeisten {{windowWeeks}} viikon aikana (varoituskynnys {{warnAtPercent}} %)",
   "schedule.error-list.qualification-expired": "Vaadittu pätevyys on vanhentunut",
+  "schedule.error-list.qualification-expiring-soon": "Vaadittu pätevyys vanhenee pian (voimassa {{validUntil}} asti)",
   "schedule.error-list.qualification-level": "Pätevyystaso liian alhainen",
   "schedule.error-list.qualification-missing": "Vaadittu pätevyys puuttuu",
   "schedule.error-list.rest-day-rotation": "Lepopäiväkierto rikottu: vain {{actualFree}} vapaapäivää ({{dayOfWeek}}) {{windowWeeks}} viikon aikana (väh. {{minFree}})",

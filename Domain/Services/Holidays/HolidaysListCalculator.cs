@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-﻿using Klacks.Api.Domain.Enums;
+﻿using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 
@@ -74,7 +75,7 @@ public class HolidaysListCalculator : IHolidaysListCalculator
         {
             var holiday = new HolidayDate
             {
-                CurrentName = rule.Name?.En?? "",
+                Name = rule.Name ?? new MultiLanguage(),
                 CurrentDate = ConvertDate(easterDate, CurrentYear, rule.Rule),
                 Officially = rule.IsMandatory
             };

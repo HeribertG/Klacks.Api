@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Overtidstimer {{actualHours}}t overstiger overtidsgrænsen på {{capHours}}t inden for de sidste {{windowWeeks}} uger",
   "schedule.error-list.period-cap-overtime-window-approaching": "Overtiden på {{actualHours}} timer nærmer sig overgrænsen på {{capHours}} timer i de seneste {{windowWeeks}} uger (advarselsgrænse {{warnAtPercent}} %)",
   "schedule.error-list.qualification-expired": "Påkrævet kvalifikation er udløbet",
+  "schedule.error-list.qualification-expiring-soon": "Påkrævet kvalifikation udløber snart (gyldig til {{validUntil}})",
   "schedule.error-list.qualification-level": "Kvalifikationsniveau for lavt",
   "schedule.error-list.qualification-missing": "Påkrævet kvalifikation mangler",
   "schedule.error-list.rest-day-rotation": "Hviledagsrotation overtrådt: kun {{actualFree}} fridage ({{dayOfWeek}}) i {{windowWeeks}} uger (min. {{minFree}})",

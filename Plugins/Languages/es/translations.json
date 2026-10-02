@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "Las horas extra {{actualHours}}h superan el límite de horas extra de {{capHours}}h en las últimas {{windowWeeks}} semanas",
   "schedule.error-list.period-cap-overtime-window-approaching": "Las horas extras {{actualHours}} h se están acercando al límite máximo de {{capHours}} h en las últimas {{windowWeeks}} semanas (umbral de alerta {{warnAtPercent}} %)",
   "schedule.error-list.qualification-expired": "La calificación requerida ha caducado",
+  "schedule.error-list.qualification-expiring-soon": "La calificación requerida caduca pronto (válida hasta {{validUntil}})",
   "schedule.error-list.qualification-level": "Nivel de calificación demasiado bajo",
   "schedule.error-list.qualification-missing": "Falta la calificación requerida",
   "schedule.error-list.rest-day-rotation": "Rotación de días de descanso violada: solo {{actualFree}} días libres ({{dayOfWeek}}) en {{windowWeeks}} semanas (mín. {{minFree}})",

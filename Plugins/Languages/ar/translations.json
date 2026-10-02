@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "ساعات العمل الإضافي {{actualHours}}س تتجاوز حد العمل الإضافي البالغ {{capHours}}س خلال آخر {{windowWeeks}} أسابيع",
   "schedule.error-list.period-cap-overtime-window-approaching": "تقترب ساعات العمل الإضافية البالغة {{actualHours}} ساعة من الحد الأقصى لساعات العمل الإضافية البالغ {{capHours}} ساعة خلال الأسابيع {{windowWeeks}} الماضية (عتبة التحذير {{warnAtPercent}}٪)",
   "schedule.error-list.qualification-expired": "المؤهل المطلوب منتهي الصلاحية",
+  "schedule.error-list.qualification-expiring-soon": "المؤهل المطلوب سينتهي قريبًا (صالح حتى {{validUntil}})",
   "schedule.error-list.qualification-level": "مستوى المؤهل منخفض جدًا",
   "schedule.error-list.qualification-missing": "المؤهل المطلوب غير متوفر",
   "schedule.error-list.rest-day-rotation": "تم انتهاك تناوب أيام الراحة: {{actualFree}} أيام إجازة فقط ({{dayOfWeek}}) خلال {{windowWeeks}} أسابيع (الحد الأدنى {{minFree}})",

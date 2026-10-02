@@ -1892,6 +1892,7 @@
   "schedule.error-list.period-cap-overtime-window": "ชั่วโมงล่วงเวลา {{actualHours}} ชม. เกินเพดานชั่วโมงล่วงเวลาที่ {{capHours}} ชม. ในช่วง {{windowWeeks}} สัปดาห์ที่ผ่านมา",
   "schedule.error-list.period-cap-overtime-window-approaching": "ชั่วโมงล่วงเวลา {{actualHours}} ชม. ใกล้ถึงขีดจำกัดสูงสุดของชั่วโมงล่วงเวลา {{capHours}} ชม. ใน {{windowWeeks}} สัปดาห์ที่ผ่านมา (เกณฑ์เตือน {{warnAtPercent}}%)",
   "schedule.error-list.qualification-expired": "คุณสมบัติที่จำเป็นหมดอายุ",
+  "schedule.error-list.qualification-expiring-soon": "คุณสมบัติที่จำเป็นจะหมดอายุเร็ว ๆ นี้ (ใช้ได้ถึง {{validUntil}})",
   "schedule.error-list.qualification-level": "ระดับคุณสมบัติต่ำเกินไป",
   "schedule.error-list.qualification-missing": "ขาดคุณสมบัติที่จำเป็น",
   "schedule.error-list.rest-day-rotation": "การหมุนเวียนวันหยุดถูกละเมิด: มีวันหยุดเพียง {{actualFree}} วัน ({{dayOfWeek}}) ใน {{windowWeeks}} สัปดาห์ (ขั้นต่ำ {{minFree}})",
