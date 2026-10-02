@@ -17,6 +17,7 @@ using System.Text;
 using System.Text.Json;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Api;
@@ -28,7 +29,6 @@ public sealed class GeminiEmbeddingProvider : IEmbeddingProvider
     private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/";
     private const string TaskTypeDocument = "RETRIEVAL_DOCUMENT";
     private const string TaskTypeQuery = "RETRIEVAL_QUERY";
-    private const string ApiKeyHeaderName = "x-goog-api-key";
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -106,7 +106,7 @@ public sealed class GeminiEmbeddingProvider : IEmbeddingProvider
         {
             Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
         };
-        request.Headers.Add(ApiKeyHeaderName, apiKey);
+        request.Headers.Add(GoogleApiConstants.ApiKeyHeaderName, apiKey);
 
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

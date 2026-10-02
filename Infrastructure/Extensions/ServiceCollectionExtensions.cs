@@ -432,6 +432,7 @@ public static class ServiceCollectionExtensions
                 : new Persistence.Adapters.GroupTreeProductionAdapter(context);
         });
 
+        services.AddRedactedHttpClientLogging();
         services.AddExternalHttpClients();
         services.AddMemoryCache();
         services.AddSingleton<IGeocodingService, GeocodingService>();

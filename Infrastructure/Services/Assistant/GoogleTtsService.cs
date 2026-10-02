@@ -10,6 +10,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
@@ -62,10 +63,9 @@ public class GoogleTtsService : ITtsProvider
             : text;
         var voice = ResolveVoice(voiceId, locale);
         var languageCode = LanguageCodeFromVoice(voice);
-        var url = $"{GoogleTtsConstants.ApiUrl}?key={apiKey}";
 
         var client = _httpClientFactory.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Post, url)
+        using var request = new HttpRequestMessage(HttpMethod.Post, GoogleTtsConstants.ApiUrl)
         {
             Content = JsonContent.Create(new
             {
@@ -74,6 +74,7 @@ public class GoogleTtsService : ITtsProvider
                 audioConfig = new { audioEncoding = GoogleTtsConstants.AudioEncoding }
             })
         };
+        request.Headers.Add(GoogleApiConstants.ApiKeyHeaderName, apiKey);
 
         using var response = await client.SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)

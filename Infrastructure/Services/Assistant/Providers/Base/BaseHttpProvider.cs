@@ -149,7 +149,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        _logger.LogDebug("{Provider} sending streaming request to {Endpoint}", ProviderName, endpoint);
+        _logger.LogDebug("{Provider} sending streaming request to {Endpoint}", ProviderName, RedactQuery(endpoint));
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
         var response = await _httpClient.SendAsync(
@@ -265,6 +265,14 @@ public abstract class BaseHttpProvider : ILLMProvider
         }
     }
 
+    /// <summary>
+    /// The endpoint as it may be logged: query string replaced by "?*" and credential path segments masked,
+    /// because a configured base URL or a provider protocol may carry the API key in the URI. Live trigger
+    /// 2026-09-30: the demo backend's debug log held the Gemini key in every "sending request to" line.
+    /// </summary>
+    /// <param name="endpoint">Absolute or relative request URL, possibly with a query string</param>
+    internal static string RedactQuery(string endpoint) => endpoint.RedactUriForLog();
+
     protected async Task<TResponse?> PostJsonAsync<TRequest, TResponse>(
         string endpoint,
         TRequest request,
@@ -276,7 +284,7 @@ public abstract class BaseHttpProvider : ILLMProvider
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, endpoint.ForLog(), json.ForLog());
+        _logger.LogDebug("{Provider} sending request to {Endpoint}: {Request}", ProviderName, RedactQuery(endpoint), json.ForLog());
 
         var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
         var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
