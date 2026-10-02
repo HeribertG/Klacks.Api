@@ -12,7 +12,8 @@ public class LLMProviderResponse
 
     /// <summary>
     /// True when the model wrote reasoning but no content and no tool call. Content is empty in that
-    /// case: reasoning is never surfaced as the answer. Diagnostic only.
+    /// case: reasoning is never surfaced as the answer. Proves the model answered (reasoning only), which
+    /// the pre-flight ping accepts as reachable.
     /// </summary>
     public bool ReasoningWithoutContent { get; set; }
 
