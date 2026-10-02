@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "لقد تولى {{responder}} نوبة {{date}} لصالح {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "شكرًا لك، لقد اعتمدت الإجراء {{action}} للملاحظة {{finding}}. سيقوم Klacksy بتنفيذه قريبًا بموجب صلاحياتك وسيرسل إليك تقريرًا بالنتيجة.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "لقد اعتمد {{responder}} الإجراء {{action}} للملاحظة {{finding}}؛ ولا يلزمك اتخاذ أي إجراء آخر.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "لم يعتمِد أحد الإجراء {{action}} للملاحظة {{finding}}؛ وقد انتهت المدة المخصصة لذلك. سيقوم Klacksy بإعادة الطلب في يوم الشركة التالي. ولتنفيذ الإجراء اليوم، يُرجى تفويض الملاحظة مباشرةً."
+  "assistant.escalationHandoff.approvalExhaustedNote": "لم يعتمِد أحد الإجراء {{action}} للملاحظة {{finding}}؛ وقد انتهت المدة المخصصة لذلك. سيقوم Klacksy بإعادة الطلب في يوم الشركة التالي. ولتنفيذ الإجراء اليوم، يُرجى تفويض الملاحظة مباشرةً.",
+  "assistant.scenarioName.autoPlan": "خطة منشأة تلقائيًا",
+  "assistant.scenarioName.autoHarmonizer": "خطة متوازنة منشأة تلقائيًا",
+  "assistant.scenarioName.auto": "منشأ تلقائيًا",
+  "assistant.scenarioName.plan": "خطة",
+  "assistant.scenarioName.harmonized": "تمت المواءمة",
+  "assistant.scenarioName.llm": "خطة ذكاء اصطناعي",
+  "assistant.scenarioName.optimizer": "محسّن",
+  "assistant.scenarioName.proposal": "اقتراح",
+  "assistant.scenarioName.absenceCover": "تغطية غياب"
 }

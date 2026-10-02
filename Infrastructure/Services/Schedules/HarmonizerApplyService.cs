@@ -35,13 +35,14 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="scenarioComplianceService">End-state compliance diff of the new scenario versus the real plan</param>
 /// <param name="timelineService">Queues the scenario error-list refresh on the repoint branch (bulk-add refreshes itself)</param>
 /// <param name="companyClock">Resolves the company's current calendar date when the best bitmap has no days</param>
+/// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 public class HarmonizerApplyService : IHarmonizerApplyService
 {
     /// <summary>
-    /// Prefix used for scenario names. Subclasses (e.g. <c>HolisticHarmonizerApplyService</c>) override
-    /// this to distinguish their output in the scenario list.
+    /// Kind of the localized scenario name prefix. Subclasses (e.g. <c>HolisticHarmonizerApplyService</c>)
+    /// override this to distinguish their output in the scenario list.
     /// </summary>
-    protected virtual string ScenarioNamePrefix => "Harmonisiert";
+    protected virtual ScenarioNameKind DefaultScenarioNameKind => ScenarioNameKind.Harmonized;
 
     /// <summary>
     /// Engine tag written onto the capture row. The base class is Wizard 2 (Harmonizer);
@@ -60,6 +61,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IScheduleTimelineService _timelineService;
     private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
     private readonly ICompanyClock _companyClock;
+    private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -74,6 +76,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IScheduleTimelineService timelineService,
         IScheduleSnapshotMarkerService snapshotMarkerService,
         ICompanyClock companyClock,
+        IScenarioNameGenerator scenarioNameGenerator,
         ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
@@ -87,6 +90,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         _timelineService = timelineService;
         _snapshotMarkerService = snapshotMarkerService;
         _companyClock = companyClock;
+        _scenarioNameGenerator = scenarioNameGenerator;
         _logger = logger;
     }
 
@@ -145,7 +149,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
-        string? namePrefixOverride = null,
+        ScenarioNameKind? nameKind = null,
+        string? language = null,
         bool captureRun = true,
         bool evaluateCompliance = true)
     {
@@ -182,7 +187,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 // would still be tracked and inserted a second time.
                 _context.ChangeTracker.Clear();
 
-                var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
+                var name = await _scenarioNameGenerator.GenerateAsync(
+                    nameKind ?? DefaultScenarioNameKind, periodFrom, periodUntil, groupId, language, ct);
                 var token = Guid.NewGuid();
 
                 var analyseScenario = new AnalyseScenario
@@ -627,34 +633,5 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         }
         var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
         return sourceScenario?.RunGroupId ?? Guid.NewGuid();
-    }
-
-    private async Task<string> GenerateUniqueNameAsync(
-        DateOnly from,
-        DateOnly until,
-        Guid? groupId,
-        CancellationToken ct,
-        string? namePrefixOverride = null)
-    {
-        var prefix = string.IsNullOrWhiteSpace(namePrefixOverride) ? ScenarioNamePrefix : namePrefixOverride;
-        var baseName = $"{prefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
-        var existing = await _scenarioRepository.GetByGroupAsync(groupId, ct);
-        var existingNames = existing.Select(s => s.Name).ToHashSet();
-
-        if (!existingNames.Contains(baseName))
-        {
-            return baseName;
-        }
-
-        var counter = 2;
-        while (true)
-        {
-            var candidate = $"{baseName} ({counter})";
-            if (!existingNames.Contains(candidate))
-            {
-                return candidate;
-            }
-            counter++;
-        }
     }
 }

@@ -65,6 +65,8 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var scenario = await _repository.Get(command.ScenarioId)
                 ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
 
+            AnalyseScenarioStatusGuard.EnsureActive(scenario);
+
             await _scenarioService.SoftDeleteScenarioDataAsync(scenario.Token, cancellationToken);
 
             scenario.Status = AnalyseScenarioStatus.Rejected;

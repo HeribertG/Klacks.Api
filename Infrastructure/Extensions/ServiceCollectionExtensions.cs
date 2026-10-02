@@ -466,6 +466,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Schedules.IWorkRestoreAuthorizer, Application.Services.Schedules.WorkRestoreAuthorizer>();
         services.AddScoped<Application.Interfaces.Schedules.IComplianceEscalationService, Application.Services.Schedules.ComplianceEscalationService>();
         services.AddScoped<Application.Interfaces.Schedules.ICompliancePartitionService, Application.Services.Schedules.CompliancePartitionService>();
+        services.AddScoped<Application.Interfaces.Schedules.IScenarioNameGenerator, Application.Services.Schedules.ScenarioNameGenerator>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioComplianceService, Application.Services.Schedules.ScenarioComplianceService>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.JsonExportFormatter>();

@@ -17,12 +17,12 @@ namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
 /// <summary>
 /// Wizard-3-specific apply service. Reuses the full <see cref="HarmonizerApplyService"/>
 /// pipeline (cache lookup, RunGroupId inheritance, Bitmap → Work conversion, scenario clone,
-/// BulkAddWorks) and only changes the scenario name prefix from "Harmonisiert" to "LLM" so
-/// the operator can distinguish Holistic Harmonizer outputs in the scenario list.
+/// BulkAddWorks) and only changes the scenario name kind from Harmonized to Llm (the localized AI-plan
+/// prefix) so the operator can distinguish Holistic Harmonizer outputs in the scenario list.
 /// </summary>
 public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHolisticHarmonizerApplyService
 {
-    protected override string ScenarioNamePrefix => "LLM";
+    protected override ScenarioNameKind DefaultScenarioNameKind => ScenarioNameKind.Llm;
 
     protected override WizardEngine CaptureEngine => WizardEngine.Holistic;
 
@@ -38,8 +38,9 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
         IScheduleTimelineService timelineService,
         IScheduleSnapshotMarkerService snapshotMarkerService,
         ICompanyClock companyClock,
+        IScenarioNameGenerator scenarioNameGenerator,
         ILogger<HarmonizerApplyService> logger)
-        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, companyClock, logger)
+        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, companyClock, scenarioNameGenerator, logger)
     {
     }
 }

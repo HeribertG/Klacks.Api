@@ -27,7 +27,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// </summary>
 public sealed class Wizard4Runner : IWizard4Runner
 {
-    private const string ScenarioPrefix = "Optimizer";
     private const string SystemActor = Wizard4LifecycleConstants.SystemActor;
 
     private readonly IHarmonizerContextBuilder _harmonizerContextBuilder;
@@ -155,7 +154,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         // evaluateCompliance: false — autonomous background path with no reader for the report; the real
         // plan is protected at the accept gate when a user promotes the candidate.
         var (resource, createdIds, _) = await _applyService.ApplyAsScenarioAsync(
-            jobId, groupId, ct, ScenarioPrefix, captureRun: false, evaluateCompliance: false);
+            jobId, groupId, ct, nameKind: ScenarioNameKind.Optimizer, language: null, captureRun: false, evaluateCompliance: false);
 
         var churn = BitmapChurn.Ratio(seed, result.BestBitmap);
         var scenario = await _scenarioRepository.Get(resource.Id);

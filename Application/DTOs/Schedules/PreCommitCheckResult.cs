@@ -37,6 +37,8 @@ public sealed record PreCommitCheckResult(IReadOnlyList<ScheduleValidationNotifi
 
     public bool HasHardBlocking => NewConflicts.Any(IsHardBlocking);
 
+    public IEnumerable<ScheduleValidationNotificationDto> HardBlockingConflicts => NewConflicts.Where(IsHardBlocking);
+
     public bool HasNonOverridableBlocking => NewConflicts.Any(IsNonOverridableBlocking);
 
     public bool HasOverridableBlocking => NewConflicts.Any(IsOverridableBlocking);

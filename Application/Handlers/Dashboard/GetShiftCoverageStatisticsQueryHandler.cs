@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Handler for retrieving shift coverage and sealing statistics per group.
+/// Handler for retrieving shift coverage and sealing statistics per group. A shift day contributes its daily demand
+/// (ShiftStaffingDemand: Quantity x SumEmployees, none for sporadic or container-template-covered days) as slots and
+/// its engaged employees capped at that demand as covered slots.
 /// </summary>
 /// <param name="readRepository">Read-side repository for shift/group assignments, group names and work-lock entries</param>
 /// <param name="shiftScheduleService">Service for shift schedule queries</param>
@@ -15,6 +17,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -80,10 +83,13 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 
             foreach (var assignment in shiftAssignments)
             {
-                if (!shiftToGroups.TryGetValue(assignment.ShiftId, out var assignedGroupIds))
+                var required = ShiftStaffingDemand.RequiredOn(assignment);
+                if (required == 0 || !shiftToGroups.TryGetValue(assignment.ShiftId, out var assignedGroupIds))
                 {
                     continue;
                 }
+
+                var covered = Math.Min(assignment.Engaged, required);
 
                 foreach (var groupId in assignedGroupIds)
                 {
@@ -98,7 +104,7 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
                     }
 
                     var current = coverageByGroup[groupId];
-                    coverageByGroup[groupId] = (current.TotalSlots + assignment.Quantity, current.CoveredSlots + assignment.Engaged);
+                    coverageByGroup[groupId] = (current.TotalSlots + required, current.CoveredSlots + covered);
                 }
             }
 

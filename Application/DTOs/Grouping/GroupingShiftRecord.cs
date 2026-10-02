@@ -11,4 +11,5 @@ public sealed record GroupingShiftRecord(
     Guid? OriginalId = null,
     Guid? CustomerId = null,
     double? Latitude = null,
-    double? Longitude = null);
+    double? Longitude = null,
+    int SumEmployees = 1);

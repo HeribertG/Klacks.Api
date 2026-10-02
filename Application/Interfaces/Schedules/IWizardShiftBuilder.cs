@@ -6,8 +6,8 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Expands shift definitions to per-day slots for the wizard period.
-/// For each shift active on a given weekday the builder emits one CoreShift instance per date.
-/// Quantity-based slot multiplication is deferred (Phase 3 responsibility).
+/// For each regular shift active on a given weekday the builder emits Quantity x SumEmployees single-seat
+/// CoreShift instances per date; sporadic shifts have no daily demand and are not emitted.
 /// </summary>
 public interface IWizardShiftBuilder
 {

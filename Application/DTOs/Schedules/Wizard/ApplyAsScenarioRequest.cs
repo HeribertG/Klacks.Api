@@ -8,4 +8,5 @@ namespace Klacks.Api.Application.DTOs.Schedules.Wizard;
 /// <param name="JobId">The job whose cached result is materialised.</param>
 /// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness.</param>
 /// <param name="OverrideBlock">Requests the K1 supervisor override for Block-mode compliance violations.</param>
-public sealed record ApplyAsScenarioRequest(Guid JobId, Guid? GroupId, bool OverrideBlock = false);
+/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language.</param>
+public sealed record ApplyAsScenarioRequest(Guid JobId, Guid? GroupId, bool OverrideBlock = false, string? Language = null);

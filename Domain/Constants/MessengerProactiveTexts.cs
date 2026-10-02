@@ -4,7 +4,7 @@
 /// Server-side sentences for the few proactive events that may leave Klacks over a messenger.
 /// A messenger has no i18n runtime and no browser session, so the frontend catalogue that renders
 /// every other proactive message cannot be reached; without this table the recipient reads the raw
-/// key ("assistant.proactive.unstaffedShift") instead of a sentence. Decision E56 requires the
+/// key ("assistant.proactive.workDroppedByErpImport") instead of a sentence. Decision E56 requires the
 /// messenger chat to run in the current Klacks language.
 /// Scope is deliberately minimal: only the keys MessengerWakeUpPolicy admits are listed here, so
 /// this is a handful of strings and not a second translation system. A new key belongs here ONLY
@@ -20,8 +20,7 @@
 /// English for a tag that no core table and no loaded pack claims; a language whose loaded pack lacks a key
 /// resolves to nothing (ProactiveMessengerTextComposer then uses English and logs a warning), a gap the
 /// catalogue guard keeps from shipping.
-/// Affected keys: assistant.proactive.unstaffedShift, assistant.proactive.workDroppedByErpImport,
-/// assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert,
+/// Affected keys: assistant.proactive.workDroppedByErpImport, assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert,
 /// assistant.proactive.dailyDigest.
 ///
 /// Placeholders use the frontend's ngx-translate form ({{name}}) so the catalogues stay literally
@@ -43,13 +42,6 @@ public static class MessengerProactiveTexts
     private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> CoreTexts =
         new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal)
         {
-            [ProactiveMessageI18nKeys.UnstaffedShift] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                [German] = "Eine Schicht am {{date}} (in {{days}} Tag(en)) ist noch unbesetzt.",
-                [English] = "A shift on {{date}} (in {{days}} day(s)) is still unstaffed.",
-                [French] = "Un service le {{date}} (dans {{days}} jour(s)) n'est toujours pas pourvu.",
-                [Italian] = "Un turno il {{date}} (tra {{days}} giorno/i) è ancora scoperto."
-            },
             [ProactiveMessageI18nKeys.WorkDroppedByErpImport] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 [German] = "Der Einsatz von {{employee}} am {{date}} ist entfallen, weil die zugehörige Bestellung per ERP-Import ersetzt wurde. Bitte neu einplanen.",

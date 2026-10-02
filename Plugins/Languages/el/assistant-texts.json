@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "Ο/Η {{responder}} έχει αναλάβει τη βάρδια της {{date}} για τον/την {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Ευχαριστούμε, εγκρίνατε την ενέργεια {{action}} για το εύρημα {{finding}}. Ο Klacksy θα την εκτελέσει σύντομα με τα δικαιώματά σας και θα σας αναφέρει το αποτέλεσμα.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "Ο/Η {{responder}} έχει εγκρίνει την ενέργεια {{action}} για το εύρημα {{finding}}· δεν απομένει τίποτα άλλο για εσάς να κάνετε.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Κανείς δεν ενέκρινε την ενέργεια {{action}} για το εύρημα {{finding}}· το χρονικό περιθώριο έληξε. Ο Klacksy θα ξαναρωτήσει την επόμενη ημέρα λειτουργίας της εταιρείας. Για να εκτελεστεί σήμερα, αναθέστε το εύρημα απευθείας."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Κανείς δεν ενέκρινε την ενέργεια {{action}} για το εύρημα {{finding}}· το χρονικό περιθώριο έληξε. Ο Klacksy θα ξαναρωτήσει την επόμενη ημέρα λειτουργίας της εταιρείας. Για να εκτελεστεί σήμερα, αναθέστε το εύρημα απευθείας.",
+  "assistant.scenarioName.autoPlan": "Αυτόματα δημιουργημένο πρόγραμμα",
+  "assistant.scenarioName.autoHarmonizer": "Αυτόματα δημιουργημένο εναρμονισμένο πρόγραμμα",
+  "assistant.scenarioName.auto": "Αυτόματη δημιουργία",
+  "assistant.scenarioName.plan": "Πρόγραμμα",
+  "assistant.scenarioName.harmonized": "Εναρμονισμένο",
+  "assistant.scenarioName.llm": "Πρόγραμμα ΤΝ",
+  "assistant.scenarioName.optimizer": "Βελτιστοποιημένο",
+  "assistant.scenarioName.proposal": "Πρόταση",
+  "assistant.scenarioName.absenceCover": "Κάλυψη απουσίας"
 }

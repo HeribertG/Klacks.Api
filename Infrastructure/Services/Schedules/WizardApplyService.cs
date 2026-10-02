@@ -35,6 +35,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="captureRepository">Repository persisting the run-protocol capture for the preference-learner</param>
 /// <param name="partitionService">Shared accept/block compliance partition incl. the K1 supervisor override</param>
 /// <param name="companyClock">Resolves the company's current calendar date when the cached scenario has no tokens</param>
+/// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="logger">Logger used for best-effort capture warnings</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
@@ -49,6 +50,7 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly DataBaseContext _context;
     private readonly IScheduleTimelineService _timelineService;
     private readonly ICompanyClock _companyClock;
+    private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
@@ -63,6 +65,7 @@ public sealed class WizardApplyService : IWizardApplyService
         DataBaseContext context,
         IScheduleTimelineService timelineService,
         ICompanyClock companyClock,
+        IScenarioNameGenerator scenarioNameGenerator,
         ILogger<WizardApplyService> logger)
     {
         _resultCache = resultCache;
@@ -76,6 +79,7 @@ public sealed class WizardApplyService : IWizardApplyService
         _context = context;
         _timelineService = timelineService;
         _companyClock = companyClock;
+        _scenarioNameGenerator = scenarioNameGenerator;
         _logger = logger;
     }
 
@@ -175,7 +179,8 @@ public sealed class WizardApplyService : IWizardApplyService
         Guid? groupId,
         bool overrideBlock,
         CancellationToken ct,
-        string? namePrefixOverride = null)
+        ScenarioNameKind? nameKind = null,
+        string? language = null)
     {
         if (!_resultCache.TryTake(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || cachedScenario is null)
         {
@@ -197,7 +202,8 @@ public sealed class WizardApplyService : IWizardApplyService
                 ? items.Max(t => t.Date)
                 : periodFrom;
 
-            var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
+            var name = await _scenarioNameGenerator.GenerateAsync(
+                nameKind ?? ScenarioNameKind.Plan, periodFrom, periodUntil, groupId, language, ct);
             var token = Guid.NewGuid();
 
             // Scenario row, clone, slot cleanup and the planner works must land together - a failure in
@@ -332,35 +338,6 @@ public sealed class WizardApplyService : IWizardApplyService
         }
         var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
         return sourceScenario?.RunGroupId ?? Guid.NewGuid();
-    }
-
-    private async Task<string> GenerateUniqueNameAsync(
-        DateOnly from,
-        DateOnly until,
-        Guid? groupId,
-        CancellationToken ct,
-        string? namePrefixOverride = null)
-    {
-        var prefix = string.IsNullOrWhiteSpace(namePrefixOverride) ? "Plan" : namePrefixOverride;
-        var baseName = $"{prefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
-        var existing = await _scenarioRepository.GetByGroupAsync(groupId, ct);
-        var existingNames = existing.Select(s => s.Name).ToHashSet();
-
-        if (!existingNames.Contains(baseName))
-        {
-            return baseName;
-        }
-
-        var counter = 2;
-        while (true)
-        {
-            var candidate = $"{baseName} ({counter})";
-            if (!existingNames.Contains(candidate))
-            {
-                return candidate;
-            }
-            counter++;
-        }
     }
 
     /// <summary>

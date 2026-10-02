@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} ha asumido el turno del {{date}} para {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Gracias, aprobaste la acción {{action}} para el hallazgo {{finding}}. Klacksy la ejecutará en breve bajo tus derechos y te informará del resultado.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} ha aprobado la acción {{action}} para el hallazgo {{finding}}; ya no tienes nada que hacer.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Nadie aprobó la acción {{action}} para el hallazgo {{finding}}; el plazo ha expirado. Klacksy volverá a preguntar el próximo día hábil de la empresa. Para ejecutarla hoy mismo, delega directamente el hallazgo."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nadie aprobó la acción {{action}} para el hallazgo {{finding}}; el plazo ha expirado. Klacksy volverá a preguntar el próximo día hábil de la empresa. Para ejecutarla hoy mismo, delega directamente el hallazgo.",
+  "assistant.scenarioName.autoPlan": "Plan creado automáticamente",
+  "assistant.scenarioName.autoHarmonizer": "Plan armonizado creado automáticamente",
+  "assistant.scenarioName.auto": "Creado automáticamente",
+  "assistant.scenarioName.plan": "Plan",
+  "assistant.scenarioName.harmonized": "Armonizado",
+  "assistant.scenarioName.llm": "Plan IA",
+  "assistant.scenarioName.optimizer": "Optimizado",
+  "assistant.scenarioName.proposal": "Propuesta",
+  "assistant.scenarioName.absenceCover": "Cobertura de ausencia"
 }

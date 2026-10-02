@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} har overtaget vagten den {{date}} for {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Tak, du godkendte handling {{action}} for fundet {{finding}}. Klacksy udfører den snart på dine vegne og rapporterer resultatet til dig.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkendt handling {{action}} for fundet {{finding}}; der er ikke mere at gøre for dig.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkendte handling {{action}} for fundet {{finding}}; vinduet er udløbet. Klacksy spørger igen på næste arbejdsdag. For at få den udført i dag, skal du delegere fundet direkte."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkendte handling {{action}} for fundet {{finding}}; vinduet er udløbet. Klacksy spørger igen på næste arbejdsdag. For at få den udført i dag, skal du delegere fundet direkte.",
+  "assistant.scenarioName.autoPlan": "Automatisk oprettet plan",
+  "assistant.scenarioName.autoHarmonizer": "Automatisk oprettet harmoniseret plan",
+  "assistant.scenarioName.auto": "Automatisk oprettet",
+  "assistant.scenarioName.plan": "Plan",
+  "assistant.scenarioName.harmonized": "Harmoniseret",
+  "assistant.scenarioName.llm": "AI-plan",
+  "assistant.scenarioName.optimizer": "Optimeret",
+  "assistant.scenarioName.proposal": "Forslag",
+  "assistant.scenarioName.absenceCover": "Fraværsdækning"
 }

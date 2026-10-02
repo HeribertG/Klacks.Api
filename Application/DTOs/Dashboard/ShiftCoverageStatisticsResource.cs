@@ -5,8 +5,8 @@
 /// </summary>
 /// <param name="GroupId">ID of the group</param>
 /// <param name="GroupName">Name of the group</param>
-/// <param name="TotalSlots">Sum of quantity across all shift days</param>
-/// <param name="CoveredSlots">Sum of engaged slots</param>
+/// <param name="TotalSlots">Sum of the daily demand (Quantity x SumEmployees) across all regular shift days</param>
+/// <param name="CoveredSlots">Sum of engaged employees, capped per shift day at its demand</param>
 /// <param name="TotalWorkEntries">Total number of work entries in the period</param>
 /// <param name="SealedWorkEntries">Number of work entries with LockLevel >= Confirmed</param>
 namespace Klacks.Api.Application.DTOs.Dashboard;

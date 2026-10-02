@@ -4,7 +4,7 @@
 /// A future, not-yet-locked Work entry was cancelled because its order was superseded by an
 /// ERP import update. Client (the roster employee) has no login account to notify directly --
 /// AppUser and Client are unrelated identities in this system -- so this reaches planners
-/// instead, same audience as UnstaffedShiftTriggerEvent, so they can re-plan the gap. GroupIds
+/// instead, same planner audience as the unstaffed-shift messages, so they can re-plan the gap. GroupIds
 /// carries every group of the Work's Shift and narrows that audience to the planners who may see it;
 /// a cancellation whose shift has no group membership reaches Admins only (RequiresGroupScope).
 /// </summary>

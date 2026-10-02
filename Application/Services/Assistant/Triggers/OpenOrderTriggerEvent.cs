@@ -3,7 +3,7 @@
 /// <summary>
 /// Fired when a Shift is still an unsealed OriginalOrder (ShiftStatus.OriginalOrder) whose FromDate
 /// is today or later -- an ERP-imported or manually created order that has not yet been sealed into
-/// a staffable shift. Unlike UnstaffedShiftTriggerEvent this never looks at staffing counts: an
+/// a staffable shift. Unlike UnstaffedShiftSummaryTriggerEvent this never looks at staffing counts: an
 /// order can be fully staffed and still be an open, unsealed draft. Severity escalates the closer
 /// FromDate is. GroupIds carries every group the order's shift belongs to, which is what narrows the
 /// audience to the planners who may see it; an order with no group membership at all reaches Admins

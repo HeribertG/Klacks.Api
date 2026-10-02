@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Arithmetic capacity check (F7) per planning unit and weekday, after all proposals: the peak of the
-/// summed quantities of scope shifts running on that weekday that overlap in time (end exclusive; a shift
+/// summed daily demands (Quantity x SumEmployees, see ShiftStaffingDemand) of scope shifts running on that
+/// weekday that overlap in time (end exclusive; a shift
 /// ending at or before its start runs past midnight) against the number of scope clients eligible for at
 /// least one peak shift on that weekday. A necessary, not a sufficient condition: hours, rest days and
 /// absences are ignored on purpose, and the overhang of the previous day's night shift is not counted.
@@ -11,6 +12,7 @@
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
@@ -82,8 +84,8 @@ public sealed class CapacityEstimator
                     end += GroupingFeasibilityDefaults.MinutesPerDay;
                 }
 
-                var quantity = shift.Quantity > 0 ? shift.Quantity : 1;
-                return new[] { (Time: start, Delta: quantity, shift.Id), (Time: end, Delta: -quantity, shift.Id) };
+                var demand = ShiftStaffingDemand.PerDay(shift.Quantity, shift.SumEmployees);
+                return new[] { (Time: start, Delta: demand, shift.Id), (Time: end, Delta: -demand, shift.Id) };
             })
             .OrderBy(e => e.Time)
             .ThenBy(e => e.Delta)

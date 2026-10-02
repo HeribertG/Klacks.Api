@@ -47,7 +47,7 @@ public class CoverAbsenceSkill : BaseSkillImplementation
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
 
         var outcome = await _mediator.Send(
-            new CoverAbsenceCommand(clientId, date, groupId, absenceId, untilDate, overrideBlock), cancellationToken);
+            new CoverAbsenceCommand(clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage), cancellationToken);
 
         var data = new
         {

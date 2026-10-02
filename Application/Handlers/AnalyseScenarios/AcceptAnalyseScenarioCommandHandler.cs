@@ -104,6 +104,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var scenario = await _repository.Get(command.ScenarioId)
                 ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
 
+            AnalyseScenarioStatusGuard.EnsureActive(scenario);
+
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
 
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
