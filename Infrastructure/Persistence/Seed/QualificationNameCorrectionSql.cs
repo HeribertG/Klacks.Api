@@ -28,6 +28,8 @@ namespace Klacks.Api.Data.Seed
             new("0c562163-931d-4982-bfcc-0388bec2ef9f", Italian, "Gestion de la chaîne du froid", "Gestione della catena del freddo"),
         ];
 
+        private const string QualificationTable = "qualification";
+
         public static void Apply(MigrationBuilder migrationBuilder)
         {
             foreach (var correction in Corrections)
@@ -38,15 +40,12 @@ namespace Klacks.Api.Data.Seed
 
         public static string BuildStatement(QualificationNameCorrection correction)
         {
-            return $"UPDATE qualification "
-                + $"SET name = jsonb_set(name, '{{{correction.Language}}}', to_jsonb({Literal(correction.CorrectedName)}::text)) "
-                + $"WHERE id = '{correction.QualificationId}' "
-                + $"AND name ->> '{correction.Language}' = {Literal(correction.FaultyName)};";
-        }
-
-        private static string Literal(string value)
-        {
-            return "'" + value.Replace("'", "''") + "'";
+            return SeededNameCorrectionSql.BuildStatement(new SeededNameCorrection(
+                QualificationTable,
+                correction.QualificationId,
+                correction.Language,
+                correction.FaultyName,
+                correction.CorrectedName));
         }
     }
 }
