@@ -14,6 +14,9 @@ public static class LanguagePluginConstants
     public const string StatesFileName = "states.json";
     public const string DefaultGeoTranslationsFileName = "default-geo-translations.json";
     public const string CalendarRulesFileName = "calendar-rules.json";
+    public const string CalendarRuleLegacyIdsFileName = "calendar-rule-legacy-ids.json";
+    public const string CalendarRuleBackfillSettingPrefix = "LANGUAGE_CALENDAR_RULES_BACKFILLED_";
+    public const string CalendarRuleBackfillDoneValue = "true";
     public const string SkillSynonymsFileName = "skill-synonyms.json";
     public const string SkillLabelsFileName = "skill-labels.json";
     public const string RecipeSynonymsFileName = "recipe-synonyms.json";
