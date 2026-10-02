@@ -140,17 +140,7 @@ public class ErrorHandlingMiddleware
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Conflict",
-                Status = StatusCodes.Status409Conflict,
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
+            await WriteConflictAsync(context, ex);
         }
         catch (StaleWizardResultException ex)
         {
@@ -296,6 +286,34 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+    }
+
+    private static async Task WriteConflictAsync(HttpContext context, ConflictException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status409Conflict;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Title = "Conflict",
+            Status = StatusCodes.Status409Conflict,
+            Detail = exception.Message
+        };
+
+        if (exception is WorkWriteConflictException workConflict)
+        {
+            problem.Extensions["errorCode"] = workConflict.ErrorCode;
+            foreach (var (field, value) in workConflict.Details)
+            {
+                problem.Extensions[field] = value;
+            }
+        }
+        else if (exception.ConflictCode is { } conflictCode)
+        {
+            problem.Extensions["errorCode"] = conflictCode;
+        }
+
+        await context.Response.WriteAsJsonAsync(problem);
     }
 
     private static async Task WriteProblemAsync(HttpContext context, int status, string title, string detail, string? code = null)

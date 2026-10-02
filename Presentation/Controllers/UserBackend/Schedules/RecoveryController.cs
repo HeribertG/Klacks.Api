@@ -38,7 +38,7 @@ public sealed class RecoveryController : ControllerBase
             var outcome = await _mediator.Send(
                 new CoverAbsenceCommand(
                     request.ClientId, request.Date, request.GroupId, request.AbsenceId,
-                    request.UntilDate, request.OverrideBlock),
+                    request.UntilDate, request.OverrideBlock, request.Language),
                 ct);
 
             return Ok(outcome);

@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} đã nhận ca làm việc vào {{date}} thay cho {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Cảm ơn bạn, bạn đã phê duyệt hành động {{action}} cho phát hiện {{finding}}. Klacksy sẽ thực hiện ngay dưới quyền của bạn và báo cáo kết quả lại cho bạn.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} đã phê duyệt hành động {{action}} cho phát hiện {{finding}}; bạn không cần làm gì thêm nữa.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Không ai phê duyệt hành động {{action}} cho phát hiện {{finding}}; thời gian chờ đã hết. Klacksy sẽ hỏi lại vào ngày làm việc tiếp theo của công ty. Nếu vẫn muốn thực hiện hôm nay, hãy giao trực tiếp phát hiện này cho ai đó."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Không ai phê duyệt hành động {{action}} cho phát hiện {{finding}}; thời gian chờ đã hết. Klacksy sẽ hỏi lại vào ngày làm việc tiếp theo của công ty. Nếu vẫn muốn thực hiện hôm nay, hãy giao trực tiếp phát hiện này cho ai đó.",
+  "assistant.scenarioName.autoPlan": "Kế hoạch tạo tự động",
+  "assistant.scenarioName.autoHarmonizer": "Kế hoạch đã hài hòa tạo tự động",
+  "assistant.scenarioName.auto": "Tạo tự động",
+  "assistant.scenarioName.plan": "Kế hoạch",
+  "assistant.scenarioName.harmonized": "Đã hài hòa",
+  "assistant.scenarioName.llm": "Kế hoạch AI",
+  "assistant.scenarioName.optimizer": "Đã tối ưu",
+  "assistant.scenarioName.proposal": "Đề xuất",
+  "assistant.scenarioName.absenceCover": "Thay thế vắng mặt"
 }

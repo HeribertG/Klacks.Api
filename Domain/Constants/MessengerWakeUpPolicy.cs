@@ -10,7 +10,7 @@
 /// slips into a loud default wakes every planner at night and costs the channel its acceptance.
 /// Membership test applied to each kind: does a human acting tonight change the outcome?
 /// The severity conjunction is what keeps a low-severity variant of an allow-listed kind quiet
-/// (an unstaffed shift eight days out is not a night-time matter).
+/// (a daily digest without any high-severity finding is not a night-time matter).
 /// Per-recipient mute, snooze and minimum-severity are NOT re-checked here - AgentTriggerService
 /// applies IAgentTriggerPreferenceService at the top of its recipient loop, so a muted recipient
 /// never reaches this policy in the first place.
@@ -23,8 +23,6 @@ public static class MessengerWakeUpPolicy
     /// <summary>
     /// Trigger kinds whose high-severity form is worth an out-of-band message at any hour.
     /// <list type="bullet">
-    /// <item>UnstaffedShift: high means the shift starts within three days with nobody assigned;
-    /// a planner who reacts now can still find a replacement.</item>
     /// <item>WorkDroppedByErpImport: an import silently superseded a planned assignment, so the
     /// published plan is wrong for an upcoming day until somebody restores it.</item>
     /// <item>OrderImportFailed: the ERP intake is broken and keeps rejecting orders for as long
@@ -47,11 +45,13 @@ public static class MessengerWakeUpPolicy
     /// next wizard run, not tonight; ScenarioPending (high at seven days pending) and PeriodOverdue
     /// (high at twenty-one days overdue) have already been stale for weeks, so one more night is
     /// immaterial; PeriodCloseDue, ContractExpiringSoon, AvailabilityGap and TargetHoursDrift are
-    /// office-hours administration that cannot be acted on at three in the morning.
+    /// office-hours administration that cannot be acted on at three in the morning. UnstaffedShift left the
+    /// list with Paket D (owner decision 2026-10-02): it is one collective message per root group and pay period
+    /// now, a planning backlog rather than a night-time emergency; its high-severity form still reaches a
+    /// planner who is online through the in-app live push.
     /// </summary>
     private static readonly IReadOnlySet<string> WakeUpKinds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        AgentTriggerKinds.UnstaffedShift,
         AgentTriggerKinds.WorkDroppedByErpImport,
         AgentTriggerKinds.OrderImportFailed,
         AgentTriggerKinds.EscalationStageAlert,

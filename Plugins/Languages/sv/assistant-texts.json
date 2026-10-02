@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} har tagit över skiftet den {{date}} för {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Tack, du godkände åtgärden {{action}} för observationen {{finding}}. Klacksy kommer snart genomföra åtgärden med dina rättigheter och rapportera resultatet till dig.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkänt åtgärden {{action}} för observationen {{finding}}; det finns inget kvar för dig att göra.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkände åtgärden {{action}} för observationen {{finding}}; tidsfönstret har gått ut. Klacksy kommer fråga igen nästa företagsdag. Vill du ändå genomföra åtgärden idag, delegera observationen direkt."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen godkände åtgärden {{action}} för observationen {{finding}}; tidsfönstret har gått ut. Klacksy kommer fråga igen nästa företagsdag. Vill du ändå genomföra åtgärden idag, delegera observationen direkt.",
+  "assistant.scenarioName.autoPlan": "Automatiskt skapad plan",
+  "assistant.scenarioName.autoHarmonizer": "Automatiskt skapad harmoniserad plan",
+  "assistant.scenarioName.auto": "Automatiskt skapad",
+  "assistant.scenarioName.plan": "Plan",
+  "assistant.scenarioName.harmonized": "Harmoniserad",
+  "assistant.scenarioName.llm": "AI-plan",
+  "assistant.scenarioName.optimizer": "Optimerad",
+  "assistant.scenarioName.proposal": "Förslag",
+  "assistant.scenarioName.absenceCover": "Frånvarotäckning"
 }

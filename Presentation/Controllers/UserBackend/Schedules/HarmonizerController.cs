@@ -82,7 +82,8 @@ public sealed class HarmonizerController : ControllerBase
     {
         try
         {
-            var (scenario, createdIds, complianceReport) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
+            var (scenario, createdIds, complianceReport) = await _applyService.ApplyAsScenarioAsync(
+                request.JobId, request.GroupId, ct, language: request.Language);
             return Ok(new ApplyHarmonizerAsScenarioResponse(
                 scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds, complianceReport));
         }
@@ -111,7 +112,8 @@ public sealed record CancelHarmonizerResponse(bool Cancelled);
 
 /// <param name="JobId">The harmonizer job whose cached result is materialised</param>
 /// <param name="GroupId">Optional group scope for scenario cloning and name uniqueness</param>
-public sealed record ApplyHarmonizerAsScenarioRequest(Guid JobId, Guid? GroupId);
+/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language</param>
+public sealed record ApplyHarmonizerAsScenarioRequest(Guid JobId, Guid? GroupId, string? Language = null);
 
 /// <param name="ScenarioId">Id of the newly created AnalyseScenario</param>
 /// <param name="ScenarioToken">Unique token of the new scenario</param>

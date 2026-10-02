@@ -25,6 +25,7 @@
 /// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision</param>
 /// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
 /// <param name="clientVisibilityGuard">Decides for which employees the calling user may write</param>
+/// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
@@ -52,7 +53,6 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 
 public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCommand, CoverAbsenceOutcome>
 {
-    private const string ScenarioNamePrefix = "Absence cover";
     private const string LockedReason = "locked";
     private const string NoCandidateReason = "no eligible candidate";
     private const string NonCriticalReason = "non-critical";
@@ -74,6 +74,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IEscalationChainService _escalationChainService;
     private readonly ICompanyClock _companyClock;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -88,6 +89,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IEscalationChainService escalationChainService,
         ICompanyClock companyClock,
         IClientVisibilityGuard clientVisibilityGuard,
+        IScenarioNameGenerator scenarioNameGenerator,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -101,6 +103,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _escalationChainService = escalationChainService;
         _companyClock = companyClock;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _scenarioNameGenerator = scenarioNameGenerator;
         _logger = logger;
     }
 
@@ -132,7 +135,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var dates = Enumerable.Range(0, totalDays).Select(offset => date.AddDays(offset)).ToList();
 
         var token = Guid.NewGuid();
-        var name = await GenerateUniqueNameAsync(date, untilDate, groupId, cancellationToken);
+        var name = await _scenarioNameGenerator.GenerateAsync(
+            ScenarioNameKind.AbsenceCover, date, untilDate, groupId, request.Language, cancellationToken);
         var scenario = new AnalyseScenario
         {
             Name = name,
@@ -499,28 +503,6 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 day.WorkId.Value, groupId, clientId, absentClientName, day.ShiftStartUtc.Value, day.BreakId),
                 cancellationToken);
         }
-    }
-
-    private async Task<string> GenerateUniqueNameAsync(
-        DateOnly date, DateOnly untilDate, Guid? groupId, CancellationToken cancellationToken)
-    {
-        var baseName = untilDate == date
-            ? $"{ScenarioNamePrefix} {date:dd.MM.yy}"
-            : $"{ScenarioNamePrefix} {date:dd.MM.yy}–{untilDate:dd.MM.yy}";
-        var existing = await _scenarioRepository.GetByGroupAsync(groupId, cancellationToken);
-        var existingNames = existing.Select(s => s.Name).ToHashSet();
-
-        if (!existingNames.Contains(baseName))
-        {
-            return baseName;
-        }
-
-        var counter = 2;
-        while (existingNames.Contains($"{baseName} ({counter})"))
-        {
-            counter++;
-        }
-        return $"{baseName} ({counter})";
     }
 
     private static decimal WorkHours(TimeOnly start, TimeOnly end)

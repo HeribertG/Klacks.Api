@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Interfaces.Schedules;
 
@@ -30,11 +31,13 @@ public interface IWizardApplyService
     /// cached for <paramref name="jobId"/>.
     /// </summary>
     /// <param name="overrideBlock">Requests the K1 supervisor override for Block-mode violations.</param>
-    /// <param name="namePrefixOverride">Overrides the default "Plan" name prefix; null keeps the default.</param>
+    /// <param name="nameKind">Selects the localized scenario name prefix; null keeps the service default (Plan).</param>
+    /// <param name="language">The planner's language for the name prefix; null falls back to the installation language.</param>
     Task<(AnalyseScenarioResource Scenario, WizardApplyOutcome Outcome)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
         bool overrideBlock,
         CancellationToken ct,
-        string? namePrefixOverride = null);
+        ScenarioNameKind? nameKind = null,
+        string? language = null);
 }

@@ -96,7 +96,7 @@ public class ProposePlanSkill : BaseSkillImplementation
         }
 
         var outcome = await _mediator.Send(
-            new ProposePlanCommand(groupId, fromDate, untilDate, placements), cancellationToken);
+            new ProposePlanCommand(groupId, fromDate, untilDate, placements, Language: context.UserLanguage), cancellationToken);
 
         var data = new
         {

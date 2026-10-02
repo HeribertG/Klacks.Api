@@ -164,7 +164,7 @@ public sealed class WizardController : BaseController
         try
         {
             var (scenario, outcome) = await _applyService.ApplyAsScenarioAsync(
-                request.JobId, request.GroupId, request.OverrideBlock, ct);
+                request.JobId, request.GroupId, request.OverrideBlock, ct, language: request.Language);
             return Ok(new ApplyAsScenarioResponse(
                 scenario.Id,
                 scenario.Token,

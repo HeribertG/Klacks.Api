@@ -6,11 +6,14 @@
 /// planning otherwise stays advisory - a Block-mode compliance rule reports into the error list rather
 /// than stopping the write, and a schedule collision (owner decision 2026-08-22) does too: it is persisted
 /// and the async post-commit check (ScheduleTimelineBackgroundService) surfaces it like any other finding.
+/// Each refusal is a WorkWriteConflictException, so the 409 body carries an error code plus the names, counts
+/// and conflict items the client needs to explain it in the user's language.
 /// </summary>
 /// <param name="shiftRepository">Source of the slim sporadic projection of the Work's shift</param>
 /// <param name="workRepository">Source of the sporadic capacity usage in the shift's range</param>
 /// <param name="conflictChecker">Replays the period validator with and without the planned row</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
@@ -59,17 +62,37 @@ public class WorkWriteGuardService : IWorkWriteGuard
 
         if (usage.EngagedAtDay >= shift.EffectiveSumEmployees)
         {
-            throw new ConflictException(
+            throw new WorkWriteConflictException(
                 $"Sporadic shift '{shift.Name}' is fully booked on {work.CurrentDate:yyyy-MM-dd} " +
-                $"({usage.EngagedAtDay}/{shift.EffectiveSumEmployees} employees).");
+                $"({usage.EngagedAtDay}/{shift.EffectiveSumEmployees} employees).",
+                WorkWriteConflictCodes.SporadicShiftDayFull,
+                new Dictionary<string, object?>
+                {
+                    [WorkWriteConflictCodes.ShiftIdField] = work.ShiftId,
+                    [WorkWriteConflictCodes.ShiftNameField] = shift.Name,
+                    [WorkWriteConflictCodes.DateField] = work.CurrentDate,
+                    [WorkWriteConflictCodes.EngagedField] = usage.EngagedAtDay,
+                    [WorkWriteConflictCodes.CapacityField] = shift.EffectiveSumEmployees,
+                });
         }
 
         if (usage.EngagedAtDay == 0 && usage.DistinctBookedDays >= shift.EffectiveQuantity)
         {
-            throw new ConflictException(
+            throw new WorkWriteConflictException(
                 $"Sporadic shift '{shift.Name}' has reached its range capacity " +
                 $"({usage.DistinctBookedDays}/{shift.EffectiveQuantity} days) for scope {shift.SporadicScope} " +
-                $"({rangeFrom:yyyy-MM-dd}..{rangeUntil:yyyy-MM-dd}).");
+                $"({rangeFrom:yyyy-MM-dd}..{rangeUntil:yyyy-MM-dd}).",
+                WorkWriteConflictCodes.SporadicShiftRangeExhausted,
+                new Dictionary<string, object?>
+                {
+                    [WorkWriteConflictCodes.ShiftIdField] = work.ShiftId,
+                    [WorkWriteConflictCodes.ShiftNameField] = shift.Name,
+                    [WorkWriteConflictCodes.DateField] = work.CurrentDate,
+                    [WorkWriteConflictCodes.BookedField] = usage.DistinctBookedDays,
+                    [WorkWriteConflictCodes.CapacityField] = shift.EffectiveQuantity,
+                    [WorkWriteConflictCodes.RangeFromField] = rangeFrom,
+                    [WorkWriteConflictCodes.RangeUntilField] = rangeUntil,
+                });
         }
     }
 
@@ -90,10 +113,22 @@ public class WorkWriteGuardService : IWorkWriteGuard
         var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);
         if (conflictCheck.HasHardBlocking)
         {
-            throw new ConflictException(
+            var shift = await _shiftRepository.GetSporadicInfoAsync(work.ShiftId, cancellationToken);
+
+            throw new WorkWriteConflictException(
                 $"Work blocked: client {work.ClientId} would introduce " +
                 $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} " +
-                $"non-overridable schedule conflict(s) on {work.CurrentDate:yyyy-MM-dd}. Not committed.");
+                $"non-overridable schedule conflict(s) on {work.CurrentDate:yyyy-MM-dd}. Not committed.",
+                WorkWriteConflictCodes.BlockedByConflicts,
+                new Dictionary<string, object?>
+                {
+                    [WorkWriteConflictCodes.ShiftIdField] = work.ShiftId,
+                    [WorkWriteConflictCodes.ShiftNameField] = shift?.Name,
+                    [WorkWriteConflictCodes.DateField] = work.CurrentDate,
+                    [WorkWriteConflictCodes.ConflictsField] = conflictCheck.HardBlockingConflicts
+                        .Select(c => new WorkConflictItem(c.Comment, c.ClientId, c.Date, c.CommentParams))
+                        .ToList(),
+                });
         }
     }
 }

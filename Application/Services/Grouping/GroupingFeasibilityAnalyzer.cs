@@ -5,8 +5,9 @@
 /// shift with the wizard's own shift builder (so analysis and autofill see the same days), loads the
 /// effective contract data for the whole period in one range call, reads the expired-mandatory-blocks
 /// setting, evaluates eligibility, builds the plan (F1-F6), estimates capacity (F7) and fingerprints the
-/// result. Shifts without a single run day in the period are not analysed. Finally every planning unit is
-/// summarised (GroupingUnitSummaryBuilder) against the real memberships, so the report can name root causes
+/// result. Shifts without a single run day in the period are not analysed; this includes sporadic shifts,
+/// which the shift builder skips because they carry no daily demand and the wizard does not plan them.
+/// Finally every planning unit is summarised (GroupingUnitSummaryBuilder) against the real memberships, so the report can name root causes
 /// such as missing contracts; the duration of that step is logged separately.
 /// </summary>
 /// <param name="dataSource">Snapshot loader.</param>

@@ -60,6 +60,14 @@ public static class ProactiveMessageI18nKeys
     /// </summary>
     public const string PeriodAutoCloseBlockedTickLimit = "assistant.proactive.periodAutoCloseBlockedTickLimit";
     public const string UnstaffedShift = "assistant.proactive.unstaffedShift";
+
+    /// <summary>
+    /// The aggregated form of <see cref="UnstaffedShift"/>: one sentence per root group for the running pay
+    /// period (at least the next seven days). Parameters group, count (unstaffed shift days), days (distinct
+    /// calendar days), from and until. The per-shift key stays in every catalogue: dispatch rows written
+    /// before the aggregation still reference it.
+    /// </summary>
+    public const string UnstaffedShiftSummary = "assistant.proactive.unstaffedShiftSummary";
     public const string LockConflict = "assistant.proactive.lockConflict";
     public const string ScenarioPending = "assistant.proactive.scenarioPending";
     public const string ContractExpiringSoon = "assistant.proactive.contractExpiringSoon";

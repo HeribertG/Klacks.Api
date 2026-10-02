@@ -8,6 +8,7 @@
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -31,7 +32,16 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var scenarioId = GetRequiredGuid(parameters, "scenarioId");
-        var success = await _mediator.Send(new AcceptAnalyseScenarioCommand(scenarioId), cancellationToken);
+        bool success;
+        try
+        {
+            success = await _mediator.Send(new AcceptAnalyseScenarioCommand(scenarioId), cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return SkillResult.Error($"Failed to accept scenario {scenarioId}: {ex.Message}");
+        }
+
         if (!success)
         {
             return SkillResult.Error($"Failed to accept scenario {scenarioId} — it may already be accepted, rejected, or not exist.");

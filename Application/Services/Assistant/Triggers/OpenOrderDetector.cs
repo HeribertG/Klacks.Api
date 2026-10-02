@@ -11,7 +11,7 @@
 /// ONE batched lookup for the whole scan (never one query per order), because the group set is what
 /// narrows the notification to the planners who may see that order. The scan is capped at MaxCandidatesToScan rows, ordered by
 /// FromDate (soonest first, Id as tiebreaker) so the cap -- a defensive bound against unbounded
-/// growth, mirroring UnstaffedShift7dDetector.FilterRowCount -- keeps exactly the highest-severity
+/// growth, like the row cap the former per-shift unstaffed detector used -- keeps exactly the highest-severity
 /// candidates rather than an arbitrary storage-order subset. The background scanner calls this every
 /// 60 minutes.
 /// </summary>

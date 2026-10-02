@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} 已接手 {{employee}} 在 {{date}} 的班次。",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "感謝您，您已批准針對發現 {{finding}} 的操作 {{action}}。Klacksy 將在您的授權下盡快執行，並向您回報結果。",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} 已批准針對發現 {{finding}} 的操作 {{action}}；您無需再採取任何行動。",
-  "assistant.escalationHandoff.approvalExhaustedNote": "無人批准針對發現 {{finding}} 的操作 {{action}}；核准時限已過。Klacksy 將於下一個公司日再次詢問。若您仍希望今日執行，請直接指派該發現。"
+  "assistant.escalationHandoff.approvalExhaustedNote": "無人批准針對發現 {{finding}} 的操作 {{action}}；核准時限已過。Klacksy 將於下一個公司日再次詢問。若您仍希望今日執行，請直接指派該發現。",
+  "assistant.scenarioName.autoPlan": "自動建立的計畫",
+  "assistant.scenarioName.autoHarmonizer": "自動建立的協調計畫",
+  "assistant.scenarioName.auto": "自動建立",
+  "assistant.scenarioName.plan": "計畫",
+  "assistant.scenarioName.harmonized": "已協調",
+  "assistant.scenarioName.llm": "AI 計畫",
+  "assistant.scenarioName.optimizer": "已最佳化",
+  "assistant.scenarioName.proposal": "提案",
+  "assistant.scenarioName.absenceCover": "缺勤代班"
 }

@@ -21,10 +21,12 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// delta blocked only by Block-mode compliance enforcement (never a structural error such as a
 /// collision or a missing mandatory qualification) is materialised anyway and logged as an override.
 /// </param>
+/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language</param>
 public record CoverAbsenceCommand(
     Guid ClientId,
     DateOnly Date,
     Guid GroupId,
     Guid AbsenceId,
     DateOnly? UntilDate = null,
-    bool OverrideBlock = false) : IRequest<CoverAbsenceOutcome>;
+    bool OverrideBlock = false,
+    string? Language = null) : IRequest<CoverAbsenceOutcome>;

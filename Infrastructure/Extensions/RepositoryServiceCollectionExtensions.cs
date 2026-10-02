@@ -145,6 +145,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IShiftGroupScopeReader, Klacks.Api.Infrastructure.Repositories.Schedules.ShiftGroupScopeReadRepository>();
+        services.AddScoped<IGroupAbsenceReadRepository, Klacks.Api.Infrastructure.Repositories.Schedules.GroupAbsenceReadRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();
         services.AddScoped<IContainerWorkChildrenReadRepository, ContainerWorkChildrenReadRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();

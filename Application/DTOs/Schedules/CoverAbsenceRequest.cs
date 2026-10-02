@@ -11,10 +11,12 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="AbsenceId">Absence type (sick/vacation/...)</param>
 /// <param name="UntilDate">Optional last day of the absence; null covers just Date</param>
 /// <param name="OverrideBlock">K1 supervisor override for a Block-mode compliance escalation (never a structural error)</param>
+/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language.</param>
 public sealed record CoverAbsenceRequest(
     Guid ClientId,
     DateOnly Date,
     Guid GroupId,
     Guid AbsenceId,
     DateOnly? UntilDate = null,
-    bool OverrideBlock = false);
+    bool OverrideBlock = false,
+    string? Language = null);

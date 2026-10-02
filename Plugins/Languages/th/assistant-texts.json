@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} ได้รับผิดชอบกะของ {{employee}} ในวันที่ {{date}} แล้ว",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "ขอบคุณ คุณได้อนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}} แล้ว Klacksy จะดำเนินการดังกล่าวในนามของคุณในอีกไม่ช้า และรายงานผลลัพธ์ให้คุณทราบ",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} ได้อนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}} แล้ว; ไม่มีสิ่งใดเหลือให้คุณดำเนินการอีก",
-  "assistant.escalationHandoff.approvalExhaustedNote": "ไม่มีผู้ใดอนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}}; ระยะเวลาที่กำหนดได้หมดลงแล้ว Klacksy จะสอบถามอีกครั้งในวันทำการถัดไป หากต้องการให้ดำเนินการในวันนี้ โปรดมอบหมายสิ่งที่ตรวจพบนี้โดยตรง"
+  "assistant.escalationHandoff.approvalExhaustedNote": "ไม่มีผู้ใดอนุมัติการดำเนินการ {{action}} สำหรับสิ่งที่ตรวจพบ {{finding}}; ระยะเวลาที่กำหนดได้หมดลงแล้ว Klacksy จะสอบถามอีกครั้งในวันทำการถัดไป หากต้องการให้ดำเนินการในวันนี้ โปรดมอบหมายสิ่งที่ตรวจพบนี้โดยตรง",
+  "assistant.scenarioName.autoPlan": "แผนงานที่สร้างอัตโนมัติ",
+  "assistant.scenarioName.autoHarmonizer": "แผนงานปรับสมดุลที่สร้างอัตโนมัติ",
+  "assistant.scenarioName.auto": "สร้างอัตโนมัติ",
+  "assistant.scenarioName.plan": "แผนงาน",
+  "assistant.scenarioName.harmonized": "ปรับสมดุลแล้ว",
+  "assistant.scenarioName.llm": "แผนงาน AI",
+  "assistant.scenarioName.optimizer": "ปรับให้เหมาะสมแล้ว",
+  "assistant.scenarioName.proposal": "ข้อเสนอ",
+  "assistant.scenarioName.absenceCover": "การทดแทนผู้ขาดงาน"
 }

@@ -20,9 +20,11 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// blocked only by Block-mode compliance enforcement (never a structural error such as a collision or
 /// a missing mandatory qualification) is written anyway and logged as an override.
 /// </param>
+/// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language</param>
 public record ProposePlanCommand(
     Guid? GroupId,
     DateOnly FromDate,
     DateOnly UntilDate,
     IReadOnlyList<PlacementInput> Placements,
-    bool OverrideBlock = false) : IRequest<ProposePlanOutcome>;
+    bool OverrideBlock = false,
+    string? Language = null) : IRequest<ProposePlanOutcome>;

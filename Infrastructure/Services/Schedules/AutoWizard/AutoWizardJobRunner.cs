@@ -345,7 +345,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         using var scope = _scopeFactory.CreateScope();
         var apply = scope.ServiceProvider.GetRequiredService<IWizardApplyService>();
         var (scenario, outcome) = await apply.ApplyAsScenarioAsync(
-            stageJobId, request.GroupId, overrideBlock: false, ct, AutoWizardScenarioNamePrefixes.Wizard);
+            stageJobId, request.GroupId, overrideBlock: false, ct, nameKind: ScenarioNameKind.AutoPlan, language: request.Language);
 
         if (outcome.SkippedPlacements.Count > 0)
         {
@@ -393,7 +393,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         // evaluateCompliance: false — the intermediate stage result has no reader for the report;
         // the accept gate protects the real plan when the final scenario is promoted.
         var (scenario, _, _) = await apply.ApplyAsScenarioAsync(
-            stageJobId, request.GroupId, ct, AutoWizardScenarioNamePrefixes.Harmonizer, captureRun: true, evaluateCompliance: false);
+            stageJobId, request.GroupId, ct, nameKind: ScenarioNameKind.AutoHarmonizer, language: request.Language, captureRun: true, evaluateCompliance: false);
 
         _logger.LogInformation(
             "AutoWizard {JobId} - stage 2 (Harmonizer) applied as scenario {ScenarioId} (token {ScenarioToken})",
@@ -488,7 +488,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             // evaluateCompliance: false — the AutoWizard completion payload carries the Wizard-1 stage
             // report; the final scenario is protected at the accept gate when the user promotes it.
             (scenario, _, _) = await apply.ApplyAsScenarioAsync(
-                stageJobId, request.GroupId, ct, AutoWizardScenarioNamePrefixes.HolisticHarmonizer, captureRun: true, evaluateCompliance: false);
+                stageJobId, request.GroupId, ct, nameKind: ScenarioNameKind.Auto, language: request.Language, captureRun: true, evaluateCompliance: false);
         }
         catch (InvalidOperationException ex)
         {

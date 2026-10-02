@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} telah mengambil alih syif {{employee}} pada {{date}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Terima kasih, anda telah meluluskan tindakan {{action}} untuk penemuan {{finding}}. Klacksy akan melaksanakannya tidak lama lagi di bawah hak anda dan melaporkan hasilnya kepada anda.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} telah meluluskan tindakan {{action}} untuk penemuan {{finding}}; tiada lagi yang perlu anda lakukan.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Tiada sesiapa meluluskan tindakan {{action}} untuk penemuan {{finding}}; tempoh kelulusan telah tamat. Klacksy akan bertanya semula pada hari bekerja seterusnya. Untuk melaksanakannya hari ini juga, serahkan penemuan tersebut secara langsung."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Tiada sesiapa meluluskan tindakan {{action}} untuk penemuan {{finding}}; tempoh kelulusan telah tamat. Klacksy akan bertanya semula pada hari bekerja seterusnya. Untuk melaksanakannya hari ini juga, serahkan penemuan tersebut secara langsung.",
+  "assistant.scenarioName.autoPlan": "Pelan dicipta secara automatik",
+  "assistant.scenarioName.autoHarmonizer": "Pelan diharmonikan dicipta secara automatik",
+  "assistant.scenarioName.auto": "Dicipta secara automatik",
+  "assistant.scenarioName.plan": "Pelan",
+  "assistant.scenarioName.harmonized": "Diharmonikan",
+  "assistant.scenarioName.llm": "Pelan AI",
+  "assistant.scenarioName.optimizer": "Dioptimumkan",
+  "assistant.scenarioName.proposal": "Cadangan",
+  "assistant.scenarioName.absenceCover": "Ganti ketidakhadiran"
 }

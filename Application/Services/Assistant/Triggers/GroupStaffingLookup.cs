@@ -21,7 +21,9 @@ public sealed class GroupStaffingLookup
 
     /// <summary>
     /// Marks every group holding clients or shifts plus all of its ancestors. The tree is a nested
-    /// set with several roots, so an ancestor is only an ancestor within the same Root.
+    /// set with several roots, so an ancestor is only an ancestor within the same tree. A root group may
+    /// carry Root = null (GroupTreeService.AddRootNodeAsync) or Root = its own id, so the tree key is
+    /// normalised to Root ?? Id - comparing the raw Root would never make a null-rooted root an ancestor.
     /// </summary>
     /// <param name="groups">All groups of the tenant.</param>
     /// <param name="groupIdsWithMembers">Ids of groups that directly hold clients or shifts.</param>
@@ -52,8 +54,10 @@ public sealed class GroupStaffingLookup
 
     private static bool IsAncestorOf(Group candidate, Group descendant)
     {
-        return candidate.Root == descendant.Root
+        return TreeKey(candidate) == TreeKey(descendant)
             && candidate.Lft < descendant.Lft
             && candidate.Rgt > descendant.Rgt;
     }
+
+    private static Guid TreeKey(Group group) => group.Root ?? group.Id;
 }

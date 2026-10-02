@@ -13,11 +13,13 @@
 /// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
 /// <param name="mediator">Dispatches BulkAddWorksCommand for the written placements</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the guardrail check</param>
+/// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -27,7 +29,6 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 
 public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanCommand, ProposePlanOutcome>
 {
-    private const string ScenarioNamePrefix = "Proposal";
     private const string ShiftNotFoundReason = "shift not found";
     private const int HoursPerDay = 24;
 
@@ -37,6 +38,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly ICompliancePartitionService _partitionService;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IScenarioNameGenerator _scenarioNameGenerator;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
@@ -44,7 +46,8 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         IAnalyseScenarioService scenarioService,
         ICompliancePartitionService partitionService,
         IMediator mediator,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IScenarioNameGenerator scenarioNameGenerator)
     {
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
@@ -52,6 +55,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         _partitionService = partitionService;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
+        _scenarioNameGenerator = scenarioNameGenerator;
     }
 
     public async Task<ProposePlanOutcome> Handle(ProposePlanCommand request, CancellationToken cancellationToken)
@@ -88,7 +92,8 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         }
 
         var token = Guid.NewGuid();
-        var name = await GenerateUniqueNameAsync(fromDate, untilDate, groupId, cancellationToken);
+        var name = await _scenarioNameGenerator.GenerateAsync(
+            ScenarioNameKind.Proposal, fromDate, untilDate, groupId, request.Language, cancellationToken);
         var scenario = new AnalyseScenario
         {
             Name = name,
@@ -168,29 +173,6 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             PeriodStart = fromDate,
             PeriodEnd = untilDate
         }), cancellationToken);
-    }
-
-    private async Task<string> GenerateUniqueNameAsync(
-        DateOnly from,
-        DateOnly until,
-        Guid? groupId,
-        CancellationToken cancellationToken)
-    {
-        var baseName = $"{ScenarioNamePrefix} {from:dd.MM.yy} – {until:dd.MM.yy}";
-        var existing = await _scenarioRepository.GetByGroupAsync(groupId, cancellationToken);
-        var existingNames = existing.Select(s => s.Name).ToHashSet();
-
-        if (!existingNames.Contains(baseName))
-        {
-            return baseName;
-        }
-
-        var counter = 2;
-        while (existingNames.Contains($"{baseName} ({counter})"))
-        {
-            counter++;
-        }
-        return $"{baseName} ({counter})";
     }
 
     private static decimal WorkHours(TimeOnly start, TimeOnly end)

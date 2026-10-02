@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} har tatt over skiftet {{date}} for {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Takk, du godkjente handlingen {{action}} for funnet {{finding}}. Klacksy vil utføre den snart under dine rettigheter og rapportere resultatet til deg.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} har godkjent handlingen {{action}} for funnet {{finding}}; det gjenstår ingenting for deg å gjøre.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen har godkjent handlingen {{action}} for funnet {{finding}}; tidsfristen er utløpt. Klacksy vil spørre igjen neste bedriftsdag. For å likevel få den utført i dag, deleger funnet direkte."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Ingen har godkjent handlingen {{action}} for funnet {{finding}}; tidsfristen er utløpt. Klacksy vil spørre igjen neste bedriftsdag. For å likevel få den utført i dag, deleger funnet direkte.",
+  "assistant.scenarioName.autoPlan": "Automatisk opprettet plan",
+  "assistant.scenarioName.autoHarmonizer": "Automatisk opprettet harmonisert plan",
+  "assistant.scenarioName.auto": "Automatisk opprettet",
+  "assistant.scenarioName.plan": "Plan",
+  "assistant.scenarioName.harmonized": "Harmonisert",
+  "assistant.scenarioName.llm": "KI-plan",
+  "assistant.scenarioName.optimizer": "Optimalisert",
+  "assistant.scenarioName.proposal": "Forslag",
+  "assistant.scenarioName.absenceCover": "Fraværsdekning"
 }

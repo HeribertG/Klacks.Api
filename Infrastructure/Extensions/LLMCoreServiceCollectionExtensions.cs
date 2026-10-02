@@ -221,7 +221,7 @@ internal static class LLMCoreServiceCollectionExtensions
     {
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INavigationGuidanceProvider, Klacks.Api.Domain.Services.Assistant.Guidance.ShiftNavigationGuidanceProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceService, Klacks.Api.Application.Services.Assistant.Triggers.PersistentAgentTriggerPreferenceService>();
-        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UnstaffedShift7dDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UnstaffedShiftPeriodDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.LockConflictDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.TargetHoursDriftDetector>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.ScenarioPendingDetector>();

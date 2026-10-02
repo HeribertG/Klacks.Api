@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} převzal směnu dne {{date}} za zaměstnance {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Děkujeme, schválili jste akci {{action}} pro zjištění {{finding}}. Klacksy ji brzy provede pod vašimi právy a výsledek vám oznámí.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} schválil akci {{action}} pro zjištění {{finding}}; není třeba, abyste něco dále dělali.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Nikdo neschválil akci {{action}} pro zjištění {{finding}}; časové okno vypršelo. Klacksy se zeptá znovu příští firemní den. Pokud chcete akci spustit ještě dnes, předejte zjištění přímo."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nikdo neschválil akci {{action}} pro zjištění {{finding}}; časové okno vypršelo. Klacksy se zeptá znovu příští firemní den. Pokud chcete akci spustit ještě dnes, předejte zjištění přímo.",
+  "assistant.scenarioName.autoPlan": "Automaticky vytvořený plán",
+  "assistant.scenarioName.autoHarmonizer": "Automaticky vytvořený harmonizovaný plán",
+  "assistant.scenarioName.auto": "Automaticky vytvořeno",
+  "assistant.scenarioName.plan": "Plán",
+  "assistant.scenarioName.harmonized": "Harmonizováno",
+  "assistant.scenarioName.llm": "Plán AI",
+  "assistant.scenarioName.optimizer": "Optimalizováno",
+  "assistant.scenarioName.proposal": "Návrh",
+  "assistant.scenarioName.absenceCover": "Zástup za nepřítomnost"
 }

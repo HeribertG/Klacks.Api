@@ -105,7 +105,8 @@ public sealed class HolisticHarmonizerController : BaseController
     {
         try
         {
-            var (scenario, createdIds, complianceReport) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
+            var (scenario, createdIds, complianceReport) = await _applyService.ApplyAsScenarioAsync(
+                request.JobId, request.GroupId, ct, language: request.Language);
             return Ok(new ApplyHolisticHarmonizerAsScenarioResponse(
                 scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds, complianceReport));
         }

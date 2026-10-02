@@ -115,6 +115,39 @@ public sealed class LocalizedTextCatalogue
     }
 
     /// <summary>
+    /// Resolves a text only when the language itself claims the key: the full tag first, then its base
+    /// language, and never the English fallback. Lets a caller fall back to a language of its own choosing
+    /// (for example the installation language) instead of to English.
+    /// </summary>
+    /// <param name="key">Catalogue key of the wanted sentence</param>
+    /// <param name="language">Language tag to resolve, possibly regional (de-CH), or null</param>
+    /// <param name="text">The resolved sentence, empty when the language does not claim the key</param>
+    public bool TryGetOwnText(string key, string? language, out string text)
+    {
+        text = string.Empty;
+        if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(language)
+            || !_coreTexts.TryGetValue(key, out var byLanguage))
+        {
+            return false;
+        }
+
+        var exact = ClaimedBy(byLanguage, key, language!, out text);
+        if (exact.HasValue)
+        {
+            return exact.Value;
+        }
+
+        var baseLanguage = LanguageTag.BaseLanguage(language);
+        if (string.IsNullOrWhiteSpace(baseLanguage)
+            || string.Equals(baseLanguage, language, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return ClaimedBy(byLanguage, key, baseLanguage!, out text) ?? false;
+    }
+
+    /// <summary>
     /// Every text one key currently resolves to in any language: the core table plus every configured pack.
     /// </summary>
     /// <param name="key">Catalogue key whose texts are wanted</param>

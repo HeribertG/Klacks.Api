@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}}님이 {{employee}}님을 위해 {{date}} 근무를 인수하셨습니다.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "감사합니다. 귀하는 {{finding}} 감지 유형에 대한 작업 {{action}}을 승인하셨습니다. Klacksy가 곧 귀하의 권한으로 이를 실행하고 결과를 보고드립니다.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}}님이 {{finding}} 감지 유형에 대한 작업 {{action}}을 승인하셨으므로, 귀하께서 추가로 하실 일은 없습니다.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "{{finding}} 감지 유형에 대한 작업 {{action}}을 승인한 사람이 없어 기한이 만료되었습니다. Klacksy는 다음 영업일에 다시 요청할 예정입니다. 오늘 중 실행을 원하시면 직접 해당 감지 유형을 위임해 주세요."
+  "assistant.escalationHandoff.approvalExhaustedNote": "{{finding}} 감지 유형에 대한 작업 {{action}}을 승인한 사람이 없어 기한이 만료되었습니다. Klacksy는 다음 영업일에 다시 요청할 예정입니다. 오늘 중 실행을 원하시면 직접 해당 감지 유형을 위임해 주세요.",
+  "assistant.scenarioName.autoPlan": "자동 생성 계획",
+  "assistant.scenarioName.autoHarmonizer": "자동 생성 조정 계획",
+  "assistant.scenarioName.auto": "자동 생성",
+  "assistant.scenarioName.plan": "계획",
+  "assistant.scenarioName.harmonized": "조정됨",
+  "assistant.scenarioName.llm": "AI 계획",
+  "assistant.scenarioName.optimizer": "최적화됨",
+  "assistant.scenarioName.proposal": "제안",
+  "assistant.scenarioName.absenceCover": "결근 대체"
 }

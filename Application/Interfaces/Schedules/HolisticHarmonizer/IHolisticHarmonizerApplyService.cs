@@ -1,18 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 
 /// <summary>
 /// Materialises a cached Holistic Harmonizer result into a new AnalyseScenario. Reuses the harmonizer
 /// pipeline (same shared <c>HarmonizerResultCache</c>, same Bitmap → Work conversion) but
-/// stamps the scenario with the "LLM" name prefix and the inherited <c>RunGroupId</c> so
+/// stamps the scenario with the localized AI-plan name prefix and the inherited <c>RunGroupId</c> so
 /// Wizard 1/2/3 outputs from the same test run are correlatable in the scenario list.
 /// </summary>
 public interface IHolisticHarmonizerApplyService
 {
-    /// <param name="namePrefixOverride">Overrides the default "LLM" name prefix; null keeps the default.</param>
+    /// <param name="nameKind">Selects the localized scenario name prefix; null keeps the service default (Llm).</param>
+    /// <param name="language">The planner's language for the name prefix; null falls back to the installation language.</param>
     /// <param name="captureRun">When true, writes a WizardRunCapture row for the (deferred) preference-learner.</param>
     /// <param name="evaluateCompliance">When true, evaluates the end-state compliance diff of the new scenario
     /// versus the real plan and returns it as the report.</param>
@@ -20,7 +22,8 @@ public interface IHolisticHarmonizerApplyService
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
-        string? namePrefixOverride = null,
+        ScenarioNameKind? nameKind = null,
+        string? language = null,
         bool captureRun = true,
         bool evaluateCompliance = true);
 }

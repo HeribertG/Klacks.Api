@@ -11,7 +11,7 @@
 /// the planners who may see the container.
 ///
 /// Emission is capped at MaxFindingsPerTick events per tick (this scan has no time window, unlike
-/// UnstaffedShift7dDetector), and which candidates fill that cap ROTATES: AgentConditionRotationPolicy
+/// UnstaffedShiftPeriodDetector), and which candidates fill that cap ROTATES: AgentConditionRotationPolicy
 /// puts the containers the ledger has never opened a row for first, and behind them the open rows least
 /// recently observed. A plain oldest-FromDate-first cap cannot do this - the sort key is constant across
 /// bulk-created containers (measured in the reference installation: 260 candidates, every one of them

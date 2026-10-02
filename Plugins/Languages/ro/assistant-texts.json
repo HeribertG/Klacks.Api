@@ -28,5 +28,14 @@
   "assistant.escalationHandoff.handoffQuietNote": "{{responder}} a preluat tura din {{date}} pentru {{employee}}.",
   "assistant.escalationHandoff.approvalAcknowledgedConfirmation": "Mulțumim, ai aprobat acțiunea {{action}} pentru constatarea {{finding}}. Klacksy o va executa în curând în baza drepturilor tale și îți va raporta rezultatul.",
   "assistant.escalationHandoff.approvalHandoffQuietNote": "{{responder}} a aprobat acțiunea {{action}} pentru constatarea {{finding}}; nu mai ai nimic de făcut.",
-  "assistant.escalationHandoff.approvalExhaustedNote": "Nimeni nu a aprobat acțiunea {{action}} pentru constatarea {{finding}}; intervalul a expirat. Klacksy va întreba din nou în următoarea zi lucrătoare. Pentru a o executa totuși astăzi, delegă direct constatarea."
+  "assistant.escalationHandoff.approvalExhaustedNote": "Nimeni nu a aprobat acțiunea {{action}} pentru constatarea {{finding}}; intervalul a expirat. Klacksy va întreba din nou în următoarea zi lucrătoare. Pentru a o executa totuși astăzi, delegă direct constatarea.",
+  "assistant.scenarioName.autoPlan": "Plan creat automat",
+  "assistant.scenarioName.autoHarmonizer": "Plan armonizat creat automat",
+  "assistant.scenarioName.auto": "Creat automat",
+  "assistant.scenarioName.plan": "Plan",
+  "assistant.scenarioName.harmonized": "Armonizat",
+  "assistant.scenarioName.llm": "Plan IA",
+  "assistant.scenarioName.optimizer": "Optimizat",
+  "assistant.scenarioName.proposal": "Propunere",
+  "assistant.scenarioName.absenceCover": "Acoperire absență"
 }
