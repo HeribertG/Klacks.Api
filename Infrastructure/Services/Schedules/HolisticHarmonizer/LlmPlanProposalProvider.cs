@@ -25,24 +25,8 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
     private const int ResponsePreviewLength = 120;
     private static readonly TimeSpan ProposalTimeout = TimeSpan.FromSeconds(60);
 
-    private const int PingMaxTokens = 50;
     private static readonly TimeSpan PingTimeout = TimeSpan.FromSeconds(30);
-    private const string PingSystemPrompt =
-        "You are a JSON-only test endpoint. Reply with exactly: {\"ping\":\"pong\"}\n" +
-        "No prose, no markdown, no commentary, no extra fields.";
-    private const string PingUserMessage = "Reply with the JSON object as instructed.";
-
-    private const int CapabilityMaxTokens = 200;
     private static readonly TimeSpan CapabilityTimeout = TimeSpan.FromSeconds(90);
-    private const string CapabilitySystemPrompt =
-        "You are a deterministic vision-capability verifier for the Klacks Holistic Harmonizer (Wizard 3).\n" +
-        "Wizard 3 mutates a bitmap-rendered schedule, so the host accepts only models that genuinely process attached images.\n" +
-        "You receive a small PNG containing exactly one short alphabetic token painted in large bold black letters on a yellow box.\n" +
-        "Reply with ONE JSON object and nothing else: {\"token\":\"...\"}.\n" +
-        "No prose, no markdown, no code fences, no commentary.\n" +
-        "If you cannot see or process the image, reply with {\"token\":\"\"}.";
-    private const string CapabilityUserMessage =
-        "Read the token printed in the attached image and reply with the JSON object only.";
 
     private static readonly char[] CapabilityTokenAlphabet =
         { 'E', 'F', 'H', 'K', 'L', 'N', 'P', 'T', 'X', 'Z' };
@@ -68,20 +52,7 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, error ?? "LLM provider unavailable.");
         }
 
-        var pingRequest = new LLMProviderRequest
-        {
-            Message = PingUserMessage,
-            SystemPrompt = PingSystemPrompt,
-            ModelId = model.ApiModelId,
-            ConversationHistory = [],
-            AvailableFunctions = [],
-            Temperature = 0.0,
-            MaxTokens = PingMaxTokens,
-            SupportedParameters = model.SupportedParameters,
-            CostPerInputToken = model.CostPerInputToken,
-            CostPerOutputToken = model.CostPerOutputToken,
-            Stream = false,
-        };
+        var pingRequest = HolisticHarmonizerProbeRequests.Ping(model);
 
         LLMProviderResponse response;
         try
@@ -106,19 +77,15 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Ping failed: {ex.Message}");
         }
 
-        if (!response.Success)
+        var verdict = PlanProposalPingEvaluator.Evaluate(response);
+        if (verdict.OutputBudgetSpentOnThinking)
         {
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, response.Error ?? "Provider rejected the ping.");
+            _logger.LogWarning(
+                "Holistic Harmonizer ping for {ModelId} was cut off after {ReasoningTokens} reasoning tokens; the model is reachable, continuing",
+                modelId, response.ReasoningTokens);
         }
 
-        var content = response.Content ?? string.Empty;
-        if (!ContainsPongJson(content))
-        {
-            var preview = content.Length > ResponsePreviewLength ? content[..ResponsePreviewLength] + "..." : content;
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Model returned unexpected ping response: {preview}");
-        }
-
-        return new PlanProposalPingResult(true, stopwatch.ElapsedMilliseconds, null);
+        return new PlanProposalPingResult(verdict.IsHealthy, stopwatch.ElapsedMilliseconds, verdict.Error);
     }
 
     private static readonly TimeSpan TransientRetryDelay = TimeSpan.FromSeconds(2);
@@ -197,21 +164,7 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability PNG generation failed: {ex.Message}");
         }
 
-        var capabilityRequest = new LLMProviderRequest
-        {
-            Message = CapabilityUserMessage,
-            SystemPrompt = CapabilitySystemPrompt,
-            ModelId = model.ApiModelId,
-            ConversationHistory = [],
-            AvailableFunctions = [],
-            Temperature = 0.0,
-            MaxTokens = CapabilityMaxTokens,
-            SupportedParameters = model.SupportedParameters,
-            CostPerInputToken = model.CostPerInputToken,
-            CostPerOutputToken = model.CostPerOutputToken,
-            Stream = false,
-            ImagePng = capabilityPng,
-        };
+        var capabilityRequest = HolisticHarmonizerProbeRequests.Capability(model, capabilityPng);
 
         using var capabilityCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         capabilityCts.CancelAfter(CapabilityTimeout);
@@ -336,26 +289,6 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             }
         }
         return new string(buffer[..length]);
-    }
-
-    private static bool ContainsPongJson(string content)
-    {
-        var json = HarmonyJsonParser.ExtractJsonObject(content);
-        if (json is null)
-        {
-            return false;
-        }
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            return doc.RootElement.TryGetProperty("ping", out var pingEl)
-                && pingEl.ValueKind == JsonValueKind.String
-                && string.Equals(pingEl.GetString(), "pong", StringComparison.OrdinalIgnoreCase);
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
     }
 
     public async Task<PlanProposalResponse> ProposeAsync(PlanProposalRequest request, CancellationToken cancellationToken)

@@ -15,4 +15,15 @@ public class LLMProviderResponse
     /// case: reasoning is never surfaced as the answer. Diagnostic only.
     /// </summary>
     public bool ReasoningWithoutContent { get; set; }
+
+    /// <summary>
+    /// True when the provider stopped because the output-token limit was reached, so the content may be
+    /// empty or cut off. Set by providers that report a finish reason; false otherwise.
+    /// </summary>
+    public bool OutputTruncated { get; set; }
+
+    /// <summary>
+    /// Tokens the model spent on internal reasoning, when the provider reports them; 0 otherwise.
+    /// </summary>
+    public int ReasoningTokens { get; set; }
 }

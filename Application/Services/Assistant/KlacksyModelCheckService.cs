@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Diagnostics;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -21,7 +22,6 @@ namespace Klacks.Api.Application.Services.Assistant;
 /// </summary>
 public sealed class KlacksyModelCheckService
 {
-    private const int ProbeMaxTokens = 256;
     private const int MinContextWindowForKlacksy = 32000;
     private const string EvalGoldsetName = "turn-selection-v1";
     private const decimal EvalPreferenceThreshold = 0.7m;
@@ -168,7 +168,7 @@ public sealed class KlacksyModelCheckService
             ConversationHistory = [],
             AvailableFunctions = [BuildProbeFunction()],
             Temperature = 0.0,
-            MaxTokens = ProbeMaxTokens,
+            MaxTokens = ModelProbeConstants.ThinkingHeadroomMaxTokens,
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,

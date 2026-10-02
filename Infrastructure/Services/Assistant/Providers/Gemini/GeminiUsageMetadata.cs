@@ -9,4 +9,6 @@ public class GeminiUsageMetadata
     public int CandidatesTokenCount { get; set; }
 
     public int TotalTokenCount { get; set; }
+
+    public int ThoughtsTokenCount { get; set; }
 }
