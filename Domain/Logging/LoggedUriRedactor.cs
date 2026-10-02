@@ -1,10 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using System.Text.RegularExpressions;
-using Klacks.Api.Domain.Constants;
-
-namespace Klacks.Api.Domain.Logging;
-
 /// <summary>
 /// Turns a request URI into the form that may be written to a log: the query string is replaced by
 /// "?*" (API keys such as Google's "key=" or WeChat's "access_token=" live there) and a Telegram style
@@ -12,6 +7,11 @@ namespace Klacks.Api.Domain.Logging;
 /// Credentials in the authority ("user:password@") are masked too.
 /// CR/LF are stripped as well, so the result is also safe against log forging.
 /// </summary>
+using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
+
+namespace Klacks.Api.Domain.Logging;
+
 public static partial class LoggedUriRedactor
 {
     /// <summary>

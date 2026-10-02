@@ -1,18 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using Klacks.Api.Domain.Logging;
-using Microsoft.Extensions.Http.Logging;
-
-namespace Klacks.Api.Infrastructure.Http;
-
 /// <summary>
 /// Replaces the default IHttpClientFactory request logging for every HttpClient of the host, plugins
 /// included. The framework logger only hides the query string; a credential carried in the path (the
 /// Telegram bot token in "/bot&lt;token&gt;/") reached the log at Information level. Every URI and error text
 /// written here goes through LoggedUriRedactor first. Nothing is logged above Information, like the
 /// framework logger, so production (Default=Warning) stays as quiet as before.
+/// It supersedes the former per-client "System.Net.Http.HttpClient.*" dev filters (Telegram path token,
+/// Threema gateway secret in the query): those categories are no longer written.
 /// </summary>
 /// <param name="logger">Logger the redacted request lines are written to</param>
+using Klacks.Api.Domain.Logging;
+using Microsoft.Extensions.Http.Logging;
+
+namespace Klacks.Api.Infrastructure.Http;
+
 public sealed class RedactingHttpClientLogger : IHttpClientLogger
 {
     private readonly ILogger<RedactingHttpClientLogger> _logger;
