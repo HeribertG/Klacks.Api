@@ -23,6 +23,7 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="Groups">Planned or created groups, top-down.</param>
 /// <param name="UnassignableSample">A truncated sample of the unassignable clients; see UnassignableCount for the true total.</param>
 /// <param name="Warnings">Non-fatal issues worth surfacing, e.g. a planned group name that already exists elsewhere in the tree.</param>
+/// <param name="PlaceAttachments">At level cluster_municipality: the small places of every city cluster and the group each joined (a municipality sub-cluster or the city cluster itself); empty otherwise.</param>
 /// <param name="UsersKeepingFullVisibilityCount">Only non-zero when this run introduces the very first group of the installation: how many non-admin users automatically keep visibility on the new root group(s), so nothing changes for them until an administrator restricts visibility deliberately.</param>
 public sealed record PartitionClientsByAddressResult(
     bool Applied,
@@ -37,4 +38,5 @@ public sealed record PartitionClientsByAddressResult(
     IReadOnlyList<PartitionGroupSummary> Groups,
     IReadOnlyList<UnassignablePartitionClient> UnassignableSample,
     IReadOnlyList<string> Warnings,
-    int UsersKeepingFullVisibilityCount);
+    int UsersKeepingFullVisibilityCount,
+    IReadOnlyList<PartitionPlaceAttachment>? PlaceAttachments = null);

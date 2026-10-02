@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["grup", "grupare", "grupa"],
-  "locationOrAssignmentTokens": ["adres", "regiun", "canton", "loca", "apropi", "geograf", "atribu", "aloca", "distribu"]
+  "locationOrAssignmentTokens": ["adres", "regiun", "canton", "loca", "apropi", "geograf", "atribu", "aloca", "distribu"],
+  "qualificationTokens": ["calific"]
 }

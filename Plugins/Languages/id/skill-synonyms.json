@@ -858,7 +858,6 @@
   "evaluate_grouping_by_qualification": [
     "kualifikasi mana yang perlu grup sendiri",
     "apakah grup layak dibuat untuk kualifikasi ini",
-    "buat grup berdasarkan kualifikasi",
     "di mana sebaiknya grup kualifikasi baru dibuat"
   ],
   "evaluate_location_group_candidates": [
@@ -2242,6 +2241,12 @@
     "buat grup wilayah untuk klien dan staf",
     "susun hirarki grup dari alamat",
     "kelompokkan alamat jadi beberapa grup kota"
+  ],
+  "partition_clients_by_qualification": [
+    "buat grup berdasarkan kualifikasi",
+    "kelompokkan karyawan menurut kualifikasi",
+    "buat satu grup untuk setiap kualifikasi",
+    "bagi staf ke dalam grup kualifikasi"
   ],
   "place_work": [
     "tugaskan yasmine ke shift pagi tanggal 15 mei",

@@ -851,7 +851,6 @@
   "evaluate_grouping_by_qualification": [
     "mitkä pätevyydet tarvitsevat oman ryhmän",
     "kannattaako tälle pätevyydelle tehdä ryhmä",
-    "luo ryhmiä pätevyyden mukaan",
     "mihin uudet pätevyysryhmät pitäisi luoda"
   ],
   "evaluate_location_group_candidates": [
@@ -2280,6 +2279,12 @@
     "ryhmittele työntekijät ja asiakkaat osoitteen mukaan",
     "muodosta ryhmähierarkia osoitteista",
     "klusteroi osoitteet ryhmiin"
+  ],
+  "partition_clients_by_qualification": [
+    "luo ryhmiä pätevyyden mukaan",
+    "ryhmittele työntekijät pätevyyden mukaan",
+    "luo oma ryhmä jokaiselle pätevyydelle",
+    "jaa henkilöstö pätevyysryhmiin"
   ],
   "place_work": [
     "sijoita yasmine aamuvuoroon 15.5.",

@@ -345,6 +345,7 @@
   "open_schedule": "Otwórz harmonogram dyżurów",
   "optimize_llm_models_for_klacksy": "Optymalizuj modele LLM dla Klacksy",
   "partition_clients_by_address": "Utworzenie drzewa grup lokalizacji na podstawie adresów",
+  "partition_clients_by_qualification": "Utwórz grupy według kwalifikacji",
   "place_work": "Zaplanować zadanie",
   "preview_company_rule": "Pokaż podgląd szkicu reguły firmowej",
   "preview_planning_profile": "Podejrzyj wersję roboczą profilu planowania",

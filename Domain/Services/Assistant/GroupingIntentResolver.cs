@@ -32,6 +32,11 @@
 /// is exactly the grouping intent this resolver detects and the skill otherwise loses its place at the
 /// provider cap. It requires CanEditClients/CanCreateGroups/CanViewGroups and is dropped by the
 /// permission filter for users without them.
+/// The set also includes partition_clients_by_qualification (one group per qualification, holders join every
+/// group of a qualification they hold). A qualification word (stem "qualifi" in de/en/fr/it, plugin stems from
+/// the qualificationTokens of grouping-intent.json) combined with a grouping token triggers the same set, unless
+/// the message is a question (any of '?', '？', '؟' or the Greek ';'), so "Gruppiere die Mitarbeiter nach Qualifikation" offers the bulk builder while
+/// "Welche Qualifikationen hat die Gruppe Bern?" does not widen the tool set.
 /// The set also includes assign_shifts_to_city_groups (moves plannable shifts and sealed orders into the
 /// city group of their customer's address). A request to spread shifts over towns is also a grouping
 /// intent, but it often names no group word at all ("shifts that are not attached to a town or
@@ -45,12 +50,16 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public static class GroupingIntentResolver
 {
     private static readonly string[] GroupingTokens =
-        ["gruppier", "gruppen", "gruppe", "group", "gruppo"];
+        ["gruppier", "gruppen", "gruppe", "group", "gruppo", "gruppi", "raggrupp"];
 
     private static readonly string[] LocationOrAssignmentTokens =
         ["adresse", "address", "region", "kanton", "canton", "ort", "standort", "location",
          "nächst", "naechst", "nearest", "geograf", "geograph", "geographic",
          "zuordn", "zuteil", "zuweis", "assign", "verteil"];
+
+    private static readonly string[] QualificationTokens = ["qualifi"];
+
+    private static readonly char[] GreekQuestionMarks = [';', ';'];
 
     private static readonly string[] ShiftTokens =
         ["dienst", "schicht", "shift", "service", "turno", "turni", "servizi"];
@@ -65,7 +74,7 @@ public static class GroupingIntentResolver
          "affect", "ajout", "répart", "repart", "assegn", "aggiung", "distribu"];
 
     private static readonly string[] GuaranteedGroupingSkills =
-        ["propose_grouping", "apply_grouping", "partition_clients_by_address",
+        ["propose_grouping", "apply_grouping", "partition_clients_by_address", "partition_clients_by_qualification",
          "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
          "geocode_location_groups", "set_group_location", "check_group_geocoding_status",
          "assign_shifts_to_city_groups"];
@@ -73,17 +82,25 @@ public static class GroupingIntentResolver
     private static readonly object _configureLock = new();
     private static string[] _pluginGroupingTokens = [];
     private static string[] _pluginLocationOrAssignmentTokens = [];
+    private static string[] _pluginQualificationTokens = [];
 
     /// <summary>
     /// Extends detection with plugin language keywords. Called once at startup by
     /// GroupingIntentPluginLoader after reading grouping-intent.json from each language plugin.
     /// </summary>
-    public static void Configure(IEnumerable<string> groupingTokens, IEnumerable<string> locationOrAssignmentTokens)
+    /// <param name="groupingTokens">Plugin words that mean "group"</param>
+    /// <param name="locationOrAssignmentTokens">Plugin words for addresses, regions, nearness or assignment</param>
+    /// <param name="qualificationTokens">Plugin words (stems) for "qualification"; optional</param>
+    public static void Configure(
+        IEnumerable<string> groupingTokens,
+        IEnumerable<string> locationOrAssignmentTokens,
+        IEnumerable<string>? qualificationTokens = null)
     {
         lock (_configureLock)
         {
             _pluginGroupingTokens = PluginPhraseMatcher.Merge(_pluginGroupingTokens, groupingTokens);
             _pluginLocationOrAssignmentTokens = PluginPhraseMatcher.Merge(_pluginLocationOrAssignmentTokens, locationOrAssignmentTokens);
+            _pluginQualificationTokens = PluginPhraseMatcher.Merge(_pluginQualificationTokens, qualificationTokens ?? []);
         }
     }
 
@@ -101,7 +118,8 @@ public static class GroupingIntentResolver
         var hasSignal = LocationOrAssignmentTokens.Any(t => lower.Contains(t))
             || _pluginLocationOrAssignmentTokens.Any(t => lower.Contains(t))
             || (lower.Contains("ordne") && lower.Contains("zu"))
-            || AffirmationDetector.IsAffirmation(message);
+            || AffirmationDetector.IsAffirmation(message)
+            || IsQualificationGroupingRequest(lower);
 
         if (hasGrouping && hasSignal)
         {
@@ -111,9 +129,18 @@ public static class GroupingIntentResolver
         return IsShiftToTownRequest(lower) ? GuaranteedGroupingSkills : [];
     }
 
+    private static bool IsQualificationGroupingRequest(string lower)
+    {
+        return !IsQuestion(lower)
+            && (QualificationTokens.Any(t => lower.Contains(t)) || _pluginQualificationTokens.Any(t => lower.Contains(t)));
+    }
+
+    private static bool IsQuestion(string lower) =>
+        lower.IndexOfAny(RecipeReplyGuard.QuestionMarks) >= 0 || lower.IndexOfAny(GreekQuestionMarks) >= 0;
+
     private static bool IsShiftToTownRequest(string lower)
     {
-        return !lower.Contains('?')
+        return !IsQuestion(lower)
             && ShiftTokens.Any(t => lower.Contains(t))
             && TownTokens.Any(t => lower.Contains(t))
             && PlacementTokens.Any(t => lower.Contains(t));

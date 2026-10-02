@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["nhóm", "phân nhóm", "gom nhóm"],
-  "locationOrAssignmentTokens": ["địa chỉ", "vị trí", "khu vực", "tỉnh", "gần nhất", "địa lý", "phân công", "chỉ định", "phân bổ"]
+  "locationOrAssignmentTokens": ["địa chỉ", "vị trí", "khu vực", "tỉnh", "gần nhất", "địa lý", "phân công", "chỉ định", "phân bổ"],
+  "qualificationTokens": ["chuyên môn", "trình độ"]
 }

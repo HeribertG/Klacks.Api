@@ -870,7 +870,6 @@
   "evaluate_grouping_by_qualification": [
     "welke kwalificaties hebben een eigen groep nodig",
     "is een groep de moeite waard voor deze kwalificatie",
-    "maak groepen op basis van kwalificatie",
     "waar moeten nieuwe kwalificatiegroepen worden aangemaakt"
   ],
   "evaluate_location_group_candidates": [
@@ -2301,6 +2300,12 @@
     "maak een groepenstructuur van regio tot stad",
     "verdeel iedereen in clusters per locatie",
     "er bestaan nog geen groepen, verdeel de adressen maar"
+  ],
+  "partition_clients_by_qualification": [
+    "maak groepen op basis van kwalificatie",
+    "groepeer de medewerkers per kwalificatie",
+    "maak een groep voor elke kwalificatie",
+    "deel het personeel in kwalificatiegroepen in"
   ],
   "place_work": [
     "zet yasmine op 15 mei vroege dienst",

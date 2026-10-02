@@ -345,6 +345,7 @@
   "open_schedule": "Avaa työvuorolista",
   "optimize_llm_models_for_klacksy": "LLM-mallien optimointi Klacksyn tarpeisiin",
   "partition_clients_by_address": "Luo sijaintiryhmäpuu osoitteiden perusteella",
+  "partition_clients_by_qualification": "Luo ryhmät pätevyyksien mukaan",
   "place_work": "Suunnittele käyttö",
   "preview_company_rule": "Näytä yrityssääntöjen luonnos esikatseluna",
   "preview_planning_profile": "Tarkastele suunnitteluprofiilin luonnosta esikatseluna",

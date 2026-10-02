@@ -345,6 +345,7 @@
   "open_schedule": "เปิดตารางงาน",
   "optimize_llm_models_for_klacksy": "ปรับแต่งโมเดล LLM สำหรับ Klacksy",
   "partition_clients_by_address": "สร้างโครงสร้างกลุ่มตามสถานที่จากที่อยู่",
+  "partition_clients_by_qualification": "สร้างกลุ่มตามคุณสมบัติ",
   "place_work": "จัดวางงานลงตาราง",
   "preview_company_rule": "ดูตัวอย่างร่างกฎบริษัท",
   "preview_planning_profile": "ดูตัวอย่างร่างโปรไฟล์การวางแผน",

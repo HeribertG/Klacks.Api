@@ -345,6 +345,7 @@
   "open_schedule": "Öppna schemat",
   "optimize_llm_models_for_klacksy": "Optimera LLM-modeller för Klacksy",
   "partition_clients_by_address": "Bygg ett gruppträd för platser utifrån adresser",
+  "partition_clients_by_qualification": "Skapa grupper efter kvalifikation",
   "place_work": "Lägg in ett arbetsuppdrag",
   "preview_company_rule": "Förhandsgranska företagsregelutkast",
   "preview_planning_profile": "Förhandsgranska planeringsprofilutkast",

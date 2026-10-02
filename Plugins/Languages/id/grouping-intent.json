@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["grup", "kelomp"],
-  "locationOrAssignmentTokens": ["alamat", "lokasi", "kanton", "dekat", "geograf", "etapkan", "assign", "sebar"]
+  "locationOrAssignmentTokens": ["alamat", "lokasi", "kanton", "dekat", "geograf", "etapkan", "assign", "sebar"],
+  "qualificationTokens": ["kualifik"]
 }

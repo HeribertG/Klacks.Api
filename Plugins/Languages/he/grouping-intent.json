@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["קבוצ", "צוות"],
-  "locationOrAssignmentTokens": ["כתוב", "מיקו", "קנטו", "קרוב", "סמוכ", "אוגרפ", "שיוך", "שייך", "הקצא"]
+  "locationOrAssignmentTokens": ["כתוב", "מיקו", "קנטו", "קרוב", "סמוכ", "אוגרפ", "שיוך", "שייך", "הקצא"],
+  "qualificationTokens": ["הסמכ", "כישור"]
 }

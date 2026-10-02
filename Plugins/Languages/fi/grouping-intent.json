@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["ryhm", "tiimi"],
-  "locationOrAssignmentTokens": ["osoit", "sija", "kanton", "lähi", "maantiet", "kohdist"]
+  "locationOrAssignmentTokens": ["osoit", "sija", "kanton", "lähi", "maantiet", "kohdist"],
+  "qualificationTokens": ["pätevyy", "patevyy"]
 }

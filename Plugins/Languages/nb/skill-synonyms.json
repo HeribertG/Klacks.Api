@@ -850,7 +850,6 @@
   "evaluate_grouping_by_qualification": [
     "hvilke kvalifikasjoner trenger sin egen gruppe",
     "er en gruppe verdt det for denne kvalifikasjonen",
-    "opprett grupper etter kvalifikasjon",
     "hvor bør nye kvalifikasjonsgrupper opprettes"
   ],
   "evaluate_location_group_candidates": [
@@ -2248,6 +2247,12 @@
     "lag grupper for kunder og ansatte ut fra hvor de bor",
     "klustre adresser til grupper",
     "sett opp grupper fra adressene til alle ansatte og kunder"
+  ],
+  "partition_clients_by_qualification": [
+    "opprett grupper etter kvalifikasjon",
+    "grupper de ansatte etter kvalifikasjon",
+    "opprett en gruppe for hver kvalifikasjon",
+    "fordel de ansatte i kvalifikasjonsgrupper"
   ],
   "place_work": [
     "sette yasmine på nattevakt 12. mai",

@@ -878,7 +878,6 @@
   "evaluate_grouping_by_qualification": [
     "które kwalifikacje potrzebują własnej grupy",
     "czy warto utworzyć grupę dla tej kwalifikacji",
-    "twórz grupy według kwalifikacji",
     "gdzie powinny powstać nowe grupy kwalifikacji"
   ],
   "evaluate_location_group_candidates": [
@@ -2317,6 +2316,12 @@
     "zbuduj drzewo grup lokalizacyjnych z adresów",
     "pogrupuj klientów i personel według lokalizacji",
     "utwórz grupy dla klientów i pracowników na podstawie adresów"
+  ],
+  "partition_clients_by_qualification": [
+    "twórz grupy według kwalifikacji",
+    "pogrupuj pracowników według kwalifikacji",
+    "utwórz grupę dla każdej kwalifikacji",
+    "przydziel personel do grup kwalifikacji"
   ],
   "place_work": [
     "przypisz pracownika do zmiany",

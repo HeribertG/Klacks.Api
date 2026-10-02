@@ -345,6 +345,7 @@
   "open_schedule": "Abrir o plano de serviço",
   "optimize_llm_models_for_klacksy": "Otimizar modelos de LLM para o Klacksy",
   "partition_clients_by_address": "Criar a árvore de grupos de localizações a partir de endereços",
+  "partition_clients_by_qualification": "Criar grupos por qualificação",
   "place_work": "Planear a intervenção",
   "preview_company_rule": "Pré-visualizar rascunho da regra da empresa",
   "preview_planning_profile": "Pré-visualizar rascunho do perfil de planeamento",

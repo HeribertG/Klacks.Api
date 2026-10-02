@@ -12,4 +12,11 @@ public interface IGroupVisibilityRepository : IBaseRepository<GroupVisibility>
     Task<IEnumerable<GroupVisibility>> GetGroupVisibilityList();
 
     Task SetGroupVisibilityList(List<GroupVisibility> list);
+
+    /// <summary>
+    /// Counts the non-admin users holding an explicit visibility entry on the given group (read-only).
+    /// </summary>
+    /// <param name="groupId">The group whose explicit visibility entries are counted</param>
+    /// <param name="cancellationToken">Cancels the read</param>
+    Task<int> CountNonAdminUsersSeeingGroupAsync(Guid groupId, CancellationToken cancellationToken = default);
 }

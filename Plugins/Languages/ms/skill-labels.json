@@ -345,6 +345,7 @@
   "open_schedule": "Buka jadual kerja",
   "optimize_llm_models_for_klacksy": "Optimumkan model LLM untuk Klacksy",
   "partition_clients_by_address": "Bina pokok kumpulan lokasi daripada alamat",
+  "partition_clients_by_qualification": "Cipta kumpulan mengikut kelayakan",
   "place_work": "Jadualkan tugasan kerja",
   "preview_company_rule": "Pratonton draf peraturan syarikat",
   "preview_planning_profile": "Pratonton draf profil perancangan",

@@ -345,6 +345,7 @@
   "open_schedule": "Otevřít rozpis služeb",
   "optimize_llm_models_for_klacksy": "Optimalizace modelů LLM pro Klacksyho",
   "partition_clients_by_address": "Vytvoření stromu skupin poboček na základě adres",
+  "partition_clients_by_qualification": "Vytvořit skupiny podle kvalifikace",
   "place_work": "Naplánovat nasazení",
   "preview_company_rule": "Zobrazit náhled návrhu firemních pravidel",
   "preview_planning_profile": "Zobrazit náhled návrhu profilu plánu",

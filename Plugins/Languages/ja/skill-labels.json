@@ -345,6 +345,7 @@
   "open_schedule": "シフト表を開く",
   "optimize_llm_models_for_klacksy": "Klacksy用LLMモデルを最適化",
   "partition_clients_by_address": "住所から拠点グループツリーを作成",
+  "partition_clients_by_qualification": "資格ごとにグループを作成",
   "place_work": "勤務を割り当て",
   "preview_company_rule": "会社ルールの下書きをプレビュー",
   "preview_planning_profile": "計画プロファイルの下書きをプレビュー",

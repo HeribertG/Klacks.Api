@@ -345,6 +345,7 @@
   "open_schedule": "Åbn vagtplanen",
   "optimize_llm_models_for_klacksy": "Optimering af LLM-modeller til Klacksy",
   "partition_clients_by_address": "Oprette en lokationsgruppestruktur ud fra adresser",
+  "partition_clients_by_qualification": "Opret grupper efter kvalifikation",
   "place_work": "Planlæg indsatsen",
   "preview_company_rule": "Vis udkast til virksomhedsregler som forhåndsvisning",
   "preview_planning_profile": "Se udkast til planlægningsprofil som forhåndsvisning",

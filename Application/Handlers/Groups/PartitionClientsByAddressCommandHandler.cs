@@ -105,7 +105,7 @@ public sealed class PartitionClientsByAddressCommandHandler
         var existingGroups = (await _groupRepository.List()).ToList();
         var usersKeepingFullVisibility =
             await _visibilityPreservation.CountUsersKeepingFullVisibilityAsync(cancellationToken);
-        var context = await BuildContextAsync(clients, request.ClusterSharePercent, cancellationToken);
+        var context = await BuildContextAsync(clients, request.ClusterSharePercent, request.SubClusterSharePercent, cancellationToken);
 
         var plan = GroupPartitionPlanner.Plan(
             clients, existingGroups, request.Level, request.RootGroupId, request.IncludeAlreadyGrouped, context);
@@ -213,7 +213,7 @@ public sealed class PartitionClientsByAddressCommandHandler
     }
 
     private async Task<GroupPartitionContext> BuildContextAsync(
-        IReadOnlyList<Client> clients, int clusterSharePercent, CancellationToken cancellationToken)
+        IReadOnlyList<Client> clients, int clusterSharePercent, int subClusterSharePercent, CancellationToken cancellationToken)
     {
         var defaultCountry = (await _countryResolver.GetDefaultAsync(cancellationToken))?.Abbreviation?.Trim().ToUpperInvariant()
             ?? string.Empty;
@@ -253,7 +253,7 @@ public sealed class PartitionClientsByAddressCommandHandler
             }
         }
 
-        return new GroupPartitionContext(defaultCountry, regionByCountry, stateNames, clusterSharePercent);
+        return new GroupPartitionContext(defaultCountry, regionByCountry, stateNames, clusterSharePercent, subClusterSharePercent);
     }
 
     private async Task<IReadOnlyList<string>> ResolveStateNameLanguagesAsync()
@@ -288,7 +288,8 @@ public sealed class PartitionClientsByAddressCommandHandler
             Groups: BuildSummaries(groups, request.RootGroupName),
             UnassignableSample: plan.Unassignable.Take(MaxUnassignableSample).ToList(),
             Warnings: plan.Warnings,
-            UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount);
+            UsersKeepingFullVisibilityCount: usersKeepingFullVisibilityCount,
+            PlaceAttachments: plan.PlaceAttachments ?? []);
 
     private static List<PartitionGroupSummary> BuildSummaries(
         IReadOnlyList<PlannedPartitionGroup> groups, string? rootGroupName)

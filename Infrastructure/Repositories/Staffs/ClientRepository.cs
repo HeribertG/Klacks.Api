@@ -403,6 +403,17 @@ public class ClientRepository : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Client>> GetByTypeWithQualificationsAndGroupItemsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Qualifications)
+            .Include(c => c.GroupItems)
+            .Where(c => !c.IsDeleted && c.Type == type)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Client>> GetActiveClientsWithAddressesForGroupsAsync(List<Guid> visibleRootIds, CancellationToken cancellationToken = default)
     {
         return await context.Client

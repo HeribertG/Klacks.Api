@@ -345,6 +345,7 @@
   "open_schedule": "Dienstrooster openen",
   "optimize_llm_models_for_klacksy": "LLM-modellen voor Klacksy optimaliseren",
   "partition_clients_by_address": "Een locatiegroepsstructuur opbouwen op basis van adressen",
+  "partition_clients_by_qualification": "Groepen per kwalificatie aanmaken",
   "place_work": "Inzet plannen",
   "preview_company_rule": "Ontwerp van het bedrijfsreglement als voorbeeld weergeven",
   "preview_planning_profile": "Ontwerp van het planningsprofiel als voorbeeld bekijken",

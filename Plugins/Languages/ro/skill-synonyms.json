@@ -856,7 +856,6 @@
   "evaluate_grouping_by_qualification": [
     "ce calificări au nevoie de un grup propriu",
     "merită un grup pentru această calificare",
-    "creează grupuri după calificare",
     "unde ar trebui create noi grupuri de calificare"
   ],
   "evaluate_location_group_candidates": [
@@ -2279,6 +2278,12 @@
     "grupează angajații pe zone după adresă",
     "fă grupuri de locații pentru clienți și personal",
     "împarte adresele în grupuri pe regiuni și orașe"
+  ],
+  "partition_clients_by_qualification": [
+    "creează grupuri după calificare",
+    "grupează angajații după calificare",
+    "creează câte un grup pentru fiecare calificare",
+    "împarte personalul în grupuri de calificare"
   ],
   "place_work": [
     "plasează clientul pe schimb",

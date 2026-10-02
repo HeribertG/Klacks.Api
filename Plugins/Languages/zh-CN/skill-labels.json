@@ -345,6 +345,7 @@
   "open_schedule": "打开排班表",
   "optimize_llm_models_for_klacksy": "为 Klacksy 优化 LLM 模型",
   "partition_clients_by_address": "根据地址构建位置分组树",
+  "partition_clients_by_qualification": "按技能创建分组",
   "place_work": "安排工作任务",
   "preview_company_rule": "预览公司规则草稿",
   "preview_planning_profile": "预览规划配置草稿",

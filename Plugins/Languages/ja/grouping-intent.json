@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["グループ"],
-  "locationOrAssignmentTokens": ["住所", "場所", "所在地", "カントン", "最寄り", "地理", "割り当て", "配属"]
+  "locationOrAssignmentTokens": ["住所", "場所", "所在地", "カントン", "最寄り", "地理", "割り当て", "配属"],
+  "qualificationTokens": ["資格"]
 }

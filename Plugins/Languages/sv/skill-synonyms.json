@@ -860,7 +860,6 @@
   "evaluate_grouping_by_qualification": [
     "vilka kvalifikationer behöver en egen grupp",
     "är en grupp värd det för den här kvalifikationen",
-    "skapa grupper efter kvalifikation",
     "var ska nya kvalifikationsgrupper skapas"
   ],
   "evaluate_location_group_candidates": [
@@ -2270,6 +2269,12 @@
     "gruppera anställda och kunder efter ort",
     "skapa grupper för kunder och anställda utifrån deras adresser",
     "fördela adresser i grupper per region och stad"
+  ],
+  "partition_clients_by_qualification": [
+    "skapa grupper efter kvalifikation",
+    "gruppera medarbetarna efter kvalifikation",
+    "skapa en grupp för varje kvalifikation",
+    "fördela personalen i kvalifikationsgrupper"
   ],
   "place_work": [
     "sätt yasmine på morgonskiftet den 15 maj",

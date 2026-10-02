@@ -345,6 +345,7 @@
   "open_schedule": "فتح جدول المناوبة",
   "optimize_llm_models_for_klacksy": "تحسين نماذج LLM الخاصة بـ Klacksy",
   "partition_clients_by_address": "إنشاء شجرة مجموعات المواقع من العناوين",
+  "partition_clients_by_qualification": "إنشاء مجموعات حسب المؤهل",
   "place_work": "تخطيط المهمة",
   "preview_company_rule": "عرض مسودة قواعد الشركة كمعاينة",
   "preview_planning_profile": "عرض مسودة ملف تعريف التخطيط كمعاينة",

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Loads grouping-intent.json from each installed language plugin directory and passes the
-/// grouping and location/assignment keywords to GroupingIntentResolver.Configure().
+/// grouping, location/assignment and qualification keywords to GroupingIntentResolver.Configure().
 /// Called once at application startup; plugin languages extend the core de/en/fr/it detection.
 /// </summary>
 
@@ -25,6 +25,7 @@ public static class GroupingIntentPluginLoader
 
         var allGroupingTokens = new List<string>();
         var allLocationOrAssignmentTokens = new List<string>();
+        var allQualificationTokens = new List<string>();
 
         foreach (var langDir in Directory.GetDirectories(pluginDir))
         {
@@ -44,6 +45,7 @@ public static class GroupingIntentPluginLoader
 
                 allGroupingTokens.AddRange(data.GroupingTokens);
                 allLocationOrAssignmentTokens.AddRange(data.LocationOrAssignmentTokens);
+                allQualificationTokens.AddRange(data.QualificationTokens);
             }
             catch (Exception ex)
             {
@@ -51,8 +53,8 @@ public static class GroupingIntentPluginLoader
             }
         }
 
-        if (allGroupingTokens.Count > 0 || allLocationOrAssignmentTokens.Count > 0)
-            GroupingIntentResolver.Configure(allGroupingTokens, allLocationOrAssignmentTokens);
+        if (allGroupingTokens.Count > 0 || allLocationOrAssignmentTokens.Count > 0 || allQualificationTokens.Count > 0)
+            GroupingIntentResolver.Configure(allGroupingTokens, allLocationOrAssignmentTokens, allQualificationTokens);
     }
 
     private sealed class GroupingIntentData
@@ -62,5 +64,8 @@ public static class GroupingIntentPluginLoader
 
         [JsonPropertyName("locationOrAssignmentTokens")]
         public string[] LocationOrAssignmentTokens { get; set; } = [];
+
+        [JsonPropertyName("qualificationTokens")]
+        public string[] QualificationTokens { get; set; } = [];
     }
 }

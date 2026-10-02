@@ -24,6 +24,7 @@ public static class PreviewApplySkillCalls
         GroupingSkillNames.Apply,
         "fill_group_by_criteria",
         "partition_clients_by_address",
+        "partition_clients_by_qualification",
         "bulk_add_shifts_to_group",
         "bulk_add_absence_for_group",
         "add_selected_clients_to_group",

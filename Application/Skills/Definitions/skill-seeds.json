@@ -19489,7 +19489,7 @@
     {
       "name": "evaluate_grouping_by_qualification",
       "area": "group",
-      "description": "Evaluates which qualifications have enough employees, external employees or customers to justify a new qualification group: counts clients per qualification using the same validity rules fill_group_by_criteria uses, so a recommended qualification is guaranteed to match. Clients can hold multiple qualifications, so counts overlap. Present the recommendation and wait for the user to explicitly ask before calling create_group — never call it yourself right after this result.",
+      "description": "Advice only: evaluates which qualifications have enough employees, external employees or customers to justify a qualification group, using the same validity rules as the group filters; counts overlap. Use only when the user asks whether a qualification group is worthwhile; it creates nothing and is not for creating or filling groups by qualification. Present the recommendation and wait.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19517,11 +19517,11 @@
       "alwaysOn": false,
       "triggerKeywords": {
         "de": [
-          "neue gruppe nach qualifikation",
-          "gruppe pro qualifikation"
+          "lohnt sich eine qualifikationsgruppe",
+          "qualifikationsgruppen empfehlen"
         ],
         "en": [
-          "new group by qualification",
+          "is a qualification group worth it",
           "qualification group candidates"
         ]
       },
@@ -19529,24 +19529,20 @@
         "de": [
           "welche qualifikationen brauchen eine eigene gruppe",
           "lohnt sich eine gruppe für diese qualifikation",
-          "gruppen nach qualifikation anlegen",
           "wo sollten neue qualifikations-gruppen entstehen"
         ],
         "en": [
           "which qualifications need their own group",
           "is a group worth it for this qualification",
-          "create groups by qualification",
           "where should new qualification groups be created"
         ],
         "fr": [
           "quelles qualifications ont besoin de leur propre groupe",
-          "un groupe vaut-il la peine pour cette qualification",
-          "créer des groupes selon la qualification"
+          "un groupe vaut-il la peine pour cette qualification"
         ],
         "it": [
           "quali qualifiche necessitano di un proprio gruppo",
-          "vale la pena creare un gruppo per questa qualifica",
-          "creare gruppi per qualifica"
+          "vale la pena creare un gruppo per questa qualifica"
         ]
       },
       "labels": {
@@ -19555,7 +19551,7 @@
         "fr": "Évaluer le besoin de groupes de qualification",
         "it": "Valuta la necessità di gruppi per qualifica"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -19645,7 +19641,7 @@
       "name": "partition_clients_by_address",
       "area": "group",
       "pairedApplySkill": "partition_clients_by_address",
-      "description": "Builds the location group tree from client addresses: region → state/province → city cluster, placing employees, external employees and customers into their cluster. Use for 'create groups from all addresses', 'build location groups for customers and staff', or when orders cannot be sealed because no groups exist. Existing groups are reused and already-grouped clients are skipped.",
+      "description": "Builds the location group tree from client addresses: region → state/province → city cluster, placing employees, external employees and customers into their cluster. Use level 'cluster_municipality' when the user mentions municipalities or Gemeinden: it adds municipality sub-groups inside each city cluster. Use for 'create groups from all addresses' or when orders cannot be sealed because no groups exist. Existing groups are reused.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19656,12 +19652,13 @@
       "parameters": [
         {
           "name": "level",
-          "description": "Granularity: 'cluster' (default) nests density-based city clusters under state groups; 'state' one group per state/province; 'city' one flat group per city; 'state_city' every city under its state.",
+          "description": "Granularity: 'cluster' (default) nests density-based city clusters under state groups; 'cluster_municipality' adds municipality sub-groups inside every city cluster (choose it when the user asks for municipalities, Gemeinden, communes or comuni); 'state' one group per state/province; 'city' one flat group per city; 'state_city' every city under its state.",
           "type": "Enum",
           "required": false,
           "defaultValue": "cluster",
           "enumValues": [
             "cluster",
+            "cluster_municipality",
             "state",
             "city",
             "state_city"
@@ -19682,10 +19679,18 @@
         },
         {
           "name": "clusterSharePercent",
-          "description": "Only at level 'cluster': minimum share (1-100) of a state's addresses a city needs to become its own cluster group; defaults to 10. The largest city of every state is always a cluster.",
+          "description": "Only at levels 'cluster' and 'cluster_municipality': minimum share (1-100) of a state's addresses a city needs to become its own cluster group; defaults to 10. The largest city of every state is always a cluster.",
           "type": "Integer",
           "required": false,
           "defaultValue": 10,
+          "enumValues": null
+        },
+        {
+          "name": "subClusterSharePercent",
+          "description": "Only at level 'cluster_municipality': minimum share (1-100) of a city cluster's addresses a place outside the centre city needs to become its own municipality sub-group; it also needs at least 3 addresses. Defaults to 15. Smaller places join the nearest sub-group when it is nearer than the cluster centre, otherwise they stay in the city cluster group, like the residents of the centre city.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 15,
           "enumValues": null
         },
         {
@@ -19698,7 +19703,7 @@
         },
         {
           "name": "includeAlreadyGrouped",
-          "description": "When true, clients that already belong to a group are placed again too; defaults to false so only ungrouped clients are touched.",
+          "description": "When true, clients that already belong to a group are placed again too; defaults to false so only ungrouped clients are touched. Existing groups with the right name under the right parent are always reused.",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -19731,12 +19736,16 @@
           "aufteilen",
           "partitionieren",
           "nach adresse gruppieren",
-          "gruppen aus adressen"
+          "gruppen aus adressen",
+          "nach gemeinden gruppieren",
+          "gruppen pro gemeinde"
         ],
         "en": [
           "partition",
           "split into groups",
-          "location groups"
+          "location groups",
+          "group by municipality",
+          "municipality groups"
         ]
       },
       "synonyms": {
@@ -19749,7 +19758,9 @@
           "gruppen aus mitarbeitern kunden und externen erstellen",
           "adressen in cluster gruppieren",
           "gruppenbaum region kanton stadt",
-          "gruppen nach bundesland und stadt"
+          "gruppen nach bundesland und stadt",
+          "gruppenbaum mit gemeinden unter den städten",
+          "gemeinden als untergruppen der städte"
         ],
         "en": [
           "partition clients by address",
@@ -19758,18 +19769,22 @@
           "build location group tree from addresses",
           "create groups for customers and staff from their addresses",
           "cluster addresses into groups",
-          "groups by region state and city"
+          "groups by region state and city",
+          "location groups down to municipalities",
+          "municipality sub-groups under each city cluster"
         ],
         "fr": [
           "répartir les clients par adresse",
           "diviser les employés en groupes par adresse",
-          "créer des groupes pour les clients et le personnel"
+          "créer des groupes pour les clients et le personnel",
+          "regrouper les adresses par commune"
         ],
         "it": [
           "suddividere i clienti per indirizzo",
           "dividere i dipendenti in gruppi per indirizzo",
           "creare gruppi di sede dagli indirizzi",
-          "creare gruppi per clienti e personale"
+          "creare gruppi per clienti e personale",
+          "raggruppare gli indirizzi per comune"
         ]
       },
       "labels": {
@@ -19778,7 +19793,122 @@
         "fr": "Construire une arborescence de groupes à partir des adresses",
         "it": "Costruisci un albero di gruppi di sede dagli indirizzi"
       },
-      "version": 5
+      "version": 6
+    },
+    {
+      "name": "partition_clients_by_qualification",
+      "area": "group",
+      "pairedApplySkill": "partition_clients_by_qualification",
+      "description": "Creates one group per qualification and adds everyone who holds it today; a person with several qualifications joins several groups and keeps existing memberships. Use when the user wants groups created or clients sorted into groups by qualification. Group names are the qualification names in the company language; groups go under a 'Qualifications' root, or under rootGroupName with only its members.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanCreateGroups",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Client types to group: 'Employee' (default), 'ExternEmp', 'Customer' or 'All'.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Employee",
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer",
+            "All"
+          ]
+        },
+        {
+          "name": "rootGroupName",
+          "description": "Optional name of an existing group (e.g. a city group); the qualification groups are created under it and only members of that group and its subgroups are considered. When omitted, the groups go under a top-level group named 'Qualifications' in the company language (reused when it exists). Existing groups with the same name under the same parent are reused.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minMembers",
+          "description": "Minimum number of holders a qualification needs to get its own group; defaults to 2, values below 1 count as 1. Qualifications with fewer holders are listed as skipped.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 2,
+          "enumValues": null
+        },
+        {
+          "name": "includeAlreadyGrouped",
+          "description": "When true (default), clients who already belong to other groups are included too; when false they are skipped (memberships inside rootGroupName's subtree do not count).",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new memberships (format YYYY-MM-DD, or 'today'); defaults to today when this is left out.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the plan; when true creates the groups and persists the memberships. Only set true after the user explicitly confirmed the preview.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "nach qualifikation gruppieren",
+          "gruppen nach qualifikation",
+          "gruppe pro qualifikation"
+        ],
+        "en": [
+          "group by qualification",
+          "groups by qualification"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "mitarbeiter nach qualifikation gruppieren",
+          "für jede qualifikation eine gruppe anlegen",
+          "gruppen nach qualifikation anlegen",
+          "qualifikationsgruppen bilden"
+        ],
+        "en": [
+          "group employees by qualification",
+          "create a group for each qualification",
+          "create groups by qualification",
+          "sort staff into qualification groups"
+        ],
+        "fr": [
+          "regrouper les employés par qualification",
+          "créer un groupe par qualification",
+          "créer des groupes selon la qualification"
+        ],
+        "it": [
+          "raggruppare i dipendenti per qualifica",
+          "creare un gruppo per ogni qualifica",
+          "creare gruppi per qualifica"
+        ]
+      },
+      "labels": {
+        "de": "Gruppen nach Qualifikation bilden",
+        "en": "Build groups by qualification",
+        "fr": "Créer des groupes par qualification",
+        "it": "Creare gruppi per qualifica"
+      },
+      "version": 1
     },
     {
       "name": "assign_orders_to_groups",

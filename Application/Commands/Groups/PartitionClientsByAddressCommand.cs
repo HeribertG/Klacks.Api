@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -20,7 +21,8 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to today.</param>
 /// <param name="Apply">False for a dry-run preview, true to create the groups and persist the memberships.</param>
 /// <param name="UserName">Name of the acting user, stored on the created groups and memberships.</param>
-/// <param name="ClusterSharePercent">Minimum share (1-100) a city needs to become a cluster center; only used at Cluster level.</param>
+/// <param name="ClusterSharePercent">Minimum share (1-100) a city needs to become a cluster center; used at Cluster and ClusterMunicipality level.</param>
+/// <param name="SubClusterSharePercent">Minimum share (1-100) of a city cluster's addresses a place outside the centre city needs to become a municipality sub-cluster; only used at ClusterMunicipality level.</param>
 public record PartitionClientsByAddressCommand(
     GroupPartitionLevelEnum Level,
     IReadOnlyList<EntityTypeEnum> EntityTypes,
@@ -30,4 +32,5 @@ public record PartitionClientsByAddressCommand(
     DateTime? ValidFrom,
     bool Apply,
     string UserName,
-    int ClusterSharePercent) : IRequest<PartitionClientsByAddressResult>;
+    int ClusterSharePercent,
+    int SubClusterSharePercent = GroupPartitionContext.DefaultSubClusterSharePercent) : IRequest<PartitionClientsByAddressResult>;

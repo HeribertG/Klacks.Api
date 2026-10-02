@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["groep"],
-  "locationOrAssignmentTokens": ["adres", "locati", "regio", "dichtst", "geograf", "toegewezen", "verdeel"]
+  "locationOrAssignmentTokens": ["adres", "locati", "regio", "dichtst", "geograf", "toegewezen", "verdeel"],
+  "qualificationTokens": ["kwalificat"]
 }

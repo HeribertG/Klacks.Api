@@ -9,6 +9,9 @@
 /// "abbrechen", "no", "cancel") or a question mark anywhere - not only a trailing one, see
 /// RecipeReplyGuard.QuestionMarks for the marks covered - suppresses the signal, so an ambiguous reply
 /// like "ja, aber nicht heute" or "ja? was kostet das" leaves the existing "auto" behaviour intact.
+/// LeadsWithAffirmation additionally requires the reply to OPEN with the affirmation ("Ja, übernimm die Gruppen
+/// so"), so a request that merely contains a courtesy word ("Neuen Mitarbeiter, bitte") is not read as accepting
+/// an offer; "bitte"/"please" never count as the opening word.
 /// Core languages (de/en/fr/it) are handled by hardcoded tokens. Plugin language entries are
 /// loaded at startup via Configure() from conversation-signals.json files in each language plugin.
 /// </summary>
@@ -48,6 +51,8 @@ public static class AffirmationDetector
         // French / Italian
         "non", "pas", "annuler",
     };
+
+    private static readonly HashSet<string> CourtesyTokens = new(StringComparer.OrdinalIgnoreCase) { "bitte", "please" };
 
     private static readonly object _configureLock = new();
     private static string[] _pluginAffirmationEntries = [];
@@ -105,5 +110,36 @@ public static class AffirmationDetector
 
         return tokens.Any(AffirmationTokens.Contains)
             || PluginPhraseMatcher.MatchesAny(lower, tokens, _pluginAffirmationEntries);
+    }
+
+    /// <summary>
+    /// True when the message is an affirmation (IsAffirmation) AND opens with it: the first word is an affirmation
+    /// token (courtesy words excluded) or the message starts with a plugin affirmation entry (also covers
+    /// scripts without word separators such as "はい" or "是的").
+    /// </summary>
+    /// <param name="message">The raw user message that started the turn.</param>
+    public static bool LeadsWithAffirmation(string? message)
+    {
+        if (!IsAffirmation(message))
+        {
+            return false;
+        }
+
+        var lower = message!.ToLowerInvariant();
+        var first = WordPattern.Match(lower);
+        if (!first.Success)
+        {
+            return false;
+        }
+
+        if (AffirmationTokens.Contains(first.Value) && !CourtesyTokens.Contains(first.Value))
+        {
+            return true;
+        }
+
+        var opening = lower[first.Index..];
+        return _pluginAffirmationEntries.Any(entry => entry.Length > 0
+            && (string.Equals(first.Value, entry, StringComparison.Ordinal)
+                || opening.StartsWith(entry, StringComparison.Ordinal)));
     }
 }

@@ -190,13 +190,20 @@ public class RecipeEngineService
         // otherwise rank into the grey zone of a mutation recipe and hijack the turn into a
         // confirmation gate. A mutation verb after the negation ("Nein, erstelle stattdessen ...")
         // re-enables the fallback because the negation then corrects course instead of declining.
+        // Symmetrically, a reply that LEADS with an affirmation ("Ja, übernimm die Gruppen so", "Yes, apply
+        // it") accepts the offer the assistant just made: it carries no new recipe intent, yet its topic words
+        // rank it into the grey zone of group recipes (live 2026-10-03: prepare-groups-for-planning hijacked
+        // the confirmation of a partition_clients_by_address preview). Only a leading affirmation counts, so a
+        // terse request with a courtesy word ("Neuen Mitarbeiter, bitte") still reaches the fallback. The
+        // keyword trigger still applies.
         var triggerMatch = MatchByTrigger(eligible, message, language, _logger);
         var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
                                && !MutationIntentDetector.IsMutationIntent(message);
         var runSemanticFallback = allowSemanticFallback
                                   && triggerMatch == null
                                   && !MutationIntentDetector.IsInformationQuestion(message)
-                                  && !isLeadingDecline;
+                                  && !isLeadingDecline
+                                  && !AffirmationDetector.LeadsWithAffirmation(message);
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, eligible, message, language, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);

@@ -12,10 +12,12 @@ namespace Klacks.Api.Application.DTOs.Grouping;
 /// <param name="Assignments">Planned client-to-leaf-group placements.</param>
 /// <param name="Unassignable">Clients that cannot be placed at the requested level, with the reason.</param>
 /// <param name="Warnings">Non-fatal issues worth surfacing in a preview, e.g. a planned group name that already exists elsewhere in the tree under a different parent.</param>
+/// <param name="PlaceAttachments">At ClusterMunicipality level: every small place of a city cluster with the group it joined; empty at every other level.</param>
 public sealed record GroupPartitionPlan(
     int TotalClients,
     int SkippedAlreadyGroupedCount,
     IReadOnlyList<PlannedPartitionGroup> Groups,
     IReadOnlyList<PartitionClientAssignment> Assignments,
     IReadOnlyList<UnassignablePartitionClient> Unassignable,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    IReadOnlyList<PartitionPlaceAttachment>? PlaceAttachments = null);

@@ -345,6 +345,7 @@
   "open_schedule": "לפתוח את לוח המשמרות",
   "optimize_llm_models_for_klacksy": "אופטימיזציה של מודלי LLM עבור Klacksy",
   "partition_clients_by_address": "בניית עץ קבוצות מיקומים מתוך כתובות",
+  "partition_clients_by_qualification": "יצירת קבוצות לפי הסמכה",
   "place_work": "לתכנן את המשימה",
   "preview_company_rule": "הצגת טיוטת תקנון החברה בתצוגה מקדימה",
   "preview_planning_profile": "הצגת טיוטת פרופיל התכנון כתצוגה מקדימה",

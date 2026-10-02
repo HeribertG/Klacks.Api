@@ -838,7 +838,6 @@
   "evaluate_grouping_by_qualification": [
     "哪些技能需要獨立分組",
     "這個技能值得建一個群組嗎",
-    "依技能建立群組",
     "新的技能群組該建在哪裡"
   ],
   "evaluate_location_group_candidates": [
@@ -2255,6 +2254,12 @@
     "建立完整的地點群組樹",
     "用地址幫客戶和員工分組",
     "依照郵遞區號劃分服務區域"
+  ],
+  "partition_clients_by_qualification": [
+    "依技能建立群組",
+    "依技能將員工分組",
+    "為每項技能建立一個群組",
+    "把員工分到技能群組裡"
   ],
   "place_work": [
     "把員工排到班次上",

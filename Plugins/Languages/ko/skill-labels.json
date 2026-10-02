@@ -345,6 +345,7 @@
   "open_schedule": "근무 일정 열기",
   "optimize_llm_models_for_klacksy": "Klacksy용 LLM 모델 최적화",
   "partition_clients_by_address": "주소로 위치 그룹 트리 구성",
+  "partition_clients_by_qualification": "자격별 그룹 만들기",
   "place_work": "근무 배정하기",
   "preview_company_rule": "회사 규칙 초안 미리보기",
   "preview_planning_profile": "플래닝 프로필 초안 미리보기",

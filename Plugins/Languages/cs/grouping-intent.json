@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["skupin", "seskup", "sdruž", "sdruz"],
-  "locationOrAssignmentTokens": ["adres", "míst", "misto", "region", "kanton", "nejbliž", "nejbliz", "geograf", "přiřad", "priraz"]
+  "locationOrAssignmentTokens": ["adres", "míst", "misto", "region", "kanton", "nejbliž", "nejbliz", "geograf", "přiřad", "priraz"],
+  "qualificationTokens": ["kvalifik"]
 }

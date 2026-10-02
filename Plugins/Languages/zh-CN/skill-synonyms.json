@@ -846,7 +846,6 @@
   "evaluate_grouping_by_qualification": [
     "哪些技能需要单独分组",
     "这个技能值得建一个组吗",
-    "按技能创建分组",
     "新的技能分组应该建在哪里"
   ],
   "evaluate_location_group_candidates": [
@@ -2252,6 +2251,12 @@
     "给客户和员工按地址建组",
     "根据客户地址划分区域分组",
     "把员工按地址分到各组"
+  ],
+  "partition_clients_by_qualification": [
+    "按技能创建分组",
+    "按技能给员工分组",
+    "为每项技能建一个分组",
+    "把员工分到技能分组里"
   ],
   "place_work": [
     "把员工安排到班次上",

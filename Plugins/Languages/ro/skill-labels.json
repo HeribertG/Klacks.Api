@@ -345,6 +345,7 @@
   "open_schedule": "Deschide programul de lucru",
   "optimize_llm_models_for_klacksy": "Optimizează modelele LLM pentru Klacksy",
   "partition_clients_by_address": "Crearea arborelui de grupuri de locații pe baza adreselor",
+  "partition_clients_by_qualification": "Creează grupuri după calificare",
   "place_work": "Planificarea intervenției",
   "preview_company_rule": "Previzualizează proiectul regulii de companie",
   "preview_planning_profile": "Previzualizează proiectul profilului de planificare",

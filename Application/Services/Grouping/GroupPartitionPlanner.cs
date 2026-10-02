@@ -9,6 +9,9 @@
 /// context (a country without a map gets no region level) unless a caller-supplied root group overrides
 /// it, in which case every state (or, at City level, every city) attaches directly under that root.
 /// At Cluster level the leaf nodes are the density clusters computed by <see cref="AddressClusterPlanner"/>.
+/// At ClusterMunicipality level every city cluster additionally gets the municipality sub-clusters computed by
+/// <see cref="MunicipalitySubClusterPlanner"/>; clients of the centre city and of small places that stay with
+/// the centre remain direct members of the city cluster group.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Grouping;
@@ -30,6 +33,7 @@ public static class GroupPartitionPlanner
     private const string StateKeyPrefix = "state:";
     private const string CityKeyPrefix = "city:";
     private const string ClusterKeyPrefix = "cluster:";
+    private const string MunicipalityKeyPrefix = "municipality:";
     private const string NameParentKeySeparator = "|group-key|";
     private const string RootParentMarker = "root";
 
@@ -51,6 +55,8 @@ public static class GroupPartitionPlanner
         public Dictionary<Guid, string> LeafKeyByClientId { get; } = new();
 
         public List<UnassignablePartitionClient> Unassignable { get; }
+
+        public List<PartitionPlaceAttachment> PlaceAttachments { get; } = new();
     }
 
     /// <summary>
@@ -133,6 +139,10 @@ public static class GroupPartitionPlanner
             case GroupPartitionLevelEnum.Cluster:
                 PlanClustersUnderStates(context.ClusterSharePercent, placed, existingByNameAndParent, builder);
                 break;
+            case GroupPartitionLevelEnum.ClusterMunicipality:
+                var clusterPlan = PlanClustersUnderStates(context.ClusterSharePercent, placed, existingByNameAndParent, builder);
+                PlanMunicipalitiesUnderClusters(context.SubClusterSharePercent, clusterPlan, placed, existingByNameAndParent, builder);
+                break;
         }
 
         var assignments = placed
@@ -142,7 +152,7 @@ public static class GroupPartitionPlanner
 
         var warnings = BuildDuplicateNameWarnings(builder.Groups, groupsByNameAnywhere);
 
-        return new GroupPartitionPlan(clients.Count, skipped, builder.Groups, assignments, unassignable, warnings);
+        return new GroupPartitionPlan(clients.Count, skipped, builder.Groups, assignments, unassignable, warnings, builder.PlaceAttachments);
     }
 
     private static void PlanRegionsAndStates(
@@ -275,7 +285,7 @@ public static class GroupPartitionPlanner
         }
     }
 
-    private static void PlanClustersUnderStates(
+    private static AddressClusterPlan PlanClustersUnderStates(
         int sharePercent,
         List<PlacedClient> placed,
         Dictionary<string, Group> existingByNameAndParent,
@@ -300,6 +310,7 @@ public static class GroupPartitionPlanner
                 key, cluster.City, stateKey, existing != null, existing?.Id,
                 cluster.DirectCount + cluster.AttachedCount, string.Empty, cluster.Latitude, cluster.Longitude));
             clusterKeyByCluster[ClusterLookupKey(cluster.Country, cluster.State, cluster.City)] = key;
+            builder.ResolvedId[key] = existing?.Id;
         }
 
         foreach (var assignment in clusterPlan.Assignments)
@@ -310,6 +321,72 @@ public static class GroupPartitionPlanner
         foreach (var rejection in clusterPlan.Rejections)
         {
             builder.Unassignable.Add(new UnassignablePartitionClient(rejection.ClientId, DisplayName(clientById[rejection.ClientId]), rejection.Reason));
+        }
+
+        return clusterPlan;
+    }
+
+    private static void PlanMunicipalitiesUnderClusters(
+        int sharePercent,
+        AddressClusterPlan clusterPlan,
+        List<PlacedClient> placed,
+        Dictionary<string, Group> existingByNameAndParent,
+        PlanBuilder builder)
+    {
+        var placedById = placed.ToDictionary(c => c.Client.Id);
+        var membersByCluster = clusterPlan.Assignments
+            .GroupBy(a => ClusterLookupKey(a.Country, a.State, a.City), StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.Select(a => placedById[a.ClientId]).ToList(), StringComparer.Ordinal);
+
+        foreach (var cluster in clusterPlan.Clusters)
+        {
+            var clusterLookup = ClusterLookupKey(cluster.Country, cluster.State, cluster.City);
+            if (!membersByCluster.TryGetValue(clusterLookup, out var members))
+            {
+                continue;
+            }
+
+            var clusterKey = ClusterKeyPrefix + clusterLookup;
+            var subPlan = MunicipalitySubClusterPlanner.Plan(
+                cluster.City,
+                cluster.Latitude,
+                cluster.Longitude,
+                members.Select(c => new ClusterAddress(c.Client.Id, c.Country, c.State, c.City, c.Latitude, c.Longitude)).ToList(),
+                sharePercent);
+
+            var parentActualId = builder.ResolvedId[clusterKey];
+            var parentIsPending = parentActualId is null;
+            var subKeyByCity = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var subCluster in subPlan.SubClusters)
+            {
+                var key = MunicipalityKeyPrefix + clusterLookup + GroupPartitionContext.StateKeySeparator + subCluster.City;
+                var existing = LookupExisting(existingByNameAndParent, subCluster.City, parentActualId, parentIsPending);
+                builder.Groups.Add(new PlannedPartitionGroup(
+                    key, subCluster.City, clusterKey, existing != null, existing?.Id,
+                    subCluster.DirectCount + subCluster.AttachedCount, string.Empty, subCluster.Latitude, subCluster.Longitude));
+                builder.ResolvedId[key] = existing?.Id;
+                subKeyByCity[subCluster.City] = key;
+            }
+
+            foreach (var (clientId, subCity) in subPlan.SubClusterByClientId)
+            {
+                builder.LeafKeyByClientId[clientId] = subKeyByCity[subCity];
+            }
+
+            var clusterIndex = builder.Groups.FindIndex(g => g.Key == clusterKey);
+            var cityCluster = builder.Groups[clusterIndex];
+            builder.Groups[clusterIndex] = cityCluster with { ClientCount = cityCluster.ClientCount - subPlan.SubClusterByClientId.Count };
+
+            foreach (var attachment in subPlan.Attachments)
+            {
+                builder.PlaceAttachments.Add(new PartitionPlaceAttachment(
+                    attachment.Place,
+                    cluster.City,
+                    attachment.SubClusterCity ?? cluster.City,
+                    attachment.SubClusterCity != null,
+                    attachment.ClientCount,
+                    attachment.DistanceKm));
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["grupp", "saml", "opdel"],
-  "locationOrAssignmentTokens": ["adress", "sted", "region", "kanton", "nærm", "naerm", "geograf", "tildel", "fordel"]
+  "locationOrAssignmentTokens": ["adress", "sted", "region", "kanton", "nærm", "naerm", "geograf", "tildel", "fordel"],
+  "qualificationTokens": ["kvalifikat"]
 }

@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["grup"],
-  "locationOrAssignmentTokens": ["adres", "lokaliz", "województ", "najbliż", "geograf", "rozdziel", "przydziel", "przypis"]
+  "locationOrAssignmentTokens": ["adres", "lokaliz", "województ", "najbliż", "geograf", "rozdziel", "przydziel", "przypis"],
+  "qualificationTokens": ["kwalifik"]
 }

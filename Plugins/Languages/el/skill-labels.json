@@ -345,6 +345,7 @@
   "open_schedule": "Άνοιγμα του προγράμματος βάρδιας",
   "optimize_llm_models_for_klacksy": "Βελτιστοποίηση μοντέλων LLM για το Klacksy",
   "partition_clients_by_address": "Δημιουργία δέντρου ομάδων τοποθεσιών από διευθύνσεις",
+  "partition_clients_by_qualification": "Δημιουργία ομάδων ανά προσόν",
   "place_work": "Προγραμματισμός αποστολής",
   "preview_company_rule": "Προεπισκόπηση του σχεδίου εταιρικού κανονισμού",
   "preview_planning_profile": "Προβολή του προσχεδίου προφίλ σχεδιασμού ως προεπισκόπηση",

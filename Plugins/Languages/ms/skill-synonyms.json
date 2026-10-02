@@ -845,7 +845,6 @@
   "evaluate_grouping_by_qualification": [
     "kelayakan mana perlukan kumpulan sendiri",
     "berbaloikah kumpulan untuk kelayakan ini",
-    "cipta kumpulan mengikut kelayakan",
     "di mana patut kumpulan kelayakan baru dibuat"
   ],
   "evaluate_location_group_candidates": [
@@ -2251,6 +2250,12 @@
     "buat kumpulan ikut kawasan dari alamat",
     "kelaskan pelanggan dan staf ikut alamat",
     "hasilkan struktur kumpulan lokasi dari alamat"
+  ],
+  "partition_clients_by_qualification": [
+    "cipta kumpulan mengikut kelayakan",
+    "kumpulkan pekerja mengikut kelayakan",
+    "cipta satu kumpulan bagi setiap kelayakan",
+    "agihkan kakitangan ke dalam kumpulan kelayakan"
   ],
   "place_work": [
     "letakkan yasmine di syif pagi pada 15 mei",

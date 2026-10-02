@@ -1,4 +1,5 @@
 {
   "groupingTokens": ["kumpul"],
-  "locationOrAssignmentTokens": ["alamat", "lokasi", "wilayah", "negeri", "dekat", "geograf", "tugas", "letak"]
+  "locationOrAssignmentTokens": ["alamat", "lokasi", "wilayah", "negeri", "dekat", "geograf", "tugas", "letak"],
+  "qualificationTokens": ["kelayak"]
 }

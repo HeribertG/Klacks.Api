@@ -345,6 +345,7 @@
   "open_schedule": "開啟班表",
   "optimize_llm_models_for_klacksy": "最佳化 Klacksy 的 LLM 模型",
   "partition_clients_by_address": "依地址建立地點群組樹",
+  "partition_clients_by_qualification": "依技能建立群組",
   "place_work": "安排勤務",
   "preview_company_rule": "預覽公司規則草稿",
   "preview_planning_profile": "預覽規劃設定檔草稿",

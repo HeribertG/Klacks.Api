@@ -20,6 +20,23 @@ public class GroupVisibilityRepository : BaseRepository<GroupVisibility>, IGroup
         this.groupVisibility = groupVisibility;
     }
 
+    public async Task<int> CountNonAdminUsersSeeingGroupAsync(Guid groupId, CancellationToken cancellationToken = default)
+    {
+        var userIds = await context.GroupVisibility
+            .AsNoTracking()
+            .Where(x => x.GroupId == groupId)
+            .Select(x => x.AppUserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        if (userIds.Count == 0)
+        {
+            return 0;
+        }
+
+        var adminIds = new HashSet<string>(await groupVisibility.ReadAdmins(), StringComparer.Ordinal);
+        return userIds.Count(id => !adminIds.Contains(id));
+    }
+
     public async Task<IEnumerable<GroupVisibility>> GroupVisibilityList(string id)
     {
         var list = await context.GroupVisibility.AsNoTracking().Where(x => x.AppUserId == id).ToListAsync();

@@ -400,6 +400,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "fill_group_by_criteria",
         "group_ungrouped_by_city_name",
         "partition_clients_by_address",
+        "partition_clients_by_qualification",
         "bulk_add_shifts_to_group",
         "bulk_add_absence_for_group",
         "add_selected_clients_to_group",

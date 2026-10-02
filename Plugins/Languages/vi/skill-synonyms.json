@@ -849,7 +849,6 @@
   "evaluate_grouping_by_qualification": [
     "chuyên môn nào cần nhóm riêng",
     "tạo nhóm cho chuyên môn này có đáng không",
-    "tạo nhóm theo chuyên môn",
     "nên tạo nhóm chuyên môn mới ở đâu"
   ],
   "evaluate_location_group_candidates": [
@@ -2252,6 +2251,12 @@
     "gom địa chỉ thành các nhóm khu vực",
     "xây dựng cây nhóm địa điểm từ địa chỉ",
     "phân nhóm khách hàng theo khu vực địa lý"
+  ],
+  "partition_clients_by_qualification": [
+    "tạo nhóm theo chuyên môn",
+    "phân nhóm nhân viên theo chuyên môn",
+    "tạo một nhóm cho mỗi chuyên môn",
+    "chia nhân sự vào các nhóm chuyên môn"
   ],
   "place_work": [
     "gán yasmine vào ca sáng ngày 15/5",

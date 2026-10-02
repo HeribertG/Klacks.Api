@@ -345,6 +345,7 @@
   "open_schedule": "Mở lịch làm việc",
   "optimize_llm_models_for_klacksy": "Tối ưu mô hình LLM cho Klacksy",
   "partition_clients_by_address": "Xây dựng cây nhóm địa điểm từ địa chỉ",
+  "partition_clients_by_qualification": "Tạo nhóm theo chuyên môn",
   "place_work": "Xếp một phân công việc",
   "preview_company_rule": "Xem trước bản nháp quy tắc công ty",
   "preview_planning_profile": "Xem trước bản nháp hồ sơ lập kế hoạch",

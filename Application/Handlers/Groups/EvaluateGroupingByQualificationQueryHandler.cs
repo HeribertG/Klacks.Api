@@ -152,6 +152,6 @@ public class EvaluateGroupingByQualificationQueryHandler
 
         parts.Add("clients can hold more than one qualification, so counts are not a partition of the population");
 
-        return string.Join("; ", parts) + ". Creating a group is a separate, manual step (create_group).";
+        return string.Join("; ", parts) + ". This evaluation is advice only and changed nothing.";
     }
 }

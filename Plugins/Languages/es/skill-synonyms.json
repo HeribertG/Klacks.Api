@@ -873,7 +873,6 @@
   "evaluate_grouping_by_qualification": [
     "qué cualificaciones necesitan su propio grupo",
     "vale la pena un grupo para esta cualificación",
-    "crear grupos por cualificación",
     "dónde deberían crearse nuevos grupos de cualificación"
   ],
   "evaluate_location_group_candidates": [
@@ -2293,6 +2292,12 @@
     "agrupar clientes y personal por zona",
     "hacer grupos por ciudad y región desde las direcciones",
     "asignar clientes y empleados a grupos por su domicilio"
+  ],
+  "partition_clients_by_qualification": [
+    "crear grupos por cualificación",
+    "agrupar a los empleados por cualificación",
+    "crear un grupo para cada cualificación",
+    "repartir al personal en grupos de cualificación"
   ],
   "place_work": [
     "poner a yasmine en turno temprano el 15 de mayo",

@@ -864,7 +864,6 @@
   "evaluate_grouping_by_qualification": [
     "hvilke kvalifikationer har brug for egen gruppe",
     "kan det betale sig med en gruppe for denne kvalifikation",
-    "opret grupper efter kvalifikation",
     "hvor bør nye kvalifikationsgrupper oprettes"
   ],
   "evaluate_location_group_candidates": [
@@ -2273,6 +2272,12 @@
     "fordel medarbejdere i grupper ud fra adresse",
     "lav gruppehierarki fra adresser",
     "dan grupper til kunder og ansatte ud fra deres adresser"
+  ],
+  "partition_clients_by_qualification": [
+    "opret grupper efter kvalifikation",
+    "gruppér medarbejderne efter kvalifikation",
+    "opret en gruppe for hver kvalifikation",
+    "fordel medarbejderne i kvalifikationsgrupper"
   ],
   "place_work": [
     "sæt yasmine på morgenvagt den 15. maj",

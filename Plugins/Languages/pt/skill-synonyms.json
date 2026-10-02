@@ -877,7 +877,6 @@
   "evaluate_grouping_by_qualification": [
     "quais qualificações precisam de grupo próprio",
     "vale a pena um grupo para esta qualificação",
-    "criar grupos por qualificação",
     "onde devem ser criados novos grupos de qualificação"
   ],
   "evaluate_location_group_candidates": [
@@ -2290,6 +2289,12 @@
     "montar a estrutura de grupos por localização",
     "criar grupos para clientes e funcionários por endereço",
     "separar clientes por região e cidade"
+  ],
+  "partition_clients_by_qualification": [
+    "criar grupos por qualificação",
+    "agrupar os funcionários por qualificação",
+    "criar um grupo para cada qualificação",
+    "distribuir a equipa por grupos de qualificação"
   ],
   "place_work": [
     "colocar a yasmine na escala do dia 15 para o turno da manhã",

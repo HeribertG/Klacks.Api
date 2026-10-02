@@ -880,7 +880,6 @@
   "evaluate_grouping_by_qualification": [
     "které kvalifikace potřebují vlastní skupinu",
     "vyplatí se skupina pro tuto kvalifikaci",
-    "vytvořit skupiny podle kvalifikace",
     "kde by měly vzniknout nové kvalifikační skupiny"
   ],
   "evaluate_location_group_candidates": [
@@ -2306,6 +2305,12 @@
     "vybuduj strom lokalitních skupin z adres",
     "vytvoř skupiny pro klienty a zaměstnance podle jejich adres",
     "seskup adresy do skupin podle lokality"
+  ],
+  "partition_clients_by_qualification": [
+    "vytvořit skupiny podle kvalifikace",
+    "seskupit zaměstnance podle kvalifikace",
+    "vytvořit skupinu pro každou kvalifikaci",
+    "roztřídit zaměstnance do kvalifikačních skupin"
   ],
   "place_work": [
     "přiřaď klienta na směnu 15.5.",
