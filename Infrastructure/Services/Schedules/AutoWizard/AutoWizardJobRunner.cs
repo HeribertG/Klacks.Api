@@ -403,10 +403,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     }
 
     /// <summary>
-    /// Runs the Holistic Harmonizer stage when its prerequisite is met and skips it otherwise. A stage that
-    /// fails because the configured model turned out to be text-only is skipped as well - the run caches the
-    /// capability verdict itself, so the re-check after the failure sees it. Every other failure propagates
-    /// and fails the chain.
+    /// Runs the Holistic Harmonizer stage when its prerequisite is met and skips it otherwise. Stage 3 only
+    /// polishes the complete stage-2 plan, so a failure of the stage never fails the chain: it falls back to
+    /// the stage-2 scenario and reports the reason as a skipped harmonization (warning in the log, reason in
+    /// the run result and on the kept scenario). Cancellation still ends the chain.
     /// </summary>
     private async Task<(AutoWizardStageScenario? Scenario, string? SkippedReason)> RunHolisticStageOrSkipAsync(
         Guid orchestratorJobId,
@@ -430,16 +430,13 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             var readinessAfterFailure = await CheckHolisticReadinessAsync(ct);
-            if (!AutoWizardStageOutcomePlanner.ShouldSkipHolisticStageAfterFailure(readinessAfterFailure))
-            {
-                throw;
-            }
+            var reason = AutoWizardStageOutcomePlanner.HolisticStageFallbackReason(readinessAfterFailure, ex.Message);
 
             _logger.LogWarning(
                 ex,
-                "AutoWizard {JobId} - stage 3 (Holistic Harmonizer) failed on a missing prerequisite and is skipped: {Reason}",
-                orchestratorJobId, readinessAfterFailure.Reason);
-            return (null, readinessAfterFailure.Reason);
+                "AutoWizard {JobId} - stage 3 (Holistic Harmonizer) failed; falling back to the stage-2 result: {Reason}",
+                orchestratorJobId, reason);
+            return (null, reason);
         }
     }
 

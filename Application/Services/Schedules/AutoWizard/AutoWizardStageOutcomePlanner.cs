@@ -12,6 +12,8 @@ namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
 /// </summary>
 public static class AutoWizardStageOutcomePlanner
 {
+    private const string HolisticStageFailedReasonFormat = "the stage failed and the harmonized plan of stage 2 is kept: {0}";
+
     /// <summary>
     /// Scenarios to delete after a successful run: everything except the last one.
     /// </summary>
@@ -58,14 +60,17 @@ public static class AutoWizardStageOutcomePlanner
     }
 
     /// <summary>
-    /// Decides whether a failed Holistic Harmonizer stage degrades to "completed without harmonization"
-    /// instead of failing the chain. Only a missing prerequisite (no model, or a model now known to be
-    /// text-only) degrades: the Harmonizer result is then a complete plan and the third stage could never
-    /// have improved it. Any other stage failure stays a failure of the chain.
+    /// Why a failed Holistic Harmonizer stage was dropped. Stage 3 only polishes a complete plan, so any failure
+    /// falls back to the stage-2 result instead of failing the chain. A missing prerequisite found by the
+    /// re-check (no model, or a model now known to be text-only) is named as such; every other failure carries
+    /// its own message.
     /// </summary>
     /// <param name="readinessAfterFailure">Holistic Harmonizer readiness re-checked after the stage failed.</param>
-    public static bool ShouldSkipHolisticStageAfterFailure(HolisticHarmonizerReadiness readinessAfterFailure)
-        => !readinessAfterFailure.IsReady;
+    /// <param name="failureMessage">Message of the exception that ended the stage.</param>
+    public static string HolisticStageFallbackReason(HolisticHarmonizerReadiness readinessAfterFailure, string failureMessage)
+        => !readinessAfterFailure.IsReady && !string.IsNullOrWhiteSpace(readinessAfterFailure.Reason)
+            ? readinessAfterFailure.Reason!
+            : string.Format(System.Globalization.CultureInfo.InvariantCulture, HolisticStageFailedReasonFormat, failureMessage);
 
     /// <summary>
     /// The partial result stored next to a failure so a status poll can name the scenario the operator may

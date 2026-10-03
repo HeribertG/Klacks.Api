@@ -6,8 +6,9 @@
 /// dates or by an ISO calendar week that the skill resolves itself (Monday to Sunday). When agentIds /
 /// shiftIds are omitted, the skill resolves them from the group via group_item membership and the
 /// visible-shift SP. Returns the orchestrator jobId; the chain runs in the background and ends in a
-/// proposal scenario. When the holistic harmonization cannot run (no vision-capable model configured), the
-/// result message says up front that the chain will stop after the harmonizer stage.
+/// proposal scenario. Stage 3 runs the deterministic local search by default; only when it is switched to an AI
+/// model and that model is missing or cannot read the plan image does the result message say up front that the
+/// chain will stop after the harmonizer stage.
 /// </summary>
 /// <param name="groupId">Optional group UUID (the "selectedGroup" of the schedule view); takes precedence over groupName.</param>
 /// <param name="groupName">Optional group display name, resolved with fuzzy matching inside the caller's group scope.</param>
@@ -18,7 +19,7 @@
 /// <param name="agentIds">Optional comma-separated client UUIDs; defaults to the clients the schedule shows for the group and its sub-groups in the period.</param>
 /// <param name="shiftIds">Optional comma-separated shift UUIDs; defaults to visible shifts via GetShiftSchedule.</param>
 /// <param name="analyseToken">Optional source scenario token; null = main scenario.</param>
-/// <param name="language">Optional UI language for Wizard 3 (LLM stage), e.g. "de", "en". Falls back to engine default.</param>
+/// <param name="language">Optional UI language for Wizard 3 when it runs on an AI model, e.g. "de", "en". Falls back to engine default.</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Exceptions;

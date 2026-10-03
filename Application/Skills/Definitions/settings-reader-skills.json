@@ -272,12 +272,13 @@
     {
       "name": "get_wizard_settings",
       "className": "GetWizardSettingsSkill",
-      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it.",
+      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search (the default, no AI and no usage costs) or with a language model, and which model that would be. Use when someone asks why reworking a plan takes so long, whether that run costs money, or wants to see the current choice before switching it.",
       "category": "Query",
       "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
-      "resultMessage": "Harmonizer model setting retrieved.",
+      "resultMessage": "Harmonizer mode and model settings retrieved.",
       "fields": [
+        { "constant": "Constants.Settings.HOLISTIC_HARMONIZER_MODE", "resultName": "Mode" },
         { "constant": "Constants.Settings.HOLISTIC_HARMONIZER_LLM_MODEL", "resultName": "LlmModelId" }
       ],
       "sensitiveFields": []

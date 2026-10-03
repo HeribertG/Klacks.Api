@@ -12811,7 +12811,7 @@
         },
         {
           "name": "language",
-          "description": "Optional UI language for the Wizard 3 LLM stage (e.g. 'de', 'en'). Falls back to engine default.",
+          "description": "Optional UI language (e.g. 'de', 'en') for the third stage when it runs on an AI model. Falls back to engine default.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -12935,7 +12935,7 @@
         "fr": "Démarrer l'assistant de remplissage automatique",
         "it": "Avvia l'assistente di riempimento automatico"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "place_work",
@@ -15079,7 +15079,7 @@
     {
       "name": "start_wizard1",
       "area": "wizard",
-      "description": "Starts only Wizard 1 (TokenEvolution Planner / coverage-first GA). Use when an initial plan is needed without the smoothing of Wizard 2 and without the LLM Holistic Harmonizer. Returns jobId; completion arrives via the wizard SignalR hub. Auto-resolves agents and shifts from the group when not supplied.",
+      "description": "Starts only Wizard 1 (TokenEvolution Planner / coverage-first GA). Use when an initial plan is needed without the smoothing of Wizard 2 and without the holistic polish of Wizard 3. Returns jobId; completion arrives via the wizard SignalR hub. Auto-resolves agents and shifts from the group when not supplied.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15165,7 +15165,7 @@
         "fr": "Démarrer l'assistant 1 (planificateur)",
         "it": "Avvia il wizard 1 (pianificatore)"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "start_wizard2",
@@ -15266,7 +15266,7 @@
     {
       "name": "start_wizard3",
       "area": "wizard",
-      "description": "Starts only Wizard 3 (Holistic Harmonizer - LLM Vision-Bitmap). Polishes a harmonized plan with multi-agent LLM voting. Consumes LLM credits; use sparingly. Pass the analyseToken of the Wizard 2 scenario.",
+      "description": "Starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized plan without changing coverage and without moving anyone further from their target hours. By default it runs a deterministic local search that needs no language model and costs only computing time; only when the installation has switched this stage to an AI model does it call that model and consume its usage. Pass the analyseToken of the Wizard 2 scenario.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15307,7 +15307,7 @@
         },
         {
           "name": "language",
-          "description": "Optional UI language for the LLM stage (e.g. 'de', 'en').",
+          "description": "Optional UI language (e.g. 'de', 'en'); only used when this stage runs on an AI model.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -15363,7 +15363,7 @@
         "fr": "Démarrer l'assistant 3 (harmonisateur holistique)",
         "it": "Avvia il wizard 3 (armonizzatore olistico)"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "cancel_wizard_job",
@@ -34852,7 +34852,7 @@
     {
       "name": "explain_planning_wizards",
       "area": "wizard",
-      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a picture-reading language model and is the only stage that costs usage. Covers running a single stage, polling a run and cancelling it.",
+      "description": "Explains the machinery behind automatic planning: three stages that run one after another. Stage one fills the plan with a genetic algorithm and no language model, stage two smooths the result without touching coverage decisions, stage three polishes it with a deterministic local search by default; only an installation that switched stage three to a picture-reading language model pays model usage for it. Covers running a single stage, polling a run and cancelling it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -34920,7 +34920,7 @@
         "fr": "Expliquer la planification automatique en trois étapes",
         "it": "Spiega la pianificazione automatica in tre fasi"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "explain_company_rules",
@@ -39913,7 +39913,7 @@
     {
       "name": "get_wizard_settings",
       "area": "settings",
-      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows how the schedule harmonizer reworks a whole roster at once: with the deterministic local search (the default, no AI and no usage costs) or with a language model, and which model that would be. Use when someone asks why reworking a plan takes so long, whether that run costs money, or wants to see the current choice before switching it. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39961,12 +39961,12 @@
         "fr": "Modèle IA de l'assistant de planification",
         "it": "Modello IA dell'assistente di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_wizard_settings",
       "area": "settings",
-      "description": "Sets which language model the schedule harmonizer runs on when it reworks a whole roster at once. The id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Sets how the schedule harmonizer reworks a whole roster at once: the deterministic local search (the default, no AI and no usage costs) or a language model, and which model that is. A model id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39975,11 +39975,22 @@
       "parameters": [
         {
           "name": "llmModelId",
-          "description": "Id of the model the harmonizer should use",
+          "description": "Id of the model the harmonizer should use when it runs on a language model. Optional when only the mode changes.",
           "type": "String",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "mode",
+          "description": "How the harmonizer works: 'deterministic' (local search, no AI, the default) or 'llm' (language model). Optional when only the model changes.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "deterministic",
+            "llm"
+          ]
         }
       ],
       "handlerConfig": null,
@@ -40021,7 +40032,7 @@
         "fr": "Modifier le modèle IA de l'assistant de planification",
         "it": "Modifica il modello IA dell'assistente di pianificazione"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "get_export_formats_settings",

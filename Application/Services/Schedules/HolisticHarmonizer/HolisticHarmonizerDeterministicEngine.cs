@@ -22,6 +22,9 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="logger">Logs one line per applied batch (coordinates, enums, scores only) and a run summary.</param>
 public sealed class HolisticHarmonizerDeterministicEngine
 {
+    /// <summary>Label reported in place of an LLM model id so run results and logs show which mode produced them.</summary>
+    public const string EngineLabel = "deterministic-local-search";
+
     private const string EmptyLogValue = "-";
     private const string SwapListSeparator = ",";
     private const string SwapLogFormat = "r{0}d{1}<->r{2}d{3}";
@@ -61,7 +64,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
 
         var fitness = new MemoizedHarmonyFitnessEvaluator(new HarmonyScorer());
         var components = HolisticHarmonizerComponents.Build(context, fitness, HolisticHarmonizerComponents.UntrimmedPool);
-        var options = HolisticHarmonizerDeterministicDefaults.Options;
+        var options = DeterministicSearchOptions.Default;
         var optimizer = new DeterministicHarmonyOptimizer(components, options);
 
         var result = optimizer.Run(working, progress, cancellationToken);
@@ -72,7 +75,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
         }
 
         _logger.LogInformation(
-            "Holistic Harmonizer (deterministic) finished: rows={Rows} days={Days} applied={Applied} iterations={Iterations} evaluations={Evaluations} maxCandidates={MaxCandidates} stop={Stop} fitness {Before:F4} -> {After:F4} elapsed={Ms}ms pairCap={PairCap} seed={Seed} restarts={Restarts} bestRestart={BestRestart} memoHits={Hits} memoMisses={Misses}",
+            "Holistic Harmonizer (deterministic) finished: rows={Rows} days={Days} applied={Applied} iterations={Iterations} evaluations={Evaluations} maxCandidates={MaxCandidates} stop={Stop} fitness {Before:F4} -> {After:F4} elapsed={Ms}ms pairCap={PairCap} seed={Seed} restarts={Restarts} bestRestart={BestRestart} totalBudgetHit={TotalBudgetHit} memoHits={Hits} memoMisses={Misses}",
             working.RowCount,
             working.DayCount,
             result.AppliedBatches.Count,
@@ -87,8 +90,16 @@ public sealed class HolisticHarmonizerDeterministicEngine
             options.Seed,
             result.RestartsRun,
             result.BestRestart,
+            result.TotalEvaluationBudgetHit,
             fitness.Hits,
             fitness.Misses);
+
+        if (result.StopReason == DeterministicSearchStopReason.WallClockBudget)
+        {
+            _logger.LogWarning(
+                "Holistic Harmonizer (deterministic) hit the wall-clock budget of {Budget}s before its evaluation budget; this run is not reproducible",
+                options.WallClockBudget.TotalSeconds);
+        }
 
         return new HolisticHarmonizerRunResult(
             OriginalBitmap: original,
@@ -96,7 +107,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
             Iterations: result.AppliedBatches,
             FitnessBefore: result.FitnessBefore,
             FitnessAfter: result.FitnessAfter,
-            LlmModelId: HolisticHarmonizerDeterministicDefaults.EngineLabel,
+            LlmModelId: EngineLabel,
             LlmParsingError: null,
             LlmRawResponsePreview: null);
     }
