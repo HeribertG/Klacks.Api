@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} sammanhängande arbetsdagar (max. {{maxDays}})",
   "schedule.error-list.counter-rule": "Räknarregel uppnådd: {{count}}× {{event}} per {{period}} (tröskel {{threshold}})",
   "schedule.error-list.planning-rule": "Planeringsregel bruten ({{kind}}): {{observed}} (gräns {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Planeringsregel {{ruleId}} är ogiltig och kontrolleras inte – rätta eller återkalla den",
   "schedule.error-list.empty": "Inga poster tillgängliga",
   "schedule.error-list.filter.errors": "Fel",
   "schedule.error-list.filter.info": "Information",

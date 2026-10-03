@@ -9,6 +9,8 @@
 /// <param name="Agents">One RuleAgent per requested agent, in request order</param>
 /// <param name="CarryIn">Worked segments outside [from - coveredBoundaryDays, until + coveredBoundaryDays]</param>
 /// <param name="SkippedRuleIds">Approved soft constraints left out because they failed validation (logged as errors)</param>
+/// <param name="InvalidHardRuleIds">Approved hard constraints left out because they failed validation; only filled
+/// with InvalidHardRuleHandling.Report (with Throw the load fails instead)</param>
 
 using Klacks.ScheduleOptimizer.Constraints.Rules;
 
@@ -18,4 +20,5 @@ public sealed record PlanningRuleSet(
     IReadOnlyList<PlanRule> Rules,
     IReadOnlyList<RuleAgent> Agents,
     IReadOnlyList<RuleSegment> CarryIn,
-    IReadOnlyList<Guid> SkippedRuleIds);
+    IReadOnlyList<Guid> SkippedRuleIds,
+    IReadOnlyList<Guid>? InvalidHardRuleIds = null);

@@ -106,6 +106,11 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (PlanningRuleConfigurationException ex)
+        {
+            _logger.LogError(ex, "PlanningRuleConfigurationException caught by middleware: {ConstraintId}", ex.ConstraintId);
+            await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity, "Unprocessable Entity", ex.Message, PlanningRuleConfigurationException.ErrorCode);
+        }
         catch (PeriodValidationConflictException ex)
         {
             _logger.LogWarning(

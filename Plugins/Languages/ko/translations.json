@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}}일 연속 근무 (최대 {{maxDays}}일)",
   "schedule.error-list.counter-rule": "카운터 규칙 도달: {{period}}당 {{event}} {{count}}회 (임계값 {{threshold}})",
   "schedule.error-list.planning-rule": "계획 규칙 위반 ({{kind}}): {{observed}} (한도 {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "계획 규칙 {{ruleId}}이(가) 유효하지 않아 검사되지 않습니다. 수정하거나 철회하세요",
   "schedule.error-list.empty": "항목이 없습니다",
   "schedule.error-list.filter.errors": "오류",
   "schedule.error-list.filter.info": "알림",

@@ -89,7 +89,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     {
         var agents = DistinctAgents(agentIds);
         cancellationToken.ThrowIfCancellationRequested();
-        var (rules, _) = await LoadRulesAsync(agents, from, until, analyseToken, PlanningRuleSources.All, [], cancellationToken);
+        var (rules, _) = await LoadRulesAsync(agents, from, until, analyseToken, PlanningRuleSources.All, [], null, cancellationToken);
         return rules;
     }
 
@@ -102,7 +102,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         CancellationToken cancellationToken = default)
         => LoadRuleSetAsync(agentIds, from, until, analyseToken, coveredBoundaryDays, PlanningRuleSources.All, cancellationToken);
 
-    public async Task<PlanningRuleSet> LoadRuleSetAsync(
+    public Task<PlanningRuleSet> LoadRuleSetAsync(
         IReadOnlyCollection<Guid> agentIds,
         DateOnly from,
         DateOnly until,
@@ -110,23 +110,35 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         int coveredBoundaryDays,
         PlanningRuleSources sources,
         CancellationToken cancellationToken = default)
+        => LoadRuleSetAsync(agentIds, from, until, analyseToken, coveredBoundaryDays, sources, InvalidHardRuleHandling.Throw, cancellationToken);
+
+    public async Task<PlanningRuleSet> LoadRuleSetAsync(
+        IReadOnlyCollection<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        int coveredBoundaryDays,
+        PlanningRuleSources sources,
+        InvalidHardRuleHandling invalidHardRules,
+        CancellationToken cancellationToken = default)
     {
         var agents = DistinctAgents(agentIds);
         cancellationToken.ThrowIfCancellationRequested();
         var skippedRuleIds = new List<Guid>();
-        var (rules, contractData) = await LoadRulesAsync(agents, from, until, analyseToken, sources, skippedRuleIds, cancellationToken);
+        var invalidHardRuleIds = invalidHardRules == InvalidHardRuleHandling.Report ? new List<Guid>() : null;
+        var (rules, contractData) = await LoadRulesAsync(agents, from, until, analyseToken, sources, skippedRuleIds, invalidHardRuleIds, cancellationToken);
         if (rules.Count == 0)
         {
             // Nothing will be evaluated: skip the contract resolution and the carry-in read, which every write gate
             // and live check would otherwise pay while an installation has no planning rule at all.
-            return new PlanningRuleSet(rules, agents.Select(id => ToRuleAgent(id, null, PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes)).ToList(), [], skippedRuleIds);
+            return new PlanningRuleSet(rules, agents.Select(id => ToRuleAgent(id, null, PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes)).ToList(), [], skippedRuleIds, invalidHardRuleIds);
         }
 
         contractData ??= await _contractDataProvider.GetEffectiveContractDataForClientsAsync(agents, from);
         var nightMinOverlap = await ReadNightRuleMinOverlapAsync();
         var ruleAgents = agents.Select(id => ToRuleAgent(id, contractData, nightMinOverlap)).ToList();
         var carryIn = await _carryInLoader.LoadAsync(agents, from, until, rules, analyseToken, coveredBoundaryDays, cancellationToken);
-        return new PlanningRuleSet(rules, ruleAgents, carryIn, skippedRuleIds);
+        return new PlanningRuleSet(rules, ruleAgents, carryIn, skippedRuleIds, invalidHardRuleIds);
     }
 
     private async Task<(IReadOnlyList<PlanRule> Rules, Dictionary<Guid, EffectiveContractData>? ContractData)> LoadRulesAsync(
@@ -136,6 +148,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         Guid? analyseToken,
         PlanningRuleSources sources,
         List<Guid> skippedRuleIds,
+        List<Guid>? invalidHardRuleIds,
         CancellationToken cancellationToken)
     {
         if (agents.Count == 0 || until < from)
@@ -175,7 +188,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
 
         foreach (var constraint in constraints)
         {
-            var rule = MapConstraint(constraint, agents, contractData, groupMembers, skippedRuleIds);
+            var rule = MapConstraint(constraint, agents, contractData, groupMembers, skippedRuleIds, invalidHardRuleIds);
             if (rule is not null)
             {
                 rules.Add(rule);
@@ -190,12 +203,23 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         List<Guid> agents,
         Dictionary<Guid, EffectiveContractData>? contractData,
         IReadOnlyDictionary<Guid, HashSet<Guid>> groupMembers,
-        List<Guid> skippedRuleIds)
+        List<Guid> skippedRuleIds,
+        List<Guid>? invalidHardRuleIds)
     {
         var validation = _constraintValidator.Validate(constraint);
         if (!validation.IsValid)
         {
             var errors = string.Join(" ", validation.Errors);
+            if (constraint.Severity == PlanningConstraintSeverity.Hard && invalidHardRuleIds is not null)
+            {
+                _logger.LogError(
+                    "Approved HARD planning constraint {ConstraintId} is invalid and is reported as a finding instead of being evaluated: {Errors}",
+                    constraint.Id,
+                    errors);
+                invalidHardRuleIds.Add(constraint.Id);
+                return null;
+            }
+
             if (constraint.Severity == PlanningConstraintSeverity.Hard)
             {
                 _logger.LogError(

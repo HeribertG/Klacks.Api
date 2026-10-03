@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} peräkkäistä työpäivää (enintään {{maxDays}})",
   "schedule.error-list.counter-rule": "Laskurisääntö saavutettu: {{count}}× {{event}} per {{period}} (kynnysarvo {{threshold}})",
   "schedule.error-list.planning-rule": "Suunnittelusääntöä rikottu ({{kind}}): {{observed}} (raja {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Suunnittelusääntö {{ruleId}} on virheellinen eikä sitä tarkisteta – korjaa tai peru se",
   "schedule.error-list.empty": "Ei merkintöjä",
   "schedule.error-list.filter.errors": "Virheet",
   "schedule.error-list.filter.info": "Tiedotteet",

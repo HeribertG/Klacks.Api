@@ -157,7 +157,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
 
         // Planning constraints are evaluated once for the whole set, because team fairness compares the agents
         // with each other; a group filter adds the members without any work in the period (the 0-count end of a
-        // fairness spread). An invalid approved Hard constraint propagates: the close must not pass it silently.
+        // fairness spread). An invalid approved Hard constraint arrives as an Error finding of its own, so the close
+        // cannot look clean while a binding rule is not evaluated.
         var planningRuleClients = clientIdsInGroup is null ? clientIds : clientIds.Union(clientIdsInGroup).ToList();
         entries.AddRange(await _planningRuleEvaluator.EvaluateRangeAsync(
             planningRuleClients, from, to, analyseToken, clientNameLookup, cancellationToken));
@@ -299,6 +300,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         ScheduleValidationKeys.RestDayRotation => "RestDayRotation",
         ScheduleValidationKeys.CounterRule => "CounterRule",
         ScheduleValidationKeys.PlanningRule => "PlanningRule",
+        ScheduleValidationKeys.PlanningRuleInvalid => "PlanningRule",
         ScheduleValidationKeys.RestrictedTimeWindow => "RestrictedTimeWindow",
         ScheduleValidationKeys.HolidayWork => "HolidayWork",
         ScheduleValidationKeys.CompensatoryRestDue => "CompensatoryRestDue",

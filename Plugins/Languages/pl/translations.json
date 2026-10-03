@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} kolejnych dni roboczych (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Osiągnięto regułę licznika: {{count}}× {{event}} na {{period}} (próg {{threshold}})",
   "schedule.error-list.planning-rule": "Naruszono regułę planowania ({{kind}}): {{observed}} (limit {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Reguła planowania {{ruleId}} jest nieprawidłowa i nie jest sprawdzana – popraw ją lub wycofaj",
   "schedule.error-list.empty": "Brak wpisów",
   "schedule.error-list.filter.errors": "Błędy",
   "schedule.error-list.filter.info": "Informacje",

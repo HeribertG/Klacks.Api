@@ -17,5 +17,7 @@ public class PlanningRuleConfigurationException : Exception
         ConstraintId = constraintId;
     }
 
+    public const string ErrorCode = "planningRuleConfigurationInvalid";
+
     public Guid ConstraintId { get; }
 }

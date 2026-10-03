@@ -8,8 +8,10 @@
 /// schedule validation entries. The pre-commit path widens the window by the rule horizon on both sides,
 /// because RestAfterKind only counts rest days inside the evaluated period, and evaluates the plan before and
 /// after the write on the same context. Breaks and WorkChange replacements are not read: a break counts as free,
-/// as in every rule consumer. An invalid approved Hard constraint throws PlanningRuleConfigurationException
-/// from the loader (fail closed); callers decide whether to propagate it.
+/// as in every rule consumer. An invalid approved Hard constraint is never a reason to fail: it is left out, the
+/// valid rules are still evaluated, and it is reported as a planning-rule-invalid finding of its own - an Error in
+/// the range and day checks (a period close must not look clean), a Warning in the pre-commit check, because an
+/// Error there would block every unrelated write.
 /// </summary>
 /// <param name="ruleSetLoader">Approved planning rules, agents (night window, workload)</param>
 /// <param name="dataReader">Persisted Work rows of the evaluated clients</param>
@@ -18,6 +20,7 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
@@ -49,16 +52,15 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(clientNames);
-        var window = await PrepareAsync(clientIds, from, until, extendByHorizon: false, includeTeamFairness: true, analyseToken, cancellationToken);
-        if (window is null)
+        var (window, invalidRuleIds) = await PrepareAsync(clientIds, from, until, extendByHorizon: false, includeTeamFairness: true, analyseToken, cancellationToken);
+        var entries = InvalidRuleEntries(invalidRuleIds, from, ScheduleValidationType.Error, Guid.Empty);
+        if (window is not null)
         {
-            return [];
+            entries.AddRange(window.Evaluator.Evaluate(window.BuildPlan(window.Segments)).Findings
+                .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, NameOf(finding, clientNames))));
         }
 
-        var evaluation = window.Evaluator.Evaluate(window.BuildPlan(window.Segments));
-        return evaluation.Findings
-            .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, NameOf(finding, clientNames)))
-            .ToList();
+        return entries;
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluateDayAsync(
@@ -68,17 +70,16 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
         Guid? analyseToken,
         CancellationToken cancellationToken = default)
     {
-        var window = await PrepareAsync([clientId], date, date, extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
-        if (window is null)
+        var (window, invalidRuleIds) = await PrepareAsync([clientId], date, date, extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
+        var entries = InvalidRuleEntries(invalidRuleIds, date, ScheduleValidationType.Error, clientId);
+        if (window is not null)
         {
-            return [];
+            entries.AddRange(window.Evaluator.Evaluate(window.BuildPlan(window.Segments)).Findings
+                .Where(finding => finding.Date == date)
+                .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, clientName)));
         }
 
-        var evaluation = window.Evaluator.Evaluate(window.BuildPlan(window.Segments));
-        return evaluation.Findings
-            .Where(finding => finding.Date == date)
-            .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, clientName))
-            .ToList();
+        return entries;
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluatePlannedChangeAsync(
@@ -96,10 +97,11 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
 
         var clientIds = plannedRows.Select(r => r.ClientId).Concat(removals.Select(r => r.ClientId)).Distinct().ToList();
         var dates = plannedRows.Select(r => r.Date).Concat(removals.Select(r => r.Date)).ToList();
-        var window = await PrepareAsync(clientIds, dates.Min(), dates.Max(), extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
+        var (window, invalidRuleIds) = await PrepareAsync(clientIds, dates.Min(), dates.Max(), extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
+        var entries = InvalidRuleEntries(invalidRuleIds, dates.Min(), ScheduleValidationType.Warning, Guid.Empty);
         if (window is null)
         {
-            return [];
+            return entries;
         }
 
         var before = window.Evaluator.Evaluate(window.BuildPlan(window.Segments));
@@ -110,12 +112,12 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
             .ToList();
         var after = window.Evaluator.Evaluate(window.BuildPlan(afterSegments));
 
-        return PlanningRuleFindingDelta.NewOrWorsened(before.Findings, after.Findings)
-            .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, string.Empty))
-            .ToList();
+        entries.AddRange(PlanningRuleFindingDelta.NewOrWorsened(before.Findings, after.Findings)
+            .Select(finding => PlanningRuleNotificationMapper.ToNotification(finding, string.Empty)));
+        return entries;
     }
 
-    private async Task<EvaluationWindow?> PrepareAsync(
+    private async Task<(EvaluationWindow? Window, IReadOnlyList<Guid> InvalidRuleIds)> PrepareAsync(
         IReadOnlyCollection<Guid> clientIds,
         DateOnly coreFrom,
         DateOnly coreUntil,
@@ -127,7 +129,7 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
         ArgumentNullException.ThrowIfNull(clientIds);
         if (clientIds.Count == 0 || coreUntil < coreFrom)
         {
-            return null;
+            return (null, []);
         }
 
         var ruleSet = await _ruleSetLoader.LoadRuleSetAsync(
@@ -137,13 +139,15 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
             analyseToken,
             SelfLoadedBoundaryDays,
             PlanningRuleSources.PlanningConstraints,
+            InvalidHardRuleHandling.Report,
             cancellationToken);
+        var invalidRuleIds = ruleSet.InvalidHardRuleIds ?? [];
         var rules = includeTeamFairness
             ? ruleSet.Rules
             : ruleSet.Rules.Where(rule => rule is not TeamFairnessRule).ToList();
         if (rules.Count == 0)
         {
-            return null;
+            return (null, invalidRuleIds);
         }
 
         var neighborDays = PlanRuleHorizon.NeighborDays(rules);
@@ -157,8 +161,14 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
             cancellationToken);
         var segments = spans.Select(PlanningRuleCarryInLoader.ToSegment).ToList();
         var context = new RuleEvaluationContext(evaluationFrom, evaluationUntil, ruleSet.Agents, segments);
-        return new EvaluationWindow(PlanRuleEvaluatorFactory.Create(rules, context), context, spans, segments);
+        return (new EvaluationWindow(PlanRuleEvaluatorFactory.Create(rules, context), context, spans, segments), invalidRuleIds);
     }
+
+    private static List<ScheduleValidationNotificationDto> InvalidRuleEntries(
+        IReadOnlyList<Guid> invalidRuleIds, DateOnly date, ScheduleValidationType type, Guid clientId)
+        => invalidRuleIds
+            .Select(ruleId => PlanningRuleNotificationMapper.ToInvalidRuleNotification(ruleId, date, type, clientId))
+            .ToList();
 
     private static string NameOf(RuleFinding finding, IReadOnlyDictionary<Guid, string> clientNames)
         => clientNames.TryGetValue(PlanningRuleNotificationMapper.ParseClientId(finding.AgentId), out var name) ? name : string.Empty;

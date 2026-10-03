@@ -51,6 +51,21 @@ public static class PlanningRuleNotificationMapper
         };
     }
 
+    /// <summary>
+    /// Finding for an approved Hard constraint that could not be evaluated because its stored parameters are
+    /// invalid: only the rule id, the rule and not a person is broken.
+    /// </summary>
+    public static ScheduleValidationNotificationDto ToInvalidRuleNotification(Guid ruleId, DateOnly date, ScheduleValidationType type, Guid clientId)
+        => new()
+        {
+            Type = type,
+            ClientId = clientId,
+            ClientName = string.Empty,
+            Date = date,
+            Comment = ScheduleValidationKeys.PlanningRuleInvalid,
+            CommentParams = new Dictionary<string, string> { [RuleIdParam] = ruleId.ToString() },
+        };
+
     public static Guid ParseClientId(string? agentId)
         => Guid.TryParse(agentId, CultureInfo.InvariantCulture, out var clientId) ? clientId : Guid.Empty;
 }

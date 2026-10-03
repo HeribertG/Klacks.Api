@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} διαδοχικές εργάσιμες ημέρες (μέγ. {{maxDays}})",
   "schedule.error-list.counter-rule": "Επιτεύχθηκε κανόνας μετρητή: {{count}}× {{event}} ανά {{period}} (όριο {{threshold}})",
   "schedule.error-list.planning-rule": "Παραβίαση κανόνα προγραμματισμού ({{kind}}): {{observed}} (όριο {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Ο κανόνας προγραμματισμού {{ruleId}} δεν είναι έγκυρος και δεν ελέγχεται – διορθώστε τον ή ανακαλέστε τον",
   "schedule.error-list.empty": "Δεν υπάρχουν εγγραφές",
   "schedule.error-list.filter.errors": "Σφάλματα",
   "schedule.error-list.filter.info": "Πληροφορίες",

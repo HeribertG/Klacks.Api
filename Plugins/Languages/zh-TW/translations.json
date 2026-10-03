@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} 個連續工作日（最大 {{maxDays}} 個）",
   "schedule.error-list.counter-rule": "已達到計數規則：每{{period}} {{count}}× {{event}}（門檻值 {{threshold}}）",
   "schedule.error-list.planning-rule": "違反排班規則（{{kind}}）：{{observed}}（上限 {{limit}}）",
+  "schedule.error-list.planning-rule-invalid": "排班規則 {{ruleId}} 無效，未進行檢查——請修正或撤銷",
   "schedule.error-list.empty": "暫無條目",
   "schedule.error-list.filter.errors": "錯誤",
   "schedule.error-list.filter.info": "提示",

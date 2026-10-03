@@ -163,7 +163,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // Planning constraints (sequence rules): a before/after DIFF over the rule horizon, unlike the absolute
         // counter rules above - a pre-existing violation never blocks an unrelated write, only a finding the
         // write creates or worsens is reported (Hard = overridable Error, Soft = Warning). Removals are applied,
-        // so a swap is judged on its net effect. An invalid approved Hard constraint propagates (fail closed).
+        // so a swap is judged on its net effect. An invalid approved Hard constraint never blocks the write: it comes
+        // back as a planning-rule-invalid Warning while the valid rules are still enforced.
         newConflicts.AddRange(await _planningRuleEvaluator.EvaluatePlannedChangeAsync(plannedRows, removals, analyseToken, cancellationToken));
 
         // K16 restricted time windows: an ABSOLUTE per-(shift, date, time) check on the planned rows -

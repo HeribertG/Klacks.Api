@@ -13,7 +13,6 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -360,8 +359,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         // Only findings dated on the checked day: the partial refresh replaces exactly that client-day in the
         // UI, so an entry anchored elsewhere would stay behind; the next range check reports those.
-        entries.AddRange(await EvaluatePlanningRulesSafelyAsync(
-            () => planningRuleEvaluator.EvaluateDayAsync(clientId, clientName, date, analyseToken, cancellationToken)));
+        entries.AddRange(await planningRuleEvaluator.EvaluateDayAsync(clientId, clientName, date, analyseToken, cancellationToken));
 
         try
         {
@@ -518,7 +516,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         await AddQualificationEntriesAsync(allEntries, works, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
 
-        allEntries.AddRange(await EvaluatePlanningRulesSafelyAsync(() => planningRuleEvaluator.EvaluateRangeAsync(clientIds, startDate, endDate, analyseToken, clientNameLookup, cancellationToken)));
+        allEntries.AddRange(await planningRuleEvaluator.EvaluateRangeAsync(clientIds, startDate, endDate, analyseToken, clientNameLookup, cancellationToken));
 
         _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked, {WorkCount} works, {BreakCount} breaks",
             allCollisions.Count, allEntries.Count, groupedByClient.Count(), works.Count, breaks.Count);
@@ -542,25 +540,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyScheduleValidationsDetected SENT ({Count} entries)", allEntries.Count);
-    }
-
-    /// <summary>
-    /// Runs a planning-rule evaluation for the live notifications. An invalid approved Hard constraint must not
-    /// wipe out every other validation of the job, so the configuration error is logged and the planning-rule
-    /// part of the notification stays empty; the write gate and the period close still fail closed on it.
-    /// </summary>
-    private async Task<List<ScheduleValidationNotificationDto>> EvaluatePlanningRulesSafelyAsync(
-        Func<Task<List<ScheduleValidationNotificationDto>>> evaluate)
-    {
-        try
-        {
-            return await evaluate();
-        }
-        catch (PlanningRuleConfigurationException ex)
-        {
-            _logger.LogError(ex, "Planning-rule validation skipped: constraint {ConstraintId} is invalid", ex.ConstraintId);
-            return [];
-        }
     }
 
     /// <summary>

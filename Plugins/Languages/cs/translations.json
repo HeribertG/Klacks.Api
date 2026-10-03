@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} po sobě jdoucích pracovních dnů (max. {{maxDays}})",
   "schedule.error-list.counter-rule": "Dosaženo pravidla čítače: {{count}}× {{event}} za {{period}} (práh {{threshold}})",
   "schedule.error-list.planning-rule": "Porušeno plánovací pravidlo ({{kind}}): {{observed}} (limit {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Plánovací pravidlo {{ruleId}} je neplatné a nekontroluje se – opravte je nebo je odvolejte",
   "schedule.error-list.empty": "Žádné záznamy",
   "schedule.error-list.filter.errors": "Chyby",
   "schedule.error-list.filter.info": "Informace",

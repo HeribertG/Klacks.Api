@@ -26,6 +26,7 @@ public static class ScheduleValidationKeys
     public const string RestDayRotation = "schedule.error-list.rest-day-rotation";
     public const string CounterRule = "schedule.error-list.counter-rule";
     public const string PlanningRule = "schedule.error-list.planning-rule";
+    public const string PlanningRuleInvalid = "schedule.error-list.planning-rule-invalid";
     public const string CompensatoryRestDue = "schedule.error-list.compensatory-rest-due";
     public const string CompensatoryRestOverdue = "schedule.error-list.compensatory-rest-overdue";
     public const string RestrictedTimeWindow = "schedule.error-list.restricted-time-window";

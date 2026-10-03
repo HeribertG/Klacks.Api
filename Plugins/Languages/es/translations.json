@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} días laborables consecutivos (máx. {{maxDays}})",
   "schedule.error-list.counter-rule": "Regla de contador alcanzada: {{count}}× {{event}} por {{period}} (umbral {{threshold}})",
   "schedule.error-list.planning-rule": "Regla de planificación infringida ({{kind}}): {{observed}} (límite {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "La regla de planificación {{ruleId}} no es válida y no se comprueba: corríjala o revóquela",
   "schedule.error-list.empty": "No hay entradas disponibles",
   "schedule.error-list.filter.errors": "Errores",
   "schedule.error-list.filter.info": "Información",

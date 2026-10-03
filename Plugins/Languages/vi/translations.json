@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} ngày làm liên tục (tối đa {{maxDays}})",
   "schedule.error-list.counter-rule": "Đã đạt quy tắc đếm: {{count}}× {{event}} mỗi {{period}} (ngưỡng {{threshold}})",
   "schedule.error-list.planning-rule": "Vi phạm quy tắc lập kế hoạch ({{kind}}): {{observed}} (giới hạn {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Quy tắc lập kế hoạch {{ruleId}} không hợp lệ và không được kiểm tra - vui lòng sửa hoặc thu hồi",
   "schedule.error-list.empty": "Không có mục nào",
   "schedule.error-list.filter.errors": "Lỗi",
   "schedule.error-list.filter.info": "Thông báo",

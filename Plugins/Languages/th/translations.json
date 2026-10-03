@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} วันทำงานติดต่อกัน (สูงสุด {{maxDays}})",
   "schedule.error-list.counter-rule": "ถึงกฎตัวนับแล้ว: {{count}}× {{event}} ต่อ {{period}} (เกณฑ์ {{threshold}})",
   "schedule.error-list.planning-rule": "ละเมิดกฎการวางแผน ({{kind}}): {{observed}} (ขีดจำกัด {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "กฎการวางแผน {{ruleId}} ไม่ถูกต้องและไม่ได้รับการตรวจสอบ - โปรดแก้ไขหรือเพิกถอน",
   "schedule.error-list.empty": "ไม่มีรายการ",
   "schedule.error-list.filter.errors": "ข้อผิดพลาด",
   "schedule.error-list.filter.info": "ข้อมูล",

@@ -1871,6 +1871,7 @@
   "schedule.error-list.consecutive-days": "{{actualDays}} sammenhengende arbeidsdager (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Tellerregel nådd: {{count}}× {{event}} per {{period}} (terskel {{threshold}})",
   "schedule.error-list.planning-rule": "Planleggingsregel brutt ({{kind}}): {{observed}} (grense {{limit}})",
+  "schedule.error-list.planning-rule-invalid": "Planleggingsregel {{ruleId}} er ugyldig og kontrolleres ikke – rett eller trekk den tilbake",
   "schedule.error-list.empty": "Ingen oppføringer",
   "schedule.error-list.filter.errors": "Feil",
   "schedule.error-list.filter.info": "Informasjon",

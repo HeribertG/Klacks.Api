@@ -52,4 +52,18 @@ public interface IPlanningRuleSetLoader
         int coveredBoundaryDays,
         PlanningRuleSources sources,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// As the sources overload, but an invalid approved Hard constraint is handled per <paramref name="invalidHardRules"/>:
+    /// Report leaves it out, logs it as an error and lists it in PlanningRuleSet.InvalidHardRuleIds.
+    /// </summary>
+    Task<PlanningRuleSet> LoadRuleSetAsync(
+        IReadOnlyCollection<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        int coveredBoundaryDays,
+        PlanningRuleSources sources,
+        InvalidHardRuleHandling invalidHardRules,
+        CancellationToken cancellationToken = default);
 }
