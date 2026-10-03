@@ -24,6 +24,62 @@ http {
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
 
+    # Access log without credentials.
+    #
+    # The default "combined" format logs $request, i.e. the raw request line including the query
+    # string. SignalR cannot send an Authorization header over WebSockets, so the browser puts the
+    # JWT into the URL (/hubs/...?id=...&access_token=<JWT>, devknowledge: /ws?token=<JWT>). A JWT
+    # carries e-mail, name, role and user id, and every one of those lines ended up in the Docker
+    # log. This format therefore never writes a query-string secret:
+    #   1. /hubs/ and /ws: the whole query string is replaced (all of it is connection state).
+    #   2. Everywhere else: the value of every known secret parameter is replaced by REDACTED.
+    #      nginx maps cannot do a global replace, so three chained stages handle up to three secret
+    #      parameters per request; the (?!REDACTED) guard makes a stage skip what an earlier stage
+    #      already replaced, so each stage takes the last remaining one. A fourth stage fails
+    #      closed and drops the whole query string.
+    #   3. The Referer loses its query string (a page URL can carry the same parameters).
+    # Parameter names are matched case-insensitively and un-encoded; an unknown name is NOT caught -
+    # extend the alternation in the three stages below when a new secret parameter is introduced.
+    map $request_uri $log_uri_stage0 {
+        ~^(?<log_hub_path>/(?:hubs|ws)(?:/[^?]*)?)\?    "${log_hub_path}?REDACTED";
+        default                                         $request_uri;
+    }
+
+    map $log_uri_stage0 $log_uri_stage1 {
+        ~*^(?<log_pre1>.*[?&])(?<log_name1>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post1>.*)$    "${log_pre1}${log_name1}=REDACTED${log_post1}";
+        default                                         $log_uri_stage0;
+    }
+
+    map $log_uri_stage1 $log_uri_stage2 {
+        ~*^(?<log_pre2>.*[?&])(?<log_name2>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post2>.*)$    "${log_pre2}${log_name2}=REDACTED${log_post2}";
+        default                                         $log_uri_stage1;
+    }
+
+    map $log_uri_stage2 $log_uri_stage3 {
+        ~*^(?<log_pre3>.*[?&])(?<log_name3>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post3>.*)$    "${log_pre3}${log_name3}=REDACTED${log_post3}";
+        default                                         $log_uri_stage2;
+    }
+
+    # Fail closed: a fourth secret parameter in one request is not worth a fourth stage - if one is
+    # still left after three, the whole query string is dropped instead of leaking it.
+    map $log_uri_stage3 $log_uri_redacted {
+        ~*^(?<log_failsafe_path>[^?]*)\?(?:.*&)?(?:access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))    "${log_failsafe_path}?REDACTED";
+        default                                         $log_uri_stage3;
+    }
+
+    map $http_referer $log_referer_redacted {
+        ~^(?<log_referer_path>[^?]*)\?                  "${log_referer_path}?REDACTED";
+        default                                         $http_referer;
+    }
+
+    log_format redacted '$remote_addr - $remote_user [$time_local] '
+                        '"$request_method $log_uri_redacted $server_protocol" '
+                        '$status $body_bytes_sent "$log_referer_redacted" "$http_user_agent"';
+
+    # Defined once here at http level and inherited by every server block below; no server or
+    # location block may declare its own access_log, or it would bypass the redaction.
+    access_log /var/log/nginx/access.log redacted;
+
     upstream klacks-ui {
         server klacks-ui:80;
         keepalive 32;

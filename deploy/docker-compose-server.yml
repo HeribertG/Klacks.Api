@@ -1,3 +1,17 @@
+# Bounded Docker json-file logs: 5 files of 50 MB per container, i.e. at most 250 MB each. Without
+# it the json-file driver never rotates - on 2026-10-03 klacks-proxy had collected 728 MB since
+# 2026-07-09. Only applied to services this deploy recreates anyway (klacks-api, klacks-ui) and to
+# the proxy. postgres, pgadmin and the other long-running services are deliberately left out: adding
+# `logging:` changes their config hash, and the next `compose up -d klacks-api` (which depends on
+# postgres) would then recreate the database container during a release.
+# Changing the logging options of an EXISTING container needs `docker compose up -d --no-deps
+# <service>`; a plain `restart` keeps the old options.
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "5"
+
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -69,6 +83,7 @@ services:
   klacks-api:
     image: ghcr.io/heribertg/klacks-api:${KLACKS_API_TAG:-latest}
     container_name: klacks-api
+    logging: *default-logging
     restart: unless-stopped
     expose:
       - "5000"
@@ -235,6 +250,7 @@ services:
   klacks-ui:
     image: ghcr.io/heribertg/klacks-ui:${KLACKS_UI_TAG:-latest}
     container_name: klacks-ui
+    logging: *default-logging
     restart: unless-stopped
     expose:
       - "80"
@@ -521,6 +537,7 @@ services:
   nginx-proxy:
     image: nginx:alpine
     container_name: klacks-proxy
+    logging: *default-logging
     restart: unless-stopped
     ports:
       - "80:80"
