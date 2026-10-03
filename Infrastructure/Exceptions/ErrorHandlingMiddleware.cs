@@ -12,10 +12,6 @@ namespace Klacks.Api.Infrastructure.Exceptions;
 
 public class ErrorHandlingMiddleware
 {
-    public const string ConcurrencyConflictCode = "concurrencyConflict";
-
-    private const string ConcurrencyConflictDetail = "The record was modified by another user. Please refresh and try again.";
-
     private readonly RequestDelegate next;
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
@@ -68,11 +64,6 @@ public class ErrorHandlingMiddleware
         {
             _logger.LogWarning(ex, "KeyNotFoundException caught by middleware: {Message}", ex.Message);
             await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
-        }
-        catch (Exception ex) when (ex is DbUpdateConcurrencyException or ConcurrencyException)
-        {
-            _logger.LogWarning(ex, "Concurrency conflict caught by middleware: {Message}", ex.Message);
-            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Conflict", ConcurrencyConflictDetail, ConcurrencyConflictCode);
         }
         catch (DbUpdateException ex)
         {
