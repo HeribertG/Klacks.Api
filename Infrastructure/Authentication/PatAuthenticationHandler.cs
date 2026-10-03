@@ -3,7 +3,8 @@
 /// <summary>
 /// Authentication handler for personal access tokens. Validates bearer tokens carrying the
 /// well-known PAT prefix via hash lookup, mirrors the login JWT claims for the token owner
-/// and throttles last-used tracking; all other tokens fall through to the JWT handler.
+/// and throttles last-used tracking; all other tokens fall through to the JWT handler. The principal
+/// also carries the token id and its access mode (Read/Write), which the MCP surface enforces.
 /// </summary>
 /// <param name="tokenRepository">Repository used for hash lookup and last-used updates</param>
 /// <param name="userManager">Identity user manager used to load the token owner and roles</param>
@@ -81,7 +82,7 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
 
         await UpdateLastUsedIfStaleAsync(token, utcNow);
 
-        var principal = await BuildPrincipalAsync(user, utcNow);
+        var principal = await BuildPrincipalAsync(user, token, utcNow);
 
         return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
     }
@@ -117,7 +118,7 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         await _tokenRepository.UpdateLastUsedAsync(token.Id, utcNow, Context.RequestAborted);
     }
 
-    private async Task<ClaimsPrincipal> BuildPrincipalAsync(AppUser user, DateTime utcNow)
+    private async Task<ClaimsPrincipal> BuildPrincipalAsync(AppUser user, PersonalAccessToken token, DateTime utcNow)
     {
         var claims = new List<Claim>
         {
@@ -127,7 +128,9 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             new Claim(ClaimTypes.GivenName, user.FirstName),
             new Claim(ClaimTypes.Surname, user.LastName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(utcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+            new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(utcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+            new Claim(PatConstants.TokenIdClaimType, token.Id.ToString()),
+            new Claim(PatConstants.AccessModeClaimType, token.AccessMode.ToString())
         };
 
         var roles = await _userManager.GetRolesAsync(user);

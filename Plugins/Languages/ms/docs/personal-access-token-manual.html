@@ -9,8 +9,7 @@ perkhidmatan luaran mengakses Klacks dengan selamat — tanpa nama pengguna dan 
 <p><strong>Kes penggunaan biasa:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — membenarkan pembantu AI seperti Claude Desktop mengakses Skill Klacksy secara terus</li>
-  <li>Skrip automasi dan saluran paip CI/CD</li>
-  <li>Alat pemantauan dan integrasi luaran</li>
+  <li>Ejen dan pembantu AI yang bekerja dengan Klacks melalui MCP</li>
 </ul>
 
 <h4>Konsep Keselamatan</h4>
@@ -34,7 +33,7 @@ token baharu perlu dicipta dan token lama dibatalkan.</em>
 <ul>
   <li>Navigasi ke <strong>Konfigurasi → Personal Access Tokens</strong></li>
   <li>Klik <strong>Cipta Token Baharu</strong></li>
-  <li>Berikan <strong>Nama</strong> yang jelas (cth. <code>Claude Desktop</code> atau <code>CI-Pipeline</code>)</li>
+  <li>Berikan <strong>Nama</strong> yang jelas (cth. <code>Claude Desktop</code> atau <code>Ejen AI perancangan</code>)</li>
   <li>Pilih <strong>Tempoh Sah</strong> yang dikehendaki (1–730 hari, lalai: 365 hari)</li>
   <li>Klik <strong>Cipta</strong></li>
   <li>Salin token yang dipaparkan dengan segera — ia hanya dipaparkan sekali sahaja</li>
@@ -52,17 +51,25 @@ rawak yang selamat secara kriptografi.</p>
 <table>
   <tr><th>Tempoh</th><th>Penggunaan Disyorkan</th></tr>
   <tr><td>1–30 hari</td><td>Ujian dan pembangunan jangka pendek</td></tr>
-  <tr><td>90–180 hari</td><td>Saluran paip CI/CD dengan putaran berkala</td></tr>
+  <tr><td>90–180 hari</td><td>Ejen AI dengan putaran berkala</td></tr>
   <tr><td>365 hari (lalai)</td><td>Integrasi kekal (cth. Claude Desktop)</td></tr>
   <tr><td>730 hari</td><td>Integrasi sistem jangka panjang</td></tr>
 </table>
+
+<h4>Mod akses</h4>
+<p>Semasa mencipta token, anda menentukan apa yang boleh dilakukan oleh ejen luaran dengan token itu:</p>
+<ul>
+  <li><strong>Baca sahaja</strong> (lalai) — ejen hanya melihat dan menggunakan alat baca. Setiap cubaan untuk mengubah data akan ditolak.</li>
+  <li><strong>Baca dan tulis</strong> — ejen juga boleh mengubah data tanpa kelulusan seseorang bagi setiap perubahan. Pilih mod ini hanya untuk ejen yang anda percayai untuk membuat perubahan.</li>
+</ul>
+<p>Mod dipaparkan dalam senarai token dan tidak boleh diubah selepas itu; cipta token baharu jika perlu. Token sedia ada dan token yang dikeluarkan melalui log masuk OAuth (cth. penyambung MCP) mempunyai mod “Baca dan tulis”.</p>
 
 <hr>
 
 <h3>Menggunakan Token</h3>
 
 <h4>Bearer Token dalam Header HTTP</h4>
-<p>Token dihantar sebagai bearer token dalam header <code>Authorization</code> bagi setiap permintaan API:</p>
+<p>Token dihantar sebagai bearer token dalam header <code>Authorization</code> bagi setiap permintaan MCP ke endpoint <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ menguruskan kumpulan dan banyak lagi.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;domain-klacks-anda&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;domain-klacks-anda&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ menguruskan kumpulan dan banyak lagi.
 <p>Gantikan <code>&lt;domain-klacks-anda&gt;</code> dengan alamat instalasi Klacks anda
 dan <code>klacks_pat_...</code> dengan token yang telah anda cipta.</p>
 
-<h4>Permintaan API Langsung (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;domain-klacks-anda&gt;/api/clients
-</pre>
+<p><strong>Nota:</strong> Token hanya sah untuk akses MCP oleh ejen AI (endpoint <code>/mcp</code>). REST API Klacks (cth. <code>/api/clients</code>) tidak menerimanya; ia memerlukan token log masuk.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ baharu tepat pada masanya.
   <li>Gunakan token berasingan untuk setiap perkhidmatan atau alat</li>
   <li>Pilih nama yang jelas supaya token dapat dikenal pasti dengan tepat</li>
   <li>Jangan sekali-kali simpan token dalam bentuk teks biasa dalam sistem kawalan versi</li>
-  <li>Putarkan token secara berkala, terutamanya untuk penggunaan CI/CD</li>
+  <li>Putarkan token secara berkala</li>
   <li>Batalkan token dengan segera jika disyaki disalahgunakan</li>
 </ul>
 
 <p>
-<em>Setiap token terikat kepada akaun pengguna anda dan mempunyai kebenaran yang sama
-seperti akaun anda. Layan token dengan tahap kewaspadaan yang sama
-seperti kata laluan anda.</em>
+<em>Setiap token terikat kepada akaun pengguna anda. Melalui MCP, token mempunyai kebenaran akaun anda, tetapi dihadkan paling tinggi pada tahap penyelia (Supervisor): walaupun akaun anda ialah pentadbir, token tidak pernah mempunyai hak pentadbir. Selain itu, mod akses mengehadkan apa yang boleh dilakukan oleh ejen: dengan "Baca sahaja" ia hanya menggunakan fungsi baca; dengan "Baca dan tulis" ia membuat perubahan tanpa pengesahan tambahan. Layan token dengan tahap kewaspadaan yang sama seperti kata laluan anda.</em>
 </p>

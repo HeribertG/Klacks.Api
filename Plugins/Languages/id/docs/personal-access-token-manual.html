@@ -9,8 +9,7 @@ layanan eksternal mengakses Klacks secara aman — tanpa nama pengguna dan kata 
 <p><strong>Kasus penggunaan umum:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — memungkinkan asisten AI seperti Claude Desktop mengakses langsung skill Klacksy</li>
-  <li>Skrip otomasi dan pipeline CI/CD</li>
-  <li>Alat pemantauan dan integrasi eksternal</li>
+  <li>Agen dan asisten AI yang bekerja dengan Klacks melalui MCP</li>
 </ul>
 
 <h4>Konsep keamanan</h4>
@@ -34,7 +33,7 @@ token baru harus dibuat dan yang lama dicabut.</em>
 <ul>
   <li>Navigasikan ke <strong>Konfigurasi → Personal Access Tokens</strong></li>
   <li>Klik <strong>Buat token baru</strong></li>
-  <li>Berikan <strong>nama</strong> yang deskriptif (misalnya <code>Claude Desktop</code> atau <code>CI-Pipeline</code>)</li>
+  <li>Berikan <strong>nama</strong> yang deskriptif (misalnya <code>Claude Desktop</code> atau <code>Agen AI perencanaan</code>)</li>
   <li>Pilih <strong>masa berlaku</strong> yang diinginkan (1–730 hari, standar: 365 hari)</li>
   <li>Klik <strong>Buat</strong></li>
   <li>Salin token yang ditampilkan segera — token hanya ditampilkan satu kali</li>
@@ -52,17 +51,25 @@ karakter acak yang aman secara kriptografis.</p>
 <table>
   <tr><th>Durasi</th><th>Penggunaan yang disarankan</th></tr>
   <tr><td>1–30 hari</td><td>Pengujian jangka pendek dan pengembangan</td></tr>
-  <tr><td>90–180 hari</td><td>Pipeline CI/CD dengan rotasi rutin</td></tr>
+  <tr><td>90–180 hari</td><td>Agen AI dengan rotasi rutin</td></tr>
   <tr><td>365 hari (standar)</td><td>Integrasi permanen (misalnya Claude Desktop)</td></tr>
   <tr><td>730 hari</td><td>Integrasi sistem jangka panjang</td></tr>
 </table>
+
+<h4>Mode akses</h4>
+<p>Saat membuat token, Anda menentukan apa yang boleh dilakukan agen eksternal dengan token tersebut:</p>
+<ul>
+  <li><strong>Hanya baca</strong> (bawaan) — agen hanya melihat dan menggunakan alat baca. Setiap upaya mengubah data akan ditolak.</li>
+  <li><strong>Baca dan tulis</strong> — agen juga dapat mengubah data tanpa persetujuan seseorang untuk setiap perubahan. Pilih mode ini hanya untuk agen yang Anda percayai untuk melakukan perubahan.</li>
+</ul>
+<p>Mode ditampilkan di daftar token dan tidak dapat diubah setelahnya; buat token baru jika perlu. Token yang sudah ada dan token yang diterbitkan melalui login OAuth (mis. konektor MCP) memiliki mode “Baca dan tulis”.</p>
 
 <hr>
 
 <h3>Menggunakan token</h3>
 
 <h4>Bearer token dalam header HTTP</h4>
-<p>Token dikirim sebagai bearer token dalam header <code>Authorization</code> pada setiap permintaan API:</p>
+<p>Token dikirim sebagai bearer token dalam header <code>Authorization</code> pada setiap permintaan MCP ke endpoint <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ mengelola grup, dan banyak lagi.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;domain-klacks-anda&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;domain-klacks-anda&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ mengelola grup, dan banyak lagi.
 <p>Ganti <code>&lt;domain-klacks-anda&gt;</code> dengan alamat instalasi Klacks Anda
 dan <code>klacks_pat_...</code> dengan token yang Anda buat.</p>
 
-<h4>Permintaan API langsung (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;domain-klacks-anda&gt;/api/clients
-</pre>
+<p><strong>Catatan:</strong> Token hanya berlaku untuk akses MCP bagi agen AI (endpoint <code>/mcp</code>). REST API Klacks (misalnya <code>/api/clients</code>) tidak menerimanya; REST API memerlukan token login.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ token baru tepat waktu.
   <li>Gunakan token terpisah untuk setiap layanan atau alat</li>
   <li>Pilih nama yang deskriptif agar token dapat diidentifikasi dengan jelas</li>
   <li>Jangan pernah menyimpan token dalam bentuk teks biasa di sistem kontrol versi</li>
-  <li>Rotasi token secara rutin, terutama untuk penggunaan CI/CD</li>
+  <li>Rotasi token secara rutin</li>
   <li>Cabut token segera jika dicurigai disalahgunakan</li>
 </ul>
 
 <p>
-<em>Setiap token terikat pada akun pengguna Anda dan memiliki izin yang sama
-seperti akun Anda. Perlakukan token dengan kehati-hatian yang sama
-seperti kata sandi Anda.</em>
+<em>Setiap token terikat pada akun pengguna Anda. Melalui MCP, token memiliki izin akun Anda, tetapi dibatasi paling tinggi pada tingkat supervisor: meskipun akun Anda adalah administrator, token tidak pernah memiliki hak administrator. Selain itu, mode akses membatasi apa yang boleh dilakukan agen: dengan "Hanya baca" agen hanya menggunakan fungsi baca; dengan "Baca dan tulis" agen melakukan perubahan tanpa konfirmasi tambahan. Perlakukan token dengan kehati-hatian yang sama seperti kata sandi Anda.</em>
 </p>

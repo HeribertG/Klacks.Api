@@ -41,7 +41,8 @@ public class ListPersonalAccessTokensSkill : BaseSkillImplementation
                 t.TokenPrefix,
                 CreatedAt = t.CreatedAt?.ToString("yyyy-MM-dd"),
                 ExpiresAt = t.ExpiresAt?.ToString("yyyy-MM-dd"),
-                LastUsedAt = t.LastUsedAt?.ToString("yyyy-MM-dd HH:mm")
+                LastUsedAt = t.LastUsedAt?.ToString("yyyy-MM-dd HH:mm"),
+                AccessMode = t.AccessMode.ToString()
             })
             .ToList();
 

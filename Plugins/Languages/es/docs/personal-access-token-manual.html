@@ -10,8 +10,7 @@ usuario ni contraseña.
 <p><strong>Casos de uso típicos:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — permite a asistentes de IA como Claude Desktop acceder directamente a las skills de Klacksy</li>
-  <li>Scripts de automatización y pipelines de CI/CD</li>
-  <li>Herramientas externas de monitorización e integración</li>
+  <li>Agentes y asistentes de IA que trabajan con Klacks a través de MCP</li>
 </ul>
 
 <h4>Concepto de seguridad</h4>
@@ -35,7 +34,7 @@ debe crear un nuevo token y revocar el antiguo.</em>
 <ul>
   <li>Vaya a <strong>Configuración → Personal Access Tokens</strong></li>
   <li>Haga clic en <strong>Crear nuevo token</strong></li>
-  <li>Asigne un <strong>nombre</strong> descriptivo (p.&nbsp;ej. <code>Claude Desktop</code> o <code>CI-Pipeline</code>)</li>
+  <li>Asigne un <strong>nombre</strong> descriptivo (p.&nbsp;ej. <code>Claude Desktop</code> o <code>Agente de IA planificación</code>)</li>
   <li>Seleccione el <strong>período de validez</strong> deseado (1–730 días, por defecto: 365 días)</li>
   <li>Haga clic en <strong>Crear</strong></li>
   <li>Copie de inmediato el token mostrado — solo se muestra una vez</li>
@@ -53,17 +52,25 @@ aleatoria criptográficamente segura.</p>
 <table>
   <tr><th>Duración</th><th>Uso recomendado</th></tr>
   <tr><td>1–30 días</td><td>Pruebas a corto plazo y desarrollo</td></tr>
-  <tr><td>90–180 días</td><td>Pipelines de CI/CD con rotación regular</td></tr>
+  <tr><td>90–180 días</td><td>Agentes de IA con rotación regular</td></tr>
   <tr><td>365 días (por defecto)</td><td>Integraciones permanentes (p.&nbsp;ej. Claude Desktop)</td></tr>
   <tr><td>730 días</td><td>Integraciones de sistemas a largo plazo</td></tr>
 </table>
+
+<h4>Modo de acceso</h4>
+<p>Al crear el token, usted decide qué puede hacer un agente externo con él:</p>
+<ul>
+  <li><strong>Solo lectura</strong> (predeterminado) — el agente solo ve y utiliza herramientas de lectura. Cualquier intento de modificar datos se rechaza.</li>
+  <li><strong>Lectura y escritura</strong> — el agente también puede modificar datos sin que una persona apruebe cada cambio. Elija este modo solo para agentes a los que confíe cambios.</li>
+</ul>
+<p>El modo se muestra en la lista de tokens y no se puede cambiar después; si es necesario, cree un token nuevo. Los tokens existentes y los emitidos mediante un inicio de sesión OAuth (p. ej., un conector MCP) tienen el modo «Lectura y escritura».</p>
 
 <hr>
 
 <h3>Usar el token</h3>
 
 <h4>Bearer-Token en el encabezado HTTP</h4>
-<p>El token se transmite como Bearer-Token en el encabezado <code>Authorization</code> de cada solicitud a la API:</p>
+<p>El token se transmite como Bearer-Token en el encabezado <code>Authorization</code> de cada solicitud MCP al endpoint <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -83,11 +90,13 @@ planificar turnos, gestionar grupos y mucho más.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;su-dominio-klacks&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;su-dominio-klacks&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -97,11 +106,7 @@ planificar turnos, gestionar grupos y mucho más.
 <p>Sustituya <code>&lt;su-dominio-klacks&gt;</code> por la dirección de su instalación
 de Klacks y <code>klacks_pat_...</code> por el token que ha creado.</p>
 
-<h4>Solicitud directa a la API (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;su-dominio-klacks&gt;/api/clients
-</pre>
+<p><strong>Nota:</strong> Los tokens solo sirven para el acceso MCP de agentes de IA (endpoint <code>/mcp</code>). La API REST de Klacks (p.&nbsp;ej. <code>/api/clients</code>) no los acepta; exige el token de inicio de sesión.</p>
 
 <hr>
 
@@ -138,12 +143,10 @@ tokens a tiempo.
   <li>Utilice un token independiente por cada servicio o herramienta</li>
   <li>Elija nombres descriptivos para poder identificar los tokens con claridad</li>
   <li>Nunca guarde tokens en texto plano en sistemas de control de versiones</li>
-  <li>Rote los tokens con regularidad, especialmente en el uso con CI/CD</li>
+  <li>Rote los tokens con regularidad</li>
   <li>Revoque los tokens de inmediato ante sospecha de uso indebido</li>
 </ul>
 
 <p>
-<em>Cada token está vinculado a su cuenta de usuario y dispone de los mismos
-permisos que su cuenta. Trate los tokens con el mismo cuidado que su
-contraseña.</em>
+<em>Cada token está vinculado a su cuenta de usuario. A través de MCP dispone de los permisos de su cuenta, pero limitados como máximo al nivel de supervisor: aunque su cuenta sea de administrador, el token nunca tiene derechos de administrador. Además, el modo de acceso limita lo que el agente puede hacer: con «Solo lectura» solo utiliza funciones de lectura; con «Lectura y escritura» realiza cambios sin ninguna confirmación adicional. Trate los tokens con el mismo cuidado que su contraseña.</em>
 </p>

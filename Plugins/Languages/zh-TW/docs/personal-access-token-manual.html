@@ -9,8 +9,7 @@
 <p><strong>常見應用情境：</strong></p>
 <ul>
   <li><strong>MCP（Model Context Protocol）</strong> — 讓像 Claude Desktop 這樣的 AI 助理直接存取 Klacksy 技能</li>
-  <li>自動化指令碼與 CI/CD 流水線</li>
-  <li>外部監控與整合工具</li>
+  <li>透過 MCP 與 Klacks 協作的 AI 代理程式與助理</li>
 </ul>
 
 <h4>安全性概念</h4>
@@ -34,7 +33,7 @@ Klacks 絕不會儲存明文權杖。建立完成後，資料庫中僅會
 <ul>
   <li>前往<strong>設定 → 個人存取權杖</strong></li>
   <li>點擊<strong>建立新權杖</strong></li>
-  <li>輸入一個有意義的<strong>名稱</strong>（例如 <code>Claude Desktop</code> 或 <code>CI-Pipeline</code>）</li>
+  <li>輸入一個有意義的<strong>名稱</strong>（例如 <code>Claude Desktop</code> 或 <code>AI 代理程式規劃</code>）</li>
   <li>選擇所需的<strong>有效期限</strong>（1–730 天，預設：365 天）</li>
   <li>點擊<strong>建立</strong></li>
   <li>立即複製顯示出來的權杖 — 它只會顯示一次</li>
@@ -52,17 +51,25 @@ klacks_pat_&lt;隨機字串&gt;
 <table>
   <tr><th>期限</th><th>建議用途</th></tr>
   <tr><td>1–30 天</td><td>短期測試與開發</td></tr>
-  <tr><td>90–180 天</td><td>需定期輪換的 CI/CD 流水線</td></tr>
+  <tr><td>90–180 天</td><td>需定期輪換的 AI 代理程式</td></tr>
   <tr><td>365 天（預設）</td><td>長期整合（例如 Claude Desktop）</td></tr>
   <tr><td>730 天</td><td>長期系統整合</td></tr>
 </table>
+
+<h4>存取模式</h4>
+<p>建立權杖時，您可以決定外部代理程式能使用該權杖做什麼：</p>
+<ul>
+  <li><strong>唯讀</strong> （預設）— 代理程式只能檢視與使用唯讀工具。任何變更資料的嘗試都會遭到拒絕。</li>
+  <li><strong>讀寫</strong> — 代理程式還可以變更資料，且無需有人逐一核准每項變更。請僅為您信任其進行變更的代理程式選擇此模式。</li>
+</ul>
+<p>模式會顯示在權杖清單中，建立後無法變更；如有需要，請建立新的權杖。既有權杖以及透過 OAuth 登入（例如 MCP 連接器）核發的權杖皆為「讀寫」模式。</p>
 
 <hr>
 
 <h3>使用權杖</h3>
 
 <h4>HTTP 標頭中的 Bearer 權杖</h4>
-<p>權杖會以 Bearer 權杖的形式，於每個 API 請求的 <code>Authorization</code> 標頭中傳送：</p>
+<p>權杖會以 Bearer 權杖的形式，於每個發往 <code>/mcp</code> 端點的 MCP 請求之 <code>Authorization</code> 標頭中傳送：</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ MCP 端點（<code>/mcp</code>）讓像 Claude Desktop 這樣的 AI 助理可以
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;您的-klacks-網域&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;您的-klacks-網域&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ MCP 端點（<code>/mcp</code>）讓像 Claude Desktop 這樣的 AI 助理可以
 <p>請將 <code>&lt;您的-klacks-網域&gt;</code> 替換為您 Klacks 安裝環境的地址，
 並將 <code>klacks_pat_...</code> 替換為您所建立的權杖。</p>
 
-<h4>直接呼叫 API（curl）</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;您的-klacks-網域&gt;/api/clients
-</pre>
+<p><strong>注意：</strong>權杖僅適用於 AI 代理程式的 MCP 存取（端點 <code>/mcp</code>）。Klacks 的 REST API（例如 <code>/api/clients</code>）不接受權杖，需使用登入權杖。</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ curl -H "Authorization: Bearer klacks_pat_..." \
   <li>每個服務或工具使用各自獨立的權杖</li>
   <li>選擇有意義的名稱，以便清楚識別各個權杖</li>
   <li>絕不將明文權杖儲存在版本控制系統中</li>
-  <li>定期輪換權杖，尤其是在 CI/CD 場景中</li>
+  <li>定期輪換權杖</li>
   <li>一旦懷疑遭到濫用，立即撤銷權杖</li>
 </ul>
 
 <p>
-<em>每個權杖都與您的使用者帳號綁定，並擁有與您帳號
-相同的權限。請以對待密碼同樣的謹慎態度
-對待這些權杖。</em>
+<em>每個權杖都與您的使用者帳號綁定。透過 MCP，權杖擁有您帳號的權限，但最高僅到主管（Supervisor）層級：即使您的帳號是管理員，權杖也絕不會擁有管理員權限。此外，存取模式也限制了代理程式可執行的操作：在「唯讀」模式下僅能使用讀取功能；在「讀寫」模式下，代理程式會在沒有任何進一步確認的情況下執行變更。請以對待密碼同樣的謹慎態度對待這些權杖。</em>
 </p>

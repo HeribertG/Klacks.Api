@@ -39,9 +39,9 @@ public class PersonalAccessTokensController : ControllerBase
             return Unauthorized();
         }
 
-        var created = await _mediator.Send(new CreatePersonalAccessTokenCommand(userId, request.Name, request.ExpiresInDays));
+        var created = await _mediator.Send(new CreatePersonalAccessTokenCommand(userId, request.Name, request.ExpiresInDays, request.AccessMode));
 
-        _logger.LogInformation("Personal access token {TokenId} created", created.Id);
+        _logger.LogInformation("Personal access token {TokenId} created with access mode {AccessMode}", created.Id, created.AccessMode);
 
         return Ok(created);
     }

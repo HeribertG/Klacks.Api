@@ -5,11 +5,14 @@
 /// input schemas and risk-based tool annotations (read-only / destructive hints). Skills whose results carry
 /// externally authored content (UntrustedSkillOutputs) additionally get the open-world hint; for all other
 /// tools it stays unset, because the MCP default for an unset hint is "open world" and claiming a closed world
-/// would be unverified for skills that reach external systems.
+/// would be unverified for skills that reach external systems. Under a Read access mode only the tools
+/// IMcpReadModeToolPolicy allows (read-only skills) are listed.
 /// </summary>
 /// <param name="userPermissions">Role permissions of the authenticated user used to filter the registry</param>
+/// <param name="accessMode">Access mode of the caller's token; Read hides every writing tool</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -26,21 +29,25 @@ public class McpToolCatalog : IMcpToolCatalog
     private readonly ISkillRegistry _skillRegistry;
     private readonly IMcpSkillExposurePolicy _exposurePolicy;
     private readonly ISkillRiskClassifier _riskClassifier;
+    private readonly IMcpReadModeToolPolicy _readModeToolPolicy;
 
     public McpToolCatalog(
         ISkillRegistry skillRegistry,
         IMcpSkillExposurePolicy exposurePolicy,
-        ISkillRiskClassifier riskClassifier)
+        ISkillRiskClassifier riskClassifier,
+        IMcpReadModeToolPolicy readModeToolPolicy)
     {
         _skillRegistry = skillRegistry;
         _exposurePolicy = exposurePolicy;
         _riskClassifier = riskClassifier;
+        _readModeToolPolicy = readModeToolPolicy;
     }
 
-    public IList<Tool> GetToolsForUser(IReadOnlyList<string> userPermissions)
+    public IList<Tool> GetToolsForUser(IReadOnlyList<string> userPermissions, PersonalAccessTokenAccessMode accessMode)
     {
         return _skillRegistry.GetSkillsForUser(userPermissions)
             .Where(_exposurePolicy.IsExposed)
+            .Where(descriptor => _readModeToolPolicy.IsAllowed(descriptor, accessMode))
             .OrderBy(descriptor => descriptor.Name, StringComparer.Ordinal)
             .Select(ToTool)
             .ToList();

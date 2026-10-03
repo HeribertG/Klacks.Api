@@ -10,12 +10,13 @@
 /// </summary>
 /// <param name="descriptor">Skill whose name, execution type, category and risk class are evaluated</param>
 
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
-namespace Klacks.Api.Presentation.Mcp;
+namespace Klacks.Api.Application.Services.Assistant.Mcp;
 
 public class McpSkillExposurePolicy : IMcpSkillExposurePolicy
 {

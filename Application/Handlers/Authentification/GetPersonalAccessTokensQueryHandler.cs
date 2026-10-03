@@ -33,7 +33,8 @@ public class GetPersonalAccessTokensQueryHandler : IRequestHandler<GetPersonalAc
                 token.TokenPrefix,
                 token.CreateTime,
                 token.ExpiresAt,
-                token.LastUsedAt))
+                token.LastUsedAt,
+                token.AccessMode))
             .ToList();
     }
 }

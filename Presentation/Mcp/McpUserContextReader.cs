@@ -4,12 +4,13 @@
 /// Extracts the Klacks user identity (user id, tenant id, name) from the JWT claims principal of
 /// an authenticated MCP request and resolves its effective permissions, expanding the caller's
 /// role(s) the same way the chat pipeline does but capped at the Authorised (Supervisor) level
-/// regardless of the caller's actual role.
+/// regardless of the caller's actual role, plus the caller's access mode (McpAccessModeResolver).
 /// </summary>
 /// <param name="user">Claims principal of the current HTTP request; null yields an anonymous context</param>
 
 using System.Security.Claims;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Presentation.Extensions;
 
 namespace Klacks.Api.Presentation.Mcp;
@@ -29,7 +30,7 @@ public static class McpUserContextReader
     {
         if (user == null)
         {
-            return new McpUserContext(Guid.Empty, Guid.Empty, UnknownUserName, new List<string>());
+            return new McpUserContext(Guid.Empty, Guid.Empty, UnknownUserName, new List<string>(), PersonalAccessTokenAccessMode.Read);
         }
 
         var userId = ParseGuidClaim(user, ClaimTypes.NameIdentifier);
@@ -37,7 +38,9 @@ public static class McpUserContextReader
         var userName = user.FindFirst(ClaimTypes.Name)?.Value ?? UnknownUserName;
         var permissions = ResolveCappedPermissions(user);
 
-        return new McpUserContext(userId, tenantId, userName, permissions);
+        var accessMode = McpAccessModeResolver.Resolve(user);
+
+        return new McpUserContext(userId, tenantId, userName, permissions, accessMode);
     }
 
     private static List<string> ResolveCappedPermissions(ClaimsPrincipal user)

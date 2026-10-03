@@ -60,7 +60,8 @@ public class SkillsController : ControllerBase
             GetCurrentTenantId(),
             GetCurrentUserName(),
             GetCurrentUserPermissions(),
-            Request.GetBearerToken());
+            Request.GetBearerToken(),
+            ExternalAgentAccessMode: null);
 
         var response = await _mediator.Send(command);
         return Ok(response);

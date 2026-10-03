@@ -9,8 +9,7 @@ diensten veilige toegang tot Klacks geven — zonder gebruikersnaam en wachtwoor
 <p><strong>Typische toepassingen:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — geeft AI-assistenten zoals Claude Desktop directe toegang tot Klacksy-skills</li>
-  <li>Automatiseringsscripts en CI/CD-pipelines</li>
-  <li>Externe monitoring- en integratietools</li>
+  <li>AI-agents en assistenten die via MCP met Klacks werken</li>
 </ul>
 
 <h4>Beveiligingsconcept</h4>
@@ -34,7 +33,7 @@ moet een nieuw token worden aangemaakt en het oude worden ingetrokken.</em>
 <ul>
   <li>Navigeer naar <strong>Configuratie → Persoonlijke Toegangstokens</strong></li>
   <li>Klik op <strong>Nieuw token aanmaken</strong></li>
-  <li>Geef een betekenisvolle <strong>naam</strong> op (bijv. <code>Claude Desktop</code> of <code>CI-Pipeline</code>)</li>
+  <li>Geef een betekenisvolle <strong>naam</strong> op (bijv. <code>Claude Desktop</code> of <code>AI-agent planning</code>)</li>
   <li>Kies de gewenste <strong>geldigheidsduur</strong> (1–730 dagen, standaard: 365 dagen)</li>
   <li>Klik op <strong>Aanmaken</strong></li>
   <li>Kopieer het weergegeven token onmiddellijk — het wordt maar één keer getoond</li>
@@ -52,17 +51,25 @@ veilige willekeurige tekenreeks.</p>
 <table>
   <tr><th>Duur</th><th>Aanbevolen gebruik</th></tr>
   <tr><td>1–30 dagen</td><td>Kortstondige tests en ontwikkeling</td></tr>
-  <tr><td>90–180 dagen</td><td>CI/CD-pipelines met regelmatige rotatie</td></tr>
+  <tr><td>90–180 dagen</td><td>AI-agents met regelmatige rotatie</td></tr>
   <tr><td>365 dagen (standaard)</td><td>Permanente integraties (bijv. Claude Desktop)</td></tr>
   <tr><td>730 dagen</td><td>Langdurige systeemintegraties</td></tr>
 </table>
+
+<h4>Toegangsmodus</h4>
+<p>Bij het aanmaken legt u vast wat een externe agent met het token mag doen:</p>
+<ul>
+  <li><strong>Alleen lezen</strong> (standaard) — de agent ziet en gebruikt uitsluitend lezende tools. Elke poging om gegevens te wijzigen wordt geweigerd.</li>
+  <li><strong>Lezen en schrijven</strong> — de agent kan daarnaast gegevens wijzigen zonder dat iemand elke afzonderlijke wijziging goedkeurt. Kies deze modus alleen voor agents die u wijzigingen toevertrouwt.</li>
+</ul>
+<p>De modus wordt in het tokenoverzicht weergegeven en kan achteraf niet worden gewijzigd; maak zo nodig een nieuw token aan. Bestaande tokens en tokens uit een OAuth-aanmelding (bijv. een MCP-connector) hebben de modus ‘Lezen en schrijven’.</p>
 
 <hr>
 
 <h3>Token gebruiken</h3>
 
 <h4>Bearer-token in de HTTP-header</h4>
-<p>Het token wordt als bearer-token in de <code>Authorization</code>-header van elk API-verzoek meegestuurd:</p>
+<p>Het token wordt als bearer-token in de <code>Authorization</code>-header van elk MCP-verzoek aan het <code>/mcp</code>-endpoint meegestuurd:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ groepen beheren en nog veel meer.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;uw-klacks-domein&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;uw-klacks-domein&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ groepen beheren en nog veel meer.
 <p>Vervang <code>&lt;uw-klacks-domein&gt;</code> door het adres van uw Klacks-installatie
 en <code>klacks_pat_...</code> door uw aangemaakte token.</p>
 
-<h4>Direct API-verzoek (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;uw-klacks-domein&gt;/api/clients
-</pre>
+<p><strong>Let op:</strong> Tokens werken alleen voor de MCP-toegang van AI-agents (endpoint <code>/mcp</code>). De Klacks REST-API (bijv. <code>/api/clients</code>) accepteert ze niet; die vereist het inlogtoken.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ tokens kunt aanmaken.
   <li>Gebruik per dienst of tool een apart token</li>
   <li>Kies betekenisvolle namen zodat tokens eenduidig te herkennen zijn</li>
   <li>Bewaar tokens nooit in platte tekst in versiebeheersystemen</li>
-  <li>Roteer tokens regelmatig, vooral bij gebruik in CI/CD</li>
+  <li>Roteer tokens regelmatig</li>
   <li>Trek tokens onmiddellijk in bij vermoeden van misbruik</li>
 </ul>
 
 <p>
-<em>Elk token is gekoppeld aan uw gebruikersaccount en beschikt over dezelfde
-rechten als uw account. Behandel tokens met dezelfde zorgvuldigheid
-als uw wachtwoord.</em>
+<em>Elk token is gekoppeld aan uw gebruikersaccount. Via MCP heeft het token de rechten van uw account, maar maximaal op supervisorniveau: ook als uw account beheerder is, heeft het token nooit beheerdersrechten. Daarnaast beperkt de toegangsmodus wat de agent mag doen: met «Alleen lezen» gebruikt hij uitsluitend leesfuncties; met «Lezen en schrijven» voert hij wijzigingen uit zonder verdere bevestiging. Behandel tokens met dezelfde zorgvuldigheid als uw wachtwoord.</em>
 </p>

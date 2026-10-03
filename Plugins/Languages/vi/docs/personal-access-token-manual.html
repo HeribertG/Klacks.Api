@@ -9,8 +9,7 @@ dịch vụ bên ngoài truy cập an toàn vào Klacks — không cần tên đ
 <p><strong>Các trường hợp sử dụng điển hình:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — cho phép các trợ lý AI như Claude Desktop truy cập trực tiếp vào các kỹ năng của Klacksy</li>
-  <li>Các kịch bản tự động hóa và pipeline CI/CD</li>
-  <li>Các công cụ giám sát và tích hợp bên ngoài</li>
+  <li>Các tác nhân và trợ lý AI làm việc với Klacks qua MCP</li>
 </ul>
 
 <h4>Khái niệm bảo mật</h4>
@@ -34,7 +33,7 @@ tạo một token mới và thu hồi token cũ.</em>
 <ul>
   <li>Điều hướng đến <strong>Cấu hình → Personal Access Tokens</strong></li>
   <li>Nhấp vào <strong>Tạo token mới</strong></li>
-  <li>Đặt một <strong>tên</strong> có ý nghĩa (ví dụ: <code>Claude Desktop</code> hoặc <code>CI-Pipeline</code>)</li>
+  <li>Đặt một <strong>tên</strong> có ý nghĩa (ví dụ: <code>Claude Desktop</code> hoặc <code>Tác nhân AI lập kế hoạch</code>)</li>
   <li>Chọn <strong>thời hạn hiệu lực</strong> mong muốn (1–730 ngày, mặc định: 365 ngày)</li>
   <li>Nhấp vào <strong>Tạo</strong></li>
   <li>Sao chép ngay token được hiển thị — nó chỉ được hiển thị một lần</li>
@@ -52,17 +51,25 @@ ngẫu nhiên an toàn về mặt mật mã.</p>
 <table>
   <tr><th>Thời hạn</th><th>Khuyến nghị sử dụng</th></tr>
   <tr><td>1–30 ngày</td><td>Kiểm thử và phát triển ngắn hạn</td></tr>
-  <tr><td>90–180 ngày</td><td>Pipeline CI/CD với luân chuyển định kỳ</td></tr>
+  <tr><td>90–180 ngày</td><td>Tác nhân AI với luân chuyển định kỳ</td></tr>
   <tr><td>365 ngày (mặc định)</td><td>Tích hợp lâu dài (ví dụ: Claude Desktop)</td></tr>
   <tr><td>730 ngày</td><td>Tích hợp hệ thống dài hạn</td></tr>
 </table>
+
+<h4>Chế độ truy cập</h4>
+<p>Khi tạo token, bạn quyết định tác tử bên ngoài được phép làm gì với token đó:</p>
+<ul>
+  <li><strong>Chỉ đọc</strong> (mặc định) — tác tử chỉ thấy và sử dụng các công cụ đọc dữ liệu. Mọi nỗ lực thay đổi dữ liệu đều bị từ chối.</li>
+  <li><strong>Đọc và ghi</strong> — tác tử còn có thể thay đổi dữ liệu mà không cần người phê duyệt từng thay đổi. Chỉ chọn chế độ này cho những tác tử bạn tin tưởng giao việc thay đổi dữ liệu.</li>
+</ul>
+<p>Chế độ được hiển thị trong danh sách token và không thể thay đổi sau đó; hãy tạo token mới nếu cần. Các token hiện có và token được cấp qua đăng nhập OAuth (ví dụ: trình kết nối MCP) có chế độ “Đọc và ghi”.</p>
 
 <hr>
 
 <h3>Sử dụng Token</h3>
 
 <h4>Bearer Token trong header HTTP</h4>
-<p>Token được truyền dưới dạng Bearer Token trong header <code>Authorization</code> của mỗi yêu cầu API:</p>
+<p>Token được truyền dưới dạng Bearer Token trong header <code>Authorization</code> của mỗi yêu cầu MCP tới endpoint <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ quản lý nhóm và nhiều hơn nữa.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;tên-miền-klacks-của-bạn&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;tên-miền-klacks-của-bạn&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ quản lý nhóm và nhiều hơn nữa.
 <p>Thay thế <code>&lt;tên-miền-klacks-của-bạn&gt;</code> bằng địa chỉ của phiên bản Klacks của bạn
 và <code>klacks_pat_...</code> bằng token bạn đã tạo.</p>
 
-<h4>Yêu cầu API trực tiếp (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;tên-miền-klacks-của-bạn&gt;/api/clients
-</pre>
+<p><strong>Lưu ý:</strong> Token chỉ có hiệu lực cho truy cập MCP của các tác nhân AI (endpoint <code>/mcp</code>). REST API của Klacks (ví dụ <code>/api/clients</code>) không chấp nhận chúng; REST API yêu cầu token đăng nhập.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ các token mới.
   <li>Sử dụng một token riêng cho mỗi dịch vụ hoặc công cụ</li>
   <li>Chọn tên có ý nghĩa để có thể gán token một cách rõ ràng</li>
   <li>Không bao giờ lưu trữ token dưới dạng văn bản thuần túy trong hệ thống quản lý phiên bản</li>
-  <li>Luân chuyển token định kỳ, đặc biệt khi sử dụng với CI/CD</li>
+  <li>Luân chuyển token định kỳ</li>
   <li>Thu hồi token ngay lập tức nếu nghi ngờ bị lạm dụng</li>
 </ul>
 
 <p>
-<em>Mỗi token được gắn với tài khoản người dùng của bạn và có cùng
-quyền hạn như tài khoản của bạn. Hãy xử lý token với sự cẩn trọng
-giống như mật khẩu của bạn.</em>
+<em>Mỗi token được gắn với tài khoản người dùng của bạn. Qua MCP, token có quyền hạn của tài khoản bạn, nhưng tối đa ở cấp giám sát viên (Supervisor): ngay cả khi tài khoản của bạn là quản trị viên, token cũng không bao giờ có quyền quản trị. Ngoài ra, chế độ truy cập giới hạn những gì tác nhân được phép làm: với "Chỉ đọc", tác nhân chỉ dùng các chức năng đọc; với "Đọc và ghi", tác nhân thực hiện thay đổi mà không cần xác nhận thêm. Hãy xử lý token với sự cẩn trọng giống như mật khẩu của bạn.</em>
 </p>

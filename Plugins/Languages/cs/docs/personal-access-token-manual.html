@@ -9,8 +9,7 @@ službám umožňují bezpečný přístup ke Klacks — bez uživatelského jm�
 <p><strong>Typické případy použití:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — umožňuje AI asistentům jako Claude Desktop přímý přístup ke skillům Klacksy</li>
-  <li>Automatizační skripty a CI/CD pipeline</li>
-  <li>Externí monitorovací a integrační nástroje</li>
+  <li>AI agenti a asistenti, kteří s Klacks pracují přes MCP</li>
 </ul>
 
 <h4>Bezpečnostní koncept</h4>
@@ -34,7 +33,7 @@ je nutné vytvořit nový token a starý odvolat.</em>
 <ul>
   <li>Přejděte na <strong>Konfigurace → Personal Access Tokens</strong></li>
   <li>Klikněte na <strong>Vytvořit nový token</strong></li>
-  <li>Zadejte výstižný <strong>název</strong> (např. <code>Claude Desktop</code> nebo <code>CI-Pipeline</code>)</li>
+  <li>Zadejte výstižný <strong>název</strong> (např. <code>Claude Desktop</code> nebo <code>AI agent plánování</code>)</li>
   <li>Zvolte požadovanou <strong>dobu platnosti</strong> (1–730 dní, výchozí: 365 dní)</li>
   <li>Klikněte na <strong>Vytvořit</strong></li>
   <li>Zobrazený token okamžitě zkopírujte — zobrazí se pouze jednou</li>
@@ -52,17 +51,25 @@ bezpečný náhodný řetězec znaků.</p>
 <table>
   <tr><th>Doba</th><th>Doporučené použití</th></tr>
   <tr><td>1–30 dní</td><td>Krátkodobé testy a vývoj</td></tr>
-  <tr><td>90–180 dní</td><td>CI/CD pipeline s pravidelnou rotací</td></tr>
+  <tr><td>90–180 dní</td><td>AI agenti s pravidelnou rotací</td></tr>
   <tr><td>365 dní (výchozí)</td><td>Trvalé integrace (např. Claude Desktop)</td></tr>
   <tr><td>730 dní</td><td>Dlouhodobé systémové integrace</td></tr>
 </table>
+
+<h4>Režim přístupu</h4>
+<p>Při vytváření určíte, co smí externí agent s tokenem dělat:</p>
+<ul>
+  <li><strong>Pouze čtení</strong> (výchozí) — agent vidí a používá výhradně nástroje pro čtení. Každý pokus o změnu dat je odmítnut.</li>
+  <li><strong>Čtení a zápis</strong> — agent může navíc měnit data, aniž by každou jednotlivou změnu schvaloval člověk. Tento režim volte jen pro agenty, kterým svěřujete změny.</li>
+</ul>
+<p>Režim se zobrazuje v přehledu tokenů a dodatečně jej nelze změnit; v případě potřeby vytvořte nový token. Stávající tokeny a tokeny vydané přihlášením OAuth (např. konektorem MCP) mají režim „Čtení a zápis“.</p>
 
 <hr>
 
 <h3>Použití tokenu</h3>
 
 <h4>Bearer token v HTTP hlavičce</h4>
-<p>Token se přenáší jako Bearer token v hlavičce <code>Authorization</code> každého požadavku na API:</p>
+<p>Token se přenáší jako Bearer token v hlavičce <code>Authorization</code> každého požadavku MCP na endpoint <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ správu skupin a mnoho dalšího.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;vaše-doména-klacks&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;vaše-doména-klacks&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ správu skupin a mnoho dalšího.
 <p>Nahraďte <code>&lt;vaše-doména-klacks&gt;</code> adresou vaší instalace Klacks
 a <code>klacks_pat_...</code> vaším vytvořeným tokenem.</p>
 
-<h4>Přímý požadavek na API (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;vaše-doména-klacks&gt;/api/clients
-</pre>
+<p><strong>Poznámka:</strong> Tokeny fungují pouze pro přístup AI agentů přes MCP (endpoint <code>/mcp</code>). REST API Klacks (např. <code>/api/clients</code>) je nepřijímá; vyžaduje přihlašovací token.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ mohli včas vytvořit nové tokeny.
   <li>Pro každou službu nebo nástroj používejte samostatný token</li>
   <li>Volte výstižné názvy, aby bylo možné tokeny jednoznačně přiřadit</li>
   <li>Nikdy neukládejte tokeny v prostém textu do systémů správy verzí</li>
-  <li>Tokeny pravidelně rotujte, zejména při nasazení v CI/CD</li>
+  <li>Tokeny pravidelně rotujte</li>
   <li>Při podezření na zneužití tokeny okamžitě odvolejte</li>
 </ul>
 
 <p>
-<em>Každý token je vázán na váš uživatelský účet a má stejná
-oprávnění jako váš účet. Zacházejte s tokeny se stejnou péčí
-jako se svým heslem.</em>
+<em>Každý token je vázán na váš uživatelský účet. Přes MCP má token oprávnění vašeho účtu, nejvýše však na úrovni Supervisora: i když je váš účet administrátorský, token nikdy nemá práva administrátora. Přístupový režim navíc omezuje, co smí agent dělat: v režimu „Pouze čtení“ používá výhradně funkce pro čtení; v režimu „Čtení a zápis“ provádí změny bez dalšího potvrzení. Zacházejte s tokeny se stejnou péčí jako se svým heslem.</em>
 </p>

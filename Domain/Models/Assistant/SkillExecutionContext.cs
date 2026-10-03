@@ -52,6 +52,14 @@ public record SkillExecutionContext
     public Guid? TokenRenewalOwnerId { get; init; }
 
     /// <summary>
+    /// Access mode of an external agent calling through the MCP endpoint (Read or Write); null on every
+    /// other path (chat, REST skill endpoint, background jobs). Wrapper skills that run other skills
+    /// themselves (run_analysis' research sub-loop) use it to stay within what the caller may reach over
+    /// MCP directly: the MCP exposure policy and, under Read, the read-mode policy.
+    /// </summary>
+    public PersonalAccessTokenAccessMode? ExternalAgentAccessMode { get; init; }
+
+    /// <summary>
     /// Ids of memories already injected into the system prompt this turn (ambient retrieval). Null
     /// when unknown/not a chat turn. Consumed by GetAiMemoriesSkill to avoid duplicating full-text
     /// memory content the model already has in context.

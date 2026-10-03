@@ -3,7 +3,9 @@
 /// <summary>
 /// Handler for the OAuth token endpoint. Consumes the single-use authorization code,
 /// verifies the PKCE S256 code verifier and the client binding, and issues a Klacks
-/// personal access token as the OAuth access token.
+/// personal access token as the OAuth access token. The token gets PatConstants.OAuthAccessMode (Write):
+/// the consent grants the mcp:tools scope, which has always meant full tool use, so existing OAuth
+/// connectors keep working; a read-only agent uses a manually created Read token instead.
 /// </summary>
 /// <param name="request">Contains grant type, authorization code, redirect URI, client id and PKCE verifier</param>
 
@@ -98,7 +100,8 @@ public class ExchangeOAuthTokenCommandHandler : IRequestHandler<ExchangeOAuthTok
             Name = OAuthConstants.AccessTokenNamePrefix + codeData.ClientName,
             TokenHash = tokenHash,
             TokenPrefix = tokenPrefix,
-            ExpiresAt = DateTime.UtcNow.Add(lifetime)
+            ExpiresAt = DateTime.UtcNow.Add(lifetime),
+            AccessMode = PatConstants.OAuthAccessMode
         };
 
         await _tokenRepository.AddAsync(token, cancellationToken);

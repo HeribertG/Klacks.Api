@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Authentification;
 
@@ -19,4 +20,6 @@ public class PersonalAccessToken : BaseEntity
     public DateTime? ExpiresAt { get; set; }
 
     public DateTime? LastUsedAt { get; set; }
+
+    public PersonalAccessTokenAccessMode AccessMode { get; set; } = PersonalAccessTokenAccessMode.Read;
 }

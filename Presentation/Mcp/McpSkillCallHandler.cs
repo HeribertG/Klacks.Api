@@ -6,6 +6,10 @@
 /// Skills that mutate state reach the REST API with a freshly minted token rather than the caller's own
 /// credential, because this channel also accepts personal access tokens which those endpoints reject.
 /// The minted token is capped at Authorised, matching the ceiling the rest of the MCP surface applies.
+/// A caller with a Read access mode is refused any tool IMcpReadModeToolPolicy does not allow (every writing
+/// skill and confirm_pending_action) before a token is minted, even if the client never listed the tool.
+/// The access mode also travels with the command (ExternalAgentAccessMode) into the SkillExecutionContext, so a
+/// wrapper skill that runs other skills itself (run_analysis) stays within the caller's MCP tool set.
 /// Results carrying externally authored content (skills in UntrustedSkillOutputs or tainted results relayed
 /// by a wrapper skill) get the untrusted-content notice in front of their message AND their serialized data
 /// (the external bodies, e.g. an e-mail text, live in the data), delimiter-escaped and capped like a tool
@@ -22,6 +26,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -49,6 +54,7 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
     private readonly IMediator _mediator;
     private readonly ISkillRegistry _skillRegistry;
     private readonly IMcpSkillExposurePolicy _exposurePolicy;
+    private readonly IMcpReadModeToolPolicy _readModeToolPolicy;
     private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<McpSkillCallHandler> _logger;
 
@@ -56,12 +62,14 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         IMediator mediator,
         ISkillRegistry skillRegistry,
         IMcpSkillExposurePolicy exposurePolicy,
+        IMcpReadModeToolPolicy readModeToolPolicy,
         IInternalTokenIssuer internalTokenIssuer,
         ILogger<McpSkillCallHandler> logger)
     {
         _mediator = mediator;
         _skillRegistry = skillRegistry;
         _exposurePolicy = exposurePolicy;
+        _readModeToolPolicy = readModeToolPolicy;
         _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
@@ -81,6 +89,14 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
         if (descriptor == null || !_exposurePolicy.IsExposed(descriptor))
         {
             return ErrorResult($"Tool '{request.Name}' is not available.");
+        }
+
+        if (!_readModeToolPolicy.IsAllowed(descriptor, userContext.AccessMode))
+        {
+            _logger.LogWarning(
+                "MCP call to skill {SkillName} refused for user {UserId}: read-only personal access token {TokenId}",
+                request.Name, userContext.UserId, user?.FindFirst(PatConstants.TokenIdClaimType)?.Value);
+            return ErrorResult(string.Format(McpServerConstants.ReadOnlyAccessRejectionMessage, request.Name));
         }
 
         // The caller's own credential is deliberately not forwarded: MCP also authenticates via
@@ -105,7 +121,8 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
             userContext.TenantId,
             userContext.UserName,
             userContext.Permissions,
-            token.Token);
+            token.Token,
+            userContext.AccessMode);
 
         try
         {

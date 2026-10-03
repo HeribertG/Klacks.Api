@@ -4,9 +4,10 @@
 /// Runs a bounded, read-only tool loop with the cheapest available model to answer analysis-style
 /// questions ("analyze the month / roster") without spending the outer turn's context or premium model
 /// budget. The intermediate tool results stay inside this loop; only a compact English synthesis is
-/// returned. The toolset is hard-filtered to read-only skills and every tool call is re-checked against
-/// that allow-list before execution, so no mutating skill can ever run here. It inherits the caller's
-/// <see cref="SkillExecutionContext"/> (user id, permissions), so it can read nothing the caller cannot.
+/// returned. The toolset is hard-filtered to read-only skills that persist nothing (IReadOnlyToolsetFilter) and
+/// every tool call is re-checked against that allow-list before execution, so no mutating skill can ever run
+/// here. It inherits the caller's <see cref="SkillExecutionContext"/> (user id, permissions, MCP access mode), so
+/// it can read nothing the caller cannot - an MCP caller only gets the skills it could call over MCP directly.
 /// Tool results are framed by the shared ToolResultFormatter (untrusted flag and notice for external content)
 /// and the result is tainted when any executed tool returned external content. A tool-call iteration without
 /// prose is recorded in the history with the same neutral sentence the chat loop uses (AnswerPlaceholder),
@@ -67,7 +68,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
                 ReadOnlyResearchConstants.NoModelAvailableMessage, 0, 0, [], ModelAvailable: false);
         }
 
-        var (functions, allowedNames) = BuildReadOnlyToolset(context.UserPermissions);
+        var (functions, allowedNames) = BuildReadOnlyToolset(context);
 
         var runningHistory = new List<ProviderMessage>();
         var currentMessage = question;
@@ -131,10 +132,12 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
     }
 
     private (List<LLMFunction> Functions, HashSet<string> AllowedNames) BuildReadOnlyToolset(
-        IReadOnlyList<string> userPermissions)
+        SkillExecutionContext context)
     {
+        var userPermissions = context.UserPermissions;
         var permitted = _skillRegistry.GetSkillsForUser(userPermissions);
-        var readOnly = _toolsetFilter.Filter(permitted, ReadOnlyResearchConstants.RunAnalysisSkillName);
+        var readOnly = _toolsetFilter.Filter(
+            permitted, ReadOnlyResearchConstants.RunAnalysisSkillName, context.ExternalAgentAccessMode);
 
         var allowedNames = readOnly
             .Select(descriptor => descriptor.Name)

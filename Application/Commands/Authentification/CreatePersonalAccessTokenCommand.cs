@@ -1,8 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Authentification;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Authentification;
 
-public record CreatePersonalAccessTokenCommand(string UserId, string Name, int? ExpiresInDays) : IRequest<PersonalAccessTokenCreatedDto>;
+public record CreatePersonalAccessTokenCommand(
+    string UserId,
+    string Name,
+    int? ExpiresInDays,
+    PersonalAccessTokenAccessMode? AccessMode = null) : IRequest<PersonalAccessTokenCreatedDto>;

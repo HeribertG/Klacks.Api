@@ -127,7 +127,7 @@ Exceeding the rate limit returns a 429 status code.
 The MCP server is implemented in:
 - `Presentation/Mcp/McpEndpointExtensions.cs` — ASP.NET Core pipeline wiring
 - `Presentation/Mcp/McpServerConstants.cs` — Server identity and route
-- `Presentation/Mcp/McpSkillExposurePolicy.cs` — Tool exposure filtering
+- `Application/Services/Assistant/Mcp/McpSkillExposurePolicy.cs` — Tool exposure filtering
 - `Application/Skills/Meta/SkillRiskClassifier.cs` — Skill risk classification
 
 ## Links

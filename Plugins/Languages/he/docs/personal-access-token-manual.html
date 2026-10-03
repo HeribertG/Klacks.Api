@@ -9,8 +9,7 @@ Personal Access Tokens (PATs) הם מפתחות API ארוכי טווח, המא�
 <p><strong>מקרי שימוש נפוצים:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — מאפשר לעוזרי AI כמו Claude Desktop גישה ישירה ליכולות (Skills) של Klacksy</li>
-  <li>סקריפטים לאוטומציה וצינורות CI/CD</li>
-  <li>כלי ניטור ואינטגרציה חיצוניים</li>
+  <li>סוכני ועוזרי AI שעובדים עם Klacks דרך MCP</li>
 </ul>
 
 <h4>עקרון האבטחה</h4>
@@ -34,7 +33,7 @@ Klacks לעולם אינו שומר את האסימון בטקסט גלוי. ל�
 <ul>
   <li>נווטו אל <strong>תצורה ← Personal Access Tokens</strong></li>
   <li>לחצו על <strong>יצירת אסימון חדש</strong></li>
-  <li>הזינו <strong>שם</strong> ברור ומתאר (לדוגמה <code>Claude Desktop</code> או <code>CI-Pipeline</code>)</li>
+  <li>הזינו <strong>שם</strong> ברור ומתאר (לדוגמה <code>Claude Desktop</code> או <code>סוכן AI לתכנון</code>)</li>
   <li>בחרו את <strong>משך התוקף</strong> הרצוי (1–730 ימים, ברירת מחדל: 365 ימים)</li>
   <li>לחצו על <strong>יצירה</strong></li>
   <li>העתיקו את האסימון המוצג מיד — הוא מוצג פעם אחת בלבד</li>
@@ -52,17 +51,25 @@ klacks_pat_&lt;רצף תווים אקראי&gt;
 <table>
   <tr><th>משך</th><th>שימוש מומלץ</th></tr>
   <tr><td>1–30 ימים</td><td>בדיקות ופיתוח לטווח קצר</td></tr>
-  <tr><td>90–180 ימים</td><td>צינורות CI/CD עם רוטציה סדירה</td></tr>
+  <tr><td>90–180 ימים</td><td>סוכני AI עם רוטציה סדירה</td></tr>
   <tr><td>365 ימים (ברירת מחדל)</td><td>אינטגרציות קבועות (לדוגמה Claude Desktop)</td></tr>
   <tr><td>730 ימים</td><td>אינטגרציות מערכת לטווח ארוך</td></tr>
 </table>
+
+<h4>מצב גישה</h4>
+<p>בעת היצירה אתם קובעים מה מותר לסוכן חיצוני לעשות עם האסימון:</p>
+<ul>
+  <li><strong>קריאה בלבד</strong> (ברירת מחדל) — הסוכן רואה ומשתמש בכלי קריאה בלבד. כל ניסיון לשנות נתונים נדחה.</li>
+  <li><strong>קריאה וכתיבה</strong> — הסוכן יכול גם לשנות נתונים מבלי שאדם יאשר כל שינוי בנפרד. בחרו מצב זה רק עבור סוכנים שאתם סומכים עליהם בביצוע שינויים.</li>
+</ul>
+<p>המצב מוצג ברשימת האסימונים ולא ניתן לשנותו בדיעבד; במידת הצורך צרו אסימון חדש. אסימונים קיימים ואסימונים שהונפקו דרך כניסת OAuth (למשל מחבר MCP) הם במצב "קריאה וכתיבה".</p>
 
 <hr>
 
 <h3>שימוש באסימון</h3>
 
 <h4>אסימון Bearer בכותרת HTTP</h4>
-<p>האסימון מועבר כאסימון Bearer בכותרת <code>Authorization</code> של כל בקשת API:</p>
+<p>האסימון מועבר כאסימון Bearer בכותרת <code>Authorization</code> של כל בקשת MCP אל נקודת הקצה <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ Authorization: Bearer klacks_pat_...
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;הדומיין-של-klacks-שלכם&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;הדומיין-של-klacks-שלכם&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ Authorization: Bearer klacks_pat_...
 <p>החליפו את <code>&lt;הדומיין-של-klacks-שלכם&gt;</code> בכתובת ההתקנה שלכם ב-Klacks
 ואת <code>klacks_pat_...</code> באסימון שיצרתם.</p>
 
-<h4>בקשת API ישירה (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;הדומיין-של-klacks-שלכם&gt;/api/clients
-</pre>
+<p><strong>הערה:</strong> האסימונים תקפים רק לגישת MCP של סוכני בינה מלאכותית (נקודת הקצה <code>/mcp</code>). ממשק ה-REST של Klacks (למשל <code>/api/clients</code>) אינו מקבל אותם; הוא דורש את אסימון הכניסה.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ curl -H "Authorization: Bearer klacks_pat_..." \
   <li>השתמשו באסימון נפרד עבור כל שירות או כלי</li>
   <li>בחרו שמות ברורים ומתארים, כדי שניתן יהיה לשייך אסימונים בבירור</li>
   <li>לעולם אל תשמרו אסימונים בטקסט גלוי במערכות בקרת גרסאות</li>
-  <li>בצעו רוטציה סדירה של אסימונים, במיוחד בשימוש עם CI/CD</li>
+  <li>בצעו רוטציה סדירה של אסימונים</li>
   <li>בטלו אסימונים מיד בעת חשד לשימוש לרעה</li>
 </ul>
 
 <p>
-<em>כל אסימון קשור לחשבון המשתמש שלכם ובעל אותן
-הרשאות כמו החשבון שלכם. התייחסו לאסימונים באותה זהירות
-כמו לסיסמה שלכם.</em>
+<em>כל אסימון קשור לחשבון המשתמש שלכם. דרך MCP יש לאסימון ההרשאות של חשבונכם, אך לכל היותר ברמת מפקח (Supervisor): גם אם חשבונכם הוא חשבון מנהל מערכת, האסימון לעולם אינו נושא הרשאות מנהל. בנוסף, מצב הגישה מגביל את מה שהסוכן רשאי לעשות: במצב "קריאה בלבד" הוא משתמש בפונקציות קריאה בלבד; במצב "קריאה וכתיבה" הוא מבצע שינויים ללא כל אישור נוסף. התייחסו לאסימונים באותה זהירות כמו לסיסמה שלכם.</em>
 </p>

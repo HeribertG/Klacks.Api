@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Riok.Mapperly.Abstractions;
@@ -86,7 +87,8 @@ public partial class SkillMapper
         Guid tenantId,
         string userName,
         List<string> userPermissions,
-        BearerToken? accessToken = null)
+        BearerToken? accessToken = null,
+        PersonalAccessTokenAccessMode? externalAgentAccessMode = null)
     {
         return new SkillExecutionContext
         {
@@ -94,7 +96,8 @@ public partial class SkillMapper
             TenantId = tenantId,
             UserName = userName,
             UserPermissions = userPermissions,
-            AccessToken = accessToken
+            AccessToken = accessToken,
+            ExternalAgentAccessMode = externalAgentAccessMode
         };
     }
 

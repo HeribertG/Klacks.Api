@@ -9,8 +9,7 @@ tjenester sikker adgang til Klacks — uden brugernavn og adgangskode.
 <p><strong>Typiske anvendelsestilfælde:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — giver AI-assistenter som Claude Desktop direkte adgang til Klacksy-skills</li>
-  <li>Automatiseringsscripts og CI/CD-pipelines</li>
-  <li>Eksterne overvågnings- og integrationsværktøjer</li>
+  <li>AI-agenter og assistenter, der arbejder med Klacks via MCP</li>
 </ul>
 
 <h4>Sikkerhedskoncept</h4>
@@ -34,7 +33,7 @@ skal der oprettes et nyt token, og det gamle skal tilbagekaldes.</em>
 <ul>
   <li>Naviger til <strong>Konfiguration → Personlige adgangstokens</strong></li>
   <li>Klik på <strong>Opret nyt token</strong></li>
-  <li>Giv tokenet et sigende <strong>navn</strong> (f.eks. <code>Claude Desktop</code> eller <code>CI-pipeline</code>)</li>
+  <li>Giv tokenet et sigende <strong>navn</strong> (f.eks. <code>Claude Desktop</code> eller <code>AI-agent planlægning</code>)</li>
   <li>Vælg den ønskede <strong>gyldighedsperiode</strong> (1–730 dage, standard: 365 dage)</li>
   <li>Klik på <strong>Opret</strong></li>
   <li>Kopiér det viste token straks — det vises kun én gang</li>
@@ -52,17 +51,25 @@ sikker tilfældig tegnfølge.</p>
 <table>
   <tr><th>Varighed</th><th>Anbefalet brug</th></tr>
   <tr><td>1–30 dage</td><td>Kortsigtede tests og udvikling</td></tr>
-  <tr><td>90–180 dage</td><td>CI/CD-pipelines med regelmæssig rotation</td></tr>
+  <tr><td>90–180 dage</td><td>AI-agenter med regelmæssig rotation</td></tr>
   <tr><td>365 dage (standard)</td><td>Permanente integrationer (f.eks. Claude Desktop)</td></tr>
   <tr><td>730 dage</td><td>Langsigtede systemintegrationer</td></tr>
 </table>
+
+<h4>Adgangstilstand</h4>
+<p>Når du opretter tokenet, bestemmer du, hvad en ekstern agent må gøre med det:</p>
+<ul>
+  <li><strong>Kun læsning</strong> (standard) — agenten ser og bruger udelukkende læsende værktøjer. Ethvert forsøg på at ændre data afvises.</li>
+  <li><strong>Læsning og skrivning</strong> — agenten kan desuden ændre data, uden at en person godkender hver enkelt ændring. Vælg kun denne tilstand for agenter, du betror ændringer.</li>
+</ul>
+<p>Tilstanden vises i tokenoversigten og kan ikke ændres bagefter; opret om nødvendigt et nyt token. Eksisterende tokens og tokens udstedt via et OAuth-login (f.eks. en MCP-connector) har tilstanden “Læsning og skrivning”.</p>
 
 <hr>
 
 <h3>Brug token</h3>
 
 <h4>Bearer-token i HTTP-headeren</h4>
-<p>Tokenet sendes som bearer-token i <code>Authorization</code>-headeren for hver API-forespørgsel:</p>
+<p>Tokenet sendes som bearer-token i <code>Authorization</code>-headeren for hver MCP-forespørgsel til endpointet <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ administrere grupper og meget mere.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;dit-klacks-domæne&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;dit-klacks-domæne&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ administrere grupper og meget mere.
 <p>Erstat <code>&lt;dit-klacks-domæne&gt;</code> med adressen på din Klacks-installation
 og <code>klacks_pat_...</code> med dit oprettede token.</p>
 
-<h4>Direkte API-forespørgsel (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;dit-klacks-domæne&gt;/api/clients
-</pre>
+<p><strong>Bemærk:</strong> Tokens fungerer kun til AI-agenters MCP-adgang (endpoint <code>/mcp</code>). Klacks' REST-API (f.eks. <code>/api/clients</code>) accepterer dem ikke; det kræver login-tokenet.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ nye tokens.
   <li>Brug et separat token pr. tjeneste eller værktøj</li>
   <li>Vælg sigende navne, så tokens entydigt kan tildeles</li>
   <li>Gem aldrig tokens i klartekst i versionsstyringssystemer</li>
-  <li>Rotér tokens regelmæssigt, især ved CI/CD-brug</li>
+  <li>Rotér tokens regelmæssigt</li>
   <li>Tilbagekald tokens straks ved mistanke om misbrug</li>
 </ul>
 
 <p>
-<em>Hvert token er bundet til din brugerkonto og har de samme
-tilladelser som din konto. Behandl tokens med samme omhu
-som din adgangskode.</em>
+<em>Hvert token er bundet til din brugerkonto. Via MCP har tokenet din kontos tilladelser, dog højst på supervisor-niveau: Selv hvis din konto er administrator, har tokenet aldrig administratorrettigheder. Derudover begrænser adgangstilstanden, hvad agenten må gøre: med «Kun læsning» bruger den udelukkende læsefunktioner; med «Læsning og skrivning» udfører den ændringer uden yderligere bekræftelse. Behandl tokens med samme omhu som din adgangskode.</em>
 </p>

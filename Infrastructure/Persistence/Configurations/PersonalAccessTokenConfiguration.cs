@@ -2,8 +2,10 @@
 
 /// <summary>
 /// EF Core configuration for the PersonalAccessToken entity with query filter,
-/// unique partial token hash index, user index and AppUser relationship.
+/// unique partial token hash index, user index, AppUser relationship and the access mode whose
+/// column default is Read, so a row written past the entity (raw SQL) never silently gains Write.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,6 +23,9 @@ public class PersonalAccessTokenConfiguration : IEntityTypeConfiguration<Persona
             .IsUnique();
 
         builder.HasIndex(p => p.UserId);
+
+        builder.Property(p => p.AccessMode)
+            .HasDefaultValue(PatConstants.DefaultAccessMode);
 
         builder.HasOne(p => p.User)
             .WithMany()

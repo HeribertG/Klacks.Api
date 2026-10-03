@@ -9,8 +9,7 @@ mahdollistavat ulkoisille työkaluille ja palveluille turvallisen pääsyn Klack
 <p><strong>Tyypilliset käyttötapaukset:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — mahdollistaa tekoälyavustajille, kuten Claude Desktopille, suoran pääsyn Klacksy-taitoihin</li>
-  <li>Automaatioskriptit ja CI/CD-putket</li>
-  <li>Ulkoiset valvonta- ja integraatiotyökalut</li>
+  <li>Tekoälyagentit ja avustajat, jotka työskentelevät Klacksin kanssa MCP:n kautta</li>
 </ul>
 
 <h4>Tietoturvakonsepti</h4>
@@ -33,7 +32,7 @@ on luotava uusi token ja mitätöitävä vanha.</em>
 <ul>
   <li>Siirry kohtaan <strong>Määritykset → Personal Access Tokens</strong></li>
   <li>Napsauta <strong>Luo uusi token</strong></li>
-  <li>Anna kuvaava <strong>nimi</strong> (esim. <code>Claude Desktop</code> tai <code>CI-Pipeline</code>)</li>
+  <li>Anna kuvaava <strong>nimi</strong> (esim. <code>Claude Desktop</code> tai <code>Tekoälyagentti suunnittelu</code>)</li>
   <li>Valitse haluttu <strong>voimassaoloaika</strong> (1–730 päivää, oletus: 365 päivää)</li>
   <li>Napsauta <strong>Luo</strong></li>
   <li>Kopioi näytetty token heti — se näytetään vain kerran</li>
@@ -51,17 +50,25 @@ turvallinen satunnainen merkkijono.</p>
 <table>
   <tr><th>Kesto</th><th>Suositeltu käyttö</th></tr>
   <tr><td>1–30 päivää</td><td>Lyhytaikaiset testit ja kehitys</td></tr>
-  <tr><td>90–180 päivää</td><td>CI/CD-putket säännöllisellä rotaatiolla</td></tr>
+  <tr><td>90–180 päivää</td><td>Tekoälyagentit säännöllisellä rotaatiolla</td></tr>
   <tr><td>365 päivää (oletus)</td><td>Pysyvät integraatiot (esim. Claude Desktop)</td></tr>
   <tr><td>730 päivää</td><td>Pitkäaikaiset järjestelmäintegraatiot</td></tr>
 </table>
+
+<h4>Käyttötila</h4>
+<p>Tunnusta luodessasi päätät, mitä ulkoinen agentti saa sillä tehdä:</p>
+<ul>
+  <li><strong>Vain luku</strong> (oletus) — agentti näkee ja käyttää ainoastaan lukevia työkaluja. Jokainen yritys muuttaa tietoja hylätään.</li>
+  <li><strong>Luku ja kirjoitus</strong> — agentti voi lisäksi muuttaa tietoja ilman, että ihminen hyväksyy jokaisen muutoksen erikseen. Valitse tämä tila vain agenteille, joille uskot muutokset.</li>
+</ul>
+<p>Tila näkyy tunnusluettelossa, eikä sitä voi muuttaa jälkikäteen; luo tarvittaessa uusi tunnus. Olemassa olevilla tunnuksilla ja OAuth-kirjautumisen (esim. MCP-liittimen) kautta myönnetyillä tunnuksilla on tila ”Luku ja kirjoitus”.</p>
 
 <hr>
 
 <h3>Tokenin käyttäminen</h3>
 
 <h4>Bearer-token HTTP-otsikossa</h4>
-<p>Token välitetään Bearer-tokenina jokaisen API-pyynnön <code>Authorization</code>-otsikossa:</p>
+<p>Token välitetään Bearer-tokenina jokaisen <code>/mcp</code>-päätepisteeseen lähetettävän MCP-pyynnön <code>Authorization</code>-otsikossa:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -81,11 +88,13 @@ ryhmien hallinta ja paljon muuta.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;teidän-klacks-verkkotunnus&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;teidän-klacks-verkkotunnus&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -95,11 +104,7 @@ ryhmien hallinta ja paljon muuta.
 <p>Korvaa <code>&lt;teidän-klacks-verkkotunnus&gt;</code> Klacks-asennuksenne osoitteella
 ja <code>klacks_pat_...</code> luomallanne tokenilla.</p>
 
-<h4>Suora API-pyyntö (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;teidän-klacks-verkkotunnus&gt;/api/clients
-</pre>
+<p><strong>Huomautus:</strong> Tokenit toimivat vain tekoälyagenttien MCP-käytössä (päätepiste <code>/mcp</code>). Klacksin REST-rajapinta (esim. <code>/api/clients</code>) ei hyväksy niitä; se vaatii kirjautumistokenin.</p>
 
 <hr>
 
@@ -135,12 +140,10 @@ uudet tokenit ajoissa.
   <li>Käytä erillistä tokenia jokaiselle palvelulle tai työkalulle</li>
   <li>Valitse kuvaavat nimet, jotta tokenit voidaan tunnistaa yksiselitteisesti</li>
   <li>Älä koskaan tallenna tokeneita selkokielisenä versionhallintajärjestelmiin</li>
-  <li>Rotaa tokenit säännöllisesti, erityisesti CI/CD-käytössä</li>
+  <li>Rotaa tokenit säännöllisesti</li>
   <li>Mitätöi tokenit heti, jos epäilet väärinkäyttöä</li>
 </ul>
 
 <p>
-<em>Jokainen token on sidottu käyttäjätiliisi ja sillä on samat käyttöoikeudet
-kuin tilillänne. Käsittele tokeneita samalla huolellisuudella
-kuin salasanaanne.</em>
+<em>Jokainen token on sidottu käyttäjätiliisi. MCP:n kautta token saa tilisi käyttöoikeudet, mutta enintään Supervisor-tasoisina: vaikka tilisi olisi ylläpitäjä, token ei koskaan saa ylläpitäjän oikeuksia. Käyttötila rajoittaa lisäksi sitä, mitä agentti saa tehdä: tilassa ”Vain luku” se käyttää vain lukutoimintoja; tilassa ”Luku ja kirjoitus” se tekee muutokset ilman erillistä vahvistusta. Käsittele tokeneita samalla huolellisuudella kuin salasanaasi.</em>
 </p>

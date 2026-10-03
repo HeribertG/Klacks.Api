@@ -300,24 +300,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
     // Skills whose names carry a read-only prefix but whose category is a write category (Crud).
     // They genuinely only read (list candidates), so they are allow-listed explicitly instead of
     // being trusted via the name prefix — which a future write skill could abuse.
-    internal static readonly HashSet<string> ReadOnlyExtras = new(StringComparer.OrdinalIgnoreCase)
-    {
+    // DraftPersistingReadOnlySkills is spread in: the company-rule and planning-profile intake steps
+    // write the owner's persisted draft row (not an in-memory draft any more) and create_plan stores a draft
+    // plan and returns its own confirmation request without running it. They stay un-gated here so every
+    // dialog turn and the plan proposal do not cost a confirmation, but they are NOT write-free - consumers
+    // that need "writes nothing" (read-only tokens, the research sub-loop) exclude that set.
+    internal static readonly HashSet<string> ReadOnlyExtras = new(DraftPersistingReadOnlySkills.Names.Concat(
+    [
         "find_customer_candidates",
         "find_split_shift_candidates",
-        // Company-rule intake steps that mutate only the ephemeral in-memory draft; without this
-        // allow-listing their Crud-ish names would fall through to Irreversible and get gated.
-        "start_company_rule",
-        "set_company_rule_parameters",
-        "cancel_company_rule",
-        // Planning-profile intake steps that mutate only the ephemeral draft; without this allow-listing
-        // their Crud-ish names would fall through to Irreversible and get gated every dialog turn.
-        "start_planning_profile_setup",
-        "set_planning_profile_parameters",
-        "cancel_planning_profile_setup",
-        // create_plan only DRAFTS a plan and returns its own confirmation request; it never runs the
-        // plan itself. Execution starts only through confirm_pending_action, so the proposal call must
-        // stay un-gated at every autonomy level to avoid a double confirmation.
-        "create_plan",
         // start_guided_tour is a UiAction that only launches the onboarding tour overlay in the
         // browser — it mutates nothing. Its Action category would otherwise fall through to
         // Irreversible and gate a harmless tour start. (search_in_list and select_group, the other
@@ -339,7 +330,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // webhook and never tests Teams, whose check would post. A confirmation here would stall exactly
         // the untrained admin it exists for.
         "diagnose_messaging_setup"
-    };
+    ]), StringComparer.OrdinalIgnoreCase);
 
     // Write skills deliberately allowed to run UNCONFIRMED at the factory-default autonomy level
     // (Autonomous), and on a scheduled task that carries the per-task opt-in. This is the list that keeps

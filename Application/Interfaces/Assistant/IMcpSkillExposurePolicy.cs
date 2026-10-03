@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Assistant;
 
-namespace Klacks.Api.Presentation.Mcp;
+namespace Klacks.Api.Application.Interfaces.Assistant;
 
 public interface IMcpSkillExposurePolicy
 {

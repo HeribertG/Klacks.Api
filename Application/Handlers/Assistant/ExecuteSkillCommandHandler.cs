@@ -37,7 +37,8 @@ public class ExecuteSkillCommandHandler : BaseHandler, IRequestHandler<ExecuteSk
                 request.TenantId,
                 request.UserName,
                 request.UserPermissions,
-                request.AccessToken);
+                request.AccessToken,
+                request.ExternalAgentAccessMode);
 
             var result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
             var response = _mapper.ToResponse(result);

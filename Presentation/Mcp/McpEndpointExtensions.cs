@@ -31,7 +31,6 @@ public static class McpEndpointExtensions
 
     public static IServiceCollection AddKlacksMcpServer(this IServiceCollection services)
     {
-        services.AddSingleton<IMcpSkillExposurePolicy, McpSkillExposurePolicy>();
         services.AddSingleton<IMcpToolCatalog, McpToolCatalog>();
         services.AddSingleton<IMcpResourceCatalog, McpResourceCatalog>();
         services.AddScoped<IMcpPromptCatalog, McpPromptCatalog>();
@@ -122,7 +121,7 @@ public static class McpEndpointExtensions
 
         return ValueTask.FromResult(new ListToolsResult
         {
-            Tools = catalog.GetToolsForUser(userContext.Permissions)
+            Tools = catalog.GetToolsForUser(userContext.Permissions, userContext.AccessMode)
         });
     }
 

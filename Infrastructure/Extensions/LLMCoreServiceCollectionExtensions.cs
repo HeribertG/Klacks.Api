@@ -264,6 +264,8 @@ internal static class LLMCoreServiceCollectionExtensions
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICheapestModelResolver, Klacks.Api.Domain.Services.Assistant.CheapestModelResolver>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IContextBudgetPolicy, Klacks.Api.Domain.Services.Assistant.ContextBudgetPolicy>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.IMcpSkillExposurePolicy, Klacks.Api.Application.Services.Assistant.Mcp.McpSkillExposurePolicy>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Assistant.IMcpReadModeToolPolicy, Klacks.Api.Application.Services.Assistant.Mcp.McpReadModeToolPolicy>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyToolsetFilter, Klacks.Api.Application.Services.Assistant.ReadOnlyToolsetFilter>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyResearchService, Klacks.Api.Application.Services.Assistant.ReadOnlyResearchService>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();

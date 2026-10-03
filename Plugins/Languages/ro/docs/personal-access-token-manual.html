@@ -9,8 +9,7 @@ serviciilor externe accesul securizat la Klacks — fără nume de utilizator ș
 <p><strong>Cazuri de utilizare tipice:</strong></p>
 <ul>
   <li><strong>MCP (Model Context Protocol)</strong> — permite asistenților AI precum Claude Desktop accesul direct la skill-urile Klacksy</li>
-  <li>Scripturi de automatizare și pipeline-uri CI/CD</li>
-  <li>Instrumente externe de monitorizare și integrare</li>
+  <li>Agenți și asistenți AI care lucrează cu Klacks prin MCP</li>
 </ul>
 
 <h4>Concept de securitate</h4>
@@ -34,7 +33,7 @@ trebuie creat un token nou, iar cel vechi trebuie revocat.</em>
 <ul>
   <li>Navigați la <strong>Configurare → Personal Access Tokens</strong></li>
   <li>Faceți clic pe <strong>Creare token nou</strong></li>
-  <li>Alegeți un <strong>nume</strong> sugestiv (de ex. <code>Claude Desktop</code> sau <code>CI-Pipeline</code>)</li>
+  <li>Alegeți un <strong>nume</strong> sugestiv (de ex. <code>Claude Desktop</code> sau <code>Agent AI planificare</code>)</li>
   <li>Selectați <strong>durata de valabilitate</strong> dorită (1–730 de zile, implicit: 365 de zile)</li>
   <li>Faceți clic pe <strong>Creare</strong></li>
   <li>Copiați imediat tokenul afișat — acesta este afișat o singură dată</li>
@@ -52,17 +51,25 @@ aleatoriu, generat criptografic securizat.</p>
 <table>
   <tr><th>Durată</th><th>Utilizare recomandată</th></tr>
   <tr><td>1–30 de zile</td><td>Teste și dezvoltare pe termen scurt</td></tr>
-  <tr><td>90–180 de zile</td><td>Pipeline-uri CI/CD cu rotație regulată</td></tr>
+  <tr><td>90–180 de zile</td><td>Agenți AI cu rotație regulată</td></tr>
   <tr><td>365 de zile (implicit)</td><td>Integrări permanente (de ex. Claude Desktop)</td></tr>
   <tr><td>730 de zile</td><td>Integrări de sistem pe termen lung</td></tr>
 </table>
+
+<h4>Mod de acces</h4>
+<p>La creare stabiliți ce poate face un agent extern cu tokenul:</p>
+<ul>
+  <li><strong>Doar citire</strong> (implicit) — agentul vede și folosește exclusiv instrumente de citire. Orice încercare de a modifica date este respinsă.</li>
+  <li><strong>Citire și scriere</strong> — agentul poate în plus să modifice date fără ca o persoană să aprobe fiecare modificare în parte. Alegeți acest mod doar pentru agenții cărora le încredințați modificări.</li>
+</ul>
+<p>Modul este afișat în lista de tokenuri și nu poate fi schimbat ulterior; la nevoie creați un token nou. Tokenurile existente și cele emise printr-o autentificare OAuth (de ex. un conector MCP) au modul „Citire și scriere”.</p>
 
 <hr>
 
 <h3>Utilizarea tokenului</h3>
 
 <h4>Bearer token în header-ul HTTP</h4>
-<p>Tokenul este transmis ca Bearer token în header-ul <code>Authorization</code> al fiecărei cereri API:</p>
+<p>Tokenul este transmis ca Bearer token în header-ul <code>Authorization</code> al fiecărei cereri MCP către endpoint-ul <code>/mcp</code>:</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -82,11 +89,13 @@ gestionarea grupurilor și multe altele.
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;domeniul-dvs-klacks&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;domeniul-dvs-klacks&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -96,11 +105,7 @@ gestionarea grupurilor și multe altele.
 <p>Înlocuiți <code>&lt;domeniul-dvs-klacks&gt;</code> cu adresa instalării dvs. Klacks
 și <code>klacks_pat_...</code> cu tokenul creat de dvs.</p>
 
-<h4>Cerere API directă (curl)</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;domeniul-dvs-klacks&gt;/api/clients
-</pre>
+<p><strong>Notă:</strong> Tokenurile funcționează numai pentru accesul MCP al agenților IA (endpoint <code>/mcp</code>). API-ul REST Klacks (de ex. <code>/api/clients</code>) nu le acceptă; acesta cere tokenul de autentificare.</p>
 
 <hr>
 
@@ -136,12 +141,10 @@ tokenuri noi.
   <li>Utilizați un token separat pentru fiecare serviciu sau instrument</li>
   <li>Alegeți nume sugestive, pentru a putea identifica tokenurile fără echivoc</li>
   <li>Nu stocați niciodată tokenurile în clar în sisteme de control al versiunilor</li>
-  <li>Rotiți tokenurile regulat, în special în cazul utilizării CI/CD</li>
+  <li>Rotiți tokenurile regulat</li>
   <li>Revocați tokenurile imediat în cazul suspiciunii de utilizare abuzivă</li>
 </ul>
 
 <p>
-<em>Fiecare token este legat de contul dvs. de utilizator și dispune de aceleași
-permisiuni ca și contul dvs. Tratați tokenurile cu aceeași grijă
-ca și parola dvs.</em>
+<em>Fiecare token este legat de contul dvs. de utilizator. Prin MCP, tokenul dispune de permisiunile contului dvs., dar limitate cel mult la nivelul de supervizor: chiar dacă contul dvs. este de administrator, tokenul nu are niciodată drepturi de administrator. În plus, modul de acces limitează ce poate face agentul: cu «Doar citire» folosește numai funcții de citire; cu «Citire și scriere» efectuează modificări fără nicio confirmare suplimentară. Tratați tokenurile cu aceeași grijă ca și parola dvs.</em>
 </p>

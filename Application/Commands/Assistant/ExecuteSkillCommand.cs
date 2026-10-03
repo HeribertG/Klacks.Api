@@ -2,6 +2,7 @@
 
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Commands.Assistant;
@@ -12,5 +13,6 @@ public record ExecuteSkillCommand(
     Guid TenantId,
     string UserName,
     List<string> UserPermissions,
-    BearerToken? AccessToken
+    BearerToken? AccessToken,
+    PersonalAccessTokenAccessMode? ExternalAgentAccessMode
 ) : IRequest<SkillExecuteResponse>;

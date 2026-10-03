@@ -9,8 +9,7 @@
 <p><strong>典型应用场景：</strong></p>
 <ul>
   <li><strong>MCP（Model Context Protocol）</strong> — 允许像Claude Desktop这样的AI助手直接访问Klacksy技能</li>
-  <li>自动化脚本和CI/CD流水线</li>
-  <li>外部监控和集成工具</li>
+  <li>通过MCP与Klacks协作的AI代理和助手</li>
 </ul>
 
 <h4>安全概念</h4>
@@ -33,7 +32,7 @@ Klacks绝不会存储明文令牌。创建后，数据库中仅存储
 <ul>
   <li>导航到<strong>配置 → 个人访问令牌</strong></li>
   <li>点击<strong>创建新令牌</strong></li>
-  <li>指定一个有意义的<strong>名称</strong>（例如：<code>Claude Desktop</code>或<code>CI-Pipeline</code>）</li>
+  <li>指定一个有意义的<strong>名称</strong>（例如：<code>Claude Desktop</code>或<code>AI代理规划</code>）</li>
   <li>选择所需的<strong>有效期</strong>（1–730天，默认：365天）</li>
   <li>点击<strong>创建</strong></li>
   <li>立即复制显示的令牌 — 它只会显示一次</li>
@@ -51,17 +50,25 @@ klacks_pat_&lt;随机字符串&gt;
 <table>
   <tr><th>时长</th><th>推荐用途</th></tr>
   <tr><td>1–30天</td><td>短期测试和开发</td></tr>
-  <tr><td>90–180天</td><td>定期轮换的CI/CD流水线</td></tr>
+  <tr><td>90–180天</td><td>定期轮换的AI代理</td></tr>
   <tr><td>365天（默认）</td><td>长期集成（例如：Claude Desktop）</td></tr>
   <tr><td>730天</td><td>长期系统集成</td></tr>
 </table>
+
+<h4>访问模式</h4>
+<p>创建令牌时，您可以决定外部代理可以使用该令牌做什么：</p>
+<ul>
+  <li><strong>只读</strong> （默认）— 代理只能查看和使用只读工具。任何更改数据的尝试都会被拒绝。</li>
+  <li><strong>读写</strong> — 代理还可以更改数据，且无需有人逐一批准每项更改。请仅为您信任其进行更改的代理选择此模式。</li>
+</ul>
+<p>模式会显示在令牌列表中，创建后无法更改；如有需要，请创建新令牌。现有令牌以及通过 OAuth 登录（例如 MCP 连接器）签发的令牌均为“读写”模式。</p>
 
 <hr>
 
 <h3>使用令牌</h3>
 
 <h4>HTTP头部中的Bearer令牌</h4>
-<p>令牌会作为Bearer令牌通过每个API请求的<code>Authorization</code>头部传输：</p>
+<p>令牌会作为Bearer令牌，通过发往<code>/mcp</code>端点的每个MCP请求的<code>Authorization</code>头部传输：</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -81,11 +88,13 @@ MCP端点（<code>/mcp</code>）使Claude Desktop等AI助手能够直接
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;您的klacks域名&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;您的klacks域名&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -95,11 +104,7 @@ MCP端点（<code>/mcp</code>）使Claude Desktop等AI助手能够直接
 <p>请将<code>&lt;您的klacks域名&gt;</code>替换为您Klacks安装的地址，
 并将<code>klacks_pat_...</code>替换为您创建的令牌。</p>
 
-<h4>直接API请求（curl）</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;您的klacks域名&gt;/api/clients
-</pre>
+<p><strong>注意：</strong>令牌仅适用于AI代理的MCP访问（端点<code>/mcp</code>）。Klacks的REST API（例如<code>/api/clients</code>）不接受令牌，需要使用登录令牌。</p>
 
 <hr>
 
@@ -135,11 +140,10 @@ curl -H "Authorization: Bearer klacks_pat_..." \
   <li>为每个服务或工具使用单独的令牌</li>
   <li>选择有意义的名称，以便明确区分令牌</li>
   <li>切勿将令牌以明文形式存储在版本控制系统中</li>
-  <li>定期轮换令牌，尤其是在CI/CD使用场景下</li>
+  <li>定期轮换令牌</li>
   <li>一旦怀疑遭到滥用，立即撤销令牌</li>
 </ul>
 
 <p>
-<em>每个令牌都绑定到您的用户账户，并拥有与您的账户
-相同的权限。请像对待密码一样谨慎对待令牌。</em>
+<em>每个令牌都绑定到您的用户账户。通过MCP，令牌拥有您账户的权限，但最高只到主管（Supervisor）级别：即使您的账户是管理员，令牌也绝不会拥有管理员权限。此外，访问模式还限制了代理可以执行的操作：在“只读”模式下只能使用读取功能；在“读写”模式下，代理会在没有任何进一步确认的情况下执行更改。请像对待密码一样谨慎对待令牌。</em>
 </p>

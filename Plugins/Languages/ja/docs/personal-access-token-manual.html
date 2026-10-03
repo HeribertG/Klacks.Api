@@ -9,8 +9,7 @@
 <p><strong>主な利用シーン：</strong></p>
 <ul>
   <li><strong>MCP（Model Context Protocol）</strong> — Claude Desktop などの AI アシスタントが Klacksy スキルに直接アクセスできるようにします</li>
-  <li>自動化スクリプトおよび CI/CD パイプライン</li>
-  <li>外部の監視・連携ツール</li>
+  <li>MCP 経由で Klacks を利用する AI エージェントおよびアシスタント</li>
 </ul>
 
 <h4>セキュリティ設計</h4>
@@ -33,7 +32,7 @@ Klacks はトークンの平文を保存しません。作成後はデータベ�
 <ul>
   <li><strong>設定 → パーソナルアクセストークン</strong>に移動します</li>
   <li><strong>新しいトークンを作成</strong>をクリックします</li>
-  <li>わかりやすい<strong>名前</strong>を付けます（例：<code>Claude Desktop</code> や <code>CI-Pipeline</code>）</li>
+  <li>わかりやすい<strong>名前</strong>を付けます（例：<code>Claude Desktop</code> や <code>AI エージェント（計画）</code>）</li>
   <li>希望する<strong>有効期限</strong>を選択します（1〜730日、既定値：365日）</li>
   <li><strong>作成</strong>をクリックします</li>
   <li>表示されたトークンを直ちにコピーしてください — 一度しか表示されません</li>
@@ -51,17 +50,25 @@ klacks_pat_&lt;ランダムな文字列&gt;
 <table>
   <tr><th>期間</th><th>推奨用途</th></tr>
   <tr><td>1〜30日</td><td>短期間のテストおよび開発</td></tr>
-  <tr><td>90〜180日</td><td>定期的にローテーションする CI/CD パイプライン</td></tr>
+  <tr><td>90〜180日</td><td>定期的にローテーションする AI エージェント</td></tr>
   <tr><td>365日（既定値）</td><td>恒常的な連携（例：Claude Desktop）</td></tr>
   <tr><td>730日</td><td>長期的なシステム連携</td></tr>
 </table>
+
+<h4>アクセスモード</h4>
+<p>作成時に、外部エージェントがトークンで何をしてよいかを指定します。</p>
+<ul>
+  <li><strong>読み取り専用</strong> （既定）— エージェントは読み取り用のツールだけを表示・使用できます。データを変更しようとする操作はすべて拒否されます。</li>
+  <li><strong>読み取りと書き込み</strong> — エージェントは、変更ごとに人が承認することなく、データを変更することもできます。変更を任せられるエージェントにのみ、このモードを選択してください。</li>
+</ul>
+<p>モードはトークン一覧に表示され、後から変更することはできません。必要に応じて新しいトークンを作成してください。既存のトークンと、OAuth サインイン（MCP コネクタなど）で発行されたトークンのモードは「読み取りと書き込み」です。</p>
 
 <hr>
 
 <h3>トークンの使用</h3>
 
 <h4>HTTP ヘッダーでの Bearer トークン</h4>
-<p>トークンは各 API リクエストの <code>Authorization</code> ヘッダーに Bearer トークンとして渡します。</p>
+<p>トークンは、<code>/mcp</code> エンドポイントへの各 MCP リクエストの <code>Authorization</code> ヘッダーに Bearer トークンとして渡します。</p>
 <pre>
 Authorization: Bearer klacks_pat_...
 </pre>
@@ -81,11 +88,13 @@ MCP エンドポイント（<code>/mcp</code>）を使うと、Claude Desktop �
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-fetch",
-        "https://&lt;your-klacks-domain&gt;/mcp"
+        "mcp-remote",
+        "https://&lt;your-klacks-domain&gt;/mcp",
+        "--header",
+        "Authorization:${AUTH_HEADER}"
       ],
       "env": {
-        "AUTHORIZATION": "Bearer klacks_pat_..."
+        "AUTH_HEADER": "Bearer klacks_pat_..."
       }
     }
   }
@@ -95,11 +104,7 @@ MCP エンドポイント（<code>/mcp</code>）を使うと、Claude Desktop �
 <p><code>&lt;your-klacks-domain&gt;</code> をお使いの Klacks インストールのアドレスに、
 <code>klacks_pat_...</code> を作成したトークンに置き換えてください。</p>
 
-<h4>直接 API を呼び出す（curl）</h4>
-<pre>
-curl -H "Authorization: Bearer klacks_pat_..." \
-     https://&lt;your-klacks-domain&gt;/api/clients
-</pre>
+<p><strong>注意：</strong>トークンは AI エージェントの MCP アクセス（エンドポイント <code>/mcp</code>）でのみ使用できます。Klacks の REST API（例：<code>/api/clients</code>）では受け付けられず、ログイン用トークンが必要です。</p>
 
 <hr>
 
@@ -134,11 +139,10 @@ curl -H "Authorization: Bearer klacks_pat_..." \
   <li>サービスやツールごとに個別のトークンを使用してください</li>
   <li>トークンを一意に識別できるよう、わかりやすい名前を付けてください</li>
   <li>トークンをバージョン管理システムに平文で保存しないでください</li>
-  <li>特に CI/CD で使用する場合は、トークンを定期的にローテーションしてください</li>
+  <li>トークンを定期的にローテーションしてください</li>
   <li>不正使用の疑いがある場合は直ちにトークンを無効化してください</li>
 </ul>
 
 <p>
-<em>各トークンはご自身のユーザーアカウントに紐づいており、アカウントと同じ権限を
-持ちます。パスワードと同様の注意を払って取り扱ってください。</em>
+<em>各トークンはご自身のユーザーアカウントに紐づいています。MCP 経由では、アカウントの権限がそのまま適用されますが、上限はスーパーバイザーレベルです。アカウントが管理者であっても、トークンに管理者権限が付与されることはありません。さらに、アクセスモードによってエージェントができることが制限されます。「読み取り専用」では読み取り機能のみを使用し、「読み取りと書き込み」では追加の確認なしに変更を実行します。パスワードと同様の注意を払って取り扱ってください。</em>
 </p>
