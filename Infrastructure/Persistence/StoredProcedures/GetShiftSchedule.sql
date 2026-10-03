@@ -5,8 +5,10 @@
 --   holiday_dates: Array of holidays (DATE[])
 --   visible_group_ids: Optional array of visible group IDs (includes subgroups)
 --   show_ungrouped_shifts: If TRUE, include shifts not assigned to any group (default FALSE)
--- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status
+-- Returns: shift_id, date, day_of_week (ISO: 1=Mon, 7=Sun), shift_name, abbreviation, start_shift, end_shift, work_time, is_sporadic, is_time_range, shift_type, status, sporadic_status, period_booked_days
 -- sporadic_status: 0 = none, 1 = booked (per-day capacity reached: engaged_at_day >= sum_employees), 2 = blocked (no booking on this day AND distinct booked days in range >= quantity)
+-- period_booked_days: sporadic shifts only - distinct booked days within the whole sporadic period (week/month/...) containing the date,
+--   independent of the requested date range; 0 for non-sporadic shifts. Same count that drives sporadic_status = 2.
 -- Note: Only returns shifts with status >= 2 (OriginalShift or SplitShift)
 
 DROP FUNCTION IF EXISTS get_shift_schedule(DATE, DATE, DATE[]);
@@ -42,7 +44,8 @@ RETURNS TABLE (
     quantity INTEGER,
     sporadic_scope INTEGER,
     engaged INTEGER,
-    sporadic_status SMALLINT
+    sporadic_status SMALLINT,
+    period_booked_days INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -244,7 +247,8 @@ BEGIN
                 WHEN COALESCE(wc.engaged_count, 0) = 0
                      AND COALESCE(src.distinct_booked_days, 0) >= sr.effective_quantity THEN 2
                 ELSE 0
-            END::SMALLINT AS status
+            END::SMALLINT AS status,
+            COALESCE(src.distinct_booked_days, 0)::INTEGER AS period_booked_days
         FROM sporadic_ranges sr
         LEFT JOIN work_counts wc
             ON wc.shift_id = sr.shift_id
@@ -272,7 +276,8 @@ BEGIN
         sd.quantity,
         sd.sporadic_scope,
         COALESCE(wc.engaged_count, 0) AS engaged,
-        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status
+        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
+        COALESCE(ss.period_booked_days, 0) AS period_booked_days
     FROM shift_dates sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date
@@ -319,7 +324,8 @@ RETURNS TABLE (
     quantity INTEGER,
     sporadic_scope INTEGER,
     engaged INTEGER,
-    sporadic_status SMALLINT
+    sporadic_status SMALLINT,
+    period_booked_days INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -431,7 +437,8 @@ BEGIN
                 WHEN COALESCE(wc.engaged_count, 0) = 0
                      AND COALESCE(src.distinct_booked_days, 0) >= sr.effective_quantity THEN 2
                 ELSE 0
-            END::SMALLINT AS status
+            END::SMALLINT AS status,
+            COALESCE(src.distinct_booked_days, 0)::INTEGER AS period_booked_days
         FROM sporadic_ranges sr
         LEFT JOIN work_counts wc
             ON wc.shift_id = sr.shift_id
@@ -459,7 +466,8 @@ BEGIN
         sd.quantity,
         sd.sporadic_scope,
         COALESCE(wc.engaged_count, 0) AS engaged,
-        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status
+        COALESCE(ss.status, 0::SMALLINT) AS sporadic_status,
+        COALESCE(ss.period_booked_days, 0) AS period_booked_days
     FROM shift_data sd
     LEFT JOIN container_lookup cl ON cl.shift_id = sd.shift_id AND cl.schedule_date = sd.schedule_date
     LEFT JOIN work_counts wc ON wc.shift_id = sd.shift_id AND wc.schedule_date = sd.schedule_date

@@ -43,6 +43,8 @@ public class ShiftDayAssignment
 
     public short SporadicStatus { get; set; }
 
+    public int PeriodBookedDays { get; set; }
+
     [NotMapped]
     public List<ShiftRequiredQualification> RequiredQualifications { get; set; } = new();
 }
