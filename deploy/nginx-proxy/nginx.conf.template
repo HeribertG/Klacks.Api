@@ -1,5 +1,14 @@
 worker_processes auto;
 
+# Error log: crit only. At the default level (error) nginx writes the raw request line into every
+# upstream failure and 413 message - `request: "GET /hubs/x?id=1&access_token=<JWT>"`, the upstream
+# URL and the referrer - and an error_log cannot be redacted like the access log. SignalR
+# reconnects hit a dead upstream on every klacks-api release, so those lines are guaranteed to
+# appear. The diagnostics they carried now live in the access log ($upstream_status etc. below).
+# Residual: crit-level messages that name a request (e.g. an unreadable temp or cache file) would
+# still print it; none occurs in this setup.
+error_log /dev/stderr crit;
+
 events {
     worker_connections 2048;
 }
@@ -38,32 +47,37 @@ http {
     #      already replaced, so each stage takes the last remaining one. A fourth stage fails
     #      closed and drops the whole query string.
     #   3. The Referer loses its query string (a page URL can carry the same parameters).
-    # Parameter names are matched case-insensitively and un-encoded; an unknown name is NOT caught -
-    # extend the alternation in the three stages below when a new secret parameter is introduced.
+    # A parameter counts as secret when its NAME ends (case-insensitive) in token, secret, password,
+    # passwd, pwd, key, code, auth, jwt, sig, signature, session or credential - so access_token,
+    # hub.verify_token, apiKey, client_secret and refreshToken are all caught. This errs on the safe
+    # side: names such as keyword or zipcode are redacted too.
+    # NOT covered: URL-encoded parameter names (access%5Ftoken=...), ';' as parameter separator, and
+    # secrets in the PATH. A name outside the suffix list is not caught either - extend the
+    # alternation in the three stages and in the fail-closed stage together.
     map $request_uri $log_uri_stage0 {
         ~^(?<log_hub_path>/(?:hubs|ws)(?:/[^?]*)?)\?    "${log_hub_path}?REDACTED";
         default                                         $request_uri;
     }
 
     map $log_uri_stage0 $log_uri_stage1 {
-        ~*^(?<log_pre1>.*[?&])(?<log_name1>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post1>.*)$    "${log_pre1}${log_name1}=REDACTED${log_post1}";
+        ~*^(?<log_pre1>.*[?&])(?<log_name1>[\w.\-]*(?:token|secret|passw(?:or)?d|pwd|key|code|auth|jwt|sig(?:nature)?|session|credential))=(?!REDACTED(?:&|$))[^&]*(?<log_post1>.*)$    "${log_pre1}${log_name1}=REDACTED${log_post1}";
         default                                         $log_uri_stage0;
     }
 
     map $log_uri_stage1 $log_uri_stage2 {
-        ~*^(?<log_pre2>.*[?&])(?<log_name2>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post2>.*)$    "${log_pre2}${log_name2}=REDACTED${log_post2}";
+        ~*^(?<log_pre2>.*[?&])(?<log_name2>[\w.\-]*(?:token|secret|passw(?:or)?d|pwd|key|code|auth|jwt|sig(?:nature)?|session|credential))=(?!REDACTED(?:&|$))[^&]*(?<log_post2>.*)$    "${log_pre2}${log_name2}=REDACTED${log_post2}";
         default                                         $log_uri_stage1;
     }
 
     map $log_uri_stage2 $log_uri_stage3 {
-        ~*^(?<log_pre3>.*[?&])(?<log_name3>access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))[^&]*(?<log_post3>.*)$    "${log_pre3}${log_name3}=REDACTED${log_post3}";
+        ~*^(?<log_pre3>.*[?&])(?<log_name3>[\w.\-]*(?:token|secret|passw(?:or)?d|pwd|key|code|auth|jwt|sig(?:nature)?|session|credential))=(?!REDACTED(?:&|$))[^&]*(?<log_post3>.*)$    "${log_pre3}${log_name3}=REDACTED${log_post3}";
         default                                         $log_uri_stage2;
     }
 
     # Fail closed: a fourth secret parameter in one request is not worth a fourth stage - if one is
     # still left after three, the whole query string is dropped instead of leaking it.
     map $log_uri_stage3 $log_uri_redacted {
-        ~*^(?<log_failsafe_path>[^?]*)\?(?:.*&)?(?:access_token|refresh_token|id_token|token|code|key)=(?!REDACTED(?:&|$))    "${log_failsafe_path}?REDACTED";
+        ~*^(?<log_failsafe_path>[^?]*)\?(?:.*&)?[\w.\-]*(?:token|secret|passw(?:or)?d|pwd|key|code|auth|jwt|sig(?:nature)?|session|credential)=(?!REDACTED(?:&|$))    "${log_failsafe_path}?REDACTED";
         default                                         $log_uri_stage3;
     }
 
@@ -74,7 +88,9 @@ http {
 
     log_format redacted '$remote_addr - $remote_user [$time_local] '
                         '"$request_method $log_uri_redacted $server_protocol" '
-                        '$status $body_bytes_sent "$log_referer_redacted" "$http_user_agent"';
+                        '$status $body_bytes_sent "$log_referer_redacted" "$http_user_agent" '
+                        'upstream_status=$upstream_status upstream_addr=$upstream_addr '
+                        'upstream_response_time=$upstream_response_time request_time=$request_time';
 
     # Defined once here at http level and inherited by every server block below; no server or
     # location block may declare its own access_log, or it would bypass the redaction.

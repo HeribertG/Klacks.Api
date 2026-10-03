@@ -465,7 +465,13 @@ jobs:
           docker stop klacks-api 2>/dev/null || true
           docker rm klacks-api 2>/dev/null || true
           $COMPOSE_CMD up -d klacks-api
-          $COMPOSE_CMD restart nginx-proxy 2>/dev/null || $COMPOSE_CMD up -d nginx-proxy
+          # `up -d --no-deps` recreates the proxy when its compose config changed (e.g. new `logging:`
+          # options - a plain `restart` keeps the old ones) and never touches its dependencies. The
+          # `restart` afterwards is deliberate: the command renders nginx.conf from the mounted template
+          # with envsubst at container start, so a changed template under an unchanged compose config
+          # is only picked up by a restart, and nginx re-resolves the freshly recreated klacks-api.
+          $COMPOSE_CMD up -d --no-deps nginx-proxy
+          $COMPOSE_CMD restart nginx-proxy
 
           # Auto-update sidecar (out-of-process executor). Non-fatal: a pull/start hiccup must never
           # fail the main deploy — api/ui keep running. Idles safely when there are no pending rows.
