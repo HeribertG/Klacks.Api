@@ -17,6 +17,9 @@ public interface IPlanningConstraintRepository
 
     Task<List<PlanningConstraint>> ListAsync(RuleApprovalStatus? status, CancellationToken cancellationToken = default);
 
+    /// <summary>True when at least one approved, not deleted constraint exists (real or scenario).</summary>
+    Task<bool> AnyApprovedAsync(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Approved, not deleted constraints whose validity overlaps [from, until]: the real rows (AnalyseToken
     /// null) plus, for a scenario (<paramref name="analyseToken"/> set), that scenario's own rows.

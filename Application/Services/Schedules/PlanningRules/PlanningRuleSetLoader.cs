@@ -25,6 +25,8 @@
 /// <param name="dataReader">Group memberships of the requested agents</param>
 /// <param name="carryInLoader">Worked segments outside the period</param>
 /// <param name="settingsReader">Reads NIGHT_RULE_MIN_OVERLAP_MINUTES for the night classification of the sequence rules</param>
+/// <param name="presence">Cached "any approved constraint" answer; without one the constraint table is not queried</param>
+/// <param name="cache">Throttles the error log of invalid rows to once per id and InvalidRuleLogIntervalMinutes</param>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -40,11 +42,14 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
 using Klacks.ScheduleOptimizer.Models;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Klacks.Api.Application.Services.Schedules.PlanningRules;
 
 public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
 {
+    private const string InvalidRuleLogCacheKeyPrefix = "planning-rule-invalid-logged:";
+
     private readonly ICounterRuleRepository _counterRuleRepository;
     private readonly IPlanningConstraintRepository _constraintRepository;
     private readonly IPlanningConstraintValidator _constraintValidator;
@@ -54,6 +59,8 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     private readonly IPlanningRuleDataReader _dataReader;
     private readonly IPlanningRuleCarryInLoader _carryInLoader;
     private readonly ISettingsReader _settingsReader;
+    private readonly IPlanningConstraintPresence _presence;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<PlanningRuleSetLoader> _logger;
 
     public PlanningRuleSetLoader(
@@ -66,6 +73,8 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         IPlanningRuleDataReader dataReader,
         IPlanningRuleCarryInLoader carryInLoader,
         ISettingsReader settingsReader,
+        IPlanningConstraintPresence presence,
+        IMemoryCache cache,
         ILogger<PlanningRuleSetLoader> logger)
     {
         _counterRuleRepository = counterRuleRepository;
@@ -77,6 +86,8 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         _dataReader = dataReader;
         _carryInLoader = carryInLoader;
         _settingsReader = settingsReader;
+        _presence = presence;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -160,6 +171,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
             ? await _counterRuleRepository.GetAllApprovedAsync(cancellationToken)
             : [];
         var constraints = sources.HasFlag(PlanningRuleSources.PlanningConstraints)
+            && await _presence.AnyApprovedAsync(cancellationToken)
             ? await _constraintRepository.GetApprovedForPeriodAsync(from, until, analyseToken, cancellationToken)
             : [];
         if (counterRules.Count == 0 && constraints.Count == 0)
@@ -212,27 +224,30 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
             var errors = string.Join(" ", validation.Errors);
             if (constraint.Severity == PlanningConstraintSeverity.Hard && invalidHardRuleIds is not null)
             {
-                _logger.LogError(
-                    "Approved HARD planning constraint {ConstraintId} is invalid and is reported as a finding instead of being evaluated: {Errors}",
-                    constraint.Id,
-                    errors);
+                if (ShouldLogInvalid(constraint.Id))
+                {
+                    _logger.LogError("Approved HARD planning constraint {ConstraintId} is invalid and is reported as a finding instead of being evaluated: {Errors}", constraint.Id, errors);
+                }
+
                 invalidHardRuleIds.Add(constraint.Id);
                 return null;
             }
 
             if (constraint.Severity == PlanningConstraintSeverity.Hard)
             {
-                _logger.LogError(
-                    "Approved HARD planning constraint {ConstraintId} is invalid, planning-rule loading is refused: {Errors}",
-                    constraint.Id,
-                    errors);
+                if (ShouldLogInvalid(constraint.Id))
+                {
+                    _logger.LogError("Approved HARD planning constraint {ConstraintId} is invalid, planning-rule loading is refused: {Errors}", constraint.Id, errors);
+                }
+
                 throw new PlanningRuleConfigurationException(constraint.Id, errors);
             }
 
-            _logger.LogError(
-                "Approved soft planning constraint {ConstraintId} is invalid and was skipped: {Errors}",
-                constraint.Id,
-                errors);
+            if (ShouldLogInvalid(constraint.Id))
+            {
+                _logger.LogError("Approved soft planning constraint {ConstraintId} is invalid and was skipped: {Errors}", constraint.Id, errors);
+            }
+
             skippedRuleIds.Add(constraint.Id);
             return null;
         }
@@ -342,10 +357,29 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         return agentIds.Where(id => id != Guid.Empty).Distinct().ToList();
     }
 
+    // Every write gate and live check loads the rules, so an invalid row would otherwise log on every call.
+    private bool ShouldLogInvalid(Guid constraintId)
+    {
+        var key = InvalidRuleLogCacheKeyPrefix + constraintId;
+        if (_cache.TryGetValue(key, out _))
+        {
+            return false;
+        }
+
+        _cache.Set(key, true, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(PlanningConstraintDefaults.InvalidRuleLogIntervalMinutes),
+            Size = 1,
+        });
+        return true;
+    }
+
     private async Task<int> ReadNightRuleMinOverlapAsync()
     {
         var setting = await _settingsReader.GetSetting(SettingKeys.NightRuleMinOverlapMinutes);
-        return int.TryParse(setting?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes) && minutes >= 0
+        return int.TryParse(setting?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes)
+            && minutes >= 0
+            && minutes <= PlanningConstraintDefaults.MaxNightRuleMinOverlapMinutes
             ? minutes
             : PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes;
     }

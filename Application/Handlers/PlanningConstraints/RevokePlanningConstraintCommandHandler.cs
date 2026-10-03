@@ -9,6 +9,7 @@
 using Klacks.Api.Application.Commands.PlanningConstraints;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Scheduling;
@@ -22,17 +23,20 @@ public class RevokePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     private readonly IPlanningConstraintRepository _repository;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPlanningConstraintPresence _presence;
 
     public RevokePlanningConstraintCommandHandler(
         IPlanningConstraintRepository repository,
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
+        IPlanningConstraintPresence presence,
         ILogger<RevokePlanningConstraintCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _presence = presence;
     }
 
     public async Task<PlanningConstraintResource> Handle(RevokePlanningConstraintCommand request, CancellationToken cancellationToken)
@@ -45,7 +49,7 @@ public class RevokePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 
         return await ExecuteAsync(async () =>
         {
-            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork, _presence);
             return _mapper.ToResource(constraint);
         },
         "revoking planning constraint",

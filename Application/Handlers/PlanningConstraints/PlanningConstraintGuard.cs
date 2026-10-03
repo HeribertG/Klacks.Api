@@ -5,6 +5,7 @@
 /// 404 and a concurrent change into a 409, so every handler reports the same way.
 /// </summary>
 
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
@@ -28,6 +29,13 @@ internal static class PlanningConstraintGuard
     /// Commits through the unit of work and turns a row-version conflict into a 409 (ConflictException is rethrown
     /// unchanged by BaseHandler, a ConcurrencyException would become a 400).
     /// </summary>
+    /// <summary>Commits and drops the cached "any approved constraint" answer (the approved set may have changed).</summary>
+    public static async Task SaveAsync(IUnitOfWork unitOfWork, IPlanningConstraintPresence presence)
+    {
+        await SaveAsync(unitOfWork);
+        presence.Invalidate();
+    }
+
     public static async Task SaveAsync(IUnitOfWork unitOfWork)
     {
         try

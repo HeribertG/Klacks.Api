@@ -25,8 +25,9 @@ public interface IPlanningRuleDataReader
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Not deleted Work rows of <paramref name="clientIds"/> dated in [from, until] whose AnalyseToken equals
-    /// <paramref name="analyseToken"/> (null = real plan), the same filter CounterRuleEvaluator counts with.
+    /// Not deleted top-level Work rows (ParentWorkId null - container sub-works are part of their container, not
+    /// shifts of their own) of <paramref name="clientIds"/> dated in [from, until] whose AnalyseToken equals
+    /// <paramref name="analyseToken"/> (null = real plan), the filter of PreCommitConflictChecker and the timeline.
     /// </summary>
     Task<List<PlanningRuleWorkSpan>> GetWorkSpansAsync(
         IReadOnlyCollection<Guid> clientIds,

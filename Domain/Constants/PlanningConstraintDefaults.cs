@@ -74,4 +74,17 @@ public static class PlanningConstraintDefaults
     /// from 05:00 against a 23:00-06:00 window is therefore no night.
     /// </summary>
     public const int DefaultNightRuleMinOverlapMinutes = 60;
+
+    /// <summary>
+    /// Upper bound of NIGHT_RULE_MIN_OVERLAP_MINUTES. Night windows are 7-8 hours (23:00-06:00, 22:00-06:00); a
+    /// threshold above 8 hours could never be exceeded and would silently switch night classification off. A stored
+    /// value outside 0..480 falls back to the default.
+    /// </summary>
+    public const int MaxNightRuleMinOverlapMinutes = 480;
+
+    /// <summary>How long the "any approved planning constraint" answer is cached between invalidations.</summary>
+    public const int PresenceCacheSeconds = 30;
+
+    /// <summary>An invalid or skipped constraint is logged as an error at most once per id in this interval.</summary>
+    public const int InvalidRuleLogIntervalMinutes = 60;
 }

@@ -76,6 +76,7 @@ public class PlanningRuleDataReader : IPlanningRuleDataReader
             .Where(work => !work.IsDeleted
                 && clientIdList.Contains(work.ClientId)
                 && work.AnalyseToken == analyseToken
+                && work.ParentWorkId == null
                 && work.CurrentDate >= from
                 && work.CurrentDate <= until)
             .OrderBy(work => work.ClientId)

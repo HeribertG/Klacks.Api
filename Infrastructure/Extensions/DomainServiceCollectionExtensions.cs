@@ -352,6 +352,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningRuleCarryInLoader>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningRuleSetLoader,
                            Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningRuleSetLoader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningConstraintPresence,
+                           Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningConstraintPresence>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningRuleEvaluatorService,
                            Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningRuleEvaluatorService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleRepository,

@@ -10,6 +10,7 @@
 using Klacks.Api.Application.Commands.PlanningConstraints;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Scheduling;
@@ -25,6 +26,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
     private readonly IPlanningConstraintReferenceReader _references;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPlanningConstraintPresence _presence;
     private readonly TimeProvider _timeProvider;
 
     public ApprovePlanningConstraintCommandHandler(
@@ -34,6 +36,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
+        IPlanningConstraintPresence presence,
         ILogger<ApprovePlanningConstraintCommandHandler> logger)
         : base(logger)
     {
@@ -42,6 +45,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
         _references = references;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _presence = presence;
         _timeProvider = timeProvider;
     }
 
@@ -61,7 +65,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
 
         return await ExecuteAsync(async () =>
         {
-            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork, _presence);
             return _mapper.ToResource(constraint);
         },
         "approving planning constraint",

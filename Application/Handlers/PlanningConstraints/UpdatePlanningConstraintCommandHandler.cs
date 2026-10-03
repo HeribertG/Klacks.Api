@@ -11,6 +11,7 @@
 using Klacks.Api.Application.Commands.PlanningConstraints;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -29,6 +30,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     private readonly IPlanningConstraintReferenceReader _references;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPlanningConstraintPresence _presence;
     private readonly TimeProvider _timeProvider;
 
     public UpdatePlanningConstraintCommandHandler(
@@ -38,6 +40,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
+        IPlanningConstraintPresence presence,
         ILogger<UpdatePlanningConstraintCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +49,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
         _references = references;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _presence = presence;
         _timeProvider = timeProvider;
     }
 
@@ -67,7 +71,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 
         return await ExecuteAsync(async () =>
         {
-            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork, _presence);
             return _mapper.ToResource(result);
         },
         "updating planning constraint",

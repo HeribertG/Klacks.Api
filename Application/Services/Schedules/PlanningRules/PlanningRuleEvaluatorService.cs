@@ -9,9 +9,9 @@
 /// because RestAfterKind only counts rest days inside the evaluated period, and evaluates the plan before and
 /// after the write on the same context. Breaks and WorkChange replacements are not read: a break counts as free,
 /// as in every rule consumer. An invalid approved Hard constraint is never a reason to fail: it is left out, the
-/// valid rules are still evaluated, and it is reported as a planning-rule-invalid finding of its own - an Error in
-/// the range and day checks (a period close must not look clean), a Warning in the pre-commit check, because an
-/// Error there would block every unrelated write.
+/// valid rules are still evaluated, and it is reported once per evaluation as a planning-rule-invalid finding
+/// without client - an Error in the range check (a period close must not look clean), a Warning in the pre-commit
+/// check, because an Error there would block every unrelated write; the day check leaves it to the range check.
 /// </summary>
 /// <param name="ruleSetLoader">Approved planning rules, agents (night window, workload)</param>
 /// <param name="dataReader">Persisted Work rows of the evaluated clients</param>
@@ -70,8 +70,10 @@ public sealed class PlanningRuleEvaluatorService : IPlanningRuleEvaluatorService
         Guid? analyseToken,
         CancellationToken cancellationToken = default)
     {
-        var (window, invalidRuleIds) = await PrepareAsync([clientId], date, date, extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
-        var entries = InvalidRuleEntries(invalidRuleIds, date, ScheduleValidationType.Error, clientId);
+        // An invalid rule is a company-wide finding: the range check reports it once, a per-client-day copy here
+        // would multiply it by every edited cell.
+        var (window, _) = await PrepareAsync([clientId], date, date, extendByHorizon: true, includeTeamFairness: false, analyseToken, cancellationToken);
+        var entries = new List<ScheduleValidationNotificationDto>();
         if (window is not null)
         {
             entries.AddRange(window.Evaluator.Evaluate(window.BuildPlan(window.Segments)).Findings

@@ -45,6 +45,9 @@ public class PlanningConstraintRepository : IPlanningConstraintRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<bool> AnyApprovedAsync(CancellationToken cancellationToken = default)
+        => _context.PlanningConstraint.AnyAsync(c => !c.IsDeleted && c.ApprovalStatus == RuleApprovalStatus.Approved, cancellationToken);
+
     public async Task<List<PlanningConstraint>> GetApprovedForPeriodAsync(
         DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken cancellationToken = default)
     {
