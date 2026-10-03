@@ -98,18 +98,28 @@ public static class McpEndpointExtensions
                     McpAuthenticationDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
                 .RequireAssistantAccess())
-            .RequireRateLimiting(RateLimitingPolicies.Mcp);
+            .RequireRateLimiting(RateLimitingPolicies.Mcp)
+            .WithMetadata(McpPermissionCapMetadata.Instance);
     }
 
+    /// <summary>
+    /// Caps the principal of every endpoint carrying McpPermissionCapMetadata at Authorised. MUST run after
+    /// UseAuthorization: authentication alone only evaluates the default scheme (the Identity cookie after
+    /// AddIdentity), so before authorization the principal of a bearer request is still anonymous, and the
+    /// authorization middleware then replaces HttpContext.User with the merged principal of the endpoint's
+    /// policy schemes (JWT, personal access token, OAuth). Only from here on is that final principal in place.
+    /// </summary>
     public static IApplicationBuilder UseMcpPermissionCap(this IApplicationBuilder app)
     {
-        return app.UseWhen(
-            context => context.Request.Path.StartsWithSegments(McpServerConstants.RoutePattern),
-            branch => branch.Use(async (context, next) =>
+        return app.Use(async (context, next) =>
+        {
+            if (context.GetEndpoint()?.Metadata.GetMetadata<McpPermissionCapMetadata>() != null)
             {
                 context.User = McpPrincipalCapper.CapToAuthorised(context.User);
-                await next();
-            }));
+            }
+
+            await next();
+        });
     }
 
     private static ValueTask<ListToolsResult> HandleListToolsAsync(

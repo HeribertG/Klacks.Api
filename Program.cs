@@ -636,9 +636,11 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 
-app.UseMcpPermissionCap();
-
 app.UseAuthorization();
+
+// After UseAuthorization: only the authorization middleware establishes the final principal of the /mcp
+// policy schemes (the default authenticate scheme is the Identity cookie), so capping earlier has no effect.
+app.UseMcpPermissionCap();
 
 // After UseAuthorization so the audit line can name the authenticated user and report whether the
 // request was actually allowed through.
