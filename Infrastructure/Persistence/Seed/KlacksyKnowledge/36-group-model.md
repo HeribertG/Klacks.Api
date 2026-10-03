@@ -79,7 +79,14 @@ it.
 - `fill_group_by_criteria` / `propose_grouping` / `apply_grouping` — filling without picking
 - `partition_clients_by_address` — builds the whole location group tree (region → state/province →
   city cluster) from the addresses of employees, external employees and customers in one call, for a
-  fresh install that has clients but no groups yet; orders then follow their customer's cluster
+  fresh install that has clients but no groups yet; orders then follow their customer's cluster. Level
+  `cluster_municipality` adds municipality sub-groups below a city cluster, but only for larger
+  accumulations; small places join the nearest sub-group or stay in the city group
+- `partition_clients_by_qualification` — one group per currently valid qualification (preview first,
+  then apply on confirmation); a person with several qualifications is in several groups. With
+  `rootGroupName` the qualification groups are created below that group, for its members only
+  (e.g. qualification groups per location)
+- `evaluate_grouping_by_qualification` / `evaluate_location_group_candidates` — advice only, creates nothing
 - `set_group_location` / `add_client_to_nearest_group` / `check_group_geocoding_status` — geography
 - `get_group_hours_balance` / `get_group_absence_overlap` — evaluation
 
