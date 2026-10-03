@@ -9,7 +9,8 @@
 /// first, additionally sent live and then acknowledged when the owner is connected) and records the
 /// outcome. No LLM and no further user input are involved at
 /// fire time. Rights come from the owner's CURRENT roles, not from a set frozen at authoring time, so a
-/// revoked role takes effect on the next run. Because nobody is there to confirm anything, skill actions
+/// revoked role takes effect on the next run; a task authored over MCP (ExternalAgentAccessMode set) is
+/// capped at Authorised and runs with that access mode, like the MCP call that created it. Because nobody is there to confirm anything, skill actions
 /// pass <see cref="IUnattendedSkillPolicy"/> first, judged against the owner's CURRENT autonomy level.
 /// A refusal there disables the task instead of retrying it every tick — except when its cause is one
 /// the owner can still fix from the outside (see <see cref="UnattendedDenyReasonClassification"/>),
@@ -162,7 +163,10 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         // permission set frozen when the schedule was created — revoking a role now takes effect on the
         // next run. A refusal does NOT disable the task: a locked-out account gets unlocked and a
         // missing role gets granted, so the task must survive to run again once that happens.
-        var token = await _internalTokenIssuer.IssueForOwnerAsync(task.OwnerUserId, cancellationToken: cancellationToken);
+        // A task authored over MCP keeps the MCP ceiling: the owner's current roles are capped at Authorised,
+        // otherwise an Admin's Write token could schedule work that later runs with full Admin rights.
+        var roleCeiling = task.ExternalAgentAccessMode.HasValue ? Roles.Authorised : null;
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(task.OwnerUserId, roleCeiling, cancellationToken);
         if (!token.Success)
         {
             _logger.LogWarning(
@@ -202,7 +206,8 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             AccessToken = token.Token,
             UserTimezone = task.TimeZoneId,
             SessionId = $"scheduled-task:{task.Id}",
-            BypassAutonomyGate = true
+            BypassAutonomyGate = true,
+            ExternalAgentAccessMode = task.ExternalAgentAccessMode
         };
 
         var invocation = new SkillInvocation

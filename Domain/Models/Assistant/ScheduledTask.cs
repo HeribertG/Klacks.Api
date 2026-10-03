@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -67,6 +68,14 @@ public class ScheduledTask : BaseEntity
     /// owner deliberately accepted that for this one task.
     /// </summary>
     public bool AllowIrreversibleUnattended { get; set; }
+
+    /// <summary>
+    /// Access mode of the external agent (MCP) that authored the task; null when it was authored in the chat or
+    /// over REST. A non-null value caps every run at Authorised (Supervisor) and carries the mode into the run's
+    /// SkillExecutionContext, so a task scheduled over MCP never runs with more rights than the MCP call that
+    /// created it, even though the run mints a fresh token from the owner's current (possibly Admin) roles.
+    /// </summary>
+    public PersonalAccessTokenAccessMode? ExternalAgentAccessMode { get; set; }
 
     /// <summary>
     /// Set when a run was refused for a cause the owner can still fix. Deliberately separate from

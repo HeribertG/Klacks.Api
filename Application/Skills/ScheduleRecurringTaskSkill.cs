@@ -5,7 +5,9 @@
 /// The action is resolved to a concrete artifact here, at authoring time: a static reminder text or a
 /// single deterministic skill invocation — so the scheduled run needs no LLM and no further input. With
 /// apply=false (default) it validates everything and returns a preview with the next run for the user to
-/// confirm; with apply=true it persists the task and captures the owner's identity and permissions.
+/// confirm; with apply=true it persists the task and captures the owner's identity and permissions, plus the
+/// MCP access mode when an external agent authored it (the runner then caps every run at Authorised; re-authoring
+/// takes the mode of the current caller, so a task last saved over MCP stays capped until the owner saves it in the chat).
 /// Re-applying an existing task by name is also the way OUT of a pause: a background run refused for a
 /// cause the owner can fix (a missing irreversible opt-in, a too-low autonomy level) pauses the task
 /// instead of destroying it, and re-authoring it here lifts that pause so the next occurrence is tried
@@ -198,45 +200,21 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
-        var ownerPermissions = string.Join(",", context.UserPermissions);
+        var authoring = new ScheduledTaskAuthoring(
+            cronExpression, resolvedTimeZone, actionType, messageText, skillName, parametersJson,
+            nextRunUtc, effectiveMaxRuns, allowIrreversibleUnattended);
         var wasPaused = false;
 
         if (existing is null)
         {
-            var task = new ScheduledTask
-            {
-                Name = name,
-                CronExpression = cronExpression,
-                TimeZoneId = resolvedTimeZone,
-                ActionType = actionType,
-                MessageText = actionType == ScheduledTaskActionTypes.Reminder ? messageText : null,
-                SkillName = skillName,
-                ParametersJson = parametersJson,
-                OwnerUserId = context.UserId,
-                OwnerUserName = context.UserName,
-                OwnerPermissionsCsv = ownerPermissions,
-                IsEnabled = true,
-                NextRunUtc = nextRunUtc,
-                MaxRuns = effectiveMaxRuns,
-                AllowIrreversibleUnattended = allowIrreversibleUnattended
-            };
+            var task = new ScheduledTask { Name = name, OwnerUserId = context.UserId };
+            authoring.ApplyTo(task, context);
 
             await _repository.AddAsync(task, cancellationToken);
         }
         else
         {
-            existing.CronExpression = cronExpression;
-            existing.TimeZoneId = resolvedTimeZone;
-            existing.ActionType = actionType;
-            existing.MessageText = actionType == ScheduledTaskActionTypes.Reminder ? messageText : null;
-            existing.SkillName = skillName;
-            existing.ParametersJson = parametersJson;
-            existing.OwnerUserName = context.UserName;
-            existing.OwnerPermissionsCsv = ownerPermissions;
-            existing.IsEnabled = true;
-            existing.NextRunUtc = nextRunUtc;
-            existing.MaxRuns = effectiveMaxRuns;
-            existing.AllowIrreversibleUnattended = allowIrreversibleUnattended;
+            authoring.ApplyTo(existing, context);
             existing.RunCount = 0;
 
             // Re-authoring the task is the owner's answer to a pause, so the pause goes with it. Whether
