@@ -7,9 +7,11 @@ using Klacks.Api.Domain.Interfaces.Settings;
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Reads the configured Holistic Harmonizer model and the cached vision verdict for it. Not ready when no
-/// model is configured or when the model already failed the image round-trip; ready otherwise, including a
-/// model that was never measured.
+/// Decides whether a Holistic Harmonizer run is worth starting. In the default deterministic mode
+/// (<c>WIZARD3_MODE</c> missing or "deterministic") it is always ready - no model or network is needed. In LLM
+/// mode it reads the configured model and the cached vision verdict for it: not ready when no model is
+/// configured or when the model already failed the image round-trip; ready otherwise, including a model that
+/// was never measured.
 /// </summary>
 /// <param name="settingsReader">Source of the configured Holistic Harmonizer model id.</param>
 /// <param name="capabilityCache">Cached per-model verdict of the image round-trip.</param>
@@ -37,6 +39,12 @@ public sealed class HolisticHarmonizerReadinessCheck : IHolisticHarmonizerReadin
     public async Task<HolisticHarmonizerReadiness> CheckAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        var modeSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_MODE);
+        if (HolisticHarmonizerModes.Parse(modeSetting?.Value) == HolisticHarmonizerMode.Deterministic)
+        {
+            return HolisticHarmonizerReadiness.Ready();
+        }
 
         var modelSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_LLM_MODEL);
         var modelId = modelSetting?.Value;

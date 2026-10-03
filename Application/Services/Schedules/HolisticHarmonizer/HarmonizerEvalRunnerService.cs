@@ -10,11 +10,10 @@ using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Candidates;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee.Agents;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Search;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Validation;
 using Microsoft.Extensions.Logging;
 
@@ -124,31 +123,11 @@ public sealed class HarmonizerEvalRunnerService : IHarmonizerEvalRunnerService
     {
         var working = RowSorter.Sort(BitmapBuilder.Build(scenario.Input));
 
-        var scorer = new HarmonyScorer();
-        var fitness = new HarmonyFitnessEvaluator(scorer);
-        var validator = new PlanMutationValidator(
-            new DomainAwareReplaceValidator(
-                scenario.Input.Availability,
-                scenario.Input.BoundaryAssignments,
-                scenario.Input.IneligibleAssignments),
-            scenario.Input.RestrictedTimeWindows);
-        var committee = new ConstraintAgentCommittee(new IConstraintAgent[]
-        {
-            new HoursConstraintAgent(),
-            new PauseConstraintAgent(scenario.Input.BoundaryAssignments),
-            new ConsecutiveConstraintAgent(scenario.Input.BoundaryAssignments),
-            new RotationConstraintAgent(),
-            new PreferenceConstraintAgent(),
-        });
-        var batchEvaluator = new BatchEvaluator(validator, fitness, committee);
-        var candidatePool = new MoveCandidatePool(
-            validator,
-            new IMoveCandidateGenerator[]
-            {
-                new ConsolidateBlockCandidateGenerator(),
-                new EnlargePauseCandidateGenerator(),
-                new RedistributeLoadCandidateGenerator(),
-            });
+        var components = HolisticHarmonizerComponents.Build(
+            scenario.Input, new HarmonyFitnessEvaluator(new HarmonyScorer()), MoveCandidatePool.DefaultTopPerIntent);
+        var fitness = components.Fitness;
+        var batchEvaluator = components.Evaluator;
+        var candidatePool = components.Pool;
         var rejectMemory = new RejectMemory();
         var pngRenderer = new HarmonyBitmapPngRenderer();
         var agentSummary = HolisticHarmonizerEngine.BuildAgentSummary(working);

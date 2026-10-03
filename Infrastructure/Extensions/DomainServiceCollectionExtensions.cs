@@ -468,6 +468,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm.IPlanProposalProvider,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.LlmPlanProposalProvider>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerEngine>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerDeterministicEngine>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerRunService>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerReadinessCheck,

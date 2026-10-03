@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Skill that starts only Wizard 3 (Holistic Harmonizer — LLM Vision-Bitmap). Polishes an already
-/// harmonized schedule with multi-agent LLM voting. Consumes LLM credits; use sparingly.
+/// Skill that starts only Wizard 3 (Holistic Harmonizer). Polishes an already harmonized schedule; by default
+/// with the deterministic local search (no LLM), with the LLM vision engine only when WIZARD3_MODE is "llm".
 /// </summary>
 
 using Klacks.Api.Application.Exceptions;
@@ -94,7 +94,6 @@ public class StartWizard3Skill : BaseSkillImplementation
                 SourceAnalyseToken = analyseToken,
                 Language = language
             },
-            $"Wizard 3 (Holistic Harmonizer) job {jobId} started for group {groupId}, {periodFrom}..{periodUntil}. " +
-            "Note: this stage consumes LLM credits.");
+            $"Wizard 3 (Holistic Harmonizer) job {jobId} started for group {groupId}, {periodFrom}..{periodUntil}.");
     }
 }

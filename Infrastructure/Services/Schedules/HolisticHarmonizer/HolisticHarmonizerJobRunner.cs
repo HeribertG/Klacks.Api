@@ -37,6 +37,8 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     // that boundary may legitimately run up to 60s longer. The hard budget must cover
     // pre-flight + inner loop + one full LLM call so a straddling call does not discard
     // every batch accepted so far.
+    // The deterministic engine (default mode) stops its search after 75 s
+    // (HolisticHarmonizerDeterministicDefaults), well inside this budget.
     private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(180);
 
     private readonly IServiceScopeFactory _scopeFactory;

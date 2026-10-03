@@ -10,11 +10,10 @@ using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Candidates;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Committee.Agents;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
+using Klacks.ScheduleOptimizer.HolisticHarmonizer.Search;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Validation;
 using Microsoft.Extensions.Logging;
 
@@ -98,28 +97,11 @@ public sealed class HolisticHarmonizerEngine
         var original = BitmapCloner.Clone(sorted);
         var working = BitmapCloner.Clone(sorted);
 
-        var scorer = new HarmonyScorer();
-        var fitness = new HarmonyFitnessEvaluator(scorer);
-        var validator = new PlanMutationValidator(
-            new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments, input.IneligibleAssignments),
-            input.RestrictedTimeWindows);
-        var committee = new ConstraintAgentCommittee(new IConstraintAgent[]
-        {
-            new HoursConstraintAgent(),
-            new PauseConstraintAgent(input.BoundaryAssignments),
-            new ConsecutiveConstraintAgent(input.BoundaryAssignments),
-            new RotationConstraintAgent(),
-            new PreferenceConstraintAgent(),
-        });
-        var batchEvaluator = new BatchEvaluator(validator, fitness, committee);
-        var candidatePool = new MoveCandidatePool(
-            validator,
-            new IMoveCandidateGenerator[]
-            {
-                new ConsolidateBlockCandidateGenerator(),
-                new EnlargePauseCandidateGenerator(),
-                new RedistributeLoadCandidateGenerator(),
-            });
+        var components = HolisticHarmonizerComponents.Build(
+            input, new HarmonyFitnessEvaluator(new HarmonyScorer()), MoveCandidatePool.DefaultTopPerIntent);
+        var fitness = components.Fitness;
+        var batchEvaluator = components.Evaluator;
+        var candidatePool = components.Pool;
         var rejectMemory = new RejectMemory();
         var cap = new AdaptiveBatchCap();
         var iterations = new List<BatchEvaluation>();

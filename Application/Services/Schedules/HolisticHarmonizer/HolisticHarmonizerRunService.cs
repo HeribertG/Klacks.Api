@@ -12,14 +12,16 @@ using Microsoft.Extensions.Logging;
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 
 /// <summary>
-/// Application-layer entry point for Holistic Harmonizer runs. Reads the configured LLM model id from
-/// app settings, invokes <see cref="HolisticHarmonizerEngine"/>, stores the resulting bitmap in the shared
-/// <see cref="HarmonizerResultCache"/> under a fresh job id so the existing
-/// <see cref="IHarmonizerApplyService"/> can materialise it as a scenario without changes.
+/// Application-layer entry point for Holistic Harmonizer runs. Reads the stage-3 mode (<c>WIZARD3_MODE</c>):
+/// by default it runs <see cref="HolisticHarmonizerDeterministicEngine"/> (no LLM, no API key needed); with
+/// mode "llm" it reads the configured LLM model id and invokes <see cref="HolisticHarmonizerEngine"/>. Either way
+/// the resulting bitmap is stored in the shared <see cref="HarmonizerResultCache"/> under the job id so the
+/// existing <see cref="IHarmonizerApplyService"/> can materialise it as a scenario without changes.
 /// </summary>
 public sealed class HolisticHarmonizerRunService
 {
     private readonly HolisticHarmonizerEngine _engine;
+    private readonly HolisticHarmonizerDeterministicEngine _deterministicEngine;
     private readonly HarmonizerResultCache _resultCache;
     private readonly ISettingsReader _settingsReader;
     private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
@@ -27,6 +29,7 @@ public sealed class HolisticHarmonizerRunService
 
     public HolisticHarmonizerRunService(
         HolisticHarmonizerEngine engine,
+        HolisticHarmonizerDeterministicEngine deterministicEngine,
         HarmonizerResultCache resultCache,
         ISettingsReader settingsReader,
         IScheduleSnapshotMarkerService snapshotMarkerService,
@@ -34,6 +37,7 @@ public sealed class HolisticHarmonizerRunService
     {
         _snapshotMarkerService = snapshotMarkerService;
         _engine = engine;
+        _deterministicEngine = deterministicEngine;
         _resultCache = resultCache;
         _settingsReader = settingsReader;
         _logger = logger;
@@ -50,22 +54,25 @@ public sealed class HolisticHarmonizerRunService
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var modelSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_LLM_MODEL);
-        var modelId = modelSetting?.Value;
-        if (string.IsNullOrWhiteSpace(modelId))
+        var modeSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_MODE);
+        if (!HolisticHarmonizerModes.IsKnown(modeSetting?.Value))
         {
-            return HolisticHarmonizerRunOutcome.Failure("Holistic Harmonizer LLM model is not configured. Open Settings → Work & Scheduling → Holistic Harmonizer to pick a model.");
+            _logger.LogWarning(
+                "Holistic Harmonizer mode setting has an unknown value; falling back to {Mode}",
+                HolisticHarmonizerModes.Deterministic);
         }
+        var mode = HolisticHarmonizerModes.Parse(modeSetting?.Value);
 
-        var engineRequest = new HolisticHarmonizerEngineRequest(
-            PeriodFrom: input.PeriodFrom,
-            PeriodUntil: input.PeriodUntil,
-            AgentIds: input.AgentIds,
-            AnalyseToken: input.AnalyseToken,
-            LlmModelId: modelId,
-            Language: input.Language,
-            ContextDaysBefore: input.ContextDaysBefore,
-            ContextDaysAfter: input.ContextDaysAfter);
+        string? modelId = null;
+        if (mode == HolisticHarmonizerMode.Llm)
+        {
+            var modelSetting = await _settingsReader.GetSetting(Settings.HOLISTIC_HARMONIZER_LLM_MODEL);
+            modelId = modelSetting?.Value;
+            if (string.IsNullOrWhiteSpace(modelId))
+            {
+                return HolisticHarmonizerRunOutcome.Failure("Holistic Harmonizer LLM model is not configured. Open Settings → Work & Scheduling → Holistic Harmonizer to pick a model.");
+            }
+        }
 
         HolisticHarmonizerRunResult result;
         // Fingerprint of what this run is about to change; apply compares it again.
@@ -74,7 +81,9 @@ public sealed class HolisticHarmonizerRunService
 
         try
         {
-            result = await _engine.RunAsync(engineRequest, progress, cancellationToken);
+            result = mode == HolisticHarmonizerMode.Llm
+                ? await _engine.RunAsync(BuildEngineRequest(input, modelId!), progress, cancellationToken)
+                : await _deterministicEngine.RunAsync(input, progress, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -113,4 +122,15 @@ public sealed class HolisticHarmonizerRunService
 
         return HolisticHarmonizerRunOutcome.Success(resolvedJobId, result);
     }
+
+    private static HolisticHarmonizerEngineRequest BuildEngineRequest(HolisticHarmonizerRunInput input, string modelId)
+        => new(
+            PeriodFrom: input.PeriodFrom,
+            PeriodUntil: input.PeriodUntil,
+            AgentIds: input.AgentIds,
+            AnalyseToken: input.AnalyseToken,
+            LlmModelId: modelId,
+            Language: input.Language,
+            ContextDaysBefore: input.ContextDaysBefore,
+            ContextDaysAfter: input.ContextDaysAfter);
 }
