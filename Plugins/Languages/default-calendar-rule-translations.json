@@ -2473,7 +2473,7 @@
       }
     },
     {
-      "en": "St. Berchtold's Day",
+      "en": "Berchtold's Day",
       "ids": [
         "b0102001-0001-0001-0001-000000000001",
         "b0102001-0001-0001-0001-000000000002",
@@ -2490,27 +2490,27 @@
         "b0102001-0001-0001-0001-000000000013"
       ],
       "name": {
-        "ar": "عيد القديس بيرشتولد",
-        "cs": "Den sv. Berchtolda",
-        "da": "Sankt Berchtolds dag",
-        "el": "Ημέρα του Αγίου Μπέρχτολντ",
-        "es": "Día de San Bertoldo",
+        "ar": "يوم بيرشتولد",
+        "cs": "Berchtoldův den",
+        "da": "Berchtolds dag",
+        "el": "Ημέρα του Μπέρχτολντ",
+        "es": "Día de Berchtold",
         "fi": "Berchtoldin päivä",
-        "he": "יום ברכטולד הקדוש",
-        "id": "Hari Santo Berchtold",
-        "ja": "聖ベルヒトルトの日",
-        "ko": "성 베르히톨트의 날",
-        "ms": "Hari Santo Berchtold",
-        "nb": "Sankt Berchtolds dag",
-        "nl": "Sint-Berchtoldsdag",
-        "pl": "Dzień św. Berchtolda",
-        "pt": "Dia de São Bertoldo",
-        "ro": "Ziua Sfântului Berchtold",
-        "sv": "Sankt Berchtolds dag",
-        "th": "วันนักบุญแบร์ชโทลด์",
-        "vi": "Ngày Thánh Berchtold",
-        "zh-cn": "圣贝希托尔德节",
-        "zh-tw": "聖貝希托爾德節"
+        "he": "יום ברכטולד",
+        "id": "Hari Berchtold",
+        "ja": "ベルヒトルトの日",
+        "ko": "베르히톨트의 날",
+        "ms": "Hari Berchtold",
+        "nb": "Berchtolds dag",
+        "nl": "Berchtoldsdag",
+        "pl": "Dzień Berchtolda",
+        "pt": "Dia de Berchtold",
+        "ro": "Ziua lui Berchtold",
+        "sv": "Berchtolds dag",
+        "th": "วันแบร์ชโทลด์",
+        "vi": "Ngày Berchtold",
+        "zh-cn": "贝希托尔德节",
+        "zh-tw": "貝希托爾德節"
       }
     },
     {
