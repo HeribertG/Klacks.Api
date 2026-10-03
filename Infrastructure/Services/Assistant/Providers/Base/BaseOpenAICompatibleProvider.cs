@@ -211,23 +211,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             messages.Add(new OpenAIMessage { Role = msg.Role, Content = msg.Content });
         }
 
-        if (request.ImagePng is { Length: > 0 })
-        {
-            var dataUri = "data:image/png;base64," + Convert.ToBase64String(request.ImagePng);
-            messages.Add(new OpenAIMessage
-            {
-                Role = "user",
-                Content = new object[]
-                {
-                    new OpenAITextContent(request.Message),
-                    new OpenAIImageContent(new OpenAIImageUrl(dataUri)),
-                }
-            });
-        }
-        else
-        {
-            messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
-        }
+        messages.Add(OpenAIUserMessageFactory.Create(request.Message, request.ImagePng));
 
         return messages;
     }

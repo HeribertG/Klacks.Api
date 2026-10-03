@@ -33,6 +33,16 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
 
     private const string CodingAgentUserAgent = "claude-code/1.0";
 
+    public const string ImageRejectedHint =
+        "The request carried an image; the model probably does not accept image input (no vision support).";
+
+    private static readonly HashSet<System.Net.HttpStatusCode> ImageRejectionStatusCodes =
+    [
+        System.Net.HttpStatusCode.BadRequest,
+        System.Net.HttpStatusCode.UnsupportedMediaType,
+        System.Net.HttpStatusCode.UnprocessableEntity,
+    ];
+
     // Some Kimi (Moonshot AI) models reject any temperature other than exactly 1 ("invalid temperature:
     // only 1 is allowed for this model" for kimi-for-coding-highspeed and k3). The error guarantees 1 is
     // valid, so those models get a forced temperature of 1; omitting instead would rely on an unverified
@@ -52,6 +62,18 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
         : base(httpClient, logger)
     {
     }
+
+    /// <summary>
+    /// A request-shape rejection (400/415/422) of a request that carried an image is, for an OpenAI-compatible
+    /// backend, most often a model without image input. Authentication, routing and transient failures are left
+    /// alone so the hint never masks a wrong key or URL. The hint makes the failure explainable instead of leaving
+    /// only the raw upstream message.
+    /// </summary>
+    /// <param name="exception">HTTP failure raised by the upstream endpoint</param>
+    /// <param name="request">Request that failed; only requests with an attached PNG qualify</param>
+    private static bool IsImageRejection(LLMProviderHttpException exception, LLMProviderRequest request) =>
+        request.ImagePng is { Length: > 0 }
+        && ImageRejectionStatusCodes.Contains(exception.StatusCode);
 
     private bool IsKimiEndpoint =>
         _providerConfig?.BaseUrl?.Contains(KimiEndpointMarker, StringComparison.OrdinalIgnoreCase) == true;
@@ -160,6 +182,13 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             }
 
             return result;
+        }
+        catch (LLMProviderHttpException ex) when (IsImageRejection(ex, request))
+        {
+            _logger.LogWarning(
+                "{Provider} rejected a request with an attached image for model {Model} ({StatusCode}); the model likely has no vision support",
+                ProviderName, request.ModelId, ex.StatusCode);
+            return CreateErrorResponse($"{ex.Message} {ImageRejectedHint}");
         }
         catch (Exception ex)
         {
@@ -292,7 +321,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             messages.Add(new OpenAIMessage { Role = msg.Role, Content = msg.Content });
         }
 
-        messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
+        messages.Add(OpenAIUserMessageFactory.Create(request.Message, request.ImagePng));
 
         return messages;
     }
