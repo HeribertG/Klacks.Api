@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Soft-deletes a planning constraint that is not Approved. An Approved row is effective and must be revoked
-/// first (409), so deleting can never silently drop a rule without the audit trail of a revocation.
+/// Soft-deletes a Proposed or Rejected planning constraint. Approved rows are revoked instead and Revoked rows
+/// stay as audit trail and as links of the PreviousVersionId chain (both 409), so a rule that was ever
+/// effective can never disappear from the history.
 /// </summary>
 /// <param name="request">Constraint id</param>
 
@@ -38,15 +39,17 @@ public class DeletePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     public async Task<PlanningConstraintResource> Handle(DeletePlanningConstraintCommand request, CancellationToken cancellationToken)
     {
         var constraint = await PlanningConstraintGuard.GetExistingAsync(_repository, request.Id, cancellationToken);
-        if (constraint.ApprovalStatus == RuleApprovalStatus.Approved)
+        if (constraint.ApprovalStatus is not (RuleApprovalStatus.Proposed or RuleApprovalStatus.Rejected))
         {
-            throw new ConflictException($"Planning constraint {request.Id} is Approved; revoke it before deleting it.");
+            throw new ConflictException(constraint.ApprovalStatus == RuleApprovalStatus.Approved
+                ? $"Planning constraint {request.Id} is Approved; revoke it instead of deleting it."
+                : $"Planning constraint {request.Id} is Revoked and stays as audit trail of its version chain.");
         }
 
         return await ExecuteAsync(async () =>
         {
             _repository.Remove(constraint);
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(constraint);
         },
         "deleting planning constraint",

@@ -1,10 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default <see cref="IPlanningConstraintRepository"/>. Reads filter soft-deleted rows explicitly; the period
-/// query compares the nullable AnalyseToken with == against a nullable parameter, which EF translates to
-/// null-safe equality (IS NOT DISTINCT FROM semantics), so the real plan never sees scenario constraints and
-/// vice versa.
+/// Default <see cref="IPlanningConstraintRepository"/>. Reads filter soft-deleted rows explicitly. The period
+/// query is an overlay, like the scenario group memberships of PlanningRuleDataReader: the real plan sees only
+/// real rows (AnalyseToken null), a scenario sees the real rows PLUS its own rows, never another scenario's.
 /// </summary>
 /// <param name="context">Database context providing the PlanningConstraint DbSet</param>
 
@@ -53,7 +52,7 @@ public class PlanningConstraintRepository : IPlanningConstraintRepository
             .AsNoTracking()
             .Where(c => !c.IsDeleted
                 && c.ApprovalStatus == RuleApprovalStatus.Approved
-                && c.AnalyseToken == analyseToken
+                && (c.AnalyseToken == null || (analyseToken != null && c.AnalyseToken == analyseToken))
                 && (c.ValidFrom == null || c.ValidFrom <= until)
                 && (c.ValidUntil == null || c.ValidUntil >= from))
             .OrderBy(c => c.Id)

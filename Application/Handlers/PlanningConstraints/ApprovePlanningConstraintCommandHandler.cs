@@ -22,6 +22,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
 {
     private readonly IPlanningConstraintRepository _repository;
     private readonly IPlanningConstraintValidator _validator;
+    private readonly IPlanningConstraintReferenceReader _references;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly TimeProvider _timeProvider;
@@ -29,6 +30,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
     public ApprovePlanningConstraintCommandHandler(
         IPlanningConstraintRepository repository,
         IPlanningConstraintValidator validator,
+        IPlanningConstraintReferenceReader references,
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
@@ -37,6 +39,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
     {
         _repository = repository;
         _validator = validator;
+        _references = references;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _timeProvider = timeProvider;
@@ -46,6 +49,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
     {
         var constraint = await PlanningConstraintGuard.GetExistingAsync(_repository, request.Id, cancellationToken);
         PlanningConstraintGuard.EnsureValid(_validator, constraint);
+        await PlanningConstraintGuard.EnsureReferencesExistAsync(_references, constraint, cancellationToken);
 
         var nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
         if (!PlanningConstraintLifecycle.TryApprove(constraint, request.Actor, nowUtc))
@@ -57,7 +61,7 @@ public class ApprovePlanningConstraintCommandHandler : BaseHandler, IRequestHand
 
         return await ExecuteAsync(async () =>
         {
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(constraint);
         },
         "approving planning constraint",

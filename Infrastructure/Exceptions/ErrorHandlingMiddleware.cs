@@ -12,6 +12,10 @@ namespace Klacks.Api.Infrastructure.Exceptions;
 
 public class ErrorHandlingMiddleware
 {
+    public const string ConcurrencyConflictCode = "concurrencyConflict";
+
+    private const string ConcurrencyConflictDetail = "The record was modified by another user. Please refresh and try again.";
+
     private readonly RequestDelegate next;
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
@@ -65,21 +69,15 @@ public class ErrorHandlingMiddleware
             _logger.LogWarning(ex, "KeyNotFoundException caught by middleware: {Message}", ex.Message);
             await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
         }
+        catch (Exception ex) when (ex is DbUpdateConcurrencyException or ConcurrencyException)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict caught by middleware: {Message}", ex.Message);
+            await WriteProblemAsync(context, StatusCodes.Status409Conflict, "Conflict", ConcurrencyConflictDetail, ConcurrencyConflictCode);
+        }
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "DbUpdateException caught by middleware: {Message}", ex.Message);
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/problem+json";
-
-            var problem = new ProblemDetails
-            {
-                Title = "Database Update Error",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = "A database error occurred. Please check your input." // Generic message for client
-            };
-
-            // In development, you might want to expose more details
-            await context.Response.WriteAsJsonAsync(problem);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Database Update Error", "A database error occurred. Please check your input.");
         }
         catch (ContainerLockedException ex)
         {

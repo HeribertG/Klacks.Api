@@ -45,7 +45,7 @@ public class RevokePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 
         return await ExecuteAsync(async () =>
         {
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(constraint);
         },
         "revoking planning constraint",

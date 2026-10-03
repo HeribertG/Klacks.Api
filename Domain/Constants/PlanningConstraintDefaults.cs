@@ -14,6 +14,16 @@ public static class PlanningConstraintDefaults
 
     public const int CurrentParametersSchemaVersion = 1;
 
+    public const int MinimumSupportedParametersSchemaVersion = 1;
+
+    /// <summary>
+    /// Upper bound of a constraint weight. A soft penalty is Weight times the excess and is summed with other
+    /// soft terms of comparable scale (CounterRule soft weight 1.0); a thousandfold weight already lets one rule
+    /// outvote every other soft goal, so anything above turns a soft rule into a hidden hard one - that must be
+    /// expressed as Severity Hard instead.
+    /// </summary>
+    public const double MaxWeight = 1000d;
+
     public const double DefaultCounterRuleSoftWeight = 1.0;
 
     public const int SourceTextMaxLength = 4000;

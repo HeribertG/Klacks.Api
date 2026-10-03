@@ -2,10 +2,11 @@
 
 /// <summary>
 /// Admin-only REST surface for planning constraints: CRUD plus the decisions of the UI pending list
-/// (approve, reject) and revocation. Approval exists ONLY here (owner decision 2026-10-03): there is no skill
-/// for it, the controller does not implement ICrudResourceController (so SelfApiRouteResolver never offers it
-/// to a skill), and the MCP endpoint caps every caller to the Authorised role, which this Admin-only controller
-/// refuses. The JWT scheme is pinned explicitly (AddIdentity makes cookie auth the default).
+/// (approve, reject) and revocation. Approval exists ONLY here (owner decision 2026-10-03). What keeps it there
+/// is this class itself: no skill sends the approve command, the controller carries no ICrudResourceController
+/// marker (SelfApiRouteResolver never hands its route to a skill), and it accepts only an Admin JWT - pinned
+/// explicitly, because AddIdentity makes cookie auth the default. The MCP role cap is an extra layer, not the
+/// protection this relies on.
 /// </summary>
 /// <param name="mediator">Dispatches the planning-constraint commands and queries</param>
 

@@ -22,6 +22,7 @@ public class CreatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 {
     private readonly IPlanningConstraintRepository _repository;
     private readonly IPlanningConstraintValidator _validator;
+    private readonly IPlanningConstraintReferenceReader _references;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly TimeProvider _timeProvider;
@@ -29,6 +30,7 @@ public class CreatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     public CreatePlanningConstraintCommandHandler(
         IPlanningConstraintRepository repository,
         IPlanningConstraintValidator validator,
+        IPlanningConstraintReferenceReader references,
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
@@ -37,6 +39,7 @@ public class CreatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     {
         _repository = repository;
         _validator = validator;
+        _references = references;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _timeProvider = timeProvider;
@@ -55,11 +58,12 @@ public class CreatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
         entity.ImportContentHash = string.Empty;
         PlanningConstraintLifecycle.MarkAdminApproved(entity, request.Actor, _timeProvider.GetUtcNow().UtcDateTime);
         PlanningConstraintGuard.EnsureValid(_validator, entity);
+        await PlanningConstraintGuard.EnsureReferencesExistAsync(_references, entity, cancellationToken);
 
         return await ExecuteAsync(async () =>
         {
             _repository.Add(entity);
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(entity);
         },
         "creating planning constraint",

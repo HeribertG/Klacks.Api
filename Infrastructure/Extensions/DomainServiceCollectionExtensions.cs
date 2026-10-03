@@ -344,6 +344,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.PlanningConstraintRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningConstraintValidator,
                            Klacks.Api.Domain.Services.Schedules.PlanningConstraintValidator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningConstraintReferenceReader,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.PlanningConstraintReferenceReader>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningRuleDataReader,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.PlanningRuleDataReader>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningRuleCarryInLoader,

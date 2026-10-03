@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Strict parser of PlanningConstraint.ParametersJson. The JSON must be an object carrying the current
-/// schemaVersion and exactly the properties of its kind: unknown properties, missing required ones,
-/// numbers where names are expected (enum values are stored by name, case-insensitive) and out-of-range
+/// Strict parser of PlanningConstraint.ParametersJson. The JSON must be an object carrying a supported
+/// schemaVersion (older versions are first upgraded by PlanningConstraintParametersUpgrader) and exactly the
+/// properties of its kind: unknown properties, missing required ones, anything but an exact member name where
+/// an enum is expected (case-insensitive; no comma lists, blanks or numbers) and out-of-range
 /// numbers are all reported. Optional: proRata (default true) and weekendDays (required only for the
 /// WeekendDays metric).
 /// </summary>
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -42,13 +44,19 @@ public static class PlanningConstraintParametersParser
 
         try
         {
-            using var document = JsonDocument.Parse(json);
-            var root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object)
+            if (JsonNode.Parse(json) is not JsonObject stored)
             {
                 errors.Add("ParametersJson must be a JSON object.");
                 return null;
             }
+
+            if (!PlanningConstraintParametersUpgrader.TryUpgrade(stored, errors, out var current))
+            {
+                return null;
+            }
+
+            using var document = JsonDocument.Parse(current.ToJsonString());
+            var root = document.RootElement;
 
             var errorCountBefore = errors.Count;
             PlanningConstraintParameters? parameters = kind switch
@@ -130,14 +138,6 @@ public static class PlanningConstraintParametersParser
                 errors.Add($"Unknown parameter '{property.Name}'.");
             }
         }
-
-        if (!root.TryGetProperty(PlanningConstraintDefaults.SchemaVersionProperty, out var version)
-            || version.ValueKind != JsonValueKind.Number
-            || !version.TryGetInt32(out var value)
-            || value != PlanningConstraintDefaults.CurrentParametersSchemaVersion)
-        {
-            errors.Add($"'{PlanningConstraintDefaults.SchemaVersionProperty}' must be {PlanningConstraintDefaults.CurrentParametersSchemaVersion}.");
-        }
     }
 
     private static TEnum? ReadEnum<TEnum>(JsonElement root, string name, List<string> errors)
@@ -149,17 +149,33 @@ public static class PlanningConstraintParametersParser
             return null;
         }
 
-        var text = element.GetString();
-        if (!string.IsNullOrEmpty(text)
-            && char.IsLetter(text[0])
-            && Enum.TryParse<TEnum>(text, ignoreCase: true, out var parsed)
-            && Enum.IsDefined(parsed))
+        if (TryParseExactName<TEnum>(element.GetString(), out var parsed))
         {
             return parsed;
         }
 
         errors.Add($"'{name}' must be one of: {string.Join(", ", Enum.GetNames<TEnum>())}.");
         return null;
+    }
+
+    /// <summary>
+    /// Exact, case-insensitive match against the declared member names. Enum.TryParse is deliberately not used:
+    /// it accepts comma lists ("Work,Early" = the OR of both values), surrounding blanks and numbers.
+    /// </summary>
+    private static bool TryParseExactName<TEnum>(string? text, out TEnum value)
+        where TEnum : struct, Enum
+    {
+        foreach (var name in Enum.GetNames<TEnum>())
+        {
+            if (string.Equals(name, text, StringComparison.OrdinalIgnoreCase))
+            {
+                value = Enum.Parse<TEnum>(name);
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 
     private static int? ReadInt(JsonElement root, string name, int min, int max, List<string> errors)
@@ -224,10 +240,7 @@ public static class PlanningConstraintParametersParser
         foreach (var item in element.EnumerateArray())
         {
             var text = item.ValueKind == JsonValueKind.String ? item.GetString() : null;
-            if (string.IsNullOrEmpty(text)
-                || !char.IsLetter(text[0])
-                || !Enum.TryParse<DayOfWeek>(text, ignoreCase: true, out var day)
-                || !Enum.IsDefined(day))
+            if (!TryParseExactName<DayOfWeek>(text, out var day))
             {
                 errors.Add($"'{PlanningConstraintDefaults.WeekendDaysProperty}' must contain day names (Monday..Sunday).");
                 return null;

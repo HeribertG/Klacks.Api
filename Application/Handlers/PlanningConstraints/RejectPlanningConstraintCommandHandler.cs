@@ -44,7 +44,7 @@ public class RejectPlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 
         return await ExecuteAsync(async () =>
         {
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(constraint);
         },
         "rejecting planning constraint",

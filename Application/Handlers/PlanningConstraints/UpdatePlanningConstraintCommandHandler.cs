@@ -26,6 +26,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
 {
     private readonly IPlanningConstraintRepository _repository;
     private readonly IPlanningConstraintValidator _validator;
+    private readonly IPlanningConstraintReferenceReader _references;
     private readonly PlanningConstraintMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly TimeProvider _timeProvider;
@@ -33,6 +34,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     public UpdatePlanningConstraintCommandHandler(
         IPlanningConstraintRepository repository,
         IPlanningConstraintValidator validator,
+        IPlanningConstraintReferenceReader references,
         PlanningConstraintMapper mapper,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
@@ -41,6 +43,7 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
     {
         _repository = repository;
         _validator = validator;
+        _references = references;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _timeProvider = timeProvider;
@@ -60,10 +63,11 @@ public class UpdatePlanningConstraintCommandHandler : BaseHandler, IRequestHandl
             RuleApprovalStatus.Approved => Supersede(existing, request.Resource, request.Actor),
             _ => throw new ConflictException($"Planning constraint {request.Id} is {existing.ApprovalStatus} and can no longer be changed."),
         };
+        await PlanningConstraintGuard.EnsureReferencesExistAsync(_references, result, cancellationToken);
 
         return await ExecuteAsync(async () =>
         {
-            await _unitOfWork.CompleteAsync();
+            await PlanningConstraintGuard.SaveAsync(_unitOfWork);
             return _mapper.ToResource(result);
         },
         "updating planning constraint",

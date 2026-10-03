@@ -3354,17 +3354,10 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             switch (decision.Action)
             {
                 case EntityImportAction.Insert:
-                    _counterRuleRepository.Add(new CounterRule
-                    {
-                        Id = Guid.NewGuid(),
-                        EventType = decision.Values.EventType,
-                        Period = decision.Values.Period,
-                        Threshold = decision.Values.Threshold,
-                        HoursThreshold = decision.Values.HoursThreshold,
-                        SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
-                        ImportSourceKey = decision.SourceKey,
-                        ImportContentHash = decision.ContentHash,
-                    });
+                    _counterRuleRepository.Add(decision.Values.ToNewImportedRule(
+                        ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
+                        decision.SourceKey,
+                        decision.ContentHash));
                     break;
                 case EntityImportAction.Update:
                     var existing = existingBySourceKey[decision.SourceKey];
@@ -3373,6 +3366,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
                     existing.Threshold = decision.Values.Threshold;
                     existing.HoursThreshold = decision.Values.HoursThreshold;
                     existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+                    existing.Origin = RuleOrigin.Import;
                     existing.ImportContentHash = decision.ContentHash;
                     _counterRuleRepository.Update(existing);
                     break;

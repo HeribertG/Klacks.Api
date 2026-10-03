@@ -7,7 +7,11 @@
 /// agents it covers: Global = null (every agent), Client = that client, Group = members of the group and its
 /// subgroups whose membership overlaps the period, SchedulingRule = agents whose effective contract on the
 /// first period day references the rule (the CounterRuleEvaluator industry axis). A scope that covers none
-/// of the requested agents drops the rule - an empty set never turns into "every agent". Night window and
+/// of the requested agents drops the rule - an empty set never turns into "every agent". An approved row that
+/// fails validation (manual DB edit, schema without upgrade step) fails closed when it is Hard: the load throws
+/// PlanningRuleConfigurationException, because silently dropping a binding rule would let every engine accept
+/// plans that break it; an invalid Soft row is logged as an error and reported in PlanningRuleSet.SkippedRuleIds,
+/// since losing a preference must not stop planning. Night window and
 /// workload come from EffectiveContractData on the first period day (one batched resolution).
 /// </summary>
 /// <param name="counterRuleRepository">Approved CounterRule rows</param>
@@ -25,6 +29,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Associations;
@@ -77,7 +82,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     {
         var agents = DistinctAgents(agentIds);
         var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: false, cancellationToken);
-        return await LoadRulesAsync(agents, from, until, analyseToken, contractData, cancellationToken);
+        return await LoadRulesAsync(agents, from, until, analyseToken, contractData, [], cancellationToken);
     }
 
     public async Task<PlanningRuleSet> LoadRuleSetAsync(
@@ -90,10 +95,11 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     {
         var agents = DistinctAgents(agentIds);
         var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: true, cancellationToken);
-        var rules = await LoadRulesAsync(agents, from, until, analyseToken, contractData, cancellationToken);
+        var skippedRuleIds = new List<Guid>();
+        var rules = await LoadRulesAsync(agents, from, until, analyseToken, contractData, skippedRuleIds, cancellationToken);
         var ruleAgents = agents.Select(id => ToRuleAgent(id, contractData)).ToList();
         var carryIn = await _carryInLoader.LoadAsync(agents, from, until, rules, analyseToken, coveredBoundaryDays, cancellationToken);
-        return new PlanningRuleSet(rules, ruleAgents, carryIn);
+        return new PlanningRuleSet(rules, ruleAgents, carryIn, skippedRuleIds);
     }
 
     private async Task<IReadOnlyList<PlanRule>> LoadRulesAsync(
@@ -102,6 +108,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         DateOnly until,
         Guid? analyseToken,
         Dictionary<Guid, EffectiveContractData>? contractData,
+        List<Guid> skippedRuleIds,
         CancellationToken cancellationToken)
     {
         if (agents.Count == 0 || until < from)
@@ -137,7 +144,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
 
         foreach (var constraint in constraints)
         {
-            var rule = MapConstraint(constraint, agents, contractData, groupMembers);
+            var rule = MapConstraint(constraint, agents, contractData, groupMembers, skippedRuleIds);
             if (rule is not null)
             {
                 rules.Add(rule);
@@ -151,15 +158,27 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         PlanningConstraint constraint,
         List<Guid> agents,
         Dictionary<Guid, EffectiveContractData>? contractData,
-        IReadOnlyDictionary<Guid, HashSet<Guid>> groupMembers)
+        IReadOnlyDictionary<Guid, HashSet<Guid>> groupMembers,
+        List<Guid> skippedRuleIds)
     {
         var validation = _constraintValidator.Validate(constraint);
         if (!validation.IsValid)
         {
-            _logger.LogWarning(
-                "Approved planning constraint {ConstraintId} is invalid and was skipped: {Errors}",
+            var errors = string.Join(" ", validation.Errors);
+            if (constraint.Severity == PlanningConstraintSeverity.Hard)
+            {
+                _logger.LogError(
+                    "Approved HARD planning constraint {ConstraintId} is invalid, planning-rule loading is refused: {Errors}",
+                    constraint.Id,
+                    errors);
+                throw new PlanningRuleConfigurationException(constraint.Id, errors);
+            }
+
+            _logger.LogError(
+                "Approved soft planning constraint {ConstraintId} is invalid and was skipped: {Errors}",
                 constraint.Id,
-                string.Join(" ", validation.Errors));
+                errors);
+            skippedRuleIds.Add(constraint.Id);
             return null;
         }
 

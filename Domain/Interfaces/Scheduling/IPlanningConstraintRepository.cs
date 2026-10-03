@@ -18,8 +18,8 @@ public interface IPlanningConstraintRepository
     Task<List<PlanningConstraint>> ListAsync(RuleApprovalStatus? status, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Approved, not deleted constraints whose validity overlaps [from, until] and whose AnalyseToken equals
-    /// <paramref name="analyseToken"/> (IS NOT DISTINCT FROM: null selects the real plan only).
+    /// Approved, not deleted constraints whose validity overlaps [from, until]: the real rows (AnalyseToken
+    /// null) plus, for a scenario (<paramref name="analyseToken"/> set), that scenario's own rows.
     /// </summary>
     Task<List<PlanningConstraint>> GetApprovedForPeriodAsync(
         DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken cancellationToken = default);

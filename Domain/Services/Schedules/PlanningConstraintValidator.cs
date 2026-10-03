@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Default <see cref="IPlanningConstraintValidator"/>. Checks the defined enums, the scope shape (Global
-/// without ScopeId, every other scope with one), the validity range, the weight (finite, not negative,
+/// without ScopeId, every other scope with one), the validity range, the weight (finite, 0..MaxWeight,
 /// positive for Soft), the text lengths, the per-kind ParametersJson schema and the owner decision of
 /// 2026-10-03: TeamFairness is Soft only and must be scoped to a Group.
 /// </summary>
@@ -50,9 +50,9 @@ public sealed class PlanningConstraintValidator : IPlanningConstraintValidator
             errors.Add("Severity must be Hard or Soft.");
         }
 
-        if (!double.IsFinite(constraint.Weight) || constraint.Weight < 0)
+        if (!double.IsFinite(constraint.Weight) || constraint.Weight < 0 || constraint.Weight > PlanningConstraintDefaults.MaxWeight)
         {
-            errors.Add("Weight must be a finite number not below 0.");
+            errors.Add($"Weight must be a finite number between 0 and {PlanningConstraintDefaults.MaxWeight}.");
         }
         else if (constraint.Severity == PlanningConstraintSeverity.Soft && constraint.Weight <= 0)
         {

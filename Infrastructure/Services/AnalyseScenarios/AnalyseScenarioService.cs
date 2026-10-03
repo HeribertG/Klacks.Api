@@ -19,7 +19,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
-public class AnalyseScenarioService : IAnalyseScenarioService
+public partial class AnalyseScenarioService : IAnalyseScenarioService
 {
     private readonly DataBaseContext _context;
 
@@ -128,6 +128,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var memberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
             .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
         foreach (var gi in memberships) { gi.IsDeleted = true; gi.DeletedTime = DateTime.UtcNow; }
+        await SoftDeleteScenarioPlanningConstraintsAsync(token, DateTime.UtcNow, ct);
     }
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
@@ -152,22 +153,6 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         await CloneShiftRequiredQualifications(shiftIdMap, token, ct);
 
         return (shiftIdMap, workIdMap);
-    }
-
-    public async Task AddScenarioMembershipAsync(
-        Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
-    {
-        var membership = new GroupItem
-        {
-            Id = Guid.NewGuid(),
-            ClientId = clientId,
-            GroupId = groupId,
-            ShiftId = null,
-            ValidFrom = validFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            ValidUntil = validUntil.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            AnalyseToken = token
-        };
-        await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);
     }
 
     public async Task SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken ct)
@@ -470,6 +455,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
                 gi.AnalyseToken = null;
             }
         }
+
+        await SoftDeleteScenarioPlanningConstraintsAsync(token, now, ct);
     }
 
     private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
