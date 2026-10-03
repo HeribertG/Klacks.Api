@@ -1,13 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Default <see cref="ICounterRuleEvaluator"/> (K18). For every active rule and candidate date the
-/// calendar period containing that date (ISO week / month / year) is counted from the client's Work
-/// rows plus the not-yet-persisted planned slots, and a notification is reported once the count reaches
-/// the rule's threshold. Runs as a direct database check over the full period (the PeriodCapEvaluator
-/// pattern). Warning escalates to Error when the effective enforcement mode is Block: the global
-/// counterRule mode is resolved once per evaluation, but each rule's own <see cref="CounterRule.Enforcement"/>
-/// override (when set) wins over it for that rule only.
+/// Default <see cref="ICounterRuleEvaluator"/> (K18), an adapter over the shared planning-rule evaluator
+/// (Klacks.ScheduleOptimizer PeriodCountRule). For every active rule and candidate date the calendar period
+/// containing that date (ISO week / month / year) is loaded from the client's Work rows plus the not-yet-persisted
+/// planned slots; the candidate date becomes the one-day evaluation period and every other segment of the
+/// calendar period its carry-in, so the shared evaluator counts exactly the whole period and reports at the
+/// candidate date. Only the first candidate date of a period is evaluated per rule, so periods without a
+/// candidate date are never reported. Warning escalates to Error when the effective enforcement mode is Block:
+/// the global counterRule mode is resolved once per evaluation, but each rule's own
+/// <see cref="CounterRule.Enforcement"/> override (when set) wins over it for that rule only.
 /// </summary>
 /// <param name="ruleRepository">Reads the active CounterRule set</param>
 /// <param name="context">Database access for the client's Work rows in the counted period</param>
@@ -20,17 +22,22 @@
 /// and the window wrap midnight, so a Saturday 22:00-07:00 shift counts against a 23:00-06:00 window.
 /// Counting is calendar-anchored (never rolling) in this stage; the surcharge-applying action ("pay
 /// extra from the 25th night on") is a documented later stage - this evaluator only warns/blocks.
+/// Known limits of the shared counter (pinned by tests): ShiftExceedingHours compares whole minutes and keeps
+/// the four longest segments of a day.
 /// </remarks>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.ScheduleOptimizer.Constraints.Rules;
+using Klacks.ScheduleOptimizer.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -38,7 +45,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
 {
     private const int DaysPerWeek = 7;
-    private const int MinutesPerDay = 24 * 60;
+    private const string EvaluationAgentId = "counter-rule-client";
 
     private readonly ICounterRuleRepository _ruleRepository;
     private readonly DataBaseContext _context;
@@ -115,77 +122,48 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
                 var works = await LoadWorksAsync(clientId, periodStart, periodEnd, analyseToken, cancellationToken);
                 var slotsInPeriod = plannedSlots
                     .Where(s => s.Date >= periodStart && s.Date <= periodEnd)
-                    .Select(s => new WorkSegment(s.Date, s.StartTime, s.EndTime))
-                    .ToList();
+                    .Select(s => new WorkSegment(s.Date, s.StartTime, s.EndTime));
 
-                var count = CountEvents(rule, works.Concat(slotsInPeriod).ToList(), nightWindow);
+                var effectiveMode = rule.Enforcement ?? mode;
+                var count = CountEvents(rule, effectiveMode, works.Concat(slotsInPeriod).ToList(), nightWindow, date);
                 if (count < rule.Threshold)
                 {
                     continue;
                 }
 
-                entries.Add(BuildEntry(clientId, clientName, date, rule, count, rule.Enforcement ?? mode));
+                entries.Add(BuildEntry(clientId, clientName, date, rule, count, effectiveMode));
             }
         }
 
         return entries;
     }
 
-    private sealed record WorkSegment(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime)
+    private sealed record WorkSegment(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime);
+
+    // The candidate date is the one-day evaluation period: its segments form the plan, every other segment of
+    // the calendar period is carry-in. Without a finding the count stayed below the threshold; the shared
+    // evaluator reports the full count as Observed once it is reached.
+    private static int CountEvents(
+        CounterRule rule,
+        RuleEnforcementMode mode,
+        IReadOnlyList<WorkSegment> segments,
+        (TimeOnly Start, TimeOnly End) nightWindow,
+        DateOnly candidateDate)
     {
-        public decimal DurationHours
+        var agent = new RuleAgent(EvaluationAgentId, new CoreNightWindow(nightWindow.Start, nightWindow.End), RuleTimeConstants.FullWorkloadPercent);
+        var ruleSegments = segments
+            .Select(s => new RuleSegment(EvaluationAgentId, s.Date, s.StartTime, s.EndTime, RuleTimeConstants.UnknownShiftTypeIndex, 0m))
+            .ToList();
+        var context = new RuleEvaluationContext(candidateDate, candidateDate, [agent], ruleSegments);
+        var plan = new RulePlan(context);
+        foreach (var segment in ruleSegments)
         {
-            get
-            {
-                var start = StartTime.ToTimeSpan();
-                var end = EndTime.ToTimeSpan();
-                var duration = end > start ? end - start : TimeSpan.FromHours(24) - start + end;
-                return (decimal)duration.TotalHours;
-            }
-        }
-    }
-
-    private static int CountEvents(CounterRule rule, IReadOnlyList<WorkSegment> segments, (TimeOnly Start, TimeOnly End) nightWindow)
-    {
-        return rule.EventType switch
-        {
-            CounterEventType.NightShift => segments.Count(s =>
-                NightOverlapMinutes(s.StartTime, s.EndTime, nightWindow.Start, nightWindow.End) > 0),
-            CounterEventType.WorkedDayInWeek => segments.Select(s => s.Date).Distinct().Count(),
-            CounterEventType.ShiftExceedingHours => segments.Count(s =>
-                rule.HoursThreshold.HasValue && s.DurationHours > rule.HoursThreshold.Value),
-            _ => 0,
-        };
-    }
-
-    // Both the segment and the night window may wrap midnight. Normalizing the segment to
-    // [start, start+duration) minutes and testing the window at its own offset and shifted by +-24 h
-    // covers every wrap combination (a Saturday 22:00-07:00 segment against a 23:00-06:00 window).
-    private static int NightOverlapMinutes(TimeOnly segmentStart, TimeOnly segmentEnd, TimeOnly windowStart, TimeOnly windowEnd)
-    {
-        var segStart = (int)segmentStart.ToTimeSpan().TotalMinutes;
-        var segEnd = (int)segmentEnd.ToTimeSpan().TotalMinutes;
-        if (segEnd <= segStart)
-        {
-            segEnd += MinutesPerDay;
+            plan.TryAdd(segment);
         }
 
-        var winStart = (int)windowStart.ToTimeSpan().TotalMinutes;
-        var winEnd = (int)windowEnd.ToTimeSpan().TotalMinutes;
-        if (winEnd <= winStart)
-        {
-            winEnd += MinutesPerDay;
-        }
-
-        var overlap = 0;
-        foreach (var shift in new[] { -MinutesPerDay, 0, MinutesPerDay })
-        {
-            var start = Math.Max(segStart, winStart + shift);
-            var end = Math.Min(segEnd, winEnd + shift);
-            overlap = Math.Max(overlap, end - start);
-        }
-
-        return overlap;
+        var periodCountRule = PlanningRuleMapper.FromCounterRule(rule, mode, agentScope: null);
+        var evaluation = PlanRuleEvaluatorFactory.Create([periodCountRule], context).Evaluate(plan);
+        return evaluation.Findings.Count == 0 ? 0 : (int)evaluation.Findings[0].Observed;
     }
 
     private static (DateOnly Start, DateOnly End) ResolvePeriod(CounterPeriod period, DateOnly date)
