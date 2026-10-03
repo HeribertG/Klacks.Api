@@ -10,7 +10,7 @@
         "fr": "Intégrer un nouvel employé de bout en bout : créer la personne, attribuer le contrat de travail et l'ajouter à un groupe — le tout dans un flux guidé.",
         "it": "Inserire un nuovo dipendente dall'inizio alla fine: creare la persona, assegnare il contratto di lavoro e aggiungerla a un gruppo — tutto in un flusso guidato."
       },
-      "version": 13,
+      "version": 14,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -260,10 +260,46 @@
           },
           {
             "anyWordStart": [
-              "group",
               "gruppier",
               "regroup",
-              "raggrupp"
+              "raggrupp",
+              "groepeer",
+              "gruppér",
+              "grupper",
+              "gruppera",
+              "grupuj",
+              "pogrupuj",
+              "agrupa",
+              "agrupe",
+              "ryhmittel",
+              "seskup",
+              "grupeaz",
+              "grupează",
+              "ομαδοποι",
+              "ομαδοποί",
+              "kelompokkan",
+              "kumpulkan"
+            ],
+            "anySubstring": [
+              "group all",
+              "group the",
+              "group employees",
+              "group everyone",
+              "קבץ",
+              "לקבץ",
+              "جمّع",
+              "تجميع",
+              "그룹화",
+              "그룹으로 묶",
+              "グループ分け",
+              "グループ化",
+              "จัดกลุ่ม",
+              "phân nhóm",
+              "nhóm theo",
+              "员工分组",
+              "員工分組",
+              "资质分组",
+              "資質分組"
             ]
           }
         ]
