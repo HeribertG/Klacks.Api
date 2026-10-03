@@ -492,6 +492,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return new EffectiveContractData
         {
             GuaranteedHours = ResolveGuaranteedHours(contract, rule, defaults, monthlyTargetHours),
+            GuaranteedHoursBasisInterval = ResolveGuaranteedHoursBasisInterval(contract, defaults, monthlyTargetHours),
             WorkloadPercent = ResolveWorkloadPercent(contract, rule, defaults),
             MaximumHours = rule?.MaximumHours ?? contract.MaximumHours ?? defaults.MaximumHours,
             MinimumHours = rule?.MinimumHours ?? contract.MinimumHours ?? defaults.MinimumHours,
@@ -577,6 +578,15 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return rule?.GuaranteedHours ?? contract.GuaranteedHours.Value;
     }
 
+    // Mirrors ResolveGuaranteedHours: an inherited value is stated per calendar month (month row) or per the
+    // company interval (settings); null means it is stated per the contract's own PaymentInterval.
+    private static int? ResolveGuaranteedHoursBasisInterval(
+        Contract contract, DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours) =>
+        contract.GuaranteedHours is not null
+        || (contract.PaymentInterval == PaymentInterval.MonthlyTargetHours && monthlyTargetHours != null)
+            ? null
+            : monthlyTargetHours != null ? (int)PaymentInterval.MonthlyTargetHours : defaults.PaymentInterval;
+
     // The workload share macros scale paid absences by. Contracts whose guaranteed hours derive from
     // the company-wide value (inheriting, or on the MonthlyTargetHours interval) carry their contract
     // Percent. Explicitly valued contracts derive it as effective GuaranteedHours / FullTime, so a
@@ -642,6 +652,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return new EffectiveContractData
         {
             GuaranteedHours = monthlyTargetHours?.Hours ?? defaults.GuaranteedHours,
+            GuaranteedHoursBasisInterval = monthlyTargetHours != null ? (int)PaymentInterval.MonthlyTargetHours : null,
             WorkloadPercent = MonthlyTargetHoursConstants.FullWorkloadPercent,
             MaximumHours = defaults.MaximumHours,
             MinimumHours = defaults.MinimumHours,

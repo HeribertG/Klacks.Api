@@ -54,6 +54,15 @@ internal static class HarmonyPromptBuilder
         sb.AppendLine("    • OR both cells are blank/Free — but that swap has zero effect, so do not propose it");
         sb.AppendLine("  Mixing work with blank across two different days breaks daily coverage and is rejected.");
         sb.AppendLine("- (RowA, DayA) must differ from (RowB, DayB) — at least one of the two must change.");
+        sb.AppendLine("- Per-employee limits from AGENT CONSTRAINTS are checked for BOTH rows after every step:");
+        sb.AppendLine("    • maxWeekly — worked hours per calendar week must not exceed it (0 = no limit)");
+        sb.AppendLine("    • maxConsec — no run of consecutive working days longer than this");
+        sb.AppendLine("    • minPause — hours between the end of one shift and the start of the next");
+        sb.AppendLine("    • minRestDaysPerWeek — each Monday-to-Sunday week must keep at least this many free days;");
+        sb.AppendLine("      a swap that gives a row another working day in a week already at its minimum is rejected");
+        sb.AppendLine("- The receiving employee must be available that day, qualified for the shift, not blacklisted for it,");
+        sb.AppendLine("  and the day's schedule commands (only/no early, late, night) and restricted time windows must allow it.");
+        sb.AppendLine("- target is the employee's contractual target scaled to the planned date range, not a monthly figure.");
         sb.AppendLine();
         sb.AppendLine("BATCH SEMANTICS:");
         sb.AppendLine("- Steps are applied in order. If step k is rejected, the host keeps the longest valid prefix.");
@@ -83,7 +92,9 @@ internal static class HarmonyPromptBuilder
             sb.AppendLine("CANDIDATE MOVES (a list is attached below in the user message):");
             sb.AppendLine("The host has pre-computed a list of structurally promising swaps for the focused");
             sb.AppendLine("intent. Every listed candidate has already passed the hard-constraint validator");
-            sb.AppendLine("(locks, bounds, max-consecutive, min-pause, coverage).");
+            sb.AppendLine("as a single swap (locks, bounds, availability, qualification, max-weekly, max-consecutive,");
+            sb.AppendLine("min-pause, weekly rest days, coverage). Combining several candidates in one batch can still");
+            sb.AppendLine("break a limit, because each later step is checked against the plan after the earlier ones.");
             sb.AppendLine();
             sb.AppendLine("STRICT MODE: the host runtime DROPS any step whose (rowA,dayA,rowB,dayB) tuple is");
             sb.AppendLine("not present in the candidate list — original coordinates are SILENTLY DISCARDED");

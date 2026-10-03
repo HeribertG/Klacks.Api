@@ -9,7 +9,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 /// <param name="RejectionCount">How many steps failed hard constraints inside this batch.</param>
 /// <param name="StoppedAtStep">Zero-based index of the first failing step, null when all steps passed.</param>
 /// <param name="ScoreBefore">Bitmap fitness when the batch started.</param>
-/// <param name="ScoreAfter">Bitmap fitness after the batch was committed (or reverted).</param>
+/// <param name="ScoreAfter">Bitmap fitness after the batch: the committed end state for Accepted/PartiallyAccepted, the real (lower) end state of the rolled-back steps for WouldDegrade, the unchanged start score for Rejected.</param>
 /// <param name="AppliedSwaps">Swaps that were ultimately committed to the bitmap (empty when Rejected/WouldDegrade).</param>
 /// <param name="Rejections">Per-step rejection records inside this batch (empty when fully accepted).</param>
 public sealed record HolisticHarmonizerBatchDto(

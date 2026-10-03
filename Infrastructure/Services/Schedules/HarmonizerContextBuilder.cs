@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
@@ -20,7 +21,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 /// <summary>
 /// Loads the saved schedule plus everything the domain-aware validator needs: per-agent
-/// contract caps, per-(agent, date) availability (WorksOnDay flag, FREE keywords, break
+/// contract caps, the contractual target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag, FREE keywords, break
 /// blockers), and ClientShiftPreference Blacklist sets. Uses the same data sources as
 /// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken.
 /// </summary>
@@ -68,10 +69,15 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
-        var contractDays = await LoadContractDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, ct);
+        var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
+            agentIds, request.PeriodFrom, request.PeriodUntil);
+        var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, ct);
+        var individualPeriods = await LoadIndividualPeriodsAsync(contractDataByDate, ct);
+        var periodTargetHours = ComputePeriodTargetHours(
+            agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
-        var agents = BuildAgents(agentIds, firstDayContracts, clients, preferredSymbols, blacklistByAgent);
+        var agents = BuildAgents(agentIds, firstDayContracts, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var assignments = BuildAssignments(works, breaks);
         var hints = BuildSofteningHints(softenings);
@@ -319,15 +325,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToListAsync(ct);
     }
 
-    private async Task<Dictionary<(Guid AgentId, DateOnly Date), bool>> LoadContractDaysAsync(
+    private static Dictionary<(Guid AgentId, DateOnly Date), bool> BuildContractDays(
         List<Guid> agentIds,
         DateOnly from,
         DateOnly until,
+        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
         CancellationToken ct)
     {
         var result = new Dictionary<(Guid, DateOnly), bool>();
-        var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
-            agentIds, from, until);
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
@@ -346,6 +351,75 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return result;
     }
 
+    /// <summary>
+    /// Target hours of every agent over exactly the bitmap range [from, until]. GuaranteedHours is stated per
+    /// pay period (GuaranteedHoursBasisInterval, else PaymentInterval), while the bitmap only holds the planned range, so each day contributes its
+    /// pay-period share via <see cref="PayPeriodTargetHoursProrator"/>. Each day uses that day's own contract data,
+    /// so a contract change or a month-specific company value inside the range is honoured. An agent without
+    /// contract data on a day contributes nothing for that day.
+    /// </summary>
+    internal static Dictionary<Guid, decimal> ComputePeriodTargetHours(
+        IReadOnlyList<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
+        IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>> individualPeriodsByContract)
+    {
+        var result = agentIds.ToDictionary(id => id, _ => 0m);
+        for (var date = from; date <= until; date = date.AddDays(1))
+        {
+            if (!contractDataByDate.TryGetValue(date, out var perDay))
+            {
+                continue;
+            }
+
+            foreach (var agentId in agentIds)
+            {
+                if (!perDay.TryGetValue(agentId, out var data))
+                {
+                    continue;
+                }
+
+                var interval = (PaymentInterval)(data.GuaranteedHoursBasisInterval ?? data.PaymentInterval);
+                var periods = data.ContractId is { } contractId
+                    && individualPeriodsByContract.TryGetValue(contractId, out var found)
+                        ? found
+                        : null;
+                result[agentId] += PayPeriodTargetHoursProrator.DailyShare(data.GuaranteedHours, interval, date, periods);
+            }
+        }
+
+        return result;
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>>> LoadIndividualPeriodsAsync(
+        IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
+        CancellationToken ct)
+    {
+        var individualContractIds = contractDataByDate.Values
+            .SelectMany(perDay => perDay.Values)
+            .Where(d => (d.GuaranteedHoursBasisInterval ?? d.PaymentInterval) == (int)PaymentInterval.Individual && d.ContractId.HasValue)
+            .Select(d => d.ContractId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (individualContractIds.Count == 0)
+        {
+            return new Dictionary<Guid, IReadOnlyCollection<Period>>();
+        }
+
+        var contracts = await _context.Contract
+            .AsNoTracking()
+            .Where(c => individualContractIds.Contains(c.Id) && c.IndividualPeriod != null)
+            .Include(c => c.IndividualPeriod!)
+                .ThenInclude(i => i.Periods)
+            .ToListAsync(ct);
+
+        return contracts.ToDictionary(
+            c => c.Id,
+            c => (IReadOnlyCollection<Period>)c.IndividualPeriod!.Periods.ToList());
+    }
+
     private static bool WorksOnDay(EffectiveContractData data, DayOfWeek dayOfWeek) => dayOfWeek switch
     {
         DayOfWeek.Monday => data.WorkOnMonday,
@@ -361,6 +435,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private static List<BitmapAgent> BuildAgents(
         List<Guid> agentIds,
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts,
+        IReadOnlyDictionary<Guid, decimal> periodTargetHours,
         IReadOnlyDictionary<Guid, Client> clients,
         IReadOnlyDictionary<Guid, HashSet<CellSymbol>> preferences,
         IReadOnlyDictionary<Guid, HashSet<Guid>> blacklists)
@@ -370,7 +445,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         {
             var displayName = clients.TryGetValue(id, out var c) ? BuildDisplayName(c) : id.ToString();
             var contract = contracts.TryGetValue(id, out var ct) ? ct : null;
-            var targetHours = contract?.GuaranteedHours ?? 0m;
+            var targetHours = periodTargetHours.GetValueOrDefault(id);
             var maxWeekly = contract?.MaxWeeklyHours ?? 0m;
             var maxConsec = contract?.MaxConsecutiveDays > 0 ? contract.MaxConsecutiveDays : 6;
             var minPause = contract?.MinPauseHours ?? 0m;

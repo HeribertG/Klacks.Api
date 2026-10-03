@@ -166,7 +166,7 @@ public sealed class HarmonizerEvalRunnerService : IHarmonizerEvalRunnerService
             cancellationToken.ThrowIfCancellationRequested();
 
             var intent = IterationIntents[iter];
-            var candidates = candidatePool.Generate(working, intent);
+            var candidates = candidatePool.Generate(working, intent, rejectMemory.SameDayForbiddenSwapKeys());
             var request = new PlanProposalRequest(
                 ModelId: modelId,
                 PlanText: HarmonyBitmapTextRenderer.Render(working),

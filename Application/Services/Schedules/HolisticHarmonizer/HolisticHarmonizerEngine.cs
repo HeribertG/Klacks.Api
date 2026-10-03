@@ -47,6 +47,9 @@ public sealed class HolisticHarmonizerEngine
     // reporting a silent zero-improvement success.
     private const int MaxConsecutiveUnusableResponses = 3;
     private const int RawResponsePreviewLength = 600;
+    private const string EmptyLogValue = "-";
+    private const string SwapListSeparator = ",";
+    private const string SwapLogFormat = "r{0}d{1}<->r{2}d{3}";
     private static readonly TimeSpan InnerLoopTimeBudget = TimeSpan.FromSeconds(90);
 
     private readonly IHarmonizerContextBuilder _contextBuilder;
@@ -179,10 +182,11 @@ public sealed class HolisticHarmonizerEngine
             var focusedIntent = iter == 0
                 ? HolisticIntent.ConsolidateBlock
                 : intentSelector.Pick(HolisticIntent.All, intentTracker);
-            var iterCandidates = candidatePool.Generate(working, focusedIntent);
+            var excludedSwaps = rejectMemory.SameDayForbiddenSwapKeys();
+            var iterCandidates = candidatePool.Generate(working, focusedIntent, excludedSwaps);
             _logger.LogInformation(
-                "Holistic Harmonizer iter={Iter} intent={Intent} candidates={Count}",
-                iter, focusedIntent, iterCandidates.Count);
+                "Holistic Harmonizer iter={Iter} intent={Intent} candidates={Count} excludedByRejectMemory={Excluded}",
+                iter, focusedIntent, iterCandidates.Count, excludedSwaps.Count);
 
             var proposalRequest = new PlanProposalRequest(
                 ModelId: request.LlmModelId,
@@ -262,6 +266,7 @@ public sealed class HolisticHarmonizerEngine
                 var evaluation = batchEvaluator.Evaluate(working, batch);
                 evaluatedAnyBatch = true;
                 iterations.Add(evaluation);
+                LogBatchOutcome(iter, evaluation);
 
                 intentTracker.Note(batch.Intent, evaluation.Result);
 
@@ -372,6 +377,34 @@ public sealed class HolisticHarmonizerEngine
         return ping;
     }
 
+    /// <summary>
+    /// One structured line per evaluated batch. Only coordinates, reason enums and scores are logged -
+    /// rejection details carry employee display names and stay out of the log.
+    /// </summary>
+    private void LogBatchOutcome(int iter, BatchEvaluation evaluation)
+    {
+        var firstRejection = evaluation.Rejections.Count > 0 ? evaluation.Rejections[0] : null;
+        _logger.LogInformation(
+            "Holistic Harmonizer iter={Iter} batch={BatchId} intent={Intent} result={Result} reason={Reason} stoppedAtStep={StoppedAt} rejectedAt={RejectedAt} applied={Applied} reverted={Reverted} score {Before:F4} -> {After:F4}",
+            iter,
+            evaluation.BatchId,
+            evaluation.Intent,
+            evaluation.Result,
+            firstRejection?.Reason.ToString() ?? EmptyLogValue,
+            evaluation.StoppedAtStep,
+            firstRejection is null ? EmptyLogValue : FormatSwap(firstRejection.Swap),
+            FormatSwaps(evaluation.AppliedSteps),
+            FormatSwaps(evaluation.RevertedSteps),
+            evaluation.ScoreBefore,
+            evaluation.ScoreAfter);
+    }
+
+    private static string FormatSwaps(IReadOnlyList<PlanCellSwap> swaps)
+        => swaps.Count == 0 ? EmptyLogValue : string.Join(SwapListSeparator, swaps.Select(FormatSwap));
+
+    private static string FormatSwap(PlanCellSwap swap)
+        => string.Format(CultureInfo.InvariantCulture, SwapLogFormat, swap.RowA, swap.DayA, swap.RowB, swap.DayB);
+
     internal static string BuildAgentSummary(HarmonyBitmap bitmap)
     {
         var sb = new StringBuilder();
@@ -380,13 +413,14 @@ public sealed class HolisticHarmonizerEngine
             var agent = bitmap.Rows[r];
             var preferred = string.Join(",", agent.PreferredShiftSymbols);
             sb.Append(string.Format(CultureInfo.InvariantCulture,
-                "r{0:D2} {1}: target={2}h maxWeekly={3}h maxConsec={4} minPause={5}h preferred=[{6}]",
+                "r{0:D2} {1}: target={2:0.#}h maxWeekly={3}h maxConsec={4} minPause={5}h minRestDaysPerWeek={6} preferred=[{7}]",
                 r,
                 agent.DisplayName,
                 agent.TargetHours,
                 agent.MaxWeeklyHours,
                 agent.MaxConsecutiveDays,
                 agent.MinPauseHours,
+                agent.MinRestDays,
                 preferred));
             sb.AppendLine();
         }

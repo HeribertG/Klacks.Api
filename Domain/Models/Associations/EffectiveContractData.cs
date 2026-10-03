@@ -10,6 +10,14 @@ public sealed record EffectiveContractData
     public decimal GuaranteedHours { get; init; }
 
     /// <summary>
+    /// PaymentInterval in which <see cref="GuaranteedHours"/> is stated when it differs from
+    /// <see cref="PaymentInterval"/>: an inherited company value is a calendar-month value (monthly target hours
+    /// row) or a value of the company-wide interval (settings), whatever interval the contract itself pays in.
+    /// Null means the hours are stated per <see cref="PaymentInterval"/>.
+    /// </summary>
+    public int? GuaranteedHoursBasisInterval { get; init; }
+
+    /// <summary>
     /// Workload share in percent used by absence macros. Contracts whose guaranteed hours derive from
     /// the company-wide value carry their contract percent; explicitly valued contracts derive it as
     /// guaranteed hours / full time (so a part-timer's absence day never credits more than a worked
