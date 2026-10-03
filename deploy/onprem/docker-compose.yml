@@ -73,6 +73,12 @@ services:
       - PasswordReset__BaseUrl=https://${SERVER_NAME:-localhost}
       - Cors__Host=https://${SERVER_NAME:-localhost}
       - Cors__Home=https://${SERVER_NAME:-localhost}
+      # Public origin of the MCP endpoint and of the built-in OAuth server. It ends up verbatim in
+      # the RFC 9728 / RFC 8414 metadata (resource "<origin>/mcp", issuer, authorize/token URLs), so
+      # it must be exactly the origin MCP clients type in - without it the API advertises its
+      # appsettings default https://localhost:5001 and every OAuth client fails. HTTPS_PORT other
+      # than 443 needs the port appended here by hand (https://host:8443), like the lines above.
+      - Mcp__PublicBaseUrl=https://${SERVER_NAME:-localhost}
       # On-prem: the API creates + migrates + seeds the database on first boot, and migrates on
       # every subsequent auto-update (the updater only swaps the image tag). Must stay true.
       - Database__InitializeOnStartup=true

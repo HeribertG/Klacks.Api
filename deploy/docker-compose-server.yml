@@ -98,6 +98,11 @@ services:
       - PasswordReset__BaseUrl=https://${DOMAIN:-klacks.site}:7443
       - Cors__Host=https://${DOMAIN:-klacks.site}
       - Cors__Home=https://${DOMAIN:-klacks.site}
+      # Public origin of the MCP endpoint and of the built-in OAuth server (RFC 9728 / RFC 8414
+      # metadata). Deliberately NOT derived from DOMAIN: on the root domain port 443 serves the
+      # marketing site, and play.klacks-software.ch is the only port-less host whose nginx block
+      # routes /mcp, /.well-known/oauth-* and /oauth/ to klacks-api.
+      - Mcp__PublicBaseUrl=${MCP_PUBLIC_BASE_URL:-https://play.klacks-software.ch}
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
       - RegionSetup__File=${REGION_SETUP_FILE:-}
       - Assistant__AnswerGroundingMode=${ANSWER_GROUNDING_MODE:-Off}
