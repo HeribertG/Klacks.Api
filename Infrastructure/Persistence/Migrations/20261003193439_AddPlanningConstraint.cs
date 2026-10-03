@@ -25,6 +25,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 nullable: false,
                 defaultValue: 1);
 
+            migrationBuilder.Sql(
+                "UPDATE counter_rule SET origin = 4 WHERE import_source_key <> '';");
+
             migrationBuilder.AddColumn<string>(
                 name: "source_text",
                 table: "counter_rule",
@@ -56,6 +59,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     previous_version_id = table.Column<Guid>(type: "uuid", nullable: true),
                     import_source_key = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false, defaultValue: ""),
                     import_content_hash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false, defaultValue: ""),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
