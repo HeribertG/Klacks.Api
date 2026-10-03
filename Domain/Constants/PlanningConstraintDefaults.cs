@@ -67,4 +67,11 @@ public static class PlanningConstraintDefaults
     public const string WeekendDaysProperty = "weekendDays";
 
     public const bool DefaultProRata = true;
+
+    /// <summary>
+    /// Owner decision 7 (2026-10-04): a segment is a night for the sequence and fairness rules only when it overlaps
+    /// the night window by more than an hour (DE ArbZG and TVoeD use two hours, NL more than one hour); an early shift
+    /// from 05:00 against a 23:00-06:00 window is therefore no night.
+    /// </summary>
+    public const int DefaultNightRuleMinOverlapMinutes = 60;
 }

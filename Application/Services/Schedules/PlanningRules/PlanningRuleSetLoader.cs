@@ -12,7 +12,9 @@
 /// PlanningRuleConfigurationException, because silently dropping a binding rule would let every engine accept
 /// plans that break it; an invalid Soft row is logged as an error and reported in PlanningRuleSet.SkippedRuleIds,
 /// since losing a preference must not stop planning. Night window and
-/// workload come from EffectiveContractData on the first period day (one batched resolution).
+/// workload come from EffectiveContractData on the first period day (one batched resolution). Without any
+/// applicable rule neither the contracts nor the carry-in are read; the returned agents then carry the default
+/// night window and full workload, which no evaluation uses.
 /// </summary>
 /// <param name="counterRuleRepository">Approved CounterRule rows</param>
 /// <param name="constraintRepository">Approved PlanningConstraint rows of the period</param>
@@ -22,6 +24,7 @@
 /// <param name="groupHierarchy">Expands a group into itself plus its subgroups</param>
 /// <param name="dataReader">Group memberships of the requested agents</param>
 /// <param name="carryInLoader">Worked segments outside the period</param>
+/// <param name="settingsReader">Reads NIGHT_RULE_MIN_OVERLAP_MINUTES for the night classification of the sequence rules</param>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -32,6 +35,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
@@ -49,6 +53,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupHierarchy;
     private readonly IPlanningRuleDataReader _dataReader;
     private readonly IPlanningRuleCarryInLoader _carryInLoader;
+    private readonly ISettingsReader _settingsReader;
     private readonly ILogger<PlanningRuleSetLoader> _logger;
 
     public PlanningRuleSetLoader(
@@ -60,6 +65,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         IGetAllClientIdsFromGroupAndSubgroups groupHierarchy,
         IPlanningRuleDataReader dataReader,
         IPlanningRuleCarryInLoader carryInLoader,
+        ISettingsReader settingsReader,
         ILogger<PlanningRuleSetLoader> logger)
     {
         _counterRuleRepository = counterRuleRepository;
@@ -70,6 +76,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         _groupHierarchy = groupHierarchy;
         _dataReader = dataReader;
         _carryInLoader = carryInLoader;
+        _settingsReader = settingsReader;
         _logger = logger;
     }
 
@@ -81,8 +88,9 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         CancellationToken cancellationToken = default)
     {
         var agents = DistinctAgents(agentIds);
-        var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: false, cancellationToken);
-        return await LoadRulesAsync(agents, from, until, analyseToken, PlanningRuleSources.All, contractData, [], cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        var (rules, _) = await LoadRulesAsync(agents, from, until, analyseToken, PlanningRuleSources.All, [], cancellationToken);
+        return rules;
     }
 
     public Task<PlanningRuleSet> LoadRuleSetAsync(
@@ -104,27 +112,35 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         CancellationToken cancellationToken = default)
     {
         var agents = DistinctAgents(agentIds);
-        var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: true, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         var skippedRuleIds = new List<Guid>();
-        var rules = await LoadRulesAsync(agents, from, until, analyseToken, sources, contractData, skippedRuleIds, cancellationToken);
-        var ruleAgents = agents.Select(id => ToRuleAgent(id, contractData)).ToList();
+        var (rules, contractData) = await LoadRulesAsync(agents, from, until, analyseToken, sources, skippedRuleIds, cancellationToken);
+        if (rules.Count == 0)
+        {
+            // Nothing will be evaluated: skip the contract resolution and the carry-in read, which every write gate
+            // and live check would otherwise pay while an installation has no planning rule at all.
+            return new PlanningRuleSet(rules, agents.Select(id => ToRuleAgent(id, null, PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes)).ToList(), [], skippedRuleIds);
+        }
+
+        contractData ??= await _contractDataProvider.GetEffectiveContractDataForClientsAsync(agents, from);
+        var nightMinOverlap = await ReadNightRuleMinOverlapAsync();
+        var ruleAgents = agents.Select(id => ToRuleAgent(id, contractData, nightMinOverlap)).ToList();
         var carryIn = await _carryInLoader.LoadAsync(agents, from, until, rules, analyseToken, coveredBoundaryDays, cancellationToken);
         return new PlanningRuleSet(rules, ruleAgents, carryIn, skippedRuleIds);
     }
 
-    private async Task<IReadOnlyList<PlanRule>> LoadRulesAsync(
+    private async Task<(IReadOnlyList<PlanRule> Rules, Dictionary<Guid, EffectiveContractData>? ContractData)> LoadRulesAsync(
         List<Guid> agents,
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
         PlanningRuleSources sources,
-        Dictionary<Guid, EffectiveContractData>? contractData,
         List<Guid> skippedRuleIds,
         CancellationToken cancellationToken)
     {
         if (agents.Count == 0 || until < from)
         {
-            return [];
+            return ([], null);
         }
 
         var counterRules = sources.HasFlag(PlanningRuleSources.CounterRules)
@@ -135,10 +151,10 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
             : [];
         if (counterRules.Count == 0 && constraints.Count == 0)
         {
-            return [];
+            return ([], null);
         }
 
-        contractData ??= await LoadContractDataForScopesAsync(agents, from, counterRules, constraints);
+        var contractData = await LoadContractDataForScopesAsync(agents, from, counterRules, constraints);
         var groupMembers = await ResolveGroupMembersAsync(agents, from, until, analyseToken, constraints, cancellationToken);
         var rules = new List<PlanRule>(counterRules.Count + constraints.Count);
 
@@ -166,7 +182,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
             }
         }
 
-        return rules;
+        return (rules, contractData);
     }
 
     private PlanRule? MapConstraint(
@@ -253,15 +269,6 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
                 .ToHashSet());
     }
 
-    private async Task<Dictionary<Guid, EffectiveContractData>?> LoadContractDataIfNeededAsync(
-        List<Guid> agents, DateOnly from, bool needsAlways, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        return needsAlways && agents.Count > 0
-            ? await _contractDataProvider.GetEffectiveContractDataForClientsAsync(agents, from)
-            : null;
-    }
-
     private async Task<Dictionary<Guid, EffectiveContractData>?> LoadContractDataForScopesAsync(
         List<Guid> agents, DateOnly from, List<CounterRule> counterRules, List<PlanningConstraint> constraints)
     {
@@ -311,14 +318,22 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         return agentIds.Where(id => id != Guid.Empty).Distinct().ToList();
     }
 
-    private static RuleAgent ToRuleAgent(Guid agentId, Dictionary<Guid, EffectiveContractData>? contractData)
+    private async Task<int> ReadNightRuleMinOverlapAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.NightRuleMinOverlapMinutes);
+        return int.TryParse(setting?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes) && minutes >= 0
+            ? minutes
+            : PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes;
+    }
+
+    private static RuleAgent ToRuleAgent(Guid agentId, Dictionary<Guid, EffectiveContractData>? contractData, int nightMinOverlapMinutes)
     {
         var data = contractData?.GetValueOrDefault(agentId);
         var nightWindow = new CoreNightWindow(
             ParseTimeOrDefault(data?.NightStart, SurchargeDefaults.NightStart),
             ParseTimeOrDefault(data?.NightEnd, SurchargeDefaults.NightEnd));
         var workload = data?.WorkloadPercent ?? RuleTimeConstants.FullWorkloadPercent;
-        return new RuleAgent(agentId.ToString(), nightWindow, workload);
+        return new RuleAgent(agentId.ToString(), nightWindow, workload, nightMinOverlapMinutes);
     }
 
     private static TimeOnly ParseTimeOrDefault(string? value, string fallback)

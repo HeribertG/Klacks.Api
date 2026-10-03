@@ -85,6 +85,13 @@ public static class SettingKeys
     public const string QualificationExpiredMandatoryBlocks = "QUALIFICATION_EXPIRED_MANDATORY_BLOCKS";
     public const string QualificationExpiryWarningDays = "QUALIFICATION_EXPIRY_WARNING_DAYS";
 
+    /// <summary>
+    /// Minutes of overlap with the contractual night window a segment must exceed to count as night for the
+    /// planning-constraint sequence and fairness rules (default PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes;
+    /// 0 = from the first minute). Counter rules and surcharges are not affected.
+    /// </summary>
+    public const string NightRuleMinOverlapMinutes = "NIGHT_RULE_MIN_OVERLAP_MINUTES";
+
     public const string ComplianceEnforcementDefaultMode = "COMPLIANCE_ENFORCEMENT_DEFAULT_MODE";
     public const string ComplianceEnforcementMaxDailyHours = "COMPLIANCE_ENFORCEMENT_MAX_DAILY_HOURS";
     public const string ComplianceEnforcementMaxWeeklyHours = "COMPLIANCE_ENFORCEMENT_MAX_WEEKLY_HOURS";
