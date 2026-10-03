@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "代替休息が期限超過です: {{triggerDate}}から{{shortfallHours}}時間の不足、{{dueDate}}までに取得すべきでした",
   "schedule.error-list.consecutive-days": "{{actualDays}}連続勤務日（最大{{maxDays}}日）",
   "schedule.error-list.counter-rule": "カウンタールール到達: {{period}}あたり{{event}}が{{count}}回（閾値 {{threshold}}）",
+  "schedule.error-list.planning-rule": "計画ルール違反（{{kind}}）：{{observed}}（上限 {{limit}}）",
   "schedule.error-list.empty": "項目がありません",
   "schedule.error-list.filter.errors": "エラー",
   "schedule.error-list.filter.info": "情報",

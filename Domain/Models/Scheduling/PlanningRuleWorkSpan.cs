@@ -6,7 +6,8 @@
 /// <param name="StartTime">Wall-clock start</param>
 /// <param name="EndTime">Wall-clock end; not after start wraps midnight</param>
 /// <param name="WorkTime">Paid hours</param>
+/// <param name="WorkId">Id of the Work row; lets a pre-commit check take a vacated work out of the plan</param>
 
 namespace Klacks.Api.Domain.Models.Scheduling;
 
-public sealed record PlanningRuleWorkSpan(Guid ClientId, DateOnly Date, TimeOnly StartTime, TimeOnly EndTime, decimal WorkTime);
+public sealed record PlanningRuleWorkSpan(Guid ClientId, DateOnly Date, TimeOnly StartTime, TimeOnly EndTime, decimal WorkTime, Guid WorkId = default);

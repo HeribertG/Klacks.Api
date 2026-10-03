@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Istirahat pengganti TERLAMBAT: kekurangan {{shortfallHours}} jam sejak {{triggerDate}}, seharusnya dikompensasi sebelum {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} hari kerja berturut-turut (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Aturan penghitung tercapai: {{count}}× {{event}} per {{period}} (ambang batas {{threshold}})",
+  "schedule.error-list.planning-rule": "Aturan perencanaan dilanggar ({{kind}}): {{observed}} (batas {{limit}})",
   "schedule.error-list.empty": "Tidak ada entri",
   "schedule.error-list.filter.errors": "Kesalahan",
   "schedule.error-list.filter.info": "Informasi",

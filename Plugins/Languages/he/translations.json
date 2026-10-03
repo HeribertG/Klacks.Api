@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "מנוחה מפצה באיחור: קיצור של {{shortfallHours}} שעות מ-{{triggerDate}}, היה נדרש עד {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} ימי עבודה רצופים (מקסימום {{maxDays}})",
   "schedule.error-list.counter-rule": "כלל מונה הושג: {{count}}× {{event}} לכל {{period}} (סף {{threshold}})",
+  "schedule.error-list.planning-rule": "הופר כלל תכנון ({{kind}}): {{observed}} (מגבלה {{limit}})",
   "schedule.error-list.empty": "אין רשומות",
   "schedule.error-list.filter.errors": "שגיאות",
   "schedule.error-list.filter.info": "הודעות",

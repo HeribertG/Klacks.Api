@@ -13,6 +13,7 @@
 /// <param name="escalationService">Escalates timeline warnings to errors per the K1 Block-mode enforcement</param>
 /// <param name="settingsReader">Reads QUALIFICATION_EXPIRY_WARNING_DAYS for the proactive expiry warning</param>
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach projected from the planned rows on top of persisted hours</param>
+/// <param name="planningRuleEvaluator">Reports the PlanningConstraint findings (sequence rules) the write newly creates or worsens</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Constants;
@@ -43,6 +44,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
     private readonly IHolidayWorkEvaluator _holidayWorkEvaluator;
+    private readonly IPlanningRuleEvaluatorService _planningRuleEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -55,7 +57,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         ICounterRuleEvaluator counterRuleEvaluator,
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
-        IHolidayWorkEvaluator holidayWorkEvaluator)
+        IHolidayWorkEvaluator holidayWorkEvaluator,
+        IPlanningRuleEvaluatorService planningRuleEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -68,6 +71,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
         _holidayWorkEvaluator = holidayWorkEvaluator;
+        _planningRuleEvaluator = planningRuleEvaluator;
     }
 
     public Task<PreCommitCheckResult> CheckAsync(
@@ -155,6 +159,12 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
         // K18 counter rules: same ABSOLUTE post-save-projection semantics as the period caps.
         newConflicts.AddRange(await BuildCounterRuleConflictsAsync(plannedRows, analyseToken, cancellationToken));
+
+        // Planning constraints (sequence rules): a before/after DIFF over the rule horizon, unlike the absolute
+        // counter rules above - a pre-existing violation never blocks an unrelated write, only a finding the
+        // write creates or worsens is reported (Hard = overridable Error, Soft = Warning). Removals are applied,
+        // so a swap is judged on its net effect. An invalid approved Hard constraint propagates (fail closed).
+        newConflicts.AddRange(await _planningRuleEvaluator.EvaluatePlannedChangeAsync(plannedRows, removals, analyseToken, cancellationToken));
 
         // K16 restricted time windows: an ABSOLUTE per-(shift, date, time) check on the planned rows -
         // a placement inside a seasonal daily forbidden window is reported regardless of the surrounding

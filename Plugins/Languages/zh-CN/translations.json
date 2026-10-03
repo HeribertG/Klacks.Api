@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "调休已逾期：{{triggerDate}}缩短{{shortfallHours}}小时，原定应在{{dueDate}}前补偿",
   "schedule.error-list.consecutive-days": "{{actualDays}} 个连续工作日（最大 {{maxDays}} 个）",
   "schedule.error-list.counter-rule": "已达到计数规则：每{{period}} {{count}}× {{event}}（阈值 {{threshold}}）",
+  "schedule.error-list.planning-rule": "违反排班规则（{{kind}}）：{{observed}}（上限 {{limit}}）",
   "schedule.error-list.empty": "暂无条目",
   "schedule.error-list.filter.errors": "错误",
   "schedule.error-list.filter.info": "提示",

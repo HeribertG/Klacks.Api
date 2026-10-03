@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "보상휴식 기한 초과: {{triggerDate}}부터 {{shortfallHours}}시간 부족, {{dueDate}}까지 보상했어야 함",
   "schedule.error-list.consecutive-days": "{{actualDays}}일 연속 근무 (최대 {{maxDays}}일)",
   "schedule.error-list.counter-rule": "카운터 규칙 도달: {{period}}당 {{event}} {{count}}회 (임계값 {{threshold}})",
+  "schedule.error-list.planning-rule": "계획 규칙 위반 ({{kind}}): {{observed}} (한도 {{limit}})",
   "schedule.error-list.empty": "항목이 없습니다",
   "schedule.error-list.filter.errors": "오류",
   "schedule.error-list.filter.info": "알림",

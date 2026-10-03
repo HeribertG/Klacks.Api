@@ -25,6 +25,12 @@ public static class ComplianceRuleNames
     public const string HolidayWork = "holidayWork";
 
     /// <summary>
+    /// Tag of an Error raised by an approved Hard PlanningConstraint (sequence rules). Its severity comes from
+    /// the constraint row itself, never from a compliance.enforcement setting, so there is no mode to resolve.
+    /// </summary>
+    public const string PlanningRule = "planningRule";
+
+    /// <summary>
     /// CommentParams key tagging a ScheduleValidationNotificationDto whose Type was escalated from
     /// Warning to Error by Block-mode enforcement (as opposed to a structural Error such as a
     /// collision or a missing mandatory qualification). Lets a save-command handler offer the

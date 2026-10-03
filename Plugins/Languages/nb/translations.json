@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Avspasering FORFALT: {{shortfallHours}} t underskudd fra {{triggerDate}}, skulle vært kompensert innen {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} sammenhengende arbeidsdager (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Tellerregel nådd: {{count}}× {{event}} per {{period}} (terskel {{threshold}})",
+  "schedule.error-list.planning-rule": "Planleggingsregel brutt ({{kind}}): {{observed}} (grense {{limit}})",
   "schedule.error-list.empty": "Ingen oppføringer",
   "schedule.error-list.filter.errors": "Feil",
   "schedule.error-list.filter.info": "Informasjon",

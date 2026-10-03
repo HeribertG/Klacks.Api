@@ -82,8 +82,17 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
     {
         var agents = DistinctAgents(agentIds);
         var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: false, cancellationToken);
-        return await LoadRulesAsync(agents, from, until, analyseToken, contractData, [], cancellationToken);
+        return await LoadRulesAsync(agents, from, until, analyseToken, PlanningRuleSources.All, contractData, [], cancellationToken);
     }
+
+    public Task<PlanningRuleSet> LoadRuleSetAsync(
+        IReadOnlyCollection<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        int coveredBoundaryDays,
+        CancellationToken cancellationToken = default)
+        => LoadRuleSetAsync(agentIds, from, until, analyseToken, coveredBoundaryDays, PlanningRuleSources.All, cancellationToken);
 
     public async Task<PlanningRuleSet> LoadRuleSetAsync(
         IReadOnlyCollection<Guid> agentIds,
@@ -91,12 +100,13 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         DateOnly until,
         Guid? analyseToken,
         int coveredBoundaryDays,
+        PlanningRuleSources sources,
         CancellationToken cancellationToken = default)
     {
         var agents = DistinctAgents(agentIds);
         var contractData = await LoadContractDataIfNeededAsync(agents, from, needsAlways: true, cancellationToken);
         var skippedRuleIds = new List<Guid>();
-        var rules = await LoadRulesAsync(agents, from, until, analyseToken, contractData, skippedRuleIds, cancellationToken);
+        var rules = await LoadRulesAsync(agents, from, until, analyseToken, sources, contractData, skippedRuleIds, cancellationToken);
         var ruleAgents = agents.Select(id => ToRuleAgent(id, contractData)).ToList();
         var carryIn = await _carryInLoader.LoadAsync(agents, from, until, rules, analyseToken, coveredBoundaryDays, cancellationToken);
         return new PlanningRuleSet(rules, ruleAgents, carryIn, skippedRuleIds);
@@ -107,6 +117,7 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
+        PlanningRuleSources sources,
         Dictionary<Guid, EffectiveContractData>? contractData,
         List<Guid> skippedRuleIds,
         CancellationToken cancellationToken)
@@ -116,8 +127,12 @@ public sealed class PlanningRuleSetLoader : IPlanningRuleSetLoader
             return [];
         }
 
-        var counterRules = await _counterRuleRepository.GetAllApprovedAsync(cancellationToken);
-        var constraints = await _constraintRepository.GetApprovedForPeriodAsync(from, until, analyseToken, cancellationToken);
+        var counterRules = sources.HasFlag(PlanningRuleSources.CounterRules)
+            ? await _counterRuleRepository.GetAllApprovedAsync(cancellationToken)
+            : [];
+        var constraints = sources.HasFlag(PlanningRuleSources.PlanningConstraints)
+            ? await _constraintRepository.GetApprovedForPeriodAsync(from, until, analyseToken, cancellationToken)
+            : [];
         if (counterRules.Count == 0 && constraints.Count == 0)
         {
             return [];

@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Odpoczynek wyrównawczy ZALEGŁY: {{shortfallHours}} h niedoboru od {{triggerDate}}, termin upłynął {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} kolejnych dni roboczych (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Osiągnięto regułę licznika: {{count}}× {{event}} na {{period}} (próg {{threshold}})",
+  "schedule.error-list.planning-rule": "Naruszono regułę planowania ({{kind}}): {{observed}} (limit {{limit}})",
   "schedule.error-list.empty": "Brak wpisów",
   "schedule.error-list.filter.errors": "Błędy",
   "schedule.error-list.filter.info": "Informacje",

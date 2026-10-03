@@ -39,4 +39,17 @@ public interface IPlanningRuleSetLoader
         Guid? analyseToken,
         int coveredBoundaryDays,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// <see cref="LoadRuleSetAsync(IReadOnlyCollection{Guid}, DateOnly, DateOnly, Guid?, int, CancellationToken)"/>
+    /// restricted to the rule families in <paramref name="sources"/>; the carry-in is sized for the returned rules only.
+    /// </summary>
+    Task<PlanningRuleSet> LoadRuleSetAsync(
+        IReadOnlyCollection<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        int coveredBoundaryDays,
+        PlanningRuleSources sources,
+        CancellationToken cancellationToken = default);
 }

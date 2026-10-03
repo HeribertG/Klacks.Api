@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "ΕΚΠΡΟΘΕΣΜΗ αντισταθμιστική ανάπαυση: μείωση {{shortfallHours}}ω από {{triggerDate}}, έπρεπε να έχει αντισταθμιστεί έως {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} διαδοχικές εργάσιμες ημέρες (μέγ. {{maxDays}})",
   "schedule.error-list.counter-rule": "Επιτεύχθηκε κανόνας μετρητή: {{count}}× {{event}} ανά {{period}} (όριο {{threshold}})",
+  "schedule.error-list.planning-rule": "Παραβίαση κανόνα προγραμματισμού ({{kind}}): {{observed}} (όριο {{limit}})",
   "schedule.error-list.empty": "Δεν υπάρχουν εγγραφές",
   "schedule.error-list.filter.errors": "Σφάλματα",
   "schedule.error-list.filter.info": "Πληροφορίες",

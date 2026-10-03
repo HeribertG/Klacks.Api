@@ -13,6 +13,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -187,12 +188,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var compensatoryRestEvaluator = scope.ServiceProvider.GetRequiredService<ICompensatoryRestEvaluator>();
                 var escalationService = scope.ServiceProvider.GetRequiredService<IComplianceEscalationService>();
                 var holidayWorkEvaluator = scope.ServiceProvider.GetRequiredService<IHolidayWorkEvaluator>();
+                var planningRuleEvaluator = scope.ServiceProvider.GetRequiredService<IPlanningRuleEvaluatorService>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, planningRuleEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -200,7 +202,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, planningRuleEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -279,6 +281,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
         IComplianceEscalationService escalationService,
         IHolidayWorkEvaluator holidayWorkEvaluator,
+        IPlanningRuleEvaluatorService planningRuleEvaluator,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -355,6 +358,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             entries.AddRange(await holidayWorkEvaluator.EvaluateAsync(clientId, clientName, [date], cancellationToken));
         }
 
+        // Only findings dated on the checked day: the partial refresh replaces exactly that client-day in the
+        // UI, so an entry anchored elsewhere would stay behind; the next range check reports those.
+        entries.AddRange(await EvaluatePlanningRulesSafelyAsync(
+            () => planningRuleEvaluator.EvaluateDayAsync(clientId, clientName, date, analyseToken, cancellationToken)));
+
         try
         {
             var shiftAddressLookup = BuildShiftAddressLookup(allWorks);
@@ -366,7 +374,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} on {Date}", clientId, date);
         }
 
-        var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date, analyseToken);
+        var collisionNotification = TimelineCollisionNotificationBuilder.BuildNotification(timeline, clientNameLookup, false, clientId, date, analyseToken);
         await notificationService.NotifyCollisionsDetected(collisionNotification);
 
         // Escalates Warning to Error for rules configured as Block. Entries whose key the escalation map
@@ -400,6 +408,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
         IComplianceEscalationService escalationService,
         IHolidayWorkEvaluator holidayWorkEvaluator,
+        IPlanningRuleEvaluatorService planningRuleEvaluator,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -497,7 +506,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 .ToList();
             allEntries.AddRange(await holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, holidayCandidates, cancellationToken));
 
-            allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
+            allCollisions.AddRange(TimelineCollisionNotificationBuilder.BuildList(timeline, clientNameLookup));
         }
 
         if (clientsWithoutTravelCheck > 0)
@@ -508,6 +517,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         }
 
         await AddQualificationEntriesAsync(allEntries, works, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
+
+        allEntries.AddRange(await EvaluatePlanningRulesSafelyAsync(() => planningRuleEvaluator.EvaluateRangeAsync(clientIds, startDate, endDate, analyseToken, clientNameLookup, cancellationToken)));
 
         _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked, {WorkCount} works, {BreakCount} breaks",
             allCollisions.Count, allEntries.Count, groupedByClient.Count(), works.Count, breaks.Count);
@@ -531,6 +542,25 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyScheduleValidationsDetected SENT ({Count} entries)", allEntries.Count);
+    }
+
+    /// <summary>
+    /// Runs a planning-rule evaluation for the live notifications. An invalid approved Hard constraint must not
+    /// wipe out every other validation of the job, so the configuration error is logged and the planning-rule
+    /// part of the notification stays empty; the write gate and the period close still fail closed on it.
+    /// </summary>
+    private async Task<List<ScheduleValidationNotificationDto>> EvaluatePlanningRulesSafelyAsync(
+        Func<Task<List<ScheduleValidationNotificationDto>>> evaluate)
+    {
+        try
+        {
+            return await evaluate();
+        }
+        catch (PlanningRuleConfigurationException ex)
+        {
+            _logger.LogError(ex, "Planning-rule validation skipped: constraint {ConstraintId} is invalid", ex.ConstraintId);
+            return [];
+        }
     }
 
     /// <summary>
@@ -787,48 +817,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             lookup[work.ShiftId] = address;
         }
         return lookup;
-    }
-
-    private static CollisionListNotificationDto BuildLegacyCollisionNotification(
-        ClientTimeline timeline,
-        Dictionary<Guid, string> clientNameLookup,
-        bool isFullRefresh,
-        Guid? checkedClientId,
-        DateOnly? checkedDate,
-        Guid? analyseToken)
-    {
-        return new CollisionListNotificationDto
-        {
-            Collisions = BuildLegacyCollisionList(timeline, clientNameLookup),
-            IsFullRefresh = isFullRefresh,
-            CheckedClientId = checkedClientId,
-            CheckedDate = checkedDate,
-            AnalyseToken = analyseToken
-        };
-    }
-
-    private static List<CollisionNotificationDto> BuildLegacyCollisionList(
-        ClientTimeline timeline,
-        Dictionary<Guid, string> clientNameLookup)
-    {
-        var pairs = timeline.GetCollisions();
-        if (pairs.Count == 0) return [];
-
-        clientNameLookup.TryGetValue(timeline.ClientId, out var clientName);
-        clientName ??= string.Empty;
-
-        return pairs.Select(p => new CollisionNotificationDto
-        {
-            WorkId1 = p.A.SourceId,
-            WorkId2 = p.B.SourceId,
-            ClientId = timeline.ClientId,
-            ClientName = clientName,
-            Date = p.A.OwnerDate,
-            TimeRange1 = $"{p.A.Start:HH:mm} - {p.A.End:HH:mm}",
-            TimeRange2 = $"{p.B.Start:HH:mm} - {p.B.End:HH:mm}",
-            BlockType1 = p.A.BlockType.ToString(),
-            BlockType2 = p.B.BlockType.ToString()
-        }).ToList();
     }
 
     private static Dictionary<Guid, string> BuildClientNameLookup(List<Work> works, List<WorkChange> workChanges)

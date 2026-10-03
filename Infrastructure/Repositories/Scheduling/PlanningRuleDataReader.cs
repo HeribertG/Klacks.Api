@@ -81,11 +81,11 @@ public class PlanningRuleDataReader : IPlanningRuleDataReader
             .OrderBy(work => work.ClientId)
             .ThenBy(work => work.CurrentDate)
             .ThenBy(work => work.StartTime)
-            .Select(work => new { work.ClientId, work.CurrentDate, work.StartTime, work.EndTime, work.WorkTime })
+            .Select(work => new { work.Id, work.ClientId, work.CurrentDate, work.StartTime, work.EndTime, work.WorkTime })
             .ToListAsync(cancellationToken);
 
         return rows
-            .Select(row => new PlanningRuleWorkSpan(row.ClientId, row.CurrentDate, row.StartTime, row.EndTime, row.WorkTime))
+            .Select(row => new PlanningRuleWorkSpan(row.ClientId, row.CurrentDate, row.StartTime, row.EndTime, row.WorkTime, row.Id))
             .ToList();
     }
 }

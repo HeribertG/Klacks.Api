@@ -21,6 +21,7 @@
 /// <param name="policyResolver">Resolves rest/overtime/consecutive-day thresholds per client</param>
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach for the period being closed</param>
 /// <param name="compensatoryRestReconciler">Refreshes K12 obligation state before the load reads it</param>
+/// <param name="planningRuleEvaluator">Reports approved PlanningConstraint findings (sequence rules, team fairness) for the period</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -49,6 +50,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly ICompensatoryRestObligationReconciler _compensatoryRestReconciler;
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
     private readonly IHolidayWorkEvaluator _holidayWorkEvaluator;
+    private readonly IPlanningRuleEvaluatorService _planningRuleEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
@@ -60,7 +62,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
-        IHolidayWorkEvaluator holidayWorkEvaluator)
+        IHolidayWorkEvaluator holidayWorkEvaluator,
+        IPlanningRuleEvaluatorService planningRuleEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -72,6 +75,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         _compensatoryRestReconciler = compensatoryRestReconciler;
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
         _holidayWorkEvaluator = holidayWorkEvaluator;
+        _planningRuleEvaluator = planningRuleEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -150,6 +154,13 @@ public class PeriodValidationLoader : IPeriodValidationLoader
                 .ToList();
             entries.AddRange(await _holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, workDates, cancellationToken));
         }
+
+        // Planning constraints are evaluated once for the whole set, because team fairness compares the agents
+        // with each other; a group filter adds the members without any work in the period (the 0-count end of a
+        // fairness spread). An invalid approved Hard constraint propagates: the close must not pass it silently.
+        var planningRuleClients = clientIdsInGroup is null ? clientIds : clientIds.Union(clientIdsInGroup).ToList();
+        entries.AddRange(await _planningRuleEvaluator.EvaluateRangeAsync(
+            planningRuleClients, from, to, analyseToken, clientNameLookup, cancellationToken));
 
         return entries
             .OrderBy(e => e.Date)
@@ -287,6 +298,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         ScheduleValidationKeys.RollingAverage => "RollingAverage",
         ScheduleValidationKeys.RestDayRotation => "RestDayRotation",
         ScheduleValidationKeys.CounterRule => "CounterRule",
+        ScheduleValidationKeys.PlanningRule => "PlanningRule",
         ScheduleValidationKeys.RestrictedTimeWindow => "RestrictedTimeWindow",
         ScheduleValidationKeys.HolidayWork => "HolidayWork",
         ScheduleValidationKeys.CompensatoryRestDue => "CompensatoryRestDue",

@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "راحة تعويضية متأخرة: نقص {{shortfallHours}} ساعة من {{triggerDate}}، كان يجب تعويضها حتى {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} أيام عمل متتالية (الحد الأقصى {{maxDays}})",
   "schedule.error-list.counter-rule": "تم بلوغ قاعدة العداد: {{count}}× {{event}} لكل {{period}} (الحد {{threshold}})",
+  "schedule.error-list.planning-rule": "تم انتهاك قاعدة التخطيط ({{kind}}): {{observed}} (الحد {{limit}})",
   "schedule.error-list.empty": "لا توجد سجلات",
   "schedule.error-list.filter.errors": "أخطاء",
   "schedule.error-list.filter.info": "معلومات",

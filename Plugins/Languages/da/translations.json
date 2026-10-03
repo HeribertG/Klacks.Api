@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Afspadsering FORFALDEN: {{shortfallHours}} t reduktion fra {{triggerDate}}, skulle have været afviklet senest {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} sammenhængende arbejdsdage (maks. {{maxDays}})",
   "schedule.error-list.counter-rule": "Tællerregel nået: {{count}}× {{event}} pr. {{period}} (grænse {{threshold}})",
+  "schedule.error-list.planning-rule": "Planlægningsregel overtrådt ({{kind}}): {{observed}} (grænse {{limit}})",
   "schedule.error-list.empty": "Ingen poster tilgængelige",
   "schedule.error-list.filter.errors": "Fejl",
   "schedule.error-list.filter.info": "Information",

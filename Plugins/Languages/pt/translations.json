@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Descanso compensatório EM ATRASO: défice de {{shortfallHours}} h desde {{triggerDate}}, devia ter sido compensado até {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} dias consecutivos de trabalho (máx. {{maxDays}})",
   "schedule.error-list.counter-rule": "Regra de contador atingida: {{count}}× {{event}} por {{period}} (limite {{threshold}})",
+  "schedule.error-list.planning-rule": "Regra de planeamento violada ({{kind}}): {{observed}} (limite {{limit}})",
   "schedule.error-list.empty": "Sem entradas",
   "schedule.error-list.filter.errors": "Erros",
   "schedule.error-list.filter.info": "Informação",

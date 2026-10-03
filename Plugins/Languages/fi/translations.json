@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Korvaava lepoaika MYÖHÄSSÄ: {{shortfallHours}} t vajaus alkaen {{triggerDate}}, olisi pitänyt korvata viimeistään {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} peräkkäistä työpäivää (enintään {{maxDays}})",
   "schedule.error-list.counter-rule": "Laskurisääntö saavutettu: {{count}}× {{event}} per {{period}} (kynnysarvo {{threshold}})",
+  "schedule.error-list.planning-rule": "Suunnittelusääntöä rikottu ({{kind}}): {{observed}} (raja {{limit}})",
   "schedule.error-list.empty": "Ei merkintöjä",
   "schedule.error-list.filter.errors": "Virheet",
   "schedule.error-list.filter.info": "Tiedotteet",

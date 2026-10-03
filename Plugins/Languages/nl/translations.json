@@ -1870,6 +1870,7 @@
   "schedule.error-list.compensatory-rest-overdue": "Compenserende rust ACHTERSTALLIG: {{shortfallHours}} u tekort vanaf {{triggerDate}}, was verschuldigd voor {{dueDate}}",
   "schedule.error-list.consecutive-days": "{{actualDays}} opeenvolgende werkdagen (max. {{maxDays}})",
   "schedule.error-list.counter-rule": "Tellerregel bereikt: {{count}}× {{event}} per {{period}} (drempel {{threshold}})",
+  "schedule.error-list.planning-rule": "Planningsregel geschonden ({{kind}}): {{observed}} (limiet {{limit}})",
   "schedule.error-list.empty": "Geen items aanwezig",
   "schedule.error-list.filter.errors": "Fouten",
   "schedule.error-list.filter.info": "Melding",
