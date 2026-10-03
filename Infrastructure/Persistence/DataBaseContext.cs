@@ -185,6 +185,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<CounterRule> CounterRule { get; set; }
 
+    public DbSet<PlanningConstraint> PlanningConstraint { get; set; }
+
     public DbSet<CompensatoryRestObligation> CompensatoryRestObligation { get; set; }
 
     public DbSet<RestrictedTimeWindowRule> RestrictedTimeWindowRule { get; set; }

@@ -280,6 +280,16 @@ public class BackgroundServiceOptions
     public bool PendingNoteBroadcastCleanup { get; set; } = true;
 
     /// <summary>
+    /// Enables the hourly planning-constraint proposal expiry sweep
+    /// (PlanningConstraintProposalExpiryBackgroundService): Proposed constraints nobody decided on within
+    /// PlanningConstraintDefaults.ProposalLifetimeDays are moved to Rejected (owner decision 2026-10-03). Default
+    /// ON: without proposals a cycle is a single conditional update that touches nothing, and the update is
+    /// conditional on the status, so several instances may run it. Approval of an expired proposal is refused
+    /// independently of this flag. Override via env <c>BackgroundServices__PlanningConstraintProposalExpiry=false</c>.
+    /// </summary>
+    public bool PlanningConstraintProposalExpiry { get; set; } = true;
+
+    /// <summary>
     /// Enables the scheduled-task (cron) worker, which executes the due entries of the ScheduledTasks
     /// table. Default ON: it is the behaviour every installation runs today, and with the flag off on
     /// every instance no cron task runs at all. Unlike the other services here it is already guarded

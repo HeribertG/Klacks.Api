@@ -13,6 +13,9 @@
 /// CRUD; import-created rows carry a non-empty ImportSourceKey/ImportContentHash (see
 /// <see cref="Klacks.Api.Domain.Common.IImportableEntity"/>) that drives the import re-apply logic,
 /// while customer-created rows carry the empty string for both and are never touched by re-import.
+/// <see cref="Origin"/>/<see cref="ApprovalStatus"/>/<see cref="SourceText"/> follow the planning-rule approval
+/// model: every pre-existing and admin-created row is Admin/Approved; only Approved rows are handed to the
+/// planning-rule loader (Proposed rows come from the later LLM intake and wait for an admin decision).
 /// </summary>
 
 using Klacks.Api.Domain.Common;
@@ -33,6 +36,12 @@ public class CounterRule : BaseEntity, IImportableEntity
     public RuleEnforcementMode? Enforcement { get; set; }
 
     public Guid? SchedulingRuleId { get; set; }
+
+    public RuleOrigin Origin { get; set; } = RuleOrigin.Admin;
+
+    public RuleApprovalStatus ApprovalStatus { get; set; } = RuleApprovalStatus.Approved;
+
+    public string? SourceText { get; set; }
 
     public string ImportSourceKey { get; set; } = string.Empty;
 

@@ -338,6 +338,8 @@ if (bgOptions.SkillCoverage)
     builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 if (bgOptions.PendingNoteBroadcastCleanup)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
+if (bgOptions.PlanningConstraintProposalExpiry)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.PlanningConstraintProposalExpiryBackgroundService>();
 if (bgOptions.ScheduledTask)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Scheduling.ScheduledTaskBackgroundService>();
 if (bgOptions.AgentConditionDigest)

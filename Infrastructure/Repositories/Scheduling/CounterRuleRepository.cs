@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="context">Database context providing the CounterRule DbSet</param>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
@@ -39,6 +40,15 @@ public class CounterRuleRepository : ICounterRuleRepository
             .AsNoTracking()
             .Where(r => !r.IsDeleted)
             .ToListAsync();
+    }
+
+    public async Task<List<CounterRule>> GetAllApprovedAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.CounterRule
+            .AsNoTracking()
+            .Where(r => !r.IsDeleted && r.ApprovalStatus == RuleApprovalStatus.Approved)
+            .OrderBy(r => r.Id)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<CounterRule?> GetAsync(Guid id)

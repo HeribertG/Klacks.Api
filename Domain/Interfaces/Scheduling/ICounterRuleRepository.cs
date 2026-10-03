@@ -16,6 +16,9 @@ public interface ICounterRuleRepository
 
     Task<List<CounterRule>> GetAllActiveAsync();
 
+    /// <summary>Active rows whose ApprovalStatus is Approved - the set the planning-rule loader evaluates.</summary>
+    Task<List<CounterRule>> GetAllApprovedAsync(CancellationToken cancellationToken = default);
+
     Task<CounterRule?> GetAsync(Guid id);
 
     Task<CounterRule?> DeleteAsync(Guid id);

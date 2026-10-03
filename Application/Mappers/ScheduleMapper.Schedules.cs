@@ -183,6 +183,9 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(CounterRule.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(CounterRule.ImportSourceKey))]
     [MapperIgnoreTarget(nameof(CounterRule.ImportContentHash))]
+    [MapperIgnoreTarget(nameof(CounterRule.Origin))]
+    [MapperIgnoreTarget(nameof(CounterRule.ApprovalStatus))]
+    [MapperIgnoreTarget(nameof(CounterRule.SourceText))]
     public partial CounterRule ToCounterRuleEntity(CounterRuleResource resource);
 
     public void UpdateCounterRuleEntity(CounterRule target, CounterRuleResource source)

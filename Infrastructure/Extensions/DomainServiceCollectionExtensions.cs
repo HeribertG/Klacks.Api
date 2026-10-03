@@ -340,6 +340,16 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.RestDayRotationRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ICounterRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.CounterRuleRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningConstraintRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.PlanningConstraintRepository>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningConstraintValidator,
+                           Klacks.Api.Domain.Services.Schedules.PlanningConstraintValidator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPlanningRuleDataReader,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.PlanningRuleDataReader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningRuleCarryInLoader,
+                           Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningRuleCarryInLoader>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPlanningRuleSetLoader,
+                           Klacks.Api.Application.Services.Schedules.PlanningRules.PlanningRuleSetLoader>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Settings.CompanyRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleImportRepository,
