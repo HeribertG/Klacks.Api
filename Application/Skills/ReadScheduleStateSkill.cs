@@ -4,12 +4,16 @@
 /// Reads the current schedule grid of a planning blade (group + period): which employee is
 /// assigned to which shift on which day, plus lock level and group-restriction flags. This is
 /// the foundation skill that makes Klacksy "see" the plan before reasoning about gaps, conflicts
-/// or replacements. When an analyseToken is supplied the scenario view is read in isolation.
+/// or replacements. When an analyseToken is supplied the scenario view is read in isolation. A group outside
+/// the caller's group visibility is answered exactly like a missing group, and entries of clients the caller
+/// cannot see are left out, like in the schedule grid.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group / planning blade.</param>
 /// <param name="fromDate">Required. ISO date yyyy-MM-dd (period start).</param>
 /// <param name="untilDate">Required. ISO date yyyy-MM-dd (period end, inclusive).</param>
 /// <param name="analyseToken">Optional. UUID of a scenario; when set the isolated scenario grid is read instead of the real plan.</param>
+/// <param name="groupVisibilityGuard">Decides whether the calling user may see the requested group</param>
+/// <param name="clientVisibilityGuard">Filters the entries down to clients the calling user may see</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -28,10 +32,17 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
     private const int MaxEntries = 750;
 
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
-    public ReadScheduleStateSkill(IScheduleEntriesService scheduleEntriesService)
+    public ReadScheduleStateSkill(
+        IScheduleEntriesService scheduleEntriesService,
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _scheduleEntriesService = scheduleEntriesService;
+        _groupVisibilityGuard = groupVisibilityGuard;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -67,11 +78,17 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
             analyseToken = parsedToken;
         }
 
+        if (!await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
+        {
+            return SkillResult.Error($"Group with ID {groupId} not found.");
+        }
+
         var cells = await _scheduleEntriesService
             .GetScheduleEntriesQuery(fromDate, untilDate, new List<Guid> { groupId }, analyseToken)
             .ToListAsync(cancellationToken);
+        var visibleCells = await _clientVisibilityGuard.FilterVisibleAsync(cells, c => c.ClientId, cancellationToken);
 
-        var ordered = cells
+        var ordered = visibleCells
             .OrderBy(c => c.EntryDate)
             .ThenBy(c => c.StartTime)
             .ToList();
