@@ -25,7 +25,7 @@
   <tr><td><strong>No</strong></td><td>en blanco</td><td>Establecido por esta regla: ese día no se trabaja. Esto se aplica a todos los contratos a los que se haya asignado esta regla, incluso si el contrato prevé expresamente ese día.</td></tr>
 </table>
 <p><strong>Atención:</strong> «No» es una restricción explícita y no un estado neutro. Establecer «sí» en días concretos no bloquea el resto: para cada día que figure como «no especificado», seguirá siendo válido el contrato. Quien quiera excluir un día, debe establecerlo expresamente en «no».</p>
-<p><strong>El trabajo por turnos</strong> sigue la misma lógica: «sin especificar» adopta el valor del contrato, mientras que «sí» y «no» lo establecen mediante esta regla.</p>
+<p><strong>El trabajo por turnos</strong> funciona de otra manera: el contrato va primero. «Sí» y «no» son el estándar de esta regla para los contratos que dejan el trabajo por turnos en estándar - un valor explícito en el contrato siempre tiene prioridad. «Sin especificar» significa que se aplica el ajuste predeterminado de la instalación, salvo que el contrato fije un valor. Sin trabajo por turnos, se ignoran las tasas de recargo propias del contrato (noche, festivo, fin de semana) y se aplican las tasas estándar.</p>
 
 <hr>
 

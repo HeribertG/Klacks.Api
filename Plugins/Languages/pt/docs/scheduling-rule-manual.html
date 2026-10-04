@@ -25,7 +25,7 @@
   <tr><td><strong>Não</strong></td><td>em branco</td><td>Determinado por esta regra: neste dia não se trabalha. Isto aplica-se a todos os contratos aos quais esta regra esteja associada — mesmo que o contrato preveja expressamente esse dia.</td></tr>
 </table>
 <p><strong>Atenção:</strong> «Não» é um bloqueio expresso e não um estado neutro. Definir dias específicos como «sim» não bloqueia os restantes: para cada dia que esteja definido como «não especificado», o contrato continua a ser válido. Quem quiser excluir um dia tem de o definir explicitamente como «não».</p>
-<p><strong>O trabalho por turnos</strong> segue a mesma lógica: «não especificado» assume o valor do contrato, enquanto «sim» e «não» definem esse valor através desta regra.</p>
+<p><strong>O trabalho por turnos</strong> funciona de forma diferente: o contrato vem primeiro. «Sim» e «não» são o padrão desta regra para contratos que deixam o trabalho por turnos em padrão - um valor explícito no contrato tem sempre prioridade. «Não especificado» significa que se aplica a predefinição da instalação, salvo se o contrato fixar um valor. Sem trabalho por turnos, as taxas de suplemento próprias do contrato (noite, feriado, fim de semana) são ignoradas e aplicam-se as taxas padrão.</p>
 
 <hr>
 
