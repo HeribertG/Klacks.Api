@@ -10,6 +10,7 @@
   <tr><td><strong>Dias de trabalho máx.</strong></td><td>Regra flexível (limite flexível): duração preferencial do período de trabalho em dias úteis consecutivos, antes de ser planeado um dia de descanso (por exemplo, «5 dias de trabalho, depois descanso»). Uma violação desta regra não invalida o plano, apenas o torna menos ótimo — o limite máximo rígido é o «N.º máximo de dias de trabalho consecutivos» indicado mais abaixo.</td></tr>
   <tr><td><strong>Número mínimo de dias de descanso entre dois blocos de trabalho</strong></td><td>Número mínimo de dias livres entre dois blocos de trabalho consecutivos.</td></tr>
   <tr><td><strong>Mínimo de horas livres entre dois dias de trabalho</strong></td><td>Tempo mínimo de descanso (em horas) entre o fim de um dia de trabalho e o início do seguinte.</td></tr>
+  <tr><td><strong>Enquadramento diário de trabalho (h)</strong></td><td>Maior período de um dia de trabalho, do primeiro início ao último fim, incluindo as pausas. Vazio utiliza o valor da empresa, 0 significa 24 horas menos o descanso mínimo. Ver «Enquadramento diário de trabalho e turnos divididos».</td></tr>
   <tr><td><strong>Intervalo ideal máximo entre turnos (horas)</strong></td><td>Intervalo de tempo máximo (em horas) entre dois turnos consecutivos, considerado ideal.</td></tr>
   <tr><td><strong>Número máximo de dias de trabalho consecutivos</strong></td><td>Número máximo de dias de trabalho consecutivos sem dia de descanso.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Atenção:</strong> «Não» é um bloqueio expresso e não um estado neutro. Definir dias específicos como «sim» não bloqueia os restantes: para cada dia que esteja definido como «não especificado», o contrato continua a ser válido. Quem quiser excluir um dia tem de o definir explicitamente como «não».</p>
 <p><strong>O trabalho por turnos</strong> funciona de forma diferente: o contrato vem primeiro. «Sim» e «não» são o padrão desta regra para contratos que deixam o trabalho por turnos em padrão - um valor explícito no contrato tem sempre prioridade. «Não especificado» significa que se aplica a predefinição da instalação, salvo se o contrato fixar um valor. Sem trabalho por turnos, as taxas de suplemento próprias do contrato (noite, feriado, fim de semana) são ignoradas e aplicam-se as taxas padrão.</p>
+
+<hr>
+
+<h3>Enquadramento diário de trabalho e turnos divididos</h3>
+<p>Um turno dividido (p. ex. 07:00-11:00 e 16:00-20:00) é <strong>um</strong> dia de trabalho: a pausa entre as partes não é um período de descanso e não é comunicada como violação do descanso, desde que o dia inteiro, do primeiro início ao último fim, permaneça dentro do <strong>enquadramento diário de trabalho</strong>. Se uma parte ultrapassar o enquadramento, começa um novo dia de trabalho e a curta pausa anterior conta como um descanso demasiado curto.</p>
+<p>O enquadramento aplicável é definido pela lei do <strong>local de trabalho</strong>. Na Suíça, as convenções coletivas declaradas de aplicação geral (GAV/LMV) têm força de lei. O Klacks procura o valor por esta ordem:</p>
+<ol>
+  <li><strong>Valor desta regra de planeamento</strong> - p. ex. de uma convenção coletiva. Um pacote do setor pode defini-lo, mas só com uma fonte verificada; atualmente nenhum pacote fornece tal valor.</li>
+  <li><strong>Valor da empresa nas definições</strong> (regras de planeamento, valores padrão) - o pacote da região introduz aqui a lei nacional, p. ex. Suíça: 14 horas (ArG art. 10.º, n.º 3).</li>
+  <li><strong>24 horas menos o descanso mínimo</strong> - quando não há enquadramento definido em lado nenhum (p. ex. 13 horas com 11 horas de descanso, Diretiva 2003/88/CE, art. 3.º).</li>
+</ol>
+<p>Por baixo do campo, o Klacks mostra qual o valor aplicável e de onde provém. Um enquadramento superior a 24 horas menos o descanso mínimo só se aplica a dias de trabalho dentro de um único dia civil: um turno da noite e um turno da manhã do dia seguinte nunca são fundidos num só dia de trabalho.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Campo</th><th>Descrição</th></tr>
   <tr><td><strong>Dias de férias por ano</strong></td><td>Número de dias de férias a que se tem direito por ano civil.</td></tr>
 </table>
+
+<hr>
+
+<h3>Violações de regras remanescentes após uma execução do assistente</h3>
+<p>O Wizard 2 e a fase 3 (também como passos do AutoWizard) verificam as regras de planeamento e de contagem rígidas com uma proteção: não fazem nenhuma alteração que aumente, no total, o quanto uma pessoa excede uma regra rígida. No entanto, <strong>não corrigem</strong> as violações existentes, e uma violação pode deslocar-se dentro da mesma regra (por exemplo, para outro dia). O primeiro passo do AutoWizard ainda não planeia com estas regras. Por isso, um plano ainda pode conter violações rígidas após a execução.</p>
+<ul>
+  <li><strong>Resultado do assistente:</strong> após a execução, o Klacks mostra quantas violações rígidas permanecem. Após o Wizard 2 e a fase 3, o Klacks indica que nenhuma regra rígida piorou no total. Após o AutoWizard, o Klacks indica o número antes e depois; se forem mais do que antes, o Klacks indica explicitamente que a execução acrescentou violações.</li>
+  <li><strong>Lista de erros:</strong> cada violação rígida que já existia quando a última execução começou está marcada com <strong>«preexistente - verificar»</strong>, também no PDF. Uma violação sem a marca não fazia parte do estado inicial da última execução: surgiu depois ou não estava visível no arranque (outro período ou grupo, ou a lista de erros ainda estava a carregar). A marca aplica-se à sessão do navegador e à execução iniciada por último.</li>
+  <li><strong>O que fazer:</strong> os planeadores verificam as entradas marcadas e corrigem-nas manualmente. Os supervisores e os administradores podem anular deliberadamente uma violação quando existe uma razão de negócio. Os administradores verificam se a própria regra está correta.</li>
+</ul>
 
 <hr>
 

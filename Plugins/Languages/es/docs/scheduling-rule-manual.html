@@ -10,6 +10,7 @@
   <tr><td><strong>Días laborables máximos</strong></td><td>Regla flexible (límite blando): duración preferida del bloque de días laborables consecutivos antes de programar un día de descanso (p. ej., «5 días de trabajo, luego descanso»). Un incumplimiento no invalida el plan, solo lo hace menos óptimo; el límite máximo estricto es «Máx. días laborables consecutivos», que se indica más abajo.</td></tr>
   <tr><td><strong>Días de descanso mínimos entre dos bloques de trabajo</strong></td><td>Número mínimo de días libres entre dos bloques de trabajo consecutivos.</td></tr>
   <tr><td><strong>Mínimo de horas libres entre dos días laborables</strong></td><td>Tiempo mínimo de descanso (en horas) entre el final de un día de trabajo y el inicio del siguiente.</td></tr>
+  <tr><td><strong>Marco diario de trabajo (h)</strong></td><td>Duración máxima de una jornada laboral desde el primer inicio hasta el último final, pausas incluidas. Vacío: se aplica el valor de la empresa; 0: 24 h menos el descanso mínimo. Véase «Marco diario de trabajo y turnos partidos».</td></tr>
   <tr><td><strong>Intervalo óptimo máximo entre turnos (horas)</strong></td><td>Intervalo máximo (en horas) entre dos turnos consecutivos que se considera óptimo.</td></tr>
   <tr><td><strong>Número máximo de días laborables consecutivos</strong></td><td>Número máximo de días laborables consecutivos sin día de descanso.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Atención:</strong> «No» es una restricción explícita y no un estado neutro. Establecer «sí» en días concretos no bloquea el resto: para cada día que figure como «no especificado», seguirá siendo válido el contrato. Quien quiera excluir un día, debe establecerlo expresamente en «no».</p>
 <p><strong>El trabajo por turnos</strong> funciona de otra manera: el contrato va primero. «Sí» y «no» son el estándar de esta regla para los contratos que dejan el trabajo por turnos en estándar - un valor explícito en el contrato siempre tiene prioridad. «Sin especificar» significa que se aplica el ajuste predeterminado de la instalación, salvo que el contrato fije un valor. Sin trabajo por turnos, se ignoran las tasas de recargo propias del contrato (noche, festivo, fin de semana) y se aplican las tasas estándar.</p>
+
+<hr>
+
+<h3>Marco diario de trabajo y turnos partidos</h3>
+<p>Un turno partido (p. ej. 07:00-11:00 y 16:00-20:00) es <strong>una sola</strong> jornada laboral: la pausa entre las partes no es un periodo de descanso y no se notifica como incumplimiento del descanso, siempre que toda la jornada, desde el primer inicio hasta el último final, permanezca dentro del <strong>marco diario de trabajo</strong>. Si una parte sobrepasa el marco, comienza una nueva jornada laboral y la breve pausa anterior cuenta como un descanso demasiado corto.</p>
+<p>El marco aplicable lo fija la legislación del <strong>lugar de trabajo</strong>. En Suiza, los convenios colectivos declarados de obligado cumplimiento general (GAV/LMV) tienen fuerza de ley. Klacks busca el valor en este orden:</p>
+<ol>
+  <li><strong>Valor de esta regla de planificación</strong> - p. ej. de un convenio colectivo. Un paquete sectorial puede establecerlo, pero solo con una fuente verificada; hoy ningún paquete incluye un valor así.</li>
+  <li><strong>Valor de la empresa en la configuración</strong> (reglas de planificación, valores por defecto) - el paquete regional introduce aquí la legislación nacional, p. ej. Suiza: 14 h (ArG art. 10, apdo. 3).</li>
+  <li><strong>24 h menos el descanso mínimo</strong> - cuando no hay ningún marco definido en ningún sitio (p. ej. 13 h con 11 h de descanso, Directiva 2003/88 de la UE, art. 3).</li>
+</ol>
+<p>Debajo del campo, Klacks muestra qué valor se aplica y de dónde procede. Un marco superior a 24 h menos el descanso mínimo solo se aplica a las jornadas laborales dentro de un mismo día natural: un turno de tarde y un turno de mañana del día siguiente nunca se fusionan en una sola jornada laboral.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Campo</th><th>Descripción</th></tr>
   <tr><td><strong>Días de vacaciones al año</strong></td><td>Número de días de vacaciones a los que se tiene derecho por año natural.</td></tr>
 </table>
+
+<hr>
+
+<h3>Incumplimientos de reglas pendientes tras una ejecución del Wizard</h3>
+<p>El Wizard 2 y la fase 3 (también como pasos del AutoWizard) comprueban las reglas de planificación y de contador estrictas con una salvaguarda: no realizan ningún cambio que aumente en conjunto cuánto supera una persona una regla estricta. Sin embargo, <strong>no reparan</strong> los incumplimientos existentes, y un incumplimiento puede desplazarse dentro de la misma regla (por ejemplo, a otro día). El primer paso del AutoWizard aún no planifica con estas reglas. Por tanto, un plan puede seguir conteniendo incumplimientos estrictos tras la ejecución.</p>
+<ul>
+  <li><strong>Resultado del Wizard:</strong> tras la ejecución, Klacks muestra cuántos incumplimientos estrictos quedan. Tras el Wizard 2 y la fase 3, Klacks indica que ninguna regla estricta ha empeorado en conjunto. Tras el AutoWizard, Klacks indica el número de antes y después; si son más que antes, Klacks indica explícitamente que la ejecución ha añadido incumplimientos.</li>
+  <li><strong>Lista de errores:</strong> cada incumplimiento estricto que ya existía cuando comenzó la última ejecución se marca con <strong>«preexistente - revisar»</strong>, también en el PDF. Un incumplimiento sin la marca no formaba parte del estado inicial de la última ejecución: surgió después o no se mostraba al iniciarla (otro periodo o grupo, o la lista de errores aún se estaba cargando). La marca se aplica a la sesión del navegador y a la última ejecución iniciada.</li>
+  <li><strong>Qué hacer:</strong> los planificadores revisan las entradas marcadas y las corrigen a mano. Los supervisores y administradores pueden anular deliberadamente un incumplimiento cuando hay un motivo empresarial. Los administradores comprueban si la regla en sí es correcta.</li>
+</ul>
 
 <hr>
 

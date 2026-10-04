@@ -10,6 +10,7 @@
   <tr><td><strong>Maks. Hari Bekerja</strong></td><td>Peraturan lembut (Had Lembut): panjang blok pilihan dalam hari bekerja berturut-turut sebelum hari rehat dijadualkan (contohnya "bekerja 5 hari, kemudian rehat"). Pelanggaran tidak menjadikan pelan tidak sah, hanya kurang optimum — had keras ialah "Maks. Hari Bekerja Berturut-turut" di bawah.</td></tr>
   <tr><td><strong>Min. Hari Rehat antara Dua Blok Kerja</strong></td><td>Bilangan minimum hari bebas antara dua blok kerja berturut-turut.</td></tr>
   <tr><td><strong>Min. Jam Bebas antara Dua Hari Bekerja</strong></td><td>Masa rehat minimum (dalam jam) antara tamatnya satu hari bekerja dan permulaan hari berikutnya.</td></tr>
+  <tr><td><strong>Bingkai Kerja Harian (jam)</strong></td><td>Tempoh terpanjang bagi satu hari bekerja dari permulaan pertama hingga penamat terakhir, termasuk jeda. Kosong menggunakan nilai syarikat, 0 bermaksud 24 jam tolak rehat minimum. Lihat “Bingkai kerja harian dan syif berpecah”.</td></tr>
   <tr><td><strong>Maks. Jurang Optimum antara Syif (Jam)</strong></td><td>Jarak masa maksimum (dalam jam) antara dua syif berturut-turut yang dianggap optimum.</td></tr>
   <tr><td><strong>Maks. Hari Bekerja Berturut-turut</strong></td><td>Bilangan maksimum hari bekerja berturut-turut tanpa hari rehat.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Amaran:</strong> "Tidak" ialah sekatan yang jelas dan bukan keadaan neutral. Menetapkan hari individu kepada "ya" tidak menyekat hari lain: Untuk setiap hari yang ditetapkan kepada "tidak ditetapkan", kontrak tetap terpakai. Sesiapa yang ingin mengecualikan hari mesti menetapkannya secara jelas kepada "tidak".</p>
 <p><strong>Kerja Syif</strong> berfungsi secara berbeza: kontrak didahulukan. "Ya" dan "tidak" ialah standard peraturan ini untuk kontrak yang membiarkan kerja syif pada standard - nilai yang jelas dalam kontrak sentiasa diutamakan. "Tidak ditetapkan" bermaksud tetapan lalai pemasangan terpakai melainkan kontrak menetapkan nilai. Tanpa kerja syif, kadar elaun kontrak sendiri (malam, cuti umum, hujung minggu) diabaikan dan kadar standard terpakai.</p>
+
+<hr>
+
+<h3>Bingkai kerja harian dan syif berpecah</h3>
+<p>Syif berpecah (cth. 07:00-11:00 dan 16:00-20:00) ialah <strong>satu</strong> hari bekerja: jeda antara bahagian-bahagian itu bukan tempoh rehat dan tidak dilaporkan sebagai pelanggaran rehat, selagi keseluruhan hari dari permulaan pertama hingga penamat terakhir kekal dalam <strong>bingkai kerja harian</strong>. Jika sesuatu bahagian melangkaui bingkai tersebut, hari bekerja baharu bermula, dan jeda pendek sebelumnya dikira sebagai rehat yang terlalu singkat.</p>
+<p>Bingkai yang terpakai ditentukan oleh undang-undang <strong>tempat kerja</strong>. Di Switzerland, perjanjian kolektif yang diisytiharkan mengikat secara umum (GAV/LMV) mempunyai kuat kuasa undang-undang. Klacks mencari nilai mengikut urutan ini:</p>
+<ol>
+  <li><strong>Nilai peraturan perancangan ini</strong> - cth. daripada perjanjian kolektif. Pakej industri boleh menetapkannya, tetapi hanya dengan sumber yang disahkan; pada masa ini tiada pakej yang menyediakan nilai sedemikian.</li>
+  <li><strong>Nilai syarikat daripada tetapan</strong> (peraturan perancangan, nilai standard) - pakej wilayah memasukkan undang-undang negara di sini, cth. Switzerland: 14 jam (ArG Perkara 10 ayat 3).</li>
+  <li><strong>24 jam tolak rehat minimum</strong> - apabila tiada bingkai ditetapkan di mana-mana (cth. 13 jam dengan rehat 11 jam, Arahan EU 2003/88 Perkara 3).</li>
+</ol>
+<p>Di bawah medan ini, Klacks menunjukkan nilai yang terpakai dan dari mana asalnya. Bingkai yang lebih panjang daripada 24 jam tolak rehat minimum hanya terpakai untuk hari bekerja dalam satu hari kalendar: syif petang dan syif pagi pada hari berikutnya tidak sekali-kali digabungkan menjadi satu hari bekerja.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Medan</th><th>Penerangan</th></tr>
   <tr><td><strong>Hari Cuti setiap Tahun</strong></td><td>Bilangan hari cuti yang layak setiap tahun kalendar.</td></tr>
 </table>
+
+<hr>
+
+<h3>Pelanggaran peraturan yang masih tinggal selepas larian wizard</h3>
+<p>Wizard 2 dan peringkat 3 (juga sebagai langkah AutoWizard) menyemak peraturan perancangan dan peraturan pembilang yang keras dengan pengawal: kedua-duanya tidak membuat sebarang perubahan yang secara keseluruhan menambah sejauh mana seseorang melebihi peraturan keras. Namun, kedua-duanya <strong>tidak membaiki</strong> pelanggaran yang sedia ada, dan sesuatu pelanggaran boleh beralih dalam peraturan yang sama (contohnya ke hari lain). Langkah pertama AutoWizard belum merancang dengan peraturan ini. Oleh itu, pelan masih boleh mengandungi pelanggaran keras selepas larian.</p>
+<ul>
+  <li><strong>Keputusan wizard:</strong> selepas larian, Klacks menunjukkan berapa banyak pelanggaran keras yang masih ada. Selepas Wizard 2 dan peringkat 3, Klacks menyatakan bahawa tiada peraturan keras yang bertambah buruk secara keseluruhan. Selepas AutoWizard, Klacks menyatakan bilangan sebelum dan selepas; jika lebih banyak daripada sebelumnya, Klacks menyatakan dengan jelas bahawa larian menambah pelanggaran.</li>
+  <li><strong>Senarai ralat:</strong> setiap pelanggaran keras yang sudah wujud apabila larian terakhir bermula ditandakan <strong>“sedia ada - sila semak”</strong>, juga dalam PDF. Pelanggaran tanpa tanda bukan sebahagian daripada keadaan permulaan larian terakhir: ia timbul kemudian atau tidak dipaparkan semasa larian bermula (tempoh atau kumpulan lain, atau senarai ralat masih dimuatkan). Tanda ini terpakai pada sesi pelayar dan larian yang dimulakan terakhir.</li>
+  <li><strong>Apa yang perlu dilakukan:</strong> perancang menyemak entri yang ditandakan dan membetulkannya secara manual. Penyelia dan pentadbir boleh mengatasi sesuatu pelanggaran dengan sengaja apabila ada sebab perniagaan. Pentadbir menyemak sama ada peraturan itu sendiri betul.</li>
+</ul>
 
 <hr>
 

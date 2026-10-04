@@ -10,6 +10,7 @@
   <tr><td><strong>Maks. antall arbeidsdager</strong></td><td>Myk regel (soft cap): foretrukket blokklengde i sammenhengende arbeidsdager før en hviledag planlegges (f.eks. «5 dager på jobb, deretter hvile»). Et brudd gjør ikke planen ugyldig, bare mindre optimal — den harde øvre grensen er «Maks. påfølgende arbeidsdager» lenger ned.</td></tr>
   <tr><td><strong>Min. antall hviledager mellom to arbeidsblokker</strong></td><td>Minimumsantall fridager mellom to påfølgende arbeidsblokker.</td></tr>
   <tr><td><strong>Min. fritid mellom to arbeidsdager</strong></td><td>Minimums hvileperiode (i timer) mellom slutten av en arbeidsdag og begynnelsen av den neste.</td></tr>
+  <tr><td><strong>Arbeidsdagsramme (timer)</strong></td><td>Lengste tidsrom for én arbeidsdag fra første start til siste slutt, pauser inkludert. Tomt bruker bedriftens verdi, 0 betyr 24 timer minus minste hvile. Se «Arbeidsdagsramme og delte skift».</td></tr>
   <tr><td><strong>Maks. optimal pause mellom skift (timer)</strong></td><td>Maksimal tidsavstand (i timer) mellom to påfølgende skift, som anses som optimal.</td></tr>
   <tr><td><strong>Maks. antall påfølgende arbeidsdager</strong></td><td>Maksimalt antall arbeidsdager på rad uten hviledag.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Merk:</strong> «Nei» er en uttrykkelig sperring og ikke en nøytral tilstand. Å sette enkelte dager til «ja» sperrer ikke de øvrige: For hver dag som står på «ikke angitt», gjelder kontrakten fortsatt. Den som ønsker å ekskludere en dag, må uttrykkelig sette den til «nei».</p>
 <p><strong>Skiftarbeid</strong> fungerer annerledes: avtalen kommer først. «Ja» og «nei» er denne regelens standard for avtaler som lar skiftarbeid stå på standard - en eksplisitt verdi i avtalen har alltid forrang. «Ikke angitt» betyr at installasjonens standardinnstilling gjelder, med mindre avtalen fastsetter en verdi. Uten skiftarbeid ignoreres avtalens egne tilleggssatser (natt, helligdag, helg), og standardsatsene gjelder.</p>
+
+<hr>
+
+<h3>Arbeidsdagsramme og delte skift</h3>
+<p>Et delt skift (f.eks. 07:00-11:00 og 16:00-20:00) er <strong>én</strong> arbeidsdag: pausen mellom delene er ikke en hvileperiode og meldes ikke som brudd på hvilen, så lenge hele dagen fra første start til siste slutt holder seg innenfor <strong>arbeidsdagsrammen</strong>. Strekker en del seg utenfor rammen, begynner en ny arbeidsdag, og den korte pausen før den regnes som for kort hvile.</p>
+<p>Hvilken ramme som gjelder, fastsettes av lovgivningen på <strong>arbeidsstedet</strong>. I Sveits har tariffavtaler som er erklært allmenngyldige (GAV/LMV), lovs kraft. Klacks leter etter verdien i denne rekkefølgen:</p>
+<ol>
+  <li><strong>Verdien i denne planleggingsregelen</strong> - f.eks. fra en tariffavtale. En bransjepakke kan sette den, men bare med en verifisert kilde; ingen pakke leverer i dag en slik verdi.</li>
+  <li><strong>Bedriftsverdien fra innstillingene</strong> (planleggingsregler, standardverdier) - regionpakken legger inn nasjonal lov her, f.eks. Sveits: 14 timer (ArG art. 10 ledd 3).</li>
+  <li><strong>24 timer minus minste hvile</strong> - når ingen ramme er satt noe sted (f.eks. 13 timer med 11 timers hvile, EU-direktiv 2003/88 art. 3).</li>
+</ol>
+<p>Under feltet viser Klacks hvilken verdi som gjelder og hvor den kommer fra. En ramme som er lengre enn 24 timer minus minste hvile, gjelder bare for arbeidsdager innenfor én kalenderdag: et kveldsskift og et morgenskift neste dag slås aldri sammen til én arbeidsdag.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
   <tr><td><strong>Feriedager per år</strong></td><td>Antall feriedager man har rett til per kalenderår.</td></tr>
 </table>
+
+<hr>
+
+<h3>Gjenstående regelbrudd etter en veiviserkjøring</h3>
+<p>Wizard 2 og trinn 3 (også som trinn i AutoWizard) kontrollerer harde planleggings- og tellerregler med en vakt: de gjør ingen endring som samlet sett øker hvor langt en person overskrider en hard regel. De <strong>reparerer</strong> imidlertid <strong>ikke</strong> eksisterende brudd, og et brudd kan flytte seg innenfor samme regel (for eksempel til en annen dag). Det første trinnet i AutoWizard planlegger ennå ikke med disse reglene. En plan kan derfor fortsatt inneholde harde brudd etter kjøringen.</p>
+<ul>
+  <li><strong>Veiviserresultat:</strong> etter kjøringen viser Klacks hvor mange harde brudd som gjenstår. Etter Wizard 2 og trinn 3 oppgir Klacks at ingen hard regel er blitt forverret samlet sett. Etter AutoWizard oppgir Klacks antallet før og etter; hvis det er flere enn før, sier Klacks uttrykkelig fra at kjøringen la til brudd.</li>
+  <li><strong>Feilliste:</strong> hvert hardt brudd som allerede fantes da siste kjøring startet, er merket <strong>«eksisterte fra før – kontroller»</strong>, også i PDF-en. Et brudd uten merket var ikke en del av starttilstanden for den siste kjøringen: det oppsto senere, eller det ble ikke vist da kjøringen startet (annen periode eller gruppe, eller feillisten lastet fortsatt). Merket gjelder nettleserøkten og kjøringen som ble startet sist.</li>
+  <li><strong>Hva du bør gjøre:</strong> planleggere kontrollerer de merkede oppføringene og retter dem opp for hånd. Ledere og administratorer kan bevisst overstyre et brudd når det finnes en driftsmessig grunn. Administratorer kontrollerer om selve regelen er riktig.</li>
+</ul>
 
 <hr>
 

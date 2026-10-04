@@ -10,6 +10,7 @@
   <tr><td><strong>Maks. antal arbejdsdage</strong></td><td>Blød regel (soft cap): den foretrukne bloklængde i sammenhængende arbejdsdage, inden der planlægges en hviledag (f.eks. &quot;5 dages arbejde, derefter hvile&quot;). En overskridelse gør ikke planen ugyldig, men blot mindre optimal — den hårde øvre grænse er &quot;Maks. på hinanden følgende arbejdsdage&quot; længere nede.</td></tr>
   <tr><td><strong>Min. antal fridage mellem to arbejdsblokke</strong></td><td>Mindste antal fridage mellem to på hinanden følgende arbejdsblokke.</td></tr>
   <tr><td><strong>Min. fritid mellem to arbejdsdage</strong></td><td>Minimums hviletid (i timer) mellem afslutningen af en arbejdsdag og begyndelsen af den næste.</td></tr>
+  <tr><td><strong>Arbejdsdagsramme (timer)</strong></td><td>Længste tidsrum for én arbejdsdag fra første start til sidste slut, pauser indregnet. Tom bruger virksomhedens værdi, 0 betyder 24 timer minus mindste hvile. Se »Arbejdsdagsramme og delte vagter«.</td></tr>
   <tr><td><strong>Maks. optimal pause mellem vagter (timer)</strong></td><td>Maksimalt tidsinterval (i timer) mellem to på hinanden følgende vagter, der betragtes som optimalt.</td></tr>
   <tr><td><strong>Maks. antal på hinanden følgende arbejdsdage</strong></td><td>Maksimalt antal arbejdsdage i træk uden hviledag.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Bemærk:</strong> »Nej« er en udtrykkelig spærring og ikke en neutral tilstand. At indstille enkelte dage til »ja« spærrer ikke de øvrige: For hver dag, der er indstillet til »ikke angivet«, gælder kontrakten fortsat. Hvis man ønsker at udelukke en dag, skal man udtrykkeligt indstille den til »nej«.</p>
 <p><strong>Skifteholdsarbejde</strong> fungerer anderledes: kontrakten kommer først. »Ja« og »nej« er denne regels standard for kontrakter, der lader skifteholdsarbejde stå på standard - en eksplicit værdi i kontrakten har altid forrang. »Ikke angivet« betyder, at installationens standardindstilling gælder, medmindre kontrakten fastsætter en værdi. Uden skifteholdsarbejde ignoreres kontraktens egne tillægssatser (nat, helligdag, weekend), og standardsatserne gælder.</p>
+
+<hr>
+
+<h3>Arbejdsdagsramme og delte vagter</h3>
+<p>En delt vagt (f.eks. 07:00-11:00 og 16:00-20:00) er <strong>én</strong> arbejdsdag: pausen mellem delene er ikke hviletid og rapporteres ikke som et hvilebrud, så længe hele dagen fra første start til sidste slut holder sig inden for <strong>arbejdsdagsrammen</strong>. Rækker en del ud over rammen, begynder en ny arbejdsdag, og den korte pause før den tæller som for kort hvile.</p>
+<p>Hvilken ramme der gælder, fastsættes af loven på <strong>arbejdsstedet</strong>. I Schweiz har kollektive overenskomster, der er erklæret almengyldige (GAV/LMV), lovkraft. Klacks søger værdien i denne rækkefølge:</p>
+<ol>
+  <li><strong>Værdien i denne planlægningsregel</strong> - f.eks. fra en overenskomst. En branchepakke kan fastsætte den, men kun med en verificeret kilde; ingen pakke leverer i dag en sådan værdi.</li>
+  <li><strong>Virksomhedens værdi fra indstillingerne</strong> (planlægningsregler, standardværdier) - regionspakken indtaster her den nationale lov, f.eks. Schweiz: 14 timer (ArG art. 10, stk. 3).</li>
+  <li><strong>24 timer minus mindste hvile</strong> - når der ikke er fastsat nogen ramme nogen steder (f.eks. 13 timer ved 11 timers hvile, EU-direktiv 2003/88 art. 3).</li>
+</ol>
+<p>Under feltet viser Klacks, hvilken værdi der gælder, og hvor den stammer fra. En ramme på mere end 24 timer minus mindste hvile gælder kun for arbejdsdage inden for én kalenderdag: en aftenvagt og en morgenvagt næste dag slås aldrig sammen til én arbejdsdag.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
   <tr><td><strong>Ferie dage pr. år</strong></td><td>Antal feriedage, der tilkommer pr. kalenderår.</td></tr>
 </table>
+
+<hr>
+
+<h3>Resterende regelbrud efter en Wizard-kørsel</h3>
+<p>Wizard 2 og trin 3 (også som trin i AutoWizard) kontrollerer hårde planlægnings- og tællerregler med en spærre: de foretager ingen ændring, der samlet set øger, hvor langt en person overskrider en hård regel. De <strong>reparerer</strong> dog ikke eksisterende regelbrud, og et regelbrud kan flytte sig inden for samme regel (f.eks. til en anden dag). AutoWizards første trin planlægger endnu ikke med disse regler. En plan kan derfor stadig indeholde hårde regelbrud efter kørslen.</p>
+<ul>
+  <li><strong>Wizard-resultat:</strong> efter kørslen viser Klacks, hvor mange hårde regelbrud der er tilbage. Efter Wizard 2 og trin 3 oplyser Klacks, at ingen hård regel samlet set er blevet forværret. Efter AutoWizard oplyser Klacks antallet før og efter; hvis der er flere end før, siger Klacks udtrykkeligt, at kørslen har tilføjet regelbrud.</li>
+  <li><strong>Fejlliste:</strong> hvert hårdt regelbrud, der allerede fandtes, da den seneste kørsel startede, er markeret med <strong>»eksisterede allerede – kontrollér«</strong>, også i PDF'en. Et regelbrud uden markering var ikke en del af udgangstilstanden for den seneste kørsel: det er opstået senere, eller det var ikke vist, da kørslen startede (anden periode eller gruppe, eller fejllisten var stadig ved at indlæse). Markeringen gælder for browsersessionen og for den senest startede kørsel.</li>
+  <li><strong>Hvad man skal gøre:</strong> planlæggere gennemgår de markerede poster og retter dem manuelt. Ledere og administratorer kan bevidst tilsidesætte et regelbrud, når der er en forretningsmæssig grund. Administratorer kontrollerer, om selve reglen er rigtig.</li>
+</ul>
 
 <hr>
 

@@ -10,6 +10,7 @@
   <tr><td><strong>Maks. Hari Kerja</strong></td><td>Aturan lunak (Soft-Cap): panjang blok yang disukai dalam hari kerja berturut-turut sebelum hari istirahat dijadwalkan (misalnya "bekerja 5 hari, lalu istirahat"). Pelanggaran tidak membuat rencana menjadi tidak valid, hanya kurang optimal — batas kerasnya adalah "Maks. Hari Kerja Berturut-turut" di bawah.</td></tr>
   <tr><td><strong>Min. Hari Istirahat antara Dua Blok Kerja</strong></td><td>Jumlah minimum hari bebas antara dua blok kerja berturut-turut.</td></tr>
   <tr><td><strong>Min. Jam Bebas antara Dua Hari Kerja</strong></td><td>Waktu istirahat minimum (dalam jam) antara akhir satu hari kerja dan awal hari berikutnya.</td></tr>
+  <tr><td><strong>Kerangka Kerja Harian (jam)</strong></td><td>Rentang terpanjang satu hari kerja dari awal pertama hingga akhir terakhir, termasuk jeda. Kosong menggunakan nilai perusahaan, 0 berarti 24 jam dikurangi istirahat minimum. Lihat “Kerangka kerja harian dan shift terpisah”.</td></tr>
   <tr><td><strong>Maks. Celah Optimal antara Shift (Jam)</strong></td><td>Jarak waktu maksimum (dalam jam) antara dua shift berturut-turut yang dianggap optimal.</td></tr>
   <tr><td><strong>Maks. Hari Kerja Berturut-turut</strong></td><td>Jumlah maksimum hari kerja berturut-turut tanpa hari istirahat.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Perhatian:</strong> "Tidak" adalah larangan eksplisit dan bukan status netral. Mengatur hari tertentu menjadi "ya" tidak melarang hari lainnya: Untuk setiap hari yang berstatus "tidak ditentukan", kontrak tetap berlaku. Siapa pun yang ingin mengecualikan suatu hari harus secara eksplisit mengaturnya menjadi "tidak".</p>
 <p><strong>Kerja shift</strong> bekerja secara berbeda: kontrak didahulukan. "Ya" dan "tidak" adalah standar aturan ini untuk kontrak yang membiarkan kerja shift pada standar - nilai eksplisit dalam kontrak selalu diutamakan. "Tidak ditentukan" berarti pengaturan bawaan instalasi berlaku kecuali kontrak menetapkan nilai. Tanpa kerja shift, tarif tunjangan milik kontrak sendiri (malam, hari libur, akhir pekan) diabaikan dan tarif standar berlaku.</p>
+
+<hr>
+
+<h3>Kerangka kerja harian dan shift terpisah</h3>
+<p>Shift terpisah (mis. 07:00-11:00 dan 16:00-20:00) adalah <strong>satu</strong> hari kerja: jeda di antara kedua bagian bukan waktu istirahat dan tidak dilaporkan sebagai pelanggaran istirahat, selama seluruh hari dari awal pertama hingga akhir terakhir tetap berada dalam <strong>kerangka kerja harian</strong>. Jika suatu bagian melampaui kerangka, hari kerja baru dimulai, dan jeda singkat sebelumnya dihitung sebagai istirahat yang terlalu pendek.</p>
+<p>Kerangka mana yang berlaku ditentukan oleh hukum <strong>tempat kerja</strong>. Di Swiss, perjanjian kerja bersama yang dinyatakan mengikat secara umum (GAV/LMV) memiliki kekuatan hukum. Klacks mencari nilainya dalam urutan ini:</p>
+<ol>
+  <li><strong>Nilai aturan perencanaan ini</strong> - mis. dari perjanjian kerja bersama. Paket industri dapat menetapkannya, tetapi hanya dengan sumber yang telah diverifikasi; saat ini tidak ada paket yang menyertakan nilai seperti itu.</li>
+  <li><strong>Nilai perusahaan dari pengaturan</strong> (aturan perencanaan, nilai standar) - paket wilayah memasukkan hukum nasional di sini, mis. Swiss: 14 jam (ArG Pasal 10 ayat 3).</li>
+  <li><strong>24 jam dikurangi istirahat minimum</strong> - jika tidak ada kerangka yang ditetapkan di mana pun (mis. 13 jam dengan istirahat 11 jam, Direktif UE 2003/88 Pasal 3).</li>
+</ol>
+<p>Di bawah kolom, Klacks menampilkan nilai mana yang berlaku dan dari mana asalnya. Kerangka yang lebih panjang dari 24 jam dikurangi istirahat minimum hanya berlaku untuk hari kerja dalam satu hari kalender: shift malam dan shift pagi pada hari berikutnya tidak pernah digabung menjadi satu hari kerja.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Kolom</th><th>Deskripsi</th></tr>
   <tr><td><strong>Hari Cuti per Tahun</strong></td><td>Jumlah hari cuti yang menjadi hak per tahun kalender.</td></tr>
 </table>
+
+<hr>
+
+<h3>Pelanggaran aturan yang tersisa setelah Wizard dijalankan</h3>
+<p>Wizard 2 dan tahap 3 (juga sebagai langkah AutoWizard) memeriksa aturan perencanaan dan aturan penghitung yang keras dengan pengaman: keduanya tidak melakukan perubahan apa pun yang secara keseluruhan menambah seberapa jauh seseorang melampaui aturan keras. Namun, keduanya <strong>tidak memperbaiki</strong> pelanggaran yang sudah ada, dan sebuah pelanggaran dapat bergeser dalam aturan yang sama (misalnya ke hari lain). Langkah pertama AutoWizard belum merencanakan dengan aturan ini. Karena itu, sebuah rencana masih dapat memuat pelanggaran keras setelah dijalankan.</p>
+<ul>
+  <li><strong>Hasil Wizard:</strong> setelah dijalankan, Klacks menampilkan berapa banyak pelanggaran keras yang tersisa. Setelah Wizard 2 dan tahap 3, Klacks menyatakan bahwa tidak ada aturan keras yang memburuk secara keseluruhan. Setelah AutoWizard, Klacks menyebutkan jumlah sebelum dan sesudah; jika jumlahnya lebih banyak dari sebelumnya, Klacks menyatakan secara eksplisit bahwa proses menambahkan pelanggaran.</li>
+  <li><strong>Daftar kesalahan:</strong> setiap pelanggaran keras yang sudah ada saat proses terakhir dimulai ditandai <strong>“sudah ada sebelumnya - harap periksa”</strong>, juga di PDF. Pelanggaran tanpa tanda bukan bagian dari kondisi awal proses terakhir: pelanggaran itu muncul kemudian atau tidak ditampilkan saat proses dimulai (periode atau grup lain, atau daftar kesalahan masih dimuat). Tanda berlaku untuk sesi browser dan proses yang dimulai terakhir.</li>
+  <li><strong>Yang perlu dilakukan:</strong> perencana memeriksa entri yang ditandai dan memperbaikinya secara manual. Atasan dan admin dapat dengan sengaja mengesampingkan pelanggaran jika ada alasan bisnis. Admin memeriksa apakah aturan itu sendiri sudah benar.</li>
+</ul>
 
 <hr>
 

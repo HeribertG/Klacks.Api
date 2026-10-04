@@ -16,7 +16,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="PlanningRuleWarnings">Approved hard planning constraints the run skipped because they are invalid
 /// (key schedule.error-list.planning-rule-invalid); the plan honours every valid rule</param>
 /// <param name="PlanningRuleRemaining">Hard planning-rule findings before and after the run; null when no planning rule
-/// applies. The run does not add violations but does not repair them either.</param>
+/// applies. No hard rule gets worse in total during the run, but existing violations are not repaired.</param>
 /// <param name="TimedOut">True when the loop stopped because the soft time budget elapsed; the result is the best arrangement found up to that point</param>
 public sealed record HarmonizerJobResultDto(
     Guid JobId,

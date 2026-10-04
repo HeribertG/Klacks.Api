@@ -26,7 +26,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// as overridden violations.</param>
 /// <param name="PlanningRuleRemaining">Hard planning-rule findings of the source plan and of the final scenario; null
 /// when no planning rule applies. Wizard 1 does not honour planning rules yet, so the chain can add violations; the
-/// UI only calls them pre-existing when the count did not rise.</param>
+/// UI therefore only reports both counts and says so explicitly when the count rose.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,

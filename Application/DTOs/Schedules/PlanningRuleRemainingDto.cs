@@ -4,8 +4,10 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
 /// Hard planning-rule findings before and after a wizard run, shown in the result so the user learns which violations
-/// remain. The rule guard only rejects moves that worsen a rule, so a run does not add violations, but it does not
-/// repair existing ones either; the remaining ones are listed in the schedule error list.
+/// remain. In Wizard 2 and stage 3 the rule guard rejects every move that raises a person's summed excess of a hard
+/// rule, so no hard rule gets worse in total; existing violations are not repaired and can shift within a rule. The
+/// AutoWizard chain starts with Wizard 1, which does not honour planning rules yet, so its counts may rise. The
+/// remaining findings are listed in the schedule error list.
 /// </summary>
 /// <param name="HardBefore">Hard findings of the plan the run started from</param>
 /// <param name="HardAfter">Hard findings of the plan the run produced</param>

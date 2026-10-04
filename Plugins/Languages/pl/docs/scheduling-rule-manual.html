@@ -10,6 +10,7 @@
   <tr><td><strong>Maks. liczba dni roboczych</strong></td><td>Reguła elastyczna (soft cap): preferowana długość bloku dni roboczych z rzędu, po której planowany jest dzień odpoczynku (np. „5 dni pracy, potem odpoczynek”). Naruszenie tej zasady nie unieważnia planu, a jedynie sprawia, że staje się on mniej optymalny — sztywny limit maksymalnej liczby kolejnych dni roboczych znajduje się poniżej w sekcji „Maks. liczba kolejnych dni roboczych”.</td></tr>
   <tr><td><strong>Minimalna liczba dni wolnych między dwoma blokami roboczymi</strong></td><td>Minimalna liczba dni wolnych między dwoma kolejnymi blokami roboczymi.</td></tr>
   <tr><td><strong>Minimalna liczba godzin wolnych między dwoma dniami roboczymi</strong></td><td>Minimalny czas odpoczynku (w godzinach) między końcem jednego dnia pracy a początkiem następnego.</td></tr>
+  <tr><td><strong>Ramy dnia pracy (godz.)</strong></td><td>Najdłuższy przedział jednego dnia pracy od pierwszego rozpoczęcia do ostatniego zakończenia, wraz z przerwami. Puste pole oznacza wartość firmy, 0 oznacza 24 godz. minus minimalny odpoczynek. Zob. „Ramy dnia pracy i zmiany dzielone”.</td></tr>
   <tr><td><strong>Maksymalna optymalna przerwa między zmianami (godz.)</strong></td><td>Maksymalny odstęp czasowy (w godzinach) między dwiema kolejnymi zmianami, uznawany za optymalny.</td></tr>
   <tr><td><strong>Maksymalna liczba kolejnych dni roboczych</strong></td><td>Maksymalna liczba kolejnych dni roboczych bez dnia odpoczynku.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Uwaga:</strong> „Nie” oznacza wyraźne zablokowanie i nie jest stanem neutralnym. Ustawienie poszczególnych dni na „tak” nie blokuje pozostałych: dla każdego dnia, który ma ustawienie „nieokreślony”, nadal obowiązuje umowa. Kto chce wykluczyć dany dzień, musi wyraźnie ustawić go na „nie”.</p>
 <p><strong>Praca zmianowa</strong> działa inaczej: w pierwszej kolejności decyduje umowa. „Tak” i „nie” są standardem tej reguły dla umów, które pozostawiają pracę zmianową na standardzie - jawna wartość w umowie zawsze ma pierwszeństwo. „Nieokreślone” oznacza, że obowiązuje ustawienie domyślne instalacji, chyba że umowa określa wartość. Bez pracy zmianowej własne stawki dodatków z umowy (noc, święto, weekend) są ignorowane i obowiązują stawki standardowe.</p>
+
+<hr>
+
+<h3>Ramy dnia pracy i zmiany dzielone</h3>
+<p>Zmiana dzielona (np. 07:00-11:00 i 16:00-20:00) to <strong>jeden</strong> dzień pracy: przerwa między częściami nie jest okresem odpoczynku i nie jest zgłaszana jako naruszenie odpoczynku, o ile cały dzień od pierwszego rozpoczęcia do ostatniego zakończenia mieści się w <strong>ramach dnia pracy</strong>. Jeśli jedna z części wykracza poza ramy, rozpoczyna się nowy dzień pracy, a krótka przerwa przed nią jest liczona jako zbyt krótki odpoczynek.</p>
+<p>To, jakie ramy obowiązują, określa prawo <strong>miejsca pracy</strong>. W Szwajcarii układy zbiorowe pracy uznane za powszechnie obowiązujące (GAV/LMV) mają moc prawa. Klacks szuka wartości w następującej kolejności:</p>
+<ol>
+  <li><strong>Wartość tej reguły planowania</strong> - np. z układu zbiorowego. Pakiet branżowy może ją ustawić, ale tylko ze zweryfikowanym źródłem; obecnie żaden pakiet nie dostarcza takiej wartości.</li>
+  <li><strong>Wartość firmy z ustawień</strong> (reguły planowania, wartości domyślne) - pakiet regionalny wpisuje tu prawo krajowe, np. Szwajcaria: 14 godz. (ArG art. 10 ust. 3).</li>
+  <li><strong>24 godz. minus minimalny odpoczynek</strong> - gdy nigdzie nie ustawiono ram (np. 13 godz. przy 11 godz. odpoczynku, dyrektywa UE 2003/88 art. 3).</li>
+</ol>
+<p>Pod polem Klacks pokazuje, jaka wartość obowiązuje i skąd pochodzi. Ramy dłuższe niż 24 godz. minus minimalny odpoczynek dotyczą tylko dni pracy w obrębie jednego dnia kalendarzowego: zmiana wieczorna i zmiana poranna następnego dnia nigdy nie są łączone w jeden dzień pracy.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Pole</th><th>Opis</th></tr>
   <tr><td><strong>Dni urlopu w roku</strong></td><td>Liczba dni urlopu przysługujących w roku kalendarzowym.</td></tr>
 </table>
+
+<hr>
+
+<h3>Pozostałe naruszenia reguł po uruchomieniu kreatora</h3>
+<p>Wizard 2 i etap 3 (także jako kroki AutoWizard) sprawdzają twarde reguły planowania i reguły licznika za pomocą zabezpieczenia: nie wprowadzają zmiany, która łącznie zwiększałaby, o ile osoba przekracza twardą regułę. <strong>Nie naprawiają</strong> jednak istniejących naruszeń, a naruszenie może przesunąć się w obrębie tej samej reguły (na przykład na inny dzień). Pierwszy krok AutoWizard nie planuje jeszcze z uwzględnieniem tych reguł. Plan może więc po uruchomieniu nadal zawierać twarde naruszenia.</p>
+<ul>
+  <li><strong>Wynik kreatora:</strong> po uruchomieniu Klacks pokazuje, ile twardych naruszeń pozostało. Po Wizard 2 i etapie 3 Klacks podaje, że łącznie żadna twarda reguła się nie pogorszyła. Po AutoWizard Klacks podaje liczbę przed i po; jeśli jest ich więcej niż wcześniej, Klacks wyraźnie informuje, że uruchomienie dodało naruszenia.</li>
+  <li><strong>Lista błędów:</strong> każde twarde naruszenie, które istniało już w chwili rozpoczęcia ostatniego uruchomienia, jest oznaczone <strong>„istniejące wcześniej – sprawdź”</strong>, także w PDF. Naruszenie bez oznaczenia nie należało do stanu wyjściowego ostatniego uruchomienia: powstało później albo nie było widoczne przy starcie (inny okres lub grupa albo lista błędów wciąż się ładowała). Oznaczenie dotyczy sesji przeglądarki i ostatnio rozpoczętego uruchomienia.</li>
+  <li><strong>Co robić:</strong> planiści sprawdzają oznaczone wpisy i poprawiają je ręcznie. Przełożeni i administratorzy mogą świadomie pominąć naruszenie, gdy istnieje uzasadniony powód biznesowy. Administratorzy sprawdzają, czy sama reguła jest właściwa.</li>
+</ul>
 
 <hr>
 

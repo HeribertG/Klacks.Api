@@ -10,6 +10,7 @@
   <tr><td><strong>Zile lucrătoare max.</strong></td><td>Regulă flexibilă (soft-cap): durata preferată a blocului de zile lucrătoare consecutive, înainte de a se planifica o zi de odihnă (de exemplu, „5 zile de lucru, apoi odihnă”). O încălcare a acestei reguli nu invalidează planul, ci doar îl face mai puțin optim — limita maximă strictă este „Max. zile lucrătoare consecutive”, prezentată mai jos.</td></tr>
   <tr><td><strong>Numărul minim de zile de odihnă între două blocuri de lucru</strong></td><td>Numărul minim de zile libere între două blocuri de lucru consecutive.</td></tr>
   <tr><td><strong>Numărul minim de ore libere între două zile lucrătoare</strong></td><td>Timpul minim de odihnă (în ore) între sfârșitul unei zile de lucru și începutul următoarei.</td></tr>
+  <tr><td><strong>Cadru zilnic de lucru (ore)</strong></td><td>Cea mai lungă durată a unei zile de lucru, de la prima începere până la ultima încheiere, pauzele incluse. Gol folosește valoarea companiei, 0 înseamnă 24 de ore minus odihna minimă. Vezi „Cadrul zilnic de lucru și turele împărțite”.</td></tr>
   <tr><td><strong>Intervalul maxim optim între ture (ore)</strong></td><td>Intervalul maxim de timp (în ore) între două ture consecutive, considerat optim.</td></tr>
   <tr><td><strong>Numărul maxim de zile lucrătoare consecutive</strong></td><td>Numărul maxim de zile lucrătoare consecutive fără zi de odihnă.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Atenție:</strong> „Nu” reprezintă o blocare expresă și nu o stare neutră. Setarea unor zile individuale pe „da” nu blochează celelalte: pentru fiecare zi setată pe „nespecificată”, contractul rămâne valabil. Cine dorește să excludă o zi, trebuie să o seteze în mod expres pe „nu”.</p>
 <p><strong>Munca în ture</strong> funcționează diferit: contractul are întâietate. „Da” și „nu” sunt standardul acestei reguli pentru contractele care lasă munca în ture pe standard - o valoare explicită din contract are întotdeauna prioritate. „Nespecificat” înseamnă că se aplică setarea implicită a instalării, dacă în contract nu este stabilită o valoare. Fără muncă în ture, ratele proprii de spor ale contractului (noapte, sărbătoare, weekend) sunt ignorate și se aplică ratele standard.</p>
+
+<hr>
+
+<h3>Cadrul zilnic de lucru și turele împărțite</h3>
+<p>O tură împărțită (de ex. 07:00-11:00 și 16:00-20:00) este <strong>o singură</strong> zi de lucru: pauza dintre părți nu este o perioadă de odihnă și nu este raportată ca încălcare a odihnei, atât timp cât întreaga zi, de la prima începere până la ultima încheiere, rămâne în limitele <strong>cadrului zilnic de lucru</strong>. Dacă o parte depășește cadrul, începe o nouă zi de lucru, iar pauza scurtă dinaintea ei se consideră o odihnă prea scurtă.</p>
+<p>Cadrul aplicabil este stabilit de legislația <strong>locului de muncă</strong>. În Elveția, contractele colective declarate general obligatorii (GAV/LMV) au forță de lege. Klacks caută valoarea în această ordine:</p>
+<ol>
+  <li><strong>Valoarea acestei reguli de planificare</strong> - de ex. dintr-un contract colectiv. Un pachet de industrie o poate stabili, dar numai cu o sursă verificată; în prezent niciun pachet nu furnizează o astfel de valoare.</li>
+  <li><strong>Valoarea companiei din setări</strong> (reguli de planificare, valori implicite) - pachetul regional introduce aici legislația națională, de ex. Elveția: 14 ore (ArG art. 10 alin. (3)).</li>
+  <li><strong>24 de ore minus odihna minimă</strong> - atunci când nu este setat niciun cadru nicăieri (de ex. 13 ore cu 11 ore de odihnă, Directiva UE 2003/88, art. 3).</li>
+</ol>
+<p>Sub câmp, Klacks arată ce valoare se aplică și de unde provine. Un cadru mai lung de 24 de ore minus odihna minimă se aplică doar zilelor de lucru dintr-o singură zi calendaristică: o tură de seară și o tură de dimineață din ziua următoare nu sunt niciodată unite într-o singură zi de lucru.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Câmp</th><th>Descriere</th></tr>
   <tr><td><strong>Zile de concediu pe an</strong></td><td>Numărul de zile de concediu la care are dreptul angajatul pe an calendaristic.</td></tr>
 </table>
+
+<hr>
+
+<h3>Încălcări rămase ale regulilor după o rulare a wizardului</h3>
+<p>Wizard 2 și etapa 3 (inclusiv ca pași ai AutoWizard) verifică regulile stricte de planificare și de contorizare cu un mecanism de protecție: nu fac nicio modificare care să mărească în total cât depășește o persoană o regulă strictă. Totuși, <strong>nu repară</strong> încălcările existente, iar o încălcare se poate muta în cadrul aceleiași reguli (de exemplu, în altă zi). Primul pas al AutoWizard nu planifică încă cu aceste reguli. Un plan poate deci să conțină în continuare încălcări stricte după rulare.</p>
+<ul>
+  <li><strong>Rezultatul wizardului:</strong> după rulare, Klacks arată câte încălcări stricte au rămas. După Wizard 2 și etapa 3, Klacks indică faptul că nicio regulă strictă nu s-a înrăutățit în total. După AutoWizard, Klacks indică numărul de dinainte și de după; dacă sunt mai multe decât înainte, Klacks anunță explicit că rularea a adăugat încălcări.</li>
+  <li><strong>Lista erorilor:</strong> fiecare încălcare strictă care exista deja la începutul ultimei rulări este marcată <strong>„preexistent - de verificat”</strong>, inclusiv în PDF. O încălcare fără marcaj nu făcea parte din starea inițială a ultimei rulări: a apărut ulterior sau nu era afișată la pornire (altă perioadă sau alt grup, ori lista erorilor se încărca încă). Marcajul se aplică sesiunii de browser și ultimei rulări pornite.</li>
+  <li><strong>Ce este de făcut:</strong> planificatorii verifică intrările marcate și le corectează manual. Supervizorii și administratorii pot ignora în mod deliberat o încălcare atunci când există un motiv de afaceri. Administratorii verifică dacă regula în sine este corectă.</li>
+</ul>
 
 <hr>
 

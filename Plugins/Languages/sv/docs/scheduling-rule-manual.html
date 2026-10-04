@@ -10,6 +10,7 @@
   <tr><td><strong>Max. arbetsdagar</strong></td><td>Mjuk regel (soft cap): önskad blocklängd i arbetsdagar i följd innan en vilodag planeras in (t.ex. ”5 dagars arbete, sedan vila”). Ett avsteg gör inte schemat ogiltigt, bara mindre optimalt – den hårda övre gränsen är ”Max. antal på varandra följande arbetsdagar” längre ner.</td></tr>
   <tr><td><strong>Minsta antal vilodagar mellan två arbetsblock</strong></td><td>Minsta antal lediga dagar mellan två på varandra följande arbetsblock.</td></tr>
   <tr><td><strong>Minsta antal lediga timmar mellan två arbetsdagar</strong></td><td>Minsta vilotid (i timmar) mellan slutet av en arbetsdag och början av nästa.</td></tr>
+  <tr><td><strong>Arbetsdagsram (tim.)</strong></td><td>Längsta tidsspannet för en arbetsdag från första start till sista slut, raster inräknade. Tomt använder företagets värde, 0 betyder 24 timmar minus minsta vila. Se ”Arbetsdagsram och delade skift”.</td></tr>
   <tr><td><strong>Max. optimal paus mellan skift (timmar)</strong></td><td>Maximalt tidsintervall (i timmar) mellan två på varandra följande skift, vilket anses vara optimalt.</td></tr>
   <tr><td><strong>Max. antal på varandra följande arbetsdagar</strong></td><td>Maximalt antal arbetsdagar i följd utan vilodag.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Observera:</strong> ”Nej” är en uttrycklig spärr och inte ett neutralt tillstånd. Att ställa in enskilda dagar på ”ja” spärrar inte de övriga: För varje dag som står på ”ej angiven” gäller avtalet fortfarande. Den som vill utesluta en dag måste uttryckligen ställa in den på ”nej”.</p>
 <p><strong>Skiftarbete</strong> fungerar annorlunda: avtalet kommer först. ”Ja” och ”nej” är denna regels standard för avtal som låter skiftarbete stå på standard - ett uttryckligt värde i avtalet har alltid företräde. ”Inte angivet” betyder att installationens standardinställning gäller, om inte avtalet anger ett värde. Utan skiftarbete ignoreras avtalets egna tilläggssatser (natt, helgdag, helg) och standardsatserna gäller.</p>
+
+<hr>
+
+<h3>Arbetsdagsram och delade skift</h3>
+<p>Ett delat skift (t.ex. 07:00-11:00 och 16:00-20:00) är <strong>en</strong> arbetsdag: pausen mellan delarna är ingen vilotid och rapporteras inte som vilobrott, så länge hela dagen från första start till sista slut håller sig inom <strong>arbetsdagsramen</strong>. Sträcker sig en del utanför ramen börjar en ny arbetsdag, och den korta pausen före den räknas som för kort vila.</p>
+<p>Vilken ram som gäller bestäms av lagstiftningen på <strong>arbetsplatsen</strong>. I Schweiz har kollektivavtal som förklarats allmängiltiga (GAV/LMV) kraft av lag. Klacks söker värdet i följande ordning:</p>
+<ol>
+  <li><strong>Värdet i denna planeringsregel</strong> – t.ex. från ett kollektivavtal. Ett branschpaket kan ange det, men bara med en verifierad källa; i dag levererar inget paket ett sådant värde.</li>
+  <li><strong>Företagsvärdet från inställningarna</strong> (planeringsregler, standardvärden) – regionpaketet för in den nationella lagstiftningen här, t.ex. Schweiz: 14 timmar (ArG art. 10, 3 st.).</li>
+  <li><strong>24 timmar minus minsta vila</strong> – när ingen ram är angiven någonstans (t.ex. 13 timmar med 11 timmars vila, EU-direktiv 2003/88 art. 3).</li>
+</ol>
+<p>Under fältet visar Klacks vilket värde som gäller och varifrån det kommer. En ram som är längre än 24 timmar minus minsta vila gäller bara arbetsdagar inom en och samma kalenderdag: ett kvällsskift och ett morgonskift nästa dag slås aldrig ihop till en arbetsdag.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Fält</th><th>Beskrivning</th></tr>
   <tr><td><strong>Semesterdagar per år</strong></td><td>Antal semesterdagar som tillkommer per kalenderår.</td></tr>
 </table>
+
+<hr>
+
+<h3>Kvarvarande regelbrott efter en wizardkörning</h3>
+<p>Wizard 2 och steg 3 (även som steg i AutoWizard) kontrollerar hårda planerings- och räknarregler med ett skydd: de gör ingen ändring som totalt sett ökar hur långt en person överskrider en hård regel. De <strong>åtgärdar</strong> dock <strong>inte</strong> befintliga regelbrott, och ett regelbrott kan flytta sig inom samma regel (till exempel till en annan dag). AutoWizards första steg planerar ännu inte med dessa regler. Ett schema kan därför fortfarande innehålla hårda regelbrott efter körningen.</p>
+<ul>
+  <li><strong>Wizardresultat:</strong> efter körningen visar Klacks hur många hårda regelbrott som återstår. Efter Wizard 2 och steg 3 anger Klacks att ingen hård regel har försämrats totalt sett. Efter AutoWizard anger Klacks antalet före och efter; om det är fler än tidigare säger Klacks uttryckligen att körningen har lagt till regelbrott.</li>
+  <li><strong>Fellista:</strong> varje hårt regelbrott som redan fanns när den senaste körningen startade är markerat med <strong>”redan befintligt – kontrollera”</strong>, även i PDF:en. Ett regelbrott utan markering ingick inte i utgångsläget för den senaste körningen: det uppstod senare eller visades inte när körningen startade (annan period eller grupp, eller så lästes fellistan fortfarande in). Markeringen gäller webbläsarsessionen och den senast startade körningen.</li>
+  <li><strong>Vad du ska göra:</strong> planerare granskar de markerade posterna och rättar dem för hand. Arbetsledare och administratörer kan medvetet åsidosätta ett regelbrott när det finns ett verksamhetsskäl. Administratörer kontrollerar om själva regeln är riktig.</li>
+</ul>
 
 <hr>
 

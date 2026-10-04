@@ -10,6 +10,7 @@
   <tr><td><strong>Ngày làm việc tối đa</strong></td><td>Quy tắc mềm (Soft-Cap): độ dài khối ưu tiên tính bằng ngày làm việc liên tiếp trước khi bố trí một ngày nghỉ (ví dụ: "làm 5 ngày, sau đó nghỉ"). Vi phạm không làm cho kế hoạch không hợp lệ, chỉ kém tối ưu hơn — giới hạn cứng là "Ngày làm việc liên tiếp tối đa" bên dưới.</td></tr>
   <tr><td><strong>Ngày nghỉ tối thiểu giữa hai khối làm việc</strong></td><td>Số ngày nghỉ tối thiểu giữa hai khối làm việc liên tiếp.</td></tr>
   <tr><td><strong>Giờ nghỉ tối thiểu giữa hai ngày làm việc</strong></td><td>Thời gian nghỉ tối thiểu (tính bằng giờ) giữa thời điểm kết thúc một ngày làm việc và thời điểm bắt đầu ngày tiếp theo.</td></tr>
+  <tr><td><strong>Khung làm việc trong ngày (giờ)</strong></td><td>Khoảng dài nhất của một ngày làm việc, từ lúc bắt đầu đầu tiên đến lúc kết thúc cuối cùng, bao gồm cả các khoảng ngắt. Để trống sẽ dùng giá trị của công ty, 0 nghĩa là 24 giờ trừ đi thời gian nghỉ tối thiểu. Xem “Khung làm việc trong ngày và ca chia đoạn”.</td></tr>
   <tr><td><strong>Khoảng cách tối ưu tối đa giữa các ca (giờ)</strong></td><td>Khoảng thời gian tối đa (tính bằng giờ) giữa hai ca liên tiếp được coi là tối ưu.</td></tr>
   <tr><td><strong>Ngày làm việc liên tiếp tối đa</strong></td><td>Số ngày làm việc liên tiếp tối đa không có ngày nghỉ.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Lưu ý:</strong> "Không" là một sự cấm rõ ràng chứ không phải trạng thái trung lập. Đặt các ngày riêng lẻ thành "có" không cấm các ngày còn lại: Đối với mỗi ngày ở trạng thái "không quy định", hợp đồng vẫn tiếp tục được áp dụng. Ai muốn loại trừ một ngày phải đặt ngày đó rõ ràng thành "không".</p>
 <p><strong>Làm việc theo ca</strong> hoạt động khác: hợp đồng được xét trước. "Có" và "không" là mặc định của quy tắc này đối với các hợp đồng để làm việc theo ca ở mức mặc định - giá trị được nêu rõ trong hợp đồng luôn được ưu tiên. "Không quy định" nghĩa là áp dụng cài đặt mặc định của hệ thống, trừ khi hợp đồng quy định giá trị. Khi không làm việc theo ca, tỷ lệ phụ cấp riêng của hợp đồng (ban đêm, ngày lễ, cuối tuần) bị bỏ qua và áp dụng tỷ lệ mặc định.</p>
+
+<hr>
+
+<h3>Khung làm việc trong ngày và ca chia đoạn</h3>
+<p>Ca chia đoạn (ví dụ 07:00-11:00 và 16:00-20:00) là <strong>một</strong> ngày làm việc: khoảng ngắt giữa các phần không phải là thời gian nghỉ và không bị báo cáo là vi phạm thời gian nghỉ, miễn là cả ngày từ lúc bắt đầu đầu tiên đến lúc kết thúc cuối cùng nằm trong <strong>khung làm việc trong ngày</strong>. Nếu một phần vượt ra ngoài khung, một ngày làm việc mới bắt đầu, và khoảng ngắt ngắn trước đó được tính là thời gian nghỉ quá ngắn.</p>
+<p>Khung nào được áp dụng do pháp luật của <strong>nơi làm việc</strong> quy định. Ở Thụy Sĩ, các thỏa ước lao động tập thể được tuyên bố có hiệu lực chung (GAV/LMV) có hiệu lực như luật. Klacks tìm giá trị theo thứ tự sau:</p>
+<ol>
+  <li><strong>Giá trị của quy tắc lập kế hoạch này</strong> - ví dụ từ một thỏa ước lao động tập thể. Gói ngành có thể đặt giá trị này, nhưng chỉ khi có nguồn đã được xác minh; hiện nay không có gói nào cung cấp giá trị như vậy.</li>
+  <li><strong>Giá trị của công ty trong cài đặt</strong> (quy tắc lập kế hoạch, giá trị tiêu chuẩn) - gói khu vực nhập luật quốc gia tại đây, ví dụ Thụy Sĩ: 14 giờ (ArG Điều 10 khoản 3).</li>
+  <li><strong>24 giờ trừ đi thời gian nghỉ tối thiểu</strong> - khi không có khung nào được đặt ở bất kỳ đâu (ví dụ 13 giờ với 11 giờ nghỉ, Chỉ thị 2003/88 của EU, Điều 3).</li>
+</ol>
+<p>Bên dưới trường này, Klacks hiển thị giá trị nào được áp dụng và nó đến từ đâu. Khung dài hơn 24 giờ trừ đi thời gian nghỉ tối thiểu chỉ áp dụng cho các ngày làm việc nằm trong một ngày dương lịch: ca tối và ca sáng hôm sau không bao giờ bị gộp thành một ngày làm việc.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Trường</th><th>Mô tả</th></tr>
   <tr><td><strong>Ngày nghỉ phép mỗi năm</strong></td><td>Số ngày nghỉ phép được hưởng mỗi năm dương lịch.</td></tr>
 </table>
+
+<hr>
+
+<h3>Các vi phạm quy tắc còn lại sau khi chạy wizard</h3>
+<p>Wizard 2 và giai đoạn 3 (cũng như các bước của AutoWizard) kiểm tra các quy tắc lập kế hoạch và quy tắc đếm cứng bằng một cơ chế bảo vệ: chúng không thực hiện thay đổi nào làm tăng tổng mức một người vượt quá quy tắc cứng. Tuy nhiên, chúng <strong>không sửa</strong> các vi phạm đã có, và một vi phạm có thể dịch chuyển trong cùng một quy tắc (ví dụ sang ngày khác). Bước đầu tiên của AutoWizard chưa lập kế hoạch theo các quy tắc này. Vì vậy, kế hoạch vẫn có thể chứa các vi phạm cứng sau khi chạy.</p>
+<ul>
+  <li><strong>Kết quả wizard:</strong> sau khi chạy, Klacks hiển thị còn bao nhiêu vi phạm cứng. Sau Wizard 2 và giai đoạn 3, Klacks cho biết không có quy tắc cứng nào xấu đi về tổng thể. Sau AutoWizard, Klacks nêu số lượng trước và sau; nếu nhiều hơn trước, Klacks nói rõ rằng lần chạy đã thêm vi phạm.</li>
+  <li><strong>Danh sách lỗi:</strong> mọi vi phạm cứng đã tồn tại khi lần chạy gần nhất bắt đầu được đánh dấu <strong>“đã có từ trước - vui lòng kiểm tra”</strong>, cả trong PDF. Vi phạm không có dấu không thuộc trạng thái ban đầu của lần chạy gần nhất: nó phát sinh sau đó hoặc không được hiển thị khi bắt đầu chạy (kỳ hoặc nhóm khác, hoặc danh sách lỗi vẫn đang tải). Dấu này áp dụng cho phiên trình duyệt và lần chạy được bắt đầu gần nhất.</li>
+  <li><strong>Cần làm gì:</strong> người lập kế hoạch kiểm tra các mục được đánh dấu và sửa thủ công. Người giám sát và quản trị viên có thể chủ động ghi đè một vi phạm khi có lý do nghiệp vụ. Quản trị viên kiểm tra xem bản thân quy tắc có đúng không.</li>
+</ul>
 
 <hr>
 

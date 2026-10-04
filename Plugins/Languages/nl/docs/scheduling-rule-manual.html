@@ -10,6 +10,7 @@
   <tr><td><strong>Max. werkdagen</strong></td><td>Zachte regel (soft-cap): gewenste bloklengte in aaneengesloten werkdagen voordat een rustdag wordt ingepland (bijv. &quot;5 dagen werken, dan rust&quot;). Een overtreding maakt het rooster niet ongeldig, maar wel minder optimaal — de harde bovengrens is &quot;Max. opeenvolgende werkdagen&quot; verderop.</td></tr>
   <tr><td><strong>Min. rustdagen tussen twee werkblokken</strong></td><td>Minimumaantal vrije dagen tussen twee opeenvolgende werkblokken.</td></tr>
   <tr><td><strong>Min. vrije uren tussen twee werkdagen</strong></td><td>Minimale rusttijd (in uren) tussen het einde van een werkdag en het begin van de volgende.</td></tr>
+  <tr><td><strong>Dagelijks werkkader (uren)</strong></td><td>Langste tijdspanne van één werkdag van de eerste start tot het laatste einde, pauzes inbegrepen. Leeg gebruikt de bedrijfswaarde, 0 betekent 24 uur min de minimale rust. Zie “Dagelijks werkkader en gesplitste diensten”.</td></tr>
   <tr><td><strong>Max. optimale pauze tussen diensten (uur)</strong></td><td>Maximale tijdsduur (in uren) tussen twee opeenvolgende diensten, die als optimaal wordt beschouwd.</td></tr>
   <tr><td><strong>Max. aantal opeenvolgende werkdagen</strong></td><td>Maximaal aantal opeenvolgende werkdagen zonder rustdag.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Let op:</strong> „Nee” is een uitdrukkelijke blokkering en geen neutrale status. Als je afzonderlijke dagen op „ja” zet, worden de overige dagen niet geblokkeerd: voor elke dag die op „niet vastgelegd” staat, blijft het contract van kracht. Wie een dag wil uitsluiten, moet deze uitdrukkelijk op „nee” zetten.</p>
 <p><strong>Ploegendienst</strong> werkt anders: het contract gaat voor. ‘Ja’ en ‘nee’ zijn de standaard van deze regel voor contracten die ploegendienst op standaard laten staan - een expliciete waarde in het contract heeft altijd voorrang. ‘Niet gespecificeerd’ betekent dat de standaardinstelling van de installatie geldt, tenzij het contract een waarde vastlegt. Zonder ploegendienst worden de eigen toeslagtarieven van het contract (nacht, feestdag, weekend) genegeerd en gelden de standaardtarieven.</p>
+
+<hr>
+
+<h3>Dagelijks werkkader en gesplitste diensten</h3>
+<p>Een gesplitste dienst (bijv. 07:00-11:00 en 16:00-20:00) is <strong>één</strong> werkdag: de pauze tussen de delen is geen rustperiode en wordt niet als rustovertreding gemeld, zolang de hele dag van de eerste start tot het laatste einde binnen het <strong>dagelijkse werkkader</strong> blijft. Reikt een deel buiten het kader, dan begint er een nieuwe werkdag en telt de korte pauze daarvoor als te korte rust.</p>
+<p>Welk kader geldt, wordt bepaald door de wetgeving van de <strong>werklocatie</strong>. In Zwitserland hebben algemeen verbindend verklaarde collectieve arbeidsovereenkomsten (GAV/LMV) kracht van wet. Klacks zoekt de waarde in deze volgorde:</p>
+<ol>
+  <li><strong>Waarde van deze planningsregel</strong> - bijv. uit een collectieve arbeidsovereenkomst. Een branchepakket kan deze instellen, maar alleen met een geverifieerde bron; momenteel levert geen enkel pakket zo'n waarde.</li>
+  <li><strong>Bedrijfswaarde uit de instellingen</strong> (planningsregels, standaardwaarden) - het regiopakket voert hier de nationale wetgeving in, bijv. Zwitserland: 14 uur (ArG art. 10 lid 3).</li>
+  <li><strong>24 uur min de minimale rust</strong> - als nergens een kader is ingesteld (bijv. 13 uur bij 11 uur rust, EU-richtlijn 2003/88 art. 3).</li>
+</ol>
+<p>Onder het veld toont Klacks welke waarde geldt en waar die vandaan komt. Een kader dat langer is dan 24 uur min de minimale rust, geldt alleen voor werkdagen binnen één kalenderdag: een avonddienst en een ochtenddienst op de volgende dag worden nooit samengevoegd tot één werkdag.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Veld</th><th>Beschrijving</th></tr>
   <tr><td><strong>Vakantiedagen per jaar</strong></td><td>Aantal vakantiedagen waarop men per kalenderjaar recht heeft.</td></tr>
 </table>
+
+<hr>
+
+<h3>Resterende regelovertredingen na een wizard-run</h3>
+<p>Wizard 2 en fase 3 (ook als stappen van de AutoWizard) controleren harde planningsregels en tellerregels met een bewaker: ze voeren geen wijziging door die in totaal vergroot hoeveel iemand een harde regel overschrijdt. Bestaande overtredingen <strong>herstellen</strong> ze echter <strong>niet</strong>, en een overtreding kan binnen dezelfde regel verschuiven (bijvoorbeeld naar een andere dag). De eerste stap van de AutoWizard plant nog niet met deze regels. Een rooster kan na de run dus nog harde overtredingen bevatten.</p>
+<ul>
+  <li><strong>Wizard-resultaat:</strong> na de run toont Klacks hoeveel harde overtredingen er overblijven. Na Wizard 2 en fase 3 meldt Klacks dat in totaal geen enkele harde regel is verslechterd. Na de AutoWizard geeft Klacks het aantal ervoor en erna; zijn het er meer dan voorheen, dan meldt Klacks expliciet dat de run overtredingen heeft toegevoegd.</li>
+  <li><strong>Foutenlijst:</strong> elke harde overtreding die al bestond toen de laatste run begon, is gemarkeerd met <strong>“reeds bestaand - controleren”</strong>, ook in de PDF. Een overtreding zonder markering maakte geen deel uit van de uitgangssituatie van de laatste run: ze is later ontstaan of werd bij de start niet getoond (andere periode of groep, of de foutenlijst was nog aan het laden). De markering geldt voor de browsersessie en voor de als laatste gestarte run.</li>
+  <li><strong>Wat te doen:</strong> planners controleren de gemarkeerde meldingen en corrigeren ze handmatig. Supervisors en beheerders kunnen een overtreding bewust overrulen als er een zakelijke reden is. Beheerders controleren of de regel zelf klopt.</li>
+</ul>
 
 <hr>
 

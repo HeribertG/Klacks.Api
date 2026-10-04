@@ -10,6 +10,7 @@
   <tr><td><strong>Enimmäistyöpäivät</strong></td><td>Pehmeä sääntö (soft cap): suositeltu yhtäjaksoisten työpäivien määrä, jonka jälkeen suunnitellaan lepopäivä (esim. ”5 työpäivää, sitten lepo”). Yksi poikkeus ei mitätöi suunnitelmaa, vaan tekee siitä vain vähemmän optimaalisen — kova yläraja on ”Enintään peräkkäisiä työpäiviä” alempana.</td></tr>
   <tr><td><strong>Vähimmäislepopäivien määrä kahden työjakson välillä</strong></td><td>Vähimmäismäärä vapaapäiviä kahden peräkkäisen työjakson välillä.</td></tr>
   <tr><td><strong>Vähimmäisvapaa-aika (tunteina) kahden työpäivän välillä</strong></td><td>Vähimmäislepoaika (tunteina) työpäivän lopun ja seuraavan työpäivän alkamisen välillä.</td></tr>
+  <tr><td><strong>Työpäivän kehys (t)</strong></td><td>Yhden työpäivän pisin jakso ensimmäisestä alusta viimeiseen loppuun, tauot mukaan lukien. Tyhjä käyttää yrityksen arvoa, 0 tarkoittaa 24 tuntia miinus vähimmäislepo. Katso ”Työpäivän kehys ja jaetut vuorot”.</td></tr>
   <tr><td><strong>Vuorojen välinen optimaalinen enimmäisväli (tuntia)</strong></td><td>Kahden peräkkäisen vuoron välinen suurin ajallinen etäisyys (tunteina), jota pidetään optimaalisena.</td></tr>
   <tr><td><strong>Peräkkäisten työpäivien enimmäismäärä</strong></td><td>Peräkkäisten työpäivien enimmäismäärä ilman lepopäivää.</td></tr>
 </table>
@@ -26,6 +27,18 @@
 </table>
 <p><strong>Huomio:</strong> ”Ei” on nimenomainen esto, ei neutraali tila. Yksittäisten päivien asettaminen tilaan ”kyllä” ei estä muita päiviä: jokaiselle päivälle, jonka tila on ”ei määritelty”, sopimus on edelleen voimassa. Jos haluat sulkea jonkin päivän pois, sinun on asetettava se nimenomaisesti ”ei”-asetukseksi.</p>
 <p><strong>Vuorotyö</strong> toimii eri tavalla: sopimus on ensisijainen. ”Kyllä” ja ”ei” ovat tämän säännön vakio sopimuksille, jotka jättävät vuorotyön vakioksi - sopimuksen nimenomainen arvo on aina etusijalla. ”Ei määritelty” tarkoittaa, että asennuksen oletusasetus on voimassa, ellei sopimus määritä arvoa. Ilman vuorotyötä sopimuksen omat lisien kertoimet (yö, pyhäpäivä, viikonloppu) ohitetaan ja sovelletaan vakiokertoimia.</p>
+
+<hr>
+
+<h3>Työpäivän kehys ja jaetut vuorot</h3>
+<p>Jaettu vuoro (esim. 07:00-11:00 ja 16:00-20:00) on <strong>yksi</strong> työpäivä: osien välinen tauko ei ole lepoaikaa, eikä siitä ilmoiteta lepoaikarikkomuksena, kunhan koko päivä ensimmäisestä alusta viimeiseen loppuun pysyy <strong>työpäivän kehyksen</strong> sisällä. Jos jokin osa ylittää kehyksen, alkaa uusi työpäivä, ja sitä edeltävä lyhyt tauko lasketaan liian lyhyeksi lepoajaksi.</p>
+<p>Sovellettavan kehyksen määrää <strong>työnteon paikan</strong> lainsäädäntö. Sveitsissä yleissitovaksi julistetuilla työehtosopimuksilla (GAV/LMV) on lain voima. Klacks hakee arvon tässä järjestyksessä:</p>
+<ol>
+  <li><strong>Tämän suunnittelusäännön arvo</strong> - esim. työehtosopimuksesta. Toimialapaketti voi asettaa sen, mutta vain varmennetulla lähteellä; yksikään paketti ei nykyisin sisällä tällaista arvoa.</li>
+  <li><strong>Yrityksen arvo asetuksista</strong> (suunnittelusäännöt, oletusarvot) - aluepaketti kirjaa tähän kansallisen lainsäädännön, esim. Sveitsi: 14 tuntia (ArG 10 art. 3 mom.).</li>
+  <li><strong>24 tuntia miinus vähimmäislepo</strong> - kun kehystä ei ole asetettu mihinkään (esim. 13 tuntia 11 tunnin levolla, EU:n direktiivi 2003/88, 3 artikla).</li>
+</ol>
+<p>Kentän alla Klacks näyttää, mikä arvo on voimassa ja mistä se tulee. Kehys, joka on pidempi kuin 24 tuntia miinus vähimmäislepo, koskee vain yhden kalenteripäivän sisällä olevia työpäiviä: iltavuoroa ja seuraavan päivän aamuvuoroa ei koskaan yhdistetä yhdeksi työpäiväksi.</p>
 
 <hr>
 
@@ -56,6 +69,16 @@
   <tr><th>Kenttä</th><th>Kuvaus</th></tr>
   <tr><td><strong>Lomapäivät vuodessa</strong></td><td>Kalenterivuodessa kertyvien lomapäivien määrä.</td></tr>
 </table>
+
+<hr>
+
+<h3>Jäljelle jääneet sääntörikkomukset Wizard-ajon jälkeen</h3>
+<p>Wizard 2 ja vaihe 3 (myös AutoWizardin vaiheina) tarkistavat kovat suunnittelu- ja laskurisäännöt suojamekanismilla: ne eivät tee muutosta, joka kokonaisuutena lisäisi sitä, kuinka paljon henkilö ylittää kovan säännön. Ne eivät kuitenkaan <strong>korjaa</strong> olemassa olevia rikkomuksia, ja rikkomus voi siirtyä saman säännön sisällä (esimerkiksi toiselle päivälle). AutoWizardin ensimmäinen vaihe ei vielä suunnittele näillä säännöillä. Suunnitelma voi siksi sisältää ajon jälkeen yhä kovia rikkomuksia.</p>
+<ul>
+  <li><strong>Wizardin tulos:</strong> ajon jälkeen Klacks näyttää, kuinka monta kovaa rikkomusta on jäljellä. Wizard 2:n ja vaiheen 3 jälkeen Klacks ilmoittaa, ettei mikään kova sääntö huonontunut kokonaisuutena. AutoWizardin jälkeen Klacks ilmoittaa määrän ennen ajoa ja sen jälkeen; jos rikkomuksia on enemmän kuin aiemmin, Klacks kertoo erikseen, että ajo lisäsi rikkomuksia.</li>
+  <li><strong>Virhelista:</strong> jokainen kova rikkomus, joka oli jo olemassa viimeisimmän ajon alkaessa, on merkitty <strong>”ennestään olemassa – tarkista”</strong>, myös PDF:ssä. Rikkomus ilman merkintää ei kuulunut viimeisimmän ajon lähtötilaan: se syntyi myöhemmin tai sitä ei näytetty ajon alkaessa (toinen jakso tai ryhmä, tai virhelista oli vielä latautumassa). Merkintä koskee selaimen istuntoa ja viimeksi käynnistettyä ajoa.</li>
+  <li><strong>Mitä tehdä:</strong> suunnittelijat tarkistavat merkityt kohteet ja korjaavat ne käsin. Esimiehet ja ylläpitäjät voivat ohittaa rikkomuksen tietoisesti, kun siihen on liiketoiminnallinen syy. Ylläpitäjät tarkistavat, onko itse sääntö oikea.</li>
+</ul>
 
 <hr>
 
