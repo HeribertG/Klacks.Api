@@ -88,7 +88,7 @@ public sealed class Wizard4Runner : IWizard4Runner
             async () =>
             {
                 var bitmap = await _harmonizerContextBuilder.BuildContextAsync(
-                    new HarmonizerContextRequest(periodFrom, periodUntil, agentIds, AnalyseToken: null), ct);
+                    new HarmonizerContextRequest(periodFrom, periodUntil, agentIds, AnalyseToken: null, LoadPlanningRules: false), ct);
                 var objective = await _wizardContextBuilder.BuildContextAsync(
                     new WizardContextRequest(periodFrom, periodUntil, agentIds, ShiftIds: null, AnalyseToken: null), ct);
                 var fingerprint = await _snapshotGuard.ComputeFingerprintAsync(agentIds, periodFrom, periodUntil, ct);

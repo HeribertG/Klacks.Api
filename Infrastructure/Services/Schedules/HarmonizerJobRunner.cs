@@ -9,6 +9,7 @@ using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
+using Klacks.ScheduleOptimizer.Harmonizer.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.Harmonizer.Telemetry;
 using Klacks.ScheduleOptimizer.Scoring;
@@ -138,7 +139,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var originalForCache = CloneBitmap(sortedBitmap);
 
             var scorer = new HarmonyScorer();
-            var validator = new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments, input.IneligibleAssignments);
+            var validator = DomainAwareReplaceValidator.ForInput(input, BitmapRuleRuntime.TryCreate(input));
             var fitness = new HarmonyFitnessEvaluator(scorer);
             var stochasticMutation = new StochasticBitmapMutation(validator);
 

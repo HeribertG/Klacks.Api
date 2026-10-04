@@ -94,6 +94,19 @@ public sealed class HolisticHarmonizerDeterministicEngine
             fitness.Hits,
             fitness.Misses);
 
+        if (components.Rules is { } rules)
+        {
+            var rulesBefore = rules.Evaluate(original);
+            var rulesAfter = rules.Evaluate(working);
+            _logger.LogInformation(
+                "Holistic Harmonizer (deterministic) planning rules: rules={Rules} hardFindings {HardBefore} -> {HardAfter} softPenalty {SoftBefore:F3} -> {SoftAfter:F3}",
+                rules.Rules.Count,
+                rulesBefore.HardCount,
+                rulesAfter.HardCount,
+                rulesBefore.SoftPenalty,
+                rulesAfter.SoftPenalty);
+        }
+
         if (result.StopReason == DeterministicSearchStopReason.WallClockBudget)
         {
             _logger.LogWarning(

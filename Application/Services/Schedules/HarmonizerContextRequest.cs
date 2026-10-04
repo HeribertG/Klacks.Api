@@ -22,6 +22,10 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// Random seed of the run. Null draws a fresh one and records it, so a reported result can be replayed;
 /// passing a recorded seed reproduces that run exactly.
 /// </param>
+/// <param name="LoadPlanningRules">
+/// True (default) loads the approved planning rules (CounterRule + PlanningConstraint) into BitmapInput.Rules, so
+/// Wizard 2/3 respect them. Wizard 4 passes false until its own rule hooks exist (constraint schema stage 6).
+/// </param>
 public sealed record HarmonizerContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
@@ -29,4 +33,5 @@ public sealed record HarmonizerContextRequest(
     Guid? AnalyseToken,
     int ContextDaysBefore = 14,
     int ContextDaysAfter = 14,
-    int? Seed = null);
+    int? Seed = null,
+    bool LoadPlanningRules = true);

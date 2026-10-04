@@ -522,7 +522,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 AgentIds: request.AgentIds,
                 AnalyseToken: finalScenarioToken.Value,
                 ContextDaysBefore: request.ContextDaysBefore,
-                ContextDaysAfter: request.ContextDaysAfter),
+                ContextDaysAfter: request.ContextDaysAfter,
+                LoadPlanningRules: false),
             ct);
 
         var nameById = finalContext.Agents.ToDictionary(a => a.Id, a => a.DisplayName);

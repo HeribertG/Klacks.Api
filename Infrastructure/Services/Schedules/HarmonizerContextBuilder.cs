@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
@@ -12,6 +13,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.ScheduleOptimizer.Constraints.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
@@ -27,6 +29,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="contractProvider">Source of effective contract data per client/date</param>
+/// <param name="ruleSetLoader">Single loader of the approved planning rules; with rules the agents also get the night window
+/// and workload the API validators use, and BitmapInput.Rules carries the rules, the carry-in outside the boundary window and
+/// the night minimum overlap</param>
 public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 {
     private readonly DataBaseContext _context;
@@ -36,6 +41,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private readonly IAvailabilityIneligibilityService _availabilityService;
     private readonly IWizardRestrictedWindowBuilder _restrictedWindowBuilder;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly IPlanningRuleSetLoader _ruleSetLoader;
 
     public HarmonizerContextBuilder(
         DataBaseContext context,
@@ -44,7 +50,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IAvailabilityIneligibilityService availabilityService,
         IWizardRestrictedWindowBuilder restrictedWindowBuilder,
-        IScheduleCommandKeywordProvider keywordProvider)
+        IScheduleCommandKeywordProvider keywordProvider,
+        IPlanningRuleSetLoader ruleSetLoader)
     {
         _context = context;
         _contractProvider = contractProvider;
@@ -53,6 +60,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         _availabilityService = availabilityService;
         _restrictedWindowBuilder = restrictedWindowBuilder;
         _keywordProvider = keywordProvider;
+        _ruleSetLoader = ruleSetLoader;
     }
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
@@ -123,9 +131,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var contextUntil = request.PeriodUntil.AddDays(contextDaysAfter);
 
         IReadOnlyList<BitmapAssignment> boundaryAssignments = [];
+        List<Work> boundaryWorks = [];
         if (contextFrom < request.PeriodFrom || contextUntil > request.PeriodUntil)
         {
-            var boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
+            boundaryWorks = (await LoadWorksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
                 .Where(w => w.CurrentDate < request.PeriodFrom || w.CurrentDate > request.PeriodUntil)
                 .ToList();
             var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
@@ -145,6 +154,23 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
             periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
 
+        BitmapPlanningRules? planningRules = null;
+        if (request.LoadPlanningRules)
+        {
+            var ruleSet = await _ruleSetLoader.LoadRuleSetAsync(
+                agentIds,
+                request.PeriodFrom,
+                request.PeriodUntil,
+                request.AnalyseToken,
+                Math.Min(contextDaysBefore, contextDaysAfter),
+                ct);
+            if (ruleSet.Rules.Count > 0)
+            {
+                planningRules = ToBitmapPlanningRules(ruleSet, contextFrom, contextUntil, works.Concat(boundaryWorks));
+                agents = WithRuleAgents(agents, ruleSet.Agents);
+            }
+        }
+
         return new BitmapInput(
             agents,
             request.PeriodFrom,
@@ -154,7 +180,40 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             availability,
             boundaryAssignments,
             ineligible,
-            restrictedTimeWindows);
+            restrictedTimeWindows,
+            planningRules);
+    }
+
+    /// <summary>
+    /// The loader skips the carry-in of the symmetric covered window (the shorter ContextDays side); the engine
+    /// boundary already holds every day in [contextFrom, contextUntil], so carry-in inside it is dropped here and no
+    /// day counts twice. Container sub-works are ignored, exactly like the API rule readers do.
+    /// </summary>
+    private static BitmapPlanningRules ToBitmapPlanningRules(
+        PlanningRuleSet ruleSet, DateOnly contextFrom, DateOnly contextUntil, IEnumerable<Work> loadedWorks)
+    {
+        var carryIn = ruleSet.CarryIn
+            .Where(segment => segment.Date < contextFrom || segment.Date > contextUntil)
+            .ToList();
+        var ignoredWorkIds = loadedWorks
+            .Where(work => work.ParentWorkId != null)
+            .Select(work => work.Id)
+            .ToHashSet();
+        var nightRuleMinOverlap = ruleSet.Agents.Count > 0
+            ? ruleSet.Agents[0].NightRuleMinOverlapMinutes
+            : PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes;
+        return new BitmapPlanningRules(ruleSet.Rules, carryIn, nightRuleMinOverlap, ignoredWorkIds);
+    }
+
+    /// <summary>Night window and workload of the planning rules come from the loader, the same source the validators use.</summary>
+    private static List<BitmapAgent> WithRuleAgents(List<BitmapAgent> agents, IReadOnlyList<RuleAgent> ruleAgents)
+    {
+        var byId = ruleAgents.ToDictionary(agent => agent.Id, StringComparer.Ordinal);
+        return agents
+            .Select(agent => byId.TryGetValue(agent.Id, out var ruleAgent)
+                ? agent with { NightWindow = ruleAgent.NightWindow, WorkloadPercent = ruleAgent.WorkloadPercent }
+                : agent)
+            .ToList();
     }
 
     private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> MergeIneligible(
