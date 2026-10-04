@@ -8,13 +8,19 @@
 /// user confirms and confirm_pending_action replays this skill with the override flag does the
 /// fire-and-forget execution start (same launch path the AgentPlansController uses). The token is
 /// marked as issued-this-turn so it cannot be redeemed in the same turn it was proposed.
+/// For an external agent (MCP, ExternalAgentAccessMode set) every step and verify skill must be one the caller could
+/// call over MCP directly (IMcpDelegatedSkillPolicy) - checked when the draft is proposed and again right before the
+/// confirmed execution starts, because the background executor itself does not know the MCP gates.
 /// </summary>
 /// <param name="planChatService">Shared create-and-start plan lifecycle.</param>
 /// <param name="planRepository">Persists a non-empty draft and loads it again on the confirmed execution replay.</param>
 /// <param name="confirmationStore">Mints the one-time execution confirmation token.</param>
 /// <param name="turnScope">Blocks same-turn redemption of the freshly issued token.</param>
+/// <param name="skillRegistry">Resolves the plan's step and verify skills for the external-agent check.</param>
+/// <param name="mcpDelegatedSkillPolicy">Decides which skills an external agent may have run on its behalf.</param>
 
 using System.Text;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant.Planning;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -27,21 +33,31 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_plan")]
 public class CreatePlanSkill : BaseSkillImplementation
 {
+    private const string StepNotAvailableToExternalAgentMessage =
+        "This plan cannot be run for an external agent: its skill '{0}' is not available to this caller over MCP, "
+        + "so the plan may not run it on the caller's behalf either.";
+
     private readonly IPlanChatService _planChatService;
     private readonly IAgentPlanRepository _planRepository;
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ITurnConfirmationScope _turnScope;
+    private readonly ISkillRegistry _skillRegistry;
+    private readonly IMcpDelegatedSkillPolicy _mcpDelegatedSkillPolicy;
 
     public CreatePlanSkill(
         IPlanChatService planChatService,
         IAgentPlanRepository planRepository,
         IPendingConfirmationStore confirmationStore,
-        ITurnConfirmationScope turnScope)
+        ITurnConfirmationScope turnScope,
+        ISkillRegistry skillRegistry,
+        IMcpDelegatedSkillPolicy mcpDelegatedSkillPolicy)
     {
         _planChatService = planChatService;
         _planRepository = planRepository;
         _confirmationStore = confirmationStore;
         _turnScope = turnScope;
+        _skillRegistry = skillRegistry;
+        _mcpDelegatedSkillPolicy = mcpDelegatedSkillPolicy;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -86,6 +102,11 @@ public class CreatePlanSkill : BaseSkillImplementation
             return SkillResult.Error(
                 "I could not break this goal down into concrete steps from the available skills. " +
                 "Please rephrase the request or split it into individual actions.");
+        }
+
+        if (FindStepUnavailableToExternalAgent(plan.StepsJson, context) is { } unavailableSkill)
+        {
+            return SkillResult.Error(string.Format(StepNotAvailableToExternalAgentMessage, unavailableSkill));
         }
 
         await _planRepository.AddAsync(plan, cancellationToken);
@@ -152,6 +173,11 @@ public class CreatePlanSkill : BaseSkillImplementation
                 $"The plan is already '{plan.Status}' — not started again.");
         }
 
+        if (FindStepUnavailableToExternalAgent(plan.StepsJson, context) is { } unavailableSkill)
+        {
+            return SkillResult.Error(string.Format(StepNotAvailableToExternalAgentMessage, unavailableSkill));
+        }
+
         var providerResolution = await _planChatService.ResolveExecutionProviderAsync(cancellationToken);
         if (!providerResolution.HasDefaultModel)
         {
@@ -165,6 +191,33 @@ public class CreatePlanSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(
             new { planId = plan.Id, status = PlanStatus.Executing },
             "Plan execution started. Progress will stream to the plan panel; tell the user it is running now.");
+    }
+
+    private string? FindStepUnavailableToExternalAgent(string stepsJson, SkillExecutionContext context)
+    {
+        if (context.ExternalAgentAccessMode is null)
+        {
+            return null;
+        }
+
+        foreach (var step in PlanStepsJson.Parse(stepsJson))
+        {
+            foreach (var skillName in new[] { step.Skill, step.VerifySkill })
+            {
+                if (string.IsNullOrWhiteSpace(skillName))
+                {
+                    continue;
+                }
+
+                var descriptor = _skillRegistry.GetSkillByName(skillName);
+                if (descriptor is null || !_mcpDelegatedSkillPolicy.IsAllowed(descriptor, context.ExternalAgentAccessMode))
+                {
+                    return skillName;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static List<string> BuildStepLabels(string stepsJson)

@@ -14,6 +14,9 @@
 /// again. Without that path the pause would be a dead end no setting could ever undo.
 /// Neither the scheduling skills themselves nor confirm_pending_action can be scheduled: a background redemption of a
 /// confirmation token would run the held action without the user ever answering.
+/// An external agent (MCP, ExternalAgentAccessMode set) may only schedule a skill it could call over MCP directly
+/// (IMcpDelegatedSkillPolicy); otherwise a schedule would launder a hidden tool such as
+/// list_personal_access_tokens or a UI action past the MCP gates into an unattended run.
 /// </summary>
 /// <param name="name">Human-readable label, unique per user; re-using a name updates that task.</param>
 /// <param name="cronExpression">Standard 5-field cron expression derived from the user's natural-language schedule (e.g. "0 8 * * 1" = Mondays 08:00).</param>
@@ -27,6 +30,7 @@
 /// <param name="apply">When true the task is saved; when false (default) only a preview is returned.</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -54,21 +58,28 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         "'" + AutonomyDefaults.ConfirmPendingActionSkillName + "' cannot be scheduled: a held action runs only after the "
         + "user confirmed it in the conversation, never from a background run.";
 
+    private const string NotAvailableToExternalAgentMessage =
+        "Skill '{0}' cannot be scheduled by an external agent: it is not available to this caller over MCP, "
+        + "so it cannot run on its behalf in the background either.";
+
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillRegistry _skillRegistry;
     private readonly ISkillRiskClassifier _riskClassifier;
     private readonly IEffectiveTimeZoneResolver _timeZoneResolver;
+    private readonly IMcpDelegatedSkillPolicy _mcpDelegatedSkillPolicy;
 
     public ScheduleRecurringTaskSkill(
         IScheduledTaskRepository repository,
         ISkillRegistry skillRegistry,
         ISkillRiskClassifier riskClassifier,
-        IEffectiveTimeZoneResolver timeZoneResolver)
+        IEffectiveTimeZoneResolver timeZoneResolver,
+        IMcpDelegatedSkillPolicy mcpDelegatedSkillPolicy)
     {
         _repository = repository;
         _skillRegistry = skillRegistry;
         _riskClassifier = riskClassifier;
         _timeZoneResolver = timeZoneResolver;
+        _mcpDelegatedSkillPolicy = mcpDelegatedSkillPolicy;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -126,27 +137,9 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 return SkillResult.Error("A skill action needs skillName.");
             }
 
-            if (DescribeUnschedulable(skillName) is { } unschedulable)
+            if (DescribeSkillTargetRefusal(skillName, context) is { } refusal)
             {
-                return SkillResult.Error(unschedulable);
-            }
-
-            var descriptor = _skillRegistry.GetSkillByName(skillName);
-            if (descriptor is null)
-            {
-                return SkillResult.Error($"Unknown skill '{skillName}'. It cannot be scheduled.");
-            }
-
-            if (_riskClassifier.Classify(descriptor) == SkillRiskClass.Sensitive)
-            {
-                return SkillResult.Error($"Skill '{skillName}' is too sensitive to run unattended on a schedule.");
-            }
-
-            if (context.UserPermissions.Count == 0)
-            {
-                return SkillResult.Error(
-                    "Your permissions could not be determined, so this schedule would later run without any " +
-                    "permission check. Sign in again and retry.");
+                return SkillResult.Error(refusal);
             }
 
             if (!string.IsNullOrWhiteSpace(skillParameters))
@@ -244,6 +237,38 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
         return string.Equals(skillName, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase)
             ? ConfirmationCannotBeScheduledMessage
             : null;
+    }
+
+    private string? DescribeSkillTargetRefusal(string skillName, SkillExecutionContext context)
+    {
+        if (DescribeUnschedulable(skillName) is { } unschedulable)
+        {
+            return unschedulable;
+        }
+
+        var descriptor = _skillRegistry.GetSkillByName(skillName);
+        if (descriptor is null)
+        {
+            return $"Unknown skill '{skillName}'. It cannot be scheduled.";
+        }
+
+        if (_riskClassifier.Classify(descriptor) == SkillRiskClass.Sensitive)
+        {
+            return $"Skill '{skillName}' is too sensitive to run unattended on a schedule.";
+        }
+
+        if (!_mcpDelegatedSkillPolicy.IsAllowed(descriptor, context.ExternalAgentAccessMode))
+        {
+            return string.Format(NotAvailableToExternalAgentMessage, skillName);
+        }
+
+        if (context.UserPermissions.Count == 0)
+        {
+            return "Your permissions could not be determined, so this schedule would later run without any " +
+                "permission check. Sign in again and retry.";
+        }
+
+        return null;
     }
 
     private async Task<string> ResolveTimeZoneAsync(

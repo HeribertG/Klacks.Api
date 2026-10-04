@@ -396,7 +396,7 @@ public class PlanStepExecutor : IPlanStepExecutor
             return stepContext;
         }
 
-        var token = await _internalTokenIssuer.IssueForOwnerAsync(ownerUserId, cancellationToken: cancellationToken);
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(ownerUserId, stepContext.ExternalAgentAccessMode.HasValue ? Roles.Authorised : null, cancellationToken);
         if (!token.Success)
         {
             _logger.LogWarning(
