@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T07:24:57.083Z",
+  "generatedAt": "2026-10-04T05:09:04.102Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -137,14 +137,14 @@
     {
       "pageKey": "inbox",
       "route": "/workplace/inbox",
-      "requiredPermission": null,
+      "requiredPermission": "Authorised",
       "hasEntityParam": false,
       "requiredFeature": "inbox"
     },
     {
       "pageKey": "messaging",
       "route": "/workplace/messaging",
-      "requiredPermission": null,
+      "requiredPermission": "Authorised",
       "hasEntityParam": false,
       "llmHint": "send and read messages to employees",
       "requiredFeature": "messaging"

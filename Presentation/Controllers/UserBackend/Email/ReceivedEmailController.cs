@@ -1,7 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Controller for received emails management (list, read, delete, move, IMAP sync).
+/// Controller for received emails management (list, read, delete, move, IMAP sync). Received mail is employee
+/// correspondence, so the whole controller answers only Admin and Authorised (supervisor); the Planer floor
+/// does not reach it. Erasing a mail for good and testing the IMAP account stay Admin-only. Which mails a
+/// supervisor sees is further narrowed by group visibility in the handlers.
 /// </summary>
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Email;
@@ -23,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Email;
 
 [ApiController]
+[Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
 public class ReceivedEmailController : BaseController
 {
     private readonly IMediator _mediator;
@@ -125,6 +129,7 @@ public class ReceivedEmailController : BaseController
     }
 
     [HttpDelete("{id:guid}/Permanent")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<bool>> PermanentlyDelete(Guid id)
     {
         var result = await _mediator.Send(new PermanentlyDeleteEmailCommand(id));

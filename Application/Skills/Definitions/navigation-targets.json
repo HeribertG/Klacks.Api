@@ -3313,9 +3313,10 @@
     "route": "/workplace/inbox",
     "labelKey": "nav.inbox",
     "category": "page",
+    "requiredPermission": "Authorised",
     "requiredFeature": "inbox",
     "sourceFile": "src/app/presentation/workplace/inbox/inbox-home/inbox-home.component.html",
-    "lastScannedAt": "2026-09-12T08:27:37.761Z",
+    "lastScannedAt": "2026-10-04T05:09:04.102Z",
     "synonyms": {
       "de": [
         "posteingang",
@@ -3918,9 +3919,10 @@
     "route": "/workplace/messaging",
     "labelKey": "nav.messaging",
     "category": "page",
+    "requiredPermission": "Authorised",
     "requiredFeature": "messaging",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-09-12T08:27:37.761Z",
+    "lastScannedAt": "2026-10-04T05:09:04.102Z",
     "synonyms": {
       "de": [
         "nachrichten",
