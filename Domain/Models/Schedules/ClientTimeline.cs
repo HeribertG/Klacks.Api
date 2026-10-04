@@ -12,6 +12,7 @@ namespace Klacks.Api.Domain.Models.Schedules;
 public class ClientTimeline
 {
     private const int DaysPerWeek = 7;
+    private static readonly TimeSpan RestReferencePeriod = TimeSpan.FromDays(1);
 
     public Guid ClientId { get; }
     public List<ScheduleBlock> Blocks { get; } = [];
@@ -52,24 +53,72 @@ public class ClientTimeline
         return collisions;
     }
 
+    /// <summary>
+    /// Daily rest shortfalls: rest gaps between two work days that are shorter than <paramref name="minRest"/>.
+    /// The pause inside a split shift (e.g. 07-11 and 16-20) is not a daily rest and is never reported;
+    /// see <see cref="GetRestGaps"/> for how work days are formed.
+    /// </summary>
+    /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>
     public List<RestViolation> GetRestViolations(TimeSpan minRest)
     {
         var violations = new List<RestViolation>();
-        var workBlocks = Blocks
-            .Where(b => b.BlockType == ScheduleBlockType.Work)
-            .OrderBy(b => b.Start)
-            .ToList();
-
-        for (var i = 0; i < workBlocks.Count - 1; i++)
+        foreach (var gap in GetRestGaps(minRest))
         {
-            var gap = workBlocks[i + 1].Start - workBlocks[i].End;
-            if (gap < minRest && gap >= TimeSpan.Zero)
+            if (gap.Duration < minRest)
             {
-                violations.Add(new RestViolation(
-                    workBlocks[i], workBlocks[i + 1], gap, minRest));
+                violations.Add(new RestViolation(gap.PreviousBlock, gap.NextBlock, gap.Duration, minRest));
             }
         }
         return violations;
+    }
+
+    /// <summary>
+    /// Rest gaps between consecutive work days. Work blocks are joined into one work day while the gap to the
+    /// next block is shorter than <paramref name="minRest"/> AND the day still fits the daily work frame of
+    /// 24h minus <paramref name="minRest"/> (first start to last end): a work day that leaves the minimum rest
+    /// within every 24-hour period (EU 2003/88 Art. 3) is one day, its inner gaps are pauses. A block that
+    /// would stretch the day beyond that frame starts a new work day, and the short gap before it is a rest
+    /// shortfall. Overlapping blocks belong to the same work day. Only Work blocks count.
+    /// </summary>
+    /// <param name="minRest">Required minimum daily rest (MinRestHours); also defines the daily work frame</param>
+    public List<RestGap> GetRestGaps(TimeSpan minRest)
+    {
+        var gaps = new List<RestGap>();
+        var workBlocks = Blocks
+            .Where(b => b.BlockType == ScheduleBlockType.Work)
+            .OrderBy(b => b.Start)
+            .ThenBy(b => b.End)
+            .ToList();
+        if (workBlocks.Count == 0)
+        {
+            return gaps;
+        }
+
+        var dailyWorkFrame = RestReferencePeriod - minRest;
+        var workDayStart = workBlocks[0].Start;
+        var latestEnding = workBlocks[0];
+
+        for (var i = 1; i < workBlocks.Count; i++)
+        {
+            var next = workBlocks[i];
+            var gap = next.Start - latestEnding.End;
+            var latestEnd = next.End > latestEnding.End ? next.End : latestEnding.End;
+            var isPauseWithinWorkDay = gap < minRest && latestEnd - workDayStart <= dailyWorkFrame;
+
+            if (gap < TimeSpan.Zero || isPauseWithinWorkDay)
+            {
+                if (next.End > latestEnding.End)
+                {
+                    latestEnding = next;
+                }
+                continue;
+            }
+
+            gaps.Add(new RestGap(latestEnding, next, gap));
+            workDayStart = next.Start;
+            latestEnding = next;
+        }
+        return gaps;
     }
 
     public TimeSpan GetWorkDuration(DateOnly date)

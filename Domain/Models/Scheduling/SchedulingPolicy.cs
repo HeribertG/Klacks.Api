@@ -8,7 +8,8 @@ namespace Klacks.Api.Domain.Models.Scheduling;
 /// wizard placement engine and the post-hoc validator MUST consume the same record so a value
 /// accepted by one cannot be flagged by the other.
 /// </summary>
-/// <param name="MinRestHours">Minimum rest hours between two work blocks</param>
+/// <param name="MinRestHours">Minimum daily rest between two work days; the pauses inside a split shift are not
+/// rest (see ClientTimeline.GetRestGaps)</param>
 /// <param name="MaxDailyHours">Maximum hours per calendar day</param>
 /// <param name="MaxConsecutiveDays">Maximum consecutive work days without a rest day</param>
 /// <param name="MaxWeeklyHours">Maximum work hours per ISO week (Monday-anchored)</param>

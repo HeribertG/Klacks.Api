@@ -5,7 +5,8 @@
 /// rows over the effective window, rebuilds ScheduleBlocks through the SAME
 /// <see cref="ITimelineCalculationService"/> the live validator uses (so obligation and feed warning can
 /// never diverge — WorkChange corrections/replacements are folded in identically), derives rest-shortfall
-/// gaps via <see cref="ClientTimeline.GetRestViolations"/>, and upserts one obligation per gap keyed by
+/// gaps via <see cref="ClientTimeline.GetRestViolations"/> (rest between work days, never the pause inside a
+/// split shift), and upserts one obligation per gap keyed by
 /// (ClientId, RestGapStart). StandardRestHours is snapshotted from the policy at creation and never
 /// recomputed; on re-reconcile ShortfallHours is recomputed against that snapshot (never against the live
 /// policy), so the fulfilment threshold StandardRestHours + ShortfallHours is composed only of
@@ -110,7 +111,7 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
             .GroupBy(v => v.PreviousBlock.End)
             .ToDictionary(g => g.Key, g => g.First());
 
-        var gaps = BuildGaps(timeline);
+        var gaps = BuildGaps(timeline, policy.MinRestHours);
         var existingByKey = existing
             .GroupBy(o => o.RestGapStart)
             .ToDictionary(g => g.Key, g => g.First());
@@ -219,25 +220,13 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
         return timeline;
     }
 
-    private static List<(DateTime GapStart, TimeSpan Duration)> BuildGaps(ClientTimeline timeline)
-    {
-        var workBlocks = timeline.Blocks
-            .Where(b => b.BlockType == ScheduleBlockType.Work)
-            .OrderBy(b => b.Start)
+    // Daily rest gaps between work days, the same grouping GetRestViolations uses: the pause inside a split
+    // shift is no rest gap, so it neither keeps a stale obligation alive nor counts as a fulfilling rest.
+    private static List<(DateTime GapStart, TimeSpan Duration)> BuildGaps(ClientTimeline timeline, TimeSpan minRest)
+        => timeline
+            .GetRestGaps(minRest)
+            .Select(g => (g.PreviousBlock.End, g.Duration))
             .ToList();
-
-        var gaps = new List<(DateTime GapStart, TimeSpan Duration)>();
-        for (var i = 0; i < workBlocks.Count - 1; i++)
-        {
-            var gap = workBlocks[i + 1].Start - workBlocks[i].End;
-            if (gap >= TimeSpan.Zero)
-            {
-                gaps.Add((workBlocks[i].End, gap));
-            }
-        }
-
-        return gaps;
-    }
 
     // A fulfilling compensatory rest is a STRICTLY later gap (so repairing the triggering gap itself does
     // not count) that begins on or before the deadline and lasts at least the snapshot-anchored threshold.
