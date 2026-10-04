@@ -22265,7 +22265,7 @@
     {
       "name": "get_contract_details",
       "area": "contract",
-      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates (null = standard from the scheduling rule or settings, 0 = explicitly none), payment interval, validity dates, working days, shift-work flag (null = standard), calendar selection and scheduling rule. Use list_contracts first to find the contract ID, then this skill when the user asks for specifics of one contract or before update_contract / delete_contract.",
+      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates (null = standard from the scheduling rule or settings, 0 = explicitly none), payment interval, validity dates, working days, shift-work flag (null = standard), calendar selection and scheduling rule. Use when the user asks for specifics of one contract or before changing or deleting it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22333,7 +22333,7 @@
         "fr": "Détails du contrat",
         "it": "Dettagli del contratto"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "update_contract",
