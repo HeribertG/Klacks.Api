@@ -4193,6 +4193,7 @@
           "MaxWorkDays",
           "MinRestDays",
           "MinPauseHours",
+          "MaxDailySpanHours",
           "MaxOptimalGap",
           "MaxDailyHours",
           "MaxWeeklyHours",
@@ -4299,7 +4300,7 @@
         "fr": "Lister les règles de planification",
         "it": "Elenca le regole di pianificazione"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "list_system_users",
@@ -7572,6 +7573,13 @@
           "enumValues": null
         },
         {
+          "name": "schedulingMaxDailySpanHours",
+          "type": "string",
+          "description": "Daily work frame in hours: longest span of one work day from first start to last end, breaks included (0 = 24 hours minus the minimum rest)",
+          "required": false,
+          "enumValues": null
+        },
+        {
           "name": "schedulingMaxOptimalGap",
           "type": "string",
           "description": "Maximum optimal gap between shifts in hours",
@@ -7791,6 +7799,21 @@
             "action": "conditional",
             "condition": {
               "type": "paramExists",
+              "key": "schedulingMaxDailySpanHours",
+              "operator": "=="
+            },
+            "thenSteps": [
+              {
+                "action": "setValue",
+                "selector": "sdSchedulingMaxDailySpanHours",
+                "valueFrom": "params.schedulingMaxDailySpanHours"
+              }
+            ]
+          },
+          {
+            "action": "conditional",
+            "condition": {
+              "type": "paramExists",
               "key": "schedulingMaxOptimalGap",
               "operator": "=="
             },
@@ -7971,7 +7994,7 @@
         "fr": "Modifier les paramètres par défaut de planification",
         "it": "Modifica le impostazioni predefinite di pianificazione"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "update_deepl_settings",

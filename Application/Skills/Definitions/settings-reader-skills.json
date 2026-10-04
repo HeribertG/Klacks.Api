@@ -104,6 +104,7 @@
         { "constant": "SettingKeys.SchedulingMaxWorkDays", "resultName": "SchedulingMaxWorkDays" },
         { "constant": "SettingKeys.SchedulingMinRestDays", "resultName": "SchedulingMinRestDays" },
         { "constant": "SettingKeys.SchedulingMinPauseHours", "resultName": "SchedulingMinPauseHours" },
+        { "constant": "SettingKeys.SchedulingMaxDailySpanHours", "resultName": "SchedulingMaxDailySpanHours" },
         { "constant": "SettingKeys.SchedulingMaxOptimalGap", "resultName": "SchedulingMaxOptimalGap" },
         { "constant": "SettingKeys.SchedulingMaxDailyHours", "resultName": "SchedulingMaxDailyHours" },
         { "constant": "SettingKeys.SchedulingMaxWeeklyHours", "resultName": "SchedulingMaxWeeklyHours" },
