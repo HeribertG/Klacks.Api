@@ -163,10 +163,16 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 request.PeriodUntil,
                 request.AnalyseToken,
                 Math.Min(contextDaysBefore, contextDaysAfter),
+                PlanningRuleSources.All,
+                InvalidHardRuleHandling.Report,
                 ct);
-            if (ruleSet.Rules.Count > 0)
+            if (ruleSet.Rules.Count > 0 || ruleSet.InvalidHardRuleIds is { Count: > 0 })
             {
                 planningRules = ToBitmapPlanningRules(ruleSet, contextFrom, contextUntil, works.Concat(boundaryWorks));
+            }
+
+            if (ruleSet.Rules.Count > 0)
+            {
                 agents = WithRuleAgents(agents, ruleSet.Agents);
             }
         }
@@ -185,6 +191,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     }
 
     /// <summary>
+    /// An invalid approved hard constraint is skipped (Report mode, as in the pre-commit check) and travels along as
+    /// InvalidHardRuleIds, so the run still honours every valid rule and the caller can warn instead of failing.
     /// The loader skips the carry-in of the symmetric covered window (the shorter ContextDays side); the engine
     /// boundary already holds every day in [contextFrom, contextUntil], so carry-in inside it is dropped here and no
     /// day counts twice. Container sub-works are ignored, exactly like the API rule readers do.
@@ -202,7 +210,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var nightRuleMinOverlap = ruleSet.Agents.Count > 0
             ? ruleSet.Agents[0].NightRuleMinOverlapMinutes
             : PlanningConstraintDefaults.DefaultNightRuleMinOverlapMinutes;
-        return new BitmapPlanningRules(ruleSet.Rules, carryIn, nightRuleMinOverlap, ignoredWorkIds);
+        return new BitmapPlanningRules(ruleSet.Rules, carryIn, nightRuleMinOverlap, ignoredWorkIds, ruleSet.InvalidHardRuleIds);
     }
 
     /// <summary>Night window and workload of the planning rules come from the loader, the same source the validators use.</summary>

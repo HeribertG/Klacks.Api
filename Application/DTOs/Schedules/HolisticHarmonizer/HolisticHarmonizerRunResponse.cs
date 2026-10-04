@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
@@ -8,6 +9,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 /// bitmap order. Index 0 corresponds to swap.RowA/RowB == 0 in any swap of this run.
 /// The frontend uses this array to map row indices to human names without having to
 /// reproduce the engine's row sort.</param>
+/// <param name="PlanningRuleWarnings">Approved hard planning constraints the run skipped because they are invalid
+/// (key schedule.error-list.planning-rule-invalid); the plan honours every valid rule</param>
 public sealed record HolisticHarmonizerRunResponse(
     Guid JobId,
     string LlmModelId,
@@ -19,4 +22,5 @@ public sealed record HolisticHarmonizerRunResponse(
     IReadOnlyList<string> AgentDisplayNames,
     IReadOnlyList<QualificationGapDetail> QualificationGaps,
     string? LlmParsingError,
-    string? LlmRawResponsePreview);
+    string? LlmRawResponsePreview,
+    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null);

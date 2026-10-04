@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
@@ -234,7 +235,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut);
+                TimedOut: timedOut, PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(input.Rules?.InvalidHardRuleIds, request.PeriodFrom));
 
             // CancellationToken.None: the run is already finished. The hard cancel may fire during the
             // post-loop work, and a cancelled store would drop the result and report the finished run as

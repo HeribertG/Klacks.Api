@@ -330,7 +330,10 @@ public sealed class HolisticHarmonizerEngine
             LlmModelId: request.LlmModelId,
             LlmParsingError: lastParsingError,
             LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null,
-            AbortedOnUnusableResponses: abortedOnUnusableResponses);
+            AbortedOnUnusableResponses: abortedOnUnusableResponses)
+        {
+            InvalidPlanningRuleIds = input.Rules?.InvalidHardRuleIds ?? [],
+        };
     }
 
     /// <summary>

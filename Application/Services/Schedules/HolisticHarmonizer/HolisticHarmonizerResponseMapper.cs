@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
@@ -71,6 +72,9 @@ public static class HolisticHarmonizerResponseMapper
             AgentDisplayNames: agentDisplayNames,
             QualificationGaps: qualificationGaps ?? [],
             LlmParsingError: result.LlmParsingError,
-            LlmRawResponsePreview: result.LlmRawResponsePreview);
+            LlmRawResponsePreview: result.LlmRawResponsePreview,
+            PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(
+                result.InvalidPlanningRuleIds,
+                result.OriginalBitmap.DayCount > 0 ? result.OriginalBitmap.Days[0] : default));
     }
 }

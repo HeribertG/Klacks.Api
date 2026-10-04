@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Commands.AnalyseScenarios;
+using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
@@ -15,6 +17,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -157,6 +160,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             var finalScenario = produced[^1];
 
             var qualificationGaps = await BuildQualificationGapsAsync(request, finalScenario.Token, ct);
+            var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalScenario.Token, ct);
 
             stopwatch.Stop();
 
@@ -167,7 +171,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioName: finalScenario.Name,
                 ElapsedMs: stopwatch.ElapsedMilliseconds,
                 QualificationGaps: qualificationGaps,
-                ComplianceViolations: wizardOutcome.ComplianceViolations,
+                ComplianceViolations: [.. wizardOutcome.ComplianceViolations, .. skippedRuleWarnings],
                 ComplianceSkippedPlacements: wizardOutcome.SkippedPlacements,
                 HarmonizationSkipped: holisticStage.SkippedReason is not null,
                 HarmonizationSkippedReason: holisticStage.SkippedReason);
@@ -501,6 +505,28 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             orchestratorJobId, scenario.Id, scenario.Token);
 
         return new AutoWizardStageScenario(StageNames.HolisticHarmonizer, scenario.Id, scenario.Token, scenario.Name);
+    }
+
+    /// <summary>
+    /// Stages 2 and 3 skip an invalid approved hard planning constraint instead of failing (Report mode) and plan
+    /// with the valid rules; the chain result carries one warning per skipped constraint, with the same
+    /// translated key the period check uses, so the user learns that a binding rule was not honoured.
+    /// </summary>
+    private async Task<IReadOnlyList<ScheduleValidationNotificationDto>> LoadSkippedPlanningRuleWarningsAsync(
+        StartAutoWizardRequest request, Guid? finalScenarioToken, CancellationToken ct)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var loader = scope.ServiceProvider.GetRequiredService<IPlanningRuleSetLoader>();
+        var ruleSet = await loader.LoadRuleSetAsync(
+            request.AgentIds,
+            request.PeriodFrom,
+            request.PeriodUntil,
+            finalScenarioToken,
+            PlanningConstraintDefaults.MaxDayDistanceLimit + 1,
+            PlanningRuleSources.PlanningConstraints,
+            InvalidHardRuleHandling.Report,
+            ct);
+        return PlanningRuleNotificationMapper.ToSkippedRuleWarnings(ruleSet.InvalidHardRuleIds, request.PeriodFrom);
     }
 
     private async Task<IReadOnlyList<QualificationGapDetail>> BuildQualificationGapsAsync(

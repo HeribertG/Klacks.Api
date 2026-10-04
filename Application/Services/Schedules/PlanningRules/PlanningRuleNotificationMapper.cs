@@ -66,6 +66,16 @@ public static class PlanningRuleNotificationMapper
             CommentParams = new Dictionary<string, string> { [RuleIdParam] = ruleId.ToString() },
         };
 
+    /// <summary>
+    /// Warnings for the approved hard constraints a planning engine skipped because they are invalid: the run did
+    /// not fail, so the user must still learn that one binding rule was not honoured.
+    /// </summary>
+    public static IReadOnlyList<ScheduleValidationNotificationDto> ToSkippedRuleWarnings(IReadOnlyList<Guid>? invalidRuleIds, DateOnly date)
+        => (invalidRuleIds ?? [])
+            .Distinct()
+            .Select(ruleId => ToInvalidRuleNotification(ruleId, date, ScheduleValidationType.Warning, Guid.Empty))
+            .ToList();
+
     public static Guid ParseClientId(string? agentId)
         => Guid.TryParse(agentId, CultureInfo.InvariantCulture, out var clientId) ? clientId : Guid.Empty;
 }

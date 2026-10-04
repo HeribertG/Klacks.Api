@@ -122,7 +122,10 @@ public sealed class HolisticHarmonizerDeterministicEngine
             FitnessAfter: result.FitnessAfter,
             LlmModelId: EngineLabel,
             LlmParsingError: null,
-            LlmRawResponsePreview: null);
+            LlmRawResponsePreview: null)
+        {
+            InvalidPlanningRuleIds = context.Rules?.InvalidHardRuleIds ?? [],
+        };
     }
 
     private void LogAppliedBatch(int iteration, BatchEvaluation evaluation)
