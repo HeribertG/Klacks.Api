@@ -22,10 +22,11 @@
 /// <param name="minimumHours">Optional, only meaningful together with guaranteedHours (path 1). Defaults to guaranteedHours when guaranteedHours is set; otherwise left unconfigured (0).</param>
 /// <param name="maximumHours">Optional, only meaningful together with guaranteedHours (path 1). Defaults to guaranteedHours when guaranteedHours is set; otherwise left unconfigured (0).</param>
 /// <param name="fullTime">Optional. Full-time reference hours for path 1; 0 means not configured. Not meaningful when guaranteedHours is omitted (path 2).</param>
-/// <param name="nightRate">Optional. Night surcharge rate.</param>
-/// <param name="holidayRate">Optional. Holiday surcharge rate.</param>
-/// <param name="saRate">Optional. Saturday surcharge rate.</param>
-/// <param name="soRate">Optional. Sunday surcharge rate.</param>
+/// <param name="nightRate">Optional. Night time-credit factor (0.1 = 6 minutes per hour). Omit to use the standard (scheduling rule, then installation settings); 0 means explicitly no credit.</param>
+/// <param name="holidayRate">Optional. Holiday time-credit factor. Omit to use the standard; 0 means explicitly no credit.</param>
+/// <param name="saRate">Optional. Saturday time-credit factor. Omit to use the standard; 0 means explicitly no credit.</param>
+/// <param name="soRate">Optional. Sunday time-credit factor. Omit to use the standard; 0 means explicitly no credit.</param>
+/// <param name="performsShiftWork">Optional. Whether the employee works late/night shifts. Omit to use the standard (scheduling rule, then installation default). When false, the contract's own rates are ignored and the standard rates apply.</param>
 /// <param name="paymentInterval">Optional. Weekly, Biweekly, Monthly or Individual; defaults to Monthly.</param>
 /// <param name="percent">Optional. Workload share in percent for path 2 (inherited workload); scales the company-wide monthly value and feeds absence macros. Defaults to 100 when omitted — a missing percent is normal, not an error.</param>
 /// <param name="validUntil">Optional. Validity end date (YYYY-MM-DD); omit for open-ended.</param>
@@ -86,10 +87,11 @@ public class CreateContractSkill : BaseSkillImplementation
             ?? guaranteedHours
             ?? decimal.Zero;
         var fullTime = GetParameter<decimal?>(parameters, "fullTime") ?? decimal.Zero;
-        var nightRate = GetParameter<decimal?>(parameters, "nightRate") ?? decimal.Zero;
-        var holidayRate = GetParameter<decimal?>(parameters, "holidayRate") ?? decimal.Zero;
-        var saRate = GetParameter<decimal?>(parameters, "saRate") ?? decimal.Zero;
-        var soRate = GetParameter<decimal?>(parameters, "soRate") ?? decimal.Zero;
+        var nightRate = GetParameter<decimal?>(parameters, "nightRate");
+        var holidayRate = GetParameter<decimal?>(parameters, "holidayRate");
+        var saRate = GetParameter<decimal?>(parameters, "saRate");
+        var soRate = GetParameter<decimal?>(parameters, "soRate");
+        var performsShiftWork = GetParameter<bool?>(parameters, "performsShiftWork");
         var percent = GetParameter<decimal?>(parameters, "percent");
         var validUntilStr = GetParameter<string>(parameters, "validUntil");
         var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, context.UserLanguage);
@@ -101,7 +103,11 @@ public class CreateContractSkill : BaseSkillImplementation
         var negativeNullable = new (string Key, decimal? Value)[]
         {
             ("guaranteedHours", guaranteedHours),
-            ("percent", percent)
+            ("percent", percent),
+            ("nightRate", nightRate),
+            ("holidayRate", holidayRate),
+            ("saRate", saRate),
+            ("soRate", soRate)
         };
         foreach (var (key, value) in negativeNullable)
         {
@@ -115,11 +121,7 @@ public class CreateContractSkill : BaseSkillImplementation
         {
             ("minimumHours", minimumHours),
             ("maximumHours", maximumHours),
-            ("fullTime", fullTime),
-            ("nightRate", nightRate),
-            ("holidayRate", holidayRate),
-            ("saRate", saRate),
-            ("soRate", soRate)
+            ("fullTime", fullTime)
         };
         foreach (var (key, value) in negative)
         {
@@ -164,6 +166,7 @@ public class CreateContractSkill : BaseSkillImplementation
             HolidayRate = holidayRate,
             WE1Rate = saRate,
             WE2Rate = soRate,
+            PerformsShiftWork = performsShiftWork,
             PaymentInterval = paymentInterval,
             Percent = percent,
             ValidFrom = validFrom.Value,

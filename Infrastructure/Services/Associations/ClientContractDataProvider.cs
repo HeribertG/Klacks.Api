@@ -1,6 +1,5 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
@@ -18,6 +17,7 @@ namespace Klacks.Api.Infrastructure.Services.Associations;
 /// Single choke point translating contracts, scheduling rules, rate revisions, the company-wide
 /// monthly target hours table and default settings into effective contract data. Clients without a
 /// contract resolve to the monthly value for that month when a row exists, otherwise to the settings.
+/// Surcharge rates and PerformsShiftWork resolve contract first; null on the contract means "standard".
 /// </summary>
 public class ClientContractDataProvider : IClientContractDataProvider
 {
@@ -45,7 +45,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // stamp - they probe different tables (rate revisions, MonthlyTargetHours) that have no version of
     // their own, so they remain scope-lifetime caches and can go stale under the same shared-scope
     // shape. Not fixed here - tracked as open.
-    private DefaultSettings? _defaultSettings;
+    private ContractDefaultSettings? _defaultSettings;
     private long? _defaultSettingsVersion;
     private bool? _hasRateRevisions;
     private bool? _hasMonthlyTargetHours;
@@ -392,7 +392,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
                 g => g.OrderByDescending(cc => cc.FromDate).First().Contract);
     }
 
-    private async Task<DefaultSettings> LoadDefaultSettingsAsync()
+    private async Task<ContractDefaultSettings> LoadDefaultSettingsAsync()
     {
         var versionAtLoad = _settingsChangeVersion.Current;
         if (_defaultSettings is not null && _defaultSettingsVersion == versionAtLoad)
@@ -400,94 +400,37 @@ public class ClientContractDataProvider : IClientContractDataProvider
             return _defaultSettings;
         }
 
-        var keys = new[]
-        {
-            SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.WE1Rate, SettingKeys.WE2Rate, SettingKeys.WE3Rate,
-            SettingKeys.SurchargeNightStart, SettingKeys.SurchargeNightEnd,
-            SettingKeys.SurchargeNightRateMode, SettingKeys.SurchargeHolidayRateMode,
-            SettingKeys.SurchargeWE1RateMode, SettingKeys.SurchargeWE2RateMode, SettingKeys.SurchargeWE3RateMode,
-            SettingKeys.SurchargeNightMinimumPerHour, SettingKeys.SurchargeHolidayMinimumPerHour,
-            SettingKeys.SurchargeWE1MinimumPerHour, SettingKeys.SurchargeWE2MinimumPerHour, SettingKeys.SurchargeWE3MinimumPerHour,
-            SettingKeys.GuaranteedHours, SettingKeys.FullTime, SettingKeys.DefaultWorkingHours,
-            SettingKeys.OvertimeThreshold, SettingKeys.MaximumHours, SettingKeys.MinimumHours,
-            SettingKeys.PaymentInterval, SettingKeys.VacationDaysPerYear,
-            SettingKeys.SchedulingMaxWorkDays, SettingKeys.SchedulingMinRestDays,
-            SettingKeys.SchedulingMinPauseHours, SettingKeys.SchedulingMaxOptimalGap,
-            SettingKeys.SchedulingMaxDailyHours, SettingKeys.SchedulingMaxWeeklyHours,
-            SettingKeys.SchedulingMaxConsecutiveDays,
-            SettingKeys.SchedulingDefaultWorkOnMonday, SettingKeys.SchedulingDefaultWorkOnTuesday,
-            SettingKeys.SchedulingDefaultWorkOnWednesday, SettingKeys.SchedulingDefaultWorkOnThursday,
-            SettingKeys.SchedulingDefaultWorkOnFriday, SettingKeys.SchedulingDefaultWorkOnSaturday,
-            SettingKeys.SchedulingDefaultWorkOnSunday, SettingKeys.SchedulingDefaultPerformsShiftWork
-        };
-
         var settings = await _context.Settings
-            .Where(s => keys.Contains(s.Type))
+            .Where(s => ContractDefaultSettingsReader.Keys.Contains(s.Type))
             .ToDictionaryAsync(s => s.Type, s => s.Value);
 
-        _defaultSettings = new DefaultSettings
-        {
-            NightRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.NightRate)),
-            HolidayRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.HolidayRate)),
-            WE1Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE1Rate)),
-            WE2Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE2Rate)),
-            WE3Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE3Rate)),
-            NightRateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeNightRateMode)),
-            HolidayRateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeHolidayRateMode)),
-            WE1RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE1RateMode)),
-            WE2RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE2RateMode)),
-            WE3RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE3RateMode)),
-            NightMinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeNightMinimumPerHour)),
-            HolidayMinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeHolidayMinimumPerHour)),
-            WE1MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE1MinimumPerHour)),
-            WE2MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE2MinimumPerHour)),
-            WE3MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE3MinimumPerHour)),
-            NightStart = ParseTimeOfDay(settings.GetValueOrDefault(SettingKeys.SurchargeNightStart), SurchargeDefaults.NightStart),
-            NightEnd = ParseTimeOfDay(settings.GetValueOrDefault(SettingKeys.SurchargeNightEnd), SurchargeDefaults.NightEnd),
-            GuaranteedHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.GuaranteedHours)),
-            FullTime = ParseDecimal(settings.GetValueOrDefault(SettingKeys.FullTime)),
-            DefaultWorkingHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.DefaultWorkingHours)),
-            OvertimeThreshold = ParseDecimal(settings.GetValueOrDefault(SettingKeys.OvertimeThreshold)),
-            MaximumHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.MaximumHours)),
-            MinimumHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.MinimumHours)),
-            PaymentInterval = ParseInt(settings.GetValueOrDefault(SettingKeys.PaymentInterval)),
-            VacationDaysPerYear = ParseInt(settings.GetValueOrDefault(SettingKeys.VacationDaysPerYear)),
-            MaxWorkDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMaxWorkDays)),
-            MinRestDays = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMinRestDays)),
-            MinPauseHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMinPauseHours)),
-            MaxOptimalGap = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxOptimalGap)),
-            MaxDailyHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxDailyHours)),
-            MaxWeeklyHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxWeeklyHours)),
-            MaxConsecutiveDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMaxConsecutiveDays)),
-            WorkOnMonday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnMonday)),
-            WorkOnTuesday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnTuesday)),
-            WorkOnWednesday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnWednesday)),
-            WorkOnThursday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnThursday)),
-            WorkOnFriday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnFriday)),
-            WorkOnSaturday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSaturday)),
-            WorkOnSunday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSunday)),
-            PerformsShiftWork = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultPerformsShiftWork))
-        };
+        _defaultSettings = ContractDefaultSettingsReader.FromSettings(settings);
         _defaultSettingsVersion = versionAtLoad;
 
         return _defaultSettings;
     }
 
-    // A non-null rateSnapshot is the applicable dated rate revision (latest ValidFrom &lt;= work date): it
-    // REPLACES the rule's base surcharge-rate columns as a full snapshot, so a null rate field in the
-    // snapshot falls through to contract/settings and never inherits from the base rule or an earlier
-    // revision. With no snapshot the resolution is identical to the pre-revision behaviour.
+    // The five surcharge rates resolve contract first (owner decision 2026-10-04): an explicit contract
+    // value (also 0) wins, null means "standard" = the rule level, then settings. The rule level is the
+    // applicable dated rate revision (latest ValidFrom <= work date) when one exists - it REPLACES the
+    // rule's base rate columns as a full snapshot, so a null rate in the snapshot falls through to the
+    // settings and never inherits from the base rule or an earlier revision - otherwise the rule itself.
+    // While the effective PerformsShiftWork (contract ?? rule ?? settings) is false, all five contract
+    // rates are skipped and the standard applies.
     private EffectiveContractData BuildEffectiveData(
-        Contract contract, DefaultSettings defaults, SchedulingRuleRateRevision? rateSnapshot,
+        Contract contract, ContractDefaultSettings defaults, SchedulingRuleRateRevision? rateSnapshot,
         MonthlyTargetHours? monthlyTargetHours)
     {
         var rule = contract.SchedulingRule;
 
-        var nightRateBase = rateSnapshot != null ? rateSnapshot.NightRate : rule?.NightRate;
-        var holidayRateBase = rateSnapshot != null ? rateSnapshot.HolidayRate : rule?.HolidayRate;
-        var we1RateBase = rateSnapshot != null ? rateSnapshot.WE1Rate : rule?.WE1Rate;
-        var we2RateBase = rateSnapshot != null ? rateSnapshot.WE2Rate : rule?.WE2Rate;
-        var we3RateBase = rateSnapshot != null ? rateSnapshot.WE3Rate : rule?.WE3Rate;
+        var performsShiftWork = contract.PerformsShiftWork ?? rule?.PerformsShiftWork ?? defaults.PerformsShiftWork;
+        var contractRates = performsShiftWork ? contract : null;
+
+        var nightRateStandard = rateSnapshot != null ? rateSnapshot.NightRate : rule?.NightRate;
+        var holidayRateStandard = rateSnapshot != null ? rateSnapshot.HolidayRate : rule?.HolidayRate;
+        var we1RateStandard = rateSnapshot != null ? rateSnapshot.WE1Rate : rule?.WE1Rate;
+        var we2RateStandard = rateSnapshot != null ? rateSnapshot.WE2Rate : rule?.WE2Rate;
+        var we3RateStandard = rateSnapshot != null ? rateSnapshot.WE3Rate : rule?.WE3Rate;
 
         return new EffectiveContractData
         {
@@ -497,11 +440,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
             MaximumHours = rule?.MaximumHours ?? contract.MaximumHours ?? defaults.MaximumHours,
             MinimumHours = rule?.MinimumHours ?? contract.MinimumHours ?? defaults.MinimumHours,
             FullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime,
-            NightRate = nightRateBase ?? contract.NightRate ?? defaults.NightRate,
-            HolidayRate = holidayRateBase ?? contract.HolidayRate ?? defaults.HolidayRate,
-            WE1Rate = we1RateBase ?? contract.WE1Rate ?? defaults.WE1Rate,
-            WE2Rate = we2RateBase ?? contract.WE2Rate ?? defaults.WE2Rate,
-            WE3Rate = we3RateBase ?? contract.WE3Rate ?? defaults.WE3Rate,
+            NightRate = contractRates?.NightRate ?? nightRateStandard ?? defaults.NightRate,
+            HolidayRate = contractRates?.HolidayRate ?? holidayRateStandard ?? defaults.HolidayRate,
+            WE1Rate = contractRates?.WE1Rate ?? we1RateStandard ?? defaults.WE1Rate,
+            WE2Rate = contractRates?.WE2Rate ?? we2RateStandard ?? defaults.WE2Rate,
+            WE3Rate = contractRates?.WE3Rate ?? we3RateStandard ?? defaults.WE3Rate,
             NightRateMode = defaults.NightRateMode,
             HolidayRateMode = defaults.HolidayRateMode,
             WE1RateMode = defaults.WE1RateMode,
@@ -539,7 +482,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkOnFriday = rule?.WorkOnFriday ?? contract.WorkOnFriday,
             WorkOnSaturday = rule?.WorkOnSaturday ?? contract.WorkOnSaturday,
             WorkOnSunday = rule?.WorkOnSunday ?? contract.WorkOnSunday,
-            PerformsShiftWork = rule?.PerformsShiftWork ?? contract.PerformsShiftWork
+            PerformsShiftWork = performsShiftWork
         };
     }
 
@@ -560,7 +503,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // An explicit contract value (including 0 for on-call contracts) keeps the original chain unchanged.
     // Percent scales ONLY the inherited or month-row basis, never an explicitly set contract value.
     private static decimal ResolveGuaranteedHours(
-        Contract contract, SchedulingRule? rule, DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
+        Contract contract, SchedulingRule? rule, ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
     {
         var percent = contract.Percent ?? MonthlyTargetHoursConstants.FullWorkloadPercent;
 
@@ -581,7 +524,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // Mirrors ResolveGuaranteedHours: an inherited value is stated per calendar month (month row) or per the
     // company interval (settings); null means it is stated per the contract's own PaymentInterval.
     private static int? ResolveGuaranteedHoursBasisInterval(
-        Contract contract, DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours) =>
+        Contract contract, ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours) =>
         contract.GuaranteedHours is not null
         || (contract.PaymentInterval == PaymentInterval.MonthlyTargetHours && monthlyTargetHours != null)
             ? null
@@ -594,7 +537,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // 2026-08-19). Implausible master data (no full-time basis, or a ratio above the plausibility
     // ceiling) falls back to full workload and is logged once per contract per scope instead of
     // silently scaling absurdly.
-    private decimal ResolveWorkloadPercent(Contract contract, SchedulingRule? rule, DefaultSettings defaults)
+    private decimal ResolveWorkloadPercent(Contract contract, SchedulingRule? rule, ContractDefaultSettings defaults)
     {
         if (UsesMonthlyTargetHours(contract))
         {
@@ -647,7 +590,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // A client without a contract takes the company-wide monthly value at full workload when a row
     // exists for that month (there is no contract percent to scale by); otherwise the settings value
     // applies as before.
-    private static EffectiveContractData BuildFromDefaults(DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
+    private static EffectiveContractData BuildFromDefaults(ContractDefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
     {
         return new EffectiveContractData
         {
@@ -701,97 +644,5 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkOnSunday = defaults.WorkOnSunday,
             PerformsShiftWork = defaults.PerformsShiftWork
         };
-    }
-
-    private static decimal ParseDecimal(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return 0;
-
-        return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
-    }
-
-    private static int ParseInt(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return 0;
-
-        return int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
-    }
-
-    private static string ParseTimeOfDay(string? value, string fallback)
-    {
-        return string.IsNullOrWhiteSpace(value) ? fallback : value;
-    }
-
-    private static decimal? ParseNullableDecimal(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return null;
-
-        return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : null;
-    }
-
-    private static SurchargeRateMode ParseRateMode(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return SurchargeRateMode.Multiplier;
-
-        return Enum.TryParse<SurchargeRateMode>(value, ignoreCase: true, out var mode) ? mode : SurchargeRateMode.Multiplier;
-    }
-
-    // Absent rows default to true: the seed ships every SCHEDULING_DEFAULT_* flag as true and a
-    // contract-less fallback that cannot work on any day would silently exclude the client from
-    // planning (observed live: only early shifts were planned for a whole month).
-    private static bool ParseBool(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return true;
-
-        return !string.Equals(value, "false", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private sealed record DefaultSettings
-    {
-        public decimal NightRate { get; init; }
-        public decimal HolidayRate { get; init; }
-        public decimal WE1Rate { get; init; }
-        public decimal WE2Rate { get; init; }
-        public decimal WE3Rate { get; init; }
-        public SurchargeRateMode NightRateMode { get; init; }
-        public SurchargeRateMode HolidayRateMode { get; init; }
-        public SurchargeRateMode WE1RateMode { get; init; }
-        public SurchargeRateMode WE2RateMode { get; init; }
-        public SurchargeRateMode WE3RateMode { get; init; }
-        public decimal? NightMinimumPerHour { get; init; }
-        public decimal? HolidayMinimumPerHour { get; init; }
-        public decimal? WE1MinimumPerHour { get; init; }
-        public decimal? WE2MinimumPerHour { get; init; }
-        public decimal? WE3MinimumPerHour { get; init; }
-        public string NightStart { get; init; } = SurchargeDefaults.NightStart;
-        public string NightEnd { get; init; } = SurchargeDefaults.NightEnd;
-        public decimal GuaranteedHours { get; init; }
-        public decimal FullTime { get; init; }
-        public decimal DefaultWorkingHours { get; init; }
-        public decimal OvertimeThreshold { get; init; }
-        public decimal MaximumHours { get; init; }
-        public decimal MinimumHours { get; init; }
-        public int PaymentInterval { get; init; }
-        public int VacationDaysPerYear { get; init; }
-        public int MaxWorkDays { get; init; }
-        public decimal MinRestDays { get; init; }
-        public decimal MinPauseHours { get; init; }
-        public decimal MaxOptimalGap { get; init; }
-        public decimal MaxDailyHours { get; init; }
-        public decimal MaxWeeklyHours { get; init; }
-        public int MaxConsecutiveDays { get; init; }
-        public bool WorkOnMonday { get; init; }
-        public bool WorkOnTuesday { get; init; }
-        public bool WorkOnWednesday { get; init; }
-        public bool WorkOnThursday { get; init; }
-        public bool WorkOnFriday { get; init; }
-        public bool WorkOnSaturday { get; init; }
-        public bool WorkOnSunday { get; init; }
-        public bool PerformsShiftWork { get; init; }
     }
 }

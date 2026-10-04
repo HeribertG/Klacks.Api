@@ -28,6 +28,12 @@ public class Contract : BaseEntity
 
     public decimal? FullTime { get; set; }
 
+    /// <summary>
+    /// Night time-credit factor. The five surcharge rates (night, holiday, WE1-WE3) resolve contract
+    /// first: an explicit value (also 0 = deliberately no credit) wins, null means "standard" = the
+    /// scheduling rule (or its applicable dated rate revision), then the installation settings. All five
+    /// contract rates are ignored while the effective <see cref="PerformsShiftWork"/> is false.
+    /// </summary>
     public decimal? NightRate { get; set; }
 
     public decimal? HolidayRate { get; set; }
@@ -88,7 +94,11 @@ public class Contract : BaseEntity
 
     public bool WorkOnSunday { get; set; }
 
-    public bool PerformsShiftWork { get; set; }
+    /// <summary>
+    /// Tri-state shift-work flag: true/false is an explicit contract decision, null means "standard" =
+    /// the scheduling rule, then the installation default setting.
+    /// </summary>
+    public bool? PerformsShiftWork { get; set; }
 
     [ForeignKey("SchedulingRule")]
     public Guid? SchedulingRuleId { get; set; }

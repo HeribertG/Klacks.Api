@@ -25,7 +25,7 @@
   <tr><td><strong>Nej</strong></td><td>tom</td><td>Dette er fastlagt af denne regel: Der arbejdes ikke på denne dag. Dette gælder for alle kontrakter, som denne regel er knyttet til – også selvom kontrakten udtrykkeligt omfatter denne dag.</td></tr>
 </table>
 <p><strong>Bemærk:</strong> »Nej« er en udtrykkelig spærring og ikke en neutral tilstand. At indstille enkelte dage til »ja« spærrer ikke de øvrige: For hver dag, der er indstillet til »ikke angivet«, gælder kontrakten fortsat. Hvis man ønsker at udelukke en dag, skal man udtrykkeligt indstille den til »nej«.</p>
-<p><strong>Skifteholdsarbejde</strong> følger den samme logik: »Ikke angivet« overtager værdien fra kontrakten, mens »ja« og »nej« angiver den via denne regel.</p>
+<p><strong>Skifteholdsarbejde</strong> fungerer anderledes: kontrakten kommer først. »Ja« og »nej« er denne regels standard for kontrakter, der lader skifteholdsarbejde stå på standard - en eksplicit værdi i kontrakten har altid forrang. »Ikke angivet« betyder, at installationens standardindstilling gælder, medmindre kontrakten fastsætter en værdi. Uden skifteholdsarbejde ignoreres kontraktens egne tillægssatser (nat, helligdag, weekend), og standardsatserne gælder.</p>
 
 <hr>
 
