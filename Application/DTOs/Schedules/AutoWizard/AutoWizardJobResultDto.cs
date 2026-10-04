@@ -24,6 +24,9 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="PlanningRuleWarnings">Approved hard planning constraints the chain skipped because they are invalid
 /// (key schedule.error-list.planning-rule-invalid); kept apart from ComplianceViolations so they are never counted
 /// as overridden violations.</param>
+/// <param name="PlanningRuleRemaining">Hard planning-rule findings of the source plan and of the final scenario; null
+/// when no planning rule applies. Wizard 1 does not honour planning rules yet, so the chain can add violations; the
+/// UI only calls them pre-existing when the count did not rise.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
@@ -35,4 +38,5 @@ public sealed record AutoWizardJobResultDto(
     IReadOnlyList<SkippedPlacementDto> ComplianceSkippedPlacements,
     bool HarmonizationSkipped = false,
     string? HarmonizationSkippedReason = null,
-    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null);
+    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null,
+    PlanningRuleRemainingDto? PlanningRuleRemaining = null);

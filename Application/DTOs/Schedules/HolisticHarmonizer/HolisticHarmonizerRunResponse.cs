@@ -11,6 +11,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 /// reproduce the engine's row sort.</param>
 /// <param name="PlanningRuleWarnings">Approved hard planning constraints the run skipped because they are invalid
 /// (key schedule.error-list.planning-rule-invalid); the plan honours every valid rule</param>
+/// <param name="PlanningRuleRemaining">Hard planning-rule findings before and after the run; null when no planning rule
+/// applies. The run does not add violations but does not repair them either.</param>
 public sealed record HolisticHarmonizerRunResponse(
     Guid JobId,
     string LlmModelId,
@@ -23,4 +25,5 @@ public sealed record HolisticHarmonizerRunResponse(
     IReadOnlyList<QualificationGapDetail> QualificationGaps,
     string? LlmParsingError,
     string? LlmRawResponsePreview,
-    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null);
+    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null,
+    PlanningRuleRemainingDto? PlanningRuleRemaining = null);

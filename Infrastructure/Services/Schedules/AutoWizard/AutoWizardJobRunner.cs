@@ -20,6 +20,8 @@ using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules.PlanningRules;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
+using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.Harmonizer.Rules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -161,6 +163,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
             var qualificationGaps = await BuildQualificationGapsAsync(request, finalScenario.Token, ct);
             var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalScenario.Token, ct);
+            var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalScenario.Token, ct);
 
             stopwatch.Stop();
 
@@ -175,7 +178,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 ComplianceSkippedPlacements: wizardOutcome.SkippedPlacements,
                 HarmonizationSkipped: holisticStage.SkippedReason is not null,
                 HarmonizationSkippedReason: holisticStage.SkippedReason,
-                PlanningRuleWarnings: skippedRuleWarnings);
+                PlanningRuleWarnings: skippedRuleWarnings,
+                PlanningRuleRemaining: planningRuleRemaining);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
@@ -528,6 +532,51 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             InvalidHardRuleHandling.Report,
             ct);
         return PlanningRuleNotificationMapper.ToSkippedRuleWarnings(ruleSet.InvalidHardRuleIds, request.PeriodFrom);
+    }
+
+    /// <summary>
+    /// Hard planning-rule findings of the source plan and of the final scenario, measured with the evaluator the
+    /// Wizard 2/3 guard uses. Wizard 1 does not honour planning rules yet, so the chain may add violations; the
+    /// counts let the UI say so honestly. A failure here only drops the summary, never the finished chain.
+    /// </summary>
+    private async Task<PlanningRuleRemainingDto?> CountPlanningRuleHardFindingsAsync(
+        Guid jobId, StartAutoWizardRequest request, Guid? finalScenarioToken, CancellationToken ct)
+    {
+        if (finalScenarioToken is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var contextBuilder = scope.ServiceProvider.GetRequiredService<IHarmonizerContextBuilder>();
+            var before = await CountHardFindingsAsync(contextBuilder, request, request.AnalyseToken, ct);
+            var after = await CountHardFindingsAsync(contextBuilder, request, finalScenarioToken, ct);
+            return before is int hardBefore && after is int hardAfter
+                ? new PlanningRuleRemainingDto(hardBefore, hardAfter)
+                : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "AutoWizard {JobId} - counting the remaining planning-rule violations failed", jobId);
+            return null;
+        }
+    }
+
+    private static async Task<int?> CountHardFindingsAsync(
+        IHarmonizerContextBuilder contextBuilder, StartAutoWizardRequest request, Guid? analyseToken, CancellationToken ct)
+    {
+        var input = await contextBuilder.BuildContextAsync(
+            new HarmonizerContextRequest(
+                PeriodFrom: request.PeriodFrom,
+                PeriodUntil: request.PeriodUntil,
+                AgentIds: request.AgentIds,
+                AnalyseToken: analyseToken,
+                ContextDaysBefore: request.ContextDaysBefore,
+                ContextDaysAfter: request.ContextDaysAfter),
+            ct);
+        return BitmapRuleRuntime.TryCreate(input)?.Evaluate(BitmapBuilder.Build(input)).HardCount;
     }
 
     private async Task<IReadOnlyList<QualificationGapDetail>> BuildQualificationGapsAsync(

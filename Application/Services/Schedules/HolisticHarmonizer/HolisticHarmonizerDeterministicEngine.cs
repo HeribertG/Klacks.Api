@@ -4,6 +4,7 @@ using System.Globalization;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
+using Klacks.ScheduleOptimizer.Harmonizer.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
@@ -94,10 +95,12 @@ public sealed class HolisticHarmonizerDeterministicEngine
             fitness.Hits,
             fitness.Misses);
 
+        PlanningRuleHardCounts? hardCounts = null;
         if (components.Rules is { } rules)
         {
             var rulesBefore = rules.Evaluate(original);
             var rulesAfter = rules.Evaluate(working);
+            hardCounts = new PlanningRuleHardCounts(rulesBefore.HardCount, rulesAfter.HardCount);
             _logger.LogInformation(
                 "Holistic Harmonizer (deterministic) planning rules: rules={Rules} hardFindings {HardBefore} -> {HardAfter} softPenalty {SoftBefore:F3} -> {SoftAfter:F3}",
                 rules.Rules.Count,
@@ -125,6 +128,7 @@ public sealed class HolisticHarmonizerDeterministicEngine
             LlmRawResponsePreview: null)
         {
             InvalidPlanningRuleIds = context.Rules?.InvalidHardRuleIds ?? [],
+            PlanningRuleHardCounts = hardCounts,
         };
     }
 

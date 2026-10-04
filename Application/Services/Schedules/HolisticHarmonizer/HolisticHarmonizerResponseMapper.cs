@@ -75,6 +75,7 @@ public static class HolisticHarmonizerResponseMapper
             LlmRawResponsePreview: result.LlmRawResponsePreview,
             PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(
                 result.InvalidPlanningRuleIds,
-                result.OriginalBitmap.DayCount > 0 ? result.OriginalBitmap.Days[0] : default));
+                result.OriginalBitmap.DayCount > 0 ? result.OriginalBitmap.Days[0] : default),
+            PlanningRuleRemaining: PlanningRuleNotificationMapper.ToRemaining(result.PlanningRuleHardCounts));
     }
 }

@@ -235,7 +235,9 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut, PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(input.Rules?.InvalidHardRuleIds, request.PeriodFrom));
+                TimedOut: timedOut, PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(input.Rules?.InvalidHardRuleIds, request.PeriodFrom),
+                PlanningRuleRemaining: PlanningRuleNotificationMapper.ToRemaining(
+                    BitmapRuleRuntime.TryCreate(input)?.CountHard(originalForCache, best.Bitmap)));
 
             // CancellationToken.None: the run is already finished. The hard cancel may fire during the
             // post-loop work, and a cancelled store would drop the result and report the finished run as

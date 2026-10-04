@@ -333,6 +333,7 @@ public sealed class HolisticHarmonizerEngine
             AbortedOnUnusableResponses: abortedOnUnusableResponses)
         {
             InvalidPlanningRuleIds = input.Rules?.InvalidHardRuleIds ?? [],
+            PlanningRuleHardCounts = components.Rules?.CountHard(original, working),
         };
     }
 

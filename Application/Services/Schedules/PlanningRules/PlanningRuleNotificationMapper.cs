@@ -9,9 +9,11 @@
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
+using Klacks.ScheduleOptimizer.Harmonizer.Rules;
 
 namespace Klacks.Api.Application.Services.Schedules.PlanningRules;
 
@@ -75,6 +77,10 @@ public static class PlanningRuleNotificationMapper
             .Distinct()
             .Select(ruleId => ToInvalidRuleNotification(ruleId, date, ScheduleValidationType.Warning, Guid.Empty))
             .ToList();
+
+    /// <summary>Before/after hard findings of a run for its result; null when the run carried no planning rule.</summary>
+    public static PlanningRuleRemainingDto? ToRemaining(PlanningRuleHardCounts? counts)
+        => counts is null ? null : new PlanningRuleRemainingDto(counts.Before, counts.After);
 
     public static Guid ParseClientId(string? agentId)
         => Guid.TryParse(agentId, CultureInfo.InvariantCulture, out var clientId) ? clientId : Guid.Empty;
