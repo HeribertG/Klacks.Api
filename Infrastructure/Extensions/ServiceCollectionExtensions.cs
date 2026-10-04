@@ -137,6 +137,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsReader, Klacks.Api.Infrastructure.Plugins.PluginSettingsReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IPluginSettingsWriter, Klacks.Api.Infrastructure.Plugins.PluginSettingsWriterBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IClientGroupReader, Klacks.Api.Infrastructure.Plugins.ClientGroupReaderBridge>();
+        services.AddScoped<Klacks.Plugin.Contracts.IClientVisibilityReader, Klacks.Api.Infrastructure.Plugins.ClientVisibilityReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IClientPhoneReader, Klacks.Api.Infrastructure.Plugins.ClientPhoneReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IClientIdNumberReader, Klacks.Api.Infrastructure.Plugins.ClientIdNumberReaderBridge>();
         services.AddScoped<Klacks.Plugin.Contracts.IEmployeeClientReader, Klacks.Api.Infrastructure.Plugins.EmployeeClientReaderBridge>();

@@ -4,10 +4,12 @@
 /// Shows what the autonomous inbound-intelligence pipeline made of a received messenger message: the
 /// detected intent, the summary, the resolved client, the extracted date/time window, the failure reason
 /// when the analysis could not be acted on, and - when Klacksy asked the employee back about it - the
-/// clarification question and its state. Messages the pipeline has not analyzed yet report exactly that.
+/// clarification question and its state. Messages the pipeline has not analyzed yet report exactly that, and
+/// so do messages attributed to a client the caller may not see - a hidden client is answered like a missing one.
 /// </summary>
 /// <param name="messageId">Required. UUID of the messenger message.</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
@@ -22,13 +24,16 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
 {
     private readonly IInboundAnalysisRepository _analysisRepository;
     private readonly IInboundClarificationRepository _clarificationRepository;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
 
     public GetMessengerAnalysisSkill(
         IInboundAnalysisRepository analysisRepository,
-        IInboundClarificationRepository clarificationRepository)
+        IInboundClarificationRepository clarificationRepository,
+        IClientVisibilityGuard clientVisibilityGuard)
     {
         _analysisRepository = analysisRepository;
         _clarificationRepository = clarificationRepository;
+        _clientVisibilityGuard = clientVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -39,7 +44,9 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
         var messageId = GetRequiredGuid(parameters, "messageId");
 
         var analysis = await _analysisRepository.GetBySourceAsync(InboundSourceKind.Messenger, messageId, cancellationToken);
-        if (analysis == null)
+        if (analysis == null
+            || (analysis.ClientId is { } clientId
+                && !await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken)))
         {
             return SkillResult.SuccessResult(
                 new { MessageId = messageId, Analyzed = false },

@@ -13,6 +13,8 @@ namespace Klacks.Api.Infrastructure.Email;
 
 public class EmailClientAssignmentService : IEmailClientAssignmentService
 {
+    private const int AmbiguityProbeSize = 2;
+
     private readonly DataBaseContext _context;
     private readonly IEmailFolderRepository _folderRepository;
     private readonly ILogger<EmailClientAssignmentService> _logger;
@@ -104,9 +106,19 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
                         c.Value != null && c.Value.ToLower() == fromAddress &&
                         c.Client != null && !c.Client.IsDeleted)
             .Select(c => new { c.ClientId, c.Client!.Type })
-            .FirstOrDefaultAsync(cancellationToken);
+            .Distinct()
+            .Take(AmbiguityProbeSize)
+            .ToListAsync(cancellationToken);
 
-        return match == null ? null : (match.ClientId, match.Type);
+        if (match.Count > 1)
+        {
+            _logger.LogWarning(
+                "Inbound email {EmailId} was not attributed: its sender address belongs to more than one client",
+                email.Id);
+            return null;
+        }
+
+        return match.Count == 0 ? null : (match[0].ClientId, match[0].Type);
     }
 
     public async Task<string?> GetStoredAddressAsync(Guid clientId, string fromAddress, CancellationToken cancellationToken = default)

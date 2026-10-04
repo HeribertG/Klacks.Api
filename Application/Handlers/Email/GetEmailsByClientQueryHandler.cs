@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Handler for retrieving paginated emails of a specific client. A client outside the caller's group
-/// visibility is answered exactly like a client without emails.
+/// visibility is answered exactly like a client without emails; mail sent from an address the client shares with
+/// a hidden client is left out.
 /// @param request - Contains ClientId, Skip and Take for pagination
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may see the client</param>
@@ -41,7 +42,11 @@ public class GetEmailsByClientQueryHandler : BaseHandler, IRequestHandler<GetEma
             if (!await _clientVisibilityGuard.IsVisibleAsync(request.ClientId, cancellationToken))
                 return new ReceivedEmailListResponse { Items = [], TotalCount = 0, UnreadCount = 0 };
 
-            var emailAddresses = await _emailQueryRepository.GetEmailAddressesByClientAsync(request.ClientId, cancellationToken);
+            var emailAddresses = await ReceivedEmailVisibility.ExcludeHiddenSenderAddressesAsync(
+                _emailQueryRepository,
+                _clientVisibilityGuard,
+                await _emailQueryRepository.GetEmailAddressesByClientAsync(request.ClientId, cancellationToken),
+                cancellationToken);
 
             if (emailAddresses.Count == 0)
                 return new ReceivedEmailListResponse { Items = [], TotalCount = 0, UnreadCount = 0 };

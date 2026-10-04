@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Handler for building a group tree with email counters per client and group. Clients outside the caller's
-/// group visibility are left out of the tree together with their counters.
+/// group visibility are left out of the tree together with their counters, and so are the counters of an address a
+/// visible client shares with a hidden one.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the clients down to those the calling user may see</param>
 
@@ -50,6 +51,11 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
             var allClientsWithEmails = await _emailQueryRepository.GetClientsWithEmailCommunicationsAsync(cancellationToken);
             var clientsWithEmails = await _clientVisibilityGuard.FilterVisibleAsync(
                 allClientsWithEmails, c => c.ClientId, cancellationToken);
+            var visibleClientIds = clientsWithEmails.Select(c => c.ClientId).ToHashSet();
+            var hiddenAddresses = allClientsWithEmails
+                .Where(c => !visibleClientIds.Contains(c.ClientId))
+                .Select(c => c.EmailAddress)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             var clientEmailCounts = new Dictionary<Guid, int>();
             var clientUnreadCounts = new Dictionary<Guid, int>();
@@ -58,7 +64,7 @@ public class GetEmailGroupTreeQueryHandler : BaseHandler, IRequestHandler<GetEma
 
             foreach (var comm in clientsWithEmails)
             {
-                if (!receivedAddressSet.Contains(comm.EmailAddress)) continue;
+                if (!receivedAddressSet.Contains(comm.EmailAddress) || hiddenAddresses.Contains(comm.EmailAddress)) continue;
 
                 var clientId = comm.ClientId;
 

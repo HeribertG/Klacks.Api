@@ -2,10 +2,12 @@
 
 /// <summary>
 /// Handler for retrieving paginated emails of all clients in a group and its subgroups. A group outside the
-/// caller's group visibility is answered exactly like a group without emails.
+/// caller's group visibility is answered exactly like a group without emails; mail sent from an address that a
+/// hidden client shares with a member of the group is left out.
 /// @param request - Contains GroupId, Skip and Take for pagination
 /// </summary>
 /// <param name="groupVisibilityGuard">Decides whether the calling user may see the group</param>
+/// <param name="clientVisibilityGuard">Decides which owners of a member's sender address the calling user may see</param>
 
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Application.Interfaces;
@@ -22,12 +24,14 @@ public class GetEmailsByGroupQueryHandler : BaseHandler, IRequestHandler<GetEmai
     private readonly IGroupHierarchyService _groupHierarchyService;
     private readonly IEmailQueryRepository _emailQueryRepository;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ReceivedEmailMapper _mapper;
 
     public GetEmailsByGroupQueryHandler(
         IGroupHierarchyService groupHierarchyService,
         IEmailQueryRepository emailQueryRepository,
         IGroupVisibilityGuard groupVisibilityGuard,
+        IClientVisibilityGuard clientVisibilityGuard,
         ReceivedEmailMapper mapper,
         ILogger<GetEmailsByGroupQueryHandler> logger)
         : base(logger)
@@ -35,6 +39,7 @@ public class GetEmailsByGroupQueryHandler : BaseHandler, IRequestHandler<GetEmai
         _groupHierarchyService = groupHierarchyService;
         _emailQueryRepository = emailQueryRepository;
         _groupVisibilityGuard = groupVisibilityGuard;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _mapper = mapper;
     }
 
@@ -50,7 +55,11 @@ public class GetEmailsByGroupQueryHandler : BaseHandler, IRequestHandler<GetEmai
 
             var clientIds = await _emailQueryRepository.GetClientIdsByGroupIdsAsync(groupIds, cancellationToken);
 
-            var emailAddresses = await _emailQueryRepository.GetEmailAddressesByClientIdsAsync(clientIds, cancellationToken);
+            var emailAddresses = await ReceivedEmailVisibility.ExcludeHiddenSenderAddressesAsync(
+                _emailQueryRepository,
+                _clientVisibilityGuard,
+                await _emailQueryRepository.GetEmailAddressesByClientIdsAsync(clientIds, cancellationToken),
+                cancellationToken);
 
             if (emailAddresses.Count == 0)
                 return new ReceivedEmailListResponse { Items = [], TotalCount = 0, UnreadCount = 0 };
