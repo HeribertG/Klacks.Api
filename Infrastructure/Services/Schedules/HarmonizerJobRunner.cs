@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.PlanningRules;
@@ -235,9 +236,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut, PlanningRuleWarnings: PlanningRuleNotificationMapper.ToSkippedRuleWarnings(input.Rules?.InvalidHardRuleIds, request.PeriodFrom),
-                PlanningRuleRemaining: PlanningRuleNotificationMapper.ToRemaining(
-                    BitmapRuleRuntime.TryCreate(input)?.CountHard(originalForCache, best.Bitmap)));
+                TimedOut: timedOut, PlanningRuleWarnings: SkippedRuleWarnings(input, request), PlanningRuleRemaining: RemainingHardFindings(input, originalForCache, best.Bitmap));
 
             // CancellationToken.None: the run is already finished. The hard cancel may fire during the
             // post-loop work, and a cancelled store would drop the result and report the finished run as
@@ -297,6 +296,12 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     }
 
     private static HarmonyBitmap CloneBitmap(HarmonyBitmap source) => BitmapCloner.Clone(source);
+
+    private static IReadOnlyList<ScheduleValidationNotificationDto> SkippedRuleWarnings(BitmapInput input, HarmonizerContextRequest request)
+        => PlanningRuleNotificationMapper.ToSkippedRuleWarnings(input.Rules?.InvalidHardRuleIds, request.PeriodFrom);
+
+    private static PlanningRuleRemainingDto? RemainingHardFindings(BitmapInput input, HarmonyBitmap original, HarmonyBitmap final)
+        => PlanningRuleNotificationMapper.ToRemaining(BitmapRuleRuntime.TryCreate(input)?.CountHard(original, final));
 
     private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> ExtractIncumbentAssignments(HarmonyBitmap original)
     {

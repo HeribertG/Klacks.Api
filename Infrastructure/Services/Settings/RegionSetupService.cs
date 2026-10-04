@@ -95,7 +95,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     private const int MinCustomPeriodWeeks = 1;
     private const int MaxCustomPeriodWeeks = 104;
     private const int PackageCountryCodeLength = 2;
-    private const decimal MaxDailySpanHoursLimit = 24m;
 
     private enum Section
     {
@@ -1098,6 +1097,12 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         if (worktime == null)
         {
             return;
+        }
+
+        if (!DailyWorkFrameLimits.IsInRange(worktime.MaxDailySpanHours))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: worktime.maxDailySpanHours must be between 0 and {DailyWorkFrameLimits.MaxHours} hours.");
         }
 
         AddNumber(settings, SettingKeys.MaximumHours, worktime.MaximumHours);
@@ -2146,11 +2151,10 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         RequireNonNegative(preset.MaxWorkDays, $"{fieldPrefix}.maxWorkDays");
         RequireNonNegative(preset.MinRestDays, $"{fieldPrefix}.minRestDays");
         RequireNonNegative(preset.MinPauseHours, $"{fieldPrefix}.minPauseHours");
-        RequireNonNegative(preset.MaxDailySpanHours, $"{fieldPrefix}.maxDailySpanHours");
-        if (preset.MaxDailySpanHours > MaxDailySpanHoursLimit)
+        if (!DailyWorkFrameLimits.IsInRange(preset.MaxDailySpanHours))
         {
             throw new InvalidRequestException(
-                $"Region setup: {fieldPrefix}.maxDailySpanHours must not exceed {MaxDailySpanHoursLimit} hours.");
+                $"Region setup: {fieldPrefix}.maxDailySpanHours must be between 0 and {DailyWorkFrameLimits.MaxHours} hours.");
         }
         RequireNonNegative(preset.MaxOptimalGap, $"{fieldPrefix}.maxOptimalGap");
         RequireNonNegative(preset.MaxDailyHours, $"{fieldPrefix}.maxDailyHours");
@@ -2226,7 +2230,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
         return new EntityImportDesired<SchedulingRulePresetImportValues>(
             sourceKey,
-            ComputeSchedulingRulePresetContentHash(values),
+            SchedulingRulePresetContentHasher.Compute(values),
             values);
     }
 
@@ -2465,55 +2469,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     }
 
     // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
-    // hash - the two calls must format every field identically (see ComputePeriodCapContentHash).
-    private static string ComputeSchedulingRulePresetContentHash(SchedulingRulePresetImportValues values)
-    {
-        var fields = new List<string>
-        {
-            values.Name,
-            FormatInt(values.MaxWorkDays),
-            FormatDecimal(values.MinRestDays),
-            FormatDecimal(values.MinPauseHours),
-            FormatDecimal(values.MaxOptimalGap),
-            FormatDecimal(values.MaxDailyHours),
-            FormatDecimal(values.MaxWeeklyHours),
-            FormatInt(values.MaxConsecutiveDays),
-            FormatDecimal(values.DefaultWorkingHours),
-            FormatDecimal(values.OvertimeThreshold),
-            FormatDecimal(values.GuaranteedHours),
-            FormatDecimal(values.MaximumHours),
-            FormatDecimal(values.MinimumHours),
-            FormatDecimal(values.FullTimeHours),
-            FormatInt(values.VacationDaysPerYear),
-            FormatDecimal(values.NightRate),
-            FormatDecimal(values.HolidayRate),
-            FormatDecimal(values.We1Rate),
-            FormatDecimal(values.We2Rate),
-            FormatDecimal(values.We3Rate),
-            values.NightStart ?? string.Empty,
-            values.NightEnd ?? string.Empty,
-            FormatBool(values.PerformsShiftWork),
-            values.OvertimeBasis?.ToString() ?? string.Empty,
-            values.OvertimeRateMode?.ToString() ?? string.Empty,
-            FormatDecimal(values.OvertimeTier1AfterHours),
-            FormatDecimal(values.OvertimeTier1Rate),
-            FormatDecimal(values.OvertimeTier2AfterHours),
-            FormatDecimal(values.OvertimeTier2Rate),
-            FormatDecimal(values.OvertimeTier3AfterHours),
-            FormatDecimal(values.OvertimeTier3Rate),
-        };
-
-        // Appended only when set: a preset without a daily work frame keeps the hash it had before the field
-        // existed, so imported rows are not misread as customer-edited.
-        if (values.MaxDailySpanHours.HasValue)
-        {
-            fields.Add(FormatDecimal(values.MaxDailySpanHours));
-        }
-
-        return ImportContentHasher.ComputeHash([.. fields]);
-    }
-
-    // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
     // hash (PlanRateRevisionImportAsync) - both calls must format every field identically.
     private static string ComputeRateRevisionContentHash(SchedulingRuleRateRevisionImportValues values)
     {
@@ -2546,14 +2501,11 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             category.ToString());
     }
 
-    private static string FormatDecimal(decimal? value) =>
-        value?.ToString("F4", CultureInfo.InvariantCulture) ?? string.Empty;
+    private static string FormatDecimal(decimal? value) => ImportFieldFormatter.Decimal(value);
 
-    private static string FormatInt(int? value) =>
-        value?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+    private static string FormatInt(int? value) => ImportFieldFormatter.Int(value);
 
-    private static string FormatBool(bool? value) =>
-        value.HasValue ? (value.Value ? "true" : "false") : string.Empty;
+    private static string FormatBool(bool? value) => ImportFieldFormatter.Bool(value);
 
     private static void RequireNonNegative(decimal? value, string fieldName)
     {
@@ -2605,7 +2557,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
         var existingUneditedBySourceKey = existingRows.ToDictionary(
             r => r.ImportSourceKey,
-            r => ComputeSchedulingRulePresetContentHash(ToImportValues(r)) == r.ImportContentHash);
+            r => SchedulingRulePresetContentHasher.Compute(ToImportValues(r)) == r.ImportContentHash);
 
         var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
         return (decisions, existingBySourceKey);

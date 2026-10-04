@@ -9,9 +9,9 @@ namespace Klacks.Api.Application.Services.Setup;
 /// Field order mirrors the SchedulingRule columns; every field except Industry participates in the
 /// content hash. Industry is classification derived from the block's industry slug, not editable
 /// content: it is re-applied on Insert AND Update but deliberately excluded from
-/// ComputeSchedulingRulePresetContentHash, so rows written by an older binary (Industry empty) are
+/// SchedulingRulePresetContentHasher, so rows written by an older binary (Industry empty) are
 /// never misread as customer-edited. Keep the three sets in sync when adding a hashed field: this
-/// record, ComputeSchedulingRulePresetContentHash and CopyPresetValues/ToImportValues in
+/// record, SchedulingRulePresetContentHasher and CopyPresetValues/ToImportValues in
 /// RegionSetupService — a field present in only two of the three silently breaks the customer-edit
 /// detection. MaxDailySpanHours is appended last and hashed only when set, so presets written before the field
 /// existed keep their stored hash.

@@ -89,6 +89,7 @@ public class ClientTimeline
     /// than <see cref="DefaultDailyWorkFrame"/> (e.g. CH ArG Art. 10 Abs. 3: 14h for day and evening work) only
     /// applies to a work day that stays on one company-local calendar day: a span across the night is no day or
     /// evening work, so an evening block and the next morning's block never merge beyond the default frame.
+    /// The calendar day is a deliberate proxy: the legal day and evening window itself (CH: 06-23) is not checked.
     /// Overlapping blocks belong to the same work day. Only Work blocks count.
     /// </summary>
     /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>

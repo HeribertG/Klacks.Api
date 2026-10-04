@@ -274,6 +274,7 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         MaxWorkDays = template.MaxWorkDays,
         MinRestDays = template.MinRestDays,
         MinPauseHours = template.MinPauseHours,
+        MaxDailySpanHours = template.MaxDailySpanHours,
         MaxOptimalGap = template.MaxOptimalGap,
         MaxDailyHours = template.MaxDailyHours,
         MaxWeeklyHours = template.MaxWeeklyHours,

@@ -13,6 +13,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Events;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -101,6 +102,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
         if (string.IsNullOrWhiteSpace(resource.Name))
         {
             throw new InvalidRequestException("Name is required.");
+        }
+
+        if (!DailyWorkFrameLimits.IsInRange(resource.MaxDailySpanHours))
+        {
+            throw new InvalidRequestException($"MaxDailySpanHours must be between 0 and {DailyWorkFrameLimits.MaxHours} hours.");
         }
     }
 

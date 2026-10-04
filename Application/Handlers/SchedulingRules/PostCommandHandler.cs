@@ -11,6 +11,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Events;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Infrastructure.Mediator;
@@ -87,6 +88,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Sched
         if (string.IsNullOrWhiteSpace(resource.Name))
         {
             throw new InvalidRequestException("Name is required.");
+        }
+
+        if (!DailyWorkFrameLimits.IsInRange(resource.MaxDailySpanHours))
+        {
+            throw new InvalidRequestException($"MaxDailySpanHours must be between 0 and {DailyWorkFrameLimits.MaxHours} hours.");
         }
     }
 }
