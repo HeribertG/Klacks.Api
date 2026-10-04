@@ -21,6 +21,9 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="ComplianceSkippedPlacements">Placements the Wizard-1 stage's compliance partition blocked.</param>
 /// <param name="HarmonizationSkipped">True when the holistic harmonization (Wizard 3) did not run or could not work, so the final scenario is the Harmonizer (Wizard 2) result.</param>
 /// <param name="HarmonizationSkippedReason">Why the holistic harmonization was skipped; null when it ran.</param>
+/// <param name="PlanningRuleWarnings">Approved hard planning constraints the chain skipped because they are invalid
+/// (key schedule.error-list.planning-rule-invalid); kept apart from ComplianceViolations so they are never counted
+/// as overridden violations.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
@@ -31,4 +34,5 @@ public sealed record AutoWizardJobResultDto(
     IReadOnlyList<ScheduleValidationNotificationDto> ComplianceViolations,
     IReadOnlyList<SkippedPlacementDto> ComplianceSkippedPlacements,
     bool HarmonizationSkipped = false,
-    string? HarmonizationSkippedReason = null);
+    string? HarmonizationSkippedReason = null,
+    IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null);

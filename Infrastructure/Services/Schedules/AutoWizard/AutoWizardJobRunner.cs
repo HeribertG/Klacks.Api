@@ -171,10 +171,11 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioName: finalScenario.Name,
                 ElapsedMs: stopwatch.ElapsedMilliseconds,
                 QualificationGaps: qualificationGaps,
-                ComplianceViolations: [.. wizardOutcome.ComplianceViolations, .. skippedRuleWarnings],
+                ComplianceViolations: wizardOutcome.ComplianceViolations,
                 ComplianceSkippedPlacements: wizardOutcome.SkippedPlacements,
                 HarmonizationSkipped: holisticStage.SkippedReason is not null,
-                HarmonizationSkippedReason: holisticStage.SkippedReason);
+                HarmonizationSkippedReason: holisticStage.SkippedReason,
+                PlanningRuleWarnings: skippedRuleWarnings);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
