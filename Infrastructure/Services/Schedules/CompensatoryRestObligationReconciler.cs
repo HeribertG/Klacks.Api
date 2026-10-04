@@ -157,8 +157,17 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
         foreach (var obligation in openExisting)
         {
             var currentGap = gaps.FirstOrDefault(g => g.GapStart == obligation.RestGapStart);
-            var stillViolates = currentGap.GapStart == obligation.RestGapStart
-                && currentGap.Duration < TimeSpan.FromHours((double)obligation.StandardRestHours);
+
+            // No rest gap starts at the key any more (the work moved, or the gap was only the pause inside a
+            // split shift): the trigger is gone, so the obligation is void rather than "fulfilled" by some later
+            // long rest. A still-short gap at a new key is picked up as a new obligation by the loop above.
+            if (currentGap.GapStart != obligation.RestGapStart)
+            {
+                _obligationRepository.Delete(obligation);
+                continue;
+            }
+
+            var stillViolates = currentGap.Duration < TimeSpan.FromHours((double)obligation.StandardRestHours);
 
             if (stillViolates)
             {
