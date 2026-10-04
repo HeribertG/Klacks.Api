@@ -6,14 +6,18 @@
 /// when the analysis could not be acted on, and - when Klacksy asked the employee back about it - the
 /// clarification question and its state. Messages the pipeline has not analyzed yet report exactly that, and
 /// so do messages attributed to a client the caller may not see - a hidden client is answered like a missing one.
+/// A message the pipeline could not attribute to any client is shown to admins only, as the messaging plugin
+/// does with its unattributed messages: nothing proves it does not come from a hidden employee.
 /// </summary>
 /// <param name="messageId">Required. UUID of the messenger message.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Inbound;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Inbound;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Inbound;
 
@@ -44,9 +48,7 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
         var messageId = GetRequiredGuid(parameters, "messageId");
 
         var analysis = await _analysisRepository.GetBySourceAsync(InboundSourceKind.Messenger, messageId, cancellationToken);
-        if (analysis == null
-            || (analysis.ClientId is { } clientId
-                && !await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken)))
+        if (analysis == null || !await IsVisibleToCallerAsync(context, analysis, cancellationToken))
         {
             return SkillResult.SuccessResult(
                 new { MessageId = messageId, Analyzed = false },
@@ -80,5 +82,16 @@ public class GetMessengerAnalysisSkill : BaseSkillImplementation
             $"Message was analyzed on {analysis.AnalyzedAt:yyyy-MM-dd HH:mm} UTC: " +
             $"intent {analysis.Intent}, summary: {analysis.Summary} {outcome}" +
             (clarification == null ? string.Empty : ClarificationStatusText.Sentence(clarification)));
+    }
+
+    private async Task<bool> IsVisibleToCallerAsync(
+        SkillExecutionContext context, InboundAnalysis analysis, CancellationToken cancellationToken)
+    {
+        if (analysis.ClientId is { } clientId)
+        {
+            return await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken);
+        }
+
+        return context.UserPermissions.Contains(Roles.Admin);
     }
 }
