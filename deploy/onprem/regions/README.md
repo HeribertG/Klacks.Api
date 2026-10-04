@@ -334,9 +334,13 @@ mounting, because public holidays differ per state.
   shape), not in this field; a jurisdiction can legitimately combine a higher
   single-week cap here with a lower rolling-average cap there.
 - Surcharge rate fields (`nightRate`, `holidayRate`, `we1Rate`, `we2Rate`,
-  `we3Rate`, and the corresponding fields inside `rateRevisions`) are additive
-  multipliers on top of base pay, not absolute rates — `0.25` means "+25% of
-  base pay", not "25% of pay in total".
-- A rate field left unset does NOT fall back to zero. It falls through to the
-  generic seeded defaults (roughly ~10% for night/weekend/holiday rates) —
-  omitting a field is not the same as disabling that surcharge.
+  `we3Rate`, and the corresponding fields inside `rateRevisions`) are TIME
+  credits: the macro credits `hours × rate` as additional hours next to the
+  worked hours — `0.25` means "+0.25 h per qualifying hour". Klacks books no
+  money; `rateModes` `fixedPerHour` computes exactly like a multiplier, so a
+  currency amount per hour must never be entered as a rate.
+- A rate field left unset means "no time credit": fresh installations seed
+  0 for night/holiday/Saturday/Sunday since 2026-10-04 (installations set up
+  earlier keep their seeded 0.1 until an administrator changes it). Set an
+  explicit rate only where a law or collective agreement grants a TIME credit;
+  money premiums belong to payroll and have no rate in Klacks.

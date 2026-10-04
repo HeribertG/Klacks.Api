@@ -25,9 +25,9 @@
     "minPauseHours": 11
   },
   "surcharges": {
+    "nightRate": 0,
     "holidayRate": 1.0,
-    "we2Rate": 1.0,
-    "rateModes": { "night": "fixedPerHour" }
+    "we2Rate": 1.0
   },
   "compliance": {
     "enforcement": {
@@ -185,7 +185,6 @@
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightRate": 1.36,
           "nightStart": "23:00",
           "nightEnd": "06:00",
           "performsShiftWork": true

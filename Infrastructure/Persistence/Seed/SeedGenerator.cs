@@ -470,11 +470,11 @@ namespace Klacks.Api.Data.Seed
                 // Re-adding here with different GUIDs would create duplicate `type` rows and crash
                 // ToDictionaryAsync(x => x.Type, ...) in the settings service.
 
-                // Surcharge Rates (10% each, applied by AllShift macro)
-                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67", "nightRate", "0.1"),
-                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a", "holidayRate", "0.1"),
-                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68", "saRate", "0.1"),
-                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69", "soRate", "0.1"),
+                // Surcharge rates: no time credit unless the region profile or the customer sets one
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c67", "nightRate", "0"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a", "holidayRate", "0"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c68", "saRate", "0"),
+                ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c69", "soRate", "0"),
 
                 // Scheduling Default Work Days (true for all 7 days + shift work)
                 ("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d01", "SCHEDULING_DEFAULT_WORK_ON_MONDAY", "true"),
