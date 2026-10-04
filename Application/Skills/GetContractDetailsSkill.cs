@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Returns the full details of a single contract (hours, rates, validity, working days,
-/// payment interval). Use list_contracts first to find the contract ID.
+/// Returns the full details of a single contract (hours, time-credit rates, validity, working days,
+/// shift-work flag, payment interval). A null rate or shift-work flag means "standard": the scheduling
+/// rule decides, then the installation settings; 0 is an explicit "no credit". Use list_contracts first
+/// to find the contract ID.
 /// </summary>
 /// <param name="contractId">Required. UUID of the contract to load.</param>
 
@@ -18,6 +20,9 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("get_contract_details")]
 public class GetContractDetailsSkill : BaseSkillImplementation
 {
+    private const string StandardValueNote =
+        "Rates are time-credit factors (0.1 = 6 minutes per hour). A null rate or a null PerformsShiftWork means standard: the scheduling rule decides, then the installation settings. 0 means explicitly no credit. While shift work resolves to false, the contract's own rates are ignored.";
+
     private readonly IMediator _mediator;
 
     public GetContractDetailsSkill(IMediator mediator)
@@ -54,6 +59,7 @@ public class GetContractDetailsSkill : BaseSkillImplementation
             contract.HolidayRate,
             contract.WE1Rate,
             contract.WE2Rate,
+            contract.WE3Rate,
             contract.PaymentInterval,
             contract.Percent,
             contract.ValidFrom,
@@ -67,7 +73,8 @@ public class GetContractDetailsSkill : BaseSkillImplementation
             contract.WorkOnSaturday,
             contract.WorkOnSunday,
             contract.PerformsShiftWork,
-            contract.SchedulingRuleId
+            contract.SchedulingRuleId,
+            StandardValueNote
         };
 
         return SkillResult.SuccessResult(

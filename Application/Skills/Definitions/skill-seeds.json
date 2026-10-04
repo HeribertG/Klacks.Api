@@ -1410,7 +1410,7 @@
         },
         {
           "name": "nightRate",
-          "description": "Optional night surcharge rate",
+          "description": "Optional night time-credit factor (0.1 = 6 minutes credit per night hour, not money). Omit to keep the standard (scheduling rule, then installation settings); 0 means explicitly no credit.",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1418,7 +1418,7 @@
         },
         {
           "name": "holidayRate",
-          "description": "Optional holiday surcharge rate",
+          "description": "Optional holiday time-credit factor. Omit to keep the standard (scheduling rule, then installation settings); 0 means explicitly no credit.",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1426,7 +1426,7 @@
         },
         {
           "name": "saRate",
-          "description": "Optional Saturday surcharge rate",
+          "description": "Optional Saturday time-credit factor. Omit to keep the standard (scheduling rule, then installation settings); 0 means explicitly no credit.",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1434,8 +1434,16 @@
         },
         {
           "name": "soRate",
-          "description": "Optional Sunday surcharge rate",
+          "description": "Optional Sunday time-credit factor. Omit to keep the standard (scheduling rule, then installation settings); 0 means explicitly no credit.",
           "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "performsShiftWork",
+          "description": "Optional: whether the employee works late/night shifts. Omit to keep the standard (scheduling rule, then installation default). When false, the contract rates are ignored and the standard rates apply.",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -1516,7 +1524,7 @@
         "fr": "Créer un nouveau modèle de contrat",
         "it": "Crea un nuovo modello di contratto"
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "create_employee",
@@ -22257,7 +22265,7 @@
     {
       "name": "get_contract_details",
       "area": "contract",
-      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates, payment interval, validity dates, working days, shift-work flag, calendar selection and scheduling rule. Use list_contracts first to find the contract ID, then this skill when the user asks for specifics of one contract or before update_contract / delete_contract.",
+      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates (null = standard from the scheduling rule or settings, 0 = explicitly none), payment interval, validity dates, working days, shift-work flag (null = standard), calendar selection and scheduling rule. Use list_contracts first to find the contract ID, then this skill when the user asks for specifics of one contract or before update_contract / delete_contract.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22325,12 +22333,12 @@
         "fr": "Détails du contrat",
         "it": "Dettagli del contratto"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_contract",
       "area": "contract",
-      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday rates and validity dates. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates, shift-work flag and validity dates; clear* flags reset a value to the standard. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22411,32 +22419,80 @@
         },
         {
           "name": "nightRate",
-          "description": "New night surcharge rate",
+          "description": "New night time-credit factor (0.1 = 6 minutes per hour); 0 means explicitly no credit",
           "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearNightRate",
+          "description": "If true, resets the night rate to the standard (scheduling rule, then installation settings)",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
           "name": "holidayRate",
-          "description": "New holiday surcharge rate",
+          "description": "New holiday time-credit factor; 0 means explicitly no credit",
           "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearHolidayRate",
+          "description": "If true, resets the holiday rate to the standard",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
           "name": "saRate",
-          "description": "New Saturday surcharge rate",
+          "description": "New Saturday time-credit factor; 0 means explicitly no credit",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
         },
         {
+          "name": "clearSaRate",
+          "description": "If true, resets the Saturday rate to the standard",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
           "name": "soRate",
-          "description": "New Sunday surcharge rate",
+          "description": "New Sunday time-credit factor; 0 means explicitly no credit",
           "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearSoRate",
+          "description": "If true, resets the Sunday rate to the standard",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "performsShiftWork",
+          "description": "Whether the employee works late/night shifts; when false the contract rates are ignored and the standard rates apply",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearPerformsShiftWork",
+          "description": "If true, resets the shift-work flag to the standard (scheduling rule, then installation default)",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22518,7 +22574,7 @@
         "fr": "Modifier un modèle de contrat",
         "it": "Modifica un modello di contratto"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "delete_contract",

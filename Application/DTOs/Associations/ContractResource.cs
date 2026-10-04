@@ -20,9 +20,9 @@ public class ContractResource
 
     public decimal FullTime { get; set; }
 
-    public decimal NightRate { get; set; }
+    public decimal? NightRate { get; set; }
 
-    public decimal HolidayRate { get; set; }
+    public decimal? HolidayRate { get; set; }
 
     [JsonPropertyName("we1Rate")]
     public decimal? WE1Rate { get; set; }
@@ -63,7 +63,7 @@ public class ContractResource
 
     public bool WorkOnSunday { get; set; }
 
-    public bool PerformsShiftWork { get; set; }
+    public bool? PerformsShiftWork { get; set; }
 
     public Guid? SchedulingRuleId { get; set; }
 

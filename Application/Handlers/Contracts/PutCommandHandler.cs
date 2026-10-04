@@ -2,9 +2,11 @@
 
 /// <summary>
 /// Handler for updating a contract. After the update is committed it raises a ContractChangedEvent
-/// when calculation-relevant fields (rates, night window, validity dates, scheduling rule or calendar
-/// binding, payment interval, hour bounds) actually changed, so persisted work surcharges in the
-/// affected window are recalculated. Name and weekday planning flags never trigger a recalculation.
+/// when calculation-relevant fields (rates, shift-work flag, night window, validity dates, scheduling
+/// rule or calendar binding, payment interval, hour bounds) actually changed, so persisted work
+/// surcharges in the affected window are recalculated. The shift-work flag counts because a contract
+/// that does not perform shift work falls back to the standard rates. Name and weekday planning flags
+/// never trigger a recalculation.
 /// </summary>
 /// <param name="request">Contains the contract resource with the new values</param>
 
@@ -137,6 +139,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
         decimal? WE1Rate,
         decimal? WE2Rate,
         decimal? WE3Rate,
+        bool? PerformsShiftWork,
         string? NightStart,
         string? NightEnd,
         PaymentInterval PaymentInterval,
@@ -155,6 +158,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
             contract.WE1Rate,
             contract.WE2Rate,
             contract.WE3Rate,
+            contract.PerformsShiftWork,
             contract.NightStart,
             contract.NightEnd,
             contract.PaymentInterval,

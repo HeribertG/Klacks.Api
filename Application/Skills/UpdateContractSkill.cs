@@ -15,10 +15,16 @@
 /// <param name="minimumHours">Optional. New minimum hours.</param>
 /// <param name="maximumHours">Optional. New maximum hours.</param>
 /// <param name="fullTime">Optional. New full-time reference hours.</param>
-/// <param name="nightRate">Optional. New night surcharge rate.</param>
-/// <param name="holidayRate">Optional. New holiday surcharge rate.</param>
-/// <param name="saRate">Optional. New Saturday surcharge rate.</param>
-/// <param name="soRate">Optional. New Sunday surcharge rate.</param>
+/// <param name="nightRate">Optional. New night time-credit factor (0.1 = 6 minutes per hour); 0 means explicitly no credit.</param>
+/// <param name="clearNightRate">Optional. If true, resets the night rate to the standard (scheduling rule, then installation settings).</param>
+/// <param name="holidayRate">Optional. New holiday time-credit factor; 0 means explicitly no credit.</param>
+/// <param name="clearHolidayRate">Optional. If true, resets the holiday rate to the standard.</param>
+/// <param name="saRate">Optional. New Saturday time-credit factor; 0 means explicitly no credit.</param>
+/// <param name="clearSaRate">Optional. If true, resets the Saturday rate to the standard.</param>
+/// <param name="soRate">Optional. New Sunday time-credit factor; 0 means explicitly no credit.</param>
+/// <param name="clearSoRate">Optional. If true, resets the Sunday rate to the standard.</param>
+/// <param name="performsShiftWork">Optional. Whether the employee works late/night shifts. When false, the contract's own rates are ignored and the standard rates apply.</param>
+/// <param name="clearPerformsShiftWork">Optional. If true, resets the shift-work flag to the standard (scheduling rule, then installation default).</param>
 /// <param name="validFrom">Optional. New validity start date (YYYY-MM-DD).</param>
 /// <param name="validUntil">Optional. New validity end date (YYYY-MM-DD).</param>
 /// <param name="clearValidUntil">Optional. If true, removes the validity end date.</param>
@@ -77,8 +83,6 @@ public class UpdateContractSkill : BaseSkillImplementation
             ("minimumHours", () => contract.MinimumHours, v => contract.MinimumHours = v),
             ("maximumHours", () => contract.MaximumHours, v => contract.MaximumHours = v),
             ("fullTime", () => contract.FullTime, v => contract.FullTime = v),
-            ("nightRate", () => contract.NightRate, v => contract.NightRate = v),
-            ("holidayRate", () => contract.HolidayRate, v => contract.HolidayRate = v),
         };
 
         foreach (var field in decimalFields)
@@ -103,34 +107,16 @@ public class UpdateContractSkill : BaseSkillImplementation
             changed.Add(field.Key);
         }
 
-        var nullableDecimalFields = new (string Key, Func<decimal?> Get, Action<decimal?> Set)[]
+        var nullableDecimalError = ApplyNullableDecimalFields(parameters, contract, changed);
+        if (nullableDecimalError != null)
         {
-            ("guaranteedHours", () => contract.GuaranteedHours, v => contract.GuaranteedHours = v),
-            ("percent", () => contract.Percent, v => contract.Percent = v),
-            ("saRate", () => contract.WE1Rate, v => contract.WE1Rate = v),
-            ("soRate", () => contract.WE2Rate, v => contract.WE2Rate = v),
-        };
+            return SkillResult.Error(nullableDecimalError);
+        }
 
-        foreach (var field in nullableDecimalFields)
+        var standardResetError = ApplyShiftWorkAndStandardResets(parameters, contract, changed);
+        if (standardResetError != null)
         {
-            var value = GetParameter<decimal?>(parameters, field.Key);
-            if (!value.HasValue)
-            {
-                continue;
-            }
-
-            if (value.Value < decimal.Zero)
-            {
-                return SkillResult.Error($"Parameter '{field.Key}' must not be negative.");
-            }
-
-            if (value.Value == field.Get())
-            {
-                continue;
-            }
-
-            field.Set(value.Value);
-            changed.Add(field.Key);
+            return SkillResult.Error(standardResetError);
         }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
@@ -224,5 +210,84 @@ public class UpdateContractSkill : BaseSkillImplementation
                 updated.ValidUntil
             },
             $"Contract '{updated.Name}' updated ({string.Join(", ", changed)}).");
+    }
+
+    private string? ApplyNullableDecimalFields(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
+        var nullableDecimalFields = new (string Key, Func<decimal?> Get, Action<decimal?> Set)[]
+        {
+            ("guaranteedHours", () => contract.GuaranteedHours, v => contract.GuaranteedHours = v),
+            ("percent", () => contract.Percent, v => contract.Percent = v),
+            ("nightRate", () => contract.NightRate, v => contract.NightRate = v),
+            ("holidayRate", () => contract.HolidayRate, v => contract.HolidayRate = v),
+            ("saRate", () => contract.WE1Rate, v => contract.WE1Rate = v),
+            ("soRate", () => contract.WE2Rate, v => contract.WE2Rate = v),
+        };
+
+        foreach (var field in nullableDecimalFields)
+        {
+            var value = GetParameter<decimal?>(parameters, field.Key);
+            if (!value.HasValue)
+            {
+                continue;
+            }
+
+            if (value.Value < decimal.Zero)
+            {
+                return $"Parameter '{field.Key}' must not be negative.";
+            }
+
+            if (value.Value == field.Get())
+            {
+                continue;
+            }
+
+            field.Set(value.Value);
+            changed.Add(field.Key);
+        }
+
+        return null;
+    }
+
+    // A clear* flag resets the value to null = "standard" (scheduling rule, then installation settings).
+    // Supplying a value together with its clear* flag is contradictory and rejected.
+    private string? ApplyShiftWorkAndStandardResets(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
+        var performsShiftWork = GetParameter<bool?>(parameters, "performsShiftWork");
+
+        var clearToStandardFields = new (string ClearKey, string Key, bool Supplied, Func<bool> IsSet, Action Clear)[]
+        {
+            ("clearNightRate", "nightRate", GetParameter<decimal?>(parameters, "nightRate").HasValue, () => contract.NightRate != null, () => contract.NightRate = null),
+            ("clearHolidayRate", "holidayRate", GetParameter<decimal?>(parameters, "holidayRate").HasValue, () => contract.HolidayRate != null, () => contract.HolidayRate = null),
+            ("clearSaRate", "saRate", GetParameter<decimal?>(parameters, "saRate").HasValue, () => contract.WE1Rate != null, () => contract.WE1Rate = null),
+            ("clearSoRate", "soRate", GetParameter<decimal?>(parameters, "soRate").HasValue, () => contract.WE2Rate != null, () => contract.WE2Rate = null),
+            ("clearPerformsShiftWork", "performsShiftWork", performsShiftWork.HasValue, () => contract.PerformsShiftWork != null, () => contract.PerformsShiftWork = null),
+        };
+
+        var requestedClears = clearToStandardFields
+            .Where(field => GetParameter<bool>(parameters, field.ClearKey, false))
+            .ToList();
+
+        var contradictory = requestedClears.FirstOrDefault(field => field.Supplied);
+        if (contradictory.ClearKey != null)
+        {
+            return $"Parameter '{contradictory.Key}' must not be combined with '{contradictory.ClearKey}'.";
+        }
+
+        if (performsShiftWork.HasValue && performsShiftWork != contract.PerformsShiftWork)
+        {
+            contract.PerformsShiftWork = performsShiftWork;
+            changed.Add("performsShiftWork");
+        }
+
+        foreach (var field in requestedClears.Where(field => field.IsSet()))
+        {
+            field.Clear();
+            changed.Add(field.Key);
+        }
+
+        return null;
     }
 }

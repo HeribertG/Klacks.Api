@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Handler for updating a scheduling rule. After the update is committed it raises a
-/// SchedulingRuleChangedEvent when surcharge-relevant fields (rates, night window, overtime
-/// threshold) actually changed, so persisted work surcharges of referencing contracts are
-/// recalculated. Planning-only fields (name, day limits, weekday flags) never trigger it.
+/// SchedulingRuleChangedEvent when surcharge-relevant fields (rates, shift-work flag, night window,
+/// overtime threshold) actually changed, so persisted work surcharges of referencing contracts are
+/// recalculated. The shift-work flag counts because it decides whether a contract that leaves the flag
+/// on standard keeps its own rates. Planning-only fields (name, day limits, weekday flags) never trigger it.
 /// </summary>
 /// <param name="request">Contains the scheduling rule resource with the new values</param>
 
@@ -109,6 +110,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
         decimal? WE1Rate,
         decimal? WE2Rate,
         decimal? WE3Rate,
+        bool? PerformsShiftWork,
         string? NightStart,
         string? NightEnd,
         decimal? OvertimeThreshold)
@@ -119,6 +121,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
             rule.WE1Rate,
             rule.WE2Rate,
             rule.WE3Rate,
+            rule.PerformsShiftWork,
             rule.NightStart,
             rule.NightEnd,
             rule.OvertimeThreshold);
