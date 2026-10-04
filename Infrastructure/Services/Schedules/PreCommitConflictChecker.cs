@@ -282,6 +282,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientQualification>)g.ToList());
 
         var expiryWarningDays = await GetExpiryWarningDaysAsync();
+        var expiredMandatoryBlocks = await IsExpiredMandatoryBlocksEnabledAsync();
 
         var conflicts = new List<ScheduleValidationNotificationDto>();
         foreach (var row in plannedRows)
@@ -296,11 +297,15 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 ? q
                 : [];
 
-            foreach (var gap in EligibilityMatcher.FindMandatoryGaps(reqs, held, row.Date))
+            foreach (var gap in EligibilityMatcher.FindMandatoryGaps(reqs, held, row.Date, expiredMandatoryBlocks))
             {
+                // An expired mandatory qualification only warns unless QUALIFICATION_EXPIRED_MANDATORY_BLOCKS
+                // is on; missing and too-low-level gaps stay hard errors.
+                var isSoftExpiry = gap.Reason == QualificationGapReason.Expired
+                    && gap.Severity != QualificationGapSeverity.Error;
                 conflicts.Add(new ScheduleValidationNotificationDto
                 {
-                    Type = ScheduleValidationType.Error,
+                    Type = isSoftExpiry ? ScheduleValidationType.Warning : ScheduleValidationType.Error,
                     ClientId = row.ClientId,
                     ClientName = string.Empty,
                     Date = row.Date,
@@ -452,6 +457,12 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             ? end - start
             : TimeSpan.FromHours(24) - start.ToTimeSpan() + end.ToTimeSpan();
         return (decimal)duration.TotalHours;
+    }
+
+    private async Task<bool> IsExpiredMandatoryBlocksEnabledAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.QualificationExpiredMandatoryBlocks);
+        return setting?.Value?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
     }
 
     private async Task<int> GetExpiryWarningDaysAsync()
