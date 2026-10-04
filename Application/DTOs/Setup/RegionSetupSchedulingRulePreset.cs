@@ -21,6 +21,13 @@ public class RegionSetupSchedulingRulePreset
 
     public decimal? MinPauseHours { get; set; }
 
+    /// <summary>
+    /// Daily work frame in hours (first start to last end, pauses included) when a collective agreement of the
+    /// industry sets one that differs from the law. Only set it with a verified source (agreement, article, version
+    /// or declaration-of-general-applicability date) noted in the package; otherwise leave it out and the law applies.
+    /// </summary>
+    public decimal? MaxDailySpanHours { get; set; }
+
     public decimal? MaxOptimalGap { get; set; }
 
     public decimal? MaxDailyHours { get; set; }

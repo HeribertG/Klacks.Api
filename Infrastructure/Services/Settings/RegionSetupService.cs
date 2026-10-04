@@ -95,6 +95,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     private const int MinCustomPeriodWeeks = 1;
     private const int MaxCustomPeriodWeeks = 104;
     private const int PackageCountryCodeLength = 2;
+    private const decimal MaxDailySpanHoursLimit = 24m;
 
     private enum Section
     {
@@ -2145,6 +2146,12 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         RequireNonNegative(preset.MaxWorkDays, $"{fieldPrefix}.maxWorkDays");
         RequireNonNegative(preset.MinRestDays, $"{fieldPrefix}.minRestDays");
         RequireNonNegative(preset.MinPauseHours, $"{fieldPrefix}.minPauseHours");
+        RequireNonNegative(preset.MaxDailySpanHours, $"{fieldPrefix}.maxDailySpanHours");
+        if (preset.MaxDailySpanHours > MaxDailySpanHoursLimit)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: {fieldPrefix}.maxDailySpanHours must not exceed {MaxDailySpanHoursLimit} hours.");
+        }
         RequireNonNegative(preset.MaxOptimalGap, $"{fieldPrefix}.maxOptimalGap");
         RequireNonNegative(preset.MaxDailyHours, $"{fieldPrefix}.maxDailyHours");
         RequireNonNegative(preset.MaxWeeklyHours, $"{fieldPrefix}.maxWeeklyHours");
@@ -2214,7 +2221,8 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             overtime.Tier2Rate,
             overtime.Tier3AfterHours,
             overtime.Tier3Rate,
-            industry);
+            industry,
+            preset.MaxDailySpanHours);
 
         return new EntityImportDesired<SchedulingRulePresetImportValues>(
             sourceKey,
@@ -2460,7 +2468,8 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     // hash - the two calls must format every field identically (see ComputePeriodCapContentHash).
     private static string ComputeSchedulingRulePresetContentHash(SchedulingRulePresetImportValues values)
     {
-        return ImportContentHasher.ComputeHash(
+        var fields = new List<string>
+        {
             values.Name,
             FormatInt(values.MaxWorkDays),
             FormatDecimal(values.MinRestDays),
@@ -2491,7 +2500,17 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             FormatDecimal(values.OvertimeTier2AfterHours),
             FormatDecimal(values.OvertimeTier2Rate),
             FormatDecimal(values.OvertimeTier3AfterHours),
-            FormatDecimal(values.OvertimeTier3Rate));
+            FormatDecimal(values.OvertimeTier3Rate),
+        };
+
+        // Appended only when set: a preset without a daily work frame keeps the hash it had before the field
+        // existed, so imported rows are not misread as customer-edited.
+        if (values.MaxDailySpanHours.HasValue)
+        {
+            fields.Add(FormatDecimal(values.MaxDailySpanHours));
+        }
+
+        return ImportContentHasher.ComputeHash([.. fields]);
     }
 
     // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
@@ -2624,7 +2643,8 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         rule.OvertimeTier2Rate,
         rule.OvertimeTier3AfterHours,
         rule.OvertimeTier3Rate,
-        rule.Industry);
+        rule.Industry,
+        rule.MaxDailySpanHours);
 
     // Besides the source-key/rule-id map this reports the ids of PRE-EXISTING rules whose
     // surcharge-relevant fields (rates, night window, overtime configuration) actually changed.
@@ -2726,6 +2746,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         rule.OvertimeTier3AfterHours = values.OvertimeTier3AfterHours;
         rule.OvertimeTier3Rate = values.OvertimeTier3Rate;
         rule.Industry = values.Industry;
+        rule.MaxDailySpanHours = values.MaxDailySpanHours;
     }
 
     private async Task<(IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> Decisions, Dictionary<string, SchedulingRuleRateRevision> ExistingBySourceKey)> PlanRateRevisionImportAsync(

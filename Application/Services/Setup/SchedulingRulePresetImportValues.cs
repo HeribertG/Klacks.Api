@@ -13,7 +13,8 @@ namespace Klacks.Api.Application.Services.Setup;
 /// never misread as customer-edited. Keep the three sets in sync when adding a hashed field: this
 /// record, ComputeSchedulingRulePresetContentHash and CopyPresetValues/ToImportValues in
 /// RegionSetupService — a field present in only two of the three silently breaks the customer-edit
-/// detection.
+/// detection. MaxDailySpanHours is appended last and hashed only when set, so presets written before the field
+/// existed keep their stored hash.
 /// </summary>
 public sealed record SchedulingRulePresetImportValues(
     string Name,
@@ -47,4 +48,5 @@ public sealed record SchedulingRulePresetImportValues(
     decimal? OvertimeTier2Rate,
     decimal? OvertimeTier3AfterHours,
     decimal? OvertimeTier3Rate,
-    string Industry);
+    string Industry,
+    decimal? MaxDailySpanHours = null);
