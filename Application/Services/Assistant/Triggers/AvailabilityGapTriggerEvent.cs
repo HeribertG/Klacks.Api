@@ -17,7 +17,7 @@ public sealed record AvailabilityGapTriggerEvent(
     string ClientName,
     DateOnly PeriodStart,
     DateOnly PeriodEnd,
-    int DaysUntilPeriodStart) : IAgentTriggerEvent
+    int DaysUntilPeriodStart) : IClientScopedTriggerEvent
 {
     private const int HighSeverityLeadDays = 7;
 
@@ -41,6 +41,11 @@ public sealed record AvailabilityGapTriggerEvent(
     public string DedupKey => DedupKeyFor(ClientId, PeriodStart);
 
     public Guid? EntityId => ClientId;
+
+    public IReadOnlyCollection<Guid> AffectedClientIds => [ClientId];
+
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds) =>
+        visibleClientIds.Contains(ClientId) ? this : null;
 
     /// <summary>
     /// The DedupKey spelling as a function of its key fields, so AvailabilityGapDetector's uncapped

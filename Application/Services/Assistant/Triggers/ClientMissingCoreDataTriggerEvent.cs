@@ -14,7 +14,7 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 public sealed record ClientMissingCoreDataTriggerEvent(
     Guid ClientId,
     string ClientName,
-    string MissingField) : IAgentTriggerEvent
+    string MissingField) : IClientScopedTriggerEvent
 {
     public const string AddressField = "address";
     public const string ContactField = "contact";
@@ -39,6 +39,11 @@ public sealed record ClientMissingCoreDataTriggerEvent(
     public string DedupKey => DedupKeyFor(ClientId, MissingField);
 
     public Guid? EntityId => ClientId;
+
+    public IReadOnlyCollection<Guid> AffectedClientIds => [ClientId];
+
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds) =>
+        visibleClientIds.Contains(ClientId) ? this : null;
 
     /// <summary>
     /// The DedupKey spelling as a function of its key fields, so ClientMissingCoreDataDetector's

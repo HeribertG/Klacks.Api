@@ -32,4 +32,13 @@ public interface IPlanningAudienceResolver
     /// client's non-scenario groups. An unknown or deleted client resolves to the admins only.
     /// </summary>
     Task<IReadOnlySet<string>> GetPlanningUserIdsForClientAsync(Guid clientId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether one specific user may see at least one of the given groups, independent of whether the user
+    /// holds a planning role: an Admin always; anybody else only through a GroupVisibility row of their own
+    /// whose root covers one of the groups (Nested Set subtree included). An empty group set, a deleted or
+    /// unknown group and a user without any visibility row resolve to false for a non-admin (fail-closed).
+    /// For deciding whether a person who once acted on an entity may still be shown it today.
+    /// </summary>
+    Task<bool> MaySeeAnyGroupAsync(string userId, IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default);
 }

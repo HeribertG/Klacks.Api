@@ -19,7 +19,7 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public sealed record TargetHoursDriftTriggerEvent(
     IReadOnlyList<TargetHoursDriftAffectedClient> AffectedClients,
-    string PeriodLabel) : IAgentTriggerEvent
+    string PeriodLabel) : IClientAggregateTriggerEvent
 {
     private const decimal HighSeverityDriftHours = 24m;
     private const decimal MediumSeverityDriftHours = 12m;
@@ -48,6 +48,24 @@ public sealed record TargetHoursDriftTriggerEvent(
     };
 
     public string DedupKey => DedupKeyFor(PeriodLabel);
+
+    public IReadOnlyCollection<Guid> AffectedClientIds =>
+        AffectedClients.Select(client => client.ClientId).ToList();
+
+    /// <summary>
+    /// The affected employees this recipient may see, with count, name list, worst drift and severity recomputed from them.
+    /// Kind, Summary key and DedupKey are untouched, so every variant reports the same ledger row.
+    /// </summary>
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds)
+    {
+        var visible = AffectedClients.Where(client => visibleClientIds.Contains(client.ClientId)).ToList();
+        if (visible.Count == 0)
+        {
+            return null;
+        }
+
+        return visible.Count == AffectedClients.Count ? this : this with { AffectedClients = visible };
+    }
 
     /// <summary>
     /// The DedupKey spelling as a function of its key field, so TargetHoursDriftDetector's fingerprint

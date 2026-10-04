@@ -28,7 +28,7 @@ public sealed record AvailabilityGapSummaryTriggerEvent(
     IReadOnlyList<ProactiveAffectedClient> AffectedClients,
     DateOnly PeriodStart,
     DateOnly PeriodEnd,
-    int DaysUntilPeriodStart) : IAgentTriggerEvent
+    int DaysUntilPeriodStart) : IClientAggregateTriggerEvent
 {
     private const int HighSeverityLeadDays = 7;
     private const string PeriodKeyFormat = "yyyy-MM";
@@ -54,6 +54,24 @@ public sealed record AvailabilityGapSummaryTriggerEvent(
     };
 
     public string DedupKey => DedupKeyFor(PeriodStart);
+
+    public IReadOnlyCollection<Guid> AffectedClientIds =>
+        AffectedClients.Select(client => client.ClientId).ToList();
+
+    /// <summary>
+    /// The affected employees this recipient may see, with count, name list recomputed from them.
+    /// Kind, Summary key and DedupKey are untouched, so every variant reports the same ledger row.
+    /// </summary>
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds)
+    {
+        var visible = AffectedClients.Where(client => visibleClientIds.Contains(client.ClientId)).ToList();
+        if (visible.Count == 0)
+        {
+            return null;
+        }
+
+        return visible.Count == AffectedClients.Count ? this : this with { AffectedClients = visible };
+    }
 
     /// <summary>
     /// The DedupKey spelling as a function of its key field, so AvailabilityGapDetector's fingerprint

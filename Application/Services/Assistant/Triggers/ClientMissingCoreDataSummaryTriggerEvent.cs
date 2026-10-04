@@ -40,7 +40,7 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public sealed record ClientMissingCoreDataSummaryTriggerEvent(
     IReadOnlyList<ProactiveAffectedClient> AffectedClients,
-    string MissingField) : IAgentTriggerEvent
+    string MissingField) : IClientAggregateTriggerEvent
 {
     public string Kind => AgentTriggerKinds.ClientMissingCoreData;
 
@@ -62,6 +62,24 @@ public sealed record ClientMissingCoreDataSummaryTriggerEvent(
     };
 
     public string DedupKey => DedupKeyFor(MissingField);
+
+    public IReadOnlyCollection<Guid> AffectedClientIds =>
+        AffectedClients.Select(client => client.ClientId).ToList();
+
+    /// <summary>
+    /// The affected employees this recipient may see, with count, name list recomputed from them.
+    /// Kind, Summary key and DedupKey are untouched, so every variant reports the same ledger row.
+    /// </summary>
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds)
+    {
+        var visible = AffectedClients.Where(client => visibleClientIds.Contains(client.ClientId)).ToList();
+        if (visible.Count == 0)
+        {
+            return null;
+        }
+
+        return visible.Count == AffectedClients.Count ? this : this with { AffectedClients = visible };
+    }
 
     /// <summary>
     /// The DedupKey spelling as a function of its key field, so ClientMissingCoreDataDetector's

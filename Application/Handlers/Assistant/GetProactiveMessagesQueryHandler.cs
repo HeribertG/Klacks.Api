@@ -16,9 +16,14 @@
 /// this: the cadence of the notification stays "once per gap until it is filled", only the number the
 /// sentence states follows the finding. Closed conditions and rows without one keep their frozen params,
 /// because a finished finding's last known numbers are what it is a record of.
+///
+/// The live re-render is withheld for a client aggregate kind unless the reader is an Admin
+/// (ProactiveLivePayloadPolicy): that ledger row carries the names and count of every affected employee in
+/// the installation, while the reader's own dispatch row was narrowed to the employees they may see.
 /// </summary>
 /// <param name="dispatchRepository">Persistence of the proactive trigger dispatch rows.</param>
 /// <param name="conditionRepository">Resolves the ledger rows the listed dispatch rows report, batched into one read.</param>
+/// <param name="planningAudienceResolver">Tells whether the reader is an Admin, who alone may see a client aggregate's live payload.</param>
 
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -39,13 +44,16 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
 
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IAgentConditionRepository _conditionRepository;
+    private readonly IPlanningAudienceResolver _planningAudienceResolver;
 
     public GetProactiveMessagesQueryHandler(
         IProactiveTriggerDispatchRepository dispatchRepository,
-        IAgentConditionRepository conditionRepository)
+        IAgentConditionRepository conditionRepository,
+        IPlanningAudienceResolver planningAudienceResolver)
     {
         _dispatchRepository = dispatchRepository;
         _conditionRepository = conditionRepository;
+        _planningAudienceResolver = planningAudienceResolver;
     }
 
     public async Task<IReadOnlyList<ProactiveInboxMessageDto>> Handle(GetProactiveMessagesQuery request, CancellationToken cancellationToken)
@@ -53,8 +61,33 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
         var take = NormalizeTake(request.Take);
         var rows = await _dispatchRepository.ListForUserAsync(request.UserId, request.UnreadOnly, take, cancellationToken);
         var livePayloads = await LoadLivePayloadsAsync(rows, cancellationToken);
+        var readerIsAdmin = await IsAdminWhenRelevantAsync(request.UserId, rows, livePayloads, cancellationToken);
 
-        return rows.Select(row => ToDto(row, livePayloads)).ToList();
+        return rows.Select(row => ToDto(row, livePayloads, readerIsAdmin)).ToList();
+    }
+
+    /// <summary>
+    /// The role lookup is only paid when the page holds a client aggregate row with a live payload, the one
+    /// case where the answer changes anything; the admin set itself is cached by the resolver.
+    /// </summary>
+    private async Task<bool> IsAdminWhenRelevantAsync(
+        string userId,
+        IReadOnlyList<ProactiveTriggerDispatchRow> rows,
+        IReadOnlyDictionary<Guid, string> livePayloads,
+        CancellationToken cancellationToken)
+    {
+        var hasGatedRow = rows.Any(row =>
+            row.ConditionId is Guid conditionId
+            && livePayloads.ContainsKey(conditionId)
+            && ProactiveLivePayloadPolicy.IsClientAggregateKind(row.TriggerKind));
+
+        if (!hasGatedRow)
+        {
+            return false;
+        }
+
+        var adminIds = await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        return adminIds.Contains(userId);
     }
 
     private static int NormalizeTake(int? take)
@@ -107,13 +140,14 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
 
     private static ProactiveInboxMessageDto ToDto(
         ProactiveTriggerDispatchRow row,
-        IReadOnlyDictionary<Guid, string> livePayloads)
+        IReadOnlyDictionary<Guid, string> livePayloads,
+        bool readerIsAdmin)
     {
         return new ProactiveInboxMessageDto
         {
             Id = row.Id,
             Content = row.ContentKey ?? string.Empty,
-            ContentParams = ResolveContentParams(row, livePayloads) ?? EmptyContentParams,
+            ContentParams = ResolveContentParams(row, livePayloads, readerIsAdmin) ?? EmptyContentParams,
             Severity = row.Severity ?? string.Empty,
             Kind = row.TriggerKind,
             ActionRoute = row.ActionRoute,
@@ -136,14 +170,17 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
     /// </summary>
     /// <param name="row">The dispatch row being mapped.</param>
     /// <param name="livePayloads">Current payloads of the open ledger rows of this page, keyed by condition id.</param>
+    /// <param name="readerIsAdmin">Whether the reader may see a client aggregate's unnarrowed live payload.</param>
     private static IReadOnlyDictionary<string, string>? ResolveContentParams(
         ProactiveTriggerDispatchRow row,
-        IReadOnlyDictionary<Guid, string> livePayloads)
+        IReadOnlyDictionary<Guid, string> livePayloads,
+        bool readerIsAdmin)
     {
         var frozenParams = DeserializeParams(row.ContentParamsJson);
 
         if (row.ConditionId is not Guid conditionId
-            || !livePayloads.TryGetValue(conditionId, out var livePayloadJson))
+            || !livePayloads.TryGetValue(conditionId, out var livePayloadJson)
+            || !ProactiveLivePayloadPolicy.MayMergeLivePayload(row.TriggerKind, readerIsAdmin))
         {
             return frozenParams;
         }

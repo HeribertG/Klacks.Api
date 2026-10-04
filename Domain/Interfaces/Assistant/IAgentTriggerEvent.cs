@@ -90,8 +90,9 @@ public interface IAgentTriggerEvent
     /// Declares that this event is only ever about a group-owned entity, so an empty
     /// <see cref="GroupIds"/> means "the group could not be determined" and never "this concerns
     /// everybody". Such an event then reaches Admins only instead of the unscoped planner broadcast.
-    /// Default false keeps genuinely installation-wide alerts (hours drift, expiring contract,
-    /// missing client core data) broadcast to every planner as before.
+    /// Default false keeps the unscoped planner broadcast for alerts without personal data. Events that
+    /// name employees (hours drift, expiring contract, missing client core data, availability gap) do
+    /// not rely on this flag: they implement IClientScopedTriggerEvent and are routed per employee.
     /// </summary>
     bool RequiresGroupScope => false;
 }

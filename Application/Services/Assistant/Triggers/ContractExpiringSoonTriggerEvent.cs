@@ -16,7 +16,7 @@ public sealed record ContractExpiringSoonTriggerEvent(
     Guid ClientId,
     string ClientName,
     DateOnly ValidUntil,
-    int DaysUntilExpiry) : IAgentTriggerEvent
+    int DaysUntilExpiry) : IClientScopedTriggerEvent
 {
     public string Kind => AgentTriggerKinds.ContractExpiringSoon;
     public string Severity => DaysUntilExpiry <= 7 ? AgentTriggerSeverity.High
@@ -33,6 +33,11 @@ public sealed record ContractExpiringSoonTriggerEvent(
     };
 
     public string DedupKey => ContractId.ToString();
+
+    public IReadOnlyCollection<Guid> AffectedClientIds => [ClientId];
+
+    public IAgentTriggerEvent? NarrowTo(IReadOnlySet<Guid> visibleClientIds) =>
+        visibleClientIds.Contains(ClientId) ? this : null;
 
     public string? ActionRoute => ProactiveActionRoutes.ClientEdit;
 

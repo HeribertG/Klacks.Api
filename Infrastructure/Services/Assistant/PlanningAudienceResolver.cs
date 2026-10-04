@@ -153,6 +153,38 @@ public class PlanningAudienceResolver : IPlanningAudienceResolver
         return scopedIds;
     }
 
+    public async Task<bool> MaySeeAnyGroupAsync(
+        string userId, IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken = default)
+    {
+        var adminIds = await GetAdminUserIdsAsync(cancellationToken);
+        if (adminIds.Contains(userId))
+        {
+            return true;
+        }
+
+        if (groupIds.Count == 0)
+        {
+            return false;
+        }
+
+        var visibleRootIds = await ReadVisibleRootIdsAsync(userId);
+        if (visibleRootIds.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (var groupId in groupIds.Distinct())
+        {
+            var rootId = await ResolveRootIdAsync(groupId);
+            if (rootId is Guid root && visibleRootIds.Contains(root))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private async Task<Guid?> ResolveRootIdAsync(Guid groupId)
     {
         var group = await _groupRepository.GetNoTracking(groupId);

@@ -592,6 +592,14 @@ public class AgentConditionRepository : IAgentConditionRepository
     /// missing, lands in the same place rather than anywhere wider: no group resolves, so only Admins see
     /// it.
     ///
+    /// The client-borne kinds (AgentTriggerClientAggregateKinds plus contract_expiring_soon) also carry a
+    /// null GroupId and stay visible here to every scoped planner. That is deliberate and safe only because
+    /// none of the reads built on this filter returns PayloadJson to the user - they expose kind, severity,
+    /// status, timestamps, EntityId and counts. The employee names those rows carry reach a user solely
+    /// through dispatch rows, whose audience AgentTriggerService narrows per employee and whose live
+    /// re-render ProactiveLivePayloadPolicy withholds from non-Admins. A new read that returns PayloadJson
+    /// must not be built on this filter without narrowing those kinds first.
+    ///
     /// The root resolution stays a separate queryable whose own top-level Where carries
     /// visibleRootIds.Contains, and the correlation to the outer row is a plain id-membership subquery.
     /// That shape is deliberate: it keeps the parameterized-collection translation on the same footing the

@@ -25,12 +25,18 @@
 /// (high severity, not in an active conversation), otherwise receives the lightweight inbox-changed
 /// signal with the fresh unread count; an offline user gets nothing live, which the persisted row
 /// already covers.
+///
+/// A reminder of a client aggregate kind is rendered from the live ledger payload only for an Admin
+/// (ProactiveLivePayloadPolicy). That payload names every affected employee of the installation, while a
+/// supervisor's dispatch row was narrowed to the employees they may see, so for them the reminder repeats
+/// their own frozen parameters.
 /// </summary>
 /// <param name="dispatchRepository">Due-row reads, the reminder compare-and-swaps and the unread count.</param>
 /// <param name="conditionRepository">Resolves the ledger row a reminder reports, so a closed finding stops the loop and an open one supplies the current payload the reminder is rendered from.</param>
 /// <param name="preferenceService">Per-user mute / snooze / severity threshold, re-checked on every reminder.</param>
 /// <param name="notificationService">Pushes the reminder and inbox changes via SignalR.</param>
 /// <param name="activityTracker">Suppresses the live push while the user is actively chatting.</param>
+/// <param name="planningAudienceResolver">Tells whether a reminded user is an Admin, who alone may see a client aggregate's live payload.</param>
 /// <param name="timeProvider">Clock the reminded-at stamp and the next due date are taken from, injected so a test can drive it.</param>
 /// <param name="logger">Structured log per row outcome and per sweep.</param>
 
@@ -51,6 +57,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
     private readonly IAgentTriggerPreferenceService _preferenceService;
     private readonly IAssistantNotificationService _notificationService;
     private readonly IUserActivityTracker _activityTracker;
+    private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<ProactiveReminderService> _logger;
 
@@ -60,6 +67,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
         IAgentTriggerPreferenceService preferenceService,
         IAssistantNotificationService notificationService,
         IUserActivityTracker activityTracker,
+        IPlanningAudienceResolver planningAudienceResolver,
         TimeProvider timeProvider,
         ILogger<ProactiveReminderService> logger)
     {
@@ -68,6 +76,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
         _preferenceService = preferenceService;
         _notificationService = notificationService;
         _activityTracker = activityTracker;
+        _planningAudienceResolver = planningAudienceResolver;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -176,7 +185,7 @@ public sealed class ProactiveReminderService : IProactiveReminderService
             return;
         }
 
-        await DeliverAsync(row, condition, deliveryUserId, cancellationToken);
+        await DeliverAsync(row, condition, deliveryUserId, tally, cancellationToken);
     }
 
     /// <summary>
@@ -188,21 +197,24 @@ public sealed class ProactiveReminderService : IProactiveReminderService
     /// <param name="row">The claimed dispatch row, carrying the content key, the action and the frozen parameters.</param>
     /// <param name="condition">The still-open ledger row, whose current payload the content parameters are taken from.</param>
     /// <param name="deliveryUserId">The connected user id the push is addressed to.</param>
+    /// <param name="tally">Carries the admin set, loaded at most once per sweep.</param>
     /// <param name="cancellationToken">Cancels the unread-count read of the quiet path.</param>
     private async Task DeliverAsync(
         ProactiveTriggerDispatchRow row,
         AgentCondition condition,
         string deliveryUserId,
+        SweepTally tally,
         CancellationToken cancellationToken)
     {
         if (ProactiveLivePushPolicy.ShouldLivePushReminder(row.Severity, _activityTracker, deliveryUserId))
         {
             try
             {
+                var mayMergeLivePayload = await MayMergeLivePayloadAsync(row, tally, cancellationToken);
                 await _notificationService.SendProactiveMessageAsync(
                     deliveryUserId,
                     FormatReminderMessage(row),
-                    contentParams: ResolveContentParams(row, condition),
+                    contentParams: mayMergeLivePayload ? ResolveContentParams(row, condition) : ParseParams(row.ContentParamsJson),
                     messageId: row.Id.ToString(),
                     kind: row.TriggerKind,
                     actionRoute: row.ActionRoute,
@@ -228,6 +240,24 @@ public sealed class ProactiveReminderService : IProactiveReminderService
         {
             _logger.LogWarning(ex, "Reminder inbox-changed signal failed for user {UserId}", row.UserId);
         }
+    }
+
+    /// <summary>
+    /// Whether this row's reminder may carry the live ledger payload. Only a client aggregate kind asks,
+    /// and the admin set is read once per sweep.
+    /// </summary>
+    private async Task<bool> MayMergeLivePayloadAsync(
+        ProactiveTriggerDispatchRow row,
+        SweepTally tally,
+        CancellationToken cancellationToken)
+    {
+        if (!ProactiveLivePayloadPolicy.IsClientAggregateKind(row.TriggerKind))
+        {
+            return true;
+        }
+
+        tally.AdminUserIds ??= await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        return ProactiveLivePayloadPolicy.MayMergeLivePayload(row.TriggerKind, tally.AdminUserIds.Contains(row.UserId));
     }
 
     /// <summary>
@@ -328,6 +358,8 @@ public sealed class ProactiveReminderService : IProactiveReminderService
         public int Skipped { get; set; }
 
         public int Lost { get; set; }
+
+        public IReadOnlySet<string>? AdminUserIds { get; set; }
 
         public ProactiveReminderSweepResult ToResult() => new(Due, Reminded, Stopped, Skipped, Lost);
     }

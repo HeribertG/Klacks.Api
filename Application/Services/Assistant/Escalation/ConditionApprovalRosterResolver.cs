@@ -8,7 +8,8 @@
 /// RequiredPermissions - the ISkillPermissionGate check the delegation handler shares, with the Admin
 /// bypass SkillExecutorService.ValidatePermissions applies.
 /// Stage 1 exists only for shift-scoped kinds: the audit stamp on a Client names whoever maintained
-/// master data, not a planner, and kinds without an EntityId have nothing to look at. Within stages 2
+/// master data, not a planner, and kinds without an EntityId have nothing to look at; the stage-1 planner
+/// must also still see one of the finding's groups when the finding has any. Within stages 2
 /// and 3 the order is AppUser.EscalationRosterOrder, the same wake-up order the absence roster uses, so
 /// an admin's drag'n'drop on the roster card steers both chains. The planning audience already contains
 /// every admin; they are held back to stage 3 so a scoped planner is always asked before the fallback.
@@ -38,6 +39,7 @@ public sealed class ConditionApprovalRosterResolver : IConditionApprovalRosterRe
     private const string PlannerUnknownReason = "account no longer exists";
     private const string PlannerBlockedReason = "account is deactivated or locked out";
     private const string PlannerLacksPermissionReason = "account lacks the remediation skill's permissions";
+    private const string PlannerOutsideVisibilityReason = "account no longer sees any group of the finding";
 
     private readonly IWorkRepository _workRepository;
     private readonly IPlanningAudienceResolver _audienceResolver;
@@ -132,7 +134,44 @@ public sealed class ConditionApprovalRosterResolver : IConditionApprovalRosterRe
             return null;
         }
 
+        if (!await MaySeeConditionGroupsAsync(condition, user.Id, cancellationToken))
+        {
+            LogPlannerSkipped(condition, actor, PlannerOutsideVisibilityReason);
+            return null;
+        }
+
         return user;
+    }
+
+    /// <summary>
+    /// Having touched a Work row under the shift once is no proof of seeing that shift today: the planner's
+    /// GroupVisibility may have been narrowed since. The approval request names the finding, so stage 1 is
+    /// admitted only when the planner still sees one of the condition's groups (the loaded join rows plus
+    /// the primary GroupId) - checked on the person's own GroupVisibility rather than on the planning
+    /// audience, because a role-less Planer-floor user with the remediation right is a legitimate stage 1.
+    /// The join rows are not always loaded; with only the primary group known a planner of another group of
+    /// the same shift is passed over, which fails closed - stages 2 and 3 still apply.
+    ///
+    /// A row without any group is left as before: the group could not be determined, so there is nothing to
+    /// check against, and in an installation without groups that is every row while every user is
+    /// unrestricted. The person was the last to edit that very shift, so the request tells them nothing
+    /// about it they have not already seen.
+    /// </summary>
+    private async Task<bool> MaySeeConditionGroupsAsync(
+        AgentCondition condition, string userId, CancellationToken cancellationToken)
+    {
+        var groupIds = condition.Groups.Select(group => group.GroupId).ToHashSet();
+        if (condition.GroupId is Guid primaryGroupId)
+        {
+            groupIds.Add(primaryGroupId);
+        }
+
+        if (groupIds.Count == 0)
+        {
+            return true;
+        }
+
+        return await _audienceResolver.MaySeeAnyGroupAsync(userId, groupIds, cancellationToken);
     }
 
     private async Task<IReadOnlyList<AppUser>> SelectEligibleOrderedAsync(

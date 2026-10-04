@@ -21,7 +21,7 @@
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
 /// <param name="conditionRepository">Resolves the condition-ledger row a ledger-tracked event reports, so a later dismissal can write its reject reason back onto the finding.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
-/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names.</param>
+/// <param name="planningAudienceResolver">Resolves the planner / admin audience, narrowed to the union of the GroupVisibility scopes of every group the event names, or per named employee for a client-scoped event, whose recipients each get only the employees they may see.</param>
 /// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
 /// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
 /// <param name="timeProvider">Clock the first reminder due date is stamped from, injected so a test can drive it.</param>
@@ -38,6 +38,8 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class AgentTriggerService : IAgentTriggerService
 {
+    private const string VisibilityKeySeparator = ",";
+
     private readonly IAgentTriggerRateLimiter _rateLimiter;
     private readonly IAgentTriggerPreferenceService _preferenceService;
     private readonly IAssistantNotificationService _notificationService;
@@ -79,60 +81,88 @@ public class AgentTriggerService : IAgentTriggerService
     public async Task<ProactiveDispatchOutcome> OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default)
     {
         var connectedUserIds = (await _notificationService.GetConnectedUserIdsAsync()).ToList();
-        var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
-        if (recipients.Count == 0)
+        var variants = await ResolveRecipientVariantsAsync(triggerEvent, connectedUserIds, cancellationToken);
+        if (variants.Count == 0)
         {
             _logger.LogDebug("Trigger {Kind} skipped — no recipients", triggerEvent.Kind);
             return ProactiveDispatchOutcome.Empty;
         }
 
         var connectedLookup = BuildConnectedLookup(connectedUserIds);
-        var message = FormatMessage(triggerEvent);
 
-        // The wake-up decision depends on the event alone, never on the recipient, so it is taken
-        // once here. A null text is the carrier of "this event may not wake anybody" and keeps the
-        // language lookup out of the per-recipient loop.
-        var messengerText = MessengerWakeUpPolicy.JustifiesWakingSomebody(triggerEvent.Kind, triggerEvent.Severity)
-            ? await ComposeMessengerTextAsync(triggerEvent, cancellationToken)
-            : null;
-
-        var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
-        var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         // Capped once for the whole event, never per recipient: the dedup probe below must ask for
         // exactly the key that gets stored, or a capped row would never be recognised again and the
-        // same alert would be re-sent on every scan.
+        // same alert would be re-sent on every scan. Taken from the ORIGINAL event, never from a
+        // recipient's narrowed variant, so every variant reports the same ledger row and dedups alike.
         var contentKey = ProactiveTextTruncator.Cap(triggerEvent.Summary, ProactiveTriggerDispatchLimits.ContentKeyMaxLength);
         var dedupKey = ProactiveTextTruncator.Cap(triggerEvent.DedupKey, ProactiveTriggerDispatchLimits.DedupKeyMaxLength) ?? string.Empty;
         var conditionId = await ResolveConditionIdAsync(triggerEvent, cancellationToken);
         // Stamped once per event from the injected clock - never from the row's CreateTime, which
         // DataBaseContext.OnBeforeSaving fills from the system clock at save time instead.
         var now = _timeProvider.GetUtcNow().UtcDateTime;
-        var persisted = 0;
-        var failed = 0;
-        var livePushed = 0;
-        var inboxSignaled = 0;
-        var messengerSent = 0;
-        var throttled = 0;
-        var muted = 0;
-        var deduped = 0;
+        var tally = new DispatchTally();
 
-        foreach (var userId in recipients)
+        foreach (var variant in variants)
         {
-            if (!await _preferenceService.IsAllowedAsync(userId, triggerEvent.Kind, triggerEvent.Severity))
+            await DispatchVariantAsync(
+                variant, contentKey, dedupKey, conditionId, now, connectedLookup, tally, cancellationToken);
+        }
+
+        _logger.LogInformation(
+            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Failed} failed. Summary: {Summary}",
+            triggerEvent.Kind, triggerEvent.Severity, tally.Persisted, tally.LivePushed, tally.InboxSignaled, tally.MessengerSent,
+            tally.Throttled, tally.Muted, tally.Deduped, tally.Failed, triggerEvent.Summary);
+
+        return new ProactiveDispatchOutcome(tally.Persisted, tally.Throttled, tally.Muted, tally.Deduped, tally.Failed);
+    }
+
+    /// <summary>
+    /// Delivers one recipient variant. Everything a recipient READS - the frozen content parameters, the
+    /// severity (which the preference gate and the reminder sweep evaluate), the live-push text and the
+    /// messenger sentence - comes from the variant, which for a client-scoped event is narrowed to the
+    /// employees these recipients may see. Only the keys that identify the finding (content key, dedup
+    /// key, condition id) are shared across variants.
+    /// </summary>
+    private async Task DispatchVariantAsync(
+        RecipientVariant variant,
+        string? contentKey,
+        string dedupKey,
+        Guid? conditionId,
+        DateTime now,
+        IReadOnlyDictionary<string, string> connectedLookup,
+        DispatchTally tally,
+        CancellationToken cancellationToken)
+    {
+        var variantEvent = variant.Event;
+        var message = FormatMessage(variantEvent);
+
+        // The wake-up decision depends on the event alone, never on the recipient, so it is taken
+        // once per variant here. A null text is the carrier of "this event may not wake anybody" and
+        // keeps the language lookup out of the per-recipient loop.
+        var messengerText = MessengerWakeUpPolicy.JustifiesWakingSomebody(variantEvent.Kind, variantEvent.Severity)
+            ? await ComposeMessengerTextAsync(variantEvent, cancellationToken)
+            : null;
+
+        var contentParamsJson = BuildCappedParamsJson(variantEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
+        var actionParamsJson = BuildCappedParamsJson(variantEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
+
+        foreach (var userId in variant.UserIds)
+        {
+            if (!await _preferenceService.IsAllowedAsync(userId, variantEvent.Kind, variantEvent.Severity))
             {
-                muted++;
+                tally.Muted++;
                 continue;
             }
 
-            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, dedupKey, conditionId, cancellationToken))
+            if (await _dispatchRepository.WasDispatchedAsync(userId, variantEvent.Kind, dedupKey, conditionId, cancellationToken))
             {
-                deduped++;
+                tally.Deduped++;
                 continue;
             }
 
-            if (!_rateLimiter.ShouldFire(userId, triggerEvent.Kind))
+            if (!_rateLimiter.ShouldFire(userId, variantEvent.Kind))
             {
-                throttled++;
+                tally.Throttled++;
                 continue;
             }
 
@@ -145,20 +175,20 @@ public class AgentTriggerService : IAgentTriggerService
                 {
                     Id = messageId,
                     UserId = userId,
-                    TriggerKind = triggerEvent.Kind,
+                    TriggerKind = variantEvent.Kind,
                     DedupKey = dedupKey,
                     ContentKey = contentKey,
                     ContentParamsJson = contentParamsJson,
-                    Severity = triggerEvent.Severity,
-                    ActionRoute = triggerEvent.ActionRoute,
+                    Severity = variantEvent.Severity,
+                    ActionRoute = variantEvent.ActionRoute,
                     ActionParamsJson = actionParamsJson,
                     ConditionId = conditionId,
                     // Only condition-linked rows join the reminder loop; everything else stays a
                     // plain inbox message that never re-fires.
                     NextReminderAtUtc = conditionId is null ? null : ProactiveReminderSchedule.FirstDueAfter(now)
                 }, cancellationToken);
-                _rateLimiter.RecordFire(userId, triggerEvent.Kind);
-                persisted++;
+                _rateLimiter.RecordFire(userId, variantEvent.Kind);
+                tally.Persisted++;
             }
             catch (Exception ex)
             {
@@ -166,39 +196,33 @@ public class AgentTriggerService : IAgentTriggerService
                 // readable in the inbox, but a failed row means this recipient never learns of the
                 // event at all. The loop still continues so one bad row cannot cost the remaining
                 // recipients theirs.
-                failed++;
-                _logger.LogError(ex, "Trigger {Kind} persistence failed for user {UserId}; the notification is lost for this recipient", triggerEvent.Kind, userId);
+                tally.Failed++;
+                _logger.LogError(ex, "Trigger {Kind} persistence failed for user {UserId}; the notification is lost for this recipient", variantEvent.Kind, userId);
                 continue;
             }
 
             if (!connectedLookup.TryGetValue(userId, out var deliveryUserId))
             {
                 if (messengerText != null
-                    && await TryReachOfflineRecipientAsync(triggerEvent, userId, messengerText, cancellationToken))
+                    && await TryReachOfflineRecipientAsync(variantEvent, userId, messengerText, cancellationToken))
                 {
-                    messengerSent++;
+                    tally.MessengerSent++;
                 }
 
                 continue;
             }
 
-            var (wasLivePushed, wasInboxSignaled) = await DeliverAsync(triggerEvent, userId, deliveryUserId, message, messageId, cancellationToken);
+            var (wasLivePushed, wasInboxSignaled) = await DeliverAsync(variantEvent, userId, deliveryUserId, message, messageId, cancellationToken);
             if (wasLivePushed)
             {
-                livePushed++;
+                tally.LivePushed++;
             }
 
             if (wasInboxSignaled)
             {
-                inboxSignaled++;
+                tally.InboxSignaled++;
             }
         }
-
-        _logger.LogInformation(
-            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Failed} failed. Summary: {Summary}",
-            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, failed, triggerEvent.Summary);
-
-        return new ProactiveDispatchOutcome(persisted, throttled, muted, deduped, failed);
     }
 
     /// <summary>
@@ -352,6 +376,81 @@ public class AgentTriggerService : IAgentTriggerService
         }
     }
 
+    /// <summary>
+    /// The recipients of one event, each paired with the variant of the event they may read. Every event
+    /// except a client-scoped planner event yields exactly one variant - the event itself - for its whole
+    /// audience. A client-scoped planner event (IClientScopedTriggerEvent) names employees, so its audience
+    /// follows the client group-visibility rule per named employee instead, see
+    /// <see cref="ResolveClientScopedVariantsAsync"/>.
+    /// </summary>
+    private async Task<IReadOnlyList<RecipientVariant>> ResolveRecipientVariantsAsync(
+        IAgentTriggerEvent triggerEvent,
+        IReadOnlyList<string> connectedUserIds,
+        CancellationToken cancellationToken)
+    {
+        if (triggerEvent.TargetUserId is null
+            && !triggerEvent.AdminOnly
+            && triggerEvent.PlannersOnly
+            && triggerEvent is IClientScopedTriggerEvent clientScopedEvent)
+        {
+            return await ResolveClientScopedVariantsAsync(clientScopedEvent, cancellationToken);
+        }
+
+        var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
+        return recipients.Count == 0
+            ? []
+            : [new RecipientVariant(triggerEvent, recipients)];
+    }
+
+    /// <summary>
+    /// Per affected employee, the planners who may see that employee
+    /// (IPlanningAudienceResolver.GetPlanningUserIdsForClientAsync: Admins always; every planner for an
+    /// employee without any group; otherwise the planners of the employee's groups; Admins only for an
+    /// unknown, deleted or scenario-only employee). Each recipient then receives the event narrowed to
+    /// exactly the employees they may see, and nothing when that set is empty - there is no unscoped
+    /// fallback, because the content is the employees' names. Recipients with an identical visible set
+    /// share one variant, keyed on the sorted ids, so the narrowing and the messenger text are built once
+    /// per distinct view rather than once per recipient. One membership read per affected employee per
+    /// call; the group audiences underneath are cached per Nested Set root.
+    /// </summary>
+    private async Task<IReadOnlyList<RecipientVariant>> ResolveClientScopedVariantsAsync(
+        IClientScopedTriggerEvent clientScopedEvent,
+        CancellationToken cancellationToken)
+    {
+        var visibleClientsByUser = new Dictionary<string, HashSet<Guid>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var clientId in clientScopedEvent.AffectedClientIds.Distinct())
+        {
+            var audience = await _planningAudienceResolver.GetPlanningUserIdsForClientAsync(clientId, cancellationToken);
+            foreach (var userId in audience)
+            {
+                if (!visibleClientsByUser.TryGetValue(userId, out var visibleClients))
+                {
+                    visibleClients = [];
+                    visibleClientsByUser[userId] = visibleClients;
+                }
+
+                visibleClients.Add(clientId);
+            }
+        }
+
+        var variants = new List<RecipientVariant>();
+        foreach (var bucket in visibleClientsByUser.GroupBy(pair => BuildVisibilityKey(pair.Value), StringComparer.Ordinal))
+        {
+            var narrowedEvent = clientScopedEvent.NarrowTo(bucket.First().Value);
+            if (narrowedEvent is null)
+            {
+                continue;
+            }
+
+            variants.Add(new RecipientVariant(narrowedEvent, bucket.Select(pair => pair.Key).ToList()));
+        }
+
+        return variants;
+    }
+
+    private static string BuildVisibilityKey(IEnumerable<Guid> visibleClientIds) =>
+        string.Join(VisibilityKeySeparator, visibleClientIds.OrderBy(id => id));
+
     private async Task<IReadOnlyList<string>> ResolveRecipientsAsync(
         IAgentTriggerEvent triggerEvent,
         IReadOnlyList<string> connectedUserIds,
@@ -384,7 +483,9 @@ public class AgentTriggerService : IAgentTriggerService
     /// audience is the UNION over every group the event names: a planner who may see any one of those
     /// groups may see the finding. GetPlanningUserIdsForGroupAsync already returns every Admin plus the
     /// planners scoped to that group, so the union stays admin-inclusive and is cached per Nested Set
-    /// root underneath.
+    /// root underneath. Events that name employees never get here: they are client-scoped and resolved
+    /// per employee in <see cref="ResolveClientScopedVariantsAsync"/>, so the unscoped broadcast at the
+    /// end only carries content without personal data.
     /// </summary>
     private async Task<IReadOnlySet<string>> ResolvePlannerAudienceAsync(
         IAgentTriggerEvent triggerEvent,
@@ -481,5 +582,26 @@ public class AgentTriggerService : IAgentTriggerService
             _ => ""
         };
         return $"{severityTag}{triggerEvent.Summary}";
+    }
+
+    private sealed record RecipientVariant(IAgentTriggerEvent Event, IReadOnlyList<string> UserIds);
+
+    private sealed class DispatchTally
+    {
+        public int Persisted { get; set; }
+
+        public int Failed { get; set; }
+
+        public int LivePushed { get; set; }
+
+        public int InboxSignaled { get; set; }
+
+        public int MessengerSent { get; set; }
+
+        public int Throttled { get; set; }
+
+        public int Muted { get; set; }
+
+        public int Deduped { get; set; }
     }
 }
