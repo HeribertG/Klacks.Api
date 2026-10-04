@@ -14,5 +14,9 @@ public interface IInboundAnalysisNotifier
         string? clarificationContext = null,
         CancellationToken cancellationToken = default);
 
-    Task NotifyMessageAsync(string message, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Delivers a ready-made text about the given client to the admins and the planners who may see that client;
+    /// a null client reaches the admins only.
+    /// </summary>
+    Task NotifyMessageAsync(Guid? clientId, string message, CancellationToken cancellationToken = default);
 }

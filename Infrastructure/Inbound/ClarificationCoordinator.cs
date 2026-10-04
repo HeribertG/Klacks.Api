@@ -443,6 +443,7 @@ public sealed class ClarificationCoordinator : IClarificationCoordinator
         {
             var companyTimeZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
             await _analysisNotifier.NotifyMessageAsync(
+                request.ClientId,
                 await _textService.StartedAsync(
                     request.Source.SenderDisplay, analysis.Summary, composed.Question, composed.ShiftContext,
                     ClarificationTimeConversion.ToLocal(deadlineUtc, companyTimeZone), cancellationToken),

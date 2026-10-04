@@ -24,4 +24,12 @@ public interface IPlanningAudienceResolver
     /// with zero GroupVisibility rows is excluded (fail-closed) rather than treated as unrestricted.
     /// </summary>
     Task<IReadOnlySet<string>> GetPlanningUserIdsForGroupAsync(Guid groupId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resolves the planning audience for content about one client, following the client group-visibility
+    /// rule: every Admin always; every planner when the client has no group item at all (group-less clients
+    /// are visible to everyone); otherwise the union of <see cref="GetPlanningUserIdsForGroupAsync"/> over the
+    /// client's non-scenario groups. An unknown or deleted client resolves to the admins only.
+    /// </summary>
+    Task<IReadOnlySet<string>> GetPlanningUserIdsForClientAsync(Guid clientId, CancellationToken cancellationToken = default);
 }

@@ -134,4 +134,25 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .Select(g => g.Id)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<ClientVisibilityMembership?> GetVisibilityMembershipAsync(
+        Guid clientId, CancellationToken cancellationToken = default)
+    {
+        var row = await context.Client
+            .AsNoTracking()
+            .Where(client => client.Id == clientId)
+            .Select(client => new
+            {
+                HasAnyGroupItem = client.GroupItems.Any(),
+                ActiveGroupIds = client.GroupItems
+                    .Where(gi => gi.AnalyseToken == null)
+                    .Select(gi => gi.GroupId)
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return row is null
+            ? null
+            : new ClientVisibilityMembership(row.HasAnyGroupItem, row.ActiveGroupIds.Distinct().ToList());
+    }
 }

@@ -1,18 +1,22 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Delivers an inbound (email or messenger) analysis summary to every planner and admin. The summary
-/// is always stashed as a durable PendingUserNote first; a connected user additionally gets it live as
-/// a proactive chat message, and the note is then marked delivered so it is never relayed twice. An
-/// offline user — or one whose live send fails — keeps the note, which surfaces on their next chat
-/// turn. Delivery failures are logged per user and never abort the batch. NotifyMessageAsync delivers a
-/// ready-made text (the clarification dialog's start and expiry notices) through the same stash-then-live
-/// path; NotifyAsync appends an optional clarification context block (answer history, suggested question)
-/// after the period-load digest. A period whose start was defaulted to the received day (DateAssumed) is
-/// marked as assumed in the Period line: a single-day period is marked "(assumed: received day)", a
-/// range period is marked "(start assumed: received day)" since only its start, not the stated end, was
-/// defaulted.
+/// Delivers an inbound (email or messenger) analysis summary to the planners allowed to see the client it is
+/// about: every Admin always, plus the Authorised planners whose group visibility covers that client
+/// (IPlanningAudienceResolver.GetPlanningUserIdsForClientAsync — group-less clients reach every planner). A
+/// message attributed to no client reaches the admins only. The summary is always stashed as a durable
+/// PendingUserNote first; a connected user additionally gets it live as a proactive chat message, and the note
+/// is then marked delivered so it is never relayed twice. An offline user — or one whose live send fails —
+/// keeps the note, which surfaces on their next chat turn. Delivery failures are logged per user and never
+/// abort the batch. NotifyAsync takes the client from the analysis; NotifyMessageAsync delivers a ready-made
+/// text (the clarification dialog's start and expiry notices) for the given client through the same
+/// stash-then-live path; NotifyAsync appends an optional clarification context block (answer history,
+/// suggested question) after the period-load digest. A period whose start was defaulted to the received day
+/// (DateAssumed) is marked as assumed in the Period line: a single-day period is marked "(assumed: received
+/// day)", a range period is marked "(start assumed: received day)" since only its start, not the stated end,
+/// was defaulted.
 /// </summary>
+/// <param name="audienceResolver">Resolves the admins and the planners who may see the message's client</param>
 
 using System.Text;
 using Klacks.Api.Domain.Enums;
@@ -58,21 +62,19 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
         CancellationToken cancellationToken = default)
     {
         var message = BuildMessage(source, analysis, actionOutcome, periodLoadSummary, clarificationContext);
-        return DeliverAsync(message, cancellationToken);
+        return DeliverAsync(analysis.ClientId, message, cancellationToken);
     }
 
-    public Task NotifyMessageAsync(string message, CancellationToken cancellationToken = default)
+    public Task NotifyMessageAsync(Guid? clientId, string message, CancellationToken cancellationToken = default)
     {
         return string.IsNullOrWhiteSpace(message)
             ? Task.CompletedTask
-            : DeliverAsync(message.Trim(), cancellationToken);
+            : DeliverAsync(clientId, message.Trim(), cancellationToken);
     }
 
-    private async Task DeliverAsync(string message, CancellationToken cancellationToken)
+    private async Task DeliverAsync(Guid? clientId, string message, CancellationToken cancellationToken)
     {
-        var planners = await _audienceResolver.GetPlanningUserIdsAsync(cancellationToken);
-        var admins = await _audienceResolver.GetAdminUserIdsAsync(cancellationToken);
-        var recipients = planners.Union(admins, StringComparer.OrdinalIgnoreCase).ToList();
+        var recipients = await ResolveRecipientsAsync(clientId, cancellationToken);
         if (recipients.Count == 0)
         {
             return;
@@ -97,6 +99,22 @@ public class InboundAnalysisNotifier : IInboundAnalysisNotifier
                 _logger.LogWarning(ex, "Inbound analysis notification failed for user {UserId}", userId);
             }
         }
+    }
+
+    /// <summary>
+    /// Admins always; the planners who may see the client otherwise. Without a client nobody's group
+    /// visibility can be checked, so the message stays with the admins (fail-closed).
+    /// </summary>
+    private async Task<List<string>> ResolveRecipientsAsync(Guid? clientId, CancellationToken cancellationToken)
+    {
+        var admins = await _audienceResolver.GetAdminUserIdsAsync(cancellationToken);
+        if (clientId is not { } id || id == Guid.Empty)
+        {
+            return admins.ToList();
+        }
+
+        var clientAudience = await _audienceResolver.GetPlanningUserIdsForClientAsync(id, cancellationToken);
+        return clientAudience.Union(admins, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     private async Task<PendingUserNote?> StashPendingNoteAsync(string userId, string message, CancellationToken cancellationToken)

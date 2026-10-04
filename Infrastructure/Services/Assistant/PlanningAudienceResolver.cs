@@ -9,10 +9,12 @@
 /// <param name="cache">Short-lived cache for the resolved user-id set.</param>
 /// <param name="groupVisibilityRepository">Per-user GroupVisibility rows for group-scoped audience filtering.</param>
 /// <param name="groupRepository">Resolves an event's group to its Nested Set root.</param>
+/// <param name="groupItemRepository">Reads a client's group memberships for client-scoped audience filtering.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -30,17 +32,20 @@ public class PlanningAudienceResolver : IPlanningAudienceResolver
     private readonly IMemoryCache _cache;
     private readonly IGroupVisibilityRepository _groupVisibilityRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupItemRepository _groupItemRepository;
 
     public PlanningAudienceResolver(
         UserManager<AppUser> userManager,
         IMemoryCache cache,
         IGroupVisibilityRepository groupVisibilityRepository,
-        IGroupRepository groupRepository)
+        IGroupRepository groupRepository,
+        IGroupItemRepository groupItemRepository)
     {
         _userManager = userManager;
         _cache = cache;
         _groupVisibilityRepository = groupVisibilityRepository;
         _groupRepository = groupRepository;
+        _groupItemRepository = groupItemRepository;
     }
 
     public async Task<IReadOnlySet<string>> GetPlanningUserIdsAsync(CancellationToken cancellationToken = default)
@@ -121,6 +126,30 @@ public class PlanningAudienceResolver : IPlanningAudienceResolver
         _cache.Set(cacheKey, (IReadOnlySet<string>)scopedIds, new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(CacheDuration)
             .SetSize(1));
+        return scopedIds;
+    }
+
+    public async Task<IReadOnlySet<string>> GetPlanningUserIdsForClientAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        var adminIds = await GetAdminUserIdsAsync(cancellationToken);
+
+        var membership = await _groupItemRepository.GetVisibilityMembershipAsync(clientId, cancellationToken);
+        if (membership is null)
+        {
+            return adminIds;
+        }
+
+        if (!membership.HasAnyGroupItem)
+        {
+            return await GetPlanningUserIdsAsync(cancellationToken);
+        }
+
+        var scopedIds = new HashSet<string>(adminIds, StringComparer.OrdinalIgnoreCase);
+        foreach (var groupId in membership.ActiveGroupIds)
+        {
+            scopedIds.UnionWith(await GetPlanningUserIdsForGroupAsync(groupId, cancellationToken));
+        }
+
         return scopedIds;
     }
 

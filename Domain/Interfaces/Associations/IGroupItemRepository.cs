@@ -39,4 +39,10 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
     Task<Dictionary<Guid, int>> GetExternEmpCountsPerGroupAsync(CancellationToken cancellationToken = default);
 
     Task<List<Guid>> GetGroupTreeIdsForClientAsync(Guid clientId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads the group facts the visibility rule decides a client by, with the same predicates as
+    /// ClientGroupFilterService; null when the client does not exist or is soft-deleted.
+    /// </summary>
+    Task<ClientVisibilityMembership?> GetVisibilityMembershipAsync(Guid clientId, CancellationToken cancellationToken = default);
 }

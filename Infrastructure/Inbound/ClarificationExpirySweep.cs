@@ -185,6 +185,7 @@ public sealed class ClarificationExpirySweep : BackgroundService
         try
         {
             await notifier.NotifyMessageAsync(
+                clarification.ClientId,
                 await textService.ExpiredAsync(
                     clarification.SenderDisplay,
                     clarification.Question,
