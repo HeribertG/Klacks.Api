@@ -42,7 +42,7 @@ public static class ScheduleValidationBuilder
         DateOnly reportFrom,
         DateOnly reportTo)
     {
-        foreach (var violation in timeline.GetRestViolations(policy.MinRestHours))
+        foreach (var violation in timeline.GetRestViolations(policy.MinRestHours, policy.DailyWorkFrame))
         {
             var ownerDate = violation.PreviousBlock.OwnerDate;
             if (ownerDate < reportFrom || ownerDate > reportTo) continue;

@@ -16,6 +16,8 @@ public class SchedulingRuleResource
 
     public decimal? MinPauseHours { get; set; }
 
+    public decimal? MaxDailySpanHours { get; set; }
+
     public decimal? MaxOptimalGap { get; set; }
 
     public decimal? MaxDailyHours { get; set; }

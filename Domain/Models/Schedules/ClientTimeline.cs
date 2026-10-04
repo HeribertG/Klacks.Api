@@ -54,15 +54,24 @@ public class ClientTimeline
     }
 
     /// <summary>
+    /// Default daily work frame when the applicable law sets none: 24h minus the minimum daily rest, so a work day
+    /// always leaves the minimum rest within every 24-hour period (EU 2003/88 Art. 3).
+    /// </summary>
+    /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>
+    public static TimeSpan DefaultDailyWorkFrame(TimeSpan minRest) => RestReferencePeriod - minRest;
+
+    /// <summary>
     /// Daily rest shortfalls: rest gaps between two work days that are shorter than <paramref name="minRest"/>.
     /// The pause inside a split shift (e.g. 07-11 and 16-20) is not a daily rest and is never reported;
     /// see <see cref="GetRestGaps"/> for how work days are formed.
     /// </summary>
     /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>
-    public List<RestViolation> GetRestViolations(TimeSpan minRest)
+    /// <param name="dailyWorkFrame">Maximum span of one work day from first start to last end, pauses included
+    /// (SchedulingPolicy.DailyWorkFrame)</param>
+    public List<RestViolation> GetRestViolations(TimeSpan minRest, TimeSpan dailyWorkFrame)
     {
         var violations = new List<RestViolation>();
-        foreach (var gap in GetRestGaps(minRest))
+        foreach (var gap in GetRestGaps(minRest, dailyWorkFrame))
         {
             if (gap.Duration < minRest)
             {
@@ -74,14 +83,18 @@ public class ClientTimeline
 
     /// <summary>
     /// Rest gaps between consecutive work days. Work blocks are joined into one work day while the gap to the
-    /// next block is shorter than <paramref name="minRest"/> AND the day still fits the daily work frame of
-    /// 24h minus <paramref name="minRest"/> (first start to last end): a work day that leaves the minimum rest
-    /// within every 24-hour period (EU 2003/88 Art. 3) is one day, its inner gaps are pauses. A block that
-    /// would stretch the day beyond that frame starts a new work day, and the short gap before it is a rest
-    /// shortfall. Overlapping blocks belong to the same work day. Only Work blocks count.
+    /// next block is shorter than <paramref name="minRest"/> AND the day, from first start to last end, stays
+    /// within <paramref name="dailyWorkFrame"/>; its inner gaps are pauses. A block that would stretch the day
+    /// beyond the frame starts a new work day, and the short gap before it is a rest shortfall. A frame longer
+    /// than <see cref="DefaultDailyWorkFrame"/> (e.g. CH ArG Art. 10 Abs. 3: 14h for day and evening work) only
+    /// applies to a work day that stays on one company-local calendar day: a span across the night is no day or
+    /// evening work, so an evening block and the next morning's block never merge beyond the default frame.
+    /// Overlapping blocks belong to the same work day. Only Work blocks count.
     /// </summary>
-    /// <param name="minRest">Required minimum daily rest (MinRestHours); also defines the daily work frame</param>
-    public List<RestGap> GetRestGaps(TimeSpan minRest)
+    /// <param name="minRest">Required minimum daily rest (MinRestHours)</param>
+    /// <param name="dailyWorkFrame">Maximum span of one work day from first start to last end, pauses included
+    /// (SchedulingPolicy.DailyWorkFrame)</param>
+    public List<RestGap> GetRestGaps(TimeSpan minRest, TimeSpan dailyWorkFrame)
     {
         var gaps = new List<RestGap>();
         var workBlocks = Blocks
@@ -94,32 +107,45 @@ public class ClientTimeline
             return gaps;
         }
 
-        var dailyWorkFrame = RestReferencePeriod - minRest;
-        var workDayStart = workBlocks[0].Start;
+        var defaultFrame = DefaultDailyWorkFrame(minRest);
+        var workDayFirst = workBlocks[0];
         var latestEnding = workBlocks[0];
 
         for (var i = 1; i < workBlocks.Count; i++)
         {
             var next = workBlocks[i];
             var gap = next.Start - latestEnding.End;
-            var latestEnd = next.End > latestEnding.End ? next.End : latestEnding.End;
-            var isPauseWithinWorkDay = gap < minRest && latestEnd - workDayStart <= dailyWorkFrame;
+            var candidateLatest = next.End > latestEnding.End ? next : latestEnding;
+            var isPauseWithinWorkDay = gap < minRest
+                && FitsDailyWorkFrame(workDayFirst, candidateLatest, dailyWorkFrame, defaultFrame);
 
             if (gap < TimeSpan.Zero || isPauseWithinWorkDay)
             {
-                if (next.End > latestEnding.End)
-                {
-                    latestEnding = next;
-                }
+                latestEnding = candidateLatest;
                 continue;
             }
 
             gaps.Add(new RestGap(latestEnding, next, gap));
-            workDayStart = next.Start;
+            workDayFirst = next;
             latestEnding = next;
         }
         return gaps;
     }
+
+    private static bool FitsDailyWorkFrame(
+        ScheduleBlock workDayFirst, ScheduleBlock latestEnding, TimeSpan dailyWorkFrame, TimeSpan defaultFrame)
+    {
+        var span = latestEnding.End - workDayFirst.Start;
+        if (span > dailyWorkFrame)
+        {
+            return false;
+        }
+
+        return span <= defaultFrame || StaysOnOneCalendarDay(workDayFirst.CalendarStart, latestEnding.CalendarEnd);
+    }
+
+    private static bool StaysOnOneCalendarDay(DateTime start, DateTime end)
+        => end.Date == start.Date || end == start.Date.Add(RestReferencePeriod);
 
     public TimeSpan GetWorkDuration(DateOnly date)
     {

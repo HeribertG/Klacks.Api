@@ -21,7 +21,8 @@
     "maxWeeklyHours": 50,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
-    "minPauseHours": 11
+    "minPauseHours": 11,
+    "maxDailySpanHours": 14
   },
   "export": {
     "enabledFormats": ["abaconnect-ch", "generic-payroll-csv"],

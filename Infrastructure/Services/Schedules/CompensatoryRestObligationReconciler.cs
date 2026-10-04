@@ -107,11 +107,11 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
         var policy = await _policyResolver.GetForClientAsync(clientId, windowStart);
 
         var violationsByKey = timeline
-            .GetRestViolations(policy.MinRestHours)
+            .GetRestViolations(policy.MinRestHours, policy.DailyWorkFrame)
             .GroupBy(v => v.PreviousBlock.End)
             .ToDictionary(g => g.Key, g => g.First());
 
-        var gaps = BuildGaps(timeline, policy.MinRestHours);
+        var gaps = BuildGaps(timeline, policy);
         var existingByKey = existing
             .GroupBy(o => o.RestGapStart)
             .ToDictionary(g => g.Key, g => g.First());
@@ -231,9 +231,9 @@ public sealed class CompensatoryRestObligationReconciler : ICompensatoryRestObli
 
     // Daily rest gaps between work days, the same grouping GetRestViolations uses: the pause inside a split
     // shift is no rest gap, so it neither keeps a stale obligation alive nor counts as a fulfilling rest.
-    private static List<(DateTime GapStart, TimeSpan Duration)> BuildGaps(ClientTimeline timeline, TimeSpan minRest)
+    private static List<(DateTime GapStart, TimeSpan Duration)> BuildGaps(ClientTimeline timeline, SchedulingPolicy policy)
         => timeline
-            .GetRestGaps(minRest)
+            .GetRestGaps(policy.MinRestHours, policy.DailyWorkFrame)
             .Select(g => (g.PreviousBlock.End, g.Duration))
             .ToList();
 

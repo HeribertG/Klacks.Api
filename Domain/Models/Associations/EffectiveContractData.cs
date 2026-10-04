@@ -53,6 +53,12 @@ public sealed record EffectiveContractData
     public int MaxWorkDays { get; init; }
     public decimal MinRestDays { get; init; }
     public decimal MinPauseHours { get; init; }
+
+    /// <summary>
+    /// Daily work frame in hours (first start to last end of a work day, pauses included) set by the law of the
+    /// place of work, e.g. CH ArG Art. 10 Abs. 3: 14. 0 means the law sets none: 24h minus MinPauseHours applies.
+    /// </summary>
+    public decimal MaxDailySpanHours { get; init; }
     public decimal MaxOptimalGap { get; init; }
     public decimal MaxDailyHours { get; init; }
     public decimal MaxWeeklyHours { get; init; }

@@ -30,4 +30,6 @@ public class RegionSetupWorktime
     public decimal? MinRestDays { get; set; }
 
     public decimal? MinPauseHours { get; set; }
+
+    public decimal? MaxDailySpanHours { get; set; }
 }

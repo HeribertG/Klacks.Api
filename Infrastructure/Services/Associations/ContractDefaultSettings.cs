@@ -40,6 +40,7 @@ internal sealed record ContractDefaultSettings
     public int MaxWorkDays { get; init; }
     public decimal MinRestDays { get; init; }
     public decimal MinPauseHours { get; init; }
+    public decimal MaxDailySpanHours { get; init; }
     public decimal MaxOptimalGap { get; init; }
     public decimal MaxDailyHours { get; init; }
     public decimal MaxWeeklyHours { get; init; }

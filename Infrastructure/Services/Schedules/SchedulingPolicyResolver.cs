@@ -70,6 +70,7 @@ public sealed class SchedulingPolicyResolver : ISchedulingPolicyResolver
             MaxDailyHours: TimeSpan.FromHours(maxDailyHours),
             MaxConsecutiveDays: maxConsecutiveDays,
             MaxWeeklyHours: TimeSpan.FromHours(maxWeeklyHours),
-            MinRestDays: minRestDays);
+            MinRestDays: minRestDays,
+            MaxDailySpan: data.MaxDailySpanHours > 0 ? TimeSpan.FromHours((double)data.MaxDailySpanHours) : null);
     }
 }

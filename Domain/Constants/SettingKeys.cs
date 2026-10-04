@@ -45,6 +45,7 @@ public static class SettingKeys
     public const string SchedulingMaxWorkDays = "SCHEDULING_MAX_WORK_DAYS";
     public const string SchedulingMinRestDays = "SCHEDULING_MIN_REST_DAYS";
     public const string SchedulingMinPauseHours = "SCHEDULING_MIN_PAUSE_HOURS";
+    public const string SchedulingMaxDailySpanHours = "SCHEDULING_MAX_DAILY_SPAN_HOURS";
     public const string SchedulingMaxOptimalGap = "SCHEDULING_MAX_OPTIMAL_GAP";
     public const string SchedulingMaxDailyHours = "SCHEDULING_MAX_DAILY_HOURS";
     public const string SchedulingMaxWeeklyHours = "SCHEDULING_MAX_WEEKLY_HOURS";

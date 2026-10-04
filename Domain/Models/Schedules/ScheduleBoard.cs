@@ -106,12 +106,12 @@ public class ScheduleBoard
         return coverage;
     }
 
-    public List<RestViolation> GetAllRestViolations(TimeSpan minRest)
+    public List<RestViolation> GetAllRestViolations(TimeSpan minRest, TimeSpan dailyWorkFrame)
     {
         var violations = new List<RestViolation>();
         foreach (var timeline in _timelines.Values)
         {
-            violations.AddRange(timeline.GetRestViolations(minRest));
+            violations.AddRange(timeline.GetRestViolations(minRest, dailyWorkFrame));
         }
         return violations;
     }

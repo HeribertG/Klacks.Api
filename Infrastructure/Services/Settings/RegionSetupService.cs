@@ -1111,6 +1111,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         AddNumber(settings, SettingKeys.SchedulingMaxConsecutiveDays, worktime.MaxConsecutiveDays);
         AddNumber(settings, SettingKeys.SchedulingMinRestDays, worktime.MinRestDays);
         AddNumber(settings, SettingKeys.SchedulingMinPauseHours, worktime.MinPauseHours);
+        AddNumber(settings, SettingKeys.SchedulingMaxDailySpanHours, worktime.MaxDailySpanHours);
     }
 
     private static void AddSurchargeSettings(RegionSetupSurcharges? surcharges, List<(string Type, string Value)> settings)

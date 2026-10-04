@@ -144,6 +144,7 @@ public partial class ScheduleMapper
         target.MaxWorkDays = source.MaxWorkDays;
         target.MinRestDays = source.MinRestDays;
         target.MinPauseHours = source.MinPauseHours;
+        target.MaxDailySpanHours = source.MaxDailySpanHours;
         target.MaxOptimalGap = source.MaxOptimalGap;
         target.MaxDailyHours = source.MaxDailyHours;
         target.MaxWeeklyHours = source.MaxWeeklyHours;
