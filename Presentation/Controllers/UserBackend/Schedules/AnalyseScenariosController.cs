@@ -6,6 +6,7 @@
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.Queries.AnalyseScenarios;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,19 @@ public class AnalyseScenariosController : BaseController
     public async Task<ActionResult<AnalyseScenarioResource>> Get(Guid id)
     {
         var result = await _mediator.Send(new GetAnalyseScenarioQuery(id));
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id}/Summary")]
+    public async Task<ActionResult<ScenarioSummaryDto>> GetSummary(Guid id)
+    {
+        var result = await _mediator.Send(new GetScenarioSummaryQuery(id));
 
         if (result == null)
         {

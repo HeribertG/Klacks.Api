@@ -461,40 +461,8 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
     private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
     {
-        List<Shift> shifts;
+        var shifts = await LoadShiftsToCloneAsync(groupIds, additionalShiftIds, ct);
         var idMap = new Dictionary<Guid, Guid>();
-
-        if (additionalShiftIds is { Count: > 0 })
-        {
-            var distinctIds = additionalShiftIds.Distinct().ToList();
-            shifts = await _context.Shift.IgnoreQueryFilters()
-                .Where(s => !s.IsDeleted && distinctIds.Contains(s.Id))
-                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
-                .AsNoTracking()
-                .ToListAsync(ct);
-        }
-        else
-        {
-            IQueryable<Shift> baseShiftQuery = _context.Shift
-                .Where(s => !s.IsDeleted && s.AnalyseToken == null);
-
-            if (groupIds != null)
-            {
-                var groupShiftIds = await _context.Set<GroupItem>()
-                    .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
-                        && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
-                    .Select(gi => gi.ShiftId!.Value)
-                    .Distinct()
-                    .ToListAsync(ct);
-
-                baseShiftQuery = baseShiftQuery.Where(s => groupShiftIds.Contains(s.Id));
-            }
-
-            shifts = await baseShiftQuery
-                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
-                .AsNoTracking()
-                .ToListAsync(ct);
-        }
 
         foreach (var shift in shifts)
         {
@@ -576,6 +544,58 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
 
         return idMap;
+    }
+
+    private async Task<List<Shift>> LoadShiftsToCloneAsync(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
+    {
+        var listedIds = additionalShiftIds is { Count: > 0 }
+            ? additionalShiftIds.Distinct().ToList()
+            : [];
+
+        var shifts = listedIds.Count > 0
+            ? await _context.Shift.IgnoreQueryFilters()
+                .Where(s => !s.IsDeleted && listedIds.Contains(s.Id))
+                .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
+                .AsNoTracking()
+                .ToListAsync(ct)
+            : [];
+
+        if (listedIds.Count > 0 && groupIds == null)
+        {
+            return shifts;
+        }
+
+        IQueryable<Shift> baseShiftQuery = _context.Shift
+            .Where(s => !s.IsDeleted && s.AnalyseToken == null);
+
+        if (groupIds != null)
+        {
+            var groupShiftIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                .Select(gi => gi.ShiftId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            baseShiftQuery = baseShiftQuery.Where(s => groupShiftIds.Contains(s.Id));
+        }
+
+        var baseShifts = await baseShiftQuery
+            .Include(s => s.GroupItems.Where(gi => !gi.IsDeleted))
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        var knownIds = shifts.Select(s => s.Id).ToHashSet();
+        shifts.AddRange(baseShifts.Where(s => !knownIds.Contains(s.Id)));
+
+        // A listed clone of a clone stands in for its real root; keeping both would clone one logical shift twice.
+        var supersededRootIds = shifts
+            .Where(s => s.ScenarioSourceShiftId.HasValue)
+            .Select(s => s.ScenarioSourceShiftId!.Value)
+            .ToHashSet();
+        shifts.RemoveAll(s => supersededRootIds.Contains(s.Id));
+
+        return shifts;
     }
 
     private async Task<Dictionary<Guid, Guid>> CloneWorks(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, Dictionary<Guid, Guid> shiftIdMap, CancellationToken ct)
