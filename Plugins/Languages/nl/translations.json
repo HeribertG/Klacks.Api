@@ -1464,6 +1464,7 @@
   "klacksyTraining.table.route": "ROUTE",
   "klacksyTraining.table.status": "STATUS",
   "klacksyTraining.table.targetId": "DOEL",
+  "klacksyTraining.tabs.effectiveness": "Effectiviteit",
   "klacksyTraining.tabs.feedback": "Feedback",
   "klacksyTraining.tabs.manual": "Handleiding",
   "klacksyTraining.tabs.metrics": "Statistieken",

@@ -1464,6 +1464,7 @@
   "klacksyTraining.table.route": "TRASA",
   "klacksyTraining.table.status": "STATUS",
   "klacksyTraining.table.targetId": "CEL",
+  "klacksyTraining.tabs.effectiveness": "Skuteczność",
   "klacksyTraining.tabs.feedback": "Informacje zwrotne",
   "klacksyTraining.tabs.manual": "Instrukcja",
   "klacksyTraining.tabs.metrics": "Metryki",
