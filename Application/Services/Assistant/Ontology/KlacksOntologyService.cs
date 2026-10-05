@@ -165,7 +165,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["Contract"] =
         [
-            "Contract carries working conditions and the holiday calendar (Feiertagsregelung).",
+            "Contract carries working conditions and the holiday calendar (Feiertagsregelung) for holiday-work warning and holiday time surcharge.",
             "Contracts apply ONLY to employees (Employee/ExternEmp), assigned via client_contract.",
             "Without a client_contract the settings default contract is used — acceptable only for simple plans, otherwise discouraged."
         ],
@@ -302,15 +302,15 @@ public class KlacksOntologyService : IKlacksOntologyService
         ],
         ["CalendarSelection"] =
         [
-            "CalendarSelection is a named set of holiday calendars; Contract.CalendarSelectionId points at one to resolve which days are holidays. It is nullable — without it the contract has no holiday rules of its own."
+            "CalendarSelection: named set of country/state holiday calendars. Warning and surcharge: Contract's, else company default, else company country/state (exact pair only). Roster colours and shift offering: viewed Group's own, else company default; every entry counts there."
         ],
         ["SelectedCalendar"] =
         [
-            "SelectedCalendar is one country/state entry of a CalendarSelection; OfficialOverride forces a day's official-holiday status against the imported default."
+            "SelectedCalendar: one country/state entry; OfficialOverride null = rule's IsMandatory, false = reminder only (never official), true = official."
         ],
         ["CalendarRule"] =
         [
-            "CalendarRule is one holiday rule of a country/state; Rule/SubRule define WHEN it falls, IsMandatory whether it is official and IsPaid whether it is paid.",
+            "CalendarRule: Rule/SubRule define WHEN; IsMandatory = official (holiday-work warning unless a HolidayWorkExemptionRule applies); IsPaid = holiday time surcharge when worked, official days only; absences ignore IsPaid.",
             "Name and Description are MultiLanguage — a holiday is never identified by a single-language string."
         ],
         ["CompanyRule"] =

@@ -110,8 +110,8 @@ IMPORT belopp, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Starttid, t.ex. "08:30" – kan omvandlas till decimaltimmar med <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Sluttid, t.ex. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Veckodag ISO-8601 (1=Må, 2=Ti, 3=On, 4=To, 5=Fr, 6=Lö, 7=Sö)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Om den aktuella dagen är en officiell helgdag</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Om nästa dag är en officiell helgdag</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Vid arbete: endast 1 om dagen är en officiell helgdag i medarbetarens avtalskalender OCH regeln är markerad med «Tidstillägg vid arbete». Vid frånvaro: 1 om dagen är en officiell helgdag.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Som holiday, men för följande dag (pass över midnatt).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nattillägg från kontraktet (t.ex. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Helgdagstillägg från kontraktet (t.ex. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Tilläggssats för konfigurerbar veckoslutsdag 1 (t.ex. lördag)</td></tr>

@@ -110,8 +110,8 @@ IMPORT beløb, rabat
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Starttidspunkt, f.eks. "08:30" – kan omregnes til decimaltimer med <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Sluttidspunkt, f.eks. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Ugedag ISO-8601 (1=Ma, 2=Ti, 3=On, 4=To, 5=Fr, 6=Lø, 7=Sø)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Om den aktuelle dag er en officiel helligdag</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Om den næste dag er en officiel helligdag</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Ved arbejde: kun 1, hvis dagen er en officiel helligdag i medarbejderens kontraktkalender OG reglen er markeret med «Tidstillæg ved arbejde». Ved fravær: 1, hvis dagen er en officiel helligdag.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Som holiday, men for den følgende dag (vagter over midnat).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nattillæg fra kontrakten (f.eks. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Helligdagstillæg fra kontrakten (f.eks. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Tillægssats for konfigurerbar weekenddag 1 (f.eks. lørdag)</td></tr>

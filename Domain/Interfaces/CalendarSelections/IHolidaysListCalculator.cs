@@ -44,6 +44,8 @@ public interface IHolidaysListCalculator
     HolidayStatus IsHoliday(DateOnly currentDate);
     
     HolidayDate? GetHolidayInfo(DateOnly currentDate);
+
+    bool IsPaidOfficialHoliday(DateOnly currentDate);
     
     int GetDayOfYear(DateOnly date);
     

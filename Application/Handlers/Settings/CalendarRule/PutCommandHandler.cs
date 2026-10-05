@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Updates a calendar rule (date rule, official flag, names) and drops every cached holiday calculator, so
+/// holiday-work warnings and holiday surcharges see the change without a restart.
+/// </summary>
+/// <param name="request">Carries the calendar rule resource; returns null when the rule id is missing or unknown</param>
+
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -15,12 +21,14 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMultiLanguageTranslationService _translationService;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
 
     public PutCommandHandler(
         ISettingsRepository settingsRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IMultiLanguageTranslationService translationService,
+        IHolidayCalculatorCache holidayCalculatorCache,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -28,6 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _translationService = translationService;
+        _holidayCalculatorCache = holidayCalculatorCache;
     }
 
     public async Task<CalendarRuleResource?> Handle(PutCommand<CalendarRuleResource> request, CancellationToken cancellationToken)
@@ -49,6 +58,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
 
             _scheduleMapper.UpdateCalendarRuleEntity(request.Resource, existingRule);
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.InvalidateAll();
 
             return _scheduleMapper.ToCalendarRuleResource(existingRule);
         },

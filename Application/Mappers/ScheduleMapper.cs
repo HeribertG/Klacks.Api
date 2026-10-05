@@ -4,6 +4,7 @@
 /// Main file of the ScheduleMapper (Mapperly) with Contract, Membership, BreakPlaceholder and Calendar mappings.
 /// Additional mappings in partial files: Shifts, Containers, Schedules, Notifications.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.CalendarSelections;
@@ -113,14 +114,27 @@ public partial class ScheduleMapper
     public partial void UpdateBreakEntity(BreakPlaceholderResource resource, BreakPlaceholder target);
 
     public partial CalendarRuleResource ToCalendarRuleResource(CalendarRule rule);
-    public partial CalendarRule ToCalendarRuleEntity(CalendarRuleResource resource);
+    /// <summary>
+    /// Maps a create request to a new calendar rule. A request without isPaid creates a paid rule
+    /// (CalendarRuleDefaults.IsPaid); only the create path applies that default, an update keeps the stored value.
+    /// </summary>
+    public CalendarRule ToCalendarRuleEntity(CalendarRuleResource resource)
+    {
+        var rule = MapCalendarRuleEntity(resource);
+        rule.IsPaid = resource.IsPaid ?? CalendarRuleDefaults.IsPaid;
+        return rule;
+    }
+
+    [MapperIgnoreSource(nameof(CalendarRuleResource.IsPaid))]
+    [MapperIgnoreTarget(nameof(CalendarRule.IsPaid))]
+    private partial CalendarRule MapCalendarRuleEntity(CalendarRuleResource resource);
 
     public void UpdateCalendarRuleEntity(CalendarRuleResource source, CalendarRule target)
     {
         target.Country = source.Country;
         target.Description = source.Description ?? new();
         target.IsMandatory = source.IsMandatory;
-        target.IsPaid = source.IsPaid;
+        target.IsPaid = source.IsPaid ?? target.IsPaid;
         target.Name = source.Name ?? new();
         target.Rule = source.Rule;
         target.State = source.State;

@@ -808,6 +808,11 @@
     "conflicte în program",
     "validează planul"
   ],
+  "diagnose_holiday_outcome": [
+    "de ce nu există spor de sărbătoare",
+    "lipsește sporul de sărbătoare",
+    "de ce apare avertismentul de muncă de sărbătoare"
+  ],
   "diagnose_messaging_setup": [
     "verifică punerea în funcțiune a mesageriei",
     "de ce nu sosesc mesajele telegram",

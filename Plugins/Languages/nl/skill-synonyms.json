@@ -822,6 +822,11 @@
     "detecteer overtredingen in het rooster",
     "valideer de planning op fouten"
   ],
+  "diagnose_holiday_outcome": [
+    "waarom geen feestdagtoeslag",
+    "feestdagtoeslag ontbreekt",
+    "waarom waarschuwing werken op feestdag"
+  ],
   "diagnose_messaging_setup": [
     "ingebruikname van de messenger nakijken",
     "waarom komen er geen telegram-berichten binnen",

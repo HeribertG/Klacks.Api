@@ -59,8 +59,10 @@ public class TimelineCalculationService : ITimelineCalculationService
 
         foreach (var work in topLevelWorks)
         {
-            var effectiveStart = work.StartTime;
-            var effectiveEnd = work.EndTime;
+            var workStartWall = work.CurrentDate.ToDateTime(work.StartTime);
+            var workEndWall = ToEndWall(work.CurrentDate, work.StartTime, work.EndTime);
+            var effectiveStartWall = workStartWall;
+            var effectiveEndWall = workEndWall;
 
             if (changesByWorkId.TryGetValue(work.Id, out var changes))
             {
@@ -78,46 +80,44 @@ public class TimelineCalculationService : ITimelineCalculationService
                 foreach (var change in beforeChanges)
                 {
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
-                    var blockEnd = work.StartTime.Add(-beforeRunning);
-                    var blockStart = blockEnd.Add(-duration);
-                    result.Add(CreateBlock(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, work.CurrentDate, blockStart, blockEnd));
-                    beforeRunning = beforeRunning.Add(duration);
+                    var blockEnd = workStartWall - beforeRunning;
+                    result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
+                        work.ClientId, blockEnd - duration, blockEnd));
+                    beforeRunning += duration;
                 }
 
                 var afterRunning = TimeSpan.Zero;
                 foreach (var change in afterChanges)
                 {
                     var duration = TimeSpan.FromHours((double)change.ChangeTime);
-                    var blockStart = work.EndTime.Add(afterRunning);
-                    var blockEnd = blockStart.Add(duration);
-                    result.Add(CreateBlock(change.Id, ScheduleBlockType.Correction,
-                        work.ClientId, work.CurrentDate, blockStart, blockEnd));
-                    afterRunning = afterRunning.Add(duration);
+                    var blockStart = workEndWall + afterRunning;
+                    result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Correction,
+                        work.ClientId, blockStart, blockStart + duration));
+                    afterRunning += duration;
                 }
 
                 foreach (var change in changes.Where(c =>
                     c.Type is WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd))
                 {
-                    TimeOnly rStart, rEnd;
+                    var duration = TimeSpan.FromHours((double)change.ChangeTime);
+                    DateTime replacementStart, replacementEnd;
                     if (change.Type == WorkChangeType.ReplacementStart)
                     {
-                        rStart = work.StartTime;
-                        rEnd = work.StartTime.Add(TimeSpan.FromHours((double)change.ChangeTime));
-                        effectiveStart = rEnd;
+                        replacementStart = workStartWall;
+                        replacementEnd = workStartWall + duration;
+                        effectiveStartWall = replacementEnd;
                     }
                     else
                     {
-                        var dur = TimeSpan.FromHours((double)change.ChangeTime);
-                        rEnd = work.EndTime;
-                        rStart = work.EndTime.Add(-dur);
-                        effectiveEnd = rStart;
+                        replacementEnd = workEndWall;
+                        replacementStart = workEndWall - duration;
+                        effectiveEndWall = replacementStart;
                     }
 
                     if (change.ReplaceClientId.HasValue)
                     {
-                        result.Add(CreateBlock(change.Id, ScheduleBlockType.Replacement,
-                            change.ReplaceClientId.Value, work.CurrentDate, rStart, rEnd));
+                        result.Add(CreateBlockFromWall(change.Id, ScheduleBlockType.Replacement,
+                            change.ReplaceClientId.Value, replacementStart, replacementEnd));
                     }
                 }
 
@@ -132,8 +132,11 @@ public class TimelineCalculationService : ITimelineCalculationService
                 }
             }
 
-            result.Add(CreateBlock(work.Id, ScheduleBlockType.Work,
-                work.ClientId, work.CurrentDate, effectiveStart, effectiveEnd, work.ShiftId));
+            if (effectiveEndWall > effectiveStartWall)
+            {
+                result.Add(CreateBlockFromWall(work.Id, ScheduleBlockType.Work,
+                    work.ClientId, effectiveStartWall, effectiveEndWall, work.ShiftId));
+            }
         }
 
         foreach (var b in topLevelBreaks)
@@ -161,6 +164,13 @@ public class TimelineCalculationService : ITimelineCalculationService
         _ => 99
     };
 
+    /// <summary>
+    /// Wall-clock end of an interval given as times on <paramref name="date"/>: an end at or before the start
+    /// continues on the next day, so start == end is a 24-hour interval.
+    /// </summary>
+    private static DateTime ToEndWall(DateOnly date, TimeOnly start, TimeOnly end) =>
+        end <= start ? date.AddDays(1).ToDateTime(end) : date.ToDateTime(end);
+
     private ScheduleBlock CreateBlock(
         Guid sourceId,
         ScheduleBlockType blockType,
@@ -170,11 +180,22 @@ public class TimelineCalculationService : ITimelineCalculationService
         TimeOnly end,
         Guid? shiftId = null)
     {
-        var startWall = date.ToDateTime(start);
-        var endWall = end <= start
-            ? date.AddDays(1).ToDateTime(end)
-            : date.ToDateTime(end);
+        return CreateBlockFromWall(sourceId, blockType, clientId, date.ToDateTime(start), ToEndWall(date, start, end), shiftId);
+    }
 
+    /// <summary>
+    /// Builds a block from absolute company-local wall-clock instants. Corrections and replacements are computed
+    /// from the work's absolute start/end, so a briefing before a 00:30 start lands on the previous evening and a
+    /// debriefing after a night shift on the next morning instead of wrapping inside the work date.
+    /// </summary>
+    private ScheduleBlock CreateBlockFromWall(
+        Guid sourceId,
+        ScheduleBlockType blockType,
+        Guid clientId,
+        DateTime startWall,
+        DateTime endWall,
+        Guid? shiftId = null)
+    {
         if (_options.DstAware && _timeZone is not null)
         {
             var startUtc = ConvertWallTimeToUtc(startWall, _timeZone);

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,6 +25,8 @@ namespace Klacks.Api.Presentation.Controllers.Internal;
 /// - Initial database setup during deployment
 /// - Resetting test databases
 /// - Populating demo environments with sample data
+///
+/// Both endpoints can write calendar rules (migrations, seed), so they drop all cached holiday calculators afterwards - also after a failure, since part of the work may already be committed.
 /// </summary>
 [ApiController]
 [Route("api/internal/[controller]")]
@@ -31,11 +34,16 @@ namespace Klacks.Api.Presentation.Controllers.Internal;
 public class DatabaseController : ControllerBase
 {
     private readonly IDatabaseInitializer _databaseInitializer;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
     private readonly ILogger<DatabaseController> _logger;
 
-    public DatabaseController(IDatabaseInitializer databaseInitializer, ILogger<DatabaseController> logger)
+    public DatabaseController(
+        IDatabaseInitializer databaseInitializer,
+        IHolidayCalculatorCache holidayCalculatorCache,
+        ILogger<DatabaseController> logger)
     {
         _databaseInitializer = databaseInitializer;
+        _holidayCalculatorCache = holidayCalculatorCache;
         this._logger = logger;
     }
 
@@ -56,6 +64,10 @@ public class DatabaseController : ControllerBase
             _logger.LogError(ex, "Error initializing database");
             return StatusCode(500, new { error = "Database operation failed" });
         }
+        finally
+        {
+            _holidayCalculatorCache.InvalidateAll();
+        }
     }
 
     /// <summary>
@@ -74,6 +86,10 @@ public class DatabaseController : ControllerBase
         {
             _logger.LogError(ex, "Error seeding database");
             return StatusCode(500, new { error = "Database operation failed" });
+        }
+        finally
+        {
+            _holidayCalculatorCache.InvalidateAll();
         }
     }
 }

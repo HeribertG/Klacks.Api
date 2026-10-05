@@ -123,6 +123,7 @@
   "delete_work": "Șterge intervenția",
   "delete_workchange": "Șterge o modificare de programare",
   "detect_conflicts": "Identificarea conflictelor de planuri",
+  "diagnose_holiday_outcome": "Explică sporul și avertismentul de sărbătoare",
   "disable_feature_plugin": "Dezactivează un modul funcțional",
   "dismiss_skill_relation": "Respinge o legătură de competențe propusă",
   "email_schedule_to_client": "Trimiterea programului de lucru către client prin e-mail",

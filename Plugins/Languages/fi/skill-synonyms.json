@@ -806,6 +806,11 @@
     "validoi vuorolista",
     "tarkista lepoaikojen noudattaminen"
   ],
+  "diagnose_holiday_outcome": [
+    "miksi ei pyhäpäivälisää",
+    "pyhäpäivälisä puuttuu",
+    "miksi varoitus pyhäpäivätyöstä"
+  ],
   "diagnose_messaging_setup": [
     "tarkista viestipalvelun toimintavalmius",
     "miksi telegram-viestejä ei tule perille",

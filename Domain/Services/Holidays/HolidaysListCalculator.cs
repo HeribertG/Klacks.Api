@@ -1,6 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
-﻿using Klacks.Api.Domain.Common;
+/// <summary>
+/// Computes the holiday dates of one year from a set of calendar rules (fixed dates, Easter offsets, lunar and
+/// Hijri dates, weekday sub-rules) and answers whether a date is an official or an unofficial holiday.
+/// </summary>
+/// <param name="CurrentYear">Year the holiday list is computed for</param>
+/// <param name="Rules">Calendar rules whose IsMandatory flag decides whether a holiday is official</param>
+
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
@@ -77,7 +84,8 @@ public class HolidaysListCalculator : IHolidaysListCalculator
             {
                 Name = rule.Name ?? new MultiLanguage(),
                 CurrentDate = ConvertDate(easterDate, CurrentYear, rule.Rule),
-                Officially = rule.IsMandatory
+                Officially = rule.IsMandatory,
+                IsPaid = rule.IsPaid
             };
 
             if (!string.IsNullOrEmpty(rule.SubRule))
@@ -89,7 +97,9 @@ public class HolidaysListCalculator : IHolidaysListCalculator
             HolidayList.Add(holiday);
         }
 
-        HolidayList.Sort((a, b) => a.CurrentDate.CompareTo(b.CurrentDate));
+        HolidayList = HolidayList
+            .OrderBy(holiday => holiday.CurrentDate)
+            .ToList();
     }
 
     private void ApplySubRules(string subRules, HolidayDate holiday)
@@ -382,23 +392,53 @@ public class HolidaysListCalculator : IHolidaysListCalculator
 
     public HolidayStatus IsHoliday(DateOnly currentDate)
     {
-        if (HolidayList.Count == 0)
+        var holiday = GetHolidayInfo(currentDate);
+
+        if (holiday == null)
         {
             return HolidayStatus.NotAHoliday;
         }
 
-        var holiday = HolidayList.FirstOrDefault(x => x.CurrentDate == currentDate);
-
-        return holiday?.Officially == true
-            ? HolidayStatus.OfficialHoliday
-            : holiday != null
-                ? HolidayStatus.UnofficialHoliday
-                : HolidayStatus.NotAHoliday;
+        return holiday.Officially ? HolidayStatus.OfficialHoliday : HolidayStatus.UnofficialHoliday;
     }
 
+    /// <summary>
+    /// Returns the holiday on the given date. When several rules fall on the same date (e.g. a merged calendar
+    /// whose second calendar is only a reminder), an official entry always wins; among equally official entries
+    /// the first one in rule order is returned (ComputeHolidays sorts stably by date only). The decision is made
+    /// here by scanning, not by the list order, because HolidayList is public and callers may reorder it.
+    /// </summary>
     public HolidayDate? GetHolidayInfo(DateOnly currentDate)
     {
-        return HolidayList.FirstOrDefault(x => x.CurrentDate == currentDate);
+        HolidayDate? firstOnDate = null;
+
+        foreach (var holiday in HolidayList)
+        {
+            if (holiday.CurrentDate != currentDate)
+            {
+                continue;
+            }
+
+            if (holiday.Officially)
+            {
+                return holiday;
+            }
+
+            firstOnDate ??= holiday;
+        }
+
+        return firstOnDate;
+    }
+
+    /// <summary>
+    /// True when an official holiday on the given date is also paid - the condition for the holiday time
+    /// surcharge. Unofficial or reminder-only entries never qualify, even when paid. When several official entries
+    /// share the date, one paid official entry is enough; this is independent of which entry GetHolidayInfo
+    /// returns for display. Scans the whole list for the same reason as GetHolidayInfo.
+    /// </summary>
+    public bool IsPaidOfficialHoliday(DateOnly currentDate)
+    {
+        return HolidayList.Any(holiday => holiday.CurrentDate == currentDate && holiday.EarnsTimeSurcharge);
     }
 
     public int GetDayOfYear(DateOnly date)

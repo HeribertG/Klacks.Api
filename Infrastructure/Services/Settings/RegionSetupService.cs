@@ -74,8 +74,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
     private const string SectionAppliedMarkerValue = "true";
     private const string TimeOfDayFormat = "HH:mm";
     private const string RateRevisionDateFormat = "yyyy-MM-dd";
-    private const string EnforcementModeWarn = "warn";
-    private const string EnforcementModeBlock = "block";
 
     private const string SurchargeTypeNight = "night";
     private const string SurchargeTypeHoliday = "holiday";
@@ -1457,13 +1455,9 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
     private static string ValidateEnforcementMode(string value, string fieldName)
     {
-        var normalized = value.Trim().ToLowerInvariant();
-        if (normalized != EnforcementModeWarn && normalized != EnforcementModeBlock)
-        {
-            throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'warn' or 'block'.");
-        }
-
-        return normalized;
+        return ComplianceEnforcementModeValues.Normalize(value)
+               ?? throw new InvalidRequestException(
+                   $"Region setup: '{value}' in {fieldName} must be '{ComplianceEnforcementModeValues.Warn}' or '{ComplianceEnforcementModeValues.Block}'.");
     }
 
     private static void AddRosterPublicationSettings(RegionSetupRosterPublication? rosterPublication, List<(string Type, string Value)> settings)

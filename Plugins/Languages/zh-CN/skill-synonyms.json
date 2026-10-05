@@ -800,6 +800,11 @@
     "检查加班和休息时间",
     "排班合规性检查"
   ],
+  "diagnose_holiday_outcome": [
+    "为什么没有节假日补贴",
+    "节假日补贴缺失",
+    "为什么有节假日工作警告"
+  ],
   "diagnose_messaging_setup": [
     "检查消息渠道运行状态",
     "为什么收不到Telegram消息",

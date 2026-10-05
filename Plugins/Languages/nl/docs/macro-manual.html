@@ -110,8 +110,8 @@ IMPORT bedrag, korting
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Beginuur, bijv. "08:30" – met <code>TimeToHours()</code> om te zetten naar decimale uren</td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Einduur, bijv. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Dag van de week ISO-8601 (1=Ma, 2=Di, 3=Wo, 4=Do, 5=Vr, 6=Za, 7=Zo)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Of de huidige dag een officiële feestdag is</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Of de volgende dag een officiële feestdag is</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Bij werk: alleen 1 als de dag een officiële feestdag is in de contractkalender van de medewerker EN de regel als «Tijdtoeslag bij werken» is gemarkeerd. Bij afwezigheden: 1 als de dag een officiële feestdag is.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Zoals holiday, maar voor de volgende dag (diensten over middernacht).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nachttoeslag uit het contract (bijv. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Feestdagtoeslag uit het contract (bijv. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Toeslagpercentage voor configureerbare weekenddag 1 (bijv. zaterdag)</td></tr>

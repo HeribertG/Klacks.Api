@@ -320,7 +320,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
-        var clientNameLookup = BuildClientNameLookup(allWorks, workChanges);
+        var clientNameLookup = ScheduleClientNames.Build(allWorks, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(allWorks, workChanges, breaks);
         var clientBlocks = scheduleBlocks.Where(b => b.ClientId == clientId).ToList();
 
@@ -352,7 +352,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         await AddWeekAwareEntriesAsync(dbContext, timelineCalculationService, entries, clientId, clientName, date, analyseToken, policy, cancellationToken);
 
-        if (timeline.Blocks.Any(b => b.BlockType == ScheduleBlockType.Work && b.OwnerDate == date))
+        if (HolidayWorkTimelineCheck.WorksOnDate(windowTimeline, date))
         {
             entries.AddRange(await holidayWorkEvaluator.EvaluateAsync(clientId, clientName, [date], cancellationToken));
         }
@@ -432,8 +432,9 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
 
-        var clientNameLookup = BuildClientNameLookup(works, workChanges);
+        var clientNameLookup = ScheduleClientNames.Build(works, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
+        var spillIn = await HolidayWorkSpillInLoader.LoadAsync(dbContext, timelineCalculationService, startDate, analyseToken, cancellationToken);
 
         var groupedByClient = scheduleBlocks.GroupBy(b => b.ClientId).ToList();
         var allEntries = new List<ScheduleValidationNotificationDto>();
@@ -496,16 +497,12 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 }
             }
 
-            var holidayCandidates = timeline.Blocks
-                .Where(b => b.BlockType == ScheduleBlockType.Work)
-                .Select(b => b.OwnerDate)
-                .Where(d => d >= startDate && d <= endDate)
-                .Distinct()
-                .ToList();
-            allEntries.AddRange(await holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, holidayCandidates, cancellationToken));
+            allEntries.AddRange(await holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, HolidayWorkTimelineCheck.RangeCandidates(timeline, startDate, spillIn), cancellationToken));
 
             allCollisions.AddRange(TimelineCollisionNotificationBuilder.BuildList(timeline, clientNameLookup));
         }
+
+        allEntries.AddRange(await HolidayWorkTimelineCheck.EvaluateSpillInOnlyAsync(holidayWorkEvaluator, spillIn, clientIds, cancellationToken));
 
         if (clientsWithoutTravelCheck > 0)
         {
@@ -798,25 +795,6 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         return lookup;
     }
 
-    private static Dictionary<Guid, string> BuildClientNameLookup(List<Work> works, List<WorkChange> workChanges)
-    {
-        var lookup = new Dictionary<Guid, string>();
-        foreach (var work in works)
-        {
-            if (work.Client != null && !lookup.ContainsKey(work.ClientId))
-            {
-                lookup[work.ClientId] = $"{work.Client.Name} {work.Client.FirstName}".Trim();
-            }
-        }
-        foreach (var wc in workChanges)
-        {
-            if (wc.ReplaceClient != null && wc.ReplaceClientId.HasValue && !lookup.ContainsKey(wc.ReplaceClientId.Value))
-            {
-                lookup[wc.ReplaceClientId.Value] = $"{wc.ReplaceClient.Name} {wc.ReplaceClient.FirstName}".Trim();
-            }
-        }
-        return lookup;
-    }
 }
 
 file class WorkIdComparer : IEqualityComparer<Work>

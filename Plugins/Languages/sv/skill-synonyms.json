@@ -812,6 +812,11 @@
     "vilka regler överträds",
     "hitta fel i planen"
   ],
+  "diagnose_holiday_outcome": [
+    "varför inget helgdagstillägg",
+    "helgdagstillägg saknas",
+    "varför varning för arbete på helgdag"
+  ],
   "diagnose_messaging_setup": [
     "kolla driftsättningen av messengern",
     "varför kommer inga telegram-meddelanden fram",

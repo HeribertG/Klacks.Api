@@ -110,8 +110,8 @@ IMPORT kwota, rabat
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Godzina rozpoczęcia, np. "08:30" – można przeliczyć na godziny dziesiętne za pomocą <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Godzina zakończenia, np. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Dzień tygodnia ISO-8601 (1=Pn, 2=Wt, 3=Śr, 4=Cz, 5=Pt, 6=So, 7=Nd)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Czy bieżący dzień jest oficjalnym dniem świątecznym</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Czy następny dzień jest oficjalnym dniem świątecznym</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Przy pracy: 1 tylko wtedy, gdy dzień jest oficjalnym świętem w kalendarzu umowy pracownika I reguła jest oznaczona jako «Dodatek czasowy za pracę». Przy nieobecnościach: 1, gdy dzień jest oficjalnym świętem.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Jak holiday, ale dla następnego dnia (zmiany przechodzące przez północ).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Dodatek nocny z umowy (np. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Dodatek świąteczny z umowy (np. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Stawka dodatku dla konfigurowalnego dnia weekendowego 1 (np. sobota)</td></tr>

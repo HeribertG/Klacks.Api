@@ -106,8 +106,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Hora de início, p.ex. "08:30" – convertível em horas decimais com <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Hora de fim, p.ex. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Dia da semana ISO-8601 (1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sáb, 7=dom)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Se o dia é um feriado oficial</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Se o dia seguinte é um feriado oficial</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Em trabalhos: 1 apenas se o dia for um feriado oficial no calendário do contrato do colaborador E a regra estiver marcada como «Suplemento de tempo ao trabalhar». Em ausências: 1 se o dia for um feriado oficial.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Igual a holiday, mas para o dia seguinte (turnos que passam da meia-noite).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Taxa de suplemento noturno do contrato (ex.: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Taxa de suplemento de feriado do contrato (ex.: 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Taxa de suplemento para o dia de fim de semana configurável 1 (ex.: sábado)</td></tr>

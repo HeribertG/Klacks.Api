@@ -110,8 +110,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Masa mula, cth: "08:30" – boleh ditukar kepada masa perpuluhan dengan <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Masa tamat, cth: "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Hari minggu ISO-8601 (1=Isn, 2=Sel, 3=Rab, 4=Kha, 5=Jum, 6=Sab, 7=Ahd)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Sama ada hari semasa ialah hari kelepasan rasmi</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Sama ada hari berikutnya ialah hari kelepasan rasmi</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Untuk kerja: 1 hanya jika hari itu cuti umum rasmi dalam kalendar kontrak pekerja DAN peraturan itu ditanda «Elaun masa semasa bekerja». Untuk ketidakhadiran: 1 jika hari itu cuti umum rasmi.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Sama seperti holiday, tetapi untuk hari berikutnya (syif yang melepasi tengah malam).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Kadar elaun malam kontrak (cth: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Kadar elaun hari kelepasan kontrak (cth: 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Kadar elaun untuk hari hujung minggu boleh konfigurasi 1 (cth: Sabtu)</td></tr>

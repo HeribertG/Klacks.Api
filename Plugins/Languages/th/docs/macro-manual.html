@@ -101,8 +101,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>เวลาเริ่มต้น เช่น "08:30" – แปลงเป็นชั่วโมงทศนิยมได้ด้วย <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>เวลาสิ้นสุด เช่น "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>วันในสัปดาห์ ISO-8601 (1=จ, 2=อ, 3=พ, 4=พฤ, 5=ศ, 6=ส, 7=อา)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>วันนั้นเป็นวันหยุดราชการหรือไม่</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>วันถัดไปเป็นวันหยุดราชการหรือไม่</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>สำหรับงาน: เป็น 1 เฉพาะเมื่อวันนั้นเป็นวันหยุดราชการในปฏิทินสัญญาของพนักงาน และกฎถูกทำเครื่องหมาย «เครดิตเวลาเพิ่มเมื่อทำงาน» สำหรับการลา: เป็น 1 เมื่อวันนั้นเป็นวันหยุดราชการ</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>เหมือน holiday แต่สำหรับวันถัดไป (กะที่ข้ามเที่ยงคืน)</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลากลางคืนของสัญญา (เช่น 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันหยุดของสัญญา (เช่น 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่กำหนดค่าได้ วันที่ 1 (เช่น วันเสาร์)</td></tr>

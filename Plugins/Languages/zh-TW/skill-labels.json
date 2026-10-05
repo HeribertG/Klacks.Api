@@ -123,6 +123,7 @@
   "delete_work": "刪除勤務",
   "delete_workchange": "刪除排班異動",
   "detect_conflicts": "偵測班表衝突",
+  "diagnose_holiday_outcome": "說明國定假日加給與假日工作警告",
   "disable_feature_plugin": "停用功能模組",
   "dismiss_skill_relation": "拒絕建議的技能關聯",
   "email_schedule_to_client": "以電子郵件寄送班表給客戶",

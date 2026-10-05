@@ -804,6 +804,11 @@
     "valider vaktplan",
     "se om det er overtidsbrudd"
   ],
+  "diagnose_holiday_outcome": [
+    "hvorfor ikke helligdagstillegg",
+    "helligdagstillegg mangler",
+    "hvorfor varsel om arbeid på helligdag"
+  ],
   "diagnose_messaging_setup": [
     "sjekk idriftsettingen av messengeren",
     "hvorfor kommer det ingen telegram-meldinger",

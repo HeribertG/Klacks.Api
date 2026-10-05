@@ -13,6 +13,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -28,13 +29,18 @@ public class ImportCalendarRulesSkill : BaseSkillImplementation
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
 
     public ImportCalendarRulesSkill(
-        ISettingsRepository settingsRepository, IUnitOfWork unitOfWork, ICompanyClock companyClock)
+        ISettingsRepository settingsRepository,
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock,
+        IHolidayCalculatorCache holidayCalculatorCache)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _holidayCalculatorCache = holidayCalculatorCache;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -117,7 +123,7 @@ public class ImportCalendarRulesSkill : BaseSkillImplementation
                 Name = nameMl,
                 Description = MultiLanguage.Empty(),
                 IsMandatory = input.IsMandatory ?? true,
-                IsPaid = input.IsPaid ?? true
+                IsPaid = input.IsPaid ?? CalendarRuleDefaults.IsPaid
             };
 
             _settingsRepository.AddCalendarRule(rule);
@@ -125,6 +131,7 @@ public class ImportCalendarRulesSkill : BaseSkillImplementation
         }
 
         await _unitOfWork.CompleteAsync();
+        _holidayCalculatorCache.InvalidateAll();
 
         return SkillResult.SuccessResult(
             new

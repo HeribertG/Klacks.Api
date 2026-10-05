@@ -123,6 +123,7 @@
   "delete_work": "Xóa một phân công việc",
   "delete_workchange": "Xóa thay đổi phân công",
   "detect_conflicts": "Phát hiện xung đột lịch làm việc",
+  "diagnose_holiday_outcome": "Giải thích phụ cấp và cảnh báo ngày lễ",
   "disable_feature_plugin": "Tắt mô-đun tính năng",
   "dismiss_skill_relation": "Từ chối liên kết kỹ năng đề xuất",
   "email_schedule_to_client": "Gửi lịch làm việc qua email cho khách hàng",

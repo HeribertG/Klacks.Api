@@ -20,8 +20,6 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public sealed class ComplianceEnforcementResolver : IComplianceEnforcementResolver
 {
-    private const string BlockValue = "block";
-    private const string WarnValue = "warn";
     private const string UnrecognizedValueMessage =
         "Unrecognized value '{Value}' in setting {SettingKey}; falling back to {Fallback}";
 
@@ -104,18 +102,11 @@ public sealed class ComplianceEnforcementResolver : IComplianceEnforcementResolv
         return true;
     }
 
-    private static RuleEnforcementMode? TryParseMode(string value)
-    {
-        if (string.Equals(value, BlockValue, StringComparison.OrdinalIgnoreCase))
+    private static RuleEnforcementMode? TryParseMode(string value) =>
+        ComplianceEnforcementModeValues.Normalize(value) switch
         {
-            return RuleEnforcementMode.Block;
-        }
-
-        if (string.Equals(value, WarnValue, StringComparison.OrdinalIgnoreCase))
-        {
-            return RuleEnforcementMode.Warn;
-        }
-
-        return null;
-    }
+            ComplianceEnforcementModeValues.Block => RuleEnforcementMode.Block,
+            ComplianceEnforcementModeValues.Warn => RuleEnforcementMode.Warn,
+            _ => null,
+        };
 }

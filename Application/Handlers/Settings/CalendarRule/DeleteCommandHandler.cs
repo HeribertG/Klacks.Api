@@ -1,5 +1,10 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Deletes a calendar rule and drops every cached holiday calculator that may still contain it.
+/// </summary>
+/// <param name="request">Id of the calendar rule to delete</param>
+
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -11,15 +16,18 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand, 
 {    
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
 
     public DeleteCommandHandler(
                                 ISettingsRepository settingsRepository,
                                 IUnitOfWork unitOfWork,
+                                IHolidayCalculatorCache holidayCalculatorCache,
                                 ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _holidayCalculatorCache = holidayCalculatorCache;
     }
 
     public async Task<Domain.Models.Settings.CalendarRule> Handle(DeleteCommand request, CancellationToken cancellationToken)
@@ -33,6 +41,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand, 
             }
 
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.InvalidateAll();
 
             return calendarRule;
         }, 

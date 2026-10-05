@@ -1,31 +1,43 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Checks whether a specific date is a holiday in the given country + state. Returns the
-/// holiday's name and "officially observed" flag if matched, otherwise IsHoliday=false.
-/// Used before placing a Work/Break to warn about overlap with a holiday.
+/// Checks whether one date is a holiday in one holiday calendar: a named calendar selection, a country/region, or -
+/// without either - the company calendar. Reports whether the day counts as official (after the calendar's
+/// "reminder only" choice), so working on it raises the holiday-work warning, and whether working on it earns the
+/// holiday time surcharge (official and the rule is marked for the time surcharge). The calculator comes from the
+/// same paths payroll and the holiday-work warning use.
 /// </summary>
 /// <param name="date">Required. ISO date (yyyy-MM-dd).</param>
-/// <param name="country">Required. ISO country code.</param>
-/// <param name="state">Optional. State / canton abbreviation.</param>
+/// <param name="calendarSelectionName">Optional. Name of a configured holiday calendar; wins over country.</param>
+/// <param name="country">Optional. ISO country code; national plus regional holidays when state is given.</param>
+/// <param name="state">Optional. Region code (canton, federal state).</param>
+/// <param name="holidayCalendarTargetResolver">Decides which calendar the question is about</param>
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Domain.Services.Holidays;
 
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("validate_holiday_overlap")]
 public class ValidateHolidayOverlapSkill : BaseSkillImplementation
 {
-    private readonly ISettingsRepository _settingsRepository;
+    private const string DateFormat = "yyyy-MM-dd";
 
-    public ValidateHolidayOverlapSkill(ISettingsRepository settingsRepository)
+    private const string CalendarSelectionNameParameter = "calendarSelectionName";
+    private const string CountryParameter = "country";
+    private const string StateParameter = "state";
+
+    private readonly IHolidayCalendarTargetResolver _holidayCalendarTargetResolver;
+
+    public ValidateHolidayOverlapSkill(IHolidayCalendarTargetResolver holidayCalendarTargetResolver)
     {
-        _settingsRepository = settingsRepository;
+        _holidayCalendarTargetResolver = holidayCalendarTargetResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -34,56 +46,59 @@ public class ValidateHolidayOverlapSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var dateStr = GetRequiredString(parameters, "date");
-        var country = GetRequiredString(parameters, "country").Trim().ToUpperInvariant();
-        var state = (GetParameter<string>(parameters, "state") ?? string.Empty).Trim().ToUpperInvariant();
-
-        if (!DateOnly.TryParse(dateStr, out var date))
+        if (!SkillCalendarStringParser.TryParseDateOnly(dateStr, context.UserLanguage, out var date))
         {
             return SkillResult.Error($"Invalid date: {dateStr}. Expected yyyy-MM-dd.");
         }
 
-        var allRules = await _settingsRepository.GetCalendarRuleList();
-        var matchingRules = allRules
-            .Where(r => string.Equals(r.Country, country, StringComparison.OrdinalIgnoreCase))
-            .Where(r => string.IsNullOrEmpty(state)
-                ? string.IsNullOrEmpty(r.State)
-                : string.Equals(r.State, state, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(r.State))
-            .ToList();
+        var (target, error) = await _holidayCalendarTargetResolver.ResolveAsync(
+            GetParameter<string>(parameters, CalendarSelectionNameParameter),
+            GetParameter<string>(parameters, CountryParameter),
+            GetParameter<string>(parameters, StateParameter),
+            cancellationToken);
+        if (target == null)
+        {
+            return SkillResult.Error(error ?? "The holiday calendar could not be resolved.");
+        }
 
-        var calculator = new HolidaysListCalculator { CurrentYear = date.Year };
-        calculator.AddRange(matchingRules);
-        calculator.ComputeHolidays();
-
-        var hit = calculator.GetHolidayInfo(date);
-        if (hit == null)
+        var calendarLabel = SkillMessageText.Name(target.Label) ?? "no holiday calendar configured";
+        var calculator = await target.CalculatorForYear(date.Year);
+        var hit = calculator?.GetHolidayInfo(date);
+        if (calculator == null || hit == null)
         {
             return SkillResult.SuccessResult(
                 new
                 {
-                    Date = date.ToString("yyyy-MM-dd"),
-                    Country = country,
-                    State = state,
+                    Date = date.ToString(DateFormat),
+                    Calendar = target.Label,
+                    CalendarKind = target.Kind,
                     IsHoliday = false,
                     DayOfWeek = date.DayOfWeek.ToString(),
                     DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
                 },
-                $"{date:yyyy-MM-dd} is NOT a holiday in {country}/{(string.IsNullOrEmpty(state) ? "—" : state)}.");
+                $"{date.ToString(DateFormat)} is NOT a holiday in '{calendarLabel}'.");
         }
 
         var holidayName = hit.Name.GetValueOrFirstAvailable(context.UserLanguage);
+        var isOfficial = calculator.IsHoliday(date) == HolidayStatus.OfficialHoliday;
+        var earnsSurcharge = calculator.IsPaidOfficialHoliday(date);
 
         return SkillResult.SuccessResult(
             new
             {
-                Date = date.ToString("yyyy-MM-dd"),
-                Country = country,
-                State = state,
+                Date = date.ToString(DateFormat),
+                Calendar = target.Label,
+                CalendarKind = target.Kind,
                 IsHoliday = true,
                 HolidayName = holidayName,
-                hit.Officially,
+                Officially = isOfficial,
+                RaisesHolidayWorkWarningWhenWorked = isOfficial,
+                EarnsHolidayTimeSurchargeWhenWorked = earnsSurcharge,
                 DayOfWeek = date.DayOfWeek.ToString(),
                 DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, date.DayOfWeek)
             },
-            $"{date:yyyy-MM-dd} is a holiday: {holidayName}" + (hit.Officially ? " (officially observed)." : "."));
+            $"{date.ToString(DateFormat)} is a holiday in '{calendarLabel}': {SkillMessageText.Name(holidayName)}" +
+            (isOfficial ? " (official)" : " (not official - shown as a reminder only)") +
+            (earnsSurcharge ? "; working on it earns the holiday time surcharge." : "; working on it earns no holiday time surcharge."));
     }
 }

@@ -123,6 +123,7 @@
   "delete_work": "حذف المهمة",
   "delete_workchange": "حذف تعديل المهمة",
   "detect_conflicts": "التعرف على التضارب في الخطط",
+  "diagnose_holiday_outcome": "شرح علاوة العطلة وتحذير العطلة",
   "disable_feature_plugin": "تعطيل وحدة الميزات",
   "dismiss_skill_relation": "رفض ربط المهارة المقترح",
   "email_schedule_to_client": "إرسال جدول المناوبة إلى العميل عبر البريد الإلكتروني",

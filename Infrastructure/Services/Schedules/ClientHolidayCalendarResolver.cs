@@ -4,6 +4,9 @@
 /// Default <see cref="IClientHolidayCalendarResolver"/>. Lifted verbatim out of MacroDataProvider,
 /// which had been the only place that knew the resolution order, so the surcharge path and the
 /// holiday-work detector now read the same answer instead of each carrying their own copy.
+/// Rules are loaded ordered by country, state and date rule (Id only as a last technical tie-break), so when two
+/// equally official holidays share a date the calculator reports the same one on every run; an official holiday
+/// always wins over a reminder-only one regardless of this order.
 /// </summary>
 /// <param name="context">Reads calendar rules, selected calendars and the global calendar settings</param>
 /// <param name="holidayCache">Caches a computed calculator per calendar selection and year</param>
@@ -83,6 +86,8 @@ public class ClientHolidayCalendarResolver : IClientHolidayCalendarResolver
     {
         return await _context.CalendarRule
             .Where(cr => cr.Country == country && cr.State == state)
+            .OrderBy(cr => cr.Rule)
+            .ThenBy(cr => cr.Id)
             .ToListAsync();
     }
 
@@ -116,6 +121,10 @@ public class ClientHolidayCalendarResolver : IClientHolidayCalendarResolver
         var rules = await _context.CalendarRule
             .AsNoTracking()
             .Where(cr => countries.Contains(cr.Country) && states.Contains(cr.State))
+            .OrderBy(cr => cr.Country)
+            .ThenBy(cr => cr.State)
+            .ThenBy(cr => cr.Rule)
+            .ThenBy(cr => cr.Id)
             .ToListAsync();
 
         var effectiveRules = new List<Domain.Models.Settings.CalendarRule>();

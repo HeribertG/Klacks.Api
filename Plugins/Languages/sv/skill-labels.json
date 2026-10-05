@@ -123,6 +123,7 @@
   "delete_work": "Ta bort ett arbetsuppdrag",
   "delete_workchange": "Ta bort en passändring",
   "detect_conflicts": "Upptäck schemakonflikter",
+  "diagnose_holiday_outcome": "Förklara helgdagstillägg och helgdagsvarning",
   "disable_feature_plugin": "Inaktivera en funktionsmodul",
   "dismiss_skill_relation": "Avvisa föreslagen kompetensrelation",
   "email_schedule_to_client": "E-posta schemat till en kund",

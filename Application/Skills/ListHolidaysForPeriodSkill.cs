@@ -1,19 +1,25 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Lists holidays in the requested period for a given country + state combination. Loads all
-/// matching CalendarRules from ISettingsRepository, computes occurrences via HolidaysListCalculator
-/// for each covered year, and clamps the result to [fromDate..untilDate].
+/// Lists the holidays in a period for one holiday calendar: a named calendar selection, a country/region, or -
+/// without either - the company calendar. Every row says whether the day counts as official (after the calendar's
+/// "reminder only" choice) and whether working on it earns the holiday time surcharge (official and the rule is
+/// marked for the time surcharge). The calculators come from the same paths payroll and the holiday-work warning use.
 /// </summary>
-/// <param name="country">Required. ISO country code (e.g. CH, DE, AT).</param>
-/// <param name="state">Optional. State / canton abbreviation; empty matches state-less rules.</param>
+/// <param name="calendarSelectionName">Optional. Name of a configured holiday calendar; wins over country.</param>
+/// <param name="country">Optional. ISO country code; national plus regional holidays when state is given.</param>
+/// <param name="state">Optional. Region code (canton, federal state).</param>
 /// <param name="fromDate">Required. ISO date (yyyy-MM-dd).</param>
-/// <param name="untilDate">Required. ISO date (yyyy-MM-dd), inclusive.</param>
+/// <param name="untilDate">Required. ISO date (yyyy-MM-dd), inclusive, at most five years after fromDate.</param>
+/// <param name="holidayCalendarTargetResolver">Decides which calendar the question is about</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Holidays;
 
@@ -22,11 +28,18 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("list_holidays_for_period")]
 public class ListHolidaysForPeriodSkill : BaseSkillImplementation
 {
-    private readonly ISettingsRepository _settingsRepository;
+    private const string DateFormat = "yyyy-MM-dd";
+    private const int MaxSpanYears = 5;
 
-    public ListHolidaysForPeriodSkill(ISettingsRepository settingsRepository)
+    private const string CalendarSelectionNameParameter = "calendarSelectionName";
+    private const string CountryParameter = "country";
+    private const string StateParameter = "state";
+
+    private readonly IHolidayCalendarTargetResolver _holidayCalendarTargetResolver;
+
+    public ListHolidaysForPeriodSkill(IHolidayCalendarTargetResolver holidayCalendarTargetResolver)
     {
-        _settingsRepository = settingsRepository;
+        _holidayCalendarTargetResolver = holidayCalendarTargetResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -34,16 +47,14 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var country = GetRequiredString(parameters, "country").Trim().ToUpperInvariant();
-        var state = (GetParameter<string>(parameters, "state") ?? string.Empty).Trim().ToUpperInvariant();
         var fromStr = GetRequiredString(parameters, "fromDate");
         var untilStr = GetRequiredString(parameters, "untilDate");
 
-        if (!DateOnly.TryParse(fromStr, out var fromDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(fromStr, context.UserLanguage, out var fromDate))
         {
             return SkillResult.Error($"Invalid fromDate: {fromStr}. Expected yyyy-MM-dd.");
         }
-        if (!DateOnly.TryParse(untilStr, out var untilDate))
+        if (!SkillCalendarStringParser.TryParseDateOnly(untilStr, context.UserLanguage, out var untilDate))
         {
             return SkillResult.Error($"Invalid untilDate: {untilStr}. Expected yyyy-MM-dd.");
         }
@@ -52,46 +63,61 @@ public class ListHolidaysForPeriodSkill : BaseSkillImplementation
             return SkillResult.Error("untilDate must be on or after fromDate.");
         }
 
-        var allRules = await _settingsRepository.GetCalendarRuleList();
-        var matchingRules = allRules
-            .Where(r => string.Equals(r.Country, country, StringComparison.OrdinalIgnoreCase))
-            .Where(r => string.IsNullOrEmpty(state)
-                ? string.IsNullOrEmpty(r.State)
-                : string.Equals(r.State, state, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(r.State))
-            .ToList();
+        if (untilDate > fromDate.AddYears(MaxSpanYears))
+        {
+            return SkillResult.Error($"The period may span at most {MaxSpanYears} years - ask for a shorter one.");
+        }
+
+        var (target, error) = await _holidayCalendarTargetResolver.ResolveAsync(
+            GetParameter<string>(parameters, CalendarSelectionNameParameter),
+            GetParameter<string>(parameters, CountryParameter),
+            GetParameter<string>(parameters, StateParameter),
+            cancellationToken);
+        if (target == null)
+        {
+            return SkillResult.Error(error ?? "The holiday calendar could not be resolved.");
+        }
 
         var occurrences = new List<HolidayDate>();
         for (var year = fromDate.Year; year <= untilDate.Year; year++)
         {
-            var calculator = new HolidaysListCalculator { CurrentYear = year };
-            calculator.AddRange(matchingRules);
-            calculator.ComputeHolidays();
-            occurrences.AddRange(calculator.HolidayList.Where(h =>
-                h.CurrentDate >= fromDate && h.CurrentDate <= untilDate));
+            var calculator = await target.CalculatorForYear(year);
+            if (calculator == null)
+            {
+                continue;
+            }
+
+            occurrences.AddRange(calculator.HolidayList.Where(h => h.CurrentDate >= fromDate && h.CurrentDate <= untilDate));
         }
 
         var rows = occurrences
             .OrderBy(h => h.CurrentDate)
             .Select(h => new
             {
-                Date = h.CurrentDate.ToString("yyyy-MM-dd"),
+                Date = h.CurrentDate.ToString(DateFormat),
                 CurrentName = h.Name.GetValueOrFirstAvailable(context.UserLanguage),
                 h.Officially,
+                h.IsPaid,
+                EarnsHolidayTimeSurchargeWhenWorked = h.EarnsTimeSurcharge,
                 DayOfWeek = h.CurrentDate.DayOfWeek.ToString(),
                 DayOfWeekLocalized = UiLanguageCulture.DayName(context.UserLanguage, h.CurrentDate.DayOfWeek)
             })
             .ToList();
 
+        var calendarLabel = SkillMessageText.Name(target.Label) ?? "no holiday calendar configured";
+
         return SkillResult.SuccessResult(
             new
             {
-                Country = country,
-                State = state,
-                FromDate = fromDate.ToString("yyyy-MM-dd"),
-                UntilDate = untilDate.ToString("yyyy-MM-dd"),
+                Calendar = target.Label,
+                CalendarKind = target.Kind,
+                FromDate = fromDate.ToString(DateFormat),
+                UntilDate = untilDate.ToString(DateFormat),
                 Holidays = rows,
                 TotalCount = rows.Count
             },
-            $"Found {rows.Count} holiday(s) in {country}/{(string.IsNullOrEmpty(state) ? "—" : state)} between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}.");
+            $"Found {rows.Count} holiday(s) in '{calendarLabel}' between {fromDate.ToString(DateFormat)} and {untilDate.ToString(DateFormat)}. " +
+            "Officially = counts as an official holiday in this calendar; only official holidays whose rule is marked " +
+            "for the time surcharge earn the holiday time surcharge when worked.");
     }
 }

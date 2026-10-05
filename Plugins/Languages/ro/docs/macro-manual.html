@@ -110,8 +110,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Oră de început, de ex. "08:30" – poate fi convertită în ore zecimale cu <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Oră de sfârșit, de ex. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Zi a săptămânii ISO-8601 (1=Lu, 2=Ma, 3=Mi, 4=Jo, 5=Vi, 6=Sâ, 7=Du)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Dacă ziua curentă este sărbătoare oficială</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Dacă ziua următoare este sărbătoare oficială</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>La muncă: 1 doar dacă ziua este o sărbătoare oficială în calendarul contractului angajatului ȘI regula este marcată «Spor de timp la muncă». La absențe: 1 dacă ziua este o sărbătoare oficială.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Ca holiday, dar pentru ziua următoare (ture care trec de miezul nopții).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Spor de noapte din Contract (ex.: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Spor de sărbătoare din Contract (ex.: 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Spor pentru ziua de weekend configurabilă 1 (ex.: sâmbătă)</td></tr>

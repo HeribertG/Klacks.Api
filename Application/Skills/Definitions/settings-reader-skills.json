@@ -206,6 +206,7 @@
         { "constant": "SettingKeys.ComplianceEnforcementCounterRule", "resultName": "CounterRuleMode" },
         { "constant": "SettingKeys.ComplianceEnforcementCompensatoryRest", "resultName": "CompensatoryRestMode" },
         { "constant": "SettingKeys.ComplianceEnforcementRestrictedTimeWindow", "resultName": "RestrictedTimeWindowMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementHolidayWork", "resultName": "HolidayWorkMode" },
         { "constant": "SettingKeys.ComplianceRosterPublicationMinLeadDays", "resultName": "RosterPublicationMinLeadDays" },
         { "constant": "SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly", "resultName": "RosterPublicationCountWorkdaysOnly" }
       ],

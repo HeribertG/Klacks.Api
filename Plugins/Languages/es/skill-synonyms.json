@@ -827,6 +827,11 @@
     "verificar reglas de descanso",
     "buscar problemas en la planificación"
   ],
+  "diagnose_holiday_outcome": [
+    "por qué no hay recargo por festivo",
+    "falta el recargo de festivo",
+    "por qué aparece el aviso de trabajo en festivo"
+  ],
   "diagnose_messaging_setup": [
     "comprobar la puesta en marcha de la mensajería",
     "por qué no llegan los mensajes de telegram",

@@ -123,6 +123,7 @@
   "delete_work": "Eliminar intervención",
   "delete_workchange": "Eliminar modificación de asignación",
   "detect_conflicts": "Detectar conflictos de planificación",
+  "diagnose_holiday_outcome": "Explicar el recargo y el aviso por día festivo",
   "disable_feature_plugin": "Desactivar el módulo de funciones",
   "dismiss_skill_relation": "Rechazar la asignación de habilidad propuesta",
   "email_schedule_to_client": "Enviar el horario de trabajo al cliente por correo electrónico",

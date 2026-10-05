@@ -123,6 +123,7 @@
   "delete_work": "Hapus penugasan kerja",
   "delete_workchange": "Hapus perubahan penugasan",
   "detect_conflicts": "Deteksi konflik jadwal",
+  "diagnose_holiday_outcome": "Jelaskan tunjangan dan peringatan hari libur",
   "disable_feature_plugin": "Nonaktifkan modul fitur",
   "dismiss_skill_relation": "Tolak usulan relasi keahlian",
   "email_schedule_to_client": "Kirim jadwal ke klien lewat email",

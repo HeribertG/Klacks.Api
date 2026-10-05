@@ -113,8 +113,8 @@ IMPORT poso, ekptosi
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Ώρα έναρξης, π.χ. "08:30" – μετατρέψιμη σε δεκαδικές ώρες με <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Ώρα λήξης, π.χ. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Ημέρα εβδομάδας ISO-8601 (1=Δε, 2=Τρ, 3=Τε, 4=Πε, 5=Πα, 6=Σα, 7=Κυ)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Αν η τρέχουσα ημέρα είναι επίσημη αργία</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Αν η επόμενη ημέρα είναι επίσημη αργία</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Σε εργασίες: 1 μόνο αν η ημέρα είναι επίσημη αργία στο ημερολόγιο της σύμβασης του εργαζομένου ΚΑΙ ο κανόνας είναι σημειωμένος ως «Χρονική προσαύξηση για εργασία». Σε απουσίες: 1 αν η ημέρα είναι επίσημη αργία.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Όπως το holiday, αλλά για την επόμενη ημέρα (βάρδιες που περνούν τα μεσάνυχτα).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Νυχτερινή προσαύξηση από τη σύμβαση (π.χ. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Προσαύξηση αργίας από τη σύμβαση (π.χ. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Συντελεστής προσαύξησης για τη ρυθμιζόμενη ημέρα σαββατοκύριακου 1 (π.χ. Σάββατο)</td></tr>

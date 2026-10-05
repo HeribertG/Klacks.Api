@@ -803,6 +803,11 @@
     "xác định lỗi lịch",
     "rà soát vi phạm ca"
   ],
+  "diagnose_holiday_outcome": [
+    "tại sao không có phụ cấp ngày lễ",
+    "thiếu phụ cấp ngày lễ",
+    "tại sao có cảnh báo làm việc ngày lễ"
+  ],
   "diagnose_messaging_setup": [
     "kiểm tra kênh nhắn tin đã sẵn sàng chưa",
     "tại sao không nhận được tin nhắn telegram",

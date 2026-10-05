@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Builds the MacroData a macro script runs on for a work, work change or absence: contract rates, time window,
+/// weekday and weekend flags, and the holiday flags of the employee's contract calendar.
+/// </summary>
+/// <param name="holidayCalendarResolver">Resolves the holiday calculator of the contract calendar selection and year</param>
+/// <param name="contractDataProvider">Effective contract data (rates, calendar selection) per client and date</param>
+
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -74,7 +81,7 @@ public class MacroDataProvider : IMacroDataProvider
             WorkloadPercent = effectiveData.WorkloadPercent
         };
 
-        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workDate, workDateNextDay);
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workDate, workDateNextDay, IsSurchargeHoliday);
         await ApplyWeekendFlags(macroData);
 
         return macroData;
@@ -115,7 +122,7 @@ public class MacroDataProvider : IMacroDataProvider
             WorkloadPercent = effectiveData.WorkloadPercent
         };
 
-        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, breakDate, breakDateNextDay);
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, breakDate, breakDateNextDay, IsAbsenceHoliday);
         await ApplyWeekendFlags(macroData);
 
         return macroData;
@@ -159,7 +166,7 @@ public class MacroDataProvider : IMacroDataProvider
             WorkloadPercent = effectiveData.WorkloadPercent
         };
 
-        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workChangeDate, workChangeDateNextDay);
+        await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workChangeDate, workChangeDateNextDay, IsSurchargeHoliday);
         await ApplyWeekendFlags(macroData);
 
         return macroData;
@@ -181,7 +188,12 @@ public class MacroDataProvider : IMacroDataProvider
         macroData.WeekendDay3 = orderedWeekendDays.Count > 2 ? ConvertToIsoWeekday(orderedWeekendDays[2]) : 0;
     }
 
-    private async Task ApplyHolidayData(MacroData macroData, Guid? calendarSelectionId, DateOnly date, DateOnly nextDay)
+    private async Task ApplyHolidayData(
+        MacroData macroData,
+        Guid? calendarSelectionId,
+        DateOnly date,
+        DateOnly nextDay,
+        Func<IHolidaysListCalculator, DateOnly, bool> isHoliday)
     {
         IHolidaysListCalculator? calculator = null;
         IHolidaysListCalculator? calculatorNextDay = null;
@@ -193,11 +205,25 @@ public class MacroDataProvider : IMacroDataProvider
 
         if (calculator != null)
         {
-            macroData.Holiday = calculator.IsHoliday(date) == HolidayStatus.OfficialHoliday;
-            macroData.HolidayNextDay = calculatorNextDay?.IsHoliday(nextDay) == HolidayStatus.OfficialHoliday;
+            macroData.Holiday = isHoliday(calculator, date);
+            macroData.HolidayNextDay = calculatorNextDay != null && isHoliday(calculatorNextDay, nextDay);
         }
     }
 
+
+    /// <summary>
+    /// Holiday flag for work and work changes, which drives the holiday time surcharge: owner rule 2026-10-05 -
+    /// only an official holiday of the contract calendar (OfficialOverride included) whose rule is paid counts.
+    /// </summary>
+    private static bool IsSurchargeHoliday(IHolidaysListCalculator calculator, DateOnly date) =>
+        calculator.IsPaidOfficialHoliday(date);
+
+    /// <summary>
+    /// Holiday flag for absences: stays official-only, because the absence macros use it to count an absence on a
+    /// holiday as 0 hours, which is a different question than the surcharge and has not been tied to IsPaid.
+    /// </summary>
+    private static bool IsAbsenceHoliday(IHolidaysListCalculator calculator, DateOnly date) =>
+        calculator.IsHoliday(date) == HolidayStatus.OfficialHoliday;
 
     private static int ConvertToIsoWeekday(DayOfWeek dayOfWeek)
     {

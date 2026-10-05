@@ -800,6 +800,11 @@
     "periksa pelanggaran waktu rehat",
     "cari konflik dalam pelan ini"
   ],
+  "diagnose_holiday_outcome": [
+    "kenapa tiada elaun cuti umum",
+    "elaun cuti umum tiada",
+    "kenapa amaran bekerja pada cuti umum"
+  ],
   "diagnose_messaging_setup": [
     "semak kesediaan perkhidmatan mesej",
     "kenapa mesej telegram tidak masuk",

@@ -123,6 +123,7 @@
   "delete_work": "Slett oppdrag",
   "delete_workchange": "Slett endring i oppdrag",
   "detect_conflicts": "Gjenkjenne planleggingskonflikter",
+  "diagnose_holiday_outcome": "Forklar helligdagstillegg og helligdagsvarsel",
   "disable_feature_plugin": "Deaktiver funksjonsmodul",
   "dismiss_skill_relation": "Avvis foreslått ferdighetskobling",
   "email_schedule_to_client": "Send vaktliste til kunden via e-post",

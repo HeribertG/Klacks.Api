@@ -834,6 +834,11 @@
     "ověř dodržování předpisů",
     "jsou v plánu kolize"
   ],
+  "diagnose_holiday_outcome": [
+    "proč není příplatek za svátek",
+    "chybí příplatek za svátek",
+    "proč upozornění na práci ve svátek"
+  ],
   "diagnose_messaging_setup": [
     "zkontrolovat zprovoznění messengeru",
     "proč z telegramu nic nepřichází",

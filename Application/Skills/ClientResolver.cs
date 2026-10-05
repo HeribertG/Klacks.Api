@@ -80,6 +80,15 @@ internal static class ClientResolver
             idNumber, idNumberSupported: true, cancellationToken);
     }
 
+    /// <summary>
+    /// The answer for a name that matches nobody. A skill that finds a client the caller may not see must give
+    /// exactly this answer too, so a hidden person cannot be told apart from an unknown one.
+    /// </summary>
+    /// <param name="firstName">First name as the caller supplied it</param>
+    /// <param name="lastName">Last name as the caller supplied it</param>
+    public static string NotFoundMessage(string? firstName, string? lastName) =>
+        $"No client found matching '{$"{firstName} {lastName}".Trim()}'. Check the spelling with the user — " +
+        "do not call this skill again with the same name.";
     private static async Task<(Client? Client, string? Error)> ResolveCoreAsync(
         IClientSearchRepository searchRepository,
         IClientRepository clientRepository,
@@ -99,9 +108,7 @@ internal static class ClientResolver
             term, null, null, null, SearchResultLimit, cancellationToken);
         if (search.Items.Count == 0)
         {
-            return (null,
-                $"No client found matching '{term}'. Check the spelling with the user — " +
-                "do not call this skill again with the same name.");
+            return (null, NotFoundMessage(firstName, lastName));
         }
 
         var items = search.Items;

@@ -31,6 +31,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -145,12 +146,11 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             entries.AddRange(await _compensatoryRestEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
 
             // Only days the client actually works on can breach the holiday rule, so the detector is
-            // handed exactly those instead of walking the whole period.
-            var workDates = timeline.Blocks
-                .Where(b => b.BlockType == ScheduleBlockType.Work)
-                .Select(b => b.OwnerDate)
-                .Where(d => d >= from && d <= to)
-                .Distinct()
+            // handed exactly those instead of walking the whole period - every day a work covers, so the
+            // after-midnight part of a night shift on the last day reports the holiday right after the
+            // period: the work and its accounting belong to this period.
+            var workDates = WorkedCalendarDates.FromBlocks(timeline.Blocks)
+                .Where(d => d >= from)
                 .ToList();
             entries.AddRange(await _holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, workDates, cancellationToken));
         }

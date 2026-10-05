@@ -4877,6 +4877,106 @@
       "tags": [
         "crud"
       ]
+    },
+    {
+      "id": "curated-holiday-diagnosis-surcharge-de",
+      "message": "Warum hat Anna Müller am 25.12.2026 keinen Feiertagszuschlag bekommen?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "diagnose_holiday_outcome",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "lastName",
+          "match": "contains",
+          "value": "Müller"
+        },
+        {
+          "name": "date",
+          "match": "contains",
+          "value": "2026-12-25"
+        }
+      ],
+      "source": "curated",
+      "comment": "Concrete person and date asking why the holiday time surcharge is missing."
+    },
+    {
+      "id": "curated-holiday-diagnosis-warning-en",
+      "message": "Why did Tom Becker get the holiday work warning on 1 August 2026?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "diagnose_holiday_outcome",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "lastName",
+          "match": "contains",
+          "value": "Becker"
+        },
+        {
+          "name": "date",
+          "match": "contains",
+          "value": "2026-08-01"
+        }
+      ],
+      "source": "curated",
+      "comment": "Concrete person and date asking why the statutory-holiday warning appeared."
+    },
+    {
+      "id": "curated-holiday-diagnosis-surcharge-fr",
+      "message": "Pourquoi Paul Martin n'a-t-il pas de supplément jour férié le 25 décembre 2026 ?",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "diagnose_holiday_outcome",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "lastName",
+          "match": "contains",
+          "value": "Martin"
+        }
+      ],
+      "source": "curated",
+      "comment": "French counterpart of the missing holiday surcharge question."
+    },
+    {
+      "id": "curated-holiday-work-block-de",
+      "message": "Arbeit an gesetzlichen Feiertagen soll künftig blockiert statt nur gewarnt werden.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "update_compliance_enforcement_settings",
+      "alternativeTools": [],
+      "expectedSlots": [
+        {
+          "name": "holidayWorkMode",
+          "match": "exact",
+          "value": "block"
+        }
+      ],
+      "source": "curated",
+      "comment": "Holiday-work reaction is a compliance enforcement setting.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-holiday-official-in-calendar-de",
+      "message": "Zählt der 4. Juli 2026 im Kalender Bern + USA als offizieller Feiertag?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "validate_holiday_overlap",
+      "alternativeTools": [
+        "list_holidays_for_period"
+      ],
+      "expectedSlots": [
+        {
+          "name": "calendarSelectionName",
+          "match": "contains",
+          "value": "Bern"
+        }
+      ],
+      "source": "curated",
+      "comment": "One date in a named configured calendar; must use the calendar, not a raw country."
     }
   ]
 }

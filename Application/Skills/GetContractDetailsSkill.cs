@@ -2,13 +2,16 @@
 
 /// <summary>
 /// Returns the full details of a single contract (hours, time-credit rates, validity, working days,
-/// shift-work flag, payment interval). A null rate or shift-work flag means "standard": the scheduling
+/// shift-work flag, payment interval, and the holiday calendar that decides holiday-work warnings and holiday time
+/// surcharges, named together with where it comes from: the contract itself or the company fallback). A null rate or shift-work flag means "standard": the scheduling
 /// rule decides, then the installation settings; 0 is an explicit "no credit". Use list_contracts first
 /// to find the contract ID.
 /// </summary>
 /// <param name="contractId">Required. UUID of the contract to load.</param>
+/// <param name="holidayCalendarSourceResolver">Names the effective holiday calendar and its source</param>
 
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
@@ -24,10 +27,12 @@ public class GetContractDetailsSkill : BaseSkillImplementation
         "Rates are time-credit factors (0.1 = 6 minutes per hour). A null rate or a null PerformsShiftWork means standard: the scheduling rule decides, then the installation settings. 0 means explicitly no credit. While shift work resolves to false, the contract's own rates are ignored.";
 
     private readonly IMediator _mediator;
+    private readonly IHolidayCalendarSourceResolver _holidayCalendarSourceResolver;
 
-    public GetContractDetailsSkill(IMediator mediator)
+    public GetContractDetailsSkill(IMediator mediator, IHolidayCalendarSourceResolver holidayCalendarSourceResolver)
     {
         _mediator = mediator;
+        _holidayCalendarSourceResolver = holidayCalendarSourceResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -47,6 +52,8 @@ public class GetContractDetailsSkill : BaseSkillImplementation
             return SkillResult.Error($"Contract '{contractId}' not found.");
         }
 
+        var calendar = await _holidayCalendarSourceResolver.ResolveAsync(contract.CalendarSelectionId, cancellationToken);
+
         var resultData = new
         {
             contract.Id,
@@ -64,7 +71,8 @@ public class GetContractDetailsSkill : BaseSkillImplementation
             contract.Percent,
             contract.ValidFrom,
             contract.ValidUntil,
-            contract.CalendarSelectionId,
+            HolidayCalendarName = HolidayCalendarDisplayName.Of(calendar),
+            HolidayCalendarSource = calendar.Source.ToString(),
             contract.WorkOnMonday,
             contract.WorkOnTuesday,
             contract.WorkOnWednesday,

@@ -108,8 +108,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>시작 시각, 예: "08:30" – <code>TimeToHours()</code>로 10진 시간으로 변환 가능</td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>종료 시각, 예: "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>요일 ISO-8601 (1=월, 2=화, 3=수, 4=목, 5=금, 6=토, 7=일)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>해당일이 공식 공휴일인지 여부</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>다음 날이 공식 공휴일인지 여부</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>근무: 해당 날짜가 직원의 계약 달력에서 공식 공휴일이고 규칙에 «근무 시 시간 할증»가 표시된 경우에만 1. 부재: 해당 날짜가 공식 공휴일이면 1.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>holiday와 같지만 다음 날 기준입니다(자정을 넘는 근무).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Contract의 야간 할증률 (예: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Contract의 공휴일 할증률 (예: 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>설정 가능한 주말 요일 1(예: 토요일)에 대한 할증률</td></tr>

@@ -125,6 +125,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IHolidayWorkExemptionRuleRepository, Klacks.Api.Infrastructure.Repositories.Scheduling.HolidayWorkExemptionRuleRepository>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IClientHolidayCalendarResolver, Klacks.Api.Infrastructure.Services.Schedules.ClientHolidayCalendarResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayWorkEvaluator, Klacks.Api.Application.Services.Schedules.HolidayWorkEvaluator>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarSourceResolver, Klacks.Api.Application.Services.Schedules.HolidayCalendarSourceResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayOutcomeDiagnosisService, Klacks.Api.Application.Services.Schedules.HolidayOutcomeDiagnosisService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarLookupService, Klacks.Api.Application.Services.Schedules.HolidayCalendarLookupService>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayCalendarTargetResolver, Klacks.Api.Application.Services.Schedules.HolidayCalendarTargetResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IClientWorkCoverageReader, Klacks.Api.Infrastructure.Services.Schedules.ClientWorkCoverageReader>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];

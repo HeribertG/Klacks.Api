@@ -123,6 +123,7 @@
   "delete_work": "근무 배정 삭제",
   "delete_workchange": "배정 변경 삭제",
   "detect_conflicts": "근무표 충돌 감지",
+  "diagnose_holiday_outcome": "공휴일 수당과 공휴일 근무 경고 설명",
   "disable_feature_plugin": "기능 모듈 비활성화",
   "dismiss_skill_relation": "제안된 스킬 연결 거부",
   "email_schedule_to_client": "고객에게 근무표 이메일 전송",

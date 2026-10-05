@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Application.DTOs.Settings;
 
@@ -14,7 +15,7 @@ public class CalendarRuleResource
 
     public bool IsMandatory { get; set; }
 
-    public bool IsPaid { get; set; }
+    public bool? IsPaid { get; set; }
 
     public MultiLanguage? Name { get; set; }
 

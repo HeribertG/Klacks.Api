@@ -108,8 +108,8 @@ IMPORT importe, descuento
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>שעת התחלה, למשל "08:30" – ניתנת להמרה לשעות עשרוניות באמצעות <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>שעת סיום, למשל "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>יום בשבוע ISO-8601 (1=שני, 2=שלישי, 3=רביעי, 4=חמישי, 5=שישי, 6=שבת, 7=ראשון)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>האם היום הנוכחי הוא חג רשמי</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>האם היום הבא הוא חג רשמי</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>בעבודות: 1 רק אם היום הוא חג רשמי בלוח השנה של חוזה העובד וגם הכלל מסומן «תוספת זמן בעבודה». בהיעדרויות: 1 אם היום הוא חג רשמי.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>כמו holiday, אך עבור היום שלמחרת (משמרות שחוצות את חצות).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>תעריף תוספת לילה מהחוזה (למשל, 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>תעריף תוספת לחג מהחוזה (למשל, 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>תעריף תוספת עבור יום סוף שבוע ניתן להגדרה 1 (למשל שבת)</td></tr>

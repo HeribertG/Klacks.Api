@@ -123,6 +123,7 @@
   "delete_work": "Slet opgave",
   "delete_workchange": "Slet ændring af indsats",
   "detect_conflicts": "At genkende planlægningskonflikter",
+  "diagnose_holiday_outcome": "Forklar helligdagstillæg og helligdagsadvarsel",
   "disable_feature_plugin": "Deaktiver funktionsmodul",
   "dismiss_skill_relation": "Afvis foreslået færdighedskombination",
   "email_schedule_to_client": "Send vagtplan til kunden via e-mail",

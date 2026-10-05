@@ -197,8 +197,10 @@ public class LanguagePluginService : ILanguagePluginService
     }
 
     /// <summary>
-    /// Drops the cached holiday calculators after a pack changed holiday rule names by raw SQL, so findings and
-    /// skills built from them carry the new language without a restart.
+    /// Drops the cached holiday calculators after a pack added or removed calendar rules and selections or changed
+    /// holiday rule names by raw SQL, so findings and skills built from them carry the change without a restart.
+    /// Must run after the commit (invalidating earlier lets a concurrent request re-cache the old rules) and in a
+    /// finally block: the raw-SQL installers commit on their own, so a failing later step still leaves changed rules.
     /// </summary>
     private static void InvalidateHolidayCalculators(IServiceScope scope) =>
         scope.ServiceProvider.GetService<IHolidayCalculatorCache>()?.InvalidateAll();
@@ -418,25 +420,31 @@ public class LanguagePluginService : ILanguagePluginService
             });
         }
 
-        await _geoDataInstaller.InstallGeoDataAsync(scope, code);
-        await _calendarRuleBackfiller.MarkCalendarRulesInstalledAsync(scope, code);
-        await _contentInstaller.InstallDocsAsync(scope, code);
-        await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
-        await _skillLabelInstaller.InstallSkillLabelsAsync(scope, code);
-        await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
-        await _recipeVocabularyInstaller.InstallRecipeVetoesAsync(scope, code);
-        await _recipeVocabularyInstaller.InstallRecipeAnchorsAsync(scope, code);
-        await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
-        await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
-        await _contentInstaller.InstallWakeWordsAsync(code);
-        await unitOfWork.CompleteAsync();
-        await _geoContentInstaller.MergeNonCoreTranslationsAsync(scope, code);
-        await _geoContentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
-        await _qualificationInstaller.MergeDefaultQualificationTranslationsAsync(scope, code);
-        await _calendarRuleNameInstaller.MergeDefaultCalendarRuleTranslationsAsync(scope, code);
-        await _geoContentInstaller.InstallCountryAsync(scope, code);
-        await _geoContentInstaller.InstallStatesAsync(scope, code);
-        InvalidateHolidayCalculators(scope);
+        try
+        {
+            await _geoDataInstaller.InstallGeoDataAsync(scope, code);
+            await _calendarRuleBackfiller.MarkCalendarRulesInstalledAsync(scope, code);
+            await _contentInstaller.InstallDocsAsync(scope, code);
+            await _contentInstaller.InstallSkillSynonymsAsync(scope, code);
+            await _skillLabelInstaller.InstallSkillLabelsAsync(scope, code);
+            await _contentInstaller.InstallRecipeSynonymsAsync(scope, code);
+            await _recipeVocabularyInstaller.InstallRecipeVetoesAsync(scope, code);
+            await _recipeVocabularyInstaller.InstallRecipeAnchorsAsync(scope, code);
+            await _contentInstaller.InstallNavigationSynonymsAsync(scope, code);
+            await _contentInstaller.InstallSentimentKeywordsAsync(scope, code);
+            await _contentInstaller.InstallWakeWordsAsync(code);
+            await unitOfWork.CompleteAsync();
+            await _geoContentInstaller.MergeNonCoreTranslationsAsync(scope, code);
+            await _geoContentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
+            await _qualificationInstaller.MergeDefaultQualificationTranslationsAsync(scope, code);
+            await _calendarRuleNameInstaller.MergeDefaultCalendarRuleTranslationsAsync(scope, code);
+            await _geoContentInstaller.InstallCountryAsync(scope, code);
+            await _geoContentInstaller.InstallStatesAsync(scope, code);
+        }
+        finally
+        {
+            InvalidateHolidayCalculators(scope);
+        }
 
         // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
         // keeps matching on the pre-install keywords until the next application start. The index sync
@@ -466,27 +474,33 @@ public class LanguagePluginService : ILanguagePluginService
         var settingsRepo = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-        await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
-        await _skillLabelInstaller.UninstallSkillLabelsAsync(scope, code);
-        await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
-        await _recipeVocabularyInstaller.UninstallRecipeVetoesAsync(scope, code);
-        await _recipeVocabularyInstaller.UninstallRecipeAnchorsAsync(scope, code);
-        await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
-        await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
-        await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
-        await _contentInstaller.UninstallDocsAsync(scope, code);
-        await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
-        await _qualificationInstaller.RemoveDefaultQualificationTranslationsAsync(scope, code);
-        await _calendarRuleNameInstaller.RemoveDefaultCalendarRuleTranslationsAsync(scope, code);
-        InvalidateHolidayCalculators(scope);
-
-        var existing = await settingsRepo.GetSetting(settingKey);
-        if (existing != null)
+        try
         {
-            existing.Value = "false";
-        }
+            await _contentInstaller.UninstallSkillSynonymsAsync(scope, code);
+            await _skillLabelInstaller.UninstallSkillLabelsAsync(scope, code);
+            await _contentInstaller.UninstallRecipeSynonymsAsync(scope, code);
+            await _recipeVocabularyInstaller.UninstallRecipeVetoesAsync(scope, code);
+            await _recipeVocabularyInstaller.UninstallRecipeAnchorsAsync(scope, code);
+            await _contentInstaller.UninstallNavigationSynonymsAsync(scope, code);
+            await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
+            await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
+            await _contentInstaller.UninstallDocsAsync(scope, code);
+            await _geoContentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
+            await _qualificationInstaller.RemoveDefaultQualificationTranslationsAsync(scope, code);
+            await _calendarRuleNameInstaller.RemoveDefaultCalendarRuleTranslationsAsync(scope, code);
 
-        await unitOfWork.CompleteAsync();
+            var existing = await settingsRepo.GetSetting(settingKey);
+            if (existing != null)
+            {
+                existing.Value = "false";
+            }
+
+            await unitOfWork.CompleteAsync();
+        }
+        finally
+        {
+            InvalidateHolidayCalculators(scope);
+        }
 
         await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>()
             .RefreshAsync($"uninstalling language plugin '{code}'");

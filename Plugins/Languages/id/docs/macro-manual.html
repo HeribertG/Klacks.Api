@@ -110,8 +110,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Waktu mulai, misalnya "08:30" – dapat dikonversi ke desimal jam dengan <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Waktu selesai, misalnya "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Hari dalam seminggu ISO-8601 (1=Sen, 2=Sel, 3=Rab, 4=Kam, 5=Jum, 6=Sab, 7=Min)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Apakah hari ini adalah hari libur resmi</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Apakah hari berikutnya adalah hari libur resmi</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Pada kerja: 1 hanya jika hari itu adalah hari libur resmi di kalender kontrak karyawan DAN aturannya ditandai «Tunjangan waktu saat bekerja». Pada ketidakhadiran: 1 jika hari itu adalah hari libur resmi.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Sama seperti holiday, tetapi untuk hari berikutnya (shift yang melewati tengah malam).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Tarif tunjangan malam dari Contract (misalnya: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Tarif tunjangan hari libur dari Contract (misalnya: 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 1 yang dapat dikonfigurasi (misalnya Sabtu)</td></tr>

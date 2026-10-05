@@ -123,6 +123,7 @@
   "delete_work": "Taak verwijderen",
   "delete_workchange": "Wijziging in inzet verwijderen",
   "detect_conflicts": "Conflicten in de planning herkennen",
+  "diagnose_holiday_outcome": "Feestdagtoeslag en feestdagwaarschuwing uitleggen",
   "disable_feature_plugin": "Functiemodule uitschakelen",
   "dismiss_skill_relation": "Voorgestelde vaardigheidskoppeling afwijzen",
   "email_schedule_to_client": "Dienstrooster per e-mail naar klant sturen",

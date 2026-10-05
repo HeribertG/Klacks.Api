@@ -100,8 +100,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>開始時間，例如 "08:30"——可用 <code>TimeToHours()</code> 轉換為十進位小時</td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>結束時間，例如 "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>星期幾 ISO-8601（1=週一、2=週二、3=週三、4=週四、5=週五、6=週六、7=週日）</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>當天是否為法定節假日</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>次日是否為法定節假日</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>工作：僅當該日在員工合約行事曆中是法定假日，且該規則標記為「工作時的時間附加費」時為 1。 缺勤：該日是法定假日時為 1。</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>與 holiday 相同，但針對隔天（跨越午夜的班次）。</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>合約中的夜班加班率（例：0.10 = 10%）</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>合約中的節假日加班率（例：0.15 = 15%）</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>可設定的第 1 個週末日（例如週六）的加班率</td></tr>

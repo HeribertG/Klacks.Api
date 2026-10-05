@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Changes how strictly the working-time protections are applied. Only the supplied parameters are
-/// written; the rest keep their stored value.
+/// written; the rest keep their stored value. Every reaction (*Mode) must be warn or block and is stored in that
+/// spelling; any other value refuses the whole call without writing.
 /// </summary>
 /// <param name="defaultMode">Reaction used where no specific mode is set.</param>
 /// <param name="allowSupervisorOverride">Whether a supervisor may push a rejected assignment through.</param>
@@ -17,6 +18,7 @@
 /// <param name="counterRuleMode">Reaction when a counting rule is exceeded.</param>
 /// <param name="compensatoryRestMode">Reaction when owed time off is not granted in time.</param>
 /// <param name="restrictedTimeWindowMode">Reaction when a blocked stretch of the day is used.</param>
+/// <param name="holidayWorkMode">Reaction to work on a statutory holiday of the contract calendar (warn or block); refused when it is neither.</param>
 /// <param name="rosterPublicationMinLeadDays">Days a roster has to be published ahead.</param>
 /// <param name="rosterPublicationCountWorkdaysOnly">Whether that lead time counts working days only.</param>
 
@@ -33,6 +35,18 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_compliance_enforcement_settings")]
 public class UpdateComplianceEnforcementSettingsSkill : SettingsWriterSkillBase
 {
+    private static readonly (string Parameter, string Key)[] ModeParameters =
+    [
+        ("defaultMode", SettingKeys.ComplianceEnforcementDefaultMode),
+        ("periodCapMode", SettingKeys.ComplianceEnforcementPeriodCap),
+        ("rollingAverageMode", SettingKeys.ComplianceEnforcementRollingAverage),
+        ("restDayRotationMode", SettingKeys.ComplianceEnforcementRestDayRotation),
+        ("counterRuleMode", SettingKeys.ComplianceEnforcementCounterRule),
+        ("compensatoryRestMode", SettingKeys.ComplianceEnforcementCompensatoryRest),
+        ("restrictedTimeWindowMode", SettingKeys.ComplianceEnforcementRestrictedTimeWindow),
+        ("holidayWorkMode", SettingKeys.ComplianceEnforcementHolidayWork),
+    ];
+
     public UpdateComplianceEnforcementSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
@@ -48,19 +62,31 @@ public class UpdateComplianceEnforcementSettingsSkill : SettingsWriterSkillBase
     {
         var pending = new List<PendingSetting>();
 
-        CollectText(pending, parameters, "defaultMode", SettingKeys.ComplianceEnforcementDefaultMode);
+        foreach (var (parameter, key) in ModeParameters)
+        {
+            var raw = GetParameter<string>(parameters, parameter);
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                continue;
+            }
+
+            var normalized = ComplianceEnforcementModeValues.Normalize(raw);
+            if (normalized == null)
+            {
+                return SkillResult.Error(
+                    $"{parameter} must be '{ComplianceEnforcementModeValues.Warn}' or " +
+                    $"'{ComplianceEnforcementModeValues.Block}' - nothing was changed.");
+            }
+
+            pending.Add(new PendingSetting(parameter, key, normalized));
+        }
+
         CollectBoolean(pending, parameters, "allowSupervisorOverride", SettingKeys.ComplianceEnforcementAllowSupervisorOverride);
         CollectDecimal(pending, parameters, "maxDailyHours", SettingKeys.ComplianceEnforcementMaxDailyHours);
         CollectDecimal(pending, parameters, "maxWeeklyHours", SettingKeys.ComplianceEnforcementMaxWeeklyHours);
         CollectDecimal(pending, parameters, "minRestHours", SettingKeys.ComplianceEnforcementMinRestHours);
         CollectInteger(pending, parameters, "minRestDays", SettingKeys.ComplianceEnforcementMinRestDays);
         CollectInteger(pending, parameters, "maxConsecutiveDays", SettingKeys.ComplianceEnforcementMaxConsecutiveDays);
-        CollectText(pending, parameters, "periodCapMode", SettingKeys.ComplianceEnforcementPeriodCap);
-        CollectText(pending, parameters, "rollingAverageMode", SettingKeys.ComplianceEnforcementRollingAverage);
-        CollectText(pending, parameters, "restDayRotationMode", SettingKeys.ComplianceEnforcementRestDayRotation);
-        CollectText(pending, parameters, "counterRuleMode", SettingKeys.ComplianceEnforcementCounterRule);
-        CollectText(pending, parameters, "compensatoryRestMode", SettingKeys.ComplianceEnforcementCompensatoryRest);
-        CollectText(pending, parameters, "restrictedTimeWindowMode", SettingKeys.ComplianceEnforcementRestrictedTimeWindow);
         CollectInteger(pending, parameters, "rosterPublicationMinLeadDays", SettingKeys.ComplianceRosterPublicationMinLeadDays);
         CollectBoolean(pending, parameters, "rosterPublicationCountWorkdaysOnly", SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly);
 

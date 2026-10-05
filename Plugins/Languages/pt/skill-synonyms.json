@@ -831,6 +831,11 @@
     "conflitos na escala",
     "checar violações"
   ],
+  "diagnose_holiday_outcome": [
+    "por que não há adicional de feriado",
+    "falta o adicional de feriado",
+    "por que aparece o aviso de trabalho no feriado"
+  ],
   "diagnose_messaging_setup": [
     "verificar a entrada em serviço das mensagens",
     "porque é que não chegam mensagens do telegram",

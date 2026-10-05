@@ -1,5 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Creates a calendar rule and drops every cached holiday calculator, because the new rule can belong to any
+/// calendar selection that includes its country and state.
+/// </summary>
+/// <param name="request">Carries the calendar rule resource; empty name/description languages are machine-translated when configured</param>
+
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Settings.CalendarRules;
 using Klacks.Api.Application.Interfaces;
@@ -15,12 +21,14 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand, Doma
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMultiLanguageTranslationService _translationService;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
 
     public PostCommandHandler(
                               ISettingsRepository settingsRepository,
                               ScheduleMapper scheduleMapper,
                               IUnitOfWork unitOfWork,
                               IMultiLanguageTranslationService translationService,
+                              IHolidayCalculatorCache holidayCalculatorCache,
                               ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -28,6 +36,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand, Doma
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _translationService = translationService;
+        _holidayCalculatorCache = holidayCalculatorCache;
     }
 
     public async Task<Domain.Models.Settings.CalendarRule?> Handle(PostCommand request, CancellationToken cancellationToken)
@@ -40,6 +49,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand, Doma
             var result = _settingsRepository.AddCalendarRule(calendarRule);
 
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.InvalidateAll();
 
             return result;
         },

@@ -26,6 +26,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -178,7 +179,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // prevent, so it is reported here even though the placement did not create the obligation.
         newConflicts.AddRange(await BuildCompensatoryRestConflictsAsync(plannedRows, analyseToken, cancellationToken));
 
-        // Holiday work: an ABSOLUTE per-(client, date) check on the planned rows - whether a date is a
+        // Holiday work: an ABSOLUTE per-(client, date) check on every calendar day the planned rows cover
+        // (a night shift into a holiday reports the holiday date) - whether a date is a
         // statutory holiday and whether an exemption covers the client is master data, identical in
         // real and scenario worlds, so the evaluator is queried token-independent like eligibility.
         // The evaluator resolves the holidayWork enforcement mode itself (Warning, or an overridable
@@ -233,7 +235,10 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
         foreach (var group in plannedRows.GroupBy(r => r.ClientId))
         {
-            var workDates = group.Select(r => r.Date).Distinct().ToList();
+            var workDates = group
+                .SelectMany(r => WorkedCalendarDates.FromTimeRange(r.Date, r.StartTime, r.EndTime))
+                .Distinct()
+                .ToList();
 
             conflicts.AddRange(await _holidayWorkEvaluator.EvaluateAsync(
                 group.Key,

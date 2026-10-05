@@ -109,8 +109,8 @@ IMPORT importe, descuento
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>وقت البدء، مثلاً "08:30" – يمكن تحويله إلى ساعات عشرية باستخدام <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>وقت الانتهاء، مثلاً "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>يوم الأسبوع ISO-8601 (1=الاثنين، 2=الثلاثاء، 3=الأربعاء، 4=الخميس، 5=الجمعة، 6=السبت، 7=الأحد)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>ما إذا كان اليوم الحالي عطلة رسمية</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>ما إذا كان اليوم التالي عطلة رسمية</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>في الأعمال: 1 فقط إذا كان اليوم عطلة رسمية في تقويم عقد الموظف وكانت القاعدة معلَّمة بـ «إضافة زمنية عند العمل». في الغيابات: 1 إذا كان اليوم عطلة رسمية.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>مثل holiday، ولكن لليوم التالي (المناوبات التي تتجاوز منتصف الليل).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>نسبة علاوة العمل الليلي من العقد (مثلاً 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>نسبة علاوة العطلة من العقد (مثلاً 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>نسبة علاوة يوم نهاية الأسبوع القابل للتهيئة 1 (مثلاً السبت)</td></tr>

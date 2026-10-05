@@ -16377,7 +16377,7 @@
     {
       "name": "create_calendar_selection",
       "area": "settings",
-      "description": "Creates a new calendar selection (a named holiday calendar) that merges one or more country/subdivision holiday calendars into one. Any merged calendar can be marked reminder-only, which keeps its holidays visible but excludes them from payroll/surcharge calculation, without touching the underlying country/subdivision rules globally. Use list_calendars first to check whether a suitable calendar selection already exists.",
+      "description": "Creates a new calendar selection (a named holiday calendar) that merges one or more country/subdivision holiday calendars into one. Any merged calendar can be marked reminder-only: its holidays stay visible but never count as official, so working on them earns no holiday time surcharge and raises no holiday-work warning, without touching the underlying country/subdivision rules globally. Use list_calendars first to check whether a suitable calendar selection already exists.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16402,7 +16402,7 @@
         },
         {
           "name": "reminderOnlyCalendars",
-          "description": "Optional array of calendar tokens (must be a subset of 'calendars', same notation) whose holidays are downgraded to reminder-only: shown in the schedule, but excluded from payroll/surcharge calculation",
+          "description": "Optional array of calendar tokens (must be a subset of 'calendars', same notation) whose holidays are downgraded to reminder-only: shown in the schedule, but never official, so no holiday time surcharge and no holiday-work warning",
           "type": "Array",
           "required": false,
           "defaultValue": null,
@@ -16460,12 +16460,12 @@
         "fr": "Créer une nouvelle sélection de calendrier",
         "it": "Crea una nuova selezione di calendario"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_calendar_selection",
       "area": "settings",
-      "description": "Updates an existing calendar selection: rename it, merge in more country/subdivision calendars, remove merged calendars, and mark/unmark a calendar as reminder-only (its holidays stay visible but are excluded from payroll calculation). Identify the calendar selection by calendarSelectionId (preferred) or calendarSelectionName. Only the supplied fields are changed — nothing supplied leaves it unchanged. The write is verified against the database and rolled back on mismatch.",
+      "description": "Updates an existing calendar selection: rename it, merge in or remove country/subdivision calendars, and mark/unmark a calendar as reminder-only (holidays stay visible but never count as official: no holiday time surcharge, no holiday-work warning). Identify it by calendarSelectionId or calendarSelectionName. Only supplied fields change. The write is verified against the database and rolled back on mismatch.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16578,7 +16578,7 @@
         "fr": "Modifier une sélection de calendriers",
         "it": "Modifica una selezione di calendari"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_calendar_selection",
@@ -17110,7 +17110,7 @@
     {
       "name": "list_holidays_for_period",
       "area": "period",
-      "description": "Returns all holidays falling between fromDate and untilDate for a given country (and optionally a state/canton). Computes holiday dates from CalendarRules via HolidaysListCalculator across all covered years.",
+      "description": "Lists the public holidays between two dates for a configured holiday calendar, for a country and canton or state, or for the company calendar when neither is named. Each holiday says whether it counts as official or only as a reminder and whether working on it earns the holiday time surcharge.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17118,10 +17118,18 @@
       ],
       "parameters": [
         {
-          "name": "country",
-          "description": "ISO country code (CH, DE, AT, ...)",
+          "name": "calendarSelectionName",
+          "description": "Name of a configured holiday calendar; takes precedence over country",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "ISO country code (CH, DE, AT, ...); national plus regional holidays when state is given",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -17205,12 +17213,101 @@
         "fr": "Lister les jours fériés pour une période",
         "it": "Elenca le festività per un periodo"
       },
-      "version": 4
+      "version": 5
+    },
+    {
+      "name": "diagnose_holiday_outcome",
+      "area": "schedule",
+      "description": "Explains for one employee on one date why working on a public holiday did or did not earn the holiday time surcharge and why the warning about work on a statutory holiday did or did not appear: which contract and holiday calendar applied, whether the day counted as official or only as a reminder, whether the holiday is marked for the time surcharge, the holiday rate and an exemption. E.g. no surcharge on Christmas Day, warning on National Day.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewContracts"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the employee the question is about",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the employee the question is about",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Client number to tell apart several employees with the same name",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The calendar day in question in ISO yyyy-MM-dd",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Read",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "feiertagszuschlag",
+          "warnung feiertagsarbeit"
+        ],
+        "en": [
+          "holiday surcharge"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "warum kein feiertagszuschlag",
+          "feiertagszuschlag fehlt",
+          "warum warnung arbeit an feiertag",
+          "keinen zuschlag am feiertag bekommen"
+        ],
+        "en": [
+          "why no holiday surcharge",
+          "holiday surcharge missing",
+          "why the holiday work warning",
+          "no premium for working on the holiday"
+        ],
+        "fr": [
+          "pourquoi pas de supplément jour férié",
+          "supplément jour férié manquant",
+          "pourquoi avertissement travail jour férié"
+        ],
+        "it": [
+          "perché nessuna maggiorazione festiva",
+          "maggiorazione festiva mancante",
+          "perché avviso lavoro festivo"
+        ]
+      },
+      "labels": {
+        "de": "Feiertagszuschlag und Feiertagswarnung erklären",
+        "en": "Explain holiday surcharge and holiday warning",
+        "fr": "Expliquer supplément et alerte de jour férié",
+        "it": "Spiegare maggiorazione e avviso festivo"
+      },
+      "version": 1
     },
     {
       "name": "validate_holiday_overlap",
       "area": "settings",
-      "description": "Checks whether a specific date is a holiday in the given country + state. Returns IsHoliday=true with the holiday name when it matches, otherwise false. Used before placing a Work/Break to warn about overlap.",
+      "description": "Checks whether one date is a public holiday in a configured holiday calendar, in a country and canton or state, or in the company calendar when neither is named, and whether it counts as official, so that work on it is reported, or only as a reminder, and whether working on it earns the holiday time surcharge.",
       "category": "Validation",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17226,10 +17323,18 @@
           "enumValues": null
         },
         {
-          "name": "country",
-          "description": "ISO country code",
+          "name": "calendarSelectionName",
+          "description": "Name of a configured holiday calendar; takes precedence over country",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "country",
+          "description": "ISO country code; national plus regional holidays when state is given",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -17292,7 +17397,7 @@
         "fr": "Vérifier un chevauchement avec un jour férié",
         "it": "Verifica una sovrapposizione con un giorno festivo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_report_templates",
@@ -22288,7 +22393,7 @@
     {
       "name": "get_contract_details",
       "area": "contract",
-      "description": "Returns the full details of a single contract template: name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates (null = standard from the scheduling rule or settings, 0 = explicitly none), payment interval, validity dates, working days, shift-work flag (null = standard), calendar selection and scheduling rule. Use when the user asks for specifics of one contract or before changing or deleting it.",
+      "description": "Returns the full details of a single contract template: guaranteed, minimum, maximum and full-time hours, night/holiday/Saturday/Sunday time-credit rates (null = standard, 0 = none), payment interval, validity, working days, shift-work flag, scheduling rule and the holiday calendar deciding holiday-work warnings and holiday time surcharges, with its source. Use when the user asks for specifics of one contract or before changing or deleting it.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22356,7 +22461,7 @@
         "fr": "Détails du contrat",
         "it": "Dettagli del contratto"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "update_contract",
@@ -39230,7 +39335,7 @@
     {
       "name": "get_compliance_enforcement_settings",
       "area": "settings",
-      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection. Also shows how far ahead a roster has to be published. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection, including work on a statutory public holiday. Also shows how far ahead a roster has to be published. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39259,13 +39364,15 @@
           "warnen oder blockieren",
           "darf ein vorgesetzter darüber hinweggehen",
           "strenge der schutzprüfungen",
-          "vorlauf für die planveröffentlichung"
+          "vorlauf für die planveröffentlichung",
+          "wird feiertagsarbeit blockiert"
         ],
         "en": [
           "how strict are the checks",
           "warn or refuse",
           "may a supervisor push it through",
-          "strictness of the protections"
+          "strictness of the protections",
+          "is holiday work blocked"
         ],
         "fr": [
           "quelle est la severite des controles",
@@ -39284,12 +39391,12 @@
         "fr": "Paramètres d'application de la conformité",
         "it": "Impostazioni di applicazione della conformità"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_compliance_enforcement_settings",
       "area": "settings",
-      "description": "Changes how strictly the working-time protections are applied: whether breaking one warns or turns the assignment down, whether a supervisor may push it through anyway, and the reaction set for each individual protection. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Changes how strictly the working-time protections are applied: whether breaking one warns or turns the assignment down, whether a supervisor may push it through anyway, and the reaction set for each individual protection, including work on a statutory public holiday. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39298,11 +39405,14 @@
       "parameters": [
         {
           "name": "defaultMode",
-          "description": "Reaction used where no specific one is set",
-          "type": "String",
+          "description": "Reaction used where no specific one is set: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "allowSupervisorOverride",
@@ -39354,51 +39464,80 @@
         },
         {
           "name": "periodCapMode",
-          "description": "Reaction when a period ceiling is passed",
-          "type": "String",
+          "description": "Reaction when a period ceiling is passed: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "rollingAverageMode",
-          "description": "Reaction when a rolling weekly average is passed",
-          "type": "String",
+          "description": "Reaction when a rolling weekly average is passed: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "restDayRotationMode",
-          "description": "Reaction when the rest day rotation is broken",
-          "type": "String",
+          "description": "Reaction when the rest day rotation is broken: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "counterRuleMode",
-          "description": "Reaction when a counting rule is exceeded",
-          "type": "String",
+          "description": "Reaction when a counting rule is exceeded: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "compensatoryRestMode",
-          "description": "Reaction when owed time off is not granted in time",
-          "type": "String",
+          "description": "Reaction when owed time off is not granted in time: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "restrictedTimeWindowMode",
-          "description": "Reaction when a blocked stretch of the day is used",
-          "type": "String",
+          "description": "Reaction when a blocked stretch of the day is used: warn or block",
+          "type": "Enum",
           "required": false,
           "defaultValue": null,
-          "enumValues": null
+          "enumValues": [
+            "warn",
+            "block"
+          ]
+        },
+        {
+          "name": "holidayWorkMode",
+          "description": "Reaction when someone is planned on a statutory public holiday of their contract calendar: warn or block",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "warn",
+            "block"
+          ]
         },
         {
           "name": "rosterPublicationMinLeadDays",
@@ -39438,23 +39577,27 @@
           "aus warnung eine ablehnung machen",
           "strenge der prüfungen ändern",
           "vorgesetzten übersteuerung erlauben",
-          "nur warnen statt blockieren"
+          "nur warnen statt blockieren",
+          "feiertagsarbeit blockieren"
         ],
         "en": [
           "turn a warning into a refusal",
           "change how strict the checks are",
           "allow a supervisor to push through",
-          "only warn instead of refusing"
+          "only warn instead of refusing",
+          "block work on public holidays"
         ],
         "fr": [
           "transformer un avertissement en refus",
           "modifier la severite des controles",
-          "autoriser le passage outre"
+          "autoriser le passage outre",
+          "bloquer le travail les jours fériés"
         ],
         "it": [
           "trasformare un avviso in rifiuto",
           "modificare la severita dei controlli",
-          "consentire la forzatura"
+          "consentire la forzatura",
+          "bloccare il lavoro nei giorni festivi"
         ]
       },
       "labels": {
@@ -39463,7 +39606,7 @@
         "fr": "Modifier les paramètres d'application de la conformité",
         "it": "Modifica le impostazioni di applicazione della conformità"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_compensatory_rest_settings",
@@ -41580,7 +41723,7 @@
     {
       "name": "explain_calendar_model",
       "area": "absence",
-      "description": "Explains how public holidays are defined and which ones apply. Covers the notation behind a holiday date — a fixed day such as 01/01, a date pulled onto a given weekday, and dates counted from Easter — plus the shift applied when a holiday lands on a weekend. Covers named bundles that gather the regions whose holidays should count, why a regional bundle must list its national entries as well, and how a holiday can be shown as a reminder without counting towards pay.",
+      "description": "Explains how public holidays are defined and which ones apply: date notation (a fixed day such as 01/01, a date pulled onto a weekday, dates counted from Easter), the weekend shift rule, named bundles of regions and why a regional bundle must list its national entries, reminder-only holidays, which calendar decides surcharge and holiday-work warning, and when working on a holiday earns the time surcharge.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -41673,7 +41816,7 @@
         "fr": "Expliquer le modèle des jours fériés",
         "it": "Spiega il modello dei giorni festivi"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_active_industries",

@@ -111,8 +111,8 @@ IMPORT summa, alennus
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Alkamisaika, esim. "08:30" – muunnettavissa desimaalitunneiksi funktiolla <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Päättymisaika, esim. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Viikonpäivä ISO-8601 (1=Ma, 2=Ti, 3=Ke, 4=To, 5=Pe, 6=La, 7=Su)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Onko nykyinen päivä virallinen juhlapyhä</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Onko seuraava päivä virallinen juhlapyhä</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Töissä: 1 vain, jos päivä on virallinen juhlapyhä työntekijän sopimuskalenterissa JA sääntö on merkitty «Aikalisä työskenneltäessä». Poissaoloissa: 1, jos päivä on virallinen juhlapyhä.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Kuten holiday, mutta seuraavalle päivälle (keskiyön yli jatkuvat vuorot).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Yölisä sopimuksesta (esim. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Juhlapyhälisä sopimuksesta (esim. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Lisä konfiguroitavalle viikonloppupäivälle 1 (esim. lauantai)</td></tr>

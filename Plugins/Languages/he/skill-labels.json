@@ -123,6 +123,7 @@
   "delete_work": "מחיקת משימה",
   "delete_workchange": "מחיקת שינוי במשימה",
   "detect_conflicts": "זיהוי קונפליקטים בין תוכניות",
+  "diagnose_holiday_outcome": "הסבר תוספת חג ואזהרת חג",
   "disable_feature_plugin": "השבתת מודול התכונה",
   "dismiss_skill_relation": "לדחות את קישור המיומנות המוצע",
   "email_schedule_to_client": "לשלוח את לוח המשמרות ללקוח בדוא\"ל",

@@ -812,6 +812,11 @@
     "validasi aturan shift",
     "apakah ada pelanggaran istirahat"
   ],
+  "diagnose_holiday_outcome": [
+    "kenapa tidak ada tunjangan hari libur",
+    "tunjangan hari libur tidak muncul",
+    "kenapa ada peringatan kerja di hari libur"
+  ],
   "diagnose_messaging_setup": [
     "periksa kesiapan layanan pesan",
     "kenapa pesan telegram tidak masuk",

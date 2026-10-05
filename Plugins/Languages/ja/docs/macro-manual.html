@@ -107,8 +107,8 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String（"HH:MM"）</td><td>開始時刻、例："08:30" - <code>TimeToHours()</code>で10進時間に変換可能</td></tr>
   <tr><td>untilhour</td><td>String（"HH:MM"）</td><td>終了時刻、例："17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>曜日 ISO-8601（1=月、2=火、3=水、4=木、5=金、6=土、7=日）</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>当日が公式祝日かどうか</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>翌日が公式祝日かどうか</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>勤務の場合：その日が従業員の契約カレンダーで公式の祝日であり、かつルールに「勤務時の時間割増」が付いている場合にのみ 1。 欠勤の場合：その日が公式の祝日なら 1。</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>holiday と同じですが、翌日が対象です（深夜0時をまたぐ勤務）。</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Contractの夜間割増率（例：0.10 = 10%）</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Contractの祝日割増率（例：0.15 = 15%）</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>設定可能な週末日1（例：土曜日）の割増率</td></tr>

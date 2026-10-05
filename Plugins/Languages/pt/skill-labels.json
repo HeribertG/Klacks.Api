@@ -123,6 +123,7 @@
   "delete_work": "Apagar intervenção",
   "delete_workchange": "Excluir alteração de escala",
   "detect_conflicts": "Identificar conflitos de planeamento",
+  "diagnose_holiday_outcome": "Explicar o adicional e o aviso de feriado",
   "disable_feature_plugin": "Desativar módulo de funcionalidade",
   "dismiss_skill_relation": "Rejeitar relação entre habilidades sugerida",
   "email_schedule_to_client": "Enviar o plano de serviço por e-mail ao cliente",

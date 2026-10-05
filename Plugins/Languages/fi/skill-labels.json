@@ -123,6 +123,7 @@
   "delete_work": "Poista tehtävä",
   "delete_workchange": "Poista käyttötarkoituksen muutos",
   "detect_conflicts": "Plankonfliktien tunnistaminen",
+  "diagnose_holiday_outcome": "Selitä pyhäpäivälisä ja pyhäpäivävaroitus",
   "disable_feature_plugin": "Poista ominaisuusmoduuli käytöstä",
   "dismiss_skill_relation": "Hylkää ehdotettu taitojen yhdistelmä",
   "email_schedule_to_client": "Työvuorolistan lähettäminen asiakkaalle sähköpostitse",

@@ -831,6 +831,11 @@
     "wykryj kolizje zmian",
     "przekroczenia czasu pracy i odpoczynku"
   ],
+  "diagnose_holiday_outcome": [
+    "dlaczego brak dodatku za święto",
+    "brakuje dodatku świątecznego",
+    "dlaczego ostrzeżenie o pracy w święto"
+  ],
   "diagnose_messaging_setup": [
     "sprawdź uruchomienie komunikatora",
     "dlaczego nie przychodzą wiadomości z telegrama",

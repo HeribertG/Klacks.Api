@@ -194,7 +194,13 @@ public class SettingsRepository : ISettingsRepository
 
     public async Task<List<CalendarRule>> GetCalendarRuleList()
     {
-        return await this.context.CalendarRule.AsNoTracking().ToListAsync();
+        return await this.context.CalendarRule
+            .AsNoTracking()
+            .OrderBy(x => x.Country)
+            .ThenBy(x => x.State)
+            .ThenBy(x => x.Rule)
+            .ThenBy(x => x.Id)
+            .ToListAsync();
     }
 
     public async Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter)

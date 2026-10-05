@@ -816,6 +816,11 @@
     "hviletidsbrud i planen",
     "registrer overarbejde og kollisioner"
   ],
+  "diagnose_holiday_outcome": [
+    "hvorfor intet helligdagstillæg",
+    "helligdagstillæg mangler",
+    "hvorfor advarsel om arbejde på helligdag"
+  ],
   "diagnose_messaging_setup": [
     "tjek ibrugtagningen af messengeren",
     "hvorfor kommer der ingen telegram-beskeder",

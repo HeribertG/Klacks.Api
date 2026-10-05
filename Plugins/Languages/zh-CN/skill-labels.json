@@ -123,6 +123,7 @@
   "delete_work": "删除工作任务",
   "delete_workchange": "删除排班变更",
   "detect_conflicts": "检测排班冲突",
+  "diagnose_holiday_outcome": "解释节假日补贴和节假日工作警告",
   "disable_feature_plugin": "停用功能模块",
   "dismiss_skill_relation": "拒绝建议的技能关联",
   "email_schedule_to_client": "将排班表通过邮件发送给客户",

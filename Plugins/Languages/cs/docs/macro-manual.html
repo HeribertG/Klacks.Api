@@ -110,8 +110,8 @@ IMPORT castka, sleva
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Čas začátku, např. "08:30" – lze převést na desetinné hodiny pomocí <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Čas konce, např. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Den v týdnu ISO-8601 (1=Po, 2=Út, 3=St, 4=Čt, 5=Pá, 6=So, 7=Ne)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Zda je aktuální den oficiálním svátkem</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Zda je následující den oficiálním svátkem</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>U práce: 1 jen tehdy, když je den oficiálním svátkem v kalendáři smlouvy zaměstnance A pravidlo je označeno «Časový příplatek za práci». U nepřítomností: 1, když je den oficiálním svátkem.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Jako holiday, ale pro následující den (směny přes půlnoc).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Noční příplatek ze smlouvy (např. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Sváteční příplatek ze smlouvy (např. 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Sazba příplatku pro konfigurovatelný víkendový den 1 (např. sobota)</td></tr>

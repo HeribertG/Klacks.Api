@@ -17,5 +17,15 @@ public class HolidayDate
 
     public bool Officially { get; set; }
 
+    /// <summary>
+    /// Copied from CalendarRule.IsPaid. Only an official AND paid holiday earns the holiday time surcharge.
+    /// </summary>
+    public bool IsPaid { get; set; }
+
+    /// <summary>
+    /// True when working on this holiday earns the holiday time surcharge: only an official AND paid holiday does.
+    /// </summary>
+    public bool EarnsTimeSurcharge => Officially && IsPaid;
+
     public string FormatDate { get; set; } = string.Empty;
 }

@@ -109,8 +109,8 @@ IMPORT importe, descuento
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Hora de inicio, p. ej. "08:30" – convertible a horas decimales con <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Hora de fin, p. ej. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Día de la semana ISO-8601 (1=Lu, 2=Ma, 3=Mi, 4=Ju, 5=Vi, 6=Sá, 7=Do)</td></tr>
-  <tr><td>holiday</td><td>Boolean</td><td>Si el día actual es un día festivo oficial</td></tr>
-  <tr><td>holidaynextday</td><td>Boolean</td><td>Si el día siguiente es un día festivo oficial</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>En trabajos: 1 solo si el día es un festivo oficial en el calendario del contrato del empleado Y la regla está marcada como «Recargo de tiempo por trabajar». En ausencias: 1 si el día es un festivo oficial.</td></tr>
+  <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Igual que holiday, pero para el día siguiente (turnos que cruzan la medianoche).</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Tasa de recargo nocturno del contrato (p. ej., 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Tasa de recargo por festivo del contrato (p. ej., 0.15 = 15%)</td></tr>
   <tr><td>we1rate</td><td>Decimal</td><td>Tasa de recargo para el día de fin de semana configurable 1 (p. ej., sábado)</td></tr>

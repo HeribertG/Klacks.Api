@@ -20,6 +20,6 @@ public static class CompanyRuleParameterValues
     public const string OvertimeBasisDay = "day";
     public const string OvertimeBasisWeek = "week";
 
-    public const string EnforcementWarn = "warn";
-    public const string EnforcementBlock = "block";
+    public const string EnforcementWarn = ComplianceEnforcementModeValues.Warn;
+    public const string EnforcementBlock = ComplianceEnforcementModeValues.Block;
 }
