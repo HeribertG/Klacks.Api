@@ -32,7 +32,10 @@ public interface IAnalyseScenarioService
     /// is <c>null</c> every non-scenario row in the range is cloned; otherwise
     /// the full group hierarchy (group plus descendants) filters what is copied.
     /// <paramref name="additionalShiftIds"/> guarantees that the listed shift IDs
-    /// are cloned even when they have no GroupItem in the resolved group hierarchy.
+    /// are cloned even when they have no GroupItem in the resolved group hierarchy;
+    /// they are added to the group's own shifts, and a listed clone supersedes its
+    /// real root shift. With <paramref name="groupId"/> <c>null</c> the listed IDs
+    /// are the exact set to clone.
     /// Returns the shift ID map (original shift ID → cloned shift ID) so callers
     /// can remap external shift references to the cloned IDs.
     /// </summary>

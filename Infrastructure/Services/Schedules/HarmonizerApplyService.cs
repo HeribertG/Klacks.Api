@@ -174,6 +174,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
 
             var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
+            var shiftIdsToClone = await ResolveShiftIdsToCloneAsync(groupId, sourceAnalyseToken, bitmapShiftIds, ct);
 
             _logger.LogInformation(
                 "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
@@ -202,7 +203,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 };
 
                 await _scenarioRepository.Add(analyseScenario);
-                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
+                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, shiftIdsToClone, ct);
                 await _unitOfWork.CompleteAsync();
 
                 // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
@@ -396,6 +397,35 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             ids.Add(work.ShiftId);
         }
         return ids;
+    }
+
+    /// <summary>
+    /// Shifts the new scenario must carry. A group-scoped clone adds the group's own shifts to the listed ones; without a
+    /// group the listed ids are the exact set, so a scenario source contributes all of its shifts (a shift without a work
+    /// is not in the bitmap) and a real source lists nothing, which clones every real shift.
+    /// </summary>
+    private async Task<IReadOnlyCollection<Guid>> ResolveShiftIdsToCloneAsync(
+        Guid? groupId,
+        Guid? sourceAnalyseToken,
+        IReadOnlyCollection<Guid> bitmapShiftIds,
+        CancellationToken ct)
+    {
+        if (groupId.HasValue)
+        {
+            return bitmapShiftIds;
+        }
+
+        if (sourceAnalyseToken is not Guid sourceToken)
+        {
+            return [];
+        }
+
+        var sourceShiftIds = await _context.Shift.IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(s => s.AnalyseToken == sourceToken && !s.IsDeleted)
+            .Select(s => s.Id)
+            .ToListAsync(ct);
+        return sourceShiftIds.Concat(bitmapShiftIds).Distinct().ToList();
     }
 
     private async Task<Dictionary<Guid, Work>> LoadWorksAsync(IReadOnlyList<Guid> ids, CancellationToken ct)
