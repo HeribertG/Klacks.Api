@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
@@ -27,6 +28,7 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="PlanningRuleRemaining">Hard planning-rule findings of the source plan and of the final scenario; null
 /// when no planning rule applies. Wizard 1 does not honour planning rules yet, so the chain can add violations; the
 /// UI therefore only reports both counts and says so explicitly when the count rose.</param>
+/// <param name="Summary">Live summary of the final scenario (coverage per shift, open slots and why); null when it could not be built.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
@@ -39,4 +41,5 @@ public sealed record AutoWizardJobResultDto(
     bool HarmonizationSkipped = false,
     string? HarmonizationSkippedReason = null,
     IReadOnlyList<ScheduleValidationNotificationDto>? PlanningRuleWarnings = null,
-    PlanningRuleRemainingDto? PlanningRuleRemaining = null);
+    PlanningRuleRemainingDto? PlanningRuleRemaining = null,
+    ScenarioSummaryDto? Summary = null);

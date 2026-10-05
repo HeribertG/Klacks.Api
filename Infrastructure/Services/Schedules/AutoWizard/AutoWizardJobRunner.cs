@@ -8,6 +8,7 @@ using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
+using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Interfaces;
@@ -164,6 +165,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             var qualificationGaps = await BuildQualificationGapsAsync(request, finalScenario.Token, ct);
             var skippedRuleWarnings = await LoadSkippedPlanningRuleWarningsAsync(request, finalScenario.Token, ct);
             var planningRuleRemaining = await CountPlanningRuleHardFindingsAsync(jobId, request, finalScenario.Token, ct);
+            var summary = await BuildSummaryAsync(jobId, finalScenario.Token, ct);
 
             stopwatch.Stop();
 
@@ -179,7 +181,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 HarmonizationSkipped: holisticStage.SkippedReason is not null,
                 HarmonizationSkippedReason: holisticStage.SkippedReason,
                 PlanningRuleWarnings: skippedRuleWarnings,
-                PlanningRuleRemaining: planningRuleRemaining);
+                PlanningRuleRemaining: planningRuleRemaining,
+                Summary: summary);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
@@ -577,6 +580,29 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 ContextDaysAfter: request.ContextDaysAfter),
             ct);
         return BitmapRuleRuntime.TryCreate(input)?.Evaluate(BitmapBuilder.Build(input)).HardCount;
+    }
+
+    /// <summary>
+    /// Live summary of the final scenario for the completion payload. A failure here only drops the summary, never the finished chain.
+    /// </summary>
+    private async Task<ScenarioSummaryDto?> BuildSummaryAsync(Guid jobId, Guid? finalScenarioToken, CancellationToken ct)
+    {
+        if (finalScenarioToken is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var builder = scope.ServiceProvider.GetRequiredService<IScenarioSummaryBuilder>();
+            return await builder.BuildAsync(finalScenarioToken.Value, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "AutoWizard {JobId} - building the scenario summary failed", jobId);
+            return null;
+        }
     }
 
     private async Task<IReadOnlyList<QualificationGapDetail>> BuildQualificationGapsAsync(

@@ -403,6 +403,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.WizardWarmStartBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardShiftBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IScenarioSummaryBuilder,
+                           Klacks.Api.Infrastructure.Services.Schedules.ScenarioSummaryBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEligibilityMatrixBuilder,
                            Klacks.Api.Application.Services.Schedules.EligibilityMatrixBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupingFeasibilityDataSource,
