@@ -9,4 +9,13 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="ShiftId">The shift that remains uncovered (original shift id)</param>
 /// <param name="Date">Workday</param>
 /// <param name="Reason">Why it could not be covered</param>
-public sealed record UncoveredSlot(Guid ShiftId, DateOnly Date, string Reason);
+/// <param name="WorkId">The scenario clone of the open work; null when the work was not cloned</param>
+/// <param name="StartTime">Slot start, so the UI can ask Recovery/Candidates for alternatives without re-reading the grid</param>
+/// <param name="EndTime">Slot end</param>
+public sealed record UncoveredSlot(
+    Guid ShiftId,
+    DateOnly Date,
+    string Reason,
+    Guid? WorkId = null,
+    TimeOnly? StartTime = null,
+    TimeOnly? EndTime = null);

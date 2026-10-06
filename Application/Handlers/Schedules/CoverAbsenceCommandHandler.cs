@@ -22,7 +22,7 @@
 /// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
 /// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
-/// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision</param>
+/// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision (skipped when the command says the planner is handling it interactively)</param>
 /// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
 /// <param name="clientVisibilityGuard">Decides for which employees the calling user may write</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
@@ -157,7 +157,10 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
 
         var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
-        await StartEscalationChainsAsync(clientId, groupId, snapshot, absenceDays, cancellationToken);
+        if (request.NotifyEscalationRoster)
+        {
+            await StartEscalationChainsAsync(clientId, groupId, snapshot, absenceDays, cancellationToken);
+        }
 
         var (visibleDeltas, hiddenOptions) = await SplitByAgentVisibilityAsync(
             proposal.Deltas, clientId, cancellationToken);
@@ -171,8 +174,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
         await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
-        var covered = BuildCovered(materializable, clientId, snapshot);
-        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId);
+        var covered = BuildCovered(materializable, clientId, snapshot, workIdMap);
+        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap);
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
         var highestTier = materializable.Count > 0 ? materializable.Max(d => (int)d.Tier) : 0;
@@ -385,7 +388,10 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     private static IReadOnlyList<CoveredSlot> BuildCovered(
-        IReadOnlyList<Rec.CellDelta> deltas, Guid absentClientId, Rec.RecoverySnapshot snapshot)
+        IReadOnlyList<Rec.CellDelta> deltas,
+        Guid absentClientId,
+        Rec.RecoverySnapshot snapshot,
+        IReadOnlyDictionary<Guid, Guid> workIdMap)
     {
         var covered = new List<CoveredSlot>();
         foreach (var delta in deltas)
@@ -395,7 +401,15 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 continue;
             }
             var name = snapshot.FindAgent(delta.ToAgentId)?.DisplayName ?? string.Empty;
-            covered.Add(new CoveredSlot(delta.ShiftId ?? Guid.Empty, delta.Date, delta.ToAgentId, name, (int)delta.Tier));
+            covered.Add(new CoveredSlot(
+                delta.ShiftId ?? Guid.Empty,
+                delta.Date,
+                delta.ToAgentId,
+                name,
+                (int)delta.Tier,
+                ClonedWorkIdOf(delta.SourceWorkIds, workIdMap),
+                TimeOnly.FromDateTime(delta.StartAt),
+                TimeOnly.FromDateTime(delta.EndAt)));
         }
         return covered;
     }
@@ -404,7 +418,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         Rec.RecoveryProposal proposal,
         IReadOnlyList<IReadOnlyList<Rec.CellDelta>> blockedOptions,
         IReadOnlyList<IReadOnlyList<Rec.CellDelta>> hiddenOptions,
-        Guid absentClientId)
+        Guid absentClientId,
+        Rec.RecoverySnapshot snapshot,
+        IReadOnlyDictionary<Guid, Guid> workIdMap)
     {
         var uncovered = new List<UncoveredSlot>();
         foreach (var slot in proposal.Uncovered)
@@ -415,22 +431,51 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 Rec.RecoveryReasons.NonCritical => NonCriticalReason,
                 _ => NoCandidateReason
             };
-            uncovered.Add(new UncoveredSlot(slot.ShiftId ?? Guid.Empty, slot.Date, reason));
+            // The engine's uncovered marker carries no times; the absent agent's own work in the snapshot does.
+            var work = FindAbsentWork(snapshot, absentClientId, slot.ShiftId, slot.Date);
+            uncovered.Add(new UncoveredSlot(
+                slot.ShiftId ?? Guid.Empty,
+                slot.Date,
+                reason,
+                ClonedWorkIdOf(slot.SourceWorkIds, workIdMap),
+                work is null ? null : TimeOnly.FromDateTime(work.StartAt),
+                work is null ? null : TimeOnly.FromDateTime(work.EndAt)));
         }
         foreach (var option in blockedOptions)
         {
             // Report the slot that actually stayed uncovered - the cover hop - not the foreign shift the
             // relocation half would have touched.
             var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
-            uncovered.Add(new UncoveredSlot(cover.ShiftId ?? Guid.Empty, cover.Date, BlockedReason));
+            uncovered.Add(UncoveredFromDelta(cover, BlockedReason, workIdMap));
         }
         foreach (var option in hiddenOptions)
         {
             var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
-            uncovered.Add(new UncoveredSlot(cover.ShiftId ?? Guid.Empty, cover.Date, NoCandidateReason));
+            uncovered.Add(UncoveredFromDelta(cover, NoCandidateReason, workIdMap));
         }
         return uncovered;
     }
+
+    private static UncoveredSlot UncoveredFromDelta(
+        Rec.CellDelta cover, string reason, IReadOnlyDictionary<Guid, Guid> workIdMap)
+        => new(
+            cover.ShiftId ?? Guid.Empty,
+            cover.Date,
+            reason,
+            ClonedWorkIdOf(cover.SourceWorkIds, workIdMap),
+            TimeOnly.FromDateTime(cover.StartAt),
+            TimeOnly.FromDateTime(cover.EndAt));
+
+    private static Rec.RecoveryWork? FindAbsentWork(
+        Rec.RecoverySnapshot snapshot, Guid absentClientId, Guid? shiftId, DateOnly date)
+        => snapshot.GetWorks(absentClientId, date).FirstOrDefault(w => w.IsWorking && w.ShiftId == shiftId);
+
+    /// <summary>
+    /// The scenario clone of the first underlying work - where the proposal, or the open slot, lives for the
+    /// planner. Null when the work was not cloned (e.g. a sealed cross-group work).
+    /// </summary>
+    private static Guid? ClonedWorkIdOf(IReadOnlyList<Guid> sourceWorkIds, IReadOnlyDictionary<Guid, Guid> workIdMap)
+        => sourceWorkIds.Count > 0 && workIdMap.TryGetValue(sourceWorkIds[0], out var clonedId) ? clonedId : null;
 
     private async Task<IReadOnlyList<(DateOnly Date, Guid? WorkId, DateTime? ShiftStartUtc, Guid? BreakId)>> RecordAbsencesAsync(
         Guid clientId,

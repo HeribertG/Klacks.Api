@@ -13,9 +13,15 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="Tier">Escalation tier this cover needed, as an int so the DTO stays engine-free:
 /// 0 in-group free, 1 in-group swap, 2 cross-group free, 3 cross-group swap. Lets the UI show how far
 /// the engine had to reach instead of presenting every cover as equally cheap.</param>
+/// <param name="WorkId">The scenario clone of the covered work, where the Replacement WorkChange lives; null when the work was not cloned</param>
+/// <param name="StartTime">Slot start, so the UI can ask Recovery/Candidates for alternatives without re-reading the grid</param>
+/// <param name="EndTime">Slot end</param>
 public sealed record CoveredSlot(
     Guid ShiftId,
     DateOnly Date,
     Guid ReplacementClientId,
     string ReplacementName,
-    int Tier = 0);
+    int Tier = 0,
+    Guid? WorkId = null,
+    TimeOnly? StartTime = null,
+    TimeOnly? EndTime = null);

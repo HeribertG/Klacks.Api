@@ -22,6 +22,12 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// collision or a missing mandatory qualification) is materialised anyway and logged as an override.
 /// </param>
 /// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language</param>
+/// <param name="NotifyEscalationRoster">
+/// Whether to start the planner call list (escalation chain) for every affected day. True for unattended
+/// callers (skill / MCP / messenger report), where the chain's job is to find a human; false when a planner
+/// triggers the flow interactively, because that planner has already taken charge and waking the roster
+/// would only produce noise.
+/// </param>
 public record CoverAbsenceCommand(
     Guid ClientId,
     DateOnly Date,
@@ -29,4 +35,5 @@ public record CoverAbsenceCommand(
     Guid AbsenceId,
     DateOnly? UntilDate = null,
     bool OverrideBlock = false,
-    string? Language = null) : IRequest<CoverAbsenceOutcome>;
+    string? Language = null,
+    bool NotifyEscalationRoster = true) : IRequest<CoverAbsenceOutcome>;

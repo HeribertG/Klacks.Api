@@ -14,6 +14,7 @@
 /// <param name="absenceId">Required. UUID of the Absence type (sick/vacation/...).</param>
 /// <param name="untilDate">Optional. Last day of a multi-day absence in ISO yyyy-MM-dd; omit for one day.</param>
 /// <param name="overrideBlock">Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false.</param>
+/// <param name="notifyEscalationRoster">Optional. Start the planner call list for the affected days; default true (unattended callers need a human).</param>
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Domain.Attributes;
@@ -45,9 +46,12 @@ public class CoverAbsenceSkill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'date' is missing");
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
+        var notifyEscalationRoster = GetParameter<bool?>(parameters, "notifyEscalationRoster") ?? true;
 
         var outcome = await _mediator.Send(
-            new CoverAbsenceCommand(clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage), cancellationToken);
+            new CoverAbsenceCommand(
+                clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage, notifyEscalationRoster),
+            cancellationToken);
 
         var data = new
         {
