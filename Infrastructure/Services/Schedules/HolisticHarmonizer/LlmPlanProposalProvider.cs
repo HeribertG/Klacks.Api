@@ -8,10 +8,8 @@
 /// we expect.
 /// </summary>
 
-using System.Text.Json;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.ScheduleOptimizer.HolisticHarmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.Extensions.Logging;
@@ -22,23 +20,20 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
 {
     private const double ProposalTemperature = 0.2;
     private const int ProposalMaxTokens = 6000;
-    private const int ResponsePreviewLength = 120;
     private static readonly TimeSpan ProposalTimeout = TimeSpan.FromSeconds(60);
 
     private static readonly TimeSpan PingTimeout = TimeSpan.FromSeconds(30);
-    private static readonly TimeSpan CapabilityTimeout = TimeSpan.FromSeconds(90);
-
-    private static readonly char[] CapabilityTokenAlphabet =
-        { 'E', 'F', 'H', 'K', 'L', 'N', 'P', 'T', 'X', 'Z' };
-    private const int CapabilityTokenLength = 3;
+    private static readonly TimeSpan PingTransientRetryDelay = TimeSpan.FromSeconds(2);
 
     private readonly LLMProviderOrchestrator _orchestrator;
     private readonly ILogger<LlmPlanProposalProvider> _logger;
+    private readonly VisionCapabilityProbe _visionProbe;
 
     public LlmPlanProposalProvider(LLMProviderOrchestrator orchestrator, ILogger<LlmPlanProposalProvider> logger)
     {
         _orchestrator = orchestrator;
         _logger = logger;
+        _visionProbe = new VisionCapabilityProbe(logger);
     }
 
     public async Task<PlanProposalPingResult> PingAsync(string modelId, CancellationToken cancellationToken)
@@ -88,9 +83,6 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         return new PlanProposalPingResult(verdict.IsHealthy, stopwatch.ElapsedMilliseconds, verdict.Error);
     }
 
-    private static readonly TimeSpan TransientRetryDelay = TimeSpan.FromSeconds(2);
-    private static readonly string[] TransientErrorMarkers = { "overloaded", "rate limit", "rate_limit", "429", "503", "529" };
-
     /// <summary>
     /// Sends the pre-flight ping and retries once with a short backoff if the provider returns
     /// a transient capacity error (Anthropic 529 Overloaded, generic 503/429, rate-limit text).
@@ -108,187 +100,30 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             pingCts.CancelAfter(PingTimeout);
 
             var response = await provider.ProcessAsync(pingRequest, pingCts.Token);
-            if (response.Success || attempt == 2 || !LooksTransient(response.Error))
+            if (response.Success || attempt == 2 || !TransientProviderErrorDetector.IsTransient(response.Error))
             {
                 return response;
             }
 
             _logger.LogInformation(
                 "Holistic Harmonizer ping transient failure for {ModelId} (attempt {Attempt}): {Error}; retrying after {Delay}s",
-                modelId, attempt, response.Error, TransientRetryDelay.TotalSeconds);
-            await Task.Delay(TransientRetryDelay, cancellationToken);
+                modelId, attempt, response.Error, PingTransientRetryDelay.TotalSeconds);
+            await Task.Delay(PingTransientRetryDelay, cancellationToken);
         }
 
         // Unreachable: loop returns on success or attempt==2.
         return new LLMProviderResponse { Success = false, Error = "Holistic Harmonizer ping retry loop exited unexpectedly." };
     }
 
-    private static bool LooksTransient(string? error)
-    {
-        if (string.IsNullOrWhiteSpace(error))
-        {
-            return false;
-        }
-        var lowered = error.ToLowerInvariant();
-        for (var i = 0; i < TransientErrorMarkers.Length; i++)
-        {
-            if (lowered.Contains(TransientErrorMarkers[i], StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public async Task<PlanProposalPingResult> CapabilityCheckAsync(string modelId, CancellationToken cancellationToken)
     {
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
         var (model, provider, error) = await _orchestrator.GetModelAndProviderAsync(modelId);
         if (error is not null || model is null || provider is null)
         {
-            stopwatch.Stop();
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, error ?? "LLM provider unavailable.");
+            return new PlanProposalPingResult(false, 0, error ?? "LLM provider unavailable.");
         }
 
-        var expectedToken = GenerateCapabilityToken();
-        byte[] capabilityPng;
-        try
-        {
-            capabilityPng = VisionCapabilityPngRenderer.Render(expectedToken);
-        }
-        catch (Exception ex)
-        {
-            stopwatch.Stop();
-            _logger.LogError(ex, "Holistic Harmonizer vision capability PNG generation failed for model {ModelId}", modelId);
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability PNG generation failed: {ex.Message}");
-        }
-
-        var capabilityRequest = HolisticHarmonizerProbeRequests.Capability(model, capabilityPng);
-
-        using var capabilityCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        capabilityCts.CancelAfter(CapabilityTimeout);
-
-        LLMProviderResponse response;
-        try
-        {
-            response = await provider.ProcessAsync(capabilityRequest, capabilityCts.Token);
-            stopwatch.Stop();
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            stopwatch.Stop();
-            throw;
-        }
-        catch (OperationCanceledException)
-        {
-            stopwatch.Stop();
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability check timed out after {CapabilityTimeout.TotalSeconds:F0}s.");
-        }
-        catch (Exception ex)
-        {
-            stopwatch.Stop();
-            _logger.LogWarning(ex, "Holistic Harmonizer capability check threw for model {ModelId}", modelId);
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, $"Capability check failed: {ex.Message}");
-        }
-
-        if (!response.Success)
-        {
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, response.Error ?? "Provider rejected the request.");
-        }
-
-        var content = response.Content ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, "Model returned empty content (likely consumed token budget on internal reasoning).");
-        }
-
-        var capabilityError = ValidateVisionResponse(content, expectedToken);
-        if (capabilityError is not null)
-        {
-            return new PlanProposalPingResult(false, stopwatch.ElapsedMilliseconds, capabilityError, AnsweredButFailedImageCheck: true);
-        }
-
-        return new PlanProposalPingResult(true, stopwatch.ElapsedMilliseconds, null);
-    }
-
-    private static string GenerateCapabilityToken()
-    {
-        Span<char> buffer = stackalloc char[CapabilityTokenLength];
-        Span<int> chosen = stackalloc int[CapabilityTokenLength];
-        for (var i = 0; i < CapabilityTokenLength; i++)
-        {
-            int index;
-            var unique = false;
-            while (!unique)
-            {
-                index = Random.Shared.Next(CapabilityTokenAlphabet.Length);
-                unique = true;
-                for (var j = 0; j < i; j++)
-                {
-                    if (chosen[j] == index)
-                    {
-                        unique = false;
-                        break;
-                    }
-                }
-                if (unique)
-                {
-                    chosen[i] = index;
-                    buffer[i] = CapabilityTokenAlphabet[index];
-                }
-            }
-        }
-        return new string(buffer);
-    }
-
-    private static string? ValidateVisionResponse(string content, string expectedToken)
-    {
-        var json = HarmonyJsonParser.ExtractJsonObject(content);
-        if (json is null)
-        {
-            var preview = content.Length > ResponsePreviewLength ? content[..ResponsePreviewLength] + "..." : content;
-            return $"No JSON object found in response. Preview: {preview}";
-        }
-
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (!doc.RootElement.TryGetProperty("token", out var tokenEl) || tokenEl.ValueKind != JsonValueKind.String)
-            {
-                return "JSON missing string 'token' field — model likely cannot process attached bitmaps.";
-            }
-            var actualToken = tokenEl.GetString();
-            if (string.IsNullOrWhiteSpace(actualToken))
-            {
-                return "Model returned empty 'token' — bitmap processing not supported.";
-            }
-            var normalised = NormaliseToken(actualToken);
-            if (!string.Equals(normalised, expectedToken, StringComparison.Ordinal))
-            {
-                return $"Model read token '{actualToken}' but the image showed '{expectedToken}'. Model does not reliably process bitmaps required by Wizard 3.";
-            }
-            return null;
-        }
-        catch (JsonException ex)
-        {
-            return $"JSON parse failed: {ex.Message}";
-        }
-    }
-
-    private static string NormaliseToken(string raw)
-    {
-        Span<char> buffer = stackalloc char[raw.Length];
-        var length = 0;
-        for (var i = 0; i < raw.Length; i++)
-        {
-            var c = raw[i];
-            if (char.IsLetterOrDigit(c))
-            {
-                buffer[length++] = char.ToUpperInvariant(c);
-            }
-        }
-        return new string(buffer[..length]);
+        return await _visionProbe.RunAsync(model, provider, cancellationToken);
     }
 
     public async Task<PlanProposalResponse> ProposeAsync(PlanProposalRequest request, CancellationToken cancellationToken)
