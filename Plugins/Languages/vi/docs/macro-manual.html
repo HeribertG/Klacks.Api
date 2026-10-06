@@ -9,7 +9,7 @@ cho dịch vụ, hoạt động lao động, v.v.
 <p><strong>Ví dụ sử dụng:</strong></p>
 <ul>
   <li>Tính toán chính xác số giờ cho kỳ nghỉ hoặc nghĩa vụ quân sự theo mức độ làm việc</li>
-  <li>Tính toán phụ cấp cho làm việc ban đêm, cuối tuần và ngày lễ</li>
+  <li>Tính toán giờ phụ trội cho làm việc ban đêm, cuối tuần và ngày lễ</li>
   <li>Tùy chỉnh linh hoạt theo các yêu cầu mới</li>
 </ul>
 
@@ -33,7 +33,7 @@ toán của nó, mà chỉ điều khiển cách Klacks tự động tìm và g�
 <table>
   <tr><th>Danh mục</th><th>Sử dụng</th></tr>
   <tr><td>Chưa được gán</td><td>Không có phạm vi ứng dụng cụ thể (mặc định cho macro mới)</td></tr>
-  <tr><td>Ca làm việc</td><td>Tính phụ cấp cho các ca làm việc thông thường (phụ cấp đêm, cuối tuần, ngày lễ)</td></tr>
+  <tr><td>Ca làm việc</td><td>Tính giờ phụ trội cho các ca làm việc thông thường (giờ phụ trội ban đêm, cuối tuần, ngày lễ)</td></tr>
   <tr><td>Kỳ nghỉ</td><td>Tính số giờ cho kỳ nghỉ</td></tr>
   <tr><td>Ốm đau</td><td>Tính số giờ cho trường hợp ốm đau</td></tr>
   <tr><td>Tai nạn</td><td>Tính số giờ cho trường hợp tai nạn</td></tr>
@@ -52,19 +52,19 @@ sẽ không bao giờ bị thay đổi sau đó.
   <tr><th>Chức năng</th><th>Ý nghĩa</th></tr>
   <tr><td>Tùy chỉnh</td><td>Macro tự do không có vai trò đặc biệt. Có thể có bao nhiêu tùy ý trong một danh mục.</td></tr>
   <tr><td>Mặc định</td><td>Macro mặc định của danh mục này – được tự động gán cho các ca làm việc mới. Tối đa MỘT macro trong mỗi danh mục được mang chức năng này.</td></tr>
-  <tr><td>Mặc định (cộng dồn)</td><td>Macro mặc định thay thế với logic phụ cấp cộng dồn (xem bên dưới). Cũng tối đa một macro trong mỗi danh mục, có thể tồn tại song song với macro "Mặc định".</td></tr>
+  <tr><td>Mặc định (cộng dồn)</td><td>Macro mặc định thay thế với logic giờ phụ trội cộng dồn (xem bên dưới). Cũng tối đa một macro trong mỗi danh mục, có thể tồn tại song song với macro "Mặc định".</td></tr>
 </table>
 
 <p>
 <strong>Quan trọng:</strong> Bản thân Chức năng không tính toán gì cả – nó chỉ là một nhãn. Việc
-phụ cấp được tính theo kiểu "highest-wins" (chỉ mức cao nhất áp dụng được tính) hay cộng dồn
+giờ phụ trội được tính theo kiểu "highest-wins" (chỉ mức cao nhất áp dụng được tính) hay cộng dồn
 (tất cả các mức áp dụng được cộng lại) là do <em>chính script</em> quyết định. Hai macro danh mục
 "Ca làm việc" đi kèm cho thấy sự khác biệt này trên cùng một cấu trúc cơ bản:
 </p>
 <ul>
-  <li><strong>"AllShift"</strong> (Chức năng: Mặc định) – xác định mức phụ cấp <em>cao nhất</em>
+  <li><strong>"AllShift"</strong> (Chức năng: Mặc định) – xác định mức giờ phụ trội <em>cao nhất</em>
   áp dụng được cho mỗi phân đoạn thời gian (Đêm/WE1/WE2/WE3/Ngày lễ) và chỉ sử dụng mức đó.</li>
-  <li><strong>"AllShiftAdditive"</strong> (Chức năng: Mặc định (cộng dồn)) – tính phụ cấp đêm,
+  <li><strong>"AllShiftAdditive"</strong> (Chức năng: Mặc định (cộng dồn)) – tính giờ phụ trội ban đêm,
   cuối tuần và ngày lễ độc lập với nhau rồi cộng lại.</li>
 </ul>
 <p>
@@ -86,7 +86,7 @@ nhật: chừng nào bạn giữ chúng không thay đổi, Klacks sẽ tự đ�
 phù hợp cho quốc gia hoặc ngành nghề của bạn. Nếu bạn chỉnh sửa thủ công một trong hai, từ thời
 điểm đó nó được coi là tùy chỉnh riêng của khách hàng – các cập nhật quốc gia/ngành nghề tự động
 trong tương lai cho macro này sẽ <em>không còn</em> được áp dụng âm thầm nữa, mà sẽ báo xung đột
-cho đến khi bạn tự giải quyết sự khác biệt đó. Nếu bạn cần logic phụ cấp riêng, hãy tạo một macro
+cho đến khi bạn tự giải quyết sự khác biệt đó. Nếu bạn cần logic giờ phụ trội riêng, hãy tạo một macro
 mới với chức năng "Tùy chỉnh" thay vào đó và gán nó riêng cho các ca làm việc liên quan.
 </p>
 
@@ -110,13 +110,13 @@ IMPORT importe, descuento
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Giờ bắt đầu, ví dụ "08:30" – có thể chuyển sang giờ thập phân bằng <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Giờ kết thúc, ví dụ "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Thứ trong tuần ISO-8601 (1=Thứ Hai, 2=Thứ Ba, 3=Thứ Tư, 4=Thứ Năm, 5=Thứ Sáu, 6=Thứ Bảy, 7=Chủ Nhật)</td></tr>
-  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Với ca làm việc: chỉ là 1 khi ngày đó là ngày lễ chính thức trong lịch hợp đồng của nhân viên VÀ quy tắc được đánh dấu «Phụ cấp thời gian khi làm việc». Với vắng mặt: 1 khi ngày đó là ngày lễ chính thức.</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Với ca làm việc: chỉ là 1 khi ngày đó là ngày lễ chính thức trong lịch hợp đồng của nhân viên VÀ quy tắc được đánh dấu «Tín dụng thời gian khi làm việc». Với vắng mặt: 1 khi ngày đó là ngày lễ chính thức.</td></tr>
   <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Giống holiday, nhưng cho ngày hôm sau (ca làm qua nửa đêm).</td></tr>
-  <tr><td>nightrate</td><td>Decimal</td><td>Tỷ lệ phụ cấp ban đêm của hợp đồng (ví dụ: 0.10 = 10%)</td></tr>
-  <tr><td>holidayrate</td><td>Decimal</td><td>Tỷ lệ phụ cấp ngày lễ của hợp đồng (ví dụ: 0.15 = 15%)</td></tr>
-  <tr><td>we1rate</td><td>Decimal</td><td>Tỷ lệ phụ cấp cho ngày cuối tuần có thể cấu hình 1 (ví dụ: Thứ Bảy)</td></tr>
-  <tr><td>we2rate</td><td>Decimal</td><td>Tỷ lệ phụ cấp cho ngày cuối tuần có thể cấu hình 2 (ví dụ: Chủ Nhật)</td></tr>
-  <tr><td>we3rate</td><td>Decimal</td><td>Tỷ lệ phụ cấp cho ngày cuối tuần có thể cấu hình 3</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Tỷ lệ giờ phụ trội ban đêm của hợp đồng (ví dụ: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Tỷ lệ giờ phụ trội ngày lễ của hợp đồng (ví dụ: 0.15 = 15%)</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Tỷ lệ giờ phụ trội cho ngày cuối tuần có thể cấu hình 1 (ví dụ: Thứ Bảy)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Tỷ lệ giờ phụ trội cho ngày cuối tuần có thể cấu hình 2 (ví dụ: Chủ Nhật)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Tỷ lệ giờ phụ trội cho ngày cuối tuần có thể cấu hình 3</td></tr>
   <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Thời điểm bắt đầu khung giờ đêm theo Contract/Settings, ví dụ "23:00"</td></tr>
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>Thời điểm kết thúc khung giờ đêm, ví dụ "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Số giờ hàng tháng được đảm bảo theo hợp đồng</td></tr>
@@ -333,16 +333,16 @@ bao nhiêu dòng <code>OUTPUT</code> tùy ý – mỗi dòng tạo ra một giá
 <table>
   <tr><th>Loại</th><th>Ý nghĩa</th></tr>
   <tr><td>1</td><td>Kết quả chính (số giờ hoặc tổng số tiền) – được ghi nhận ngay cả khi giá trị bằng 0</td></tr>
-  <tr><td>10</td><td>Phụ cấp ban đêm</td></tr>
-  <tr><td>11</td><td>Phụ cấp cho ngày cuối tuần 1 (ví dụ: Thứ Bảy)</td></tr>
-  <tr><td>12</td><td>Phụ cấp cho ngày cuối tuần 2 (ví dụ: Chủ Nhật)</td></tr>
-  <tr><td>13</td><td>Phụ cấp cho ngày cuối tuần 3 (ngày cuối tuần thứ ba có thể cấu hình)</td></tr>
-  <tr><td>14</td><td>Phụ cấp ngày lễ</td></tr>
+  <tr><td>10</td><td>Giờ phụ trội ban đêm</td></tr>
+  <tr><td>11</td><td>Giờ phụ trội cho ngày cuối tuần 1 (ví dụ: Thứ Bảy)</td></tr>
+  <tr><td>12</td><td>Giờ phụ trội cho ngày cuối tuần 2 (ví dụ: Chủ Nhật)</td></tr>
+  <tr><td>13</td><td>Giờ phụ trội cho ngày cuối tuần 3 (ngày cuối tuần thứ ba có thể cấu hình)</td></tr>
+  <tr><td>14</td><td>Giờ phụ trội ngày lễ</td></tr>
 </table>
 
 <p>
-Các dòng phụ cấp (loại 10-14) có giá trị <code>0</code> sẽ bị bỏ qua – vì vậy một macro không cần
-xuất ra một dòng riêng cho mỗi loại phụ cấp, mà chỉ cho các phụ cấp thực sự phát sinh. Các giá trị
+Các dòng giờ phụ trội (loại 10-14) có giá trị <code>0</code> sẽ bị bỏ qua – vì vậy một macro không cần
+xuất ra một dòng riêng cho mỗi loại giờ phụ trội, mà chỉ cho các giờ phụ trội thực sự phát sinh. Các giá trị
 không thể diễn giải thành số sẽ bị bỏ qua.
 </p>
 
@@ -376,9 +376,9 @@ DEBUGPRINT "Đang tính toán..."
 
 <hr>
 
-<h3>Ví dụ: Tính toán phụ cấp ("AllShift")</h3>
+<h3>Ví dụ: Tính toán giờ phụ trội ("AllShift")</h3>
 <p>
-Macro mặc định đi kèm của danh mục "Ca làm việc". Tính phụ cấp cho ban đêm, ngày lễ và ba ngày
+Macro mặc định đi kèm của danh mục "Ca làm việc". Tính giờ phụ trội cho ban đêm, ngày lễ và ba ngày
 cuối tuần có thể cấu hình với việc xử lý chính xác các ca vượt qua nửa đêm (chia thành phân
 đoạn) và áp dụng mức <em>cao nhất</em> có thể áp dụng cho mỗi phân đoạn (highest-wins).
 </p>
@@ -487,11 +487,11 @@ OUTPUT 14, BonusHoliday
 <h4>Giải thích</h4>
 <ul>
   <li><strong>Chia thành phân đoạn:</strong> Đối với các ca vượt qua nửa đêm (ví dụ: 22:00-06:00), ca được chia thành hai phân đoạn (đến nửa đêm / từ nửa đêm), mỗi phân đoạn có cờ thứ trong tuần/ngày lễ riêng</li>
-  <li><strong>SegBonusForType:</strong> Tính phụ cấp cho một phân đoạn và một loại phụ cấp cụ thể (10-14) có tính đến phụ cấp ban đêm, ngày lễ và cuối tuần</li>
+  <li><strong>SegBonusForType:</strong> Tính giờ phụ trội cho một phân đoạn và một loại giờ phụ trội cụ thể (10-14) có tính đến giờ phụ trội ban đêm, ngày lễ và cuối tuần</li>
   <li><strong>WE1/WE2/WE3 thay vì Thứ Bảy/Chủ Nhật:</strong> <code>weekendday1-3</code> giúp các ngày cuối tuần có thể cấu hình được (không phải quốc gia nào cũng có Thứ Bảy/Chủ Nhật là cuối tuần)</li>
-  <li><strong>Phụ cấp cao nhất cho mỗi phân đoạn:</strong> <code>NRate</code>/<code>DRate</code> lần lượt xác định mức áp dụng cao nhất cho giờ đêm và giờ ngày – highest-wins, không cộng dồn</li>
+  <li><strong>Giờ phụ trội cao nhất cho mỗi phân đoạn:</strong> <code>NRate</code>/<code>DRate</code> lần lượt xác định mức áp dụng cao nhất cho giờ đêm và giờ ngày – highest-wins, không cộng dồn</li>
   <li><strong>HolidayNextDay:</strong> Tính đến việc ngày hôm sau có phải là ngày lễ hay không (quan trọng đối với các ca đêm vượt qua nửa đêm)</li>
-  <li><strong>Nhiều dòng OUTPUT:</strong> Dòng 1 cho tổng số tiền, các dòng 10-14 cho các khoản phụ cấp riêng lẻ (xem phần "Trả về giá trị")</li>
+  <li><strong>Nhiều dòng OUTPUT:</strong> Dòng 1 cho tổng số giờ phụ trội, các dòng 10-14 cho các khoản giờ phụ trội riêng lẻ (xem phần "Trả về giá trị")</li>
 </ul>
 
 <h4>Phiên bản cộng dồn ("AllShiftAdditive")</h4>
@@ -540,7 +540,7 @@ ENDFUNCTION
 
 <p>
 Ví dụ, nếu một ca đêm rơi thêm vào ngày lễ, với "AllShift" nó chỉ nhận mức cao hơn trong hai
-mức, còn với "AllShiftAdditive" nó nhận cả phụ cấp đêm <em>và</em> phụ cấp ngày lễ cộng lại.
+mức, còn với "AllShiftAdditive" nó nhận cả giờ phụ trội ban đêm <em>và</em> giờ phụ trội ngày lễ cộng lại.
 Phần còn lại của script (chia thành phân đoạn, tính tổng, các dòng <code>OUTPUT</code>) giống
 hệt với "AllShift" ở trên.
 </p>

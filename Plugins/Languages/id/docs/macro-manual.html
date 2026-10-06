@@ -33,7 +33,7 @@ mengatur bagaimana Klacks menemukan dan menetapkan makro yang sesuai secara otom
 <table>
   <tr><th>Kategori</th><th>Penggunaan</th></tr>
   <tr><td>Tidak ditetapkan</td><td>Tidak ada area penggunaan khusus (default untuk makro baru)</td></tr>
-  <tr><td>Dinas</td><td>Perhitungan tunjangan untuk dinas reguler (tunjangan malam, akhir pekan, hari libur)</td></tr>
+  <tr><td>Dinas</td><td>Perhitungan Tambahan Waktu untuk dinas reguler (Tambahan Waktu Malam, Tambahan Waktu Akhir Pekan, Tambahan Waktu Hari Libur)</td></tr>
   <tr><td>Cuti</td><td>Perhitungan jam untuk cuti</td></tr>
   <tr><td>Sakit</td><td>Perhitungan jam untuk sakit</td></tr>
   <tr><td>Kecelakaan</td><td>Perhitungan jam untuk kecelakaan</td></tr>
@@ -52,20 +52,20 @@ tidak pernah diubah secara retroaktif.
   <tr><th>Peran</th><th>Arti</th></tr>
   <tr><td>Kustom</td><td>Makro bebas tanpa peran khusus. Boleh ada berapa pun per kategori.</td></tr>
   <tr><td>Standar</td><td>Makro standar untuk kategori ini – ditetapkan secara otomatis ke dinas baru. Maksimal SATU makro per kategori boleh memiliki peran ini.</td></tr>
-  <tr><td>Standar (Aditif)</td><td>Makro standar alternatif dengan logika tunjangan aditif (lihat di bawah). Juga maksimal satu per kategori, dapat ada di samping makro "Standar".</td></tr>
+  <tr><td>Standar (Aditif)</td><td>Makro standar alternatif dengan logika Tambahan Waktu aditif (lihat di bawah). Juga maksimal satu per kategori, dapat ada di samping makro "Standar".</td></tr>
 </table>
 
 <p>
 <strong>Penting:</strong> Peran itu sendiri tidak menghitung apa pun – ia hanyalah label. Apakah
-tunjangan dihitung dengan cara "highest-wins" (hanya tarif tertinggi yang berlaku dihitung) atau
-aditif (semua tarif yang berlaku dijumlahkan) ditentukan oleh <em>skrip itu sendiri</em>. Kedua
+Tambahan Waktu dihitung dengan cara "highest-wins" (hanya koefisien tertinggi yang berlaku dihitung) atau
+aditif (semua koefisien yang berlaku dijumlahkan) ditentukan oleh <em>skrip itu sendiri</em>. Kedua
 makro kategori "Dinas" bawaan menunjukkan perbedaan ini pada struktur dasar yang sama:
 </p>
 <ul>
   <li><strong>"AllShift"</strong> (Peran: Standar) – untuk setiap segmen waktu menentukan
-  tunjangan <em>tertinggi</em> yang berlaku (Malam/WE1/WE2/WE3/Hari libur) dan hanya menggunakan itu.</li>
-  <li><strong>"AllShiftAdditive"</strong> (Peran: Standar (Aditif)) – menghitung tunjangan malam,
-  akhir pekan, dan hari libur secara independen satu sama lain lalu menjumlahkannya.</li>
+  Tambahan Waktu <em>tertinggi</em> yang berlaku (Malam/WE1/WE2/WE3/Hari libur) dan hanya menggunakan itu.</li>
+  <li><strong>"AllShiftAdditive"</strong> (Peran: Standar (Aditif)) – menghitung Tambahan Waktu Malam,
+  Tambahan Waktu Akhir Pekan, dan Tambahan Waktu Hari Libur secara independen satu sama lain lalu menjumlahkannya.</li>
 </ul>
 <p>
 Makro mana dari keduanya yang secara otomatis ditetapkan saat dinas baru dibuat diatur oleh
@@ -86,7 +86,7 @@ otomatis dengan aturan yang sesuai untuk negara atau industri Anda. Jika Anda me
 satunya secara manual, sejak saat itu makro tersebut dianggap milik pelanggan – pembaruan
 negara/industri otomatis di masa depan untuk makro ini tidak lagi diterapkan secara diam-diam,
 melainkan gagal dengan konflik hingga Anda menyelesaikan perbedaannya secara manual. Jika Anda
-memerlukan logika tunjangan sendiri, buat makro baru dengan peran "Kustom" dan tetapkan secara
+memerlukan logika Tambahan Waktu sendiri, buat makro baru dengan peran "Kustom" dan tetapkan secara
 khusus ke dinas yang bersangkutan.
 </p>
 
@@ -110,13 +110,13 @@ IMPORT betrag, rabatt
   <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Waktu mulai, misalnya "08:30" – dapat dikonversi ke desimal jam dengan <code>TimeToHours()</code></td></tr>
   <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Waktu selesai, misalnya "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Hari dalam seminggu ISO-8601 (1=Sen, 2=Sel, 3=Rab, 4=Kam, 5=Jum, 6=Sab, 7=Min)</td></tr>
-  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Pada kerja: 1 hanya jika hari itu adalah hari libur resmi di kalender kontrak karyawan DAN aturannya ditandai «Tunjangan waktu saat bekerja». Pada ketidakhadiran: 1 jika hari itu adalah hari libur resmi.</td></tr>
+  <tr data-macro-variable="holiday"><td>holiday</td><td>Boolean</td><td>Pada kerja: 1 hanya jika hari itu adalah hari libur resmi di kalender kontrak karyawan DAN aturannya ditandai «Tambahan Waktu saat bekerja». Pada ketidakhadiran: 1 jika hari itu adalah hari libur resmi.</td></tr>
   <tr data-macro-variable="holidaynextday"><td>holidaynextday</td><td>Boolean</td><td>Sama seperti holiday, tetapi untuk hari berikutnya (shift yang melewati tengah malam).</td></tr>
-  <tr><td>nightrate</td><td>Decimal</td><td>Tarif tunjangan malam dari Contract (misalnya: 0.10 = 10%)</td></tr>
-  <tr><td>holidayrate</td><td>Decimal</td><td>Tarif tunjangan hari libur dari Contract (misalnya: 0.15 = 15%)</td></tr>
-  <tr><td>we1rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 1 yang dapat dikonfigurasi (misalnya Sabtu)</td></tr>
-  <tr><td>we2rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 2 yang dapat dikonfigurasi (misalnya Minggu)</td></tr>
-  <tr><td>we3rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 3 yang dapat dikonfigurasi</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Koefisien Tambahan Waktu Malam dari Contract (misalnya: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Koefisien Tambahan Waktu Hari Libur dari Contract (misalnya: 0.15 = 15%)</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Koefisien Tambahan Waktu untuk hari akhir pekan 1 yang dapat dikonfigurasi (misalnya Sabtu)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Koefisien Tambahan Waktu untuk hari akhir pekan 2 yang dapat dikonfigurasi (misalnya Minggu)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Koefisien Tambahan Waktu untuk hari akhir pekan 3 yang dapat dikonfigurasi</td></tr>
   <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Awal jendela malam dari Contract/Settings, misalnya "23:00"</td></tr>
   <tr><td>nightend</td><td>String ("HH:MM")</td><td>Akhir jendela malam, misalnya "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Jam bulanan yang dijamin dari Contract</td></tr>
@@ -333,16 +333,16 @@ sendiri. Klacks hanya mengevaluasi tipe-tipe berikut:
 <table>
   <tr><th>Tipe</th><th>Arti</th></tr>
   <tr><td>1</td><td>Hasil utama (jam atau jumlah total) – tetap diambil meskipun nilainya 0</td></tr>
-  <tr><td>10</td><td>Tunjangan malam</td></tr>
-  <tr><td>11</td><td>Tunjangan untuk hari akhir pekan 1 (misalnya Sabtu)</td></tr>
-  <tr><td>12</td><td>Tunjangan untuk hari akhir pekan 2 (misalnya Minggu)</td></tr>
-  <tr><td>13</td><td>Tunjangan untuk hari akhir pekan 3 (hari akhir pekan ketiga yang dapat dikonfigurasi)</td></tr>
-  <tr><td>14</td><td>Tunjangan hari libur</td></tr>
+  <tr><td>10</td><td>Tambahan Waktu Malam</td></tr>
+  <tr><td>11</td><td>Tambahan Waktu untuk hari akhir pekan 1 (misalnya Sabtu)</td></tr>
+  <tr><td>12</td><td>Tambahan Waktu untuk hari akhir pekan 2 (misalnya Minggu)</td></tr>
+  <tr><td>13</td><td>Tambahan Waktu untuk hari akhir pekan 3 (hari akhir pekan ketiga yang dapat dikonfigurasi)</td></tr>
+  <tr><td>14</td><td>Tambahan Waktu Hari Libur</td></tr>
 </table>
 
 <p>
-Baris tunjangan (tipe 10-14) dengan nilai <code>0</code> diabaikan – jadi makro tidak perlu
-mengeluarkan baris tersendiri untuk setiap jenis tunjangan, cukup untuk tunjangan yang benar-benar
+Baris Tambahan Waktu (tipe 10-14) dengan nilai <code>0</code> diabaikan – jadi makro tidak perlu
+mengeluarkan baris tersendiri untuk setiap jenis Tambahan Waktu, cukup untuk Tambahan Waktu yang benar-benar
 berlaku. Nilai yang tidak dapat diinterpretasikan sebagai angka akan dilewati.
 </p>
 
@@ -378,9 +378,9 @@ DEBUGPRINT "Menjalankan perhitungan..."
 
 <h3>Contoh: Perhitungan Upah Lembur ("AllShift")</h3>
 <p>
-Makro standar bawaan untuk kategori "Dinas". Menghitung tunjangan untuk malam, hari libur, dan
+Makro standar bawaan untuk kategori "Dinas". Menghitung Tambahan Waktu untuk malam, hari libur, dan
 tiga hari akhir pekan yang dapat dikonfigurasi dengan penanganan yang benar untuk shift yang
-melewati tengah malam (pembagian segmen), dan menerapkan tarif <em>tertinggi</em> yang berlaku
+melewati tengah malam (pembagian segmen), dan menerapkan koefisien <em>tertinggi</em> yang berlaku
 per segmen (highest-wins).
 </p>
 
@@ -488,18 +488,18 @@ OUTPUT 14, BonusHoliday
 <h4>Penjelasan</h4>
 <ul>
   <li><strong>Pembagian segmen:</strong> Untuk shift yang melewati tengah malam (misalnya 22:00-06:00), shift dibagi menjadi dua segmen (sampai tengah malam / mulai tengah malam), masing-masing dengan flag hari/hari libur sendiri</li>
-  <li><strong>SegBonusForType:</strong> Menghitung tunjangan untuk satu segmen dan satu jenis tunjangan tertentu (10-14) dengan mempertimbangkan tunjangan malam, hari libur, dan akhir pekan</li>
+  <li><strong>SegBonusForType:</strong> Menghitung Tambahan Waktu untuk satu segmen dan satu jenis Tambahan Waktu tertentu (10-14) dengan mempertimbangkan Tambahan Waktu Malam, Tambahan Waktu Hari Libur, dan Tambahan Waktu Akhir Pekan</li>
   <li><strong>WE1/WE2/WE3 menggantikan Sab/Min:</strong> <code>weekendday1-3</code> membuat hari akhir pekan dapat dikonfigurasi (tidak semua negara memiliki Sabtu/Minggu sebagai akhir pekan)</li>
-  <li><strong>Tunjangan tertinggi per segmen:</strong> <code>NRate</code>/<code>DRate</code> masing-masing menentukan tarif tertinggi yang berlaku untuk jam malam dan jam siang – highest-wins, tanpa penumpukan</li>
+  <li><strong>Tambahan Waktu tertinggi per segmen:</strong> <code>NRate</code>/<code>DRate</code> masing-masing menentukan tarif tertinggi yang berlaku untuk jam malam dan jam siang – highest-wins, tanpa penumpukan</li>
   <li><strong>HolidayNextDay:</strong> Mempertimbangkan apakah hari berikutnya adalah hari libur (penting untuk shift malam yang melewati tengah malam)</li>
-  <li><strong>Beberapa baris OUTPUT:</strong> baris 1 memberikan jumlah total, baris 10-14 memberikan jumlah tunjangan masing-masing (lihat bagian "Nilai Kembali")</li>
+  <li><strong>Beberapa baris OUTPUT:</strong> baris 1 memberikan jumlah total, baris 10-14 memberikan jumlah Tambahan Waktu masing-masing (lihat bagian "Nilai Kembali")</li>
 </ul>
 
 <h4>Varian aditif ("AllShiftAdditive")</h4>
 <p>
 Makro standar (aditif) dari kategori yang sama memiliki baris <code>IMPORT</code> yang identik
 dan struktur kerangka yang sama – hanya <code>SegBonusForType</code> yang berbeda: alih-alih
-tarif tertinggi, untuk setiap jenis tunjangan dihitung secara independen apakah tunjangan itu
+koefisien tertinggi, untuk setiap jenis Tambahan Waktu dihitung secara independen apakah Tambahan Waktu itu
 berlaku, dan semua jumlah yang berlaku dijumlahkan di akhir (tidak ada lagi highest-wins):
 </p>
 
@@ -541,7 +541,7 @@ ENDFUNCTION
 
 <p>
 Jika misalnya shift malam juga jatuh pada hari libur, dengan "AllShift" ia hanya mendapatkan
-tarif yang lebih tinggi dari keduanya, sedangkan dengan "AllShiftAdditive" ia mendapatkan
-tunjangan malam <em>dan</em> hari libur sekaligus. Sisa skrip (pembagian segmen, penjumlahan,
+koefisien yang lebih tinggi dari keduanya, sedangkan dengan "AllShiftAdditive" ia mendapatkan
+Tambahan Waktu Malam <em>dan</em> hari libur sekaligus. Sisa skrip (pembagian segmen, penjumlahan,
 baris <code>OUTPUT</code>) identik dengan "AllShift" di atas.
 </p>

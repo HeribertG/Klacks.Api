@@ -123,7 +123,7 @@
   "delete_work": "勤務を削除",
   "delete_workchange": "配置変更を削除",
   "detect_conflicts": "シフトの競合を検出",
-  "diagnose_holiday_outcome": "祝日手当と祝日勤務警告の説明",
+  "diagnose_holiday_outcome": "祝日時間割増と祝日勤務警告の説明",
   "disable_feature_plugin": "機能モジュールを無効化",
   "dismiss_skill_relation": "提案されたスキルの関連付けを却下",
   "email_schedule_to_client": "顧客に勤務表をメール送信",
