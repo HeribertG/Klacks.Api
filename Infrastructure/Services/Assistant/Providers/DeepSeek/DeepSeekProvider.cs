@@ -476,7 +476,7 @@ public class DeepSeekProvider : BaseHttpProvider
             messages.Add(new OpenAIMessage { Role = msg.Role, Content = msg.Content });
         }
 
-        messages.Add(new OpenAIMessage { Role = "user", Content = request.Message });
+        messages.Add(OpenAIUserMessageFactory.Create(request.Message, request.ImagePng));
 
         return messages;
     }

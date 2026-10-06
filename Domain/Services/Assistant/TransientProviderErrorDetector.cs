@@ -17,6 +17,7 @@ public static class TransientProviderErrorDetector
         "429",
         "too many requests",
         "overloaded",
+        "529",
         "502",
         "503",
         "504",
