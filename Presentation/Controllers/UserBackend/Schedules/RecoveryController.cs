@@ -3,7 +3,6 @@
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -15,14 +14,16 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// REST entry point for the reactive recovery flow. CoverAbsence records the absence (Break) and a
 /// rule-compliant replacement per slot as an isolated, propose-only AnalyseScenario for human review;
 /// it never accepts the scenario. Candidates lists the ranked alternatives for one slot so the planner can
-/// pick a different person than the engine's first choice. Admins and supervisors (Authorised) may use
-/// both: a sick call is handled by the planner on duty, not only by an administrator, and accepting the
-/// resulting scenario is open to every authenticated user anyway (AnalyseScenariosController).
+/// pick a different person than the engine's first choice. Open to every authenticated user (owner
+/// decision 2026-10-06): a sick call is handled by whoever plans the group, the flow only proposes a
+/// scenario, accepting one is open to every authenticated user anyway (AnalyseScenariosController), the
+/// compliance override is authorised separately by ISupervisorOverrideAuthorizer, and the candidate pool
+/// is filtered by the caller's group visibility inside the handler.
 /// </summary>
 /// <param name="mediator">Dispatches the reused CoverAbsenceCommand and FindReplacementQuery.</param>
 [ApiController]
 [Route("api/backend/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = $"{Roles.Admin},{Roles.Authorised}")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public sealed class RecoveryController : ControllerBase
 {
     private readonly IMediator _mediator;
