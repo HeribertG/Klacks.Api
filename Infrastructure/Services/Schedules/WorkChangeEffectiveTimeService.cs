@@ -36,10 +36,9 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
                 => await ComputeAfterShiftTimesAsync(workChange, work),
             WorkChangeType.CorrectionStart or WorkChangeType.TravelStart or WorkChangeType.Briefing
                 => await ComputeBeforeShiftTimesAsync(workChange, work),
-            WorkChangeType.ReplacementStart
-                => (work.StartTime, AddHours(work.StartTime, workChange.ChangeTime)),
-            WorkChangeType.ReplacementEnd
-                => (SubtractHours(work.EndTime, workChange.ChangeTime), work.EndTime),
+            WorkChangeType.ReplacementStart or WorkChangeType.ReplacementEnd
+                => ReplacementWindow.Compute(
+                    workChange.Type, work.StartTime, work.EndTime, workChange.StartTime, workChange.EndTime, workChange.ChangeTime),
             _ => (workChange.StartTime, workChange.EndTime),
         };
     }
@@ -150,15 +149,7 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
         _ => int.MaxValue,
     };
 
-    private static TimeOnly AddHours(TimeOnly time, decimal hours)
-    {
-        var totalMs = (long)decimal.Round(hours * 3_600_000m);
-        var span = time.ToTimeSpan().Add(TimeSpan.FromMilliseconds(totalMs));
-        var normalized = TimeSpan.FromTicks(
-            ((span.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay) % TimeSpan.TicksPerDay);
-        return TimeOnly.FromTimeSpan(normalized);
-    }
+    private static TimeOnly AddHours(TimeOnly time, decimal hours) => ReplacementWindow.AddHours(time, hours);
 
-    private static TimeOnly SubtractHours(TimeOnly time, decimal hours) =>
-        AddHours(time, -hours);
+    private static TimeOnly SubtractHours(TimeOnly time, decimal hours) => AddHours(time, -hours);
 }

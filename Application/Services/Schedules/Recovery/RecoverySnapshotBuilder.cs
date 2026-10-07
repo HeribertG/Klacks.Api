@@ -3,6 +3,7 @@
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -197,7 +198,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         {
             if (cell.EntryType != (int)ScheduleEntryType.WorkChange
                 || cell.IsReplacementEntry
-                || !IsReplacementWorkChangeType(cell.WorkChangeType))
+                || !ReplacementWorkChangeTypes.IsReplacement(cell.WorkChangeType))
             {
                 continue;
             }
@@ -277,11 +278,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         return works.ToDictionary(kv => kv.Key, kv => (IReadOnlyList<RecoveryWork>)kv.Value);
     }
-
-    private static bool IsReplacementWorkChangeType(int? workChangeType)
-        => workChangeType == (int)WorkChangeType.ReplacementStart
-            || workChangeType == (int)WorkChangeType.ReplacementEnd
-            || workChangeType == (int)WorkChangeType.ReplacementWithin;
 
     /// <summary>
     /// Interval difference: returns the sub-intervals of [<paramref name="start"/>, <paramref name="end"/>]
