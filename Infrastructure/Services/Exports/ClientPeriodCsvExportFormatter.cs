@@ -4,7 +4,9 @@
 /// Exports client period data (hours per employee and external employee for a date range) as CSV
 /// with a semicolon separator, grouped by client. Emits one row per work entry and one row per
 /// period-hours entry (discriminated by the RecordType column) so the CSV lists exactly the same
-/// clients as the XML/JSON formatters, including clients that only have period hours.
+/// clients as the XML/JSON formatters, including clients that only have period hours. Every absence of the period
+/// (nested in a work or on a day without work) is one Absence row: Hours are its WorkTime, Information its absence
+/// name; on-call duty is time-neutral (0.00 hours) and marked by the OnCall column.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -20,6 +22,8 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
     private const string RecordTypeWork = "Work";
     private const string RecordTypePeriodHours = "PeriodHours";
     private const string RecordTypeClient = "Client";
+    private const string RecordTypeAbsence = "Absence";
+    private const string OnCallMarker = "1";
 
     public string FormatKey => ExportConstants.FormatCsv;
 
@@ -33,11 +37,11 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
 
         AppendLine(sb, string.Join(Separator,
             "RecordType", "ClientIdNumber", "ClientName", "ClientType",
-            "Date", "EndDate", "StartTime", "EndTime", "Hours", "Surcharges", "Information"));
+            "Date", "EndDate", "StartTime", "EndTime", "Hours", "Surcharges", "Information", "OnCall"));
 
         foreach (var client in data.Clients)
         {
-            var hasRows = client.WorkEntries.Count > 0 || client.PeriodHours.Count > 0;
+            var hasRows = client.WorkEntries.Count > 0 || client.PeriodHours.Count > 0 || client.Absences.Count > 0;
 
             foreach (var work in client.WorkEntries)
             {
@@ -52,7 +56,25 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
                     work.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture),
                     work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
                     work.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
-                    Escape(work.Information ?? string.Empty)));
+                    Escape(work.Information ?? string.Empty),
+                    string.Empty));
+            }
+
+            foreach (var absence in client.WorkEntries.SelectMany(w => w.Breaks).Concat(client.Absences).OrderBy(b => b.BreakDate).ThenBy(b => b.StartTime))
+            {
+                AppendLine(sb, string.Join(Separator,
+                    RecordTypeAbsence,
+                    client.ClientIdNumber.ToString(CultureInfo.InvariantCulture),
+                    Escape(client.ClientName),
+                    client.ClientType.ToString(),
+                    absence.BreakDate.ToString("yyyy-MM-dd"),
+                    string.Empty,
+                    absence.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    absence.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    absence.BreakTime.ToString("F2", CultureInfo.InvariantCulture),
+                    string.Empty,
+                    Escape(absence.AbsenceName),
+                    absence.IsOnCall ? OnCallMarker : string.Empty));
             }
 
             foreach (var period in client.PeriodHours)
@@ -68,7 +90,8 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
                     string.Empty,
                     period.Hours.ToString("F2", CultureInfo.InvariantCulture),
                     period.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
-                    Escape(period.PaymentInterval)));
+                    Escape(period.PaymentInterval),
+                    string.Empty));
             }
 
             if (!hasRows)
@@ -79,7 +102,7 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
                     Escape(client.ClientName),
                     client.ClientType.ToString(),
                     string.Empty, string.Empty, string.Empty, string.Empty,
-                    string.Empty, string.Empty, string.Empty));
+                    string.Empty, string.Empty, string.Empty, string.Empty));
             }
         }
 

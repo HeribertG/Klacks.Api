@@ -1690,6 +1690,7 @@
   "periodClosing.format.abaconnect-ch": "AbaConnect（瑞士）",
   "periodClosing.format.bmd": "BMD NTCS",
   "periodClosing.format.brightpay-ie-uk": "BrightPay（愛爾蘭/英國）",
+  "periodClosing.format.brightpay-ie-uk-daily": "BrightPay（愛爾蘭/英國） – 按日",
   "periodClosing.format.csv": "CSV",
   "periodClosing.format.datev": "DATEV",
   "periodClosing.format.datev-lug-bewegungsdaten": "DATEV 薪資（異動資料）",

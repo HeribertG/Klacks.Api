@@ -22,8 +22,10 @@
 /// empty are dropped, and absence entries with no mapping are counted in SkippedAbsenceCount. Hours are
 /// aggregated per employee per wage type and written as real Excel numbers. Dates use the DD.MM.YYYY
 /// Turkish convention where a date is emitted, though this pivot template is period-summary, not daily.
+/// Each wage-code column holds the total in that code's own unit: a day-based entry (on-call duty) adds its day count
+/// to the column of its mapped code, which must be a day-based Logo code. A day-based entry whose code also receives
+/// hour-based entries would mix days into an hours total; it is not written and counted in SkippedUnsupportedUnitCount.
 /// </remarks>
-using System.Text.Json;
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
@@ -45,11 +47,6 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
     private const string EmptyCode = "";
     private const char NameSeparator = ' ';
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyLogoBordroTr;
 
     public string ContentType => ExportConstants.ContentTypeXlsx;
@@ -58,7 +55,8 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
         var wageCodes = BuildWageCodeColumns(config, absenceMapping);
         var wageColumnIndex = new Dictionary<string, int>(StringComparer.Ordinal);
         for (var i = 0; i < wageCodes.Count; i++)
@@ -71,9 +69,15 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
 
         WriteHeaderAndCodeRows(sheet, wageCodes);
 
+        var hourCodes = data.Employees
+            .SelectMany(e => e.Entries)
+            .Where(e => e.Unit == PayrollQuantityUnit.Hours)
+            .Select(e => PeekWageCode(e, config, absenceMapping))
+            .Where(code => !string.IsNullOrEmpty(code))
+            .ToHashSet(StringComparer.Ordinal);
+
         var row = FirstDataRowNumber;
         var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -81,12 +85,19 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
 
             foreach (var entry in employee.Entries)
             {
-                var code = ResolveWageCode(entry, config, absenceMapping, ref skippedAbsenceCount);
+                var code = ResolveWageCode(entry, config, absenceMapping, counter);
                 if (string.IsNullOrEmpty(code))
                 {
                     continue;
                 }
 
+                if (entry.Unit != PayrollQuantityUnit.Hours && hourCodes.Contains(code))
+                {
+                    counter.UnsupportedUnits++;
+                    continue;
+                }
+
+                counter.Emitted++;
                 totals.TryGetValue(code, out var current);
                 totals[code] = current + entry.Quantity;
             }
@@ -99,12 +110,7 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);
 
-        return new PayrollExportResult
-        {
-            Content = stream.ToArray(),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(stream.ToArray(), recordCount);
     }
 
     private const int SicilNoColumn = 1;
@@ -156,29 +162,60 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
         PayrollDayEntry entry,
         PayrollExportGroupConfig config,
         Dictionary<string, PayrollAbsenceMapping> absenceMapping,
-        ref int skippedAbsenceCount)
+        PayrollExportSkipCounter counter)
     {
         switch (entry.Kind)
         {
+            case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+            case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                counter.UnsupportedUnits++;
+                return EmptyCode;
+
             case PayrollEntryKind.WorkHours:
+                if (string.IsNullOrEmpty(config.BaseWageType))
+                {
+                    counter.UnmappedBaseWages++;
+                }
+
                 return config.BaseWageType;
 
             case PayrollEntryKind.Surcharge:
+                if (string.IsNullOrEmpty(config.SurchargeWageType))
+                {
+                    counter.UnmappedSurcharges++;
+                }
+
                 return config.SurchargeWageType;
 
             case PayrollEntryKind.Absence:
                 var key = entry.AbsenceId?.ToString();
-                if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
+                if (key == null || !absenceMapping.TryGetValue(key, out var mapping) || string.IsNullOrEmpty(mapping.WageType))
                 {
-                    skippedAbsenceCount++;
+                    counter.UnmappedAbsences++;
                     return EmptyCode;
                 }
 
                 return mapping.WageType;
 
             default:
+                counter.UnsupportedKinds++;
                 return EmptyCode;
         }
+    }
+
+    private static string PeekWageCode(
+        PayrollDayEntry entry,
+        PayrollExportGroupConfig config,
+        Dictionary<string, PayrollAbsenceMapping> absenceMapping)
+    {
+        return entry.Kind switch
+        {
+            PayrollEntryKind.WorkHours => config.BaseWageType,
+            PayrollEntryKind.Surcharge => config.SurchargeWageType,
+            PayrollEntryKind.Absence when entry.AbsenceId is { } absenceId
+                && absenceMapping.TryGetValue(absenceId.ToString(), out var mapping) => mapping.WageType,
+            _ => EmptyCode,
+        };
     }
 
     private static List<string> BuildWageCodeColumns(
@@ -221,23 +258,5 @@ public class LogoBordroTrExportFormatter : IPayrollExportFormatter
         }
 
         return (trimmed[..lastSpace].Trim(), trimmed[(lastSpace + 1)..].Trim());
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 }

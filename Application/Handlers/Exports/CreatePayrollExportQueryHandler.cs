@@ -5,7 +5,9 @@
 /// country-pack formatter by the requested format key, loads the group's per-group configuration
 /// (wage-type/absence mapping) and the closed period data, then produces the file and writes an
 /// ExportLog audit row. Unlike the automatic period-closed path this returns the bytes directly
-/// for download instead of uploading them to object storage. A group hidden from the caller is answered
+/// for download instead of uploading them to object storage. Format overrides are applied exactly like in the
+/// automatic path, and the formatter's skip counters are written to the ExportLog row and returned for the
+/// response headers. A group hidden from the caller is answered
 /// exactly like a group without closed data, so its existence and wages never leak.
 /// @param request - Contains the filter with group, date range, localization and format key
 /// </summary>
@@ -36,6 +38,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IExportFormatOverrideApplier _overrideApplier;
 
     public CreatePayrollExportQueryHandler(
         IMediator mediator,
@@ -45,6 +48,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
         IExportLogRepository exportLogRepository,
         IHttpContextAccessor httpContextAccessor,
         IGroupVisibilityGuard groupVisibilityGuard,
+        IExportFormatOverrideApplier overrideApplier,
         IUnitOfWork unitOfWork,
         ILogger<CreatePayrollExportQueryHandler> logger) : base(unitOfWork, logger)
     {
@@ -55,6 +59,7 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
         _exportLogRepository = exportLogRepository;
         _httpContextAccessor = httpContextAccessor;
         _groupVisibilityGuard = groupVisibilityGuard;
+        _overrideApplier = overrideApplier;
     }
 
     public async Task<OrderExportResult> Handle(CreatePayrollExportQuery request, CancellationToken cancellationToken)
@@ -102,12 +107,13 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
                 throw new InvalidRequestException(NoClosedDataMessage);
             }
 
+            var overrideApplied = await _overrideApplier.ApplyAsync(filter.Format, config, cancellationToken);
             var result = formatter.Format(data, config);
             var fileName = $"payroll-export_{filter.FromDate:yyyy-MM-dd}_{filter.UntilDate:yyyy-MM-dd}{formatter.FileExtension}";
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
-            await _exportLogRepository.AddAsync(new ExportLog
+            var exportLog = new ExportLog
             {
                 Format = filter.Format,
                 StartDate = filter.FromDate,
@@ -118,14 +124,19 @@ public class CreatePayrollExportQueryHandler : BaseTransactionHandler, IRequestH
                 FileSize = result.Content.LongLength,
                 RecordCount = result.RecordCount,
                 ExportedAt = DateTime.UtcNow,
-                ExportedBy = userName
-            }, cancellationToken);
+                ExportedBy = userName,
+                OverrideApplied = overrideApplied
+            };
+            exportLog.RecordSkips(result);
+            await _exportLogRepository.AddAsync(exportLog, cancellationToken);
 
             return new OrderExportResult
             {
                 FileContent = result.Content,
                 FileName = fileName,
-                ContentType = formatter.ContentType
+                ContentType = formatter.ContentType,
+                SkippedEntryCount = result.TotalSkippedCount,
+                AbsenceMappingInvalid = result.AbsenceMappingInvalid
             };
         }, "CreatePayrollExport", new { request.Filter.GroupId, request.Filter.FromDate, request.Filter.UntilDate });
     }

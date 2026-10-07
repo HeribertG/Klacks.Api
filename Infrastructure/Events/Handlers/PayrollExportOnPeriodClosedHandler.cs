@@ -179,22 +179,22 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
 
         try
         {
-            await _exportLogRepository.AddAsync(
-                new ExportLog
-                {
-                    Format = config.TargetSystem,
-                    StartDate = domainEvent.StartDate,
-                    EndDate = domainEvent.EndDate,
-                    GroupId = groupId,
-                    Language = ExportLanguage,
-                    FileName = fileName,
-                    FileSize = result.Content.LongLength,
-                    RecordCount = result.RecordCount,
-                    ExportedAt = DateTime.UtcNow,
-                    ExportedBy = domainEvent.SealedBy,
-                    OverrideApplied = overrideApplied,
-                },
-                cancellationToken);
+            var exportLog = new ExportLog
+            {
+                Format = config.TargetSystem,
+                StartDate = domainEvent.StartDate,
+                EndDate = domainEvent.EndDate,
+                GroupId = groupId,
+                Language = ExportLanguage,
+                FileName = fileName,
+                FileSize = result.Content.LongLength,
+                RecordCount = result.RecordCount,
+                ExportedAt = DateTime.UtcNow,
+                ExportedBy = domainEvent.SealedBy,
+                OverrideApplied = overrideApplied,
+            };
+            exportLog.RecordSkips(result);
+            await _exportLogRepository.AddAsync(exportLog, cancellationToken);
 
             await _unitOfWork.CompleteAsync();
         }
@@ -204,6 +204,24 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             throw;
         }
 
+        LogSkippedEntries(result, config.TargetSystem, groupId, domainEvent);
+
+        _logger.LogInformation(
+            "Payroll-export pack '{Plugin}': exported period {Start}..{End} (group {GroupId}) as '{FileName}' with {RecordCount} lines.",
+            FeaturePluginName,
+            domainEvent.StartDate,
+            domainEvent.EndDate,
+            groupId,
+            fileName,
+            result.RecordCount);
+    }
+
+    private void LogSkippedEntries(
+        Domain.Models.Exports.Payroll.PayrollExportResult result,
+        string targetSystem,
+        Guid groupId,
+        PeriodClosedEvent domainEvent)
+    {
         if (result.SkippedAbsenceCount > 0)
         {
             _logger.LogWarning(
@@ -215,14 +233,37 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
                 groupId);
         }
 
-        _logger.LogInformation(
-            "Payroll-export pack '{Plugin}': exported period {Start}..{End} (group {GroupId}) as '{FileName}' with {RecordCount} lines.",
-            FeaturePluginName,
-            domainEvent.StartDate,
-            domainEvent.EndDate,
-            groupId,
-            fileName,
-            result.RecordCount);
+        if (result.SkippedUnsupportedUnitCount > 0)
+        {
+            _logger.LogWarning(
+                "Payroll-export pack '{Plugin}': {SkippedUnitCount} day-based entries (on-call days) were skipped for period {Start}..{End} (group {GroupId}) because target system '{TargetSystem}' only accepts hours.",
+                FeaturePluginName,
+                result.SkippedUnsupportedUnitCount,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId,
+                targetSystem);
+        }
+
+        var otherSkipped = result.SkippedUnsupportedKindCount
+            + result.SkippedUnmappedSurchargeCount
+            + result.SkippedUnmappedBaseWageCount
+            + result.SkippedSupersededCount;
+        if (otherSkipped > 0 || result.AbsenceMappingInvalid)
+        {
+            _logger.LogWarning(
+                "Payroll-export pack '{Plugin}': period {Start}..{End} (group {GroupId}, target '{TargetSystem}') left {Kinds} entries of unknown kind, {Surcharges} surcharges and {BaseWages} worked-hours entries without wage type and {Superseded} superseded entries unwritten; absence mapping invalid: {MappingInvalid}.",
+                FeaturePluginName,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId,
+                targetSystem,
+                result.SkippedUnsupportedKindCount,
+                result.SkippedUnmappedSurchargeCount,
+                result.SkippedUnmappedBaseWageCount,
+                result.SkippedSupersededCount,
+                result.AbsenceMappingInvalid);
+        }
     }
 
     private async Task DeleteOrphanedArtifactAsync(

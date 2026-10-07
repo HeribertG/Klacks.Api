@@ -31,5 +31,11 @@ public static class ScheduleEntrySealState
         target.PreSealLockLevel = stored?.PreSealLockLevel;
         target.PreSealSealedAt = stored?.PreSealSealedAt;
         target.PreSealSealedBy = stored?.PreSealSealedBy;
+
+        if (target is Break targetBreak)
+        {
+            targetBreak.SealedByGroupId = (stored as Break)?.SealedByGroupId;
+            targetBreak.PreSealSealedByGroupId = (stored as Break)?.PreSealSealedByGroupId;
+        }
     }
 }

@@ -13,10 +13,12 @@
 /// formatter serves many locales at once and ISO avoids day/month ambiguity. Encoding defaults to
 /// UTF-8 (the common case for these targets) but honours any encoding name configured on the group
 /// (CodePagesEncodingProvider is registered globally, so both IANA names and Windows code pages work).
+/// Quantity is unit-neutral: its unit is the unit of the row's wage type in the target system. A day-based entry
+/// (PayrollQuantityUnit.Days, on-call duty) is written as its day count under the absence's mapped wage type, which
+/// must therefore be a day-based wage type in the target system - never as an hour equivalent.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -34,11 +36,6 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
     private const string HeaderWageType = "WageType";
     private const string HeaderQuantity = "Quantity";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyGenericPayrollCsv;
 
     public string ContentType => PayrollExportConstants.ContentTypeCsv;
@@ -50,11 +47,10 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
         var delimiter = string.IsNullOrEmpty(config.Delimiter)
             ? PayrollExportConstants.DefaultDelimiter
             : config.Delimiter;
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         AppendRow(sb, delimiter, HeaderPersonnelNumber, HeaderDate, HeaderWageType, HeaderQuantity);
 
@@ -69,42 +65,47 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         AppendRow(sb, delimiter, personnelNumber, date, config.BaseWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
                         AppendRow(sb, delimiter, personnelNumber, date, config.SurchargeWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
                             continue;
                         }
 
                         AppendRow(sb, delimiter, personnelNumber, date, mapping.WageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
+
+                    default:
+                        counter.UnsupportedKinds++;
+                        continue;
                 }
             }
         }
 
-        return new PayrollExportResult
-        {
-            Content = ResolveEncoding(config.Encoding).GetBytes(sb.ToString()),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(ResolveEncoding(config.Encoding).GetBytes(sb.ToString()), counter.Emitted);
     }
 
     private static void AppendRow(StringBuilder sb, string delimiter, params string[] fields)
@@ -124,24 +125,6 @@ public class GenericDelimitedPayrollExportFormatter : IPayrollExportFormatter
             .Replace("\r", string.Empty)
             .Replace("\n", string.Empty)
             .Replace(delimiter, string.Empty);
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 
     private static Encoding ResolveEncoding(string? encodingName)

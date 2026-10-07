@@ -3,6 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Models.Exports.Payroll;
 
 namespace Klacks.Api.Domain.Models.Exports;
 
@@ -15,6 +16,8 @@ namespace Klacks.Api.Domain.Models.Exports;
 /// and CurrentUserCreated: the audit moment is a domain concept that must remain stable
 /// even if the row-insert infrastructure later changes its semantics (batching, retries,
 /// snapshot restores). Do not remove these fields in favour of the inherited ones.
+/// The Skipped* counters and AbsenceMappingInvalid record, for payroll exports, which entries the formatter could
+/// not write and why (see PayrollExportResult), so a partial export stays visible in the export history.
 /// </remarks>
 public class ExportLog : BaseEntity
 {
@@ -46,4 +49,31 @@ public class ExportLog : BaseEntity
     public string ExportedBy { get; set; } = string.Empty;
 
     public bool OverrideApplied { get; set; }
+
+    public int SkippedAbsenceCount { get; set; }
+
+    public int SkippedUnsupportedUnitCount { get; set; }
+
+    public int SkippedUnsupportedKindCount { get; set; }
+
+    public int SkippedUnmappedSurchargeCount { get; set; }
+
+    public int SkippedUnmappedBaseWageCount { get; set; }
+
+    public int SkippedSupersededCount { get; set; }
+
+    public bool AbsenceMappingInvalid { get; set; }
+
+    /// <summary>Copies the skip counters of a payroll formatter run onto this history entry.</summary>
+    /// <param name="result">The formatter result whose counters are recorded</param>
+    public void RecordSkips(PayrollExportResult result)
+    {
+        SkippedAbsenceCount = result.SkippedAbsenceCount;
+        SkippedUnsupportedUnitCount = result.SkippedUnsupportedUnitCount;
+        SkippedUnsupportedKindCount = result.SkippedUnsupportedKindCount;
+        SkippedUnmappedSurchargeCount = result.SkippedUnmappedSurchargeCount;
+        SkippedUnmappedBaseWageCount = result.SkippedUnmappedBaseWageCount;
+        SkippedSupersededCount = result.SkippedSupersededCount;
+        AbsenceMappingInvalid = result.AbsenceMappingInvalid;
+    }
 }

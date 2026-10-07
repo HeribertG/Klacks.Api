@@ -11,8 +11,10 @@ public interface ISealedDayRepository
 {
     Task AddAsync(SealedDay entry, CancellationToken cancellationToken = default);
 
+    /// <summary>Period seals (Level Closed) of the range, for the group and global ones; day approvals are excluded.</summary>
     Task<List<SealedDay>> GetRangeAsync(DateOnly from, DateOnly to, Guid? groupId, CancellationToken cancellationToken = default);
 
+    /// <summary>Soft-deletes the period seals (Level Closed) of exactly this group (or the global ones); day approvals stay.</summary>
     Task<int> SoftDeleteRangeAsync(DateOnly from, DateOnly to, Guid? groupId, string deletedBy, CancellationToken cancellationToken = default);
 
     Task<bool> IsDayLockedAsync(DateOnly date, Guid clientId, CancellationToken cancellationToken = default);
@@ -40,4 +42,29 @@ public interface ISealedDayRepository
         CancellationToken cancellationToken = default);
 
     Task<DateOnly?> FindFirstLockedDateForClientAsync(DateOnly from, DateOnly to, Guid clientId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Every (client, date) of the range that is sealed for the client - the cells planners must treat as fixed.
+    /// </summary>
+    /// <param name="clientIds">Clients to test.</param>
+    /// <param name="from">First day (inclusive).</param>
+    /// <param name="until">Last day (inclusive).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <summary>The day approvals (Level Approved rows) of a date, of every group.</summary>
+    /// <param name="date">The approved day.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<List<SealedDay>> GetDayApprovalsAsync(DateOnly date, CancellationToken cancellationToken = default);
+
+    /// <summary>Soft-deletes the day approval of exactly this group on the date; returns the number of rows.</summary>
+    /// <param name="date">The approved day.</param>
+    /// <param name="groupId">The approving group.</param>
+    /// <param name="deletedBy">Who revokes the approval.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<int> SoftDeleteDayApprovalAsync(DateOnly date, Guid groupId, string deletedBy, CancellationToken cancellationToken = default);
+
+    Task<HashSet<(Guid ClientId, DateOnly Date)>> GetLockedClientDaysAsync(
+        IReadOnlyCollection<Guid> clientIds,
+        DateOnly from,
+        DateOnly until,
+        CancellationToken cancellationToken = default);
 }

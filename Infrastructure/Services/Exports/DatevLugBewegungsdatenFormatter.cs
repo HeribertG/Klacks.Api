@@ -14,13 +14,14 @@
 /// unmapped absences are counted in SkippedAbsenceCount so the caller can surface them instead of dropping
 /// them silently. The date format ("Kalendertag") is a documented default pending DATEV-spec confirmation.
 /// MVP field coverage: only fields 1-5 (Personalnummer, Kalendertag, Ausfallschluessel, Lohnartennummer,
-/// Stundenanzahl) are populated; fields 6-11 (Tagesanzahl, Wert, Faktor, Lohnaenderung, Kostenstelle,
-/// Kostentraeger) are left empty, and absence quantities are written as Stundenanzahl (field 5) rather than
-/// Tagesanzahl (field 6) — to be confirmed against the authoritative DATEV spec.
+/// Stundenanzahl) and field 6 (Tagesanzahl) are populated; fields 7-11 (Wert, Faktor, Lohnaenderung,
+/// Kostenstelle, Kostentraeger) are left empty. Each row carries its quantity in exactly one of the two
+/// quantity fields, chosen by PayrollDayEntry.Unit: hours go to Stundenanzahl (field 5), days - on-call
+/// duty days - go to Tagesanzahl (field 6). Hour-based absence quantities stay in field 5 as before; whether
+/// DATEV expects them as Tagesanzahl instead is still to be confirmed against the authoritative DATEV spec.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -36,11 +37,6 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
     private const string AsciiEncodingName = "ascii";
     private const string EmptyField = "";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyDatevLug;
 
     public string ContentType => PayrollExportConstants.ContentTypeCsv;
@@ -53,11 +49,10 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
             ? PayrollExportConstants.DefaultDelimiter
             : config.Delimiter;
         var culture = CultureInfo.GetCultureInfo(GermanCulture);
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -70,31 +65,49 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        break;
+
                     case PayrollEntryKind.WorkHours:
                         AppendLine(sb, delimiter, personnelNumber, day, EmptyField, config.BaseWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
-                            continue;
+                            counter.UnmappedSurcharges++;
+                            break;
                         }
 
                         AppendLine(sb, delimiter, personnelNumber, day, EmptyField, config.SurchargeWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
-                            continue;
+                            counter.UnmappedAbsences++;
+                            break;
                         }
 
-                        AppendLine(sb, delimiter, personnelNumber, day, mapping.Ausfallschluessel, mapping.WageType, quantity);
-                        recordCount++;
+                        if (entry.Unit == PayrollQuantityUnit.Days)
+                        {
+                            AppendLine(sb, delimiter, personnelNumber, day, mapping.Ausfallschluessel, mapping.WageType, EmptyField, quantity);
+                        }
+                        else
+                        {
+                            AppendLine(sb, delimiter, personnelNumber, day, mapping.Ausfallschluessel, mapping.WageType, quantity);
+                        }
+
+                        counter.Emitted++;
+                        break;
+
+                    default:
+                        counter.UnsupportedKinds++;
                         break;
                 }
             }
@@ -102,12 +115,7 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
 
         var encoding = ResolveEncoding(config.Encoding);
 
-        return new PayrollExportResult
-        {
-            Content = encoding.GetBytes(sb.ToString()),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(encoding.GetBytes(sb.ToString()), counter.Emitted);
     }
 
     private static void AppendLine(
@@ -117,7 +125,8 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
         string day,
         string ausfallschluessel,
         string wageType,
-        string quantity)
+        string hours,
+        string days = EmptyField)
     {
         var fields = new string[PayrollExportConstants.DatevLugFieldCount];
         for (var i = 0; i < fields.Length; i++)
@@ -129,7 +138,8 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
         fields[1] = Sanitize(day, delimiter);
         fields[2] = Sanitize(ausfallschluessel, delimiter);
         fields[3] = Sanitize(wageType, delimiter);
-        fields[4] = Sanitize(quantity, delimiter);
+        fields[4] = Sanitize(hours, delimiter);
+        fields[5] = Sanitize(days, delimiter);
 
         sb.Append(string.Join(delimiter, fields));
         sb.Append(PayrollExportConstants.LineEnding);
@@ -146,24 +156,6 @@ public class DatevLugBewegungsdatenFormatter : IPayrollExportFormatter
             .Replace("\r", EmptyField)
             .Replace("\n", EmptyField)
             .Replace(delimiter, EmptyField);
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 
     private static Encoding ResolveEncoding(string? encodingName)

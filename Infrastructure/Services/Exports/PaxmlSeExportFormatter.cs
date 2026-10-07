@@ -20,10 +20,11 @@
 /// pending confirmation from an actual target system. Absence rows are emitted only when the
 /// absence is mapped in config.AbsenceMappingJson; unmapped absences are counted in
 /// SkippedAbsenceCount instead of being dropped silently or crashing the export.
+/// antal is the quantity in the unit of the lonart: a day-based entry (on-call duty) is written as its day count under
+/// the mapped lonart, which must be a day-based wage kind in the target system.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
@@ -50,11 +51,6 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
     private const string AntalElement = "antal";
     private const string AnstidAttribute = "anstid";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyPaxmlSe;
 
     public string ContentType => PayrollExportConstants.ContentTypeXml;
@@ -63,9 +59,8 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PaxmlAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         var lonetransaktioner = new XElement(LonetransaktionerElement);
 
@@ -77,32 +72,42 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
             {
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         lonetransaktioner.Add(BuildLonetrans(anstid, entry, config.BaseWageType));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
                         lonetransaktioner.Add(BuildLonetrans(anstid, entry, config.SurchargeWageType));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
                             continue;
                         }
 
                         lonetransaktioner.Add(BuildLonetrans(anstid, entry, mapping.LonArt));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
+
+                    default:
+                        counter.UnsupportedKinds++;
+                        continue;
                 }
             }
         }
@@ -115,12 +120,7 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
         var root = new XElement(PaxmlElement, header, lonetransaktioner);
         var document = new XDocument(root);
 
-        return new PayrollExportResult
-        {
-            Content = ToXmlBytes(document),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(ToXmlBytes(document), counter.Emitted);
     }
 
     private static XElement BuildLonetrans(string anstid, PayrollDayEntry entry, string wageType)
@@ -131,24 +131,6 @@ public class PaxmlSeExportFormatter : IPayrollExportFormatter
             new XElement(LonartElement, wageType),
             new XElement(DatumElement, entry.Date.ToString(DateFormat, CultureInfo.InvariantCulture)),
             new XElement(AntalElement, entry.Quantity.ToString(QuantityFormat, CultureInfo.InvariantCulture)));
-    }
-
-    private static Dictionary<string, PaxmlAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PaxmlAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PaxmlAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PaxmlAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PaxmlAbsenceMapping>();
-        }
     }
 
     private static byte[] ToXmlBytes(XDocument document)

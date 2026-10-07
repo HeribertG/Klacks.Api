@@ -6,14 +6,19 @@
 /// do - without it the audit entry would never be saved at all, because the bulk updates bypass the
 /// change tracker while the audit row does not. A group outside the caller's group visibility is answered
 /// like a group without entries: nothing is sealed, no audit row is written and the affected count is zero.
+/// The approval is also stored as a day row (SealedDay, Level Approved, GroupId) so the day stays locked for the
+/// group's members even while it is empty; only this group's revoke lifts it. Approved breaks record the group as
+/// their sealing owner.
 /// </summary>
 /// <param name="groupVisibilityGuard">Decides whether the calling user may write the group</param>
+/// <param name="sealedDayRepository">Stores the day approval row</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using System.Security.Claims;
@@ -31,6 +36,7 @@ public class ApproveDayCommandHandler : BaseTransactionHandler, IRequestHandler<
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
     private readonly IUserService _userService;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public ApproveDayCommandHandler(
         IWorkRepository workRepository,
@@ -40,6 +46,7 @@ public class ApproveDayCommandHandler : BaseTransactionHandler, IRequestHandler<
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
         IUserService userService,
+        ISealedDayRepository sealedDayRepository,
         IUnitOfWork unitOfWork,
         ILogger<ApproveDayCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -51,6 +58,7 @@ public class ApproveDayCommandHandler : BaseTransactionHandler, IRequestHandler<
         _httpContextAccessor = httpContextAccessor;
         _auditLogRepository = auditLogRepository;
         _userService = userService;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     public async Task<int> Handle(ApproveDayCommand request, CancellationToken cancellationToken)
@@ -75,6 +83,19 @@ public class ApproveDayCommandHandler : BaseTransactionHandler, IRequestHandler<
             var breakCount = await _breakRepository.SealByDayAndGroup(request.Date, request.GroupId, WorkLockLevel.Approved, userName, cancellationToken);
 
             var affected = workCount + breakCount;
+
+            var approvals = await _sealedDayRepository.GetDayApprovalsAsync(request.Date, cancellationToken);
+            if (!approvals.Any(a => a.GroupId == request.GroupId))
+            {
+                await _sealedDayRepository.AddAsync(new SealedDay
+                {
+                    Date = request.Date,
+                    GroupId = request.GroupId,
+                    Level = WorkLockLevel.Approved,
+                    SealedAt = DateTime.UtcNow,
+                    SealedBy = userName,
+                }, cancellationToken);
+            }
 
             await _auditLogRepository.AddAsync(
                 PeriodAuditLog.For(

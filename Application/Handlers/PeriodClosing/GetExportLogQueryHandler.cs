@@ -64,7 +64,14 @@ public class GetExportLogQueryHandler : BaseHandler, IRequestHandler<GetExportLo
                 ExportedBy = e.ExportedBy,
                 ExportedByName = userNames.TryGetValue(e.ExportedBy, out var userName) && !string.IsNullOrWhiteSpace(userName)
                     ? userName
-                    : null
+                    : null,
+                SkippedEntryCount = e.SkippedAbsenceCount
+                    + e.SkippedUnsupportedUnitCount
+                    + e.SkippedUnsupportedKindCount
+                    + e.SkippedUnmappedSurchargeCount
+                    + e.SkippedUnmappedBaseWageCount
+                    + e.SkippedSupersededCount,
+                AbsenceMappingInvalid = e.AbsenceMappingInvalid
             }).ToList();
         },
         "loading export log",

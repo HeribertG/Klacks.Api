@@ -104,7 +104,10 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         var clientIds = works.Select(w => w.ClientId).Distinct().ToList();
         var workDates = works.Select(w => w.CurrentDate).Distinct().ToList();
 
-        var lookups = await WorkSubEntryLoader.LoadAsync(_context, workIds, clientIds, workDates, cancellationToken);
+        var lookups = await WorkSubEntryLoader.LoadAsync(_context, workIds, clientIds, workDates, cancellationToken) with
+        {
+            BreakCarrierWorkIds = WorkSubEntryMapper.SelectBreakCarrierWorkIds(works),
+        };
 
         var shiftToSealedOrder = new Dictionary<Guid, Guid>();
         foreach (var (rootId, descendants) in descendantMap)
@@ -213,7 +216,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
             Information = work.Information,
             Changes = WorkSubEntryMapper.MapChanges(work.Id, lookups),
             Expenses = WorkSubEntryMapper.MapExpenses(work.Id, lookups),
-            Breaks = WorkSubEntryMapper.MapBreaks(work.ClientId, work.CurrentDate, lookups),
+            Breaks = WorkSubEntryMapper.MapBreaks(work.Id, work.ClientId, work.CurrentDate, lookups),
         };
     }
 }

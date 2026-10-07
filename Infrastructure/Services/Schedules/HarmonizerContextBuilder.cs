@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
@@ -76,7 +77,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var sealedDays = await DayLockAttribution.LoadLockedClientDaysAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, ct);
         var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
+        breakDates.UnionWith(sealedDays);
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds, request.PeriodFrom, request.PeriodUntil);
         var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, ct);
@@ -89,7 +92,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
-        var assignments = BuildAssignments(works, breaks, covers, agentIdSet);
+        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays);
         var hints = BuildSofteningHints(softenings);
 
         // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
@@ -621,14 +624,18 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// A work handed to a substitute by a replacement WorkChange is locked like a sealed work and keeps only the hours
     /// it still works; the substitute's replaced span becomes a locked occupied cell of the substitute carrying the
     /// handed-over hours (no work ids, so apply never re-points it). Without this the wizards would move or delete the
-    /// cover, count its hours twice and see the substitute as free that day.
+    /// cover, count its hours twice and see the substitute as free that day. A day sealed for an agent (sealedDays) is a
+    /// locked zero-hour cell; it is appended last so BitmapBuilder.Merge keeps the lock over an incoming Free cell, and
+    /// works on that day are locked too.
     /// </summary>
     internal static List<BitmapAssignment> BuildAssignments(
         IReadOnlyList<Work> works,
         IReadOnlyList<Break> breaks,
         IReadOnlyList<ReplacementCover> covers,
-        IReadOnlySet<Guid> agentIds)
+        IReadOnlySet<Guid> agentIds,
+        IReadOnlySet<(Guid ClientId, DateOnly Date)>? sealedDays = null)
     {
+        sealedDays ??= new HashSet<(Guid ClientId, DateOnly Date)>();
         var handedOverHours = covers
             .GroupBy(c => c.WorkId)
             .ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
@@ -641,7 +648,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 Symbol: SymbolOfSpan(w.StartTime, w.EndTime),
                 ShiftRefId: w.ShiftId,
                 WorkIds: [w.Id],
-                IsLocked: w.LockLevel != WorkLockLevel.None || handedOverHours.ContainsKey(w.Id),
+                IsLocked: w.LockLevel != WorkLockLevel.None
+                    || handedOverHours.ContainsKey(w.Id)
+                    || sealedDays.Contains((w.ClientId, w.CurrentDate)),
                 StartAt: startAt,
                 EndAt: endAt,
                 Hours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id)));
@@ -671,7 +680,20 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 EndAt: c.EndAt,
                 Hours: c.Hours));
 
-        return workAssignments.Concat(breakAssignments).Concat(substituteAssignments).ToList();
+        var sealedDayAssignments = sealedDays
+            .Where(d => agentIds.Contains(d.ClientId))
+            .Select(d => new BitmapAssignment(
+                AgentId: d.ClientId.ToString(),
+                Date: d.Date,
+                Symbol: CellSymbol.Free,
+                ShiftRefId: Guid.Empty,
+                WorkIds: [],
+                IsLocked: true,
+                StartAt: default,
+                EndAt: default,
+                Hours: 0m));
+
+        return workAssignments.Concat(breakAssignments).Concat(substituteAssignments).Concat(sealedDayAssignments).ToList();
     }
 
     private static (DateTime StartAt, DateTime EndAt) Span(DateOnly date, TimeOnly start, TimeOnly end) =>

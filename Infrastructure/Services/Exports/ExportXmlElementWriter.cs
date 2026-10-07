@@ -12,6 +12,10 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public static class ExportXmlElementWriter
 {
+    private const string BreaksElement = "Breaks";
+    private const string OnCallElement = "OnCall";
+    private const string TrueValue = "true";
+
     public static void WriteChanges(XmlWriter writer, List<WorkChangeExportEntry> changes)
     {
         if (changes.Count > 0)
@@ -52,11 +56,11 @@ public static class ExportXmlElementWriter
         }
     }
 
-    public static void WriteBreaks(XmlWriter writer, List<BreakExportEntry> breaks)
+    public static void WriteBreaks(XmlWriter writer, List<BreakExportEntry> breaks, string containerElement = BreaksElement)
     {
         if (breaks.Count > 0)
         {
-            writer.WriteStartElement("Breaks");
+            writer.WriteStartElement(containerElement);
             foreach (var breakEntry in breaks)
             {
                 writer.WriteStartElement("Break");
@@ -65,6 +69,8 @@ public static class ExportXmlElementWriter
                 writer.WriteElementString("StartTime", breakEntry.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
                 writer.WriteElementString("EndTime", breakEntry.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
                 writer.WriteElementString("Hours", breakEntry.BreakTime.ToString("F2", CultureInfo.InvariantCulture));
+                if (breakEntry.IsOnCall)
+                    writer.WriteElementString(OnCallElement, TrueValue);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();

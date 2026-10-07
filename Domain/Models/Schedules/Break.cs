@@ -19,6 +19,20 @@ public class Break : ScheduleEntryBase
     public virtual Work? ParentWork { get; set; }
 
     /// <summary>
+    /// The group whose period close sealed this absence. Only that group's reopen lifts the seal again: an
+    /// absence of an employee who belongs to several groups is sealed by the first group that closes and
+    /// stays sealed when another group reopens. Null means the seal is global or predates ownership; such
+    /// rows are reopened by any group reopen, as before.
+    /// </summary>
+    [JsonIgnore]
+    public Guid? SealedByGroupId { get; set; }
+
+    /// <summary>SealedByGroupId as it was right before a period seal; restored by the period unseal (e.g. the group
+    /// that approved the day keeps owning the approval after the close is reopened).</summary>
+    [JsonIgnore]
+    public Guid? PreSealSealedByGroupId { get; set; }
+
+    /// <summary>
     /// Multilingual description stored as JSONB in database.
     ///
     /// IMPORTANT: Unlike other MultiLanguage properties (e.g., Absence.Name, Shift.Description),

@@ -45,7 +45,6 @@
 using System.Globalization;
 using System.IO.Compression;
 using System.Text;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
@@ -87,11 +86,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     private static readonly XName MzdyElement = Namespace + "mzdy";
     private static readonly XName PriplatekElement = Namespace + "priplatek";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyPohodaCz;
 
     public string ContentType => PayrollExportConstants.ContentTypeZip;
@@ -102,11 +96,11 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     {
         if (data.Employees.Count == 0)
         {
-            return new PayrollExportResult { Content = [], RecordCount = 0, SkippedAbsenceCount = 0 };
+            return new PayrollExportResult { Content = [] };
         }
 
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PohodaAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         using var memoryStream = new MemoryStream();
 
@@ -116,34 +110,23 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
 
             foreach (var employee in data.Employees)
             {
-                var (document, employeeRecordCount, employeeSkippedAbsenceCount) =
-                    BuildEmployeeDocument(data, employee, config);
-
-                recordCount += employeeRecordCount;
-                skippedAbsenceCount += employeeSkippedAbsenceCount;
+                var document = BuildEmployeeDocument(data, employee, config, absenceMapping, counter);
 
                 var entryName = BuildEntryName(employee, usedEntryNames);
                 WriteZipEntry(archive, entryName, ToXmlBytes(document));
             }
         }
 
-        return new PayrollExportResult
-        {
-            Content = memoryStream.ToArray(),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(memoryStream.ToArray(), counter.Emitted);
     }
 
-    private (XDocument Document, int RecordCount, int SkippedAbsenceCount) BuildEmployeeDocument(
+    private XDocument BuildEmployeeDocument(
         PayrollExportData data,
         PayrollEmployee employee,
-        PayrollExportGroupConfig config)
+        PayrollExportGroupConfig config,
+        Dictionary<string, PohodaAbsenceMapping> absenceMapping,
+        PayrollExportSkipCounter counter)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
-
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
         var totalWorkHours = 0m;
         var totalSurchargeHours = 0m;
         var nepritomnosti = new XElement(NepritomnostiElement);
@@ -152,26 +135,32 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
         {
             switch (entry.Kind)
             {
+                case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                    counter.UnsupportedUnits++;
+                    break;
+
                 case PayrollEntryKind.WorkHours:
                     totalWorkHours += entry.Quantity;
-                    recordCount++;
+                    counter.Emitted++;
                     break;
 
                 case PayrollEntryKind.Surcharge:
                     if (string.IsNullOrEmpty(config.SurchargeWageType))
                     {
+                        counter.UnmappedSurcharges++;
                         continue;
                     }
 
                     totalSurchargeHours += entry.Quantity;
-                    recordCount++;
+                    counter.Emitted++;
                     break;
 
                 case PayrollEntryKind.Absence:
                     var key = entry.AbsenceId?.ToString();
                     if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                     {
-                        skippedAbsenceCount++;
+                        counter.UnmappedAbsences++;
                         continue;
                     }
 
@@ -181,7 +170,11 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
                         new XElement(KodElement, mapping.Kod),
                         new XElement(OdElement, day),
                         new XElement(DoElement, day)));
-                    recordCount++;
+                    counter.Emitted++;
+                    break;
+
+                default:
+                    counter.UnsupportedKinds++;
                     break;
             }
         }
@@ -195,7 +188,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             BuildPritomnost(totalWorkHours),
             BuildMzdy(config, totalSurchargeHours));
 
-        return (new XDocument(root), recordCount, skippedAbsenceCount);
+        return new XDocument(root);
     }
 
     private static string BuildEntryName(PayrollEmployee employee, HashSet<string> usedEntryNames)
@@ -317,24 +310,6 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
         var hours = totalMinutes / MinutesPerHour;
         var minutes = totalMinutes % MinutesPerHour;
         return string.Format(CultureInfo.InvariantCulture, "{0}:{1:D2}", hours, minutes);
-    }
-
-    private static Dictionary<string, PohodaAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PohodaAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PohodaAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PohodaAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PohodaAbsenceMapping>();
-        }
     }
 
     private static byte[] ToXmlBytes(XDocument document)

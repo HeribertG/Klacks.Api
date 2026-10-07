@@ -2,7 +2,8 @@
 
 /// <summary>
 /// EF Core configuration for the SealedDay entity with query filter and
-/// partial unique indexes that allow one global row and one row per group per date.
+/// partial unique indexes that allow, per level, one global row and one row per group per date - a day can carry a
+/// day approval (Level Approved, written by ApproveDay) and a period seal (Level Closed) side by side.
 /// </summary>
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +17,12 @@ public class SealedDayConfiguration : IEntityTypeConfiguration<SealedDay>
     {
         builder.HasQueryFilter(s => !s.IsDeleted);
 
-        builder.HasIndex(s => new { s.Date, s.GroupId })
+        builder.HasIndex(s => new { s.Date, s.GroupId, s.Level })
             .HasDatabaseName("ix_sealed_day_date_group")
             .IsUnique()
             .HasFilter("\"group_id\" IS NOT NULL AND \"is_deleted\" = false");
 
-        builder.HasIndex(s => s.Date)
+        builder.HasIndex(s => new { s.Date, s.Level })
             .HasDatabaseName("ix_sealed_day_date_global")
             .IsUnique()
             .HasFilter("\"group_id\" IS NULL AND \"is_deleted\" = false");

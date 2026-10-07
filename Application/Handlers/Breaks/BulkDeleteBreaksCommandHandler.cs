@@ -3,14 +3,17 @@
 /// <summary>
 /// Deletes several breaks (absence entries) in one call and recalculates the affected period hours. Breaks
 /// owned by clients outside the caller's group visibility are treated exactly like ids that do not exist:
-/// they are not deleted and count as failed.
+/// they are not deleted and count as failed. Like the single delete, the whole request is refused when any
+/// visible break lies on a sealed day (IDayLockService), whatever the caller's role.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the breaks down to clients the calling user may write for</param>
+/// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
 
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -24,12 +27,14 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
+    private readonly IDayLockService _dayLockService;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
         IClientVisibilityGuard clientVisibilityGuard,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
+        IDayLockService dayLockService,
         ILogger<BulkDeleteBreaksCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +42,7 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
         _clientVisibilityGuard = clientVisibilityGuard;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkDeleteBreaksCommand command, CancellationToken cancellationToken)
@@ -52,6 +58,10 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
             var foundBreaks = await _breakRepository.GetByIdsAsync(command.Request.BreakIds);
             var deletedBreaks = await _clientVisibilityGuard.FilterVisibleAsync(
                 foundBreaks, b => b.ClientId, cancellationToken);
+            await _dayLockService.EnsureNoneLockedAsync(
+                deletedBreaks.Select(b => (b.CurrentDate, b.ClientId, b.AnalyseToken)).ToList(),
+                cancellationToken);
+
             foreach (var breakEntry in deletedBreaks)
             {
                 _breakRepository.Remove(breakEntry);

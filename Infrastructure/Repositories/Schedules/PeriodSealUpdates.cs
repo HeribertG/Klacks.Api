@@ -10,10 +10,12 @@
 /// </summary>
 /// <param name="entries">Entries of one period (and optionally one group), already filtered by the caller</param>
 /// <param name="level">Seal level; the seal raises entries below it, the unseal reopens entries at it</param>
+/// <param name="additionalSetters">Entity-specific columns the same UPDATE sets as well (the sealing group of a Break)</param>
 
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
 
@@ -23,20 +25,24 @@ internal static class PeriodSealUpdates
         IQueryable<TEntry> entries,
         WorkLockLevel level,
         string sealedBy,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
     {
         var sealedAt = DateTime.UtcNow;
 
         return entries
             .Where(e => e.LockLevel < level)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(e => e.PreSealLockLevel, e => (WorkLockLevel?)e.LockLevel)
-                .SetProperty(e => e.PreSealSealedAt, e => e.SealedAt)
-                .SetProperty(e => e.PreSealSealedBy, e => e.SealedBy)
-                .SetProperty(e => e.LockLevel, level)
-                .SetProperty(e => e.SealedAt, sealedAt)
-                .SetProperty(e => e.SealedBy, sealedBy), cancellationToken);
+            .ExecuteUpdateAsync(s =>
+            {
+                s.SetProperty(e => e.PreSealLockLevel, e => (WorkLockLevel?)e.LockLevel)
+                    .SetProperty(e => e.PreSealSealedAt, e => e.SealedAt)
+                    .SetProperty(e => e.PreSealSealedBy, e => e.SealedBy)
+                    .SetProperty(e => e.LockLevel, level)
+                    .SetProperty(e => e.SealedAt, sealedAt)
+                    .SetProperty(e => e.SealedBy, sealedBy);
+                additionalSetters?.Invoke(s);
+            }, cancellationToken);
     }
 
     /// <summary>
@@ -47,7 +53,8 @@ internal static class PeriodSealUpdates
     public static async Task<PeriodUnsealCounts> UnsealAsync<TEntry>(
         IQueryable<TEntry> entries,
         WorkLockLevel level,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
     {
         var sealedEntries = entries.Where(e => e.LockLevel == level);
@@ -57,19 +64,22 @@ internal static class PeriodSealUpdates
             .Select(g => new { Level = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
-        await sealedEntries.ExecuteUpdateAsync(s => s
-            .SetProperty(
-                e => e.LockLevel,
-                e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealLockLevel.Value : WorkLockLevel.None)
-            .SetProperty(
-                e => e.SealedAt,
-                e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedAt : null)
-            .SetProperty(
-                e => e.SealedBy,
-                e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedBy : null)
-            .SetProperty(e => e.PreSealLockLevel, (WorkLockLevel?)null)
-            .SetProperty(e => e.PreSealSealedAt, (DateTime?)null)
-            .SetProperty(e => e.PreSealSealedBy, (string?)null), cancellationToken);
+        await sealedEntries.ExecuteUpdateAsync(s =>
+        {
+            s.SetProperty(
+                    e => e.LockLevel,
+                    e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealLockLevel.Value : WorkLockLevel.None)
+                .SetProperty(
+                    e => e.SealedAt,
+                    e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedAt : null)
+                .SetProperty(
+                    e => e.SealedBy,
+                    e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedBy : null)
+                .SetProperty(e => e.PreSealLockLevel, (WorkLockLevel?)null)
+                .SetProperty(e => e.PreSealSealedAt, (DateTime?)null)
+                .SetProperty(e => e.PreSealSealedBy, (string?)null);
+            additionalSetters?.Invoke(s);
+        }, cancellationToken);
 
         return PeriodUnsealCounts.FromPreSealLevels(countsByPreSealLevel.Select(c => (c.Level, c.Count)));
     }

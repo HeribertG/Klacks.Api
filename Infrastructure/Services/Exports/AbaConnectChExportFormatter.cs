@@ -26,10 +26,11 @@
 /// Surcharge rows are emitted only when a surcharge wage type is configured; absence rows are emitted
 /// only when the absence is mapped — unmapped absences are counted in SkippedAbsenceCount instead of
 /// being dropped silently, mirroring DatevLugBewegungsdatenFormatter.
+/// Amount is the quantity in the unit of the Lohnart (PayrollType): a day-based entry (on-call duty) is written as its
+/// day count under the mapped Lohnart, which must be a day-based Lohnart in Abacus - never as an hour equivalent.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Klacks.Api.Application.Constants;
@@ -71,11 +72,6 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
     private const string AmountFormat = "F6";
     private const decimal DefaultFactor = 1m;
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyAbaconnectCh;
 
     public string ContentType => PayrollExportConstants.ContentTypeXml;
@@ -84,10 +80,9 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
         var preEntries = new List<XElement>();
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -100,44 +95,49 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.BaseWageType, entry.Quantity));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
                         preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.SurchargeWageType, entry.Quantity));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
                             continue;
                         }
 
                         preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, mapping.WageType, entry.Quantity));
-                        recordCount++;
+                        counter.Emitted++;
                         break;
+
+                    default:
+                        counter.UnsupportedKinds++;
+                        continue;
                 }
             }
         }
 
         var document = BuildDocument(preEntries);
 
-        return new PayrollExportResult
-        {
-            Content = Serialize(document),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(Serialize(document), counter.Emitted);
     }
 
     private static XElement CreatePreEntry(string employeeNumber, string periodDate, string periodNumber, string payrollType, decimal quantity)
@@ -191,23 +191,5 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
         }
 
         return stream.ToArray();
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 }

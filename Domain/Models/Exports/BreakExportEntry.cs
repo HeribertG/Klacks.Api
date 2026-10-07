@@ -3,7 +3,8 @@
 /// <summary>
 /// Export entry for a break/absence within the export period.
 /// @param AbsenceName - Name of the absence type
-/// @param BreakTime - Duration of the break in hours
+/// @param BreakTime - Duration of the break in hours (0 for on-call duty, which is not time off)
+/// @param IsOnCall - True when the absence type is on-call duty (Absence.IsOnCall); counted in days, not hours
 /// </summary>
 namespace Klacks.Api.Domain.Models.Exports;
 
@@ -18,4 +19,6 @@ public class BreakExportEntry
     public TimeOnly EndTime { get; set; }
 
     public decimal BreakTime { get; set; }
+
+    public bool IsOnCall { get; set; }
 }

@@ -5,7 +5,8 @@
 /// a client period export.
 /// @param ClientId - ID of the client this group belongs to
 /// @param ClientType - Employee or ExternEmp (Customer clients are never included)
-/// @param WorkEntries - The work entries performed by this client within the export period
+/// @param WorkEntries - The work entries performed by this client within the export period; the earliest work of a day lists that day's absences
+/// @param Absences - Absences on days on which the client has no work entry (vacation, sickness, on-call duty without call-out)
 /// </summary>
 using Klacks.Api.Domain.Enums;
 
@@ -22,6 +23,8 @@ public class ClientPeriodGroup
     public EntityTypeEnum ClientType { get; set; }
 
     public List<ClientWorkExportEntry> WorkEntries { get; set; } = [];
+
+    public List<BreakExportEntry> Absences { get; set; } = [];
 
     public List<ClientPeriodHoursExportEntry> PeriodHours { get; set; } = [];
 }

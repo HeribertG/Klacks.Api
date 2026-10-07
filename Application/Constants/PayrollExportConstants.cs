@@ -28,6 +28,8 @@ public static class PayrollExportConstants
 
     public const string FormatKeyBrightpayIeUk = "brightpay-ie-uk";
 
+    public const string FormatKeyBrightpayIeUkDaily = "brightpay-ie-uk-daily";
+
     public const string FormatKeyLogoBordroTr = "logo-bordro-tr";
 
     public const string DefaultDelimiter = ";";

@@ -29,11 +29,12 @@
 /// tenant-specific values. Rows for worked hours are always emitted (base wage type may be an
 /// empty placeholder until configured); surcharge rows are emitted only when a surcharge wage
 /// type is configured; absence rows are emitted only when the absence is mapped — unmapped
-/// absences are counted in SkippedAbsenceCount instead of being dropped silently.
+/// absences are counted in SkippedAbsenceCount instead of being dropped silently. Field 6 carries hours, so a
+/// day-based entry (PayrollQuantityUnit.Days, on-call duty) has no correct place in this layout: it is not emitted
+/// and counted in SkippedUnsupportedUnitCount, never written as one hour.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -47,11 +48,6 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
     private const string EstonianCulture = "et-EE";
     private const string EmptyField = "";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyMeritPalkEe;
 
     public string ContentType => PayrollExportConstants.ContentTypeCsv;
@@ -64,11 +60,10 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
             ? PayrollExportConstants.DefaultDelimiter
             : config.Delimiter;
         var culture = CultureInfo.GetCultureInfo(EstonianCulture);
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<string>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -81,42 +76,53 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         AppendLine(sb, delimiter, personnelCode, employeeName, config.BaseWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
                         AppendLine(sb, delimiter, personnelCode, employeeName, config.SurchargeWageType, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var importCode))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
+                            continue;
+                        }
+
+                        if (entry.Unit != PayrollQuantityUnit.Hours)
+                        {
+                            counter.UnsupportedUnits++;
                             continue;
                         }
 
                         AppendLine(sb, delimiter, personnelCode, employeeName, importCode, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
+
+                    default:
+                        counter.UnsupportedKinds++;
+                        continue;
                 }
             }
         }
 
-        return new PayrollExportResult
-        {
-            Content = Encoding.UTF8.GetBytes(sb.ToString()),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(Encoding.UTF8.GetBytes(sb.ToString()), counter.Emitted);
     }
 
     private static void AppendLine(
@@ -153,23 +159,5 @@ public class MeritPalkEeExportFormatter : IPayrollExportFormatter
             .Replace("\r", EmptyField)
             .Replace("\n", EmptyField)
             .Replace(delimiter, EmptyField);
-    }
-
-    private static Dictionary<string, string> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, string>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, string>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, string>();
-        }
     }
 }

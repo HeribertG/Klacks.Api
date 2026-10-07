@@ -1690,6 +1690,7 @@
   "periodClosing.format.abaconnect-ch": "AbaConnect (CH)",
   "periodClosing.format.bmd": "BMD NTCS",
   "periodClosing.format.brightpay-ie-uk": "BrightPay (IE/UK)",
+  "periodClosing.format.brightpay-ie-uk-daily": "BrightPay (IE/UK) – ημερήσια",
   "periodClosing.format.csv": "CSV",
   "periodClosing.format.datev": "DATEV",
   "periodClosing.format.datev-lug-bewegungsdaten": "DATEV Μισθοδοσία (δεδομένα κίνησης)",

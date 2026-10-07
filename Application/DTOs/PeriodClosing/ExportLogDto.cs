@@ -3,7 +3,9 @@
 namespace Klacks.Api.Application.DTOs.PeriodClosing;
 
 /// <summary>
-/// History entry for a completed order export run including scope, file metadata, and operator.
+/// History entry for a completed order export run including scope, file metadata, and operator. SkippedEntryCount
+/// is the number of entries a payroll formatter could not write (sum of the ExportLog skip counters);
+/// AbsenceMappingInvalid flags an unparsable absence mapping of the group.
 /// </summary>
 public class ExportLogDto
 {
@@ -34,4 +36,8 @@ public class ExportLogDto
     public string ExportedBy { get; set; } = string.Empty;
 
     public string? ExportedByName { get; set; }
+
+    public int SkippedEntryCount { get; set; }
+
+    public bool AbsenceMappingInvalid { get; set; }
 }

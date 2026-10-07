@@ -3,7 +3,9 @@
 /// <summary>
 /// Updates a single break (absence entry) and notifies the schedule. A break whose stored owner or whose
 /// new owner is outside the caller's group visibility is refused exactly like a break that does not exist;
-/// nothing is written.
+/// nothing is written. A break sealed by a period close (LockLevel Closed) may only be changed by an admin - the
+/// same rule the delete validator applies; independently of the role, the day lock refuses any write on a day that
+/// is sealed for the client (globally, or by a group the client is a member of or worked for that day).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 
@@ -12,6 +14,9 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -78,6 +83,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
             {
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
+            }
+
+            if (existing?.LockLevel == WorkLockLevel.Closed
+                && _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) != true)
+            {
+                throw new InvalidRequestException("Cannot modify a closed break entry.");
             }
 
             if (existing != null)

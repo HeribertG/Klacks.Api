@@ -44,6 +44,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IAbsenceRepository _absenceRepository;
+    private readonly ISealedDayRepository _sealedDayRepository;
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
 
     public RecoverySnapshotBuilder(
@@ -59,6 +60,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IGetAllClientIdsFromGroupAndSubgroups groupClientService,
         IScheduleCommandKeywordProvider keywordProvider,
         IAbsenceRepository absenceRepository,
+        ISealedDayRepository sealedDayRepository,
         ILogger<RecoverySnapshotBuilder> logger)
     {
         _clientRepository = clientRepository;
@@ -73,6 +75,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _groupClientService = groupClientService;
         _keywordProvider = keywordProvider;
         _absenceRepository = absenceRepository;
+        _sealedDayRepository = sealedDayRepository;
         _logger = logger;
     }
 
@@ -114,6 +117,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
         var works = BuildWorks(cells, onCallAbsenceIds, out var breakDays);
+        breakDays.Blocking.UnionWith(
+            await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken));
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
         var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd);
         var ineligible = await BuildIneligibleAsync(

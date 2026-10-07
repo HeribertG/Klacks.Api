@@ -2,10 +2,13 @@
 
 /// <summary>
 /// Loads the currently closed (LockLevel.Closed) Work and Break entries of a group's period and projects
-/// them into an employee-centric, day-granular payroll model. Group scoping uses the same predicate as the
-/// period-seal: an entry belongs to the group when its (parent) work's shift is assigned to the group via a
-/// GroupItem, with no subgroup cascade. Worked hours and the aggregated surcharge become separate day rows;
-/// each break becomes an absence day row.
+/// them into an employee-centric, day-granular payroll model. Group scoping uses the same predicates as the
+/// period-seal: a work belongs to the group when its shift is assigned to the group via a GroupItem, with no
+/// subgroup cascade; a break belongs to the group by GroupBreakScope (a same-day work of the group, or an
+/// active membership of the employee in the group on that day), so absences on days without any work are
+/// exported too. Worked hours and the aggregated surcharge become separate day rows; each absence and day
+/// becomes an absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call
+/// absence (Absence.IsOnCall), whose WorkTime is zero by design.
 /// </summary>
 /// <remarks>
 /// Known MVP gaps (deliberate, documented): (1) surcharges are a single aggregated decimal on each entry —
@@ -17,16 +20,18 @@
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Exports.Payroll;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class PayrollExportDataLoader : IPayrollExportDataLoader
 {
+    private const decimal OnCallDayQuantity = 1m;
+
     private readonly DataBaseContext _context;
 
     public PayrollExportDataLoader(DataBaseContext context)
@@ -53,24 +58,22 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
             .Include(w => w.Client)
             .ToListAsync(cancellationToken);
 
-        var clientIds = works.Select(w => w.ClientId).Distinct().ToHashSet();
+        var memberBreakIds = await GroupBreakScope.LoadMemberBreakIdsAsync(
+            _context, groupId, fromDate, untilDate, cancellationToken);
 
-        var breaks = clientIds.Count == 0
-            ? new List<Break>()
-            : await _context.Break
-                .AsNoTracking()
-                .Where(b => !b.IsDeleted
-                    && b.AnalyseToken == null
-                    && b.LockLevel == WorkLockLevel.Closed
-                    && b.CurrentDate >= fromDate
-                    && b.CurrentDate <= untilDate
-                    && clientIds.Contains(b.ClientId)
-                    && _context.Work.Any(w => !w.IsDeleted
-                        && w.ClientId == b.ClientId
-                        && w.CurrentDate == b.CurrentDate
-                        && _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted)))
-                .Include(b => b.Client)
-                .ToListAsync(cancellationToken);
+        var breaks = await _context.Break
+            .AsNoTracking()
+            .Where(b => !b.IsDeleted
+                && b.AnalyseToken == null
+                && b.LockLevel == WorkLockLevel.Closed
+                && b.CurrentDate >= fromDate
+                && b.CurrentDate <= untilDate
+                && b.Client != null
+                && (b.Client.Type == EntityTypeEnum.Employee || b.Client.Type == EntityTypeEnum.ExternEmp))
+            .WhereAttributedToGroup(_context, groupId, memberBreakIds)
+            .Include(b => b.Client)
+            .Include(b => b.Absence)
+            .ToListAsync(cancellationToken);
 
         var employeesById = new Dictionary<Guid, PayrollEmployee>();
 
@@ -113,11 +116,14 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
 
             foreach (var dayAbsenceGroup in group.GroupBy(b => new { b.CurrentDate, b.AbsenceId }))
             {
+                var isOnCall = dayAbsenceGroup.Any(b => b.Absence?.IsOnCall == true);
+
                 employee.Entries.Add(new PayrollDayEntry
                 {
                     Date = dayAbsenceGroup.Key.CurrentDate,
                     Kind = PayrollEntryKind.Absence,
-                    Quantity = dayAbsenceGroup.Sum(b => b.WorkTime),
+                    Quantity = isOnCall ? OnCallDayQuantity : dayAbsenceGroup.Sum(b => b.WorkTime),
+                    Unit = isOnCall ? PayrollQuantityUnit.Days : PayrollQuantityUnit.Hours,
                     AbsenceId = dayAbsenceGroup.Key.AbsenceId,
                 });
             }

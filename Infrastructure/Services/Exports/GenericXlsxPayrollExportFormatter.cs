@@ -12,9 +12,10 @@
 /// only Config.BaseWageType, Config.SurchargeWageType and Config.AbsenceMappingJson apply, exactly as
 /// in the CSV counterpart. Dates are written as real Excel dates (not text) so the target's import
 /// wizard can apply its own locale-specific date parsing/formatting.
+/// Quantity is unit-neutral, as in the CSV counterpart: a day-based entry (on-call duty) is written as its day count
+/// under the absence's mapped wage type, which must be a day-based wage type in the target system.
 /// </remarks>
 using System.Globalization;
-using System.Text.Json;
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
@@ -31,11 +32,6 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
     private const string HeaderWageType = "WageType";
     private const string HeaderQuantity = "Quantity";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyGenericPayrollXlsx;
 
     public string ContentType => ExportConstants.ContentTypeXlsx;
@@ -44,7 +40,8 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(SheetName);
@@ -55,8 +52,6 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
         sheet.Cell(1, 4).Value = HeaderQuantity;
 
         var row = 2;
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -66,6 +61,11 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         wageType = config.BaseWageType;
                         break;
@@ -73,6 +73,7 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
@@ -83,7 +84,7 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
                             continue;
                         }
 
@@ -91,6 +92,7 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
                         break;
 
                     default:
+                        counter.UnsupportedKinds++;
                         continue;
                 }
 
@@ -100,36 +102,13 @@ public class GenericXlsxPayrollExportFormatter : IPayrollExportFormatter
                 sheet.Cell(row, 3).Value = wageType;
                 sheet.Cell(row, 4).Value = entry.Quantity;
                 row++;
-                recordCount++;
+                counter.Emitted++;
             }
         }
 
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);
 
-        return new PayrollExportResult
-        {
-            Content = stream.ToArray(),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
+        return counter.ToResult(stream.ToArray(), counter.Emitted);
     }
 }

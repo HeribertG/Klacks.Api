@@ -25,10 +25,12 @@
 /// entirely (not populated by Klacks data) rather than emitted empty, since BrightPay's wizard only maps
 /// columns that are present. Unlike DatevLugBewegungsdatenFormatter (fixed 11-field layout, no header),
 /// this formatter always writes a header row because BrightPay resolves columns by header name.
+/// Day-based entries (PayrollQuantityUnit.Days, i.e. on-call duty days) cannot be expressed in this hourly
+/// import - writing them into an hours column would pay one hour per day - so they are not emitted and are
+/// counted in SkippedUnsupportedUnitCount instead.
 /// </remarks>
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Exports;
@@ -47,11 +49,6 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
     private const string HeaderTimeAndAHalfHours = "Number of time and a half hours";
     private const string EmptyField = "";
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyBrightpayIeUk;
 
     public string ContentType => PayrollExportConstants.ContentTypeCsv;
@@ -63,11 +60,10 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
         var delimiter = string.IsNullOrEmpty(config.Delimiter)
             ? DefaultDelimiterComma
             : config.Delimiter;
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
 
         var sb = new StringBuilder();
-        var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         AppendRow(sb, delimiter, HeaderWorksNumber, HeaderDescription, HeaderNormalHours, HeaderTimeAndAHalfHours);
 
@@ -81,42 +77,53 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
 
                 switch (entry.Kind)
                 {
+                    case PayrollEntryKind.WorkHours when entry.Unit != PayrollQuantityUnit.Hours:
+                    case PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                        counter.UnsupportedUnits++;
+                        continue;
+
                     case PayrollEntryKind.WorkHours:
                         AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(config.BaseWageType), quantity, EmptyField);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Surcharge:
                         if (string.IsNullOrEmpty(config.SurchargeWageType))
                         {
+                            counter.UnmappedSurcharges++;
                             continue;
                         }
 
                         AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(config.SurchargeWageType), EmptyField, quantity);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
 
                     case PayrollEntryKind.Absence:
                         var key = entry.AbsenceId?.ToString();
                         if (key == null || !absenceMapping.TryGetValue(key, out var mapping))
                         {
-                            skippedAbsenceCount++;
+                            counter.UnmappedAbsences++;
+                            continue;
+                        }
+
+                        if (entry.Unit != PayrollQuantityUnit.Hours)
+                        {
+                            counter.UnsupportedUnits++;
                             continue;
                         }
 
                         AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(mapping.WageType), quantity, EmptyField);
-                        recordCount++;
+                        counter.Emitted++;
                         break;
+
+                    default:
+                        counter.UnsupportedKinds++;
+                        continue;
                 }
             }
         }
 
-        return new PayrollExportResult
-        {
-            Content = ResolveEncoding(config.Encoding).GetBytes(sb.ToString()),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(ResolveEncoding(config.Encoding).GetBytes(sb.ToString()), counter.Emitted);
     }
 
     private static void AppendRow(StringBuilder sb, string delimiter, params string[] fields)
@@ -136,24 +143,6 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
             .Replace("\r", EmptyField)
             .Replace("\n", EmptyField)
             .Replace(delimiter, EmptyField);
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 
     private static Encoding ResolveEncoding(string? encodingName)

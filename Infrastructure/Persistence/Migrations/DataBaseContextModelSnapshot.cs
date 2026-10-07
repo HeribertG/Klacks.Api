@@ -7171,6 +7171,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool>("AbsenceMappingInvalid")
+                        .HasColumnType("boolean")
+                        .HasColumnName("absence_mapping_invalid");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");
@@ -7248,6 +7252,30 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<int>("RecordCount")
                         .HasColumnType("integer")
                         .HasColumnName("record_count");
+
+                    b.Property<int>("SkippedAbsenceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_absence_count");
+
+                    b.Property<int>("SkippedSupersededCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_superseded_count");
+
+                    b.Property<int>("SkippedUnmappedBaseWageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_unmapped_base_wage_count");
+
+                    b.Property<int>("SkippedUnmappedSurchargeCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_unmapped_surcharge_count");
+
+                    b.Property<int>("SkippedUnsupportedKindCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_unsupported_kind_count");
+
+                    b.Property<int>("SkippedUnsupportedUnitCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_unsupported_unit_count");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date")
@@ -8466,6 +8494,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("pre_seal_sealed_by");
 
+                    b.Property<Guid?>("PreSealSealedByGroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pre_seal_sealed_by_group_id");
+
                     b.Property<DateTime?>("SealedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sealed_at");
@@ -8473,6 +8505,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<string>("SealedBy")
                         .HasColumnType("text")
                         .HasColumnName("sealed_by");
+
+                    b.Property<Guid?>("SealedByGroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sealed_by_group_id");
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone")
@@ -9849,12 +9885,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_sealed_day");
 
-                    b.HasIndex("Date")
+                    b.HasIndex("Date", "Level")
                         .IsUnique()
                         .HasDatabaseName("ix_sealed_day_date_global")
                         .HasFilter("\"group_id\" IS NULL AND \"is_deleted\" = false");
 
-                    b.HasIndex("Date", "GroupId")
+                    b.HasIndex("Date", "GroupId", "Level")
                         .IsUnique()
                         .HasDatabaseName("ix_sealed_day_date_group")
                         .HasFilter("\"group_id\" IS NOT NULL AND \"is_deleted\" = false");

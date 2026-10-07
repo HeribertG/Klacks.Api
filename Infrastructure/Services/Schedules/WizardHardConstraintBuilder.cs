@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,17 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <summary>
 /// Default implementation of <see cref="IWizardHardConstraintBuilder"/> that reads directly from the DbContext.
 /// All four constraint sets are filtered by agent ids, period and the scenario AnalyseToken
-/// (using IS NOT DISTINCT FROM semantics to propagate null as "main scenario").
+/// (using IS NOT DISTINCT FROM semantics to propagate null as "main scenario"). A day sealed for an agent (global,
+/// or by a group the agent belongs to or worked for that day) becomes a zero-hour break blocker: no placement, no
+/// hours, like Free for consecutive days - so an apply never runs into the day lock.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 /// <param name="keywordProvider">Source of the currently effective (admin-configurable) command keyword tokens</param>
 public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
 {
     private readonly DataBaseContext _context;
+    private const string SealedDayBlockerReason = "SealedDay";
+
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public WizardHardConstraintBuilder(DataBaseContext context, IScheduleCommandKeywordProvider keywordProvider)
@@ -43,7 +48,11 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
 
         var commands = await BuildScheduleCommandsAsync(agentIdList, from, until, analyseToken, ct);
         var preferences = await BuildShiftPreferencesAsync(agentIdList, analyseToken, ct);
-        var blockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
+        var breakBlockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
+        var sealedDays = await DayLockAttribution.LoadLockedClientDaysAsync(_context, agentIdList, from, until, ct);
+        IReadOnlyList<CoreBreakBlocker> blockers = breakBlockers
+            .Concat(sealedDays.Select(d => new CoreBreakBlocker(d.ClientId.ToString(), d.Date, d.Date, SealedDayBlockerReason, 0m)))
+            .ToList();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
         var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);
         var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);

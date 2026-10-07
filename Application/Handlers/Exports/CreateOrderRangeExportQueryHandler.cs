@@ -234,9 +234,13 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
                     .Where(b => lookup.IsClosed(client.ClientId, b.BreakDate))
                     .ToList();
             }
+
+            client.Absences = client.Absences
+                .Where(b => lookup.IsClosed(client.ClientId, b.BreakDate))
+                .ToList();
         }
 
-        data.Clients = data.Clients.Where(c => c.WorkEntries.Count > 0).ToList();
+        data.Clients = data.Clients.Where(c => c.WorkEntries.Count > 0 || c.Absences.Count > 0).ToList();
     }
 
     private byte[] BuildZipArchive(

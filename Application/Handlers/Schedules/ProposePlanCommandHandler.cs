@@ -5,7 +5,9 @@
 /// create an AnalyseScenario, clone the real schedule under its token, flush, THEN partition the
 /// placements via the shared compliance partition service (so the guardrail sees the cloned world,
 /// not an empty one), then write the accepted placements via the BulkAddWorks pipeline. Blocked
-/// placements are reported as rejected with the violating rule's key.
+/// placements are reported as rejected with the violating rule's key. A placement on a day that is sealed for the
+/// client (globally, or by a group the client belongs to or worked for that day) is rejected up front: the scenario
+/// write itself would pass (scenario writes bypass the day lock), but accepting it could never reach the real plan.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -14,6 +16,7 @@
 /// <param name="mediator">Dispatches BulkAddWorksCommand for the written placements</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the guardrail check</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
+/// <param name="sealedDayRepository">Tells which (client, date) pairs are sealed</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -30,6 +33,7 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanCommand, ProposePlanOutcome>
 {
     private const string ShiftNotFoundReason = "shift not found";
+    private const string SealedDayReason = "day sealed";
     private const int HoursPerDay = 24;
 
     private readonly IShiftRepository _shiftRepository;
@@ -39,6 +43,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
@@ -47,7 +52,8 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         ICompliancePartitionService partitionService,
         IMediator mediator,
         IUnitOfWork unitOfWork,
-        IScenarioNameGenerator scenarioNameGenerator)
+        IScenarioNameGenerator scenarioNameGenerator,
+        ISealedDayRepository sealedDayRepository)
     {
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
@@ -56,6 +62,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _scenarioNameGenerator = scenarioNameGenerator;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     public async Task<ProposePlanOutcome> Handle(ProposePlanCommand request, CancellationToken cancellationToken)
@@ -78,10 +85,17 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             }
         }
 
+        var sealedPairs = await _sealedDayRepository.GetLockedPairsAsync(
+            placements.Select(p => (p.Date, p.ClientId)).Distinct().ToList(), cancellationToken);
+
         var resolved = new List<PlacementInput>();
         foreach (var placement in placements)
         {
-            if (shifts.ContainsKey(placement.ShiftId))
+            if (sealedPairs.Contains((placement.Date, placement.ClientId)))
+            {
+                rejected.Add(new RejectedPlacement(placement.ClientId, placement.ShiftId, placement.Date, SealedDayReason));
+            }
+            else if (shifts.ContainsKey(placement.ShiftId))
             {
                 resolved.Add(placement);
             }

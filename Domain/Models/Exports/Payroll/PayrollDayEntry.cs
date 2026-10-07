@@ -12,5 +12,7 @@ public class PayrollDayEntry
 
     public decimal Quantity { get; set; }
 
+    public PayrollQuantityUnit Unit { get; set; } = PayrollQuantityUnit.Hours;
+
     public Guid? AbsenceId { get; set; }
 }

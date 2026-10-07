@@ -8,6 +8,9 @@
 /// @param clientId - Client identifier used together with date to key Break lookups
 /// @param date - Work date used together with clientId to key Break lookups
 /// @param lookups - Pre-grouped WorkChange/Expenses/Break dictionaries for the whole export
+/// Breaks belong to a client and a day, not to a work: when a client has several works on one day, only the
+/// break carrier (the earliest work of that client and day, see SelectBreakCarrierWorkIds) lists the day's
+/// breaks, so no break is exported twice.
 /// </summary>
 using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Domain.Models.Schedules;
@@ -51,25 +54,49 @@ public static class WorkSubEntryMapper
         }).ToList();
     }
 
-    public static List<BreakExportEntry> MapBreaks(Guid clientId, DateOnly date, WorkSubEntryLookups lookups)
+    public static List<BreakExportEntry> MapBreaks(Guid workId, Guid clientId, DateOnly date, WorkSubEntryLookups lookups)
     {
+        if (lookups.BreakCarrierWorkIds is not null && !lookups.BreakCarrierWorkIds.Contains(workId))
+        {
+            return [];
+        }
+
         if (!lookups.Breaks.TryGetValue((clientId, date), out var breaksList))
         {
             return [];
         }
 
-        return breaksList.Select(b => new BreakExportEntry
+        return breaksList.Select(MapBreak).ToList();
+    }
+
+    public static BreakExportEntry MapBreak(Break breakEntry)
+    {
+        return new BreakExportEntry
         {
-            AbsenceName = b.Absence?.Name?.De ?? string.Empty,
-            BreakDate = b.CurrentDate,
-            StartTime = b.StartTime,
-            EndTime = b.EndTime,
-            BreakTime = b.WorkTime,
-        }).ToList();
+            AbsenceName = breakEntry.Absence?.Name?.De ?? string.Empty,
+            BreakDate = breakEntry.CurrentDate,
+            StartTime = breakEntry.StartTime,
+            EndTime = breakEntry.EndTime,
+            BreakTime = breakEntry.WorkTime,
+            IsOnCall = breakEntry.Absence?.IsOnCall == true,
+        };
+    }
+
+    /// <summary>
+    /// The work of each client and day that carries the day's breaks: the earliest by start time, ties broken by id.
+    /// </summary>
+    /// <param name="works">All works of the export</param>
+    public static HashSet<Guid> SelectBreakCarrierWorkIds(IEnumerable<Work> works)
+    {
+        return works
+            .GroupBy(w => (w.ClientId, w.CurrentDate))
+            .Select(g => g.OrderBy(w => w.StartTime).ThenBy(w => w.Id).First().Id)
+            .ToHashSet();
     }
 }
 
 public sealed record WorkSubEntryLookups(
     Dictionary<Guid, List<WorkChange>> WorkChanges,
     Dictionary<Guid, List<Expenses>> Expenses,
-    Dictionary<(Guid ClientId, DateOnly Date), List<Break>> Breaks);
+    Dictionary<(Guid ClientId, DateOnly Date), List<Break>> Breaks,
+    IReadOnlySet<Guid>? BreakCarrierWorkIds = null);

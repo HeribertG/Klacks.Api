@@ -5,6 +5,8 @@
 /// in the main schedule or in a named scenario. Delegates to the existing BulkAddWorks pipeline so all
 /// period-hour recalculation and validation logic stays in one place.
 /// A client hidden from the caller by group visibility is answered exactly like an unknown client id.
+/// A day that is sealed for the client is refused before anything is written, also for scenario placements (which
+/// the day lock itself lets through) - a sealed day is a fixed cell for every planner.
 /// </summary>
 /// <param name="clientId">UUID of the client (agent) to schedule.</param>
 /// <param name="shiftId">UUID of the shift to assign.</param>
@@ -37,19 +39,22 @@ public class PlaceWorkSkill : BaseSkillImplementation
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IClientRepository _clientRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly ISealedDayRepository _sealedDayRepository;
 
     public PlaceWorkSkill(
         IMediator mediator,
         IShiftRepository shiftRepository,
         IPreCommitConflictChecker conflictChecker,
         IClientRepository clientRepository,
-        IClientVisibilityGuard clientVisibilityGuard)
+        IClientVisibilityGuard clientVisibilityGuard,
+        ISealedDayRepository sealedDayRepository)
     {
         _mediator = mediator;
         _shiftRepository = shiftRepository;
         _conflictChecker = conflictChecker;
         _clientRepository = clientRepository;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _sealedDayRepository = sealedDayRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -76,6 +81,11 @@ public class PlaceWorkSkill : BaseSkillImplementation
         if (shift == null)
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
+        }
+
+        if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
+        {
+            return SkillResult.Error($"Day {date:yyyy-MM-dd} is sealed for client {clientId}; nothing was placed.");
         }
 
         var startTime = !string.IsNullOrWhiteSpace(startTimeRaw) && TimeOnly.TryParse(startTimeRaw, out var sParsed)

@@ -72,5 +72,11 @@ public class WorkLockLevelService : IWorkLockLevelService
         entity.PreSealLockLevel = null;
         entity.PreSealSealedAt = null;
         entity.PreSealSealedBy = null;
+
+        if (entity is Break absence)
+        {
+            absence.SealedByGroupId = null;
+            absence.PreSealSealedByGroupId = null;
+        }
     }
 }

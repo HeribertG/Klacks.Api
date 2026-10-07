@@ -18,7 +18,11 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 /// A non-empty reason is mandatory for every reopen operation. Each reopened work and break entry goes back to
 /// the lock level it had before the period seal (Confirmed and Approved survive a close/reopen); entries sealed
 /// before that level was recorded reopen to None. The result reports which is which.
+/// A group reopen only lifts absences that group's own close sealed (Break.SealedByGroupId) or that carry no
+/// sealing group; a group outside the caller's group visibility is answered like a period without entries:
+/// nothing is reopened and no audit row is written.
 /// </summary>
+/// <param name="groupVisibilityGuard">Decides whether the calling user may write the group being reopened</param>
 public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IRequestHandler<ReopenPeriodByGroupCommand, PeriodReopenResult>
 {
     private readonly IWorkRepository _workRepository;
@@ -28,6 +32,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
     private readonly IPeriodAuditLogRepository _auditLogRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IUserService _userService;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public ReopenPeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -37,6 +42,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         IPeriodAuditLogRepository auditLogRepository,
         ISealedDayRepository sealedDayRepository,
         IUserService userService,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IUnitOfWork unitOfWork,
         ILogger<ReopenPeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -48,6 +54,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         _auditLogRepository = auditLogRepository;
         _sealedDayRepository = sealedDayRepository;
         _userService = userService;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     /// <summary>
@@ -69,6 +76,12 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
 
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to reopen periods.");
+
+            if (request.GroupId.HasValue
+                && !await _groupVisibilityGuard.IsGroupVisibleAsync(request.GroupId.Value, cancellationToken))
+            {
+                return new PeriodReopenResult(0, 0, PeriodUnsealCounts.Empty);
+            }
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? AuditActorDefaults.UnknownActor;

@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Exports client period data (hours/expenses/breaks per employee and external employee for a
-/// date range) as XML, grouped by client instead of by order.
+/// date range) as XML, grouped by client instead of by order. Absences of a work day are nested in the day's
+/// earliest work; absences on days without work are listed under the client's Absences element.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -15,6 +16,8 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
 {
+    private const string AbsencesElement = "Absences";
+
     public string FormatKey => ExportConstants.FormatXml;
 
     public string ContentType => ExportConstants.ContentTypeXml;
@@ -70,6 +73,7 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
 
         writer.WriteEndElement();
 
+        ExportXmlElementWriter.WriteBreaks(writer, client.Absences, AbsencesElement);
         WritePeriodHours(writer, client.PeriodHours);
 
         writer.WriteEndElement();

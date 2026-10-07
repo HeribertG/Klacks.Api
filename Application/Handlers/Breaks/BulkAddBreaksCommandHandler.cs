@@ -150,12 +150,9 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
             throw new KeyNotFoundException(ClientsNotFoundMessage);
         }
 
-        foreach (var (clientId, date, analyseToken) in command.Request.Breaks
-            .Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken))
-            .Distinct())
-        {
-            await _dayLockService.EnsureNotLockedAsync(date, clientId, analyseToken, cancellationToken);
-        }
+        await _dayLockService.EnsureNoneLockedAsync(
+            command.Request.Breaks.Select(b => (b.CurrentDate, b.ClientId, b.AnalyseToken)).Distinct().ToList(),
+            cancellationToken);
 
         // Structural guard for breaks is duplicate-absence, not work-collision: a break may legitimately
         // sit over a work (BreakDominatesCollidingWork) or over an absence of another type (sick during

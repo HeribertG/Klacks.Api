@@ -34,14 +34,15 @@
 /// advance/settlement cycle), not something read from an authoritative WinMENTOR spec.
 /// (5) A day with a mapped Absence entry writes the absence code instead of hours; an unmapped
 /// Absence is counted in SkippedAbsenceCount (never dropped silently) and the day cell falls back
-/// to that day's summed WorkHours/Surcharge quantity instead.
+/// to that day's summed WorkHours/Surcharge quantity instead. The hours and further absences of a day whose cell
+/// holds an absence code (e.g. on-call duty plus a call-out) cannot be written and are counted in
+/// SkippedSupersededCount.
 /// (6) RecordCount here counts emitted employee rows (one row = the whole period), not individual
 /// entries, because this format is a per-employee calendar matrix rather than one row per entry.
 /// (7) Assumes the export period is a single calendar month; An/Luna are derived from StartDate and
 /// day headers are day-of-month numbers, so a multi-month period would produce misleading repeated
 /// day-of-month headers without raising an error.
 /// </remarks>
-using System.Text.Json;
 using ClosedXML.Excel;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Enums;
@@ -73,11 +74,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
     private const int FirstDataRow = 3;
     private const int AvansHalfMonthLastDay = 15;
 
-    private static readonly JsonSerializerOptions MappingJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
     public string FormatKey => PayrollExportConstants.FormatKeyWinmentorRo;
 
     public string ContentType => ExportConstants.ContentTypeXlsx;
@@ -86,7 +82,8 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
-        var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
+        var counter = new PayrollExportSkipCounter();
+        var absenceMapping = PayrollAbsenceMappingParser.Parse<PayrollAbsenceMapping>(config.AbsenceMappingJson, counter);
         var dates = GetPeriodDates(data);
 
         using var workbook = new XLWorkbook();
@@ -100,7 +97,6 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
 
         var row = FirstDataRow;
         var recordCount = 0;
-        var skippedAbsenceCount = 0;
 
         foreach (var employee in data.Employees)
         {
@@ -119,12 +115,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
                 var column = IdentityColumnCount + 1 + i;
                 entriesByDate.TryGetValue(date, out var dayEntries);
 
-                var (absenceCode, hours, isWorkedDay, absenceSkipped) = ResolveDayCell(dayEntries, absenceMapping);
-
-                if (absenceSkipped)
-                {
-                    skippedAbsenceCount++;
-                }
+                var (absenceCode, hours, isWorkedDay) = ResolveDayCell(dayEntries, absenceMapping, counter);
 
                 if (absenceCode is not null)
                 {
@@ -158,12 +149,7 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);
 
-        return new PayrollExportResult
-        {
-            Content = stream.ToArray(),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+        return counter.ToResult(stream.ToArray(), recordCount);
     }
 
     private static void WriteHeader(
@@ -208,39 +194,76 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         sheet.Cell(SubHeaderRow, startColumn + 3).Value = HeaderNightHours;
     }
 
-    private static (string? AbsenceCode, decimal? Hours, bool IsWorkedDay, bool AbsenceSkipped) ResolveDayCell(
+    /// <summary>
+    /// Decides the one cell of a day and accounts for every entry of that day: a mapped absence code wins the cell
+    /// and supersedes all other entries of the day (they are counted, not dropped); without one, the hour entries
+    /// are summed into the cell. Unmapped absences, day-based hour entries and unknown kinds are counted.
+    /// </summary>
+    private static (string? AbsenceCode, decimal? Hours, bool IsWorkedDay) ResolveDayCell(
         List<PayrollDayEntry>? dayEntries,
-        Dictionary<string, PayrollAbsenceMapping> absenceMapping)
+        Dictionary<string, PayrollAbsenceMapping> absenceMapping,
+        PayrollExportSkipCounter counter)
     {
         if (dayEntries is null || dayEntries.Count == 0)
         {
-            return (null, null, false, false);
+            return (null, null, false);
         }
 
-        var absenceEntry = dayEntries.FirstOrDefault(e => e.Kind == PayrollEntryKind.Absence);
-        if (absenceEntry is not null)
+        PayrollDayEntry? codeEntry = null;
+        string? absenceCode = null;
+        var hourEntries = new List<PayrollDayEntry>();
+        var mappedAbsences = new List<PayrollDayEntry>();
+
+        foreach (var entry in dayEntries)
         {
-            var key = absenceEntry.AbsenceId?.ToString();
-            if (key is not null
-                && absenceMapping.TryGetValue(key, out var mapping)
-                && !string.IsNullOrEmpty(mapping.Ausfallschluessel))
+            switch (entry.Kind)
             {
-                return (mapping.Ausfallschluessel, null, false, false);
-            }
+                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge when entry.Unit != PayrollQuantityUnit.Hours:
+                    counter.UnsupportedUnits++;
+                    break;
 
-            var fallbackHours = SumHours(dayEntries);
-            return (null, fallbackHours > 0 ? fallbackHours : null, fallbackHours > 0, true);
+                case PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge:
+                    hourEntries.Add(entry);
+                    break;
+
+                case PayrollEntryKind.Absence:
+                    var key = entry.AbsenceId?.ToString();
+                    if (key is null
+                        || !absenceMapping.TryGetValue(key, out var mapping)
+                        || string.IsNullOrEmpty(mapping.Ausfallschluessel))
+                    {
+                        counter.UnmappedAbsences++;
+                        break;
+                    }
+
+                    if (codeEntry is null)
+                    {
+                        codeEntry = entry;
+                        absenceCode = mapping.Ausfallschluessel;
+                    }
+                    else
+                    {
+                        mappedAbsences.Add(entry);
+                    }
+
+                    break;
+
+                default:
+                    counter.UnsupportedKinds++;
+                    break;
+            }
         }
 
-        var hours = SumHours(dayEntries);
-        return (null, hours > 0 ? hours : null, hours > 0, false);
-    }
+        if (codeEntry is not null)
+        {
+            counter.Emitted++;
+            counter.Superseded += hourEntries.Count + mappedAbsences.Count;
+            return (absenceCode, null, false);
+        }
 
-    private static decimal SumHours(List<PayrollDayEntry> dayEntries)
-    {
-        return dayEntries
-            .Where(e => e.Kind is PayrollEntryKind.WorkHours or PayrollEntryKind.Surcharge)
-            .Sum(e => e.Quantity);
+        counter.Emitted += hourEntries.Count;
+        var hours = hourEntries.Sum(e => e.Quantity);
+        return (null, hours > 0 ? hours : null, hours > 0);
     }
 
     private static List<DateOnly> GetPeriodDates(PayrollExportData data)
@@ -252,23 +275,5 @@ public class WinmentorRoExportFormatter : IPayrollExportFormatter
         }
 
         return dates;
-    }
-
-    private static Dictionary<string, PayrollAbsenceMapping> ParseAbsenceMapping(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, PayrollAbsenceMapping>>(json, MappingJsonOptions)
-                ?? new Dictionary<string, PayrollAbsenceMapping>();
-        }
-        catch (JsonException)
-        {
-            return new Dictionary<string, PayrollAbsenceMapping>();
-        }
     }
 }

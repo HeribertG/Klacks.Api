@@ -3,15 +3,18 @@
 /// <summary>
 /// Soft-deletes several Works in one call and recalculates the affected period hours. Works owned by
 /// clients outside the caller's group visibility are treated exactly like ids that do not exist: they are
-/// not deleted and count as failed.
+/// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
+/// lies on a sealed day (IDayLockService), whatever the caller's role.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the Works down to clients the calling user may write for</param>
+/// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -28,6 +31,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IDayLockService _dayLockService;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
@@ -37,6 +41,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
         IOvertimeCascadeService overtimeCascadeService,
+        IDayLockService dayLockService,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
@@ -47,6 +52,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _completionService = completionService;
         _notificationFacade = notificationFacade;
         _overtimeCascadeService = overtimeCascadeService;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -63,6 +69,10 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             var foundWorks = await _workRepository.GetByIdsAsync(command.Request.WorkIds);
             var deletedWorks = await _clientVisibilityGuard.FilterVisibleAsync(
                 foundWorks, w => w.ClientId, cancellationToken);
+            await _dayLockService.EnsureNoneLockedAsync(
+                deletedWorks.Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken)).ToList(),
+                cancellationToken);
+
             foreach (var work in deletedWorks)
             {
                 _workRepository.Remove(work);
