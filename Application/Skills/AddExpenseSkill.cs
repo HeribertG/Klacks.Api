@@ -9,7 +9,7 @@
 /// <param name="workId">UUID of the Work entry the expense belongs to (required).</param>
 /// <param name="amount">Expense amount (required).</param>
 /// <param name="description">Optional free-text description of the expense.</param>
-/// <param name="taxable">Optional flag whether the expense is taxable; defaults to false.</param>
+/// <param name="taxable">Optional flag; false (default) = Spese, non-taxable reimbursement of advanced money; true = Vergütung, taxable wage supplement.</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;

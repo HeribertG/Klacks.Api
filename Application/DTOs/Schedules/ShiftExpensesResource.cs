@@ -6,7 +6,7 @@
 /// <param name="ShiftId">The shift this default expense belongs to</param>
 /// <param name="Amount">Expense amount in currency</param>
 /// <param name="Description">Short description of the expense</param>
-/// <param name="Taxable">True = taxable (Spesen), False = reimbursement (Vergütung)</param>
+/// <param name="Taxable">True = taxable wage supplement (Vergütung), False = non-taxable reimbursement of advanced money (Spesen)</param>
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 public class ShiftExpensesResource

@@ -8,7 +8,7 @@
 /// <param name="expenseId">UUID of the expense entry to update (required).</param>
 /// <param name="amount">Optional new amount.</param>
 /// <param name="description">Optional new description.</param>
-/// <param name="taxable">Optional new taxable flag.</param>
+/// <param name="taxable">Optional new flag; false = Spese (non-taxable reimbursement), true = Vergütung (taxable wage supplement).</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;

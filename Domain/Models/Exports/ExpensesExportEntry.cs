@@ -1,9 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Export entry for expenses or reimbursements linked to a work entry.
+/// Export entry for an expense (non-taxable reimbursement) or an allowance (taxable wage supplement) linked to a work entry.
 /// @param Amount - The monetary amount
-/// @param Taxable - True for taxable expenses, false for reimbursements
+/// @param Taxable - True for a taxable allowance (Vergütung), false for a non-taxable expense reimbursement (Spesen)
 /// </summary>
 namespace Klacks.Api.Domain.Models.Exports;
 

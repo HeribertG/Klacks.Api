@@ -20,6 +20,10 @@
 /// than the project's other country-pack formatters. Klacks has no chart-of-accounts or Kros
 /// center/order/operation codes, so those fields are left empty; the worker internal number is the
 /// employee's personnel number, mirroring the placeholder-account approach used elsewhere.
+/// Expense mapping: a non-taxable expense (Spesen, reimbursement of advanced money) is written as item
+/// type 1 (reimbursement); a taxable allowance (Vergütung, wage supplement) is written as item type 0
+/// (accounting entry), like the work line. The spec notes define no dedicated item type for a taxable
+/// wage supplement, and the deduction type 2 is never written because neither kind is a deduction.
 /// </remarks>
 using System.Globalization;
 using System.Text;
@@ -40,7 +44,6 @@ public class OmegaSkExportFormatter : IExportFormatter
     private const string OmegaFormatVersion = "1.0";
     private const string ItemTypeAccountingEntry = "0";
     private const string ItemTypeReimbursement = "1";
-    private const string ItemTypeReduction = "2";
 
     public string FormatKey => ExportConstants.FormatOmegaSk;
 
@@ -89,7 +92,7 @@ public class OmegaSkExportFormatter : IExportFormatter
 
                 foreach (var expense in work.Expenses)
                 {
-                    var itemType = expense.Taxable ? ItemTypeReimbursement : ItemTypeReduction;
+                    var itemType = expense.Taxable ? ItemTypeAccountingEntry : ItemTypeReimbursement;
                     AppendItem(sb, itemType, work.EmployeeIdNumber, work.WorkDate, expense.Description, expense.Amount);
                 }
             }

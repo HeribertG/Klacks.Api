@@ -220,7 +220,7 @@ verwerfen muss.
 ### Planungsraster (Mitarbeiter × Tage)
 
 - Zell-Typen: Dienst-Einträge, Korrekturen/Ablösungen/An- u. Abreise/Briefing,
-  **Spesen/Vergütung** (steuerpflichtig = Spesen, nicht steuerpflichtig = Vergütung),
+  **Spesen/Vergütung** (Spesen = nicht steuerpflichtig, Auslagenersatz für vorgeschossenes Geld; Vergütung = steuerpflichtig, Lohnzusatz),
   Absenzen sowie Notizen und Planungs-Befehle.
 - **Drag & Drop — Schicht aus der Schicht-Sektion**: Eine Schicht aus dem unteren
   Schicht-Bereich mit der Maus in eine Zelle des Rasters ziehen — der Dienst wird sofort

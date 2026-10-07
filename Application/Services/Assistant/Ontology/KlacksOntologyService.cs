@@ -242,7 +242,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         ["Expenses"] =
         [
             "Expenses belong to a Work and bill costs (e.g. travel); they are NOT working time and do not count toward hour limits.",
-            "Taxable=true is an expense (salary component), Taxable=false a reimbursement."
+            "Taxable=false is an expense (Spesen): reimbursement of money the employee advanced, e.g. a train ticket or cleaning supplies. Taxable=true is an allowance (Vergütung): a taxable wage supplement. Several of each per Work are normal."
         ],
         ["ShiftExpenses"] =
         [

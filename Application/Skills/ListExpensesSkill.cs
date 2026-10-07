@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Lists all expense entries via ListQuery&lt;ExpensesResource&gt;. Each expense belongs to a Work
-/// entry (workId) and carries amount, description and the taxable flag. Use this to find expense
+/// entry (workId) and carries amount, description and the taxable flag (false = Spese, true = Vergütung). Use this to find expense
 /// IDs before update_expense / delete_expense.
 /// </summary>
 

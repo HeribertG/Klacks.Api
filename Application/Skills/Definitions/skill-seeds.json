@@ -22997,7 +22997,7 @@
     {
       "name": "list_expenses",
       "area": "period",
-      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. taxable=false is Spese, taxable=true is Vergütung. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23059,12 +23059,12 @@
         "fr": "Lister les dépenses",
         "it": "Elenca le spese"
       },
-      "version": 9
+      "version": 10
     },
     {
       "name": "add_expense",
       "area": "period",
-      "description": "Adds an expense entry (amount, description, taxable flag) to an existing Work entry (shift assignment). The handler enforces day-lock rules and triggers period-hour recalculation plus schedule notifications. Use read_schedule_state to find the workId of the assignment the expense belongs to. Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Adds an expense entry (amount, description, taxable flag) to an existing Work entry (shift assignment). Spese/expense = taxable false (reimbursement of money the employee advanced, e.g. a train ticket); Vergütung/allowance = taxable true (taxable wage supplement); default false. The handler enforces day-lock rules and triggers period-hour recalculation plus schedule notifications. Use when the user wants to add a new item. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23097,7 +23097,7 @@
         },
         {
           "name": "taxable",
-          "description": "Whether the expense is taxable; defaults to false.",
+          "description": "False = Spese/expense (non-taxable reimbursement of money the employee advanced); true = Vergütung/allowance (taxable wage supplement). Defaults to false.",
           "type": "Boolean",
           "required": false,
           "defaultValue": false,
@@ -23156,12 +23156,12 @@
         "fr": "Ajouter une dépense à un service",
         "it": "Aggiungi una spesa a un turno"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_expense",
       "area": "period",
-      "description": "Updates an existing expense entry. Only supplied fields change (amount, description, taxable); fields not supplied keep their current value. Day-lock rules are enforced and period-hour recalculation runs. Use list_expenses first to find the expenseId. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing expense entry. Only supplied fields change (amount, description, taxable); other fields keep their value. taxable false = Spese/expense (reimbursement of money the employee advanced), true = Vergütung/allowance (taxable wage supplement). Day-lock rules are enforced and period-hour recalculation runs. Needs the expenseId. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -23194,7 +23194,7 @@
         },
         {
           "name": "taxable",
-          "description": "Optional new taxable flag.",
+          "description": "Optional new taxable flag: false = Spese/expense, true = Vergütung/allowance.",
           "type": "Boolean",
           "required": false,
           "defaultValue": null,
@@ -23246,7 +23246,7 @@
         "fr": "Modifier une dépense",
         "it": "Modifica una spesa"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "delete_expense",
