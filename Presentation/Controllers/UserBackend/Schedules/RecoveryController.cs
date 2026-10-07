@@ -17,8 +17,11 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// pick a different person than the engine's first choice. Open to every authenticated user (owner
 /// decision 2026-10-06): a sick call is handled by whoever plans the group, the flow only proposes a
 /// scenario, accepting one is open to every authenticated user anyway (AnalyseScenariosController), the
-/// compliance override is authorised separately by ISupervisorOverrideAuthorizer, and the candidate pool
-/// is filtered by the caller's group visibility inside the handler.
+/// compliance override is authorised separately by ISupervisorOverrideAuthorizer, and group visibility is
+/// enforced inside the handlers: CoverAbsence refuses an absent employee outside the caller's visibility like
+/// a missing one and drops repair options touching hidden employees; Candidates answers a group outside the
+/// caller's visibility exactly like an unknown group (empty lists) and limits both the eligible and the
+/// excluded list to employees the caller may see.
 /// </summary>
 /// <param name="mediator">Dispatches the reused CoverAbsenceCommand and FindReplacementQuery.</param>
 [ApiController]
@@ -64,7 +67,7 @@ public sealed class RecoveryController : ControllerBase
     /// <param name="date">Workday</param>
     /// <param name="startTime">Slot start</param>
     /// <param name="endTime">Slot end</param>
-    /// <param name="groupId">Group whose members form the candidate pool</param>
+    /// <param name="groupId">Group whose visible members form the candidate pool; a hidden group yields empty lists</param>
     /// <param name="analyseToken">Optional scenario token; candidates are checked against the isolated scenario</param>
     /// <param name="overrideBlock">K1 supervisor override for a Block-mode compliance exclusion</param>
     [HttpGet("Candidates")]

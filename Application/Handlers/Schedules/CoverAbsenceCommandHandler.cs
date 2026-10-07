@@ -10,8 +10,8 @@
 /// The proposal is partitioned via <see cref="ICompliancePartitionService"/> (pre-commit guardrail plus
 /// the K1 supervisor override); blocked deltas are reported as uncovered, and the non-blocking rule
 /// conflicts on the materialised set are surfaced in the outcome for supervised review.
-/// An absent employee outside the caller's group visibility is refused exactly like an employee that does
-/// not exist, before anything is written; repair options that would write for a replacement or swap partner
+/// A group or an absent employee outside the caller's group visibility is refused exactly like one that does
+/// not exist, before any scenario, plan clone or absence is written; repair options that would write for a replacement or swap partner
 /// outside the caller's visibility are dropped and reported as uncovered (no eligible candidate).
 /// </summary>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
@@ -25,6 +25,7 @@
 /// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision (skipped when the command says the planner is handling it interactively)</param>
 /// <param name="companyClock">Resolves the company's time zone to DST-safely convert the absent employee's shift start to UTC</param>
 /// <param name="clientVisibilityGuard">Decides for which employees the calling user may write</param>
+/// <param name="groupVisibilityGuard">Decides whether the calling user may plan the requested group at all</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
@@ -60,6 +61,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private const int HoursPerDay = 24;
     private const int MaxAbsenceDays = 31;
     private const decimal DefaultAbsenceHours = 8m;
+    private const string GroupNotFoundMessage = "Group with ID {0} not found";
     private static readonly TimeOnly DayStart = new(0, 0);
     private static readonly TimeOnly DayEnd = new(23, 59);
 
@@ -74,6 +76,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IEscalationChainService _escalationChainService;
     private readonly ICompanyClock _companyClock;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
@@ -89,6 +92,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IEscalationChainService escalationChainService,
         ICompanyClock companyClock,
         IClientVisibilityGuard clientVisibilityGuard,
+        IGroupVisibilityGuard groupVisibilityGuard,
         IScenarioNameGenerator scenarioNameGenerator,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
@@ -103,6 +107,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _escalationChainService = escalationChainService;
         _companyClock = companyClock;
         _clientVisibilityGuard = clientVisibilityGuard;
+        _groupVisibilityGuard = groupVisibilityGuard;
         _scenarioNameGenerator = scenarioNameGenerator;
         _logger = logger;
     }
@@ -125,6 +130,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         {
             throw new ArgumentException(
                 $"Absence spans {totalDays} days; the maximum is {MaxAbsenceDays}. Split into smaller periods.");
+        }
+
+        if (!await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
+        {
+            throw new KeyNotFoundException(string.Format(GroupNotFoundMessage, groupId));
         }
 
         if (!await _clientVisibilityGuard.IsVisibleAsync(clientId, cancellationToken))

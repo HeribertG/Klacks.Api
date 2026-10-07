@@ -11,6 +11,9 @@
 /// the required level), or when the shift is blacklisted for them; aggregate findings lower the rank
 /// instead. Among equally clean candidates the one furthest below their period target hours ranks
 /// higher (fairness; TargetHoursDeficit is surfaced per candidate).
+/// A shift outside the caller's group visibility is answered exactly like a missing shift: a shift is visible
+/// when it belongs to no group at all or to at least one group the caller may see (the plan-view rule), so its
+/// name never leaks. The candidate pool itself is filtered by the query handler.
 /// </summary>
 /// <param name="shiftId">Required. UUID of the shift to fill.</param>
 /// <param name="date">Required. Workday in ISO yyyy-MM-dd.</param>
@@ -19,10 +22,12 @@
 /// <param name="overrideBlock">Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false.</param>
 
 using Klacks.Api.Application.Helpers;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -33,13 +38,16 @@ public class FindReplacementSkill : BaseSkillImplementation
 {
     private readonly IShiftRepository _shiftRepository;
     private readonly IMediator _mediator;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public FindReplacementSkill(
         IShiftRepository shiftRepository,
-        IMediator mediator)
+        IMediator mediator,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _shiftRepository = shiftRepository;
         _mediator = mediator;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -65,7 +73,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
 
         var shift = await _shiftRepository.Get(shiftId);
-        if (shift == null)
+        if (shift == null || !await IsShiftVisibleAsync(shift, cancellationToken))
         {
             return SkillResult.Error($"Shift {shiftId} not found.");
         }
@@ -104,6 +112,29 @@ public class FindReplacementSkill : BaseSkillImplementation
             $"{result.Excluded.Count} excluded (absence / unavailable / collision / rest time / missing qualification / blacklist).";
 
         return SkillResult.SuccessResult(data, message);
+    }
+
+    private async Task<bool> IsShiftVisibleAsync(Shift shift, CancellationToken cancellationToken)
+    {
+        var groupIds = shift.GroupItems
+            .Where(item => !item.IsDeleted)
+            .Select(item => item.GroupId)
+            .Distinct()
+            .ToList();
+        if (groupIds.Count == 0 || await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken))
+        {
+            return true;
+        }
+
+        foreach (var groupId in groupIds)
+        {
+            if (await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static object Project(

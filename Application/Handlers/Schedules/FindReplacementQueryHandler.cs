@@ -18,6 +18,10 @@
 /// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
 /// the root is resolved first and the root-wide result is then narrowed back to the requested group's
 /// own subtree.
+/// Group visibility is a security boundary: a group outside the caller's visibility is answered exactly like an
+/// unknown group (empty result, the pool is never loaded), and within a visible group the pool is narrowed to the
+/// clients the caller may see before anything else is evaluated, so neither the eligible nor the excluded list can
+/// name a hidden employee. Admins and callers without a user are unrestricted (the guards decide).
 /// </summary>
 /// <param name="clientRepository">Resolves the active clients under the group's root (the raw pool)</param>
 /// <param name="groupRepository">Resolves the requested group's root, because the client repository filters on the root id</param>
@@ -30,6 +34,8 @@
 /// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
 /// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
 /// <param name="absenceRepository">Resolves which absence types are on-call (not absent, preferred instead)</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may see the requested group at all</param>
+/// <param name="clientVisibilityGuard">Narrows the candidate pool to the employees the caller may see</param>
 /// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance exclusion</param>
 using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -68,6 +74,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAbsenceRepository _absenceRepository;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ILogger<FindReplacementQueryHandler> _logger;
 
     public FindReplacementQueryHandler(
@@ -82,6 +90,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         ISupervisorOverrideAuthorizer overrideAuthorizer,
         IHttpContextAccessor httpContextAccessor,
         IAbsenceRepository absenceRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IClientVisibilityGuard clientVisibilityGuard,
         ILogger<FindReplacementQueryHandler> logger)
     {
         _clientRepository = clientRepository;
@@ -95,12 +105,14 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         _overrideAuthorizer = overrideAuthorizer;
         _httpContextAccessor = httpContextAccessor;
         _absenceRepository = absenceRepository;
+        _groupVisibilityGuard = groupVisibilityGuard;
+        _clientVisibilityGuard = clientVisibilityGuard;
         _logger = logger;
     }
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
     {
-        var members = await ResolveGroupMembersAsync(request.GroupId, cancellationToken);
+        var members = await ResolveVisibleGroupMembersAsync(request.GroupId, cancellationToken);
         if (members.Count == 0)
         {
             return new ReplacementSearchResult([], []);
@@ -222,6 +234,25 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ToList();
 
         return new ReplacementSearchResult(ranked, excluded);
+    }
+
+    /// <summary>
+    /// The candidate pool as the caller may see it. A hidden group yields the same empty pool as an unknown one
+    /// and is rejected before any group or client is loaded; otherwise the resolved members are narrowed to the
+    /// visible clients, so every later step (absences, conflicts, period hours, excluded reasons) only ever sees
+    /// employees the caller is allowed to know about.
+    /// </summary>
+    /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
+    private async Task<List<Client>> ResolveVisibleGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
+    {
+        if (!await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, cancellationToken))
+        {
+            _logger.LogWarning("find_replacement was called for group {GroupId} outside the caller's visibility; no candidates.", groupId);
+            return [];
+        }
+
+        var members = await ResolveGroupMembersAsync(groupId, cancellationToken);
+        return await _clientVisibilityGuard.FilterVisibleAsync(members, c => c.Id, cancellationToken);
     }
 
     /// <summary>
