@@ -5,7 +5,8 @@
 /// works/changes/breaks in a +/- BoundaryDays window, builds the schedule timeline once with and
 /// once without synthetic blocks for the planned rows, runs the shared validation builders over both
 /// and returns the violations present only in the augmented run (the ones the placement introduces).
-/// Grouped per client so the timeline is loaded once per client even for batch placements.
+/// Grouped per client so the timeline is loaded once per client even for batch placements. A placement
+/// over an on-call break is reported as an on-call-overlap Warning instead of a blocking collision.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
 /// <param name="timelineCalculator">Shared Work-to-ScheduleBlock mapper (same one the live validator uses)</param>
@@ -103,6 +104,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // A client may only appear on the removal side (it hands a shift away without receiving one),
         // and would then never be evaluated if the loop only walked the planned rows.
         var affectedClients = rowsByClient.Keys.Union(removalsByClient.Keys).ToList();
+        var onCallAbsenceIds = await OnCallAbsenceQuery.LoadIdsAsync(_context, cancellationToken);
 
         foreach (var clientId in affectedClients)
         {
@@ -134,8 +136,9 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 : workChanges.Where(c => remainingWorkIds.Contains(c.WorkId)).ToList();
             var augmentedBlocks = _timelineCalculator.CalculateScheduleBlocks(augmentedWorks, augmentedWorkChanges, breaks);
 
-            var baselineEntries = Validate(baselineBlocks, clientId, windowStart, windowEnd, policy);
-            var augmentedEntries = Validate(augmentedBlocks, clientId, windowStart, windowEnd, policy);
+            var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(breaks, onCallAbsenceIds);
+            var baselineEntries = Validate(baselineBlocks, clientId, windowStart, windowEnd, policy, onCallBreakIds);
+            var augmentedEntries = Validate(augmentedBlocks, clientId, windowStart, windowEnd, policy, onCallBreakIds);
 
             var baselineKeys = baselineEntries.Select(BuildKey).ToHashSet();
             newConflicts.AddRange(augmentedEntries.Where(e => !baselineKeys.Contains(BuildKey(e))));
@@ -481,14 +484,15 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         Guid clientId,
         DateOnly from,
         DateOnly to,
-        SchedulingPolicy policy)
+        SchedulingPolicy policy,
+        IReadOnlySet<Guid> onCallBreakIds)
     {
         var timeline = new ClientTimeline(clientId);
         timeline.AddBlocks(blocks.Where(b => b.ClientId == clientId));
         timeline.SortBlocks();
 
         var entries = new List<ScheduleValidationNotificationDto>();
-        ScheduleValidationBuilder.AddCollisions(entries, timeline, string.Empty);
+        ScheduleValidationBuilder.AddCollisions(entries, timeline, string.Empty, onCallBreakIds);
         ScheduleValidationBuilder.AddRestViolations(entries, timeline, string.Empty, policy);
         ScheduleValidationBuilder.AddOvertime(entries, timeline, string.Empty, from, to, policy);
         ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, string.Empty, from, to, policy);

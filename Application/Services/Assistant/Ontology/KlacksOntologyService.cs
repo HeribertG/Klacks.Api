@@ -212,7 +212,8 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Absence is the CATALOG of absence types (holiday, sickness, ...), not an absence itself — the event is Break.",
             "Name, Description and Abbreviation are MultiLanguage — an absence type is looked up by its text in the user's language, never by a single hard-coded string.",
-            "WithHoliday/WithSaturday/WithSunday are stored on the type but no calculation reads them today — toggling them changes nothing. IsUnpaid only sticks together with HideInGantt and AppliesToContainer, and then deducts the span from the paid time of the surrounding container shift."
+            "WithHoliday/WithSaturday/WithSunday are stored on the type but no calculation reads them today — toggling them changes nothing. IsUnpaid only sticks together with HideInGantt and AppliesToContainer, and then deducts the span from the paid time of the surrounding container shift.",
+            "IsOnCall marks on-call duty (seeded: Pikett): a Break of such a type does NOT make the employee absent for replacement search and recovery — they are offered FIRST as a replacement (even on a contractual day off; a FREE keyword or any other absence the same day still blocks). The wizards still treat the day as occupied, and a work over it is an on-call-overlap warning, not a collision."
         ],
         ["Group"] =
         [

@@ -9,16 +9,19 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// Aggregate findings (overtime/consecutive/min-rest) are kept as a soft signal — fewer means more
 /// rule headroom, so the candidate ranks higher. The target-hours deficit (target minus already
 /// assigned hours in the period) is a fairness signal — a larger positive deficit means the employee
-/// is further below their target, so they rank higher (Playbook §6.4 step 3b/3c).
+/// is further below their target, so they rank higher (Playbook §6.4 step 3b/3c). An employee on call
+/// that day ranks ahead of everyone else.
 /// </summary>
 /// <param name="ClientId">Eligible employee</param>
 /// <param name="Name">Display name</param>
 /// <param name="IsPreferred">True when the shift is a preferred shift for this employee</param>
 /// <param name="SoftConflicts">Non-blocking aggregate findings that lower the ranking</param>
 /// <param name="TargetHoursDeficit">Period target hours minus already-assigned hours; positive means below target (ranks higher), zero when no data/target</param>
+/// <param name="IsOnCall">True when the employee holds an on-call absence on the date (ranks first)</param>
 public sealed record ReplacementCandidate(
     Guid ClientId,
     string Name,
     bool IsPreferred,
     IReadOnlyList<ScheduleValidationNotificationDto> SoftConflicts,
-    decimal TargetHoursDeficit);
+    decimal TargetHoursDeficit,
+    bool IsOnCall = false);

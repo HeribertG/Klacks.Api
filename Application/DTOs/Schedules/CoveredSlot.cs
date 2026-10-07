@@ -11,7 +11,8 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="ReplacementClientId">Employee proposed to take over</param>
 /// <param name="ReplacementName">Display name of the replacement</param>
 /// <param name="Tier">Escalation tier this cover needed, as an int so the DTO stays engine-free:
-/// 0 in-group free, 1 in-group swap, 2 cross-group free, 3 cross-group swap. Lets the UI show how far
+/// 0 in-group free, 1 in-group swap, 2 cross-group free, 3 cross-group swap, 5 in-group on-call,
+/// 6 cross-group on-call (values are append-only, not an order). Lets the UI show how far
 /// the engine had to reach instead of presenting every cover as equally cheap.</param>
 /// <param name="WorkId">The scenario clone of the covered work, where the Replacement WorkChange lives; null when the work was not cloned</param>
 /// <param name="StartTime">Slot start, so the UI can ask Recovery/Candidates for alternatives without re-reading the grid</param>

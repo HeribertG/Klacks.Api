@@ -15,8 +15,8 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="Covered">Slots with a proposed replacement</param>
 /// <param name="Uncovered">Slots left uncovered (under-coverage or locked)</param>
 /// <param name="ComplianceWarnings">Non-blocking rule conflicts on the materialised replacements (Warn-mode violations and overridden blocks)</param>
-/// <param name="HighestTier">Highest escalation tier the accepted result actually needed (4 when
-/// anything stayed uncovered). Computed after the compliance partition, so a blocked swap is not
+/// <param name="HighestTier">Escalation tier (CoveredSlot.Tier values) furthest along the escalation order
+/// that the accepted result actually needed (4 when anything stayed uncovered). Computed after the compliance partition, so a blocked swap is not
 /// reported as a cover that never happened.</param>
 public sealed record CoverAbsenceOutcome(
     Guid ScenarioId,

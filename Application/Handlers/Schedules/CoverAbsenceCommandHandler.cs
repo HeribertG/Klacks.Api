@@ -178,11 +178,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap);
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
-        var highestTier = materializable.Count > 0 ? materializable.Max(d => (int)d.Tier) : 0;
-        if (uncovered.Count > 0)
-        {
-            highestTier = Math.Max(highestTier, (int)Rec.EscalationTier.Uncovered);
-        }
+        var highestTier = (int)HighestTierOf(materializable, uncovered.Count > 0);
 
         return new CoverAbsenceOutcome(
             scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier);
@@ -386,6 +382,13 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         return (visible, hiddenOptions);
     }
+
+    /// <summary>
+    /// The tier furthest along the escalation order among the accepted deltas, or Uncovered when a slot
+    /// stayed open. Compared by <see cref="Rec.EscalationTierSeverity"/>, never by the append-only enum value.
+    /// </summary>
+    private static Rec.EscalationTier HighestTierOf(IReadOnlyList<Rec.CellDelta> materializable, bool anyUncovered)
+        => Rec.EscalationTierSeverity.Highest(materializable.Select(d => d.Tier), anyUncovered);
 
     private static IReadOnlyList<CoveredSlot> BuildCovered(
         IReadOnlyList<Rec.CellDelta> deltas,

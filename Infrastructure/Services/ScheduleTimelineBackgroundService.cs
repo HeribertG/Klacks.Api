@@ -319,6 +319,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .AsNoTracking()
             .Where(b => b.ClientId == clientId && b.CurrentDate == date && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
+        var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(
+            breaks, await OnCallAbsenceQuery.LoadIdsAsync(dbContext, cancellationToken));
 
         var clientNameLookup = ScheduleClientNames.Build(allWorks, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(allWorks, workChanges, breaks);
@@ -372,7 +374,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} on {Date}", clientId, date);
         }
 
-        var collisionNotification = TimelineCollisionNotificationBuilder.BuildNotification(timeline, clientNameLookup, false, clientId, date, analyseToken);
+        ScheduleValidationBuilder.AddOnCallOverlaps(entries, timeline, clientName, onCallBreakIds);
+        var collisionNotification = TimelineCollisionNotificationBuilder.BuildNotification(timeline, clientNameLookup, false, clientId, date, analyseToken, onCallBreakIds);
         await notificationService.NotifyCollisionsDetected(collisionNotification);
 
         // Escalates Warning to Error for rules configured as Block. Entries whose key the escalation map
@@ -431,6 +434,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .AsNoTracking()
             .Where(b => b.CurrentDate >= startDate && b.CurrentDate <= endDate && !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
             .ToListAsync(cancellationToken);
+        var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(
+            breaks, await OnCallAbsenceQuery.LoadIdsAsync(dbContext, cancellationToken));
 
         var clientNameLookup = ScheduleClientNames.Build(works, workChanges);
         var scheduleBlocks = timelineCalculationService.CalculateScheduleBlocks(works, workChanges, breaks);
@@ -499,7 +504,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
             allEntries.AddRange(await holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, HolidayWorkTimelineCheck.RangeCandidates(timeline, startDate, spillIn), cancellationToken));
 
-            allCollisions.AddRange(TimelineCollisionNotificationBuilder.BuildList(timeline, clientNameLookup));
+            ScheduleValidationBuilder.AddOnCallOverlaps(allEntries, timeline, clientName, onCallBreakIds);
+            allCollisions.AddRange(TimelineCollisionNotificationBuilder.BuildList(timeline, clientNameLookup, onCallBreakIds));
         }
 
         allEntries.AddRange(await HolidayWorkTimelineCheck.EvaluateSpillInOnlyAsync(holidayWorkEvaluator, spillIn, clientIds, cancellationToken));

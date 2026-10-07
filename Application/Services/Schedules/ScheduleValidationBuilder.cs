@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.ScheduleOptimizer.Common.RestDays;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -17,6 +18,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 public static class ScheduleValidationBuilder
 {
     private const int DaysPerWeek = 7;
+    private const string WorkTimeRangeParam = "workTimeRange";
+    private const string OnCallTimeRangeParam = "onCallTimeRange";
     public static void AddRestViolations(
         List<ScheduleValidationNotificationDto> entries,
         ClientTimeline timeline,
@@ -197,13 +200,27 @@ public static class ScheduleValidationBuilder
         }
     }
 
+    /// <summary>
+    /// Reports overlapping blocks as collisions (Error). A pair in which exactly one side is an on-call
+    /// break and the other side is not a break is a call-out during on-call duty: it is reported as an
+    /// <see cref="ScheduleValidationKeys.OnCallOverlap"/> Warning instead, so the planner still sees it but
+    /// it never blocks. Break-on-break pairs stay collisions (rule: <see cref="OnCallOverlapDetector"/>).
+    /// </summary>
+    /// <param name="onCallBreakIds">Source ids of the break blocks whose absence type is on-call</param>
     public static void AddCollisions(
         List<ScheduleValidationNotificationDto> entries,
         ClientTimeline timeline,
-        string clientName)
+        string clientName,
+        IReadOnlySet<Guid> onCallBreakIds)
     {
         foreach (var pair in timeline.GetCollisions())
         {
+            if (OnCallOverlapDetector.TryGet(pair.A, pair.B, onCallBreakIds, out var onCall, out var work))
+            {
+                entries.Add(OnCallOverlapEntry(timeline, clientName, onCall, work));
+                continue;
+            }
+
             entries.Add(new ScheduleValidationNotificationDto
             {
                 Type = ScheduleValidationType.Error,
@@ -222,6 +239,41 @@ public static class ScheduleValidationBuilder
         }
     }
 
+    /// <summary>
+    /// Reports only the on-call overlaps of the timeline as Warnings. Used by the live check, whose real
+    /// collisions travel through the separate collision list.
+    /// </summary>
+    /// <param name="onCallBreakIds">Source ids of the break blocks whose absence type is on-call</param>
+    public static void AddOnCallOverlaps(
+        List<ScheduleValidationNotificationDto> entries,
+        ClientTimeline timeline,
+        string clientName,
+        IReadOnlySet<Guid> onCallBreakIds)
+    {
+        foreach (var pair in timeline.GetCollisions())
+        {
+            if (OnCallOverlapDetector.TryGet(pair.A, pair.B, onCallBreakIds, out var onCall, out var work))
+            {
+                entries.Add(OnCallOverlapEntry(timeline, clientName, onCall, work));
+            }
+        }
+    }
+
+    private static ScheduleValidationNotificationDto OnCallOverlapEntry(
+        ClientTimeline timeline, string clientName, ScheduleBlock onCall, ScheduleBlock work)
+        => new()
+        {
+            Type = ScheduleValidationType.Warning,
+            ClientId = timeline.ClientId,
+            ClientName = clientName,
+            Date = work.OwnerDate,
+            Comment = ScheduleValidationKeys.OnCallOverlap,
+            CommentParams = new Dictionary<string, string>
+            {
+                [WorkTimeRangeParam] = $"{work.Start:HH:mm} - {work.End:HH:mm}",
+                [OnCallTimeRangeParam] = $"{onCall.Start:HH:mm} - {onCall.End:HH:mm}"
+            }
+        };
     /// <summary>
     /// Returns the Monday-anchored ISO week containing <paramref name="date"/>. Callers that want the
     /// weekly checks to see a complete week must load exactly this range, otherwise AddMinRestDays

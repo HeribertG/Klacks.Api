@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -82,4 +83,7 @@ public class AbsenceRepository : BaseRepository<Absence>, IAbsenceRepository
         return await context.Set<BreakPlaceholder>()
             .CountAsync(bp => !bp.IsDeleted && bp.AbsenceId == absenceId, cancellationToken);
     }
+
+    public Task<IReadOnlySet<Guid>> GetOnCallAbsenceIdsAsync(CancellationToken cancellationToken = default)
+        => OnCallAbsenceQuery.LoadIdsAsync(context, cancellationToken);
 }

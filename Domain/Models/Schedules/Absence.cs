@@ -33,4 +33,6 @@ public class Absence : BaseEntity
     public bool AppliesToContainer { get; set; }
 
     public bool IsUnpaid { get; set; }
+
+    public bool IsOnCall { get; set; }
 }

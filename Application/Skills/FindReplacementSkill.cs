@@ -3,8 +3,9 @@
 /// <summary>
 /// Proposes rule-compliant replacement employees for a shift on a given day, ranked best-first.
 /// Thin wrapper that dispatches <see cref="Klacks.Api.Application.Queries.Schedules.FindReplacementQuery"/>: it resolves the shift (for its start/end
-/// times) and projects the ranked candidates + exclusions. A candidate is hard-excluded when absent
-/// that day (a Break on the date), when explicitly unavailable for an hour the shift occupies (an
+/// times) and projects the ranked candidates + exclusions. A candidate on call that day (an on-call
+/// absence) ranks first and is flagged IsOnCall. A candidate is hard-excluded when absent
+/// that day (any other Break on the date), when explicitly unavailable for an hour the shift occupies (an
 /// opt-in availability window), when assigning them would introduce a collision or rest-time
 /// violation, when they lack a mandatory qualification the shift requires (missing / expired / below
 /// the required level), or when the shift is blacklisted for them; aggregate findings lower the rank
@@ -77,6 +78,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         {
             c.ClientId,
             c.Name,
+            c.IsOnCall,
             c.IsPreferred,
             c.TargetHoursDeficit,
             SoftConflictCount = c.SoftConflicts.Count,

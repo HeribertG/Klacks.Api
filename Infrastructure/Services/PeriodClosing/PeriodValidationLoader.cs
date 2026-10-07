@@ -33,6 +33,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Services.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.PeriodClosing;
@@ -101,6 +102,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         var workIds = works.Select(w => w.Id).ToList();
         var workChanges = await LoadWorkChangesAsync(workIds, cancellationToken);
         var breaks = await LoadBreaksAsync(from, to, clientIdsInGroup, analyseToken, cancellationToken);
+        var onCallBreakIds = OnCallAbsenceQuery.OnCallBreakIds(
+            breaks, await OnCallAbsenceQuery.LoadIdsAsync(_context, cancellationToken));
 
         var clientNameLookup = BuildClientNameLookup(works, workChanges);
         var scheduleBlocks = _timelineCalculator.CalculateScheduleBlocks(works, workChanges, breaks);
@@ -128,7 +131,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
                 ? found
                 : await _policyResolver.GetForClientAsync(group.Key, from);
 
-            ScheduleValidationBuilder.AddCollisions(entries, timeline, clientName);
+            ScheduleValidationBuilder.AddCollisions(entries, timeline, clientName, onCallBreakIds);
             ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
             ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, from, to, policy);
             ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, from, to, policy);
@@ -288,6 +291,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private static string MapCode(string comment) => comment switch
     {
         ScheduleValidationKeys.Collision => "Collision",
+        ScheduleValidationKeys.OnCallOverlap => "OnCallOverlap",
         ScheduleValidationKeys.RestViolation => "RestViolation",
         ScheduleValidationKeys.Overtime => "Overtime",
         ScheduleValidationKeys.ConsecutiveDays => "ConsecutiveDays",

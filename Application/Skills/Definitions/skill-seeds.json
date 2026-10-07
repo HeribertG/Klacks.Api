@@ -11728,7 +11728,7 @@
     {
       "name": "create_absence_type",
       "area": "absence",
-      "description": "Creates a new absence TYPE (master data of the settings page, e.g. Vacation, Sick Leave): multilingual name/abbreviation, color, default duration/value and the Saturday/Sunday/holiday counting flags. Refuses duplicate names. Verified against the database. This creates the type — booking an absence for an employee goes through create_absence. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Creates a new absence TYPE (master data of the settings page, e.g. Vacation, Sick Leave): multilingual name/abbreviation, color, default duration/value, the Saturday/Sunday/holiday counting flags and the on-call flag. Refuses duplicate names. Verified against the database. This creates the type — booking an absence for an employee goes through create_absence. Use when the user wants to create a new record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11808,6 +11808,14 @@
           "enumValues": null
         },
         {
+          "name": "isOnCall",
+          "description": "Absence is on-call duty: the employee stays reachable and is offered first as a replacement",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
           "name": "hideInGantt",
           "description": "Hide the type in the absence Gantt",
           "type": "Boolean",
@@ -11857,12 +11865,12 @@
         "fr": "Créer un type d'absence avec couleur et règles",
         "it": "Crea un tipo di assenza con colore e regole"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_absence_type",
       "area": "absence",
-      "description": "Updates an existing absence TYPE (master data): name, abbreviation, color, default duration/value, Saturday/Sunday/holiday flags, unpaid flag and Gantt visibility. Only supplied fields change; addressed by UUID or by current name (lone match, ambiguous names list the candidates). Verified against the database. Existing bookings keep their values. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates an existing absence TYPE (master data): name, abbreviation, color, default duration/value, Saturday/Sunday/holiday flags, unpaid flag, on-call flag and Gantt visibility. Only supplied fields change; addressed by UUID or by current name (lone match, ambiguous names list the candidates). Verified against the database. Existing bookings keep their values. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11958,6 +11966,14 @@
           "enumValues": null
         },
         {
+          "name": "isOnCall",
+          "description": "Absence is on-call duty: the employee stays reachable and is offered first as a replacement",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
           "name": "hideInGantt",
           "description": "Hide the type in the absence Gantt",
           "type": "Boolean",
@@ -12006,7 +12022,7 @@
         "fr": "Modifier un type d'absence par nom ou ID",
         "it": "Modifica un tipo di assenza per nome o ID"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_absence_type",
@@ -17838,7 +17854,7 @@
     {
       "name": "find_replacement",
       "area": "schedule",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. On-call employees (IsOnCall) rank first, then preferred ones.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17938,7 +17954,7 @@
         "fr": "Trouver un remplaçant pour un service",
         "it": "Trova un sostituto per un turno"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "propose_plan",

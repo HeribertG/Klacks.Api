@@ -27,7 +27,8 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 /// on any (agent, date) carrying a schedule-command keyword the availability constraint is dropped
 /// (mirroring the wizard context builders), while qualification stays sharp on every day. Recovery does
 /// not yet enforce the keyword itself (FREE / category restrictions) — that pre-existing keyword-blindness
-/// is documented and out of scope for the availability precedence fix.
+/// is documented and out of scope for the availability precedence fix. Breaks are split by absence type:
+/// an on-call break does not block, it marks the agent as the preferred replacement for that day.
 /// </summary>
 public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 {
@@ -42,6 +43,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IGroupRepository _groupRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
+    private readonly IAbsenceRepository _absenceRepository;
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
 
     public RecoverySnapshotBuilder(
@@ -56,6 +58,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IGroupRepository groupRepository,
         IGetAllClientIdsFromGroupAndSubgroups groupClientService,
         IScheduleCommandKeywordProvider keywordProvider,
+        IAbsenceRepository absenceRepository,
         ILogger<RecoverySnapshotBuilder> logger)
     {
         _clientRepository = clientRepository;
@@ -69,6 +72,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _groupRepository = groupRepository;
         _groupClientService = groupClientService;
         _keywordProvider = keywordProvider;
+        _absenceRepository = absenceRepository;
         _logger = logger;
     }
 
@@ -108,9 +112,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], null)
             .ToListAsync(cancellationToken);
 
-        var works = BuildWorks(cells, out var breakDates);
+        var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
+        var works = BuildWorks(cells, onCallAbsenceIds, out var breakDays);
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
-        var availability = BuildAvailability(memberIds, contracts, breakDates, keywordDays, windowStart, windowEnd);
+        var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd);
         var ineligible = await BuildIneligibleAsync(
             memberIds, dates, works, keywordDays, windowStart, windowEnd, cancellationToken);
 
@@ -182,12 +187,21 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return (preferred, blacklisted);
     }
 
+    /// <summary>
+    /// Collects the occupancy works per (agent, date) and classifies every break day: a break whose absence
+    /// type is on-call (its EntryId is in <paramref name="onCallAbsenceIds"/>) lands in
+    /// <see cref="RecoveryBreakDays.OnCall"/>, any other break in <see cref="RecoveryBreakDays.Blocking"/>.
+    /// </summary>
+    /// <param name="cells">Schedule cells of the context window</param>
+    /// <param name="onCallAbsenceIds">Ids of the absence types flagged as on-call</param>
+    /// <param name="breakDays">The classified break days</param>
     internal static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells,
-        out HashSet<(Guid ClientId, DateOnly Date)> breakDates)
+        IReadOnlySet<Guid> onCallAbsenceIds,
+        out RecoveryBreakDays breakDays)
     {
         var works = new Dictionary<CellKey, List<RecoveryWork>>();
-        breakDates = [];
+        breakDays = RecoveryBreakDays.Empty();
 
         // First pass: collect the portions an original work has already handed to a substitute. A genuine
         // replacement (WorkChangeType ReplacementStart/End/Within) emits a row under the ORIGINAL client
@@ -218,7 +232,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             var date = DateOnly.FromDateTime(cell.EntryDate);
             if (cell.EntryType == (int)ScheduleEntryType.Break)
             {
-                breakDates.Add((cell.ClientId, date));
+                var target = onCallAbsenceIds.Contains(cell.EntryId) ? breakDays.OnCall : breakDays.Blocking;
+                target.Add((cell.ClientId, date));
                 continue;
             }
             var isWork = cell.EntryType == (int)ScheduleEntryType.Work;
@@ -315,12 +330,15 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// <summary>
     /// Builds the per-cell availability. The keyword fields used to stay unset, so a FREE day or an
     /// ONLY-LATE restriction was invisible to recovery and it could offer a replacement the planner would
-    /// have been refused - the very rule the wizards enforce.
+    /// have been refused - the very rule the wizards enforce. An on-call day without a blocking break is
+    /// open and marked <see cref="DayAvailability.IsOnCall"/>, and it overrides the contract's day-of-week
+    /// calendar for that day only (on-call duty commonly falls on weekends and holidays); a FREE keyword
+    /// still closes it. A blocking break on the same day wins over the on-call break.
     /// </summary>
     internal static Dictionary<CellKey, DayAvailability> BuildAvailability(
         IReadOnlyList<Guid> memberIds,
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts,
-        IReadOnlySet<(Guid ClientId, DateOnly Date)> breakDates,
+        RecoveryBreakDays breakDays,
         IReadOnlyDictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> keywordDays,
         DateOnly windowStart,
         DateOnly windowEnd)
@@ -335,16 +353,18 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 // off-days (mirroring the Wizard-2 WorksOnDay rule), so recovery will not place a candidate
                 // on a contractual day off. find_replacement has no day-of-week gate; members without an
                 // active contract are not gated here either, matching it for that case.
-                var worksOnDay = !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek);
-                var hasBreak = breakDates.Contains((id, date));
+                var hasBlockingBreak = breakDays.Blocking.Contains((id, date));
+                var isOnCall = !hasBlockingBreak && breakDays.OnCall.Contains((id, date));
+                var worksOnDay = isOnCall || !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek);
                 var keyword = keywordDays.TryGetValue((id, date), out var found) ? found : (ScheduleCommandKeyword?)null;
 
                 availability[new CellKey(id, date)] = new DayAvailability(
                     worksOnDay,
                     HasFreeCommand: keyword == ScheduleCommandKeyword.Free,
-                    hasBreak,
+                    hasBlockingBreak,
                     RequiredCategory: RequiredCategoryOf(keyword),
-                    ForbiddenCategory: ForbiddenCategoryOf(keyword));
+                    ForbiddenCategory: ForbiddenCategoryOf(keyword),
+                    IsOnCall: isOnCall);
             }
         }
         return availability;

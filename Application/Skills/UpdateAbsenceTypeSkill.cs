@@ -17,6 +17,7 @@
 /// <param name="withSunday">Optional. Sundays count as absence days.</param>
 /// <param name="withHoliday">Optional. Holidays count as absence days.</param>
 /// <param name="isUnpaid">Optional. Absence is unpaid.</param>
+/// <param name="isOnCall">Optional. Absence is on-call duty: the employee stays reachable and is offered first as a replacement.</param>
 /// <param name="hideInGantt">Optional. Hide the type in the absence Gantt.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -123,6 +124,8 @@ public class UpdateAbsenceTypeSkill : BaseSkillImplementation
             a => a.WithHoliday, (a, v) => a.WithHoliday = v, p => p.WithHoliday);
         ApplyFlag(parameters, "isUnpaid", absence, changed, verifications,
             a => a.IsUnpaid, (a, v) => a.IsUnpaid = v, p => p.IsUnpaid);
+        ApplyFlag(parameters, "isOnCall", absence, changed, verifications,
+            a => a.IsOnCall, (a, v) => a.IsOnCall = v, p => p.IsOnCall);
         ApplyFlag(parameters, "hideInGantt", absence, changed, verifications,
             a => a.HideInGantt, (a, v) => a.HideInGantt = v, p => p.HideInGantt);
 

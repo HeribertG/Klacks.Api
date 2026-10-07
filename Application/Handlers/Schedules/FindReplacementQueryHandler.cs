@@ -2,14 +2,17 @@
 
 /// <summary>
 /// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the requested
-/// group and its subgroups; a candidate is hard-excluded when absent that day (a Break on the date),
+/// group and its subgroups; a candidate is hard-excluded when absent that day (a Break on the date whose
+/// absence type is not on-call; an on-call Break whose window overlaps the slot makes the candidate rank first,
+/// IsOnCall, while a non-overlapping one neither excludes nor prefers),
 /// when explicitly unavailable for an hour the shift occupies (an opt-in availability window), when
 /// assigning them would introduce ANY new Error-level conflict (collision, missing/expired/insufficient
 /// mandatory qualification, or a
 /// Block-mode enforcement escalation such as restricted-time-window / period-cap / counter-rule /
 /// rest-day-rotation), when a rest-time violation is found (excluding even in Warn mode), or when the
 /// shift is blacklisted for them. Warning-level aggregate findings (overtime/consecutive/min-rest) are
-/// a soft ranking signal (less headroom -> lower rank). Preferred employees rank first; among equally
+/// a soft ranking signal (less headroom -> lower rank). On-call candidates rank first, then preferred
+/// employees; among equally
 /// clean candidates the one furthest below their period target hours ranks higher (fairness, 3b/3c).
 /// The candidate pool is resolved in two steps because IClientRepository filters on the group ROOT
 /// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
@@ -26,6 +29,7 @@
 /// <param name="periodHoursService">Resolves each candidate's period target vs. already-assigned hours (fairness signal)</param>
 /// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
 /// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
+/// <param name="absenceRepository">Resolves which absence types are on-call (not absent, preferred instead)</param>
 /// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance exclusion</param>
 using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -38,6 +42,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
@@ -62,6 +67,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly IPeriodHoursService _periodHoursService;
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAbsenceRepository _absenceRepository;
     private readonly ILogger<FindReplacementQueryHandler> _logger;
 
     public FindReplacementQueryHandler(
@@ -75,6 +81,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         IPeriodHoursService periodHoursService,
         ISupervisorOverrideAuthorizer overrideAuthorizer,
         IHttpContextAccessor httpContextAccessor,
+        IAbsenceRepository absenceRepository,
         ILogger<FindReplacementQueryHandler> logger)
     {
         _clientRepository = clientRepository;
@@ -87,6 +94,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         _periodHoursService = periodHoursService;
         _overrideAuthorizer = overrideAuthorizer;
         _httpContextAccessor = httpContextAccessor;
+        _absenceRepository = absenceRepository;
         _logger = logger;
     }
 
@@ -102,7 +110,16 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .GetScheduleEntriesQuery(request.Date, request.Date, new List<Guid> { request.GroupId }, request.AnalyseToken)
             .Where(c => c.EntryType == (int)ScheduleEntryType.Break)
             .ToListAsync(cancellationToken);
-        var onLeaveClientIds = onLeaveCells.Select(c => c.ClientId).ToHashSet();
+        var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
+        var onLeaveClientIds = onLeaveCells
+            .Where(c => !onCallAbsenceIds.Contains(c.EntryId))
+            .Select(c => c.ClientId)
+            .ToHashSet();
+        var onCallClientIds = onLeaveCells
+            .Where(c => onCallAbsenceIds.Contains(c.EntryId)
+                && OverlapsSlot(c, request.Date, request.StartTime, request.EndTime))
+            .Select(c => c.ClientId)
+            .ToHashSet();
 
         var availabilityEntries = await _availabilityRepository.GetByDateRange(request.Date, request.Date);
         var availabilityByClient = availabilityEntries
@@ -192,11 +209,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 name,
                 IsPreferred: hasPreference && preferenceType == ShiftPreferenceType.Preferred,
                 SoftConflicts: conflicts,
-                TargetHoursDeficit: deficit));
+                TargetHoursDeficit: deficit,
+                IsOnCall: onCallClientIds.Contains(member.Id)));
         }
 
         var ranked = eligible
-            .OrderByDescending(c => c.IsPreferred)
+            .OrderByDescending(c => c.IsOnCall)
+            .ThenByDescending(c => c.IsPreferred)
             .ThenBy(c => c.SoftConflicts.Count)
             .ThenByDescending(c => c.TargetHoursDeficit)
             .ThenBy(c => c.Name)
@@ -232,6 +251,21 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         var memberIds = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
         return underRoot.Where(c => memberIds.Contains(c.Id)).ToList();
     }
+
+    /// <summary>
+    /// True when the on-call break's window overlaps the requested slot. Both intervals live on the requested
+    /// date; an end at or before the start continues on the next day (start == end is a full 24 hours), the
+    /// same convention the timeline uses for breaks and night shifts.
+    /// </summary>
+    private static bool OverlapsSlot(ScheduleCell cell, DateOnly date, TimeOnly slotStart, TimeOnly slotEnd)
+    {
+        var (breakStart, breakEnd) = WallInterval(date, TimeOnly.FromTimeSpan(cell.StartTime), TimeOnly.FromTimeSpan(cell.EndTime));
+        var (requestStart, requestEnd) = WallInterval(date, slotStart, slotEnd);
+        return breakStart < requestEnd && requestStart < breakEnd;
+    }
+
+    private static (DateTime Start, DateTime End) WallInterval(DateOnly date, TimeOnly start, TimeOnly end)
+        => (date.ToDateTime(start), end <= start ? date.AddDays(1).ToDateTime(end) : date.ToDateTime(end));
 
     private static bool IsAlwaysExcluding(ScheduleValidationNotificationDto conflict) =>
         conflict.Comment is ScheduleValidationKeys.Collision or ScheduleValidationKeys.RestViolation

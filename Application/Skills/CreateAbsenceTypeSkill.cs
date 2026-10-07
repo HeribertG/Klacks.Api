@@ -15,6 +15,7 @@
 /// <param name="withSunday">Optional. Sundays count as absence days (default false).</param>
 /// <param name="withHoliday">Optional. Holidays count as absence days (default false).</param>
 /// <param name="isUnpaid">Optional. Absence is unpaid (default false).</param>
+/// <param name="isOnCall">Optional. Absence is on-call duty: the employee stays reachable and is offered first as a replacement (default false).</param>
 /// <param name="hideInGantt">Optional. Hide the type in the absence Gantt (default false).</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -81,6 +82,7 @@ public class CreateAbsenceTypeSkill : BaseSkillImplementation
             WithSunday = GetParameter<bool>(parameters, "withSunday", false),
             WithHoliday = GetParameter<bool>(parameters, "withHoliday", false),
             IsUnpaid = GetParameter<bool>(parameters, "isUnpaid", false),
+            IsOnCall = GetParameter<bool>(parameters, "isOnCall", false),
             HideInGantt = GetParameter<bool>(parameters, "hideInGantt", false),
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName
@@ -118,7 +120,8 @@ public class CreateAbsenceTypeSkill : BaseSkillImplementation
                 absence.WithSaturday,
                 absence.WithSunday,
                 absence.WithHoliday,
-                absence.IsUnpaid
+                absence.IsUnpaid,
+                absence.IsOnCall
             },
             $"Absence type '{name}' ({abbreviation}) was created and confirmed in the database (verified). " +
             "Employees can now book it; the seeded language packs do not translate custom types automatically.");

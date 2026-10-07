@@ -47,7 +47,8 @@ public class ListAbsenceTypesSkill : BaseSkillImplementation
                 a.HideInGantt,
                 a.WithSaturday,
                 a.WithSunday,
-                a.WithHoliday
+                a.WithHoliday,
+                a.IsOnCall
             })
             .ToList();
 
