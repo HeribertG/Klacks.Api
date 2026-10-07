@@ -74,8 +74,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var firstDayContracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, request.PeriodFrom);
         var preferredSymbols = await LoadPreferredSymbolsAsync(agentIds, ct);
         var blacklistByAgent = await LoadBlacklistByAgentAsync(agentIds, ct);
-        var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
-        var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
+        var keywordDays = await LoadKeywordDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
+        var freeCommandDates = keywordDays.FreeDates;
+        var keywordRestrictions = keywordDays.Restrictions;
         var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var sealedDays = await DayLockAttribution.LoadLockedClientDaysAsync(_context, agentIds, request.PeriodFrom, request.PeriodUntil, ct);
         var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
@@ -249,8 +250,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// <summary>
     /// Collects every (agent, date) ruled by a higher scheduling layer so <see cref="AvailabilitySuppression"/>
     /// can drop the weakest-layer availability blocks on those days. The sources are disjoint by construction:
-    /// FREE keywords arrive via the freeCommandDates set, the EARLY/LATE/NIGHT (and negation) keywords via the
-    /// keywordRestrictions keys (LoadKeywordRestrictionsAsync maps only the category keywords, never FREE), and
+    /// closed days (FREE, or directives no shift kind satisfies) arrive via the freeCommandDates set, the remaining
+    /// EARLY/LATE/NIGHT (and negation) restrictions via the keywordRestrictions keys (HarmonizerKeywordDayResolver), and
     /// breaks via the breakDates set. AgentId is normalised to the ClientId string used by the triples.
     /// </summary>
     private static IReadOnlySet<(string AgentId, DateOnly Date)> CollectGovernedDays(
@@ -355,7 +356,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return result;
     }
 
-    private async Task<HashSet<(Guid AgentId, DateOnly Date)>> LoadFreeCommandDatesAsync(
+    private async Task<HarmonizerKeywordDays> LoadKeywordDaysAsync(
         List<Guid> agentIds,
         DateOnly from,
         DateOnly until,
@@ -372,16 +373,16 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .Select(c => new { c.ClientId, c.CurrentDate, c.CommandKeyword })
             .ToListAsync(ct);
 
-        var result = new HashSet<(Guid, DateOnly)>();
+        var recognized = new List<(Guid AgentId, DateOnly Date, ScheduleCommandKeyword Keyword)>(rawCommands.Count);
         foreach (var cmd in rawCommands)
         {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword)
-                && keyword == ScheduleCommandKeyword.Free)
+            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
             {
-                result.Add((cmd.ClientId, cmd.CurrentDate));
+                recognized.Add((cmd.ClientId, cmd.CurrentDate, keyword));
             }
         }
-        return result;
+
+        return HarmonizerKeywordDayResolver.Resolve(recognized);
     }
 
     private async Task<List<Break>> LoadBreaksAsync(
@@ -567,47 +568,6 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 }
                 result[(agentId.ToString(), date)] = new DayAvailability(worksOnDay, hasFree, hasBreak, required, forbidden);
             }
-        }
-        return result;
-    }
-
-    private async Task<Dictionary<(Guid AgentId, DateOnly Date), (CellSymbol? Required, CellSymbol? Forbidden)>> LoadKeywordRestrictionsAsync(
-        List<Guid> agentIds,
-        DateOnly from,
-        DateOnly until,
-        Guid? analyseToken,
-        IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap,
-        CancellationToken ct)
-    {
-        var rawCommands = await _context.ScheduleCommands
-            .AsNoTracking()
-            .Where(c => agentIds.Contains(c.ClientId)
-                        && c.CurrentDate >= from
-                        && c.CurrentDate <= until
-                        && (c.AnalyseToken == analyseToken || (c.AnalyseToken == null && analyseToken == null)))
-            .Select(c => new { c.ClientId, c.CurrentDate, c.CommandKeyword })
-            .ToListAsync(ct);
-
-        var result = new Dictionary<(Guid, DateOnly), (CellSymbol? Required, CellSymbol? Forbidden)>();
-        foreach (var cmd in rawCommands)
-        {
-            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
-            {
-                continue;
-            }
-            CellSymbol? required = null;
-            CellSymbol? forbidden = null;
-            switch (keyword)
-            {
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyEarly: required = CellSymbol.Early; break;
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyLate: required = CellSymbol.Late; break;
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.OnlyNight: required = CellSymbol.Night; break;
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoEarly: forbidden = CellSymbol.Early; break;
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoLate: forbidden = CellSymbol.Late; break;
-                case ScheduleOptimizer.Models.ScheduleCommandKeyword.NoNight: forbidden = CellSymbol.Night; break;
-                default: continue;
-            }
-            result[(cmd.ClientId, cmd.CurrentDate)] = (required, forbidden);
         }
         return result;
     }
