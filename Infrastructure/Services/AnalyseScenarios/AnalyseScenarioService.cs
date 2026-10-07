@@ -173,8 +173,9 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             .Where(w => w.AnalyseToken == token && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None && w.ParentWorkId == null)
             .ToListAsync(ct);
+        var coveredWorkIds = await Schedules.ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, fromDate, untilDate, ct);
         var movableWorks = candidateWorks
-            .Where(w => plannedSlots.Contains((w.ShiftId, w.CurrentDate)))
+            .Where(w => plannedSlots.Contains((w.ShiftId, w.CurrentDate)) && !coveredWorkIds.Contains(w.Id))
             .ToList();
         if (movableWorks.Count == 0)
         {

@@ -230,7 +230,9 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                     await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
                     await _unitOfWork.CompleteAsync();
 
-                    var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
+                    var sourceCoveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(
+                        _context, sourceAnalyseToken, periodFrom, periodUntil, ct);
+                    var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token, sourceCoveredWorkIds);
                     _logger.LogInformation(
                         "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
                         jobId, bulkItems.Count);
@@ -448,10 +450,13 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         // harmonizer never moves them, so they must survive into the new scenario untouched.
         // Deleting them here (and rebuilding works without their LockLevel) would silently
         // unlock sealed works and drop vacation/sick breaks once the scenario is accepted.
-        var movableWorks = await _context.Work.IgnoreQueryFilters()
+        var coveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, from, until, ct);
+        var movableWorks = (await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
-            .ToListAsync(ct);
+            .ToListAsync(ct))
+            .Where(w => !coveredWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && coveredWorkIds.Contains(w.ParentWorkId.Value)))
+            .ToList();
         var workIds = movableWorks.Select(w => w.Id).ToList();
 
         var now = DateTime.UtcNow;
@@ -497,6 +502,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         CancellationToken ct)
     {
         var targets = new Dictionary<Guid, (Guid Agent, DateOnly Date)>();
+        var keptInLockedCells = new HashSet<Guid>();
         for (var r = 0; r < bitmap.RowCount; r++)
         {
             if (!Guid.TryParse(bitmap.Rows[r].Id, out var agentId))
@@ -506,7 +512,20 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             for (var d = 0; d < bitmap.DayCount; d++)
             {
                 var cell = bitmap.GetCell(r, d);
-                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.IsLocked || cell.WorkIds.Count == 0)
+                if (cell.IsLocked)
+                {
+                    // A locked cell never moves, so every work merged into it stays where it is - including an
+                    // unlocked work that only shares the day with a locked work, a break or a replacement cover.
+                    foreach (var realWorkId in cell.WorkIds)
+                    {
+                        if (workIdMap.TryGetValue(realWorkId, out var keptId))
+                        {
+                            keptInLockedCells.Add(keptId);
+                        }
+                    }
+                    continue;
+                }
+                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.WorkIds.Count == 0)
                 {
                     continue;
                 }
@@ -520,10 +539,16 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             }
         }
 
-        var movableWorks = await _context.Work.IgnoreQueryFilters()
+        // A work handed to a substitute (replacement WorkChange) is locked in the bitmap and therefore never a
+        // target; without this exclusion it would be soft-deleted together with the cover.
+        var coveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, from, until, ct);
+        var movableWorks = (await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
-            .ToListAsync(ct);
+            .ToListAsync(ct))
+            .Where(w => !coveredWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && coveredWorkIds.Contains(w.ParentWorkId.Value)))
+            .Where(w => !keptInLockedCells.Contains(w.Id) && !(w.ParentWorkId.HasValue && keptInLockedCells.Contains(w.ParentWorkId.Value)))
+            .ToList();
 
         // Apply each work's new (agent, date) and remember it so the work's children can follow. Setting
         // both ClientId and CurrentDate keeps the result identical to the delete+recreate BuildBulkItems.
@@ -591,7 +616,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         HarmonyBitmap bitmap,
         IReadOnlyDictionary<Guid, Work> originalWorks,
         IReadOnlyDictionary<Guid, Guid> shiftIdMap,
-        Guid analyseToken)
+        Guid analyseToken,
+        IReadOnlySet<Guid> sourceCoveredWorkIds)
     {
         var items = new List<BulkWorkItem>();
         var unmappedShifts = new HashSet<Guid>();
@@ -601,16 +627,25 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             for (var d = 0; d < bitmap.DayCount; d++)
             {
                 var cell = bitmap.GetCell(r, d);
-                // Skip Free cells, absence Breaks, and any locked cell. Locked works are preserved
-                // in place by DeleteClonedScheduleEntriesAsync and must not be rebuilt unlocked;
-                // only movable works are re-materialised from the harmonised bitmap here.
-                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.IsLocked || cell.WorkIds.Count == 0)
+                if (cell.Symbol == CellSymbol.Free || cell.WorkIds.Count == 0)
                 {
                     continue;
                 }
+
+                // Locked works are preserved in place by DeleteClonedScheduleEntriesAsync and must not be rebuilt
+                // unlocked; the same holds for replacement covers. An unlocked work that only shares a locked or
+                // absence cell did not move either, so it is re-materialised where it is instead of being lost.
+                var fixedCell = cell.IsLocked;
                 foreach (var workId in cell.WorkIds)
                 {
                     if (!originalWorks.TryGetValue(workId, out var original))
+                    {
+                        continue;
+                    }
+
+                    if (fixedCell && (original.LockLevel != WorkLockLevel.None
+                        || sourceCoveredWorkIds.Contains(original.Id)
+                        || (original.ParentWorkId is { } parentId && sourceCoveredWorkIds.Contains(parentId))))
                     {
                         continue;
                     }

@@ -87,7 +87,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 
         var agents = BuildAgents(agentIds, firstDayContracts, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
-        var assignments = BuildAssignments(works, breaks);
+        var agentIdSet = agentIds.ToHashSet();
+        var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
+        var assignments = BuildAssignments(works, breaks, covers, agentIdSet);
         var hints = BuildSofteningHints(softenings);
 
         // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
@@ -140,7 +142,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var boundaryBreaks = (await LoadBreaksAsync(agentIds, contextFrom, contextUntil, request.AnalyseToken, ct))
                 .Where(b => b.CurrentDate < request.PeriodFrom || b.CurrentDate > request.PeriodUntil)
                 .ToList();
-            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks);
+            var boundaryCovers = (await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
+                .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
+                .ToList();
+            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet);
         }
 
         // K16 restricted time windows: resolved once per run from the active rule set and the period's shift
@@ -612,24 +617,34 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return string.IsNullOrEmpty(combined) ? client.Id.ToString() : combined;
     }
 
-    private static List<BitmapAssignment> BuildAssignments(IReadOnlyList<Work> works, IReadOnlyList<Break> breaks)
+    /// <summary>
+    /// A work handed to a substitute by a replacement WorkChange is locked like a sealed work and keeps only the hours
+    /// it still works; the substitute's replaced span becomes a locked occupied cell of the substitute carrying the
+    /// handed-over hours (no work ids, so apply never re-points it). Without this the wizards would move or delete the
+    /// cover, count its hours twice and see the substitute as free that day.
+    /// </summary>
+    internal static List<BitmapAssignment> BuildAssignments(
+        IReadOnlyList<Work> works,
+        IReadOnlyList<Break> breaks,
+        IReadOnlyList<ReplacementCover> covers,
+        IReadOnlySet<Guid> agentIds)
     {
+        var handedOverHours = covers
+            .GroupBy(c => c.WorkId)
+            .ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
         var workAssignments = works.Select(w =>
         {
-            var startAt = w.CurrentDate.ToDateTime(w.StartTime);
-            var endAt = w.EndTime <= w.StartTime
-                ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
-                : w.CurrentDate.ToDateTime(w.EndTime);
+            var (startAt, endAt) = Span(w.CurrentDate, w.StartTime, w.EndTime);
             return new BitmapAssignment(
                 AgentId: w.ClientId.ToString(),
                 Date: w.CurrentDate,
                 Symbol: SymbolOfSpan(w.StartTime, w.EndTime),
                 ShiftRefId: w.ShiftId,
                 WorkIds: [w.Id],
-                IsLocked: w.LockLevel != WorkLockLevel.None,
+                IsLocked: w.LockLevel != WorkLockLevel.None || handedOverHours.ContainsKey(w.Id),
                 StartAt: startAt,
                 EndAt: endAt,
-                Hours: w.WorkTime);
+                Hours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id)));
         });
 
         var breakAssignments = breaks.Select(b => new BitmapAssignment(
@@ -643,8 +658,24 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             EndAt: default,
             Hours: b.WorkTime));
 
-        return workAssignments.Concat(breakAssignments).ToList();
+        var substituteAssignments = covers
+            .Where(c => agentIds.Contains(c.SubstituteClientId))
+            .Select(c => new BitmapAssignment(
+                AgentId: c.SubstituteClientId.ToString(),
+                Date: c.Date,
+                Symbol: SymbolOfSpan(c.Start, c.End),
+                ShiftRefId: c.ShiftId,
+                WorkIds: [],
+                IsLocked: true,
+                StartAt: c.StartAt,
+                EndAt: c.EndAt,
+                Hours: c.Hours));
+
+        return workAssignments.Concat(breakAssignments).Concat(substituteAssignments).ToList();
     }
+
+    private static (DateTime StartAt, DateTime EndAt) Span(DateOnly date, TimeOnly start, TimeOnly end) =>
+        (date.ToDateTime(start), end <= start ? date.AddDays(1).ToDateTime(end) : date.ToDateTime(end));
 
     private static CellSymbol SymbolOfSpan(TimeOnly start, TimeOnly end)
     {

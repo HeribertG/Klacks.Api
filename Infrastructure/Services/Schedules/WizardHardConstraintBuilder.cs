@@ -44,8 +44,9 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         var commands = await BuildScheduleCommandsAsync(agentIdList, from, until, analyseToken, ct);
         var preferences = await BuildShiftPreferencesAsync(agentIdList, analyseToken, ct);
         var blockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
-        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, ct);
-        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, ct);
+        var covers = await ReplacementCoverQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
+        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);
+        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);
 
         return new HardConstraintResult(commands, preferences, blockers, lockedWorks, existingBlockers);
     }
@@ -116,14 +117,22 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     }
 
     private async Task<IReadOnlyList<CoreExistingWorkBlocker>> BuildExistingWorkBlockersAsync(
-        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, DateOnly? replanFrom, CancellationToken ct)
+        List<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        DateOnly? replanFrom,
+        IReadOnlyList<ReplacementCover> covers,
+        CancellationToken ct)
     {
+        var coveredWorkIds = covers.Select(c => c.WorkId).ToList();
         var rawWorks = await _context.Work
             .AsNoTracking()
             .Where(w => agentIds.Contains(w.ClientId)
                         && w.CurrentDate >= from
                         && w.CurrentDate <= until
                         && w.LockLevel == WorkLockLevel.None
+                        && !coveredWorkIds.Contains(w.Id)
                         && (replanFrom == null || w.CurrentDate >= replanFrom)
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
@@ -155,25 +164,38 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 !clonedKeys.Contains((w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))));
         }
 
+        // The substitute of a replacement works the replaced span: an occupancy the wizard must not double-book.
+        var substituteBlockers = covers
+            .Where(c => agentIds.Contains(c.SubstituteClientId))
+            .Select(c => new CoreExistingWorkBlocker(
+                AgentId: c.SubstituteClientId.ToString(), Date: c.Date, StartAt: c.StartAt, EndAt: c.EndAt));
+
         return rawWorks
-            .Select(w =>
-            {
-                var startAt = w.CurrentDate.ToDateTime(w.StartTime);
-                var endAt = w.EndTime <= w.StartTime
-                    ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
-                    : w.CurrentDate.ToDateTime(w.EndTime);
-                return new CoreExistingWorkBlocker(
-                    AgentId: w.ClientId.ToString(),
-                    Date: w.CurrentDate,
-                    StartAt: startAt,
-                    EndAt: endAt);
-            })
+            .Select(w => Blocker(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))
+            .Concat(substituteBlockers)
             .ToList();
     }
 
-    private async Task<IReadOnlyList<CoreLockedWork>> BuildLockedWorksAsync(
-        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, DateOnly? replanFrom, CancellationToken ct)
+    private static CoreExistingWorkBlocker Blocker(Guid agentId, DateOnly date, TimeOnly start, TimeOnly end)
     {
+        var startAt = date.ToDateTime(start);
+        var endAt = end <= start ? date.AddDays(1).ToDateTime(end) : date.ToDateTime(end);
+        return new CoreExistingWorkBlocker(AgentId: agentId.ToString(), Date: date, StartAt: startAt, EndAt: endAt);
+    }
+
+    private async Task<IReadOnlyList<CoreLockedWork>> BuildLockedWorksAsync(
+        List<Guid> agentIds,
+        DateOnly from,
+        DateOnly until,
+        Guid? analyseToken,
+        DateOnly? replanFrom,
+        IReadOnlyList<ReplacementCover> covers,
+        CancellationToken ct)
+    {
+        // A work handed to a substitute (replacement WorkChange) is a committed cover and stays fixed like a
+        // sealed work, so the wizard neither plans its slot again nor deletes it.
+        var coveredWorkIds = covers.Select(c => c.WorkId).ToList();
+        var handedOverHours = covers.GroupBy(c => c.WorkId).ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
         // The frozen-prefix cut treats every work before replanFrom as locked regardless of its
         // LockLevel: the head of the existing plan becomes immutable genome tokens, so a replanning
         // run provably keeps it and only the tail from replanFrom on is planned.
@@ -183,7 +205,8 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && w.CurrentDate >= from
                         && w.CurrentDate <= until
                         && (w.LockLevel > WorkLockLevel.None
-                            || (replanFrom != null && w.CurrentDate < replanFrom))
+                            || (replanFrom != null && w.CurrentDate < replanFrom)
+                            || coveredWorkIds.Contains(w.Id))
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
@@ -203,7 +226,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                     AgentId: w.ClientId.ToString(),
                     Date: w.CurrentDate,
                     ShiftTypeIndex: ShiftTypeInference.FromSpan(w.StartTime, w.EndTime),
-                    TotalHours: w.WorkTime,
+                    TotalHours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id)),
                     StartAt: startAt,
                     EndAt: endAt,
                     ShiftRefId: w.ShiftId,
