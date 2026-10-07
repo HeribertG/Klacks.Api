@@ -8,6 +8,7 @@
 /// we expect.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Llm;
@@ -146,6 +147,7 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
             AvailableFunctions = [],
             Temperature = ProposalTemperature,
             MaxTokens = Math.Min(model.MaxTokens, ProposalMaxTokens),
+            ThinkingBudgetTokens = ThinkingBudgetConstants.Disabled,
             SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
