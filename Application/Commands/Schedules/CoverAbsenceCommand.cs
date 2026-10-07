@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Schedules;
@@ -28,6 +29,8 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// triggers the flow interactively, because that planner has already taken charge and waking the roster
 /// would only produce noise.
 /// </param>
+/// <param name="ReportedAtUtc">When the absence was reported (inbound receive time for the messenger); null means now</param>
+/// <param name="Source">Path that started the run; stored on every replacement request the run records</param>
 public record CoverAbsenceCommand(
     Guid ClientId,
     DateOnly Date,
@@ -36,4 +39,6 @@ public record CoverAbsenceCommand(
     DateOnly? UntilDate = null,
     bool OverrideBlock = false,
     string? Language = null,
-    bool NotifyEscalationRoster = true) : IRequest<CoverAbsenceOutcome>;
+    bool NotifyEscalationRoster = true,
+    DateTime? ReportedAtUtc = null,
+    ReplacementRequestSource Source = ReplacementRequestSource.RecoveryEngine) : IRequest<CoverAbsenceOutcome>;

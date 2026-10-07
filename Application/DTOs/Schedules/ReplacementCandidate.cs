@@ -18,10 +18,12 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="SoftConflicts">Non-blocking aggregate findings that lower the ranking</param>
 /// <param name="TargetHoursDeficit">Period target hours minus already-assigned hours; positive means below target (ranks higher), zero when no data/target</param>
 /// <param name="IsOnCall">True when the employee holds an on-call absence on the date (ranks first)</param>
+/// <param name="Phone">Number to call the candidate on (mobile before fixed line); only filled on the planner endpoint, never in skill output</param>
 public sealed record ReplacementCandidate(
     Guid ClientId,
     string Name,
     bool IsPreferred,
     IReadOnlyList<ScheduleValidationNotificationDto> SoftConflicts,
     decimal TargetHoursDeficit,
-    bool IsOnCall = false);
+    bool IsOnCall = false,
+    string? Phone = null);

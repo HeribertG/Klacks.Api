@@ -27,6 +27,7 @@
 /// <param name="clientVisibilityGuard">Decides for which employees the calling user may write</param>
 /// <param name="groupVisibilityGuard">Decides whether the calling user may plan the requested group at all</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
+/// <param name="replacementRequestRecorder">Stages one Proposed replacement request row per covered slot (request book)</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
@@ -78,6 +79,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
+    private readonly IReplacementRequestRecorder _replacementRequestRecorder;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -94,6 +96,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IClientVisibilityGuard clientVisibilityGuard,
         IGroupVisibilityGuard groupVisibilityGuard,
         IScenarioNameGenerator scenarioNameGenerator,
+        IReplacementRequestRecorder replacementRequestRecorder,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -109,6 +112,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _clientVisibilityGuard = clientVisibilityGuard;
         _groupVisibilityGuard = groupVisibilityGuard;
         _scenarioNameGenerator = scenarioNameGenerator;
+        _replacementRequestRecorder = replacementRequestRecorder;
         _logger = logger;
     }
 
@@ -184,7 +188,12 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
         await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
-        var covered = BuildCovered(materializable, clientId, snapshot, workIdMap);
+        var covered = await _replacementRequestRecorder.RecordProposalsAsync(
+            new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
+            BuildCovered(materializable, clientId, snapshot, workIdMap),
+            cancellationToken);
+        await _unitOfWork.CompleteAsync();
+
         var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap);
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.

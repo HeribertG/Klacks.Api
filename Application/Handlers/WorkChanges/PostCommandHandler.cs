@@ -6,6 +6,7 @@
 /// that moves a hidden client in as replacement, is refused exactly like a change on a missing Work.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="replacementRequestRecorder">Records a manual replacement as an Accepted entry of the replacement request book, staged with the change</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
@@ -37,6 +38,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IDayLockService _dayLockService;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
+    private readonly IReplacementRequestRecorder _replacementRequestRecorder;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -51,6 +53,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IDayLockService dayLockService,
         IPreCommitConflictChecker conflictChecker,
         ISupervisorOverrideAuthorizer overrideAuthorizer,
+        IReplacementRequestRecorder replacementRequestRecorder,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -66,6 +69,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _dayLockService = dayLockService;
         _conflictChecker = conflictChecker;
         _overrideAuthorizer = overrideAuthorizer;
+        _replacementRequestRecorder = replacementRequestRecorder;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -96,6 +100,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             await EnsureNoReplacementCollisionAsync(workChange, parentWork, request.Resource.OverrideBlock, cancellationToken);
 
             await _workChangeRepository.Add(workChange);
+            await _replacementRequestRecorder.RecordManualReplacementAsync(parentWork, workChange, cancellationToken);
 
             var currentDate = parentWork.CurrentDate;
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);

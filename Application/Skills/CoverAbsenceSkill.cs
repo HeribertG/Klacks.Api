@@ -7,6 +7,9 @@
 /// WorkChange per slot land in the scenario (nothing touches the real schedule until accept). Locked
 /// slots of the absent employee are reported for manual review; slots without an eligible candidate as
 /// under-coverage. Use this when someone calls in sick / drops out and their shifts need covering.
+/// Report time and source of the replacement request book never come from the parameter dictionary: a set
+/// SkillExecutionContext.InboundReceivedAtUtc (only the inbound orchestrator sets it) means Messenger at that
+/// instant, everything else is RecoveryEngine reported now.
 /// </summary>
 /// <param name="clientId">Required. UUID of the employee who is absent.</param>
 /// <param name="date">Required. First (or only) day of the absence in ISO yyyy-MM-dd.</param>
@@ -18,6 +21,7 @@
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -47,10 +51,13 @@ public class CoverAbsenceSkill : BaseSkillImplementation
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
         var notifyEscalationRoster = GetParameter<bool?>(parameters, "notifyEscalationRoster") ?? true;
+        var reportedAtUtc = context.InboundReceivedAtUtc;
+        var source = reportedAtUtc.HasValue ? ReplacementRequestSource.Messenger : ReplacementRequestSource.RecoveryEngine;
 
         var outcome = await _mediator.Send(
             new CoverAbsenceCommand(
-                clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage, notifyEscalationRoster),
+                clientId, date, groupId, absenceId, untilDate, overrideBlock, context.UserLanguage, notifyEscalationRoster,
+                reportedAtUtc, source),
             cancellationToken);
 
         var data = new

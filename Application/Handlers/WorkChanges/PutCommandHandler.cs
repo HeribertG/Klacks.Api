@@ -6,9 +6,11 @@
 /// outside the caller's group visibility, is answered exactly like a change that does not exist; nothing is written.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="replacementRequestRecorder">Keeps the ManualReplacement row of the replacement request book in step with the change</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -28,6 +30,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IWorkChangeResultService _resultService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IDayLockService _dayLockService;
+    private readonly IReplacementRequestRecorder _replacementRequestRecorder;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -39,6 +42,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IWorkChangeResultService resultService,
         IWorkNotificationFacade notificationFacade,
         IDayLockService dayLockService,
+        IReplacementRequestRecorder replacementRequestRecorder,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -51,6 +55,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _resultService = resultService;
         _notificationFacade = notificationFacade;
         _dayLockService = dayLockService;
+        _replacementRequestRecorder = replacementRequestRecorder;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -122,6 +127,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 _logger.LogWarning("Work not found for WorkChange: {WorkId}", updatedWorkChange.WorkId);
                 return _scheduleMapper.ToWorkChangeResource(updatedWorkChange);
             }
+
+            await _replacementRequestRecorder.SyncManualReplacementAsync(work, updatedWorkChange, cancellationToken);
 
             var currentDate = work.CurrentDate;
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(currentDate);

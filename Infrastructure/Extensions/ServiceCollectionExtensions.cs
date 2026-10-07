@@ -474,6 +474,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Schedules.IComplianceEscalationService, Application.Services.Schedules.ComplianceEscalationService>();
         services.AddScoped<Application.Interfaces.Schedules.ICompliancePartitionService, Application.Services.Schedules.CompliancePartitionService>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioNameGenerator, Application.Services.Schedules.ScenarioNameGenerator>();
+        services.AddScoped<Application.Interfaces.Schedules.IReplacementContactPhoneResolver, Application.Services.Schedules.Recovery.ReplacementContactPhoneResolver>();
+        services.AddScoped<Application.Interfaces.Schedules.IReplacementRequestRecorder, Infrastructure.Services.Schedules.ReplacementRequestRecorder>();
+        services.AddScoped<Application.Interfaces.Schedules.IReplacementContactValidator, Application.Services.Schedules.Recovery.ReplacementContactValidator>();
         services.AddScoped<Application.Interfaces.Schedules.IScenarioComplianceService, Application.Services.Schedules.ScenarioComplianceService>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.JsonExportFormatter>();

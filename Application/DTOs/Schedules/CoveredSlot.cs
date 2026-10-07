@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Text.Json.Serialization;
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
@@ -17,6 +20,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="WorkId">The scenario clone of the covered work, where the Replacement WorkChange lives; null when the work was not cloned</param>
 /// <param name="StartTime">Slot start, so the UI can ask Recovery/Candidates for alternatives without re-reading the grid</param>
 /// <param name="EndTime">Slot end</param>
+/// <param name="RequestId">Row of the replacement request book recorded for this proposal; null when none was stored</param>
+/// <param name="Phone">Number to call the replacement on (mobile before fixed line); null when none is stored</param>
+/// <param name="Outcome">Current state of the request (Proposed right after the run)</param>
 public sealed record CoveredSlot(
     Guid ShiftId,
     DateOnly Date,
@@ -25,4 +31,7 @@ public sealed record CoveredSlot(
     int Tier = 0,
     Guid? WorkId = null,
     TimeOnly? StartTime = null,
-    TimeOnly? EndTime = null);
+    TimeOnly? EndTime = null,
+    Guid? RequestId = null,
+    string? Phone = null,
+    [property: JsonConverter(typeof(JsonStringEnumConverter<ReplacementRequestOutcome>))] ReplacementRequestOutcome? Outcome = null);

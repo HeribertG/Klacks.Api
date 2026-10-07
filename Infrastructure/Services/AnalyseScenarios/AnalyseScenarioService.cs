@@ -16,16 +16,19 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
 public partial class AnalyseScenarioService : IAnalyseScenarioService
 {
     private readonly DataBaseContext _context;
+    private readonly ILogger<AnalyseScenarioService> _logger;
 
-    public AnalyseScenarioService(DataBaseContext context)
+    public AnalyseScenarioService(DataBaseContext context, ILogger<AnalyseScenarioService>? logger = null)
     {
         _context = context;
+        _logger = logger ?? NullLogger<AnalyseScenarioService>.Instance;
     }
 
     public async Task<List<Guid>> GetGroupHierarchyIdsAsync(Guid groupId, CancellationToken ct)
@@ -128,6 +131,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         var memberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
             .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
         foreach (var gi in memberships) { gi.IsDeleted = true; gi.DeletedTime = DateTime.UtcNow; }
+        await StageProposedReplacementRequestsDeletedAsync(token, DateTime.UtcNow, ct);
         await SoftDeleteScenarioPlanningConstraintsAsync(token, DateTime.UtcNow, ct);
     }
 
@@ -359,6 +363,8 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 promotedWorkIds.Add(w.Id);
             }
         }
+
+        await StageReplacementRequestsAppliedAsync(token, promotedWorkIds, cloneToSource, now, ct);
 
         if (promotedWorkIds.Count > 0)
         {
@@ -854,86 +860,6 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             };
 
             await _context.ScheduleCommands.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
-    {
-        if (shiftIdMap.Count == 0) return;
-
-        var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var preferences = await _context.Set<ClientShiftPreference>()
-            .Where(p => !p.IsDeleted
-                && p.AnalyseToken == null
-                && sourceShiftIds.Contains(p.ShiftId))
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        foreach (var preference in preferences)
-        {
-            var clone = new ClientShiftPreference
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                ClientId = preference.ClientId,
-                ShiftId = shiftIdMap[preference.ShiftId],
-                PreferenceType = preference.PreferenceType
-            };
-
-            await _context.Set<ClientShiftPreference>().AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneShiftRequiredQualifications(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
-    {
-        if (shiftIdMap.Count == 0) return;
-
-        var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var requirements = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
-            .Where(srq => !srq.IsDeleted && sourceShiftIds.Contains(srq.ShiftId))
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        foreach (var req in requirements)
-        {
-            var clone = new ShiftRequiredQualification
-            {
-                Id = Guid.NewGuid(),
-                ShiftId = shiftIdMap[req.ShiftId],
-                QualificationId = req.QualificationId,
-                IsMandatory = req.IsMandatory,
-                MinLevel = req.MinLevel
-            };
-
-            await _context.ShiftRequiredQualification.AddAsync(clone, ct);
-        }
-    }
-
-    private async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
-    {
-        if (shiftIdMap.Count == 0) return;
-
-        var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var expenses = await _context.Set<ShiftExpenses>()
-            .Where(e => !e.IsDeleted
-                && e.AnalyseToken == null
-                && sourceShiftIds.Contains(e.ShiftId))
-            .AsNoTracking()
-            .ToListAsync(ct);
-
-        foreach (var expense in expenses)
-        {
-            var clone = new ShiftExpenses
-            {
-                Id = Guid.NewGuid(),
-                AnalyseToken = token,
-                ShiftId = shiftIdMap[expense.ShiftId],
-                Amount = expense.Amount,
-                Description = expense.Description,
-                Taxable = expense.Taxable
-            };
-
-            await _context.Set<ShiftExpenses>().AddAsync(clone, ct);
         }
     }
 

@@ -33,6 +33,10 @@
 /// fail-closed check the scheduled-task and proactive paths use. The mapping decides WHETHER an
 /// intent may act at all; the policy re-checks what the skill has since become — a skill reclassified
 /// as sensitive, or removed outright, is refused here even though this mapping would still allow it.
+/// Every skill it runs gets the message's receive time on the trusted SkillExecutionContext.InboundReceivedAtUtc
+/// (never in the parameter dictionary); cover_absence records it as the report time with the Messenger source in
+/// the replacement request book. Inbound email maps to Messenger too (the source enum names the inbound channel
+/// family, not the transport).
 /// </summary>
 
 using Klacks.Api.Application.Configuration;
@@ -712,7 +716,8 @@ public class InboundActionOrchestrator : IInboundActionOrchestrator
             UserPermissions = Permissions.ExpandRoles(token.Roles),
             AccessToken = token.Token,
             SessionId = $"{source.Channel.ToLowerInvariant()}-analysis:{source.SourceId}",
-            BypassAutonomyGate = true
+            BypassAutonomyGate = true,
+            InboundReceivedAtUtc = source.ReceivedAt
         };
 
         return await _skillExecutor.ExecuteAsync(

@@ -6,10 +6,12 @@
 /// a change that does not exist; nothing is deleted.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="replacementRequestRecorder">Soft-deletes the ManualReplacement row of a deleted replacement (it did not happen)</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -30,6 +32,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     private readonly IWorkChangeResultService _resultService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDayLockService _dayLockService;
+    private readonly IReplacementRequestRecorder _replacementRequestRecorder;
 
     public DeleteCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -42,6 +45,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         IWorkChangeResultService resultService,
         IHttpContextAccessor httpContextAccessor,
         IDayLockService dayLockService,
+        IReplacementRequestRecorder replacementRequestRecorder,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -55,6 +59,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         _resultService = resultService;
         _httpContextAccessor = httpContextAccessor;
         _dayLockService = dayLockService;
+        _replacementRequestRecorder = replacementRequestRecorder;
     }
 
     public async Task<WorkChangeResource?> Handle(DeleteCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -92,6 +97,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             }
 
             await _workChangeRepository.Delete(request.Id);
+            await _replacementRequestRecorder.DiscardManualReplacementAsync(request.Id, cancellationToken);
 
             var work = await _workRepository.Get(workId);
             if (work == null)

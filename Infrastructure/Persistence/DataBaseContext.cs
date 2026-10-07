@@ -167,6 +167,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<AnalyseScenario> AnalyseScenarios { get; set; }
 
+    public DbSet<ReplacementRequest> ReplacementRequests { get; set; }
+
     public DbSet<WizardRunCapture> WizardRunCapture { get; set; }
 
     public DbSet<WizardRunCaptureWork> WizardRunCaptureWork { get; set; }

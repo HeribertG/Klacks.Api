@@ -11,7 +11,10 @@
 /// <param name="scopeFactory">Factory for creating DI scopes in background tasks</param>
 
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -82,6 +85,7 @@ public class DataRetentionBackgroundService : BackgroundService
             cutoffDate);
 
         await SoftDeleteExpiredLedgerRowsAsync(scope.ServiceProvider, stoppingToken);
+        await DeleteExpiredReplacementRequestsAsync(scope.ServiceProvider, stoppingToken);
 
         var totalDeleted = 0;
 
@@ -171,6 +175,40 @@ public class DataRetentionBackgroundService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ledger retention soft-delete failed; continuing with the physical purge");
+        }
+    }
+
+    /// <summary>
+    /// Physically deletes replacement request book rows reported longer ago than REPLACEMENT_REQUEST_RETENTION_DAYS
+    /// (default 730), live or soft-deleted. These rows are personal data about who stepped in when; the owner
+    /// decided that 24 months really means deleted, not parked until the general DATA_RETENTION_DAYS purge.
+    /// </summary>
+    internal async Task DeleteExpiredReplacementRequestsAsync(IServiceProvider services, CancellationToken stoppingToken)
+    {
+        try
+        {
+            var nowUtc = services.GetRequiredService<TimeProvider>().GetUtcNow().UtcDateTime;
+            var retentionDays = await ReplacementRequestSettingsReader.ReadRetentionDaysAsync(
+                services.GetRequiredService<ISettingsReader>());
+            var repository = services.GetRequiredService<IReplacementRequestRepository>();
+
+            var deleted = await repository.DeleteReportedBeforeAsync(nowUtc.AddDays(-retentionDays), stoppingToken);
+
+            if (deleted > 0)
+            {
+                _logger.LogInformation(
+                    "Replacement request retention deleted {Count} row(s) reported more than {Days} days ago",
+                    deleted,
+                    retentionDays);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Replacement request retention delete failed; continuing with the physical purge");
         }
     }
 

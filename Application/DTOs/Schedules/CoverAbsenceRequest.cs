@@ -12,6 +12,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="UntilDate">Optional last day of the absence; null covers just Date</param>
 /// <param name="OverrideBlock">K1 supervisor override for a Block-mode compliance escalation (never a structural error)</param>
 /// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language.</param>
+/// <param name="ReportedAtUtc">When the absence was reported (e.g. the time of the call); null means now. A future instant is clamped to now.</param>
 /// <param name="NotifyEscalationRoster">Start the planner call list for the affected days; the UI sends false while the planner handles the absence interactively.</param>
 public sealed record CoverAbsenceRequest(
     Guid ClientId,
@@ -21,4 +22,5 @@ public sealed record CoverAbsenceRequest(
     DateOnly? UntilDate = null,
     bool OverrideBlock = false,
     string? Language = null,
-    bool NotifyEscalationRoster = true);
+    bool NotifyEscalationRoster = true,
+    DateTime? ReportedAtUtc = null);

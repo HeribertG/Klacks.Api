@@ -9542,6 +9542,131 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("period_audit_log", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ReplacementRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AbsenceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("absence_id");
+
+                    b.Property<Guid>("AbsentClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("absent_client_id");
+
+                    b.Property<Guid?>("AnalyseToken")
+                        .HasColumnType("uuid")
+                        .HasColumnName("analyse_token");
+
+                    b.Property<DateTime?>("AppliedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("applied_at_utc");
+
+                    b.Property<Guid>("CandidateClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("candidate_client_id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("end_time");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("Outcome")
+                        .HasColumnType("integer")
+                        .HasColumnName("outcome");
+
+                    b.Property<DateTime?>("OutcomeAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("outcome_at_utc");
+
+                    b.Property<Guid?>("OutcomeByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("outcome_by_user_id");
+
+                    b.Property<DateTime>("ReportedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reported_at_utc");
+
+                    b.Property<Guid>("ShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("shift_id");
+
+                    b.Property<DateTime>("ShiftStartUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("shift_start_utc");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer")
+                        .HasColumnName("source");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("start_time");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<Guid?>("WorkChangeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("work_change_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_replacement_requests");
+
+                    b.HasIndex("CandidateClientId")
+                        .HasDatabaseName("ix_replacement_requests_candidate_client_id");
+
+                    b.HasIndex("ReportedAtUtc")
+                        .HasDatabaseName("ix_replacement_requests_reported_at_utc");
+
+                    b.HasIndex("AbsentClientId", "Date")
+                        .HasDatabaseName("ix_replacement_requests_absent_client_id_date");
+
+                    b.HasIndex("AnalyseToken", "CandidateClientId", "ShiftId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_replacement_requests_analyse_token_candidate_client_id_shif")
+                        .HasFilter("\"is_deleted\" = false");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("AnalyseToken", "CandidateClientId", "ShiftId", "Date"), false);
+
+                    b.ToTable("replacement_requests", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.ScheduleCell", b =>
                 {
                     b.Property<string>("Abbreviation")

@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Queries.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +47,8 @@ public sealed class RecoveryController : ControllerBase
             var outcome = await _mediator.Send(
                 new CoverAbsenceCommand(
                     request.ClientId, request.Date, request.GroupId, request.AbsenceId,
-                    request.UntilDate, request.OverrideBlock, request.Language, request.NotifyEscalationRoster),
+                    request.UntilDate, request.OverrideBlock, request.Language, request.NotifyEscalationRoster,
+                    request.ReportedAtUtc, ReplacementRequestSource.PlannerDialog),
                 ct);
 
             return Ok(outcome);
@@ -82,8 +84,63 @@ public sealed class RecoveryController : ControllerBase
         CancellationToken ct)
     {
         var result = await _mediator.Send(
-            new FindReplacementQuery(shiftId, date, startTime, endTime, groupId, analyseToken, overrideBlock), ct);
+            new GetReplacementCandidatesQuery(
+                new FindReplacementQuery(shiftId, date, startTime, endTime, groupId, analyseToken, overrideBlock)), ct);
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Entries of the replacement request book (who was proposed or asked for which slot, with the answer and the
+    /// short-notice verdict). Only rows whose candidate the caller may see are returned.
+    /// </summary>
+    /// <param name="absentClientId">Optional absent employee</param>
+    /// <param name="fromDate">Optional first slot date (inclusive)</param>
+    /// <param name="untilDate">Optional last slot date (inclusive)</param>
+    /// <param name="analyseToken">Optional scenario token</param>
+    [HttpGet("Requests")]
+    public async Task<ActionResult<IReadOnlyList<ReplacementRequestResource>>> Requests(
+        [FromQuery] Guid? absentClientId,
+        [FromQuery] DateOnly? fromDate,
+        [FromQuery] DateOnly? untilDate,
+        [FromQuery] Guid? analyseToken,
+        CancellationToken ct)
+    {
+        var rows = await _mediator.Send(
+            new ListReplacementRequestsQuery(absentClientId, fromDate, untilDate, analyseToken), ct);
+
+        return Ok(rows);
+    }
+
+    /// <summary>
+    /// Records the candidate's answer (Requested, Accepted, Declined, NotReached) on an existing request row. A
+    /// missing row and a row with a hidden candidate both answer 404.
+    /// </summary>
+    /// <param name="id">Row id</param>
+    /// <param name="request">The answer</param>
+    [HttpPut("Requests/{id:guid}/Outcome")]
+    public async Task<ActionResult<ReplacementRequestResource>> SetOutcome(
+        Guid id,
+        [FromBody] SetReplacementOutcomeRequest request,
+        CancellationToken ct)
+    {
+        var row = await _mediator.Send(new SetReplacementRequestOutcomeCommand(id, request.Outcome), ct);
+
+        return Ok(row);
+    }
+
+    /// <summary>
+    /// Records a contact attempt with an alternative candidate for one slot (upsert on scenario token, candidate,
+    /// shift and date). Only the fact is stored; the proposal in the scenario stays unchanged.
+    /// </summary>
+    /// <param name="request">Slot, candidate, context and the answer</param>
+    [HttpPost("Requests")]
+    public async Task<ActionResult<ReplacementRequestResource>> RecordContact(
+        [FromBody] RecordReplacementContactRequest request,
+        CancellationToken ct)
+    {
+        var row = await _mediator.Send(new RecordReplacementContactCommand(request), ct);
+
+        return Ok(row);
     }
 }

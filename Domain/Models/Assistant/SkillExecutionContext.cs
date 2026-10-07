@@ -65,4 +65,12 @@ public record SkillExecutionContext
     /// memory content the model already has in context.
     /// </summary>
     public IReadOnlyList<Guid>? InjectedMemoryIds { get; init; }
+
+    /// <summary>
+    /// UTC instant an inbound message (email or messenger) was received, set ONLY by the inbound action
+    /// orchestrator from its own source record. Never filled from the LLM's parameter dictionary, so a model
+    /// cannot claim an inbound origin or back-date a report; skills that record when something was reported
+    /// (cover_absence) treat a set value as "reported via the inbound channel at this instant". Null everywhere else.
+    /// </summary>
+    public DateTime? InboundReceivedAtUtc { get; init; }
 }

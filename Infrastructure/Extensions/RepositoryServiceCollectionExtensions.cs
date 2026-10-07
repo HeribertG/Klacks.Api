@@ -137,6 +137,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IScheduleNoteRepository, ScheduleNoteRepository>();
         services.AddScoped<IScheduleCommandRepository, ScheduleCommandRepository>();
         services.AddScoped<IAnalyseScenarioRepository, AnalyseScenarioRepository>();
+        services.AddScoped<IReplacementRequestRepository, ReplacementRequestRepository>();
         services.AddScoped<IWizardRunCaptureRepository, WizardRunCaptureRepository>();
         services.AddScoped<IWizardTrainingRepository, WizardTrainingRepository>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IScheduleSnapshotMarkerService,
