@@ -67,15 +67,27 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             shift.Id, shift.GroupItems.Count, shift.ShiftExpenses.Count, shift.RequiredQualifications.Count);
     }
 
-    public new async Task<Shift?> Put(Shift shift)
+    public new Task<Shift?> Put(Shift shift) => PutCoreAsync(shift, syncOwnedCollections: true);
+
+    public Task<Shift?> PutCutUpdate(Shift shift) => PutCoreAsync(shift, syncOwnedCollections: false);
+
+    private async Task<Shift?> PutCoreAsync(Shift shift, bool syncOwnedCollections)
     {
-        var existingShift = await context.Shift
+        var query = context.Shift
             .Include(s => s.Client)
                 .ThenInclude(c => c!.Addresses)
             .Include(s => s.GroupItems)
                 .ThenInclude(gi => gi.Group)
-            .Include(s => s.ShiftExpenses)
-            .Include(s => s.RequiredQualifications)
+            .AsQueryable();
+
+        if (syncOwnedCollections)
+        {
+            query = query
+                .Include(s => s.ShiftExpenses)
+                .Include(s => s.RequiredQualifications);
+        }
+
+        var existingShift = await query
             .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == shift.Id);
 
@@ -103,6 +115,13 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             existingShift.Id,
             (groupItem, shiftId) => groupItem.ShiftId = shiftId,
             gi => gi.GroupId);
+
+        if (!syncOwnedCollections)
+        {
+            Logger.LogInformation("Shift cut-updated: {ShiftId}, GroupItems count: {Count}; expenses and required qualifications untouched",
+                shift.Id, existingShift.GroupItems.Count);
+            return existingShift;
+        }
 
         _collectionUpdateService.UpdateCollection(
             existingShift.ShiftExpenses,

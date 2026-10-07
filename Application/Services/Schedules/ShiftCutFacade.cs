@@ -191,7 +191,7 @@ public class ShiftCutFacade : IShiftCutFacade
             _shiftTreeService.SetHierarchyRelation(shift, null, null);
         }
 
-        var updatedShift = await _shiftRepository.Put(shift);
+        var updatedShift = await _shiftRepository.PutCutUpdate(shift);
 
         if (updatedShift != null)
         {

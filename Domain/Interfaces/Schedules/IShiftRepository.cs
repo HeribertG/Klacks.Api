@@ -14,6 +14,14 @@ public interface IShiftRepository : IBaseRepository<Shift>
 
     Task<Shift?> GetTrackedOrFromDb(Guid id);
 
+    /// <summary>
+    /// Update from the cut dialog: scalars and group items only. The cut list hands the dialog no default
+    /// expenses and no required qualifications, so a full update would delete both; this variant leaves them as
+    /// stored. The edit form keeps using Put, which owns both lists.
+    /// </summary>
+    /// <param name="shift">The shift as sent by the cut dialog, with the id of the stored shift.</param>
+    Task<Shift?> PutCutUpdate(Shift shift);
+
     IQueryable<Shift> GetQuery();
    
     IQueryable<Shift> GetQueryWithClient();
