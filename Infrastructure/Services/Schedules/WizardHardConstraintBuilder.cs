@@ -106,10 +106,12 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     private async Task<IReadOnlyList<CoreBreakBlocker>> BuildBreakBlockersAsync(
         List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)
     {
+        // A container sub-break (ParentWorkId set) is part of the container work, not an absence: it never closes the day.
         var rawBreaks = await _context.Break
             .AsNoTracking()
             .Include(b => b.Absence)
             .Where(b => agentIds.Contains(b.ClientId)
+                        && b.ParentWorkId == null
                         && b.CurrentDate >= from
                         && b.CurrentDate <= until
                         && (b.AnalyseToken == analyseToken || (b.AnalyseToken == null && analyseToken == null)))
