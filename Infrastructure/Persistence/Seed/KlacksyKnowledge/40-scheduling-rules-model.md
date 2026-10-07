@@ -119,7 +119,7 @@ differs by field group. This is the part people get wrong most often.
 | Maximum, minimum, full-time hours, guaranteed hours, all rates, the night window | rule → working conditions → company defaults |
 | Daily working hours, overtime threshold, and every time limit from Stage 2 | rule → company defaults (working conditions are skipped) |
 | Working weekdays, shift-work marker | rule → working conditions. With active working conditions the company setting is unreachable. |
-| How rates combine, and any minimum amount per hour | company only — a rule can never override these |
+| How rates combine, and any minimum time credit per hour | company only — a rule can never override these |
 
 Two exceptions:
 

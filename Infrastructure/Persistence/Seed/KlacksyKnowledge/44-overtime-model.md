@@ -5,8 +5,8 @@ description: |
   starting at a number of hours accumulated in the day or in the week and carrying its own uplift.
   Covers that each band pays only the hours falling inside it rather than everything from zero, that
   the reference span is a day or a week and nothing longer, and the two conditions without which no
-  uplift is produced at all. Use this when the user asks from which hour extra pay starts, why an
-  amount looks too small, or why nothing was added despite a long day.
+  uplift is produced at all. Use this when the user asks from which hour the overtime credit starts, why a
+  credit looks too small, or why nothing was added despite a long day.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -75,7 +75,7 @@ bands that are complete take effect, so zero to three of them are actually live.
 **The uplift is the surcharge portion, not the total.** An entered 25 % produces a quarter of an
 hour's worth per hour worked in that band — it does not mean the hour is paid at 1.25 times. The
 mode field beside it (de: "Zuschlagsmodus") switches the **unit** between a multiple of the hourly
-value and a fixed amount per hour; the arithmetic is identical either way.
+value and a fixed time credit per hour; the arithmetic is identical either way.
 
 ## What counts as hours already worked
 
