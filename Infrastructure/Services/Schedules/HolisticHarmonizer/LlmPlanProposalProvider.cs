@@ -5,7 +5,8 @@
 /// <c>ILLMService</c> (which mixes Klacks system prompts, conversation history and tool
 /// calling into every request) and instead drives the underlying <see cref="ILLMProvider"/>
 /// directly so the LLM receives only Holistic Harmonizer's structured prompt and replies with the JSON
-/// we expect.
+/// we expect. Thinking is switched off for proposals: a reasoning model (deepseek-flash) otherwise spends the whole
+/// output budget on reasoning and returns no answer.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
