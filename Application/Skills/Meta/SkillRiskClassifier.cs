@@ -179,7 +179,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // delete_contract, delete_macro, delete_monthly_target_hours and update_calendar_selection above:
         // a wrong value here silently moves figures that were already computed against it. Macros are the
         // calculation scripts; contract templates are the wage base; monthly target hours short-circuit
-        // GuaranteedHours; the overtime, surcharge and compensatory-rest cards decide how extra pay is
+        // GuaranteedHours; the overtime, surcharge and compensatory-rest cards decide how extra time is
         // worked out; update_owner_locale_settings switches the GLOBAL holiday calendar and
         // import_calendar_rules bulk-writes the holiday definitions that calendar feeds on.
         "update_contract",

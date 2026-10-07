@@ -39738,7 +39738,7 @@
     {
       "name": "get_surcharge_mode_settings",
       "area": "settings",
-      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows how each night, holiday and weekend surcharge (a time credit in hours, never money) is worked out: as a multiplier on the hours worked or as a fixed time credit, the guaranteed minimum credit per hour, the hours the night band covers, and how several kinds combine when they land on the same hour. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39793,12 +39793,12 @@
         "fr": "Mode de calcul des suppléments",
         "it": "Modalità di calcolo delle maggiorazioni"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_surcharge_mode_settings",
       "area": "settings",
-      "description": "Changes how each kind of extra pay is worked out: multiplier or fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine on the same hour. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Changes how each night, holiday and weekend surcharge (a time credit in hours, never money) is worked out: multiplier or fixed time credit, the guaranteed minimum credit per hour, the hours the night band covers, and how several kinds combine on the same hour. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -39807,7 +39807,7 @@
       "parameters": [
         {
           "name": "nightRateMode",
-          "description": "Whether night pay is a multiplier or a fixed amount",
+          "description": "Whether the night surcharge is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39815,7 +39815,7 @@
         },
         {
           "name": "holidayRateMode",
-          "description": "Whether holiday pay is a multiplier or a fixed amount",
+          "description": "Whether the holiday surcharge is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39823,7 +39823,7 @@
         },
         {
           "name": "we1RateMode",
-          "description": "Whether Saturday pay is a multiplier or a fixed amount",
+          "description": "Whether the Saturday surcharge is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39831,7 +39831,7 @@
         },
         {
           "name": "we2RateMode",
-          "description": "Whether Sunday pay is a multiplier or a fixed amount",
+          "description": "Whether the Sunday surcharge is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39839,7 +39839,7 @@
         },
         {
           "name": "we3RateMode",
-          "description": "Whether the third weekend band is a multiplier or a fixed amount",
+          "description": "Whether the third weekend surcharge is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -39956,12 +39956,12 @@
         "fr": "Modifier les paramètres de majoration",
         "it": "Modifica le impostazioni di maggiorazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_overtime_settings",
       "area": "settings",
-      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows how hours beyond the agreed workload are credited as extra time (never money): what the count is measured against, whether the rate is a multiplier or a fixed time credit per hour, and the three steps with the hour each one begins at and the rate it credits. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -40011,12 +40011,12 @@
         "fr": "Paramètres des heures supplémentaires",
         "it": "Impostazioni degli straordinari"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_overtime_settings",
       "area": "settings",
-      "description": "Changes how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each begins at and the rate it pays. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Changes how hours beyond the agreed workload are credited as extra time (never money): what the count is measured against, whether the rate is a multiplier or a fixed time credit, and the three steps with the hour each begins at and the rate it credits. Only what is supplied changes. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -40033,7 +40033,7 @@
         },
         {
           "name": "rateMode",
-          "description": "Whether the rate is a multiplier or a fixed amount",
+          "description": "Whether the rate is a multiplier or a fixed time credit",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -40049,7 +40049,7 @@
         },
         {
           "name": "tier1Rate",
-          "description": "Rate the first step pays",
+          "description": "Rate the first step credits",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -40065,7 +40065,7 @@
         },
         {
           "name": "tier2Rate",
-          "description": "Rate the second step pays",
+          "description": "Rate the second step credits",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -40081,7 +40081,7 @@
         },
         {
           "name": "tier3Rate",
-          "description": "Rate the third step pays",
+          "description": "Rate the third step credits",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -40130,7 +40130,7 @@
         "fr": "Modifier les paramètres des heures supplémentaires",
         "it": "Modifica le impostazioni degli straordinari"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_wizard_settings",
@@ -40384,7 +40384,7 @@
     {
       "name": "get_grid_color_settings",
       "area": "settings",
-      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
+      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and surcharges. Do NOT use when the user wants to create, change, or delete data; pick the matching create, update, or delete skill instead.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -40436,12 +40436,12 @@
         "fr": "Couleurs du tableau de planification",
         "it": "Colori della tabella di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_grid_color_settings",
       "area": "settings",
-      "description": "Changes the colours the schedule board is drawn in — the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Every value has to be a hex colour, and one bad value stops the whole change. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Changes the colours the schedule board is drawn in — the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and surcharges. Every value has to be a hex colour, and one bad value stops the whole change. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -40586,7 +40586,7 @@
         },
         {
           "name": "surchargeColor",
-          "description": "Colour marking extra pay",
+          "description": "Colour marking surcharges",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -40636,7 +40636,7 @@
         "fr": "Modifier les couleurs de la grille de planification",
         "it": "Modifica i colori della griglia di pianificazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_openroute_settings",
@@ -41901,7 +41901,7 @@
     {
       "name": "explain_overtime_model",
       "area": "contract",
-      "description": "Explains how extra hours are paid once somebody works beyond a threshold: up to three bands, each starting at a number of hours accumulated in the day or in the week and carrying its own uplift. Covers that each band pays only the hours falling inside it rather than everything from zero, that the reference span is a day or a week and nothing longer, and the two conditions without which no uplift is produced at all.",
+      "description": "Explains how extra hours are credited (as time, never money) once somebody works beyond a threshold: up to three bands, each starting at a number of hours accumulated in the day or in the week and carrying its own uplift. Covers that each band credits only the hours falling inside it rather than everything from zero, that the reference span is a day or a week and nothing longer, and the two conditions without which no uplift is produced at all.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -41979,7 +41979,7 @@
         "fr": "Expliquer le modèle d'heures supplémentaires",
         "it": "Spiega il modello degli straordinari"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_identity_providers",
@@ -42388,7 +42388,7 @@
     {
       "name": "explain_surcharge_mode",
       "area": "contract",
-      "description": "Explains the company-wide settings behind night, holiday and weekend uplifts: whether a rate is read as a multiple, as a fixed amount per hour or as a lump sum per shift, the floor that can be put under each one and the three conditions it needs to bite, the hours counted as night, and what happens when several uplifts apply to the same stretch of work.",
+      "description": "Explains the company-wide settings behind night, holiday and weekend uplifts: whether a rate is read as a multiple, as a fixed time credit per hour or as a fixed time credit per shift, the minimum credit that can be put under each one and the three conditions it needs to bite, the hours counted as night, and what happens when several uplifts apply to the same stretch of work.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -42469,7 +42469,7 @@
         "fr": "Expliquer le mode de majoration",
         "it": "Spiega la modalità di maggiorazione"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_software_updates",

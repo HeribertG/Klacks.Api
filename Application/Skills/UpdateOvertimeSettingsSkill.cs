@@ -5,13 +5,13 @@
 /// the rest keep their stored value.
 /// </summary>
 /// <param name="basis">What the count is measured against.</param>
-/// <param name="rateMode">Whether the rate is a multiplier or a fixed amount.</param>
+/// <param name="rateMode">Whether the rate is a multiplier or a fixed time credit.</param>
 /// <param name="tier1AfterHours">Hour the first step starts at.</param>
-/// <param name="tier1Rate">Rate the first step pays.</param>
+/// <param name="tier1Rate">Rate the first step credits.</param>
 /// <param name="tier2AfterHours">Hour the second step starts at.</param>
-/// <param name="tier2Rate">Rate the second step pays.</param>
+/// <param name="tier2Rate">Rate the second step credits.</param>
 /// <param name="tier3AfterHours">Hour the third step starts at.</param>
-/// <param name="tier3Rate">Rate the third step pays.</param>
+/// <param name="tier3Rate">Rate the third step credits.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills.Base;

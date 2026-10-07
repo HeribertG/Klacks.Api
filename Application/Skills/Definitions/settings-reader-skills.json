@@ -229,7 +229,7 @@
     {
       "name": "get_surcharge_mode_settings",
       "className": "GetSurchargeModeSettingsSkill",
-      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour.",
+      "description": "Shows how each night, holiday and weekend surcharge (a time credit in hours, never money) is worked out: as a multiplier on the hours worked or as a fixed time credit, the guaranteed minimum credit per hour, the hours the night band covers, and how several kinds combine when they land on the same hour.",
       "category": "Query",
       "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
@@ -254,7 +254,7 @@
     {
       "name": "get_overtime_settings",
       "className": "GetOvertimeSettingsSkill",
-      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays.",
+      "description": "Shows how hours beyond the agreed workload are credited as extra time (never money): what the count is measured against, whether the rate is a multiplier or a fixed time credit per hour, and the three steps with the hour each one begins at and the rate it credits.",
       "category": "Query",
       "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],
@@ -302,7 +302,7 @@
     {
       "name": "get_grid_color_settings",
       "className": "GetGridColorSettingsSkill",
-      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
+      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and surcharges.",
       "category": "Query",
       "effect": "Read",
       "requiredPermissions": ["CanViewSettings"],

@@ -1,14 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Changes how the extra-pay kinds are calculated. Only the supplied parameters are written; the
+/// Changes how the surcharge kinds (time credits in hours, never money) are calculated. Only the supplied parameters are written; the
 /// rest keep their stored value.
 /// </summary>
-/// <param name="nightRateMode">Whether night pay is a multiplier or a fixed amount.</param>
-/// <param name="holidayRateMode">Whether holiday pay is a multiplier or a fixed amount.</param>
-/// <param name="we1RateMode">Whether Saturday pay is a multiplier or a fixed amount.</param>
-/// <param name="we2RateMode">Whether Sunday pay is a multiplier or a fixed amount.</param>
-/// <param name="we3RateMode">Whether the third weekend band is a multiplier or a fixed amount.</param>
+/// <param name="nightRateMode">Whether the night surcharge is a multiplier or a fixed time credit.</param>
+/// <param name="holidayRateMode">Whether the holiday surcharge is a multiplier or a fixed time credit.</param>
+/// <param name="we1RateMode">Whether the Saturday surcharge is a multiplier or a fixed time credit.</param>
+/// <param name="we2RateMode">Whether the Sunday surcharge is a multiplier or a fixed time credit.</param>
+/// <param name="we3RateMode">Whether the third weekend surcharge is a multiplier or a fixed time credit.</param>
 /// <param name="nightMinimumPerHour">Guaranteed minimum per night hour.</param>
 /// <param name="holidayMinimumPerHour">Guaranteed minimum per holiday hour.</param>
 /// <param name="we1MinimumPerHour">Guaranteed minimum per Saturday hour.</param>

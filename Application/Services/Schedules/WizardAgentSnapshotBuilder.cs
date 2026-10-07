@@ -127,7 +127,7 @@ public sealed class WizardAgentSnapshotBuilder
             WE1Rate = data.WE1Rate,
             WE2Rate = data.WE2Rate,
             WE3Rate = data.WE3Rate,
-            // Without the modes a fixed amount per hour or per shift would be estimated as a
+            // Without the modes a fixed time credit per hour or per shift would be estimated as a
             // percentage multiplier — a silently wrong cost estimate during planning.
             NightRateMode = MapRateMode(data.NightRateMode),
             HolidayRateMode = MapRateMode(data.HolidayRateMode),

@@ -21,7 +21,7 @@
 /// <param name="headerBackgroundColor">Background of the header row.</param>
 /// <param name="headerForegroundColor">Text colour of the header row.</param>
 /// <param name="workChangeColor">Colour marking a correction.</param>
-/// <param name="surchargeColor">Colour marking extra pay.</param>
+/// <param name="surchargeColor">Colour marking surcharges.</param>
 
 using System.Text.RegularExpressions;
 using Klacks.Api.Application.Interfaces;

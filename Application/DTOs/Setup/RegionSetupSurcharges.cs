@@ -26,7 +26,7 @@ public class RegionSetupSurcharges
     public Dictionary<string, string>? RateModes { get; set; }
 
     /// <summary>
-    /// Optional per surcharge-type minimum amount per hour, keyed the same way as <see cref="RateModes"/>,
+    /// Optional per surcharge-type minimum time credit per hour, keyed the same way as <see cref="RateModes"/>,
     /// used as the floor in the combi mode max(Multiplier result, MinimumPerHour * hours).
     /// </summary>
     public Dictionary<string, decimal>? MinimumsPerHour { get; set; }
