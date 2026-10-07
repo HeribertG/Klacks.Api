@@ -485,7 +485,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands,
         IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap)
     {
-        var keywordDays = new Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword>();
+        var keywordsByDay = new Dictionary<(Guid AgentId, DateOnly Date), List<ScheduleCommandKeyword>>();
         foreach (var cmd in commands)
         {
             if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
@@ -494,20 +494,19 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             }
 
             var key = (cmd.ClientId, cmd.CurrentDate);
-            if (!keywordDays.TryGetValue(key, out var existing))
+            if (!keywordsByDay.TryGetValue(key, out var list))
             {
-                keywordDays[key] = keyword;
-                continue;
+                list = [];
+                keywordsByDay[key] = list;
             }
-
-            // Several commands on one day: the most restrictive wins, deterministically, so the answer
-            // does not depend on the order the rows came back in. FREE beats everything.
-            keywordDays[key] = existing == ScheduleCommandKeyword.Free || keyword == ScheduleCommandKeyword.Free
-                ? ScheduleCommandKeyword.Free
-                : (ScheduleCommandKeyword)Math.Min((int)existing, (int)keyword);
+            list.Add(keyword);
         }
 
-        return keywordDays;
+        // Several commands on one day restrict cumulatively, as in Wizard 1 (e.g. -EARLY and -NIGHT leave only
+        // LATE, EARLY and LATE close the day); the result does not depend on the order the rows came back in.
+        return keywordsByDay.ToDictionary(
+            entry => entry.Key,
+            entry => ScheduleCommandKeywordCombiner.Combine(entry.Value)!.Value);
     }
 
     /// <summary>
