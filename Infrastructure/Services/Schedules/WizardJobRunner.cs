@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using System.Globalization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -29,6 +30,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class WizardJobRunner : IWizardJobRunner
 {
     private const int ClientJoinDelayMs = 500;
+    private const string IsoDateFormat = "yyyy-MM-dd";
+    private const string TimeOfDayFormat = "HH:mm";
     private static readonly TimeSpan WizardTimeBudget = TimeSpan.FromSeconds(90);
     private static readonly TimeSpan HardCancelGrace = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan MinLoopBudget = TimeSpan.FromSeconds(10);
@@ -208,8 +211,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations, subScoreJson, stage0Violations);
 
             var qualificationGaps = await BuildQualificationGapsAsync(scope.ServiceProvider, request, wizardContext, best.Tokens, ct);
-            // Unsolvability report (V5): which slots stay understaffed and whether any agent may legally take them.
-            var unfilledSlots = MapUnfilledSlots(UnfilledSlotDiagnostics.Diagnose(wizardContext, best.Tokens));
+            var unfilledSlots = DiagnoseUnfilledSlots(jobId, wizardContext, best.Tokens, _logger, ct);
 
             var resultDto = new WizardJobResultDto(
                 JobId: jobId,
@@ -312,14 +314,36 @@ public sealed class WizardJobRunner : IWizardJobRunner
         return unfillableGaps.Concat(assignedGaps).ToList();
     }
 
+    /// <summary>
+    /// Unsolvability report (V5). Best-effort like the score capture: the run is finished, so a failing or cancelled
+    /// diagnosis (the hard cancel can fire during the post-loop work) leaves UnfilledSlots null = "not diagnosed"
+    /// instead of turning a finished run into a failure or a timeout.
+    /// </summary>
+    internal static IReadOnlyList<WizardUnfilledSlotDto>? DiagnoseUnfilledSlots(
+        Guid jobId, CoreWizardContext wizardContext, IReadOnlyList<CoreToken> plan, ILogger logger, CancellationToken ct)
+    {
+        try
+        {
+            return MapUnfilledSlots(UnfilledSlotDiagnostics.Diagnose(
+                wizardContext, plan, UnfilledSlotDiagnostics.DefaultMaxSlots, ct));
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Wizard job {JobId} unfilled slot diagnosis failed; the result carries no diagnosis", jobId);
+            return null;
+        }
+    }
+
     internal static IReadOnlyList<WizardUnfilledSlotDto> MapUnfilledSlots(IEnumerable<UnfilledSlotDiagnosis> diagnoses) =>
         diagnoses
             .Select(d => new WizardUnfilledSlotDto(
                 ShiftId: d.ShiftId.ToString(),
-                Date: d.Date.ToString("yyyy-MM-dd"),
+                Date: d.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture),
                 MissingSeats: d.MissingSeats,
-                FeasibleAgentCount: d.FeasibleAgentCount,
-                VetoCounts: d.VetoCounts))
+                EligibleAgentCount: d.EligibleAgentCount,
+                PlaceableAgentCount: d.PlaceableAgentCount,
+                EligibilityVetoCounts: d.EligibilityVetoCounts,
+                PlacementVetoCounts: d.PlacementVetoCounts))
             .ToList();
 
     internal static IReadOnlyList<WizardTokenDto> MapTokens(IEnumerable<CoreToken> tokens) =>
@@ -328,9 +352,9 @@ public sealed class WizardJobRunner : IWizardJobRunner
             .Select(t => new WizardTokenDto(
                 AgentId: t.AgentId,
                 ShiftId: t.ShiftRefId.ToString(),
-                Date: t.Date.ToString("yyyy-MM-dd"),
-                StartTime: t.StartAt.ToString("HH:mm"),
-                EndTime: t.EndAt.ToString("HH:mm"),
+                Date: t.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture),
+                StartTime: t.StartAt.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
+                EndTime: t.EndAt.ToString(TimeOfDayFormat, CultureInfo.InvariantCulture),
                 Hours: t.TotalHours))
             .ToList();
 
@@ -356,7 +380,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 .ToList();
 
             var escalations = outcome.Escalation.Entries
-                .Select(e => new WizardEscalationDto(e.AgentId, e.Date.ToString("yyyy-MM-dd"), e.RuleName, e.Hint))
+                .Select(e => new WizardEscalationDto(e.AgentId, e.Date.ToString(IsoDateFormat, CultureInfo.InvariantCulture), e.RuleName, e.Hint))
                 .ToList();
 
             return (awards, escalations);

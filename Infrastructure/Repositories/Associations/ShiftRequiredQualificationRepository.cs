@@ -2,13 +2,12 @@
 
 /// <summary>
 /// Repository for ShiftRequiredQualification. GetActiveAsync returns the tracked active row for a
-/// (shift, qualification) pair so the set-command handler can upsert it in place. GetInheritedByShiftIdsAsync hands
-/// the requirements of an order and of cut ancestors down to the cut pieces (ShiftScopeExpander), because a cut piece
-/// created in the cut dialog carries no requirement rows of its own.
+/// (shift, qualification) pair so the set-command handler can upsert it in place. GetEffectiveByShiftIdsAsync resolves
+/// whose rows apply to a staffed shift (ShiftRequirementSourceResolver), because a cut piece created in the cut dialog
+/// carries no requirement rows of its own.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Associations;
-using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
@@ -50,56 +49,45 @@ public class ShiftRequiredQualificationRepository : BaseRepository<ShiftRequired
             .ToListAsync(ct);
     }
 
-    public async Task<List<ShiftRequiredQualification>> GetInheritedByShiftIdsAsync(
+    public async Task<List<EffectiveShiftRequirement>> GetEffectiveByShiftIdsAsync(
         IReadOnlyCollection<Guid> shiftIds, CancellationToken ct = default)
     {
-        var rows = await ShiftTreeQuery.LoadFamiliesAsync(context, shiftIds, ct);
-        var sourcesByReceiver = ShiftScopeExpander.InheritanceSourcesOf(shiftIds, rows);
-        if (sourcesByReceiver.Count == 0)
+        var ids = shiftIds.Distinct().ToList();
+        if (ids.Count == 0)
         {
             return [];
         }
 
-        var sourceIds = sourcesByReceiver.Values.SelectMany(s => s).Distinct().ToList();
-        var sourceRequirements = await context.ShiftRequiredQualification
-            .AsNoTracking()
-            .Include(srq => srq.Qualification)
-            .Where(srq => sourceIds.Contains(srq.ShiftId))
-            .ToListAsync(ct);
-        if (sourceRequirements.Count == 0)
+        var rows = await ShiftTreeQuery.LoadFamiliesAsync(context, ids, ct);
+        var candidateIds = rows.Select(r => r.Id).Concat(ids).Distinct().ToList();
+        var requirementsByShift = (await context.ShiftRequiredQualification
+                .AsNoTracking()
+                .Include(srq => srq.Qualification)
+                .Where(srq => candidateIds.Contains(srq.ShiftId))
+                .ToListAsync(ct))
+            .ToLookup(srq => srq.ShiftId);
+        var shiftsWithOwnRows = requirementsByShift.Select(g => g.Key).ToHashSet();
+
+        var sources = ShiftRequirementSourceResolver.ResolveSources(ids, rows, shiftsWithOwnRows);
+        if (sources.Count == 0)
         {
             return [];
         }
 
-        var receiverIds = sourcesByReceiver.Keys.ToList();
-        var receivers = await context.Shift
+        var receiverIds = sources.Keys.ToList();
+        var names = await context.Shift
             .AsNoTracking()
             .Where(s => receiverIds.Contains(s.Id))
             .Select(s => new { s.Id, s.Name, s.Abbreviation })
-            .ToDictionaryAsync(s => s.Id, ct);
+            .ToDictionaryAsync(s => s.Id, s => string.IsNullOrWhiteSpace(s.Name) ? s.Abbreviation : s.Name, ct);
 
-        var requirementsBySource = sourceRequirements.ToLookup(srq => srq.ShiftId);
-        var inherited = new List<ShiftRequiredQualification>();
-        foreach (var (receiverId, sources) in sourcesByReceiver)
-        {
-            var receiverShift = receivers.TryGetValue(receiverId, out var receiver)
-                ? new Shift { Id = receiver.Id, Name = receiver.Name, Abbreviation = receiver.Abbreviation }
-                : null;
-            foreach (var source in sources.OrderBy(id => id))
-            {
-                inherited.AddRange(requirementsBySource[source].Select(requirement => new ShiftRequiredQualification
-                {
-                    Id = requirement.Id,
-                    ShiftId = receiverId,
-                    QualificationId = requirement.QualificationId,
-                    IsMandatory = requirement.IsMandatory,
-                    MinLevel = requirement.MinLevel,
-                    Qualification = requirement.Qualification,
-                    Shift = receiverShift,
-                }));
-            }
-        }
-
-        return inherited;
+        return sources
+            .OrderBy(entry => entry.Key)
+            .SelectMany(entry => requirementsByShift[entry.Value].Select(requirement => new EffectiveShiftRequirement(
+                entry.Key,
+                names.GetValueOrDefault(entry.Key, string.Empty),
+                entry.Value,
+                requirement)))
+            .ToList();
     }
 }

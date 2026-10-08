@@ -6,7 +6,7 @@
 /// Shared by both wizard context builders so all three wizards veto on one source of truth.
 /// </summary>
 /// <param name="clientQualificationRepository">Loads the qualifications held by the planning agents</param>
-/// <param name="shiftRequiredQualificationRepository">Loads the qualifications each shift requires</param>
+/// <param name="shiftRequiredQualificationRepository">Loads the requirement rows that apply to each shift (nearest link of its order tree with own rows, see ShiftRequirementSourceResolver)</param>
 /// <param name="settingsReader">Reads QUALIFICATION_EXPIRED_MANDATORY_BLOCKS (opt-in severity escalation)</param>
 
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -53,14 +53,10 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
 
         var shiftIds = slots.Select(s => s.ShiftId).Distinct().ToList();
 
-        // A cut piece needs its own requirements plus those of its order and cut ancestors: the cut dialog creates
-        // pieces without requirement rows, and checking only the piece's own rows would let an unqualified agent in.
-        var ownRequirements = await _shiftRequiredQualificationRepository.GetByShiftIdsAsync(shiftIds, ct);
-        var inheritedRequirements = await _shiftRequiredQualificationRepository.GetInheritedByShiftIdsAsync(shiftIds, ct);
-        var requiredByShift = ownRequirements
-            .Concat(inheritedRequirements)
+        var effectiveRequirements = await _shiftRequiredQualificationRepository.GetEffectiveByShiftIdsAsync(shiftIds, ct);
+        var requiredByShift = effectiveRequirements
             .GroupBy(r => r.ShiftId)
-            .ToDictionary(g => g.Key, g => MergeByQualification(g));
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<ShiftRequiredQualification>)g.Select(r => r.Requirement).ToList());
 
         // Any shift carrying a required qualification (mandatory OR optional) can produce a gap:
         // a missing mandatory one is an Error (veto), everything else a Warning (report only).
@@ -116,7 +112,9 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
             Ineligible = ineligible,
             Gaps = gaps,
             QualificationInfo = qualificationInfo,
-            ShiftNames = BuildShiftNames(requiredByShift, gatedShiftIds),
+            ShiftNames = effectiveRequirements
+                .GroupBy(r => r.ShiftId)
+                .ToDictionary(g => g.Key, g => g.First().ShiftName),
         };
     }
 
@@ -137,39 +135,6 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
         }
 
         return set.ToList();
-    }
-
-    /// <summary>
-    /// One requirement per qualification: a qualification required by the piece itself and by an ancestor (or by
-    /// several ancestors) is mandatory when any source makes it mandatory and needs the highest level any source asks.
-    /// The piece's own row wins as the template (its shift name), an inherited row only fills in when no own row exists.
-    /// </summary>
-    private static IReadOnlyList<ShiftRequiredQualification> MergeByQualification(IEnumerable<ShiftRequiredQualification> requirements)
-    {
-        return requirements
-            .GroupBy(r => r.QualificationId)
-            .Select(g =>
-            {
-                var template = g.First();
-                var isMandatory = g.Any(r => r.IsMandatory);
-                var minLevel = g.Max(r => r.MinLevel);
-                if (g.Count() == 1 || (template.IsMandatory == isMandatory && template.MinLevel == minLevel))
-                {
-                    return template;
-                }
-
-                return new ShiftRequiredQualification
-                {
-                    Id = template.Id,
-                    ShiftId = template.ShiftId,
-                    QualificationId = template.QualificationId,
-                    IsMandatory = isMandatory,
-                    MinLevel = minLevel,
-                    Qualification = template.Qualification ?? g.Select(r => r.Qualification).FirstOrDefault(q => q is not null),
-                    Shift = template.Shift,
-                };
-            })
-            .ToList();
     }
 
     private async Task<bool> IsExpiredMandatoryBlocksEnabledAsync()
@@ -197,22 +162,5 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
         }
 
         return info;
-    }
-
-    private static IReadOnlyDictionary<Guid, string> BuildShiftNames(
-        IReadOnlyDictionary<Guid, IReadOnlyList<ShiftRequiredQualification>> requiredByShift,
-        IReadOnlySet<Guid> gatedShiftIds)
-    {
-        var names = new Dictionary<Guid, string>();
-        foreach (var shiftId in gatedShiftIds)
-        {
-            var shift = requiredByShift[shiftId].Select(r => r.Shift).FirstOrDefault(s => s is not null);
-            if (shift is not null)
-            {
-                names[shiftId] = string.IsNullOrWhiteSpace(shift.Name) ? shift.Abbreviation : shift.Name;
-            }
-        }
-
-        return names;
     }
 }

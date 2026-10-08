@@ -556,15 +556,32 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         var originalShift = _scheduleMapper.CloneShift(shift);
         originalShift.Status = ShiftStatus.OriginalShift;
         originalShift.OriginalId = shift.Id;
+        originalShift.RequiredQualifications = CopyRequiredQualifications(shift.RequiredQualifications);
 
         await Add(originalShift);
 
         Logger.LogInformation(
-            "Created OriginalShift: NewShiftId={NewShiftId}, OriginalId={OriginalId}, Status={Status}",
-            originalShift.Id, originalShift.OriginalId, originalShift.Status);
+            "Created OriginalShift: NewShiftId={NewShiftId}, OriginalId={OriginalId}, Status={Status}, RequiredQualifications count: {QualificationCount}",
+            originalShift.Id, originalShift.OriginalId, originalShift.Status, originalShift.RequiredQualifications.Count);
 
         return originalShift;
     }
+
+    /// <summary>
+    /// Copies the not yet saved requirement rows of a sealed order onto its plannable copy, so the copy (which the planner
+    /// sees and edits) is authoritative from the start; the PUT sealing path does the same from the database
+    /// (<see cref="CopyRequiredQualificationsAsync"/>), which cannot see rows that are only staged.
+    /// </summary>
+    private static List<ShiftRequiredQualification> CopyRequiredQualifications(IEnumerable<ShiftRequiredQualification> source)
+        => source
+            .Select(requirement => new ShiftRequiredQualification
+            {
+                Id = Guid.NewGuid(),
+                QualificationId = requirement.QualificationId,
+                IsMandatory = requirement.IsMandatory,
+                MinLevel = requirement.MinLevel,
+            })
+            .ToList();
 
     public async Task<Shift?> PutWithSealedOrderHandling(Shift shift)
     {

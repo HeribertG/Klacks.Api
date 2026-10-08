@@ -9,9 +9,10 @@ namespace Klacks.Api.Domain.Services.Schedules;
 /// Hands what is set on a shift down to the pieces the planner actually staffs. Something set on an order
 /// (original order, sealed order or its plannable copy) reaches every shift of that order: the shifts whose
 /// OriginalId is the order (OriginalId ?? Id of the source) and their cut descendants. Something set on a cut
-/// piece reaches that piece and its descendants along ParentId. Applied to shift preferences (an explicit entry
-/// on a shift beats an inherited one; conflicting inherited entries resolve to Blacklist) and to required
-/// qualifications (a piece needs its own requirements plus those of every source above it).
+/// piece reaches that piece and its descendants along ParentId. Applied to shift preferences: an explicit entry
+/// on a shift beats an inherited one, and conflicting inherited entries resolve to Blacklist across all levels (an
+/// explicit Preferred on a mid piece does not lift an order-level Blacklist for its children). Required qualifications
+/// follow a different, nearest-wins rule (<see cref="ShiftRequirementSourceResolver"/>).
 /// </summary>
 public static class ShiftScopeExpander
 {
@@ -58,41 +59,6 @@ public static class ShiftScopeExpander
                 .ThenBy(entry => entry.Key.ShiftId)
                 .Select(entry => new ScopedShiftPreference(entry.Key.ClientId, entry.Key.ShiftId, entry.Value)))
             .ToList();
-    }
-
-    /// <summary>
-    /// For each receiver the other shifts whose attributes it inherits (its order and its cut ancestors).
-    /// </summary>
-    /// <param name="receiverIds">Shifts that are staffed</param>
-    /// <param name="rows">Tree rows of their order families</param>
-    public static IReadOnlyDictionary<Guid, IReadOnlySet<Guid>> InheritanceSourcesOf(
-        IReadOnlyCollection<Guid> receiverIds,
-        IReadOnlyCollection<ShiftTreeRow> rows)
-    {
-        var index = ShiftTreeIndex.Build(rows);
-        var wanted = receiverIds.ToHashSet();
-        var sources = new Dictionary<Guid, HashSet<Guid>>();
-
-        foreach (var source in rows)
-        {
-            foreach (var receiver in ReceiversOf(source.Id, index))
-            {
-                if (receiver == source.Id || !wanted.Contains(receiver))
-                {
-                    continue;
-                }
-
-                if (!sources.TryGetValue(receiver, out var set))
-                {
-                    set = [];
-                    sources[receiver] = set;
-                }
-
-                set.Add(source.Id);
-            }
-        }
-
-        return sources.ToDictionary(entry => entry.Key, entry => (IReadOnlySet<Guid>)entry.Value);
     }
 
     private static IReadOnlySet<Guid> ReceiversOf(Guid sourceId, ShiftTreeIndex index)
