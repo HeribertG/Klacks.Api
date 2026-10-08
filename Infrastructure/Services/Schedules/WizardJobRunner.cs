@@ -11,6 +11,7 @@ using Klacks.ScheduleOptimizer.Scoring;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Agent;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Controller;
+using Klacks.ScheduleOptimizer.TokenEvolution.Diagnostics;
 using Klacks.ScheduleOptimizer.TokenEvolution.Fitness;
 using Klacks.ScheduleOptimizer.TokenEvolution;
 using Microsoft.AspNetCore.SignalR;
@@ -206,23 +207,9 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations, subScoreJson, stage0Violations);
 
-            // Wizard 1 never lifts a pre-existing unlocked Work into the genome (ExistingWorkBlockers is
-            // veto-only, see IWizardHardConstraintBuilder) — there is no incumbent to protect here.
-            var eligibilityBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
-            var eligibilityMatrix = await eligibilityBuilder.BuildAsync(
-                request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(wizardContext.Shifts), ct: ct);
-
-            // Two report angles: slots no eligible agent could fill (stayed empty, Error), and agents
-            // the wizard DID assign despite a warning-level gap (too-low level / expired / optional).
-            // CoreAgent carries no display name, so AgentId is passed and the frontend resolves it.
-            var unfillableGaps = QualificationGapReportBuilder.BuildUnfillableSlots(
-                eligibilityMatrix, wizardContext.Shifts, wizardContext.Agents, best.Tokens);
-            var assignedGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(
-                eligibilityMatrix,
-                best.Tokens
-                    .Where(t => t.ShiftRefId != Guid.Empty)
-                    .Select(t => (t.AgentId, string.Empty, t.ShiftRefId, t.Date)));
-            var qualificationGaps = unfillableGaps.Concat(assignedGaps).ToList();
+            var qualificationGaps = await BuildQualificationGapsAsync(scope.ServiceProvider, request, wizardContext, best.Tokens, ct);
+            // Unsolvability report (V5): which slots stay understaffed and whether any agent may legally take them.
+            var unfilledSlots = MapUnfilledSlots(UnfilledSlotDiagnostics.Diagnose(wizardContext, best.Tokens));
 
             var resultDto = new WizardJobResultDto(
                 JobId: jobId,
@@ -236,7 +223,8 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 QualificationGaps: qualificationGaps,
                 TimedOut: timedOut,
                 SubScoreJson: subScoreJson,
-                Stage0Violations: stage0Violations);
+                Stage0Violations: stage0Violations,
+                UnfilledSlots: unfilledSlots);
 
             // CancellationToken.None: the run is already finished. The hard cancel may fire during the
             // post-loop work, and a cancelled store would drop the result and report the finished run as
@@ -296,6 +284,43 @@ public sealed class WizardJobRunner : IWizardJobRunner
             _registry.Remove(jobId);
         }
     }
+
+    /// <summary>
+    /// Two report angles: slots no eligible agent could fill (stayed empty, Error), and agents the wizard DID assign
+    /// despite a warning-level gap (too-low level / expired / optional). CoreAgent carries no display name, so AgentId
+    /// is passed and the frontend resolves it. Wizard 1 never lifts a pre-existing unlocked Work into the genome
+    /// (ExistingWorkBlockers is veto-only, see IWizardHardConstraintBuilder), so there is no incumbent to protect here.
+    /// </summary>
+    private static async Task<List<QualificationGapDetail>> BuildQualificationGapsAsync(
+        IServiceProvider services,
+        WizardContextRequest request,
+        CoreWizardContext wizardContext,
+        IReadOnlyList<CoreToken> plan,
+        CancellationToken ct)
+    {
+        var eligibilityBuilder = services.GetRequiredService<IEligibilityMatrixBuilder>();
+        var eligibilityMatrix = await eligibilityBuilder.BuildAsync(
+            request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(wizardContext.Shifts), ct: ct);
+
+        var unfillableGaps = QualificationGapReportBuilder.BuildUnfillableSlots(
+            eligibilityMatrix, wizardContext.Shifts, wizardContext.Agents, plan);
+        var assignedGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(
+            eligibilityMatrix,
+            plan
+                .Where(t => t.ShiftRefId != Guid.Empty)
+                .Select(t => (t.AgentId, string.Empty, t.ShiftRefId, t.Date)));
+        return unfillableGaps.Concat(assignedGaps).ToList();
+    }
+
+    internal static IReadOnlyList<WizardUnfilledSlotDto> MapUnfilledSlots(IEnumerable<UnfilledSlotDiagnosis> diagnoses) =>
+        diagnoses
+            .Select(d => new WizardUnfilledSlotDto(
+                ShiftId: d.ShiftId.ToString(),
+                Date: d.Date.ToString("yyyy-MM-dd"),
+                MissingSeats: d.MissingSeats,
+                FeasibleAgentCount: d.FeasibleAgentCount,
+                VetoCounts: d.VetoCounts))
+            .ToList();
 
     internal static IReadOnlyList<WizardTokenDto> MapTokens(IEnumerable<CoreToken> tokens) =>
         tokens

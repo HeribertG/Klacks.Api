@@ -17,6 +17,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="TimedOut">True when the GA stopped because the soft time budget elapsed; the result is the best solution found up to that point</param>
 /// <param name="SubScoreJson">Engine-tagged JSON snapshot of the winning run's sub-score vector (empty when scoring was unavailable). Additive, for the status endpoint and the apply-time capture.</param>
 /// <param name="Stage0Violations">Hard Stage-0 violation count of the winning run (additive).</param>
+/// <param name="UnfilledSlots">Slots the winning run leaves understaffed and why (additive; null when not diagnosed, empty when every slot is staffed)</param>
 public sealed record WizardJobResultDto(
     Guid JobId,
     int FinalHardViolations,
@@ -29,4 +30,5 @@ public sealed record WizardJobResultDto(
     IReadOnlyList<QualificationGapDetail> QualificationGaps,
     bool TimedOut = false,
     string SubScoreJson = "",
-    int Stage0Violations = 0);
+    int Stage0Violations = 0,
+    IReadOnlyList<WizardUnfilledSlotDto>? UnfilledSlots = null);
