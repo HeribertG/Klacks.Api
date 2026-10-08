@@ -13,9 +13,12 @@ namespace Klacks.Api.Domain.Services.Schedules;
 /// dialog creates pieces without rows) stays protected by the nearest link above it. "Has rows" means any active row,
 /// optional ones included; callers filter IsMandatory only after resolving. Deliberately different from shift
 /// preferences (<see cref="ShiftScopeExpander"/>), where Blacklist wins across all levels.
-/// Remaining limit: when a planner removes ALL rows of the plannable copy (or of a piece), the next link applies again,
-/// in the end the sealed order, which the UI does not show. A scenario clone whose order was not cloned has
-/// OriginalId = null and sees only its own and its cloned ancestors' rows.
+/// Since 2026-10-08 the write paths keep this from surprising the planner (<see cref="ShiftRequirementMaterializer"/>):
+/// the first own row written on a shift that inherits turns the inherited rows into own rows first, and the cut dialog
+/// gives every new piece a copy of what applied to its parent. The copy is taken at cut time, so a later change on the
+/// parent no longer reaches pieces cut before it. Remaining limit: when a planner removes ALL rows of the plannable copy
+/// (or of a piece), the next link applies again, in the end the sealed order, which the UI does not show. A scenario
+/// clone whose order was not cloned has OriginalId = null and sees only its own and its cloned ancestors' rows.
 /// </summary>
 public static class ShiftRequirementSourceResolver
 {

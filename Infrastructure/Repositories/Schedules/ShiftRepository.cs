@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
@@ -573,15 +574,7 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
     /// (<see cref="CopyRequiredQualificationsAsync"/>), which cannot see rows that are only staged.
     /// </summary>
     private static List<ShiftRequiredQualification> CopyRequiredQualifications(IEnumerable<ShiftRequiredQualification> source)
-        => source
-            .Select(requirement => new ShiftRequiredQualification
-            {
-                Id = Guid.NewGuid(),
-                QualificationId = requirement.QualificationId,
-                IsMandatory = requirement.IsMandatory,
-                MinLevel = requirement.MinLevel,
-            })
-            .ToList();
+        => source.Select(requirement => ShiftRequirementMaterializer.Copy(requirement, Guid.Empty)).ToList();
 
     public async Task<Shift?> PutWithSealedOrderHandling(Shift shift)
     {
@@ -663,15 +656,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         foreach (var source in sourceQualifications)
         {
-            var copy = new ShiftRequiredQualification
-            {
-                Id = Guid.NewGuid(),
-                ShiftId = targetShiftId,
-                QualificationId = source.QualificationId,
-                IsMandatory = source.IsMandatory,
-                MinLevel = source.MinLevel,
-            };
-            await context.ShiftRequiredQualification.AddAsync(copy, cancellationToken);
+            await context.ShiftRequiredQualification.AddAsync(
+                ShiftRequirementMaterializer.Copy(source, targetShiftId), cancellationToken);
         }
 
         Logger.LogInformation(

@@ -6,7 +6,10 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -14,6 +17,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 public class ShiftCutFacade : IShiftCutFacade
 {
     private readonly IShiftRepository _shiftRepository;
+    private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly IShiftTreeService _shiftTreeService;
     private readonly IShiftResetService _shiftResetService;
     private readonly IShiftValidator _shiftValidator;
@@ -23,6 +27,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
     public ShiftCutFacade(
         IShiftRepository shiftRepository,
+        IShiftRequiredQualificationRepository requirementRepository,
         IShiftTreeService shiftTreeService,
         IShiftResetService shiftResetService,
         IShiftValidator shiftValidator,
@@ -31,6 +36,7 @@ public class ShiftCutFacade : IShiftCutFacade
         ILogger<ShiftCutFacade> logger)
     {
         _shiftRepository = shiftRepository;
+        _requirementRepository = requirementRepository;
         _shiftTreeService = shiftTreeService;
         _shiftResetService = shiftResetService;
         _shiftValidator = shiftValidator;
@@ -48,6 +54,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
         var processedShifts = new List<Shift>();
         var shiftsToDelete = new HashSet<Guid>();
+        var requirementsOfCreated = new Dictionary<Guid, List<ShiftRequiredQualification>>();
 
         var sortedOps = TopologicalSort(operations);
 
@@ -65,7 +72,7 @@ public class ShiftCutFacade : IShiftCutFacade
             {
                 _logger.LogInformation("Processing CREATE with ShiftId={ShiftId}, ParentId={ParentId}",
                     op.Data.Id, op.ParentId);
-                var createdShift = await ProcessCreate(op, shiftsToDelete, processedShifts);
+                var createdShift = await ProcessCreate(op, requirementsOfCreated);
                 processedShifts.Add(createdShift);
             }
             else
@@ -206,8 +213,7 @@ public class ShiftCutFacade : IShiftCutFacade
 
     private async Task<Shift> ProcessCreate(
         CutOperation op,
-        HashSet<Guid> shiftsToDelete,
-        List<Shift> processedShifts)
+        Dictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
     {
         if (op.Data.Id == Guid.Empty)
         {
@@ -249,6 +255,13 @@ public class ShiftCutFacade : IShiftCutFacade
                 $"Cannot cut shift with status {parentShift.Status}");
         }
 
+        if (shift.RequiredQualifications.Count == 0)
+        {
+            shift.RequiredQualifications = await RequirementsForNewPieceAsync(parentShift.Id, shift.Id, requirementsOfCreated);
+        }
+
+        requirementsOfCreated[shift.Id] = shift.RequiredQualifications;
+
         _logger.LogInformation("Adding shift to repository: ID={Id}", shift.Id);
         await _shiftRepository.Add(shift);
 
@@ -256,6 +269,32 @@ public class ShiftCutFacade : IShiftCutFacade
             shift.Id, shift.ParentId, shift.RootId);
 
         return shift;
+    }
+
+    /// <summary>
+    /// The requirement rows a new cut piece starts with: a copy of what applied to its parent, so the piece shows its
+    /// requirements in the UI and a later first row on the piece cannot silently replace them. A parent created earlier
+    /// in the same batch is not saved yet, so its rows come from this batch; a stored parent's rows are resolved with
+    /// the nearest-wins rule (its own rows, else those of its cut ancestors, plannable copy or sealed order).
+    /// Consequence: the copy is taken at cut time, a later change on the parent does not reach existing pieces.
+    /// </summary>
+    /// <param name="parentId">Shift the piece is cut from</param>
+    /// <param name="pieceId">The new piece</param>
+    /// <param name="requirementsOfCreated">Rows of the pieces created so far in this batch</param>
+    private async Task<List<ShiftRequiredQualification>> RequirementsForNewPieceAsync(
+        Guid parentId,
+        Guid pieceId,
+        IReadOnlyDictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
+    {
+        if (requirementsOfCreated.TryGetValue(parentId, out var batchRows))
+        {
+            return ShiftRequirementMaterializer.CopyAll(batchRows, pieceId);
+        }
+
+        var effective = await _requirementRepository.GetEffectiveByShiftIdsAsync([parentId]);
+        return ShiftRequirementMaterializer.CopyAll(
+            effective.Where(entry => entry.ShiftId == parentId).Select(entry => entry.Requirement),
+            pieceId);
     }
 
     private Guid ResolveParentId(string parentId)
