@@ -1,6 +1,16 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Reads the shift schedule (stored procedures get_shift_schedule / get_shift_schedule_partial) and the required
+/// qualifications shown on it. The qualifications are the rows that apply to each shift, inherited along the order
+/// tree when a cut piece carries none of its own (optional rows included, it is a display list).
+/// </summary>
+/// <param name="context">EF Core context for the stored procedure calls</param>
+/// <param name="requirementRepository">Resolves the required qualifications that apply to each shift</param>
+/// <param name="logger">Debug logging of the schedule queries</param>
+
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -13,13 +23,16 @@ namespace Klacks.Api.Infrastructure.Services.ShiftSchedule;
 public class ShiftScheduleService : IShiftScheduleService
 {
     private readonly DataBaseContext _context;
+    private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly ILogger<ShiftScheduleService> _logger;
 
     public ShiftScheduleService(
         DataBaseContext context,
+        IShiftRequiredQualificationRepository requirementRepository,
         ILogger<ShiftScheduleService> logger)
     {
         _context = context;
+        _requirementRepository = requirementRepository;
         _logger = logger;
     }
 
@@ -32,17 +45,11 @@ public class ShiftScheduleService : IShiftScheduleService
             return new Dictionary<Guid, List<ShiftRequiredQualification>>();
         }
 
-        var shiftIdSet = shiftIds.ToHashSet();
+        var effective = await _requirementRepository.GetEffectiveByShiftIdsAsync(shiftIds, cancellationToken);
 
-        var requiredQualifications = await _context.ShiftRequiredQualification
-            .Where(q => shiftIdSet.Contains(q.ShiftId) && !q.IsDeleted)
-            .Include(q => q.Qualification)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        return requiredQualifications
-            .GroupBy(q => q.ShiftId)
-            .ToDictionary(g => g.Key, g => g.ToList());
+        return effective
+            .GroupBy(e => e.ShiftId)
+            .ToDictionary(g => g.Key, g => g.Select(e => e.Requirement).ToList());
     }
 
     public IQueryable<ShiftDayAssignment> GetShiftScheduleQuery(

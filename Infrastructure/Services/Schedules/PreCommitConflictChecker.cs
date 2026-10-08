@@ -9,6 +9,7 @@
 /// over an on-call break is reported as an on-call-overlap Warning instead of a blocking collision.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
+/// <param name="requirementRepository">Resolves the required qualifications that apply to each planned shift (inherited along the order tree)</param>
 /// <param name="timelineCalculator">Shared Work-to-ScheduleBlock mapper (same one the live validator uses)</param>
 /// <param name="policyResolver">Resolves per-client rest/overtime/consecutive/weekly/min-rest thresholds</param>
 /// <param name="escalationService">Escalates timeline warnings to errors per the K1 Block-mode enforcement</param>
@@ -22,6 +23,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
@@ -36,6 +38,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 {
     private readonly DataBaseContext _context;
+    private readonly IShiftRequiredQualificationRepository _requirementRepository;
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
     private readonly IComplianceEscalationService _escalationService;
@@ -50,6 +53,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
     public PreCommitConflictChecker(
         DataBaseContext context,
+        IShiftRequiredQualificationRepository requirementRepository,
         ITimelineCalculationService timelineCalculator,
         ISchedulingPolicyResolver policyResolver,
         IComplianceEscalationService escalationService,
@@ -63,6 +67,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         IPlanningRuleEvaluatorService planningRuleEvaluator)
     {
         _context = context;
+        _requirementRepository = requirementRepository;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
         _escalationService = escalationService;
@@ -267,18 +272,19 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             return [];
         }
 
-        var requirements = await _context.ShiftRequiredQualification
-            .AsNoTracking()
-            .Where(srq => shiftIds.Contains(srq.ShiftId) && srq.IsMandatory && !srq.IsDeleted)
-            .ToListAsync(cancellationToken);
-        if (requirements.Count == 0)
+        // The rows that apply to each planned shift come from the single resolver (a cut piece without rows of its own
+        // inherits from its cut ancestors, plannable copy or sealed order). Resolve first, then let the matcher pick the
+        // mandatory ones: filtering IsMandatory before resolving would let a link with only optional rows hide the
+        // mandatory rows of the next link. Grouped by the staffed shift, not by the row's own ShiftId (the source).
+        var effective = await _requirementRepository.GetEffectiveByShiftIdsAsync(shiftIds, cancellationToken);
+        if (!effective.Any(e => e.Requirement.IsMandatory))
         {
             return [];
         }
 
-        var requirementsByShift = requirements
-            .GroupBy(r => r.ShiftId)
-            .ToDictionary(g => g.Key, g => (IReadOnlyList<ShiftRequiredQualification>)g.ToList());
+        var requirementsByShift = effective
+            .GroupBy(e => e.ShiftId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<ShiftRequiredQualification>)g.Select(e => e.Requirement).ToList());
 
         var clientIds = plannedRows.Select(r => r.ClientId).Distinct().ToList();
         var qualifications = await _context.ClientQualification
