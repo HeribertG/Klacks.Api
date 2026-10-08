@@ -5,7 +5,8 @@ namespace Klacks.Api.Application.DTOs.PeriodClosing;
 /// <summary>
 /// History entry for a completed order export run including scope, file metadata, and operator. SkippedEntryCount
 /// is the number of entries a payroll formatter could not write (sum of the ExportLog skip counters);
-/// AbsenceMappingInvalid flags an unparsable absence mapping of the group.
+/// AbsenceMappingInvalid flags an unparsable absence mapping of the payroll configuration. IsSupplementary marks a payroll re-export of
+/// persons exported before, PersonCount the persons in the file and HasArtifact whether the file can be downloaded again.
 /// </summary>
 public class ExportLogDto
 {
@@ -40,4 +41,10 @@ public class ExportLogDto
     public int SkippedEntryCount { get; set; }
 
     public bool AbsenceMappingInvalid { get; set; }
+
+    public bool IsSupplementary { get; set; }
+
+    public int PersonCount { get; set; }
+
+    public bool HasArtifact { get; set; }
 }

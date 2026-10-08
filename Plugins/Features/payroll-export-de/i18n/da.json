@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Lønexport (Tyskland / DATEV)",
-    "payroll-export-de.description": "Ved periodeafslutning eksporteres en gruppes forseglede tidsværdier som en DATEV Lohn & Gehalt-bevægelsesdatafil til senere download.",
+    "payroll-export-de.description": "Reserveret til en fremtidig automatisk løneksport ved periodeafslutning; denne kontakt har i øjeblikket ingen effekt. Lønneksporten køres manuelt under Periodeafslutning > Eksporter, pr. medarbejder, med en konfiguration der gælder for hele installationen.",
     "payroll-export-de.category": "Løn"
 }

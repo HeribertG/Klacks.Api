@@ -316,7 +316,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-employee-group,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: /: goal-{candidates-panel,candidates-panel.approve,candidates-panel.item,candidates-panel.reject},header-search,plan-{execution-panel,execution-panel.abort,execution-panel.approve}; client-list: addresses; container-template: container-{template.overview,template.selected-tasks}; cut-shift: cut-{shift.list,shift.overview}; dashboard: dashboard.clients-{locations,overview},dashboard.resource-monitor,dashboard.shift-coverage,dashboard.shifts-overview; new-employee/edit-employee: address-{contracts,groups,image,membership,note,persona,qualifications},client-{detail,detail.birthday,detail.firstname,detail.gender,detail.lastname},employee-membership.type; new-group/edit-group: group-{detail,detail.name,item,members,parent}; edit-shift: shift-{address,expenses,form,form.abbreviation,form.name,group,item,macro,qualifications,special-feature,weekday}; group-list: groups; klacksy-training: klacksy-{training.feedback,training.manual,training.metrics,training.targets},skill-effectiveness; period-closing: period-{closing-audit,closing-audit-actions,closing-audit-exports,closing-audit-filter,closing-day-table,closing-export-employee-export,closing-export-employee-form,closing-export-employee-format,closing-export-range-export,closing-export-range-form,closing-export-range-format,closing-export-single-export,closing-export-single-filter,closing-export-single-format,closing-export-single-order,closing-export-tab-employee,closing-export-tab-range,closing-export-tab-single,closing-exports,closing-issues,closing-period-select,closing-periods,closing-seal-all,closing-unseal-all,closing-unseal-reason}; profile: profile-{data,messengers,microphone,picture,settings}; settings: absence-{detail,detail-form,types},active-industries,assistant-{learning,personality,skill-relations,speech},branch-form,branches,calendar-{rule-form,rules,selection,selection-form},compensatory-rest,compliance-enforcement,contract-{form,form.name,form.percent},contracts,counter-rules,countries,data-retention,deepl,email-config,erp-drop-points,escalation-roster,export-{format-overrides,formats},feature-plugins,grid-color,group-scope,holiday-work-exemptions,identity-providers,imap-setting,individual-{period-form,period-form.name,periods},klacksy-{autonomy,model-check,proactive-governance},language-plugins,llm-{models,provider,sync-log},macros,messaging-providers,monthly-target-hours,openroute,overtime,owner-{address,messengers},period-cap-rules,personal-{access-token-form,access-tokens},qualifications,report-defaults,reports,restricted-time-window-rules,scheduling-{defaults,rules},settings-general,spam-rules,states,surcharge-mode,updates,user-management,web-search,whisper-plugin,wizard,work-{setting,setting-form}; shift-list: shifts. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -362,7 +362,7 @@
         "fr": "Naviguer vers une page",
         "it": "Naviga a una pagina"
       },
-      "version": 29
+      "version": 30
     },
     {
       "name": "get_page_controls",
@@ -13908,7 +13908,7 @@
     {
       "name": "close_period",
       "area": "period",
-      "description": "Seals a payment period the same way the period-closing page does: locks works/breaks (LockLevel Closed), creates the authoritative SealedDay day locks, writes the period audit log and — when a group is given — triggers the payroll/ERP export hook. Without a group the seal is global and NO payroll export fires. Run list_period_issues first as a pre-flight check. Use when the user says: 'Periode abschliessen', 'schliesse Mai ab', 'close May 2026'. The seal is verified against the day-lock state.",
+      "description": "Seals a payment period the same way the period-closing page does: locks works/breaks (LockLevel Closed), creates the authoritative SealedDay day locks and writes the period audit log. Without a group the seal is global. A seal starts no payroll export; that runs separately on the period-closing page. Run list_period_issues first as a pre-flight check. Use when the user says: 'Periode abschliessen', 'schliesse Mai ab', 'close May 2026'. The seal is verified against the day-lock state.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13933,7 +13933,7 @@
         },
         {
           "name": "groupId",
-          "description": "UUID of the group to seal; takes precedence over groupName. Group-scoped seals trigger the payroll/ERP export",
+          "description": "UUID of the group to seal; takes precedence over groupName. Without a group the seal is global.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -14002,7 +14002,7 @@
         "fr": "Clôturer une période de paie",
         "it": "Chiudi un periodo di pagamento"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "reopen_period",
@@ -35507,7 +35507,7 @@
     {
       "name": "explain_period_closing_model",
       "area": "period",
-      "description": "Explains what closing a payroll period actually does: it locks the work and absences inside it, writes the authoritative day locks and an audit entry, and can hand the figures to payroll. Explains the pre-flight check to run beforehand, the difference between approving a day and closing a period, that closing and reopening are administrator-only, and how an hours balance is actual against target hours. Use this when a day can no longer be edited or the balance needs explaining.",
+      "description": "Explains what closing a payroll period actually does: it locks the work and absences inside it, writes the authoritative day locks and an audit entry, and freezes the figures for payroll. Explains the pre-flight check to run beforehand, the difference between approving a day and closing a period, that closing and reopening are administrator-only, and how an hours balance is actual against target hours. Use this when a day can no longer be edited or the balance needs explaining.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -35581,7 +35581,7 @@
         "fr": "Expliquer le concept de clôture de période",
         "it": "Spiega il concetto di chiusura del periodo"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_group_model",
@@ -42150,7 +42150,7 @@
     {
       "name": "explain_export_formats_model",
       "area": "period",
-      "description": "Explains handing sealed data over to an outside system: which target formats can be switched on for bookkeeping, for payroll and for hours per person, that three plain formats always stay available, and what a disabled format does on a manual download versus an automatic handover. Also covers the correction a support team can paste in to adjust separator, encoding, date shape or wage keys without waiting for a release, and where such a correction does and does not take effect.",
+      "description": "Explains handing sealed data over to an outside system: which target formats can be switched on for bookkeeping, for payroll and for hours per person, that three plain formats always stay available, and what a disabled format does on a manual download. Also covers the correction a support team can paste in to adjust separator, encoding, date shape or wage keys without waiting for a release, and where such a correction does and does not take effect.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -42236,7 +42236,7 @@
         "fr": "Expliquer les formats d'export pour la paie et la comptabilité",
         "it": "Spiega i formati di esportazione per paghe e contabilità"
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_report_designer",
@@ -44759,7 +44759,7 @@
     {
       "name": "explain_payroll_export_handoff",
       "area": "period",
-      "description": "Explains why the automatic handover of a sealed, group-scoped period's payroll figures can silently produce nothing: a separate country add-on must be installed and active, the handover runs only once per group, target system and exact date range, and a manual download for that range counts as that handover too. Use this when sealing a period produced no payroll file, or corrected figures need to reach payroll after reopening.",
+      "description": "Explains how the payroll figures of a sealed period reach the payroll system: sealing starts no export; an administrator runs the payroll export per employee on the period-closing page once every day is locked and every entry closed. Only new or changed persons are exported, so corrected figures after a reopen yield a supplementary export. Use this when sealing a period produced no payroll file, or corrected figures need to reach payroll after reopening.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -44786,7 +44786,7 @@
           "payroll add-on"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "warum fehlt die lohndatei nach dem versiegeln",

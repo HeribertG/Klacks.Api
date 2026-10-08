@@ -14,7 +14,6 @@ namespace Klacks.Api.Application.Services.Exports;
 
 public static class ExportSampleDataFactory
 {
-    public static readonly Guid SampleGroupId = Guid.Parse("a1000000-0000-4000-8000-000000000001");
     public static readonly Guid SampleAbsenceId = Guid.Parse("a2000000-0000-4000-8000-000000000002");
 
     private static readonly Guid OrderShiftId = Guid.Parse("a3000000-0000-4000-8000-000000000003");
@@ -89,7 +88,6 @@ public static class ExportSampleDataFactory
     {
         return new PayrollExportData
         {
-            GroupId = SampleGroupId,
             StartDate = PeriodStart,
             EndDate = PeriodEnd,
             ExportDate = ExportStamp,
@@ -125,7 +123,6 @@ public static class ExportSampleDataFactory
     {
         return new PayrollExportGroupConfig
         {
-            GroupId = SampleGroupId,
             TargetSystem = targetSystem,
             Delimiter = PayrollExportConstants.DefaultDelimiter,
             Encoding = PayrollExportConstants.DefaultEncoding,

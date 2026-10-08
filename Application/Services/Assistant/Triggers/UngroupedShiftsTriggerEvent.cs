@@ -4,8 +4,8 @@
 /// Fired when an installation that already works with groups carries at least
 /// UngroupedShiftsDetector.MinUngroupedShiftsForRecommendation staffable duties that belong to no
 /// group. Severity Low keeps it in the inbox and the badge and out of the live push: nothing is
-/// broken right now, but every one of those duties stays outside the group-scoped period close and
-/// outside payroll by group.
+/// broken right now, but every one of those duties stays outside the group-scoped period close;
+/// only a global close locks it.
 ///
 /// The sentence must not claim that a missing membership hides the duty from anybody. Whether a
 /// planner sees an ungrouped duty depends on the show_ungrouped_shifts setting, not on the membership

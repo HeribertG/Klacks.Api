@@ -5,9 +5,8 @@
 /// PeriodAutoCloseDetector inside the hourly AgentTriggerBackgroundService tick - the same place and cadence
 /// as the next-period automation - and the tick reports the returned events through the condition ledger.
 /// A close is irreversible in effect: reopening does not restore confirmations, and the group-scoped
-/// PeriodClosedEvent the close handler raises after its commit triggers the payroll export
-/// (PayrollExportOnPeriodClosedHandler, idempotent per group, target system and period). Hence the order of
-/// gates, per group, each of which ends the evaluation of that group:
+/// PeriodClosedEvent the close handler raises after its commit does not trigger a payroll export: payroll is
+/// exported manually and person-based, not per closed group. Hence the order of gates, per group, each of which ends the evaluation of that group:
 ///
 /// 1. Individual groups (no derivable cycle), unstaffed groups and periods ending before the group's ValidFrom
 ///    are skipped silently. The candidate is ONE period per group: the latest one whose close date has come
@@ -25,8 +24,8 @@
 ///    AutonomyBelowFull or AdminAutonomyMissing instead (so only for a due period inside the window, with a
 ///    stored lag; without a lag or outside the window it stays silent - that brake was not decisive then).
 /// 3. A period whose last day is sealed (group or installation-wide lock) is skipped silently: it is closed, a
-///    second close would re-run the payroll export. A period without work on the group's OWN shifts is skipped
-///    silently too: the seal, the day locks and the payroll export act on the direct GroupItem of the group
+///    second close would re-run the seal. A period without work on the group's OWN shifts is skipped
+///    silently too: the seal and the day locks act on the direct GroupItem of the group
 ///    only, so a parent group whose work hangs on child groups would be "closed" with nothing sealed - the
 ///    child groups are closed on their own. A period without any work at all would recreate the
 ///    unplanned-period noise PeriodOverdueDetector documents. A period with an UNSEAL entry in its
@@ -51,7 +50,7 @@
 /// A close that throws unexpectedly is re-read in another fresh scope (ResolveFailedCloseAsync): a concurrent
 /// close by a person is recognised and stays silent instead of being reported as a failure.
 /// A failure in one group is caught, logged and reported for that group and never stops the others.
-/// A reported close proves the seal (read back), NOT the payroll export: the close handler dispatches the
+/// A reported close proves the seal (read back): the close handler dispatches the
 /// PeriodClosedEvent after its commit and only logs a failing hook.
 /// </summary>
 /// <param name="groupRepository">Lists the groups and which of them have members.</param>
@@ -479,8 +478,7 @@ public sealed class PeriodAutoCloseService : IPeriodAutoCloseService
     /// <summary>
     /// Whether anybody ever REOPENED the period - an unseal entry of this group or installation-wide overlapping
     /// it. The automatic path only performs the first close of a period: a reopened period was reopened on
-    /// purpose, typically to correct it, and sealing it again on the next scan would close it mid-edit and fire
-    /// the payroll export a second time. This is the one non-close that stays silent - the person decided, and
+    /// purpose, typically to correct it, and sealing it again on the next scan would close it mid-edit. This is the one non-close that stays silent - the person decided, and
     /// the overdue reminder remains. A seal entry alone does not count: a partial seal still holds its day locks
     /// and is reported as PartiallySealed.
     /// </summary>

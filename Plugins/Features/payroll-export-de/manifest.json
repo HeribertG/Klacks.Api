@@ -4,7 +4,7 @@
     "category": "payroll",
     "version": "1.0.0",
     "author": "Klacks",
-    "description": "On period close, exports a group's closed time values as a DATEV Lohn & Gehalt movement-data file (11-field ASCII) for later download. Wage types and Ausfallschluessel are configured per group.",
+    "description": "Reserved for a future automatic payroll export on period close; currently this switch has no effect. The payroll export is run manually under Period closing > Exports, per employee, with an installation-wide configuration.",
     "minKlacksVersion": "1.0.0",
     "requiredPermissions": [],
     "providedSkills": [],

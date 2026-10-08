@@ -1,5 +1,5 @@
 {
   "payroll-export-de.name": "Ekspor Penggajian (Jerman / DATEV)",
-  "payroll-export-de.description": "Saat periode ditutup, mengekspor nilai waktu yang sudah ditutup milik suatu grup sebagai berkas data pergerakan format DATEV Lohn & Gehalt untuk diunduh nanti.",
+  "payroll-export-de.description": "Dicadangkan untuk ekspor penggajian otomatis di masa depan saat penutupan periode; saat ini sakelar ini tidak berpengaruh. Ekspor penggajian dijalankan secara manual di Penutupan periode > Ekspor, per karyawan, dengan konfigurasi yang berlaku untuk seluruh instalasi.",
   "payroll-export-de.category": "Penggajian"
 }

@@ -1,5 +1,5 @@
 {
   "payroll-export-de.name": "工资导出(德国 / DATEV)",
-  "payroll-export-de.description": "在结算期间关闭时,将某个组已确认的工时数据导出为 DATEV Lohn & Gehalt 格式的动态数据文件,供日后下载。",
+  "payroll-export-de.description": "预留给未来在期间结账时自动导出工资的功能；目前此开关不起任何作用。工资导出需在“期间结账 > 导出”中按员工手动执行，配置对整个安装统一生效。",
   "payroll-export-de.category": "工资"
 }

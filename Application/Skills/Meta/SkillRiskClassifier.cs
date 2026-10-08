@@ -81,8 +81,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "revoke_erp_import_token",
         // close_period seals every Work/Break in the period. reopen_period restores the Confirmed/Approved
         // lock levels the seal recorded, but not for entries sealed before that level was recorded (they
-        // reopen to None), and a group close starts the payroll export, which no reopen withdraws. So a
-        // close stays only partly reversible despite the inverse mapping.
+        // reopen to None). So a close stays
+        // only partly reversible despite the inverse mapping.
         "close_period",
         // create_user mints a system login (attack surface + password-reset mail). Confirmed at every
         // level, like every Sensitive entry.
@@ -219,7 +219,7 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "set_planning_deadline_lead",
         // The period close lag is the stored proof that the user was asked when periods are closed: it
         // moves the close reminders and, at autonomy level FullyAutonomous, the automatic close of a
-        // period, which is not cleanly reversible (the payroll export it starts stays sent after a reopen).
+        // period, which is not cleanly reversible (see the close_period entry above).
         // Storing it is a separate request the user makes; the confirmation gate holds the call until
         // the user has said yes.
         "set_period_close_lag",

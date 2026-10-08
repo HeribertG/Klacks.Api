@@ -8,7 +8,10 @@ using Klacks.Api.Domain.Models.Exports.Payroll;
 namespace Klacks.Api.Domain.Models.Exports;
 
 /// <summary>
-/// History entry for every successful order export run.
+/// History entry for every successful export run (order and payroll). A payroll export is person-based and carries
+/// no group; its per-person content is recorded in ExportLogItem rows, PersonCount is the number of persons in the
+/// file, IsSupplementary marks a re-export of persons that had been exported for the same period before, and
+/// StorageKey points at the stored artifact for re-download.
 /// Used to warn admins when unsealing a period that has already been exported.
 /// </summary>
 /// <remarks>
@@ -30,7 +33,7 @@ public class ExportLog : BaseEntity
 
     public Guid? GroupId { get; set; }
 
-    [MaxLength(16)]
+    [MaxLength(ExportLogLimits.LanguageMaxLength)]
     public string Language { get; set; } = "de";
 
     [MaxLength(16)]
@@ -63,6 +66,13 @@ public class ExportLog : BaseEntity
     public int SkippedSupersededCount { get; set; }
 
     public bool AbsenceMappingInvalid { get; set; }
+
+    public bool IsSupplementary { get; set; }
+
+    public int PersonCount { get; set; }
+
+    [MaxLength(ExportLogLimits.StorageKeyMaxLength)]
+    public string? StorageKey { get; set; }
 
     /// <summary>Copies the skip counters of a payroll formatter run onto this history entry.</summary>
     /// <param name="result">The formatter result whose counters are recorded</param>

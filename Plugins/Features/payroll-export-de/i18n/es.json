@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Exportación de Nómina (Alemania / DATEV)",
-    "payroll-export-de.description": "Al cerrar un período, exporta los valores de tiempo sellados de un grupo como un archivo de datos de movimiento DATEV Lohn & Gehalt para su descarga posterior.",
+    "payroll-export-de.description": "Reservado para una futura exportación automática de nóminas al cerrar el periodo; por ahora este interruptor no tiene ningún efecto. La exportación de nóminas se ejecuta manualmente en Cierre de periodo > Exportaciones, por empleado, con una configuración válida para toda la instalación.",
     "payroll-export-de.category": "Nómina"
 }

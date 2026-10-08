@@ -1,11 +1,11 @@
 ---
 name: explain_payroll_export_handoff
 description: |
-  Explains why the automatic handover of a sealed, group-scoped period's payroll figures can
-  silently produce nothing: a separate country add-on must be installed and active, the handover
-  runs only once per group, target system and exact date range, and a manual download for that
-  range counts as that handover too. Use this when sealing a period produced no payroll file, or
-  corrected figures need to reach payroll after reopening.
+  Explains how the payroll figures of a sealed period reach the payroll system: sealing starts no
+  export; an administrator runs the payroll export per employee on the period-closing page once every
+  day is locked and every entry closed. Only new or changed persons are exported, so corrected figures
+  after a reopen yield a supplementary export. Use this when sealing a period produced no payroll file,
+  or corrected figures need to reach payroll after reopening.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -27,45 +27,37 @@ synonyms:
   it: [perché manca il file paghe dopo la sigillatura, componente aggiuntivo paghe non attivo, il trasferimento paghe avviene una sola volta, ottenere i dati corretti dopo la riapertura]
 ---
 
-# Payroll export handoff — why the automatic handover can go silent
+# Payroll export — how the figures of a sealed period reach payroll
 
 ## Core idea (one sentence)
 
-Sealing a group-scoped period can hand its payroll figures to an outside system automatically, but
-three separate, independent safeguards each have to agree before that actually happens.
+Sealing a period never produces a payroll file by itself; an administrator exports the payroll
+figures afterwards, per employee, from the period-closing page.
 
-## The three safeguards
+## Why no file appeared after sealing
 
-1. **A separate add-on for the target country/system must be installed and switched on.** If it is
-   not, the handover produces absolutely nothing — no file, no note anywhere. This is stricter than
-   an ordinary disabled export format, which at least leaves a note in the log; here there is none.
-2. **The handover runs once per group, target system and exact date range.** Reopen a sealed
-   period, correct something and seal it again, and the second sealing is skipped without comment
-   — a record of the first handover already exists for that exact combination, and reopening does
-   not remove it.
-3. **A manual, on-demand payroll download for that same group/system/range writes the same kind of
-   record.** A manual download performed before an automatic one "uses up" the automatic handover
-   for that period just as effectively as an earlier automatic one would.
+1. **Sealing starts no export.** Closing a period only locks the days and writes the audit entry.
+   There is no automatic handover, whatever group the period was sealed for.
+2. **The export is a separate step on the period-closing page** (exports area, employee export). It
+   is administrator-only and uses the installation-wide payroll settings, not a per-group setup.
+3. **The export is blocked while the period is incomplete.** Every day with an entry (and every day
+   a person is an active group member) must be locked by a period close, and every entry must be
+   closed. The page lists each blocker per person and day, and says when a global close is needed
+   because no group covers the day.
+4. **An earlier export of the same person blocks an overlapping period.** A person exported for
+   another period that overlaps the chosen one has to be handled first.
 
-| Reason nothing (new) arrived | Leaves a note in the log? | Blocks a later manual download? |
-|---|---|---|
-| Add-on not installed/active | no | no |
-| Already handed over for this exact group/system/range | yes (the earlier entry) | no |
+## Corrected figures after a reopen
 
-## Two precision points
-
-- **The manual download does not apply a saved correction overlay** — it always uses the defaults,
-  even when a correction for that target system is active and would apply to the automatic path.
-- **The one-time lock is exact.** It only fires on an identical group, target system and start/end
-  date. A different range, or a different target system, is not blocked by an earlier export.
+Each person is exported only when their figures are new or changed since the last export of the same
+period and format. After reopening, correcting and sealing again, the next export contains just the
+changed persons and is marked as a **supplementary export**; if nothing changed, the page says that
+nothing is new. Earlier exports stay in the export history and can be downloaded again at any time.
 
 ## Practical guidance
 
-After reopening and correcting a sealed, group-scoped period, the reliable way to get the corrected
-figures into the payroll system is the **manual export** in the exports area — it is not subject to
-either the add-on gate or the one-time lock the automatic handover carries. It will, however, not
-pick up a saved correction overlay either, so check the figures against any active correction by
-hand.
+After reopening and correcting a period, seal it again, open the employee export on the
+period-closing page, check the preview (blockers, new or changed persons) and run the export.
 
 ## Related skills
 

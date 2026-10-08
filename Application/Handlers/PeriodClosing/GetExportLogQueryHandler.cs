@@ -71,7 +71,10 @@ public class GetExportLogQueryHandler : BaseHandler, IRequestHandler<GetExportLo
                     + e.SkippedUnmappedSurchargeCount
                     + e.SkippedUnmappedBaseWageCount
                     + e.SkippedSupersededCount,
-                AbsenceMappingInvalid = e.AbsenceMappingInvalid
+                AbsenceMappingInvalid = e.AbsenceMappingInvalid,
+                IsSupplementary = e.IsSupplementary,
+                PersonCount = e.PersonCount,
+                HasArtifact = !string.IsNullOrEmpty(e.StorageKey)
             }).ToList();
         },
         "loading export log",

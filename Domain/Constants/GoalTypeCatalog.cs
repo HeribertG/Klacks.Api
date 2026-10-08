@@ -185,7 +185,7 @@ public static class GoalTypeCatalog
             [AgentTriggerKinds.UngroupedShifts] = Define(
                 AgentTriggerKinds.UngroupedShifts,
                 "ungroupedShifts",
-                "plannable duties exist that belong to no group, so they stay outside the group-scoped period close and outside payroll by group",
+                "plannable duties exist that belong to no group, so a group-scoped period close does not cover them and only a global close locks them",
                 "Assign duties to groups",
                 "Duties without a group came up {0} time(s) in the last {1} days.")
         };

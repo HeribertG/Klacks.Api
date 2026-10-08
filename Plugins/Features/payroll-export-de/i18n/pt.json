@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Exportação de Salários (Alemanha / DATEV)",
-    "payroll-export-de.description": "No fecho do período, exporta os valores de tempo selados de um grupo como um ficheiro de dados de movimento DATEV Lohn & Gehalt para download posterior.",
+    "payroll-export-de.description": "Reservado para uma futura exportação automática da folha de pagamento no fecho do período; neste momento este interruptor não tem qualquer efeito. A exportação da folha é executada manualmente em Fecho de período > Exportações, por colaborador, com uma configuração válida para toda a instalação.",
     "payroll-export-de.category": "Salários"
 }

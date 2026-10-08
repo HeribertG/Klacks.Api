@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Esportazione paghe (Germania / DATEV)",
-    "payroll-export-de.description": "Alla chiusura del periodo, esporta i valori orari chiusi di un gruppo in un file di dati di movimento DATEV Lohn & Gehalt per il download successivo.",
+    "payroll-export-de.description": "Riservato a una futura esportazione automatica delle paghe alla chiusura del periodo; al momento questo interruttore non ha alcun effetto. L'esportazione delle paghe si avvia manualmente in Chiusura periodo > Esportazioni, per dipendente, con una configurazione valida per l'intera installazione.",
     "payroll-export-de.category": "Paghe"
 }

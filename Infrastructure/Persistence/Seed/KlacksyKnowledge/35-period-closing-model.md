@@ -2,7 +2,7 @@
 name: explain_period_closing_model
 description: |
   Explains what closing a payroll period actually does: it locks the days in that period, writes an
-  audit entry and can hand the figures to payroll. Covers the pre-flight check to run before closing,
+  audit entry and freezes the figures for payroll. Covers the pre-flight check to run before closing,
   the difference between approving a day and closing a period, how an hours balance is made up of
   actual against target hours, and that reopening is possible but administrator-only. Use this when
   the user asks why a day can no longer be edited, what to check before closing, or how the balance
@@ -33,12 +33,14 @@ afterwards.
 
 ## What closing does
 
-Four things happen at once:
+Three things happen at once:
 
 1. The work and absences in the period are **locked** — they can no longer be edited.
 2. **Day locks** are written, and these are the authoritative record of what was frozen.
 3. An **audit entry** is written, so it stays traceable who closed which period when.
-4. If the closing is scoped to a group, the **hand-off to payroll** is triggered.
+
+Closing starts no payroll export. The payroll figures are exported afterwards, per employee, from the
+period-closing page.
 
 This is why a day suddenly refuses to be edited: it belongs to a closed period. That is not a fault,
 it is the point.

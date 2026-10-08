@@ -11,8 +11,8 @@
 /// exactly one employee per XML document: hlavicka, rozvrh, nepritomnosti, pritomnost and mzdy are all
 /// maxOccurs="1", and the schema declares no container element for more than one employee — since a
 /// well-formed XML document has exactly one root element, a single "dochazka_zamestnance" document can
-/// never carry more than one employee. The payroll-export pipeline closes a period per group (potentially
-/// many employees) and calls Format once for the whole group, so this formatter builds one
+/// never carry more than one employee. The payroll-export pipeline exports a period for many
+/// employees at once and calls Format once for the whole run, so this formatter builds one
 /// dochazka_zamestnance document per employee and bundles them into a single ZIP archive — the same
 /// IExportFormatter/IPayrollExportFormatter contract already used by CreateOrderRangeExportQueryHandler for
 /// multi-file exports (Content is an opaque byte[] with a formatter-owned ContentType/FileExtension; ZIP

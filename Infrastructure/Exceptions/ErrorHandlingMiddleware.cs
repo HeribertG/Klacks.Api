@@ -131,6 +131,11 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (PayrollExportBlockedException ex)
+        {
+            _logger.LogWarning(ex, "PayrollExportBlockedException caught by middleware: {BlockerTotal} blockers", ex.Completeness.BlockerTotal);
+            await WritePayrollExportBlockedAsync(context, ex);
+        }
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
@@ -280,6 +285,24 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+    }
+
+    private static async Task WritePayrollExportBlockedAsync(HttpContext context, PayrollExportBlockedException exception)
+    {
+        context.Response.StatusCode = StatusCodes.Status409Conflict;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Title = "Conflict",
+            Status = StatusCodes.Status409Conflict,
+            Detail = exception.Message
+        };
+        problem.Extensions["errorCode"] = PayrollExportErrorCodes.Blocked;
+        problem.Extensions["blockers"] = exception.Completeness.Blockers;
+        problem.Extensions["blockerTotal"] = exception.Completeness.BlockerTotal;
+
+        await context.Response.WriteAsJsonAsync(problem);
     }
 
     private static async Task WriteConflictAsync(HttpContext context, ConflictException exception)

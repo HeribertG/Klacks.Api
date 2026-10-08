@@ -3,10 +3,10 @@
 /// <summary>
 /// Seals a billing period — the same group-aware path as the period-closing page: sets
 /// LockLevel Closed on the works/breaks in range, creates the authoritative SealedDay
-/// day locks, writes the period audit log and (when a group is given) triggers the
-/// payroll/ERP export hook. Without a group the seal is global and NO payroll export
-/// fires. The group can be addressed by UUID or by name. The seal is verified by
-/// re-reading the day-lock state afterwards.
+/// day locks and writes the period audit log. Without a group the seal is global. A seal
+/// starts no payroll export; the person-based payroll export is run separately on the
+/// period-closing page once every day of the period is locked. The group can be addressed
+/// by UUID or by name. The seal is verified by re-reading the day-lock state afterwards.
 /// </summary>
 /// <param name="startDate">Period start in ISO yyyy-MM-dd (inclusive).</param>
 /// <param name="endDate">Period end in ISO yyyy-MM-dd (inclusive).</param>
@@ -80,9 +80,6 @@ public class ClosePeriodSkill : BaseSkillImplementation
         }
 
         var scopeLabel = groupId.HasValue ? $"group '{groupName}'" : "ALL groups (global)";
-        var payrollNote = groupId.HasValue
-            ? " The payroll/ERP export hook was triggered for this group."
-            : " No payroll/ERP export fires for a global seal — seal per group when an export is expected.";
 
         return SkillResult.SuccessResult(
             new
@@ -96,6 +93,6 @@ public class ClosePeriodSkill : BaseSkillImplementation
                 SealedDays = sealedDays
             },
             $"Sealed period {startDate}..{endDate} for {scopeLabel}: {count} item(s) locked, {sealedDays} day lock(s) " +
-            $"confirmed in the database (verified).{payrollNote}");
+            "confirmed in the database (verified).");
     }
 }

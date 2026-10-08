@@ -2,8 +2,7 @@
 
 /// <summary>
 /// The single definition of which absences (Break rows) belong to a group for a day, shared by the group-scoped
-/// period seal/unseal, the sealing summary and the payroll export so that what a group close seals is exactly what its
-/// export reads. A break belongs to the group when the employee worked a shift of the group on that day (the
+/// period seal/unseal and the sealing summary so that the break rows a group close seals are exactly the ones it reports. A break belongs to the group when the employee worked a shift of the group on that day (the
 /// original rule, which also covers borrowed staff who are not members) or when the employee is an active
 /// member of the group on that day: a real-plan, non-deleted GroupItem of the client for exactly this group (no
 /// subgroup cascade) whose validity and the client's Membership both cover the day (GroupMembershipWindow).

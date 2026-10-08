@@ -3,11 +3,11 @@ name: explain_export_formats_model
 description: |
   Explains handing sealed data over to an outside system: which target formats can be switched on
   for bookkeeping, for payroll and for hours per person, that three plain formats always stay
-  available, and what a disabled format does on a manual download versus an automatic handover.
+  available, and what a disabled format does on a manual download.
   Also covers the correction a support team can paste in to adjust separator, encoding, date shape
   or wage keys without waiting for a release, and where such a correction does and does not take
-  effect. Use this when the user asks which target systems are supported or why a handover produced
-  nothing.
+  effect. Use this when the user asks which target systems are supported or why a payroll or
+  export file was refused.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -98,17 +98,13 @@ export it is skipped and the export runs with the defaults.
 **A switched-off format behaves differently depending on the path:**
 
 - A manual download of a bookkeeping or payroll file is **refused with an error**.
-- The **automatic** payroll handover at period closing is **skipped silently** and only noted in the
-  log. The sealing itself goes through unaffected. If a payroll file is missing after closing a
-  period, this is the first thing to check — but not the only one: a switched-off format is the
-  only reason that leaves a log entry. The handover has further conditions that stop it without
-  writing anything at all, so an empty log does not mean the handover was never attempted.
+- Period closing never starts a payroll export; payroll files are only produced by the manual export
+  on the period-closing page, so a switched-off format cannot silently skip anything there.
 - Employee-hours exports are not gated at all.
 
-**Where a correction takes effect** — bookkeeping exports, range exports, employee-hours exports,
-and the automatic payroll handover at period closing. It does **not** take effect on a manual
-payroll download; that one always uses the defaults. A correction that seems to be ignored is
-almost always this case.
+**Where a correction takes effect** — bookkeeping exports, range exports, employee-hours exports
+and the manual payroll export, which applies the correction of the chosen payroll format on top of
+the installation-wide payroll settings.
 
 **The version note is a hint, not a barrier.** A correction records the version it was saved under,
 and the card warns when the application has moved on. Nothing is blocked — an old correction keeps

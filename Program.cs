@@ -45,7 +45,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
 var myAllowSpecificOrigins = "CorsPolicy";
-string[] headers =["X-Operation", "X-Resource", "X-Total-Count", Klacks.Api.Application.Constants.ExportResponseHeaders.SkippedEntries, Klacks.Api.Application.Constants.ExportResponseHeaders.AbsenceMappingInvalid];
+string[] headers =["X-Operation", "X-Resource", "X-Total-Count", Klacks.Api.Application.Constants.ExportResponseHeaders.SkippedEntries, Klacks.Api.Application.Constants.ExportResponseHeaders.AbsenceMappingInvalid, Klacks.Api.Application.Constants.ExportResponseHeaders.Persons, Klacks.Api.Application.Constants.ExportResponseHeaders.Supplementary];
 
 // Enable Windows-1252 and other code-page encodings (required by the DATEV/BMD/payroll export formatters).
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

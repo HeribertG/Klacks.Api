@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Strategy interface for country-pack payroll export formats. Unlike IExportFormatter (order/booking
-/// centric) it consumes the employee-centric PayrollExportData and the per-group configuration that
+/// centric) it consumes the employee-centric PayrollExportData and the installation-wide configuration that
 /// supplies delimiter, encoding and the wage-type / absence-key mapping.
 /// </summary>
 using Klacks.Api.Domain.Models.Exports.Payroll;

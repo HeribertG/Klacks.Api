@@ -210,9 +210,14 @@ erste. Welche Formate in den Dropdowns stehen, hängt von der Einstellung "Expor
      aktivierten **Lohn-Formate**: DATEV Lohn & Gehalt (Bewegungsdaten), Generic CSV/Excel (Payroll),
      Merit Palk (EE), PAXml (SE), AbaConnect (CH), POHODA (CZ), WinMENTOR (RO), BrightPay
      (IE/UK).
-   - Dropdown **Gruppe** (de: "Gruppe", en: "Group"; Anker `period-closing-export-employee-group`,
-     DOM-ID `clientExportGroup`): erscheint **nur bei einem Lohn-Format** und ist dann Pflicht —
-     ohne Gruppe bleibt der Export-Button gesperrt. Bei XML/JSON/CSV entfällt die Gruppe.
+   - Bei einem **Lohn-Format** gibt es keine Gruppenauswahl: der Lohnexport gilt für alle Mitarbeitenden
+     mit abgeschlossenen Einträgen im Zeitraum, egal in welchen Gruppen sie sind. **Exportieren** zeigt
+     zuerst eine Vorschau: entweder die **Blocker** (pro Person und Tag: Eintrag nicht geschlossen,
+     Tag nicht durch einen Abschluss gesperrt, Export einer überlappenden Periode vorhanden; mit der
+     Schaltfläche für einen globalen Abschluss, wenn keine Gruppe den Tag abdeckt) oder die Liste der
+     **neuen oder geänderten Personen** (Auswahl pro Person, Hinweis auf einen Nachtrag-Export). Erst
+     **Export bestätigen** erzeugt die Datei. Bereits unverändert exportierte Personen sind nicht
+     mehr dabei; sind alle unverändert, steht dort "nichts Neues".
    - Button **Exportieren** (Anker `period-closing-export-employee-export`).
 3. **Bestellungen im Zeitraum** (de: "Bestellungen im Zeitraum", en: "Orders in Range", fr:
    "Commandes sur la période", it: "Ordini nel periodo"; Anker
@@ -357,7 +362,7 @@ Eine Periode, die jemand wieder geöffnet hat, schliesst Klacksy nie erneut selb
 automatische Abschluss steht mit dem entscheidenden Admin und dem Handelnden "Klacksy
 (autonom)" im Protokoll (Aktion **Versiegelt**) und wird gemeldet. Ein Abschluss ist **nicht
 verlustfrei umkehrbar**: Wieder öffnen stellt bestätigte/freigegebene Zwischenstufen nicht wieder
-her, und bei einer Gruppe mit Lohn-/ERP-Übergabe löst der Abschluss den Export aus.
+her.
 
 ### Typische Aufgaben
 
@@ -368,13 +373,13 @@ her, und bei einer Gruppe mit Lohn-/ERP-Übergabe löst der Abschluss den Export
   `generate_period_summary`.
 - Monat zum Abrechnungsende versiegeln → Periode wählen, Probleme-Karte prüfen, dann
   **Alle versiegeln** — oder per Klacksy-Skill `close_period` (gruppen-bewusst: mit Gruppe
-  entstehen Tagessiegel, Audit-Eintrag UND die Lohn-/ERP-Übergabe; ohne Gruppe global,
-  dann feuert KEIN Export; DB-verifiziert).
+  entstehen Tagessiegel und Audit-Eintrag; ohne Gruppe global; ein Abschluss startet nie
+  einen Lohnexport, der läuft getrennt im Export-Tab; DB-verifiziert).
 - Ist die Periode versiegelt? Wie viele Tage offen? → Badge-Zeile; per Chat:
   `get_period_status` (versiegelt/teilweise/offen/leer, nennt offene Tage).
 - Periode wieder öffnen → Skill `reopen_period` (Begründung PFLICHT, landet im Protokoll;
   meldet, wie viele Einträge auf Bestätigt/Freigegeben/offen zurückgingen und wie viele ohne
-  gespeicherten Vorzustand offen wurden; warnt, dass bestehende Exporte danach nicht mehr stimmen); Tage freigeben/Freigabe
+  gespeicherten Vorzustand offen wurden; warnt, dass bestehende Exporte danach nicht mehr stimmen; ein erneuter Lohnexport enthält dann nur die geänderten Personen als Nachtrag); Tage freigeben/Freigabe
   zurücknehmen vor dem Abschluss: `approve_day` / `revoke_day_approval`.
 - Leistungsnachweis für einen Kunden exportieren → Bestellung suchen, Format wählen,
   **Exportieren** — Skills: `list_sealed_orders`, `open_order_export`.

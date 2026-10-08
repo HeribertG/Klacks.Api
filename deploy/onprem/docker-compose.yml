@@ -119,6 +119,7 @@ services:
       # Hugging Face.
       - api-models:/app/Cache/Models
       - api-erp-import:/app/ErpImport
+      - api-payroll-exports:/app/PayrollExports
       - ./regions:/app/regions:ro
     depends_on:
       postgres:
@@ -263,6 +264,8 @@ volumes:
   api-models:
     driver: local
   api-erp-import:
+    driver: local
+  api-payroll-exports:
     driver: local
   api-update-backups:
     driver: local

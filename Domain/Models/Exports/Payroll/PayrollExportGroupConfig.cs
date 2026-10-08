@@ -1,12 +1,11 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.ComponentModel.DataAnnotations;
-using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Exports.Payroll;
 
 /// <summary>
-/// Per-group (location/branch) configuration for a country-pack payroll export.
+/// Installation-wide parameter object for a country-pack payroll export (not persisted).
 /// Holds the target-system format, delimiter, encoding and the mapping of Klacks time values
 /// to the target payroll codes (wage type / absence key). The concrete wage-type and absence-key
 /// values are tenant/tax-advisor specific and are intentionally stored here rather than hard-coded
@@ -18,10 +17,8 @@ namespace Klacks.Api.Domain.Models.Exports.Payroll;
 /// Ausfallschluessel values cannot be validated without a DATEV account and are placeholders until a
 /// customer's tax advisor provides them.
 /// </remarks>
-public class PayrollExportGroupConfig : BaseEntity
+public class PayrollExportGroupConfig
 {
-    public Guid GroupId { get; set; }
-
     [MaxLength(32)]
     public string TargetSystem { get; set; } = string.Empty;
 

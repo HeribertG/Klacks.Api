@@ -16,8 +16,8 @@
 /// noise.
 ///
 /// Why it is worth saying at all: without a GroupItem a duty's assignments are never sealed by the
-/// group-scoped period close and never reach a per-group payroll export, so the omission surfaces at
-/// the end of a period rather than when the duty is created.
+/// group-scoped period close (only a global close locks them), so the omission surfaces at the end of a
+/// period rather than when the duty is created.
 ///
 /// Emits at most ONE event per tick — the condition is a single installation-wide fact, not a row per
 /// duty — and the fingerprint scan runs the IDENTICAL gate through the same private helper rather than

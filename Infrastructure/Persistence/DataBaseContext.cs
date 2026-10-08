@@ -12,7 +12,6 @@ using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Exports;
-using Klacks.Api.Domain.Models.Exports.Payroll;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
@@ -147,9 +146,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ExportLog> ExportLog { get; set; }
 
-    public DbSet<ExportFormatOverride> ExportFormatOverride { get; set; }
+    public DbSet<ExportLogItem> ExportLogItem { get; set; }
 
-    public DbSet<PayrollExportGroupConfig> PayrollExportGroupConfig { get; set; }
+    public DbSet<ExportFormatOverride> ExportFormatOverride { get; set; }
 
     public DbSet<SealedDay> SealedDay { get; set; }
 

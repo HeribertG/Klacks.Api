@@ -1,14 +1,15 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Loads the currently closed (LockLevel.Closed) Work and Break entries of a group's period and projects
-/// them into an employee-centric, day-granular payroll model. Group scoping uses the same predicates as the
-/// period-seal: a work belongs to the group when its shift is assigned to the group via a GroupItem, with no
-/// subgroup cascade; a break belongs to the group by GroupBreakScope (a same-day work of the group, or an
-/// active membership of the employee in the group on that day), so absences on days without any work are
-/// exported too. Worked hours and the aggregated surcharge become separate day rows; each absence and day
-/// becomes an absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call
+/// Loads the currently closed (LockLevel.Closed) Work and Break entries of a period and projects them into a
+/// person-based, day-granular payroll model. The export is not group-scoped: every Employee and ExternEmp with a
+/// closed, non-deleted, non-scenario entry in the period is exported exactly once, whatever groups the person
+/// belongs to (or none), optionally restricted to a set of client ids. Worked hours and the aggregated surcharge
+/// become separate day rows; each absence and day becomes an absence row - in hours (summed WorkTime) for ordinary absences, and as one day for an on-call
 /// absence (Absence.IsOnCall), whose WorkTime is zero by design.
+/// @param fromDate - Lower bound (inclusive) for CurrentDate
+/// @param untilDate - Upper bound (inclusive) for CurrentDate
+/// @param clientIds - Optional restriction to these persons; null loads every person
 /// </summary>
 /// <remarks>
 /// Known MVP gaps (deliberate, documented): (1) surcharges are a single aggregated decimal on each entry —
@@ -20,10 +21,10 @@
 using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Exports.Payroll;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
@@ -40,12 +41,14 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
     }
 
     public async Task<PayrollExportData> LoadAsync(
-        Guid groupId,
         DateOnly fromDate,
         DateOnly untilDate,
+        IReadOnlyCollection<Guid>? clientIds,
         CancellationToken cancellationToken = default)
     {
-        var works = await _context.Work
+        var restrictedClientIds = clientIds?.ToList();
+
+        IQueryable<Work> worksQuery = _context.Work
             .AsNoTracking()
             .Where(w => !w.IsDeleted
                 && w.AnalyseToken == null
@@ -53,15 +56,10 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
                 && w.CurrentDate >= fromDate
                 && w.CurrentDate <= untilDate
                 && w.Client != null
-                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp)
-                && _context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
-            .Include(w => w.Client)
-            .ToListAsync(cancellationToken);
+                && (w.Client.Type == EntityTypeEnum.Employee || w.Client.Type == EntityTypeEnum.ExternEmp))
+            .Include(w => w.Client);
 
-        var memberBreakIds = await GroupBreakScope.LoadMemberBreakIdsAsync(
-            _context, groupId, fromDate, untilDate, cancellationToken);
-
-        var breaks = await _context.Break
+        IQueryable<Break> breaksQuery = _context.Break
             .AsNoTracking()
             .Where(b => !b.IsDeleted
                 && b.AnalyseToken == null
@@ -70,10 +68,17 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
                 && b.CurrentDate <= untilDate
                 && b.Client != null
                 && (b.Client.Type == EntityTypeEnum.Employee || b.Client.Type == EntityTypeEnum.ExternEmp))
-            .WhereAttributedToGroup(_context, groupId, memberBreakIds)
             .Include(b => b.Client)
-            .Include(b => b.Absence)
-            .ToListAsync(cancellationToken);
+            .Include(b => b.Absence);
+
+        if (restrictedClientIds is not null)
+        {
+            worksQuery = worksQuery.Where(w => restrictedClientIds.Contains(w.ClientId));
+            breaksQuery = breaksQuery.Where(b => restrictedClientIds.Contains(b.ClientId));
+        }
+
+        var works = await worksQuery.ToListAsync(cancellationToken);
+        var breaks = await breaksQuery.ToListAsync(cancellationToken);
 
         var employeesById = new Dictionary<Guid, PayrollEmployee>();
 
@@ -131,6 +136,7 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
 
         var employees = employeesById.Values
             .OrderBy(e => e.FullName)
+            .ThenBy(e => e.ClientId)
             .ToList();
 
         foreach (var employee in employees)
@@ -138,12 +144,12 @@ public class PayrollExportDataLoader : IPayrollExportDataLoader
             employee.Entries = employee.Entries
                 .OrderBy(e => e.Date)
                 .ThenBy(e => e.Kind)
+                .ThenBy(e => e.AbsenceId)
                 .ToList();
         }
 
         return new PayrollExportData
         {
-            GroupId = groupId,
             StartDate = fromDate,
             EndDate = untilDate,
             Employees = employees,

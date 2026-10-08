@@ -165,9 +165,9 @@ public static class ProactiveMessageI18nKeys
     /// <summary>
     /// Plannable shifts exist that no group owns. Its only parameter is count, because the
     /// recommendation is about how many shifts are concerned and names none of them. The sentence
-    /// states only the two consequences that were verified in the code - such a shift is never sealed
-    /// by the group-scoped period close (WorkRepository/SealedDayRepository) and appears in no
-    /// per-group payroll export (PayrollExportDataLoader) - and must claim nothing about who can see
+    /// states only the consequence that was verified in the code - such a shift is never sealed
+    /// by the group-scoped period close (WorkRepository/SealedDayRepository); the payroll export
+    /// (PayrollExportDataLoader) is person-based and no longer depends on the group - and must claim nothing about who can see
     /// the shift, because that depends on the show_ungrouped_shifts setting rather than on the
     /// missing membership alone.
     /// </summary>

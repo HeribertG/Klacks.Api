@@ -1,5 +1,5 @@
 {
   "payroll-export-de.name": "Export salarial (Germania / DATEV)",
-  "payroll-export-de.description": "La închiderea perioadei, exportă valorile de timp închise ale unui grup ca fișier de date de mișcare DATEV Lohn & Gehalt pentru descărcare ulterioară.",
+  "payroll-export-de.description": "Rezervat pentru un viitor export automat al salarizării la închiderea perioadei; în prezent acest comutator nu are niciun efect. Exportul salarizării se rulează manual în Închiderea perioadei > Exporturi, pe angajat, cu o configurație valabilă pentru întreaga instalare.",
   "payroll-export-de.category": "Salarizare"
 }

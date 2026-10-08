@@ -106,13 +106,13 @@ public static class ServiceCollectionExtensions
         services.AddInfrastructureServices();
         services.AddFeaturePluginServices(configuration);
         services.AddDomainEventServices();
+        services.AddPayrollArtifactStorage(configuration);
         return services;
     }
 
     private static void AddDomainEventServices(this IServiceCollection services)
     {
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventDispatcher, Klacks.Api.Infrastructure.Events.DomainEventDispatcher>();
-        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.PayrollExportOnPeriodClosedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.WizardRunCaptureMeasurementOnPeriodClosedHandler>();
         services.AddScoped<Klacks.Api.Application.Interfaces.ISurchargeRecalculationScope, Klacks.Api.Infrastructure.Services.Schedules.SurchargeRecalculationScopeService>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.ContractChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnContractChangedHandler>();
@@ -457,6 +457,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodCsvExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodJsonExportFormatter>();
         services.AddScoped<Application.Interfaces.Exports.IPayrollExportDataLoader, Services.Exports.PayrollExportDataLoader>();
+        services.AddScoped<Application.Interfaces.Exports.IPayrollCompletenessGate, Services.Exports.PayrollCompletenessGate>();
         services.AddScoped<Application.Interfaces.Exports.IPayrollExportConfigRepository, Repositories.Exports.PayrollExportConfigRepository>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderListLoader, Services.Exports.SealedOrderListLoader>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderIdLoader, Services.Exports.SealedOrderIdLoader>();
@@ -466,6 +467,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IExportFormatPolicy, Services.Exports.ExportFormatPolicy>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatOverrideRepository, Repositories.Exports.ExportFormatOverrideRepository>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatOverrideApplier, Application.Services.Exports.ExportFormatOverrideApplier>();
+        services.AddScoped<Application.Interfaces.Exports.IPayrollPeriodExportService, Application.Services.Exports.PayrollPeriodExportService>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatFamilyResolver, Application.Services.Exports.ExportFormatFamilyResolver>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();

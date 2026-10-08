@@ -1,5 +1,5 @@
 {
   "payroll-export-de.name": "Palkkavienti (Saksa / DATEV)",
-  "payroll-export-de.description": "Jakson päättyessä vie ryhmän suljetut tuntiarvot DATEV Lohn & Gehalt -liikedatatiedostoksi myöhempää latausta varten.",
+  "payroll-export-de.description": "Varattu tulevaa automaattista palkkavientiä varten jakson päättämisen yhteydessä; tällä kytkimellä ei tällä hetkellä ole vaikutusta. Palkkavienti ajetaan manuaalisesti kohdassa Jakson päättäminen > Viennit, työntekijöittäin, koko asennusta koskevalla määrityksellä.",
   "payroll-export-de.category": "Palkanlaskenta"
 }

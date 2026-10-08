@@ -218,6 +218,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
+        services.AddScoped<IExportLogItemRepository, ExportLogItemRepository>();
         services.AddScoped<IPeriodClosingReadRepository, PeriodClosingReadRepository>();
         services.AddScoped<IResourceMonitorReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ResourceMonitorReadRepository>();
         services.AddScoped<IShiftCoverageReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ShiftCoverageReadRepository>();

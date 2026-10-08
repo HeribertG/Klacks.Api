@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Eksport Gaji (Jerman / DATEV)",
-    "payroll-export-de.description": "Semasa penutupan tempoh, mengeksport nilai masa yang dimeterai bagi satu kumpulan sebagai fail data pergerakan DATEV Lohn & Gehalt untuk dimuat turun kemudian.",
+    "payroll-export-de.description": "Dikhaskan untuk eksport gaji automatik pada masa hadapan semasa penutupan tempoh; buat masa ini suis ini tidak memberi kesan. Eksport gaji dijalankan secara manual di Penutupan tempoh > Eksport, bagi setiap pekerja, dengan konfigurasi yang terpakai untuk seluruh pemasangan.",
     "payroll-export-de.category": "Gaji"
 }

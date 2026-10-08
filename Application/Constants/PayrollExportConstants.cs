@@ -4,12 +4,10 @@ namespace Klacks.Api.Application.Constants;
 
 /// <summary>
 /// Constants for the country-pack payroll export. FormatKey values double as the
-/// PayrollExportGroupConfig.TargetSystem value that selects a formatter per group.
+/// PayrollExportGroupConfig.TargetSystem value that selects the installation-wide default formatter.
 /// </summary>
 public static class PayrollExportConstants
 {
-    public const string FeaturePluginName = "payroll-export-de";
-
     public const string FormatKeyDatevLug = "datev-lug-bewegungsdaten";
 
     public const string FormatKeyMeritPalkEe = "merit-palk-ee";
@@ -57,4 +55,22 @@ public static class PayrollExportConstants
     public const int DatevLugFieldCount = 11;
 
     public const int MeritPalkFieldCount = 12;
+
+    public const int MaxReportedBlockers = 500;
+
+    public const int MaxPeriodDays = 366;
+
+    public const string StorageKeyPrefix = "payroll-export";
+
+    public const string StorageKeyDateFormat = "yyyyMMdd";
+
+    public const string FileNamePrefix = "payroll-export";
+
+    public const string FileNameDateFormat = "yyyy-MM-dd";
+
+    public const string SupplementaryFileNameSuffix = "_supplement";
+
+    public const string FallbackContentType = "application/octet-stream";
+
+    public const string UnknownActor = "Unknown";
 }

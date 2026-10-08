@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Lohnexport (Deutschland / DATEV)",
-    "payroll-export-de.description": "Exportiert beim Periodenabschluss die abgeschlossenen Zeitwerte einer Gruppe als DATEV Lohn & Gehalt Bewegungsdaten-Datei zum späteren Download.",
+    "payroll-export-de.description": "Reserviert für einen künftigen automatischen Lohnexport beim Periodenabschluss; dieser Schalter hat derzeit keine Wirkung. Der Lohnexport wird manuell unter Periodenabschluss > Exporte pro Mitarbeiter ausgeführt, mit einer installationsweiten Konfiguration.",
     "payroll-export-de.category": "Lohnbuchhaltung"
 }

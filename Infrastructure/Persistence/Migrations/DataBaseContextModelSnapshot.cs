@@ -7239,6 +7239,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsSupplementary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_supplementary");
+
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -7248,6 +7252,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("OverrideApplied")
                         .HasColumnType("boolean")
                         .HasColumnName("override_applied");
+
+                    b.Property<int>("PersonCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("person_count");
 
                     b.Property<int>("RecordCount")
                         .HasColumnType("integer")
@@ -7281,6 +7289,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("start_date");
 
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("storage_key");
+
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
@@ -7294,23 +7307,22 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("export_log", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Exports.Payroll.PayrollExportGroupConfig", b =>
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Exports.ExportLogItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AbsenceMappingJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("absence_mapping_json");
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
 
-                    b.Property<string>("BaseWageType")
+                    b.Property<string>("ContentHash")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("base_wage_type");
+                        .HasMaxLength(64)
+                        .HasColumnType("char(64)")
+                        .HasColumnName("content_hash");
 
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
@@ -7332,51 +7344,61 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_time");
 
-                    b.Property<string>("Delimiter")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("character varying(4)")
-                        .HasColumnName("delimiter");
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
 
-                    b.Property<string>("Encoding")
+                    b.Property<string>("EntriesJson")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("encoding");
+                        .HasColumnType("jsonb")
+                        .HasColumnName("entries_json");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<int>("EntryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("entry_count");
+
+                    b.Property<Guid>("ExportLogId")
                         .HasColumnType("uuid")
-                        .HasColumnName("group_id");
+                        .HasColumnName("export_log_id");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("format");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<string>("SurchargeWageType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("surcharge_wage_type");
+                    b.Property<bool>("IsSupplementary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_supplementary");
 
-                    b.Property<string>("TargetSystem")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("target_system");
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer")
+                        .HasColumnName("revision");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_time");
 
                     b.HasKey("Id")
-                        .HasName("pk_payroll_export_group_config");
+                        .HasName("pk_export_log_item");
 
-                    b.HasIndex("GroupId")
+                    b.HasIndex("ExportLogId")
+                        .HasDatabaseName("ix_export_log_item_export_log_id");
+
+                    b.HasIndex("ClientId", "StartDate", "EndDate", "Format", "Revision")
                         .IsUnique()
-                        .HasDatabaseName("ix_payroll_export_group_config_group_id")
+                        .HasDatabaseName("ix_export_log_item_client_id_start_date_end_date_format_revisi")
                         .HasFilter("\"is_deleted\" = false");
 
-                    b.ToTable("payroll_export_group_config", (string)null);
+                    b.ToTable("export_log_item", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Histories.History", b =>
@@ -14886,6 +14908,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_selected_calendar_calendar_selection_calendar_selection_id");
 
                     b.Navigation("CalendarSelection");
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Exports.ExportLogItem", b =>
+                {
+                    b.HasOne("Klacks.Api.Domain.Models.Exports.ExportLog", null)
+                        .WithMany()
+                        .HasForeignKey("ExportLogId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_export_log_item_export_log_export_log_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Histories.History", b =>

@@ -1,5 +1,5 @@
 {
     "payroll-export-de.name": "Payroll Export (Germany / DATEV)",
-    "payroll-export-de.description": "On period close, exports a group's closed time values as a DATEV Lohn & Gehalt movement-data file for later download.",
+    "payroll-export-de.description": "Reserved for a future automatic payroll export on period close; currently this switch has no effect. The payroll export is run manually under Period closing > Exports, per employee, with an installation-wide configuration.",
     "payroll-export-de.category": "Payroll"
 }

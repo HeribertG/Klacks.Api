@@ -11,4 +11,8 @@ public static class ExportResponseHeaders
     public const string SkippedEntries = "X-Klacks-Export-Skipped";
 
     public const string AbsenceMappingInvalid = "X-Klacks-Export-Mapping-Invalid";
+
+    public const string Persons = "X-Klacks-Export-Persons";
+
+    public const string Supplementary = "X-Klacks-Export-Supplementary";
 }
