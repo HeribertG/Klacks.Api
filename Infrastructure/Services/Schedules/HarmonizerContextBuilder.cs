@@ -90,7 +90,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows, ct);
         var individualPeriods = await LoadIndividualPeriodsAsync(contractDataByDate, ct);
         var periodTargetHours = ComputePeriodTargetHours(
-            agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods);
+            agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods, membershipWindows);
         var softenings = await _softeningRepository.LoadAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
 
         var agents = BuildAgents(agentIds, firstDayContracts, periodTargetHours, clients, preferredSymbols, blacklistByAgent);
@@ -434,14 +434,17 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// pay period (GuaranteedHoursBasisInterval, else PaymentInterval), while the bitmap only holds the planned range, so each day contributes its
     /// pay-period share via <see cref="PayPeriodTargetHoursProrator"/>. Each day uses that day's own contract data,
     /// so a contract change or a month-specific company value inside the range is honoured. An agent without
-    /// contract data on a day contributes nothing for that day.
+    /// contract data on a day contributes nothing for that day, and neither does a day outside the agent's company
+    /// membership: the target is prorated by member days (<see cref="MembershipTargetProration"/>), while MaximumHours
+    /// stays the unscaled hard ceiling.
     /// </summary>
     internal static Dictionary<Guid, decimal> ComputePeriodTargetHours(
         IReadOnlyList<Guid> agentIds,
         DateOnly from,
         DateOnly until,
         IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
-        IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>> individualPeriodsByContract)
+        IReadOnlyDictionary<Guid, IReadOnlyCollection<Period>> individualPeriodsByContract,
+        IReadOnlyDictionary<Guid, MembershipWindow>? membershipWindows = null)
     {
         var result = agentIds.ToDictionary(id => id, _ => 0m);
         for (var date = from; date <= until; date = date.AddDays(1))
@@ -453,7 +456,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
 
             foreach (var agentId in agentIds)
             {
-                if (!perDay.TryGetValue(agentId, out var data))
+                if (!perDay.TryGetValue(agentId, out var data)
+                    || (membershipWindows is not null
+                        && membershipWindows.TryGetValue(agentId, out var window)
+                        && !window.Contains(date)))
                 {
                     continue;
                 }

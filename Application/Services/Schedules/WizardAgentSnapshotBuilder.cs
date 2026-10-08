@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 
 namespace Klacks.Api.Application.Services.Schedules;
@@ -16,7 +17,8 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// day one. Days without an active contract, and days outside the agent's company membership
 /// (Membership.ValidFrom / ValidUntil, inclusive), are marked WorksOnDay=false; agents without any active
 /// contract day inside their membership in the whole period are excluded. An agent without a membership
-/// row is unrestricted, like in the schedule view.
+/// row is unrestricted, like in the schedule view. When the membership starts or ends inside the period, the targets are
+/// prorated by member days (<see cref="MembershipTargetProration"/>); MaximumHours is not.
 /// </summary>
 /// <param name="contractProvider">Source of effective contract data per client and date</param>
 /// <param name="membershipWindowReader">Source of the company membership window per client</param>
@@ -91,7 +93,11 @@ public sealed class WizardAgentSnapshotBuilder
         // position in this list as the top-down priority rank.
         var agents = agentIds
             .Where(contractBasis.ContainsKey)
-            .Select(id => BuildAgent(id, contractBasis[id], currentHoursPerAgent.GetValueOrDefault(id, 0)))
+            .Select(id => BuildAgent(
+                id,
+                contractBasis[id],
+                currentHoursPerAgent.GetValueOrDefault(id, 0),
+                MembershipTargetProration.FactorFor(membershipWindows.GetValueOrDefault(id), from, until)))
             .ToList();
 
         return new AgentSnapshotResult(agents, contractDays);
@@ -118,12 +124,21 @@ public sealed class WizardAgentSnapshotBuilder
         _ => false,
     };
 
-    private static CoreAgent BuildAgent(Guid agentId, EffectiveContractData data, double currentHours)
+    /// <summary>
+    /// The engine agent of one employee. The targets the engine strives for (GuaranteedHours, FullTime, MinimumHours) are
+    /// scaled by <paramref name="membershipFactor"/> when the membership starts or ends inside the period, so the engine
+    /// does not pack the full target into the member days; MaximumHours stays the contract's hard ceiling, unscaled.
+    /// </summary>
+    /// <param name="agentId">Employee id</param>
+    /// <param name="data">Contract data of the employee's first active member day</param>
+    /// <param name="currentHours">Hours already worked before the period</param>
+    /// <param name="membershipFactor">Share of the period inside the membership; null = no scaling</param>
+    private static CoreAgent BuildAgent(Guid agentId, EffectiveContractData data, double currentHours, decimal? membershipFactor)
     {
         return new CoreAgent(
             Id: agentId.ToString(),
             CurrentHours: currentHours,
-            GuaranteedHours: (double)data.GuaranteedHours,
+            GuaranteedHours: Prorate(data.GuaranteedHours, membershipFactor),
             MaxConsecutiveDays: data.MaxConsecutiveDays > 0 ? data.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
             MinRestHours: data.MinPauseHours > 0 ? (double)data.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             Motivation: WizardSchedulingDefaults.DefaultMotivation,
@@ -131,9 +146,9 @@ public sealed class WizardAgentSnapshotBuilder
             MaxWeeklyHours: data.MaxWeeklyHours > 0 ? (double)data.MaxWeeklyHours : WizardSchedulingDefaults.MaxWeeklyHours,
             MaxOptimalGap: data.MaxOptimalGap > 0 ? (double)data.MaxOptimalGap : 2)
         {
-            FullTime = (double)data.FullTime,
+            FullTime = Prorate(data.FullTime, membershipFactor),
             MaximumHours = (double)data.MaximumHours,
-            MinimumHours = (double)data.MinimumHours,
+            MinimumHours = Prorate(data.MinimumHours, membershipFactor),
             MaxWorkDays = data.MaxWorkDays > 0 ? data.MaxWorkDays : 5,
             // CoreAgent plans whole calendar days; a fractional legal minimum (e.g. Spain's 1.5/week)
             // is rounded UP so the optimizer never targets fewer rest days than required - the exact
@@ -161,6 +176,9 @@ public sealed class WizardAgentSnapshotBuilder
             WE3RateMode = MapRateMode(data.WE3RateMode),
         };
     }
+
+    private static double Prorate(decimal target, decimal? membershipFactor)
+        => membershipFactor is { } factor ? (double)(target * factor) : (double)target;
 
     private static CoreSurchargeRateMode MapRateMode(SurchargeRateMode mode) => mode switch
     {
