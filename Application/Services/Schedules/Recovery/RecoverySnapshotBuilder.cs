@@ -504,9 +504,15 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         // Several commands on one day restrict cumulatively, as in Wizard 1 (e.g. -EARLY and -NIGHT leave only
         // LATE, EARLY and LATE close the day); the result does not depend on the order the rows came back in.
-        return keywordsByDay.ToDictionary(
-            entry => entry.Key,
-            entry => ScheduleCommandKeywordCombiner.Combine(entry.Value)!.Value);
+        var keywordDays = new Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword>();
+        foreach (var (key, keywords) in keywordsByDay)
+        {
+            if (ScheduleCommandKeywordCombiner.Combine(keywords) is { } combined)
+            {
+                keywordDays[key] = combined;
+            }
+        }
+        return keywordDays;
     }
 
     /// <summary>
