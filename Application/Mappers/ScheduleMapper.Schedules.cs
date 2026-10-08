@@ -79,6 +79,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(WorkChange.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(WorkChange.Work))]
     [MapperIgnoreTarget(nameof(WorkChange.ReplaceClient))]
+    [MapperIgnoreTarget(nameof(WorkChange.AnalyseToken))]
     [MapperIgnoreSource(nameof(WorkChangeResource.OverrideBlock))]
     public partial WorkChange ToWorkChangeEntity(WorkChangeResource resource);
 
@@ -94,6 +95,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Expenses.IsDeleted))]
     [MapperIgnoreTarget(nameof(Expenses.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Expenses.Work))]
+    [MapperIgnoreTarget(nameof(Expenses.AnalyseToken))]
     public partial Expenses ToExpensesEntity(ExpensesResource resource);
 
     public partial ScheduleNoteResource ToScheduleNoteResource(ScheduleNote scheduleNote);

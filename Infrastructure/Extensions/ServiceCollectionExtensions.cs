@@ -472,6 +472,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkWriteGuard, Application.Services.Schedules.WorkWriteGuardService>();
+        services.AddScoped<Application.Interfaces.Schedules.IShiftDefaultExpensesApplier, Application.Services.Schedules.ShiftDefaultExpensesApplier>();
         services.AddScoped<Application.Interfaces.Schedules.IWorkRestoreAuthorizer, Application.Services.Schedules.WorkRestoreAuthorizer>();
         services.AddScoped<Application.Interfaces.Schedules.IComplianceEscalationService, Application.Services.Schedules.ComplianceEscalationService>();
         services.AddScoped<Application.Interfaces.Schedules.ICompliancePartitionService, Application.Services.Schedules.CompliancePartitionService>();

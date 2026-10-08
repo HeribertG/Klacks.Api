@@ -7,4 +7,10 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IExpensesRepository : IBaseRepository<Expenses>
 {
+    /// <summary>
+    /// Loads an expense with its parent Work regardless of its scope: unlike Get, scenario rows
+    /// (AnalyseToken set) are returned too. For write paths that must reach scenario expenses.
+    /// </summary>
+    /// <param name="id">Id of the expense</param>
+    Task<Expenses?> GetWithWorkInAnyScope(Guid id);
 }

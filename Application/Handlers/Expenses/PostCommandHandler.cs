@@ -2,15 +2,18 @@
 
 /// <summary>
 /// Creates an expense entry on a Work and refreshes the schedule of its owner. An expense on a Work owned by
-/// a client outside the caller's group visibility is refused as if the Work did not exist, without revealing
-/// the owner; nothing is written.
+/// a client outside the caller's group visibility is refused exactly like an expense on a missing or deleted
+/// Work (KeyNotFoundException, 404), without revealing the owner; nothing is written. The expense always belongs to the scope (main plan or scenario) of its parent
+/// Work: the AnalyseToken is taken from the Work, never from the request. A sealed parent Work refuses the write
+/// as decided by IParentWorkLockGuard.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="parentWorkLockGuard">Refuses the write when the parent Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -34,6 +37,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IWorkRepository _workRepository;
     private readonly IDayLockService _dayLockService;
+    private readonly IParentWorkLockGuard _parentWorkLockGuard;
 
     public PostCommandHandler(
         IExpensesRepository expensesRepository,
@@ -48,6 +52,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         ISelectedGroupContextResolver groupContextResolver,
         IWorkRepository workRepository,
         IDayLockService dayLockService,
+        IParentWorkLockGuard parentWorkLockGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -63,6 +68,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
         _groupContextResolver = groupContextResolver;
         _workRepository = workRepository;
         _dayLockService = dayLockService;
+        _parentWorkLockGuard = parentWorkLockGuard;
     }
 
     public async Task<ExpensesResource?> Handle(PostCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -72,26 +78,27 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Expen
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
 
             var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
-            if (parentWork != null && !await _clientVisibilityGuard.IsVisibleAsync(parentWork.ClientId, cancellationToken))
+            if (parentWork == null || !await _clientVisibilityGuard.IsVisibleAsync(parentWork.ClientId, cancellationToken))
             {
                 throw new KeyNotFoundException($"Work with ID {expenses.WorkId} not found");
             }
 
-            if (parentWork != null)
-            {
-                await _dayLockService.EnsureNotLockedAsync(
-                    parentWork.CurrentDate,
-                    parentWork.ClientId,
-                    expenses.AnalyseToken,
-                    cancellationToken);
-            }
+            expenses.AnalyseToken = parentWork.AnalyseToken;
+
+            _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
+
+            await _dayLockService.EnsureNotLockedAsync(
+                parentWork.CurrentDate,
+                parentWork.ClientId,
+                parentWork.AnalyseToken,
+                cancellationToken);
 
             await _expensesRepository.Add(expenses);
             await _unitOfWork.CompleteAsync();
 
             var expensesResource = _scheduleMapper.ToExpensesResource(expenses);
 
-            var expensesWithWork = await _expensesRepository.Get(expenses.Id);
+            var expensesWithWork = await _expensesRepository.GetWithWorkInAnyScope(expenses.Id);
             if (expensesWithWork?.Work != null)
             {
                 var work = expensesWithWork.Work;

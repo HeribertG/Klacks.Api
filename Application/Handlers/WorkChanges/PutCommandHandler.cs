@@ -4,14 +4,20 @@
 /// Updates a WorkChange and refreshes period hours and schedule entries of every client it touches. A change
 /// whose parent Work (old or new) is owned by a hidden client, or whose stored or new replacement client is
 /// outside the caller's group visibility, is answered exactly like a change that does not exist; nothing is written.
+/// A change whose old or new parent Work is missing or deleted is answered the same way. The AnalyseToken follows the
+/// parent Work (the request carries none), a change cannot be moved between a scenario and the main plan, and a sealed
+/// old or new parent Work refuses the write as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="parentWorkLockGuard">Refuses the write when a parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Keeps the ManualReplacement row of the replacement request book in step with the change</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -21,6 +27,9 @@ namespace Klacks.Api.Application.Handlers.WorkChanges;
 
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkChangeResource>, WorkChangeResource?>
 {
+    public const string CrossScopeMoveMessage =
+        "A work change cannot be moved between a scenario and the main plan.";
+
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
@@ -31,6 +40,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IDayLockService _dayLockService;
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IParentWorkLockGuard _parentWorkLockGuard;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -43,6 +54,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IWorkNotificationFacade notificationFacade,
         IDayLockService dayLockService,
         IReplacementRequestRecorder replacementRequestRecorder,
+        IHttpContextAccessor httpContextAccessor,
+        IParentWorkLockGuard parentWorkLockGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -56,6 +69,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _notificationFacade = notificationFacade;
         _dayLockService = dayLockService;
         _replacementRequestRecorder = replacementRequestRecorder;
+        _httpContextAccessor = httpContextAccessor;
+        _parentWorkLockGuard = parentWorkLockGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -72,48 +87,60 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var previousReplaceClientId = existingWorkChange.ReplaceClientId;
 
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
-
+            var isMoved = existingWorkChange.WorkId != workChange.WorkId;
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
-            var oldParentWork = existingWorkChange.WorkId != workChange.WorkId
+            var oldParentWork = isMoved
                 ? await _workRepository.GetNoTracking(existingWorkChange.WorkId)
-                : null;
+                : parentWork;
+            if (parentWork == null || oldParentWork == null)
+            {
+                _logger.LogWarning("Parent work of WorkChange not found: {Id}", request.Resource.Id);
+                return null;
+            }
 
             var clientIds = new[]
                 {
-                    parentWork?.ClientId,
-                    oldParentWork?.ClientId,
+                    parentWork.ClientId,
+                    oldParentWork.ClientId,
                     existingWorkChange.ReplaceClientId,
                     workChange.ReplaceClientId
                 }
                 .Where(id => id.HasValue)
                 .Select(id => id!.Value)
+                .Distinct()
                 .ToList();
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
             {
                 return null;
             }
 
-            if (parentWork != null)
+            if (oldParentWork.AnalyseToken != parentWork.AnalyseToken)
+            {
+                throw new InvalidRequestException(CrossScopeMoveMessage);
+            }
+
+            workChange.AnalyseToken = parentWork.AnalyseToken;
+
+            _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
+            if (isMoved)
+            {
+                _parentWorkLockGuard.EnsureChildWritableForCaller(oldParentWork, _httpContextAccessor);
+            }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                parentWork.CurrentDate,
+                parentWork.ClientId,
+                parentWork.AnalyseToken,
+                cancellationToken);
+
+            if (isMoved)
             {
                 await _dayLockService.EnsureNotLockedAsync(
-                    parentWork.CurrentDate,
-                    parentWork.ClientId,
-                    workChange.AnalyseToken,
+                    oldParentWork.CurrentDate,
+                    oldParentWork.ClientId,
+                    oldParentWork.AnalyseToken,
                     cancellationToken);
             }
-
-            if (existingWorkChange.WorkId != workChange.WorkId)
-            {
-                if (oldParentWork != null)
-                {
-                    await _dayLockService.EnsureNotLockedAsync(
-                        oldParentWork.CurrentDate,
-                        oldParentWork.ClientId,
-                        existingWorkChange.AnalyseToken,
-                        cancellationToken);
-                }
-            }
-
             var updatedWorkChange = await _workChangeRepository.Put(workChange);
 
             if (updatedWorkChange == null)

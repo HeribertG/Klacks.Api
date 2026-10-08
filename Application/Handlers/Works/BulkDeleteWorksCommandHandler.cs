@@ -4,13 +4,17 @@
 /// Soft-deletes several Works in one call and recalculates the affected period hours. Works owned by
 /// clients outside the caller's group visibility are treated exactly like ids that do not exist: they are
 /// not deleted and count as failed. Like the single delete, the whole request is refused when any visible work
-/// lies on a sealed day (IDayLockService), whatever the caller's role.
+/// lies on a sealed day (IDayLockService), whatever the caller's role, or when any visible Work's own lock level
+/// forbids the delete for the caller (IParentWorkLockGuard: Closed refuses everyone, Approved needs Admin or
+/// Authorised); nothing is deleted then.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the Works down to clients the calling user may write for</param>
 /// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
+/// <param name="workLockGuard">Refuses the batch when a Work's lock level forbids the delete for the caller</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
@@ -32,6 +36,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IDayLockService _dayLockService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IParentWorkLockGuard _workLockGuard;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
@@ -42,6 +48,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IWorkNotificationFacade notificationFacade,
         IOvertimeCascadeService overtimeCascadeService,
         IDayLockService dayLockService,
+        IHttpContextAccessor httpContextAccessor,
+        IParentWorkLockGuard workLockGuard,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
@@ -53,6 +61,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _notificationFacade = notificationFacade;
         _overtimeCascadeService = overtimeCascadeService;
         _dayLockService = dayLockService;
+        _httpContextAccessor = httpContextAccessor;
+        _workLockGuard = workLockGuard;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -72,6 +82,11 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             await _dayLockService.EnsureNoneLockedAsync(
                 deletedWorks.Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken)).ToList(),
                 cancellationToken);
+
+            foreach (var work in deletedWorks)
+            {
+                _workLockGuard.EnsureWorkWritableForCaller(work, _httpContextAccessor);
+            }
 
             foreach (var work in deletedWorks)
             {

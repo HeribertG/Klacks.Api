@@ -1,11 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Creates several Works in one call after the day-lock and hard-blocking guards have passed. If any Work
-/// is for a client outside the caller's group visibility, the whole request is refused exactly like a
-/// request for a client that does not exist; nothing is written.
+/// Creates several Works in one call after the day-lock and hard-blocking guards have passed, together with the
+/// default expenses of their shifts (same scope, same save). If any Work is for a client outside the caller's
+/// group visibility, the whole request is refused exactly like a request for a client that does not exist;
+/// nothing is written.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client of the request</param>
+/// <param name="defaultExpensesApplier">Stages the shifts' default expenses on the new top-level Works before the single bulk save</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
@@ -36,6 +38,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IDayLockService _dayLockService;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IShiftDefaultExpensesApplier _defaultExpensesApplier;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -48,6 +51,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IOvertimeCascadeService overtimeCascadeService,
         IDayLockService dayLockService,
         IPreCommitConflictChecker conflictChecker,
+        IShiftDefaultExpensesApplier defaultExpensesApplier,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -61,6 +65,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _overtimeCascadeService = overtimeCascadeService;
         _dayLockService = dayLockService;
         _conflictChecker = conflictChecker;
+        _defaultExpensesApplier = defaultExpensesApplier;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -128,6 +133,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 {
                     await _expansionService.ExpandAsync(work, work.CurrentDate);
                 }
+
+                await _defaultExpensesApplier.ApplyAsync(works, cancellationToken);
 
                 var affected = works.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
                 var bulkToken = works.Select(w => w.AnalyseToken).Distinct().Count() == 1 ? works[0].AnalyseToken : null;

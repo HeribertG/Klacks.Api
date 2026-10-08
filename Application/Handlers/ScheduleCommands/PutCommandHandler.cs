@@ -3,7 +3,8 @@
 /// <summary>
 /// Handler for updating an existing ScheduleCommand. A command whose stored owner or whose new owner is
 /// outside the caller's group visibility is answered exactly like a command that does not exist; nothing is
-/// written.
+/// written. The AnalyseToken is taken from the stored row, never from the payload, so a PUT cannot move a command
+/// between the main plan and a scenario.
 /// </summary>
 /// <param name="request">Contains the updated ScheduleCommandResource</param>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
@@ -49,6 +50,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
             }
 
             var scheduleCommand = _scheduleMapper.ToScheduleCommandEntity(request.Resource);
+            scheduleCommand.AnalyseToken = existing.AnalyseToken;
 
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(
                     [existing.ClientId, scheduleCommand.ClientId], cancellationToken))

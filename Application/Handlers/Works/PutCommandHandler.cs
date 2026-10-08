@@ -4,14 +4,18 @@
 /// Updates a Work: day-lock and hard-blocking guards first, then the write, container-children move,
 /// commit, overtime successors, period hours, notifications and the three-day WorkResource. A Work whose
 /// stored owner or whose new owner is outside the caller's group visibility is answered exactly like a
-/// Work that does not exist; nothing is written.
+/// Work that does not exist; nothing is written. The AnalyseToken is server-owned like the seal state: it is
+/// taken from the stored row, never from the payload, so a PUT cannot flip a main-plan Work into a scenario and
+/// bypass the day lock and conflict check. The stored Work's lock level is enforced by IParentWorkLockGuard: Closed
+/// refuses everyone, Approved needs Admin or Authorised, Confirmed is open; scenario Works are not checked.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for both owners</param>
+/// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Exceptions;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
@@ -39,6 +43,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IParentWorkLockGuard _workLockGuard;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -54,6 +60,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
         IPreCommitConflictChecker conflictChecker,
+        IHttpContextAccessor httpContextAccessor,
+        IParentWorkLockGuard workLockGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -70,6 +78,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
         _conflictChecker = conflictChecker;
+        _httpContextAccessor = httpContextAccessor;
+        _workLockGuard = workLockGuard;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -82,6 +92,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
             ScheduleEntrySealState.CarryOver(work, existingWork);
+            work.AnalyseToken = existingWork?.AnalyseToken;
 
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }
@@ -89,6 +100,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
             {
                 return null;
+            }
+
+            if (existingWork != null)
+            {
+                _workLockGuard.EnsureWorkWritableForCaller(existingWork, _httpContextAccessor);
             }
 
             if (oldDate.HasValue)

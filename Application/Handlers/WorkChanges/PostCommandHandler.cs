@@ -3,14 +3,17 @@
 /// <summary>
 /// Creates a WorkChange (correction or replacement) on an existing Work after the day-lock and replacement
 /// guards have passed. A change on a Work owned by a client outside the caller's group visibility, or one
-/// that moves a hidden client in as replacement, is refused exactly like a change on a missing Work.
+/// that moves a hidden client in as replacement, is refused exactly like a change on a missing Work. A sealed parent
+/// Work refuses the change as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="parentWorkLockGuard">Refuses the change when the parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Records a manual replacement as an Accepted entry of the replacement request book, staged with the change</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
@@ -39,6 +42,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
+    private readonly IParentWorkLockGuard _parentWorkLockGuard;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -54,6 +58,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IPreCommitConflictChecker conflictChecker,
         ISupervisorOverrideAuthorizer overrideAuthorizer,
         IReplacementRequestRecorder replacementRequestRecorder,
+        IParentWorkLockGuard parentWorkLockGuard,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -70,6 +75,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _conflictChecker = conflictChecker;
         _overrideAuthorizer = overrideAuthorizer;
         _replacementRequestRecorder = replacementRequestRecorder;
+        _parentWorkLockGuard = parentWorkLockGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -90,6 +96,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             // no AnalyseToken, so inherit it from the parent — otherwise a WorkChange created on a
             // scenario work would be persisted as real (token null) and break scenario isolation.
             workChange.AnalyseToken = parentWork.AnalyseToken;
+
+            _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
 
             await _dayLockService.EnsureNotLockedAsync(
                 parentWork.CurrentDate,

@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Updates a schedule note. A note whose stored owner or whose new owner is outside the caller's group
-/// visibility is answered exactly like a note that does not exist; nothing is written.
+/// visibility is answered exactly like a note that does not exist; nothing is written. The AnalyseToken is taken
+/// from the stored row, never from the payload, so a PUT cannot move a note between the main plan and a scenario.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 
@@ -47,6 +48,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
             }
 
             var scheduleNote = _scheduleMapper.ToScheduleNoteEntity(request.Resource);
+            scheduleNote.AnalyseToken = existingScheduleNote.AnalyseToken;
             var ownerIds = new[] { existingScheduleNote.ClientId, scheduleNote.ClientId };
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
             {

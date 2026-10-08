@@ -3,13 +3,16 @@
 /// <summary>
 /// Soft-deletes a Work with its container children and notifies the schedule. A Work owned by a client
 /// outside the caller's group visibility is refused exactly like a Work that does not exist; nothing is
-/// deleted.
+/// deleted. On top of DeleteWorkCommandValidator (non-admins may only delete unsealed Works), IParentWorkLockGuard
+/// refuses a Closed Work for everyone, admins included: deleting it would also drop its expenses and WorkChanges
+/// from a closed period.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="workLockGuard">Refuses the delete when the Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -33,6 +36,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IParentWorkLockGuard _workLockGuard;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -47,6 +52,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
+        IHttpContextAccessor httpContextAccessor,
+        IParentWorkLockGuard workLockGuard,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -62,6 +69,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
+        _httpContextAccessor = httpContextAccessor;
+        _workLockGuard = workLockGuard;
     }
 
     public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
@@ -73,6 +82,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }
+
+            _workLockGuard.EnsureWorkWritableForCaller(work, _httpContextAccessor);
 
             await _dayLockService.EnsureNotLockedAsync(
                 work.CurrentDate,

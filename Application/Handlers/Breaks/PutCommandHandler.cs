@@ -5,7 +5,9 @@
 /// new owner is outside the caller's group visibility is refused exactly like a break that does not exist;
 /// nothing is written. A break sealed by a period close (LockLevel Closed) may only be changed by an admin - the
 /// same rule the delete validator applies; independently of the role, the day lock refuses any write on a day that
-/// is sealed for the client (globally, or by a group the client is a member of or worked for that day).
+/// is sealed for the client (globally, or by a group the client is a member of or worked for that day). The
+/// AnalyseToken is taken from the stored row, never from the payload, so a PUT cannot flip a main-plan break into a
+/// scenario and bypass the day lock.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
 
@@ -76,6 +78,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var existing = await _breakRepository.GetNoTracking(request.Resource.Id);
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
             ScheduleEntrySealState.CarryOver(entity, existing);
+            entity.AnalyseToken = existing?.AnalyseToken;
 
             var ownerIds = existing != null
                 ? new[] { existing.ClientId, entity.ClientId }

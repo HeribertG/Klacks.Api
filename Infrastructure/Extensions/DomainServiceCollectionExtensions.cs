@@ -186,6 +186,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IClientAvailabilityScheduleService, ClientAvailabilityScheduleService>();
         services.AddScoped<IWorkLockLevelService, WorkLockLevelService>();
         services.AddScoped<IDayLockService, DayLockService>();
+        services.AddScoped<IParentWorkLockGuard, ParentWorkLockGuard>();
         services.AddScoped<IPeriodHoursService, PeriodHoursService>();
         services.AddScoped<IScheduleChangeTracker, ScheduleChangeTracker>();
         services.AddScoped<IContainerAvailableTasksService, ContainerAvailableTasksService>();

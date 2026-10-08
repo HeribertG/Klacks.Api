@@ -3,15 +3,19 @@
 /// <summary>
 /// Updates an expense entry and refreshes the schedule of its owner. An expense whose old or new parent Work
 /// is owned by a client outside the caller's group visibility is answered exactly like an expense that does
-/// not exist; nothing is written.
+/// not exist; nothing is written, and so is one whose old or new parent Work is missing or deleted. The AnalyseToken follows the parent Work (the request carries none), and an expense
+/// cannot be moved between a scenario and the main plan. A sealed old or new parent Work refuses the write as
+/// decided by IParentWorkLockGuard.
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owners of both parent Works</param>
+/// <param name="parentWorkLockGuard">Refuses the write when a parent Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Constants;
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,6 +26,9 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ExpensesResource>, ExpensesResource?>
 {
+    public const string CrossScopeMoveMessage =
+        "An expense cannot be moved between a scenario and the main plan.";
+
     private readonly IExpensesRepository _expensesRepository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ScheduleMapper _scheduleMapper;
@@ -34,6 +41,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IWorkRepository _workRepository;
     private readonly IDayLockService _dayLockService;
+    private readonly IParentWorkLockGuard _parentWorkLockGuard;
 
     public PutCommandHandler(
         IExpensesRepository expensesRepository,
@@ -48,6 +56,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         ISelectedGroupContextResolver groupContextResolver,
         IWorkRepository workRepository,
         IDayLockService dayLockService,
+        IParentWorkLockGuard parentWorkLockGuard,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -63,6 +72,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
         _groupContextResolver = groupContextResolver;
         _workRepository = workRepository;
         _dayLockService = dayLockService;
+        _parentWorkLockGuard = parentWorkLockGuard;
     }
 
     public async Task<ExpensesResource?> Handle(PutCommand<ExpensesResource> request, CancellationToken cancellationToken)
@@ -79,40 +89,49 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
             }
 
             var expenses = _scheduleMapper.ToExpensesEntity(request.Resource);
-
+            var isMoved = existingExpenses.WorkId != expenses.WorkId;
             var parentWork = await _workRepository.GetNoTracking(expenses.WorkId);
-            var oldParentWork = existingExpenses.WorkId != expenses.WorkId
+            var oldParentWork = isMoved
                 ? await _workRepository.GetNoTracking(existingExpenses.WorkId)
-                : null;
+                : parentWork;
+            if (parentWork == null || oldParentWork == null)
+            {
+                _logger.LogWarning("Parent work of Expenses not found: {Id}", request.Resource.Id);
+                return null;
+            }
 
-            var clientIds = new[] { parentWork?.ClientId, oldParentWork?.ClientId }
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .ToList();
+            var clientIds = new[] { parentWork.ClientId, oldParentWork.ClientId }.Distinct().ToList();
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
             {
                 return null;
             }
 
-            if (parentWork != null)
+            if (oldParentWork.AnalyseToken != parentWork.AnalyseToken)
             {
-                await _dayLockService.EnsureNotLockedAsync(
-                    parentWork.CurrentDate,
-                    parentWork.ClientId,
-                    expenses.AnalyseToken,
-                    cancellationToken);
+                throw new InvalidRequestException(CrossScopeMoveMessage);
             }
 
-            if (existingExpenses.WorkId != expenses.WorkId)
+            expenses.AnalyseToken = parentWork.AnalyseToken;
+
+            _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
+            if (isMoved)
             {
-                if (oldParentWork != null)
-                {
-                    await _dayLockService.EnsureNotLockedAsync(
-                        oldParentWork.CurrentDate,
-                        oldParentWork.ClientId,
-                        existingExpenses.AnalyseToken,
-                        cancellationToken);
-                }
+                _parentWorkLockGuard.EnsureChildWritableForCaller(oldParentWork, _httpContextAccessor);
+            }
+
+            await _dayLockService.EnsureNotLockedAsync(
+                parentWork.CurrentDate,
+                parentWork.ClientId,
+                parentWork.AnalyseToken,
+                cancellationToken);
+
+            if (isMoved)
+            {
+                await _dayLockService.EnsureNotLockedAsync(
+                    oldParentWork.CurrentDate,
+                    oldParentWork.ClientId,
+                    oldParentWork.AnalyseToken,
+                    cancellationToken);
             }
 
             var updatedExpenses = await _expensesRepository.Put(expenses);
@@ -125,7 +144,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Expense
 
             var resultResource = _scheduleMapper.ToExpensesResource(updatedExpenses);
 
-            var expensesWithWork = await _expensesRepository.Get(updatedExpenses.Id);
+            var expensesWithWork = await _expensesRepository.GetWithWorkInAnyScope(updatedExpenses.Id);
             if (expensesWithWork?.Work != null)
             {
                 var work = expensesWithWork.Work;

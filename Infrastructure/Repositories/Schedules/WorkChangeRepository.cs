@@ -47,4 +47,12 @@ public class WorkChangeRepository : BaseRepository<WorkChange>, IWorkChangeRepos
             .Include(wc => wc.Work)
             .FirstOrDefaultAsync(wc => wc.Id == id && wc.AnalyseToken == null);
     }
+
+    public async Task<WorkChange?> GetWithWorkInAnyScope(Guid id)
+    {
+        return await _context.WorkChange
+            .AsNoTracking()
+            .Include(wc => wc.Work)
+            .FirstOrDefaultAsync(wc => wc.Id == id);
+    }
 }

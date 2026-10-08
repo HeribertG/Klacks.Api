@@ -20,4 +20,11 @@ public class ExpensesRepository : BaseRepository<Expenses>, IExpensesRepository
             .Include(e => e.Work)
             .FirstOrDefaultAsync(e => e.Id == id && e.AnalyseToken == null);
     }
+
+    public async Task<Expenses?> GetWithWorkInAnyScope(Guid id)
+    {
+        return await context.Set<Expenses>()
+            .Include(e => e.Work)
+            .FirstOrDefaultAsync(e => e.Id == id);
+    }
 }

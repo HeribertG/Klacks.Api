@@ -3,13 +3,16 @@
 /// <summary>
 /// Deletes a WorkChange and refreshes period hours and schedule entries of the clients it touched. A change
 /// whose parent Work or replacement client is outside the caller's group visibility is answered exactly like
-/// a change that does not exist; nothing is deleted.
+/// a change that does not exist; nothing is deleted. Scenario changes are reachable too. A sealed parent Work refuses
+/// the delete as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="parentWorkLockGuard">Refuses the delete when the parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Soft-deletes the ManualReplacement row of a deleted replacement (it did not happen)</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
@@ -33,6 +36,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDayLockService _dayLockService;
     private readonly IReplacementRequestRecorder _replacementRequestRecorder;
+    private readonly IParentWorkLockGuard _parentWorkLockGuard;
 
     public DeleteCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -46,6 +50,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         IHttpContextAccessor httpContextAccessor,
         IDayLockService dayLockService,
         IReplacementRequestRecorder replacementRequestRecorder,
+        IParentWorkLockGuard parentWorkLockGuard,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -60,13 +65,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
         _httpContextAccessor = httpContextAccessor;
         _dayLockService = dayLockService;
         _replacementRequestRecorder = replacementRequestRecorder;
+        _parentWorkLockGuard = parentWorkLockGuard;
     }
 
     public async Task<WorkChangeResource?> Handle(DeleteCommand<WorkChangeResource> request, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var existingWorkChange = await _workChangeRepository.Get(request.Id);
+            var existingWorkChange = await _workChangeRepository.GetWithWorkInAnyScope(request.Id);
             if (existingWorkChange == null)
             {
                 _logger.LogWarning("WorkChange not found: {Id}", request.Id);
@@ -89,10 +95,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
 
             if (parentWork != null)
             {
+                _parentWorkLockGuard.EnsureChildWritableForCaller(parentWork, _httpContextAccessor);
+
                 await _dayLockService.EnsureNotLockedAsync(
                     parentWork.CurrentDate,
                     parentWork.ClientId,
-                    existingWorkChange.AnalyseToken,
+                    parentWork.AnalyseToken,
                     cancellationToken);
             }
 

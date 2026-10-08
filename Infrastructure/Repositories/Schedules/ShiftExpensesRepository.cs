@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// EF Core repository for shift default expenses with GetByShiftId query.
+/// EF Core repository for shift default expenses with a batch query over several shifts.
 /// </summary>
 /// <param name="context">The database context</param>
 using Klacks.Api.Application.Interfaces;
@@ -18,11 +18,17 @@ public class ShiftExpensesRepository : BaseRepository<ShiftExpenses>, IShiftExpe
     {
     }
 
-    public async Task<List<ShiftExpenses>> GetByShiftId(Guid shiftId)
+    public async Task<List<ShiftExpenses>> GetByShiftIdsAsync(IEnumerable<Guid> shiftIds, CancellationToken cancellationToken = default)
     {
+        var idList = shiftIds.Distinct().ToList();
+        if (idList.Count == 0)
+        {
+            return [];
+        }
+
         return await context.Set<ShiftExpenses>()
-            .Where(e => e.ShiftId == shiftId)
+            .Where(e => idList.Contains(e.ShiftId))
             .OrderBy(e => e.CreateTime)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 }
