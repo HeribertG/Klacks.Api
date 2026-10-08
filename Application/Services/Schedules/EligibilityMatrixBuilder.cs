@@ -53,9 +53,14 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
 
         var shiftIds = slots.Select(s => s.ShiftId).Distinct().ToList();
 
-        var requiredByShift = (await _shiftRequiredQualificationRepository.GetByShiftIdsAsync(shiftIds, ct))
+        // A cut piece needs its own requirements plus those of its order and cut ancestors: the cut dialog creates
+        // pieces without requirement rows, and checking only the piece's own rows would let an unqualified agent in.
+        var ownRequirements = await _shiftRequiredQualificationRepository.GetByShiftIdsAsync(shiftIds, ct);
+        var inheritedRequirements = await _shiftRequiredQualificationRepository.GetInheritedByShiftIdsAsync(shiftIds, ct);
+        var requiredByShift = ownRequirements
+            .Concat(inheritedRequirements)
             .GroupBy(r => r.ShiftId)
-            .ToDictionary(g => g.Key, g => (IReadOnlyList<ShiftRequiredQualification>)g.ToList());
+            .ToDictionary(g => g.Key, g => MergeByQualification(g));
 
         // Any shift carrying a required qualification (mandatory OR optional) can produce a gap:
         // a missing mandatory one is an Error (veto), everything else a Warning (report only).
@@ -132,6 +137,39 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
         }
 
         return set.ToList();
+    }
+
+    /// <summary>
+    /// One requirement per qualification: a qualification required by the piece itself and by an ancestor (or by
+    /// several ancestors) is mandatory when any source makes it mandatory and needs the highest level any source asks.
+    /// The piece's own row wins as the template (its shift name), an inherited row only fills in when no own row exists.
+    /// </summary>
+    private static IReadOnlyList<ShiftRequiredQualification> MergeByQualification(IEnumerable<ShiftRequiredQualification> requirements)
+    {
+        return requirements
+            .GroupBy(r => r.QualificationId)
+            .Select(g =>
+            {
+                var template = g.First();
+                var isMandatory = g.Any(r => r.IsMandatory);
+                var minLevel = g.Max(r => r.MinLevel);
+                if (g.Count() == 1 || (template.IsMandatory == isMandatory && template.MinLevel == minLevel))
+                {
+                    return template;
+                }
+
+                return new ShiftRequiredQualification
+                {
+                    Id = template.Id,
+                    ShiftId = template.ShiftId,
+                    QualificationId = template.QualificationId,
+                    IsMandatory = isMandatory,
+                    MinLevel = minLevel,
+                    Qualification = template.Qualification ?? g.Select(r => r.Qualification).FirstOrDefault(q => q is not null),
+                    Shift = template.Shift,
+                };
+            })
+            .ToList();
     }
 
     private async Task<bool> IsExpiredMandatoryBlocksEnabledAsync()
