@@ -15,7 +15,9 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
+using Klacks.Api.Infrastructure.Repositories.Associations;
 using Microsoft.EntityFrameworkCore;
 
 using Klacks.Api.Domain.DTOs.Filter;
@@ -163,6 +165,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     /// <summary>
     /// Returns each client's period hours, reading the persisted period-hours cache where present and falling back to a live sum over Work/Break/WorkChange for cache misses.
+    /// GuaranteedHours is the pay-period target prorated by member days (<see cref="MembershipTargetProration.ProratedTarget"/>), like PeriodHoursService.
     /// </summary>
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default)
     {
@@ -204,24 +207,25 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => x.TotalBreaks);
 
         var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
+        var membershipWindows = await MembershipWindowQuery.LoadAsync(context, clientIds, cancellationToken);
+        var targetByClient = effectiveDataByClient.ToDictionary(
+            entry => entry.Key,
+            entry => MembershipTargetProration.ProratedTarget(
+                entry.Value.GuaranteedHours, membershipWindows.GetValueOrDefault(entry.Key), startDate, endDate));
 
         foreach (var ph in periodHours)
         {
-            var guaranteedHours = effectiveDataByClient.TryGetValue(ph.ClientId, out var data)
-                ? data.GuaranteedHours
-                : 0m;
-
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = targetByClient.GetValueOrDefault(ph.ClientId)
             };
         }
 
         if (clientIdsWithoutPeriodHours.Count > 0)
         {
-            var fallback = BuildFallbackPeriodHours(clientIdsWithoutPeriodHours, worksHoursDict, breaksHoursDict, workChanges, effectiveDataByClient);
+            var fallback = BuildFallbackPeriodHours(clientIdsWithoutPeriodHours, worksHoursDict, breaksHoursDict, workChanges, targetByClient);
 
             foreach (var kvp in fallback)
             {
@@ -302,7 +306,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
         Dictionary<Guid, decimal> breaksHoursDict,
         List<WorkChangeEntry> workChanges,
-        Dictionary<Guid, EffectiveContractData> effectiveDataByClient)
+        Dictionary<Guid, decimal> targetByClient)
     {
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -313,15 +317,11 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
             var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId);
 
-            var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
-                ? data.GuaranteedHours
-                : 0m;
-
             result[clientId] = new PeriodHoursResource
             {
                 Hours = workData.Hours + breaks + workChangeHours,
                 Surcharges = workData.Surcharges + workChangeSurcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = targetByClient.GetValueOrDefault(clientId)
             };
         }
 

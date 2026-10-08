@@ -14,7 +14,9 @@ namespace Klacks.Api.Domain.Services.Schedules;
 /// hard ceiling and is never scaled: the agent may not work more than the contract allows, but a shorter membership
 /// must not make the engine pack the full monthly target into the remaining days. Wizard 2/3 apply the same rule day by
 /// day while summing their pay-period target over the planned range (HarmonizerContextBuilder.ComputePeriodTargetHours
-/// skips non-member days); its target is range-based by construction.
+/// skips non-member days); its target is range-based by construction. The period hours (PeriodHoursService,
+/// WorkRepository.GetPeriodHoursForClients) report the same prorated target, so the schedule's target column,
+/// find_replacement, recovery and the target-drift trigger rank against it too.
 /// </summary>
 public static class MembershipTargetProration
 {
@@ -36,4 +38,20 @@ public static class MembershipTargetProration
         var memberDays = window.MemberDaysWithin(from, until);
         return memberDays == periodDays ? null : (decimal)memberDays / periodDays;
     }
+
+    /// <summary>
+    /// The pay-period target (GuaranteedHours) of the period hours shown in the schedule and used for replacement and
+    /// recovery ranking, prorated by member days and rounded to <see cref="TargetHoursDecimals"/> decimals; unchanged when
+    /// <see cref="FactorFor"/> yields null.
+    /// </summary>
+    /// <param name="target">Unscaled pay-period target</param>
+    /// <param name="window">Membership window of the agent; null when the agent has none (unrestricted)</param>
+    /// <param name="from">First day of the pay period</param>
+    /// <param name="until">Last day of the pay period</param>
+    public static decimal ProratedTarget(decimal target, MembershipWindow? window, DateOnly from, DateOnly until)
+        => FactorFor(window, from, until) is { } factor
+            ? Math.Round(target * factor, TargetHoursDecimals, MidpointRounding.AwayFromZero)
+            : target;
+
+    public const int TargetHoursDecimals = 2;
 }

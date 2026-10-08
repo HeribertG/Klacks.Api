@@ -3,7 +3,8 @@
 /// <summary>
 /// Loads the company membership window (Membership.ValidFrom / ValidUntil, inclusive) of a set of clients. A client
 /// without a membership row gets no entry and counts as unrestricted, exactly like the schedule view does.
-/// Single source of Wizard 1 (via <see cref="MembershipWindowReader"/>) and the harmonizer.
+/// Single source of Wizard 1 (via <see cref="MembershipWindowReader"/>), the harmonizer and the prorated target of the
+/// period hours (PeriodHoursService, WorkRepository.GetPeriodHoursForClients).
 /// </summary>
 /// <param name="context">EF Core context holding the memberships</param>
 /// <param name="clientIds">Clients to look up</param>

@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.DTOs.Schedules;
@@ -67,18 +68,20 @@ public class PeriodHoursService : IPeriodHoursService
         var clientIdsWithoutCache = clientIds.Where(id => !clientIdsWithCache.Contains(id)).ToList();
 
         var effectiveDataByClient = await _contractDataProvider.GetEffectiveContractDataForClientsAsync(clientIds, startDate);
+        var membershipWindows = await MembershipWindowQuery.LoadAsync(_context, clientIds, CancellationToken.None);
+
+        decimal TargetOf(Guid clientId) => effectiveDataByClient.TryGetValue(clientId, out var data)
+            ? MembershipTargetProration.ProratedTarget(
+                data.GuaranteedHours, membershipWindows.GetValueOrDefault(clientId), startDate, endDate)
+            : 0m;
 
         foreach (var ph in cachedPeriodHours)
         {
-            var guaranteedHours = effectiveDataByClient.TryGetValue(ph.ClientId, out var data)
-                ? data.GuaranteedHours
-                : 0m;
-
             result[ph.ClientId] = new PeriodHoursResource
             {
                 Hours = ph.Hours,
                 Surcharges = ph.Surcharges,
-                GuaranteedHours = guaranteedHours
+                GuaranteedHours = TargetOf(ph.ClientId)
             };
         }
 
@@ -92,15 +95,11 @@ public class PeriodHoursService : IPeriodHoursService
 
             foreach (var (clientId, hours) in calculatedHours)
             {
-                var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
-                    ? data.GuaranteedHours
-                    : 0m;
-
                 result[clientId] = new PeriodHoursResource
                 {
                     Hours = hours.Hours,
                     Surcharges = hours.Surcharges,
-                    GuaranteedHours = guaranteedHours
+                    GuaranteedHours = TargetOf(clientId)
                 };
             }
         }
@@ -121,10 +120,13 @@ public class PeriodHoursService : IPeriodHoursService
             analyseToken);
 
         var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, startDate);
+        var membershipWindows = await MembershipWindowQuery.LoadAsync(_context, [clientId], CancellationToken.None);
+        var guaranteedHours = MembershipTargetProration.ProratedTarget(
+            effectiveData.GuaranteedHours, membershipWindows.GetValueOrDefault(clientId), startDate, endDate);
 
         if (results.TryGetValue(clientId, out var hours))
         {
-            hours.GuaranteedHours = effectiveData.GuaranteedHours;
+            hours.GuaranteedHours = guaranteedHours;
             return hours;
         }
 
@@ -132,7 +134,7 @@ public class PeriodHoursService : IPeriodHoursService
         {
             Hours = 0m,
             Surcharges = 0m,
-            GuaranteedHours = effectiveData.GuaranteedHours
+            GuaranteedHours = guaranteedHours
         };
     }
 
