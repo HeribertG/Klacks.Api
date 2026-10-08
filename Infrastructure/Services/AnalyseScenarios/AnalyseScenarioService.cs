@@ -487,6 +487,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 .GroupBy(s => s.ParentId!.Value)
                 .Select(g => new { ParentId = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.ParentId, x => x.Count, ct);
+        var linkMap = await BuildCloneLinkMapAsync(shifts, idMap, ct);
 
         foreach (var shift in shifts)
         {
@@ -531,9 +532,9 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 SumEmployees = shift.SumEmployees,
                 WorkTime = shift.WorkTime,
                 ShiftType = shift.ShiftType,
-                OriginalId = shift.OriginalId.HasValue && idMap.ContainsKey(shift.OriginalId.Value) ? idMap[shift.OriginalId.Value] : null,
-                ParentId = shift.ParentId.HasValue && idMap.ContainsKey(shift.ParentId.Value) ? idMap[shift.ParentId.Value] : null,
-                RootId = shift.RootId.HasValue && idMap.ContainsKey(shift.RootId.Value) ? idMap[shift.RootId.Value] : null,
+                OriginalId = ResolveCloneLink(shift.OriginalId, linkMap),
+                ParentId = ResolveCloneLink(shift.ParentId, linkMap),
+                RootId = ResolveCloneLink(shift.RootId, linkMap),
                 Lft = shift.Lft,
                 Rgt = shift.Rgt,
                 ClientId = shift.ClientId,
