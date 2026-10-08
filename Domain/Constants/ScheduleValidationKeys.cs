@@ -16,6 +16,7 @@ public static class ScheduleValidationKeys
     public const string WeeklyOvertime = "schedule.error-list.weekly-overtime";
     public const string MinRestDays = "schedule.error-list.min-rest-days";
     public const string Collision = "schedule.error-list.collision";
+    public const string DayDirective = "schedule.error-list.day-directive";
     public const string OnCallOverlap = "schedule.error-list.on-call-overlap";
     public const string PeriodCap = "schedule.error-list.period-cap";
     public const string PeriodCapApproaching = "schedule.error-list.period-cap-approaching";

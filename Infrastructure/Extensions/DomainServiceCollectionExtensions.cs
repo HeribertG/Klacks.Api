@@ -374,6 +374,8 @@ internal static class DomainServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.ClientMembershipStartResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPeriodCapEvaluator,
                            Klacks.Api.Application.Services.Schedules.PeriodCapEvaluator>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IDayDirectiveConflictEvaluator,
+                           Klacks.Api.Application.Services.Schedules.DayDirectiveConflictEvaluator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IRestDayRotationEvaluator,
                            Klacks.Api.Infrastructure.Services.Schedules.RestDayRotationEvaluator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ICounterRuleEvaluator,

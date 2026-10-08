@@ -21,6 +21,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// write paths (Works Post/Put/BulkAdd/Reassign, WorkChange replacement) no longer refuse the write
 /// over it, they persist it and let the async post-commit check
 /// (<c>ScheduleTimelineBackgroundService</c>) surface it into the error list like any other finding. A
+/// placement against a day directive of the employee (<see cref="ScheduleValidationKeys.DayDirective"/>, FREE / EARLY / -NIGHT ...)
+/// is treated the same way since 2026-10-08: an Error, so find_replacement excludes the candidate and place_work and the
+/// plan partition refuse it, but not hard-blocking, so a planner's direct write may knowingly go against a wish. A
 /// missing mandatory qualification remains hard-blocking under that property - it is the only
 /// remaining structural Error that is never overridable and never silently accepted.
 /// <see cref="HasNonOverridableBlocking"/> is the pre-2026-08-22 "hard" definition (collision included)
@@ -50,6 +53,7 @@ public sealed record PreCommitCheckResult(IReadOnlyList<ScheduleValidationNotifi
     private static bool IsHardBlocking(ScheduleValidationNotificationDto entry) =>
         entry.Type == ScheduleValidationType.Error
         && entry.Comment != ScheduleValidationKeys.Collision
+        && entry.Comment != ScheduleValidationKeys.DayDirective
         && !IsOverridableBlocking(entry);
 
     private static bool IsNonOverridableBlocking(ScheduleValidationNotificationDto entry) =>

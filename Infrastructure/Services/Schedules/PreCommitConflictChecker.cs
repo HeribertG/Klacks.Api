@@ -16,6 +16,7 @@
 /// <param name="settingsReader">Reads QUALIFICATION_EXPIRY_WARNING_DAYS for the proactive expiry warning</param>
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach projected from the planned rows on top of persisted hours</param>
 /// <param name="planningRuleEvaluator">Reports the PlanningConstraint findings (sequence rules) the write newly creates or worsens</param>
+/// <param name="dayDirectiveEvaluator">Reports planned rows against the employee's day directives (FREE / EARLY / -NIGHT ...)</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Constants;
@@ -50,6 +51,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
     private readonly IHolidayWorkEvaluator _holidayWorkEvaluator;
     private readonly IPlanningRuleEvaluatorService _planningRuleEvaluator;
+    private readonly IDayDirectiveConflictEvaluator _dayDirectiveEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -64,7 +66,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
         IHolidayWorkEvaluator holidayWorkEvaluator,
-        IPlanningRuleEvaluatorService planningRuleEvaluator)
+        IPlanningRuleEvaluatorService planningRuleEvaluator,
+        IDayDirectiveConflictEvaluator dayDirectiveEvaluator)
     {
         _context = context;
         _requirementRepository = requirementRepository;
@@ -79,6 +82,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
         _holidayWorkEvaluator = holidayWorkEvaluator;
         _planningRuleEvaluator = planningRuleEvaluator;
+        _dayDirectiveEvaluator = dayDirectiveEvaluator;
     }
 
     public Task<PreCommitCheckResult> CheckAsync(
@@ -194,6 +198,10 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // The evaluator resolves the holidayWork enforcement mode itself (Warning, or an overridable
         // Error tagged with the enforcement-rule param when configured as Block).
         newConflicts.AddRange(await BuildHolidayWorkConflictsAsync(plannedRows, cancellationToken));
+
+        // Day directives (schedule commands): an ABSOLUTE per-(client, date) check on the planned rows, several commands
+        // of a day combined cumulatively, read from the run's scenario like the works.
+        newConflicts.AddRange(await _dayDirectiveEvaluator.EvaluatePlannedAsync(plannedRows, analyseToken, cancellationToken));
 
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility

@@ -479,41 +479,14 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// Collects the (agent, date) pairs governed by a recognized schedule-command keyword. Only a keyword
     /// the wizard mapper recognizes (the admin-configured FREE / -FREE / EARLY / ... tokens) governs the
     /// day; an unmapped command is not treated as a higher precedence layer, matching the wizard context
-    /// builders.
+    /// builders. Several commands on one day restrict cumulatively, as in Wizard 1 (e.g. -EARLY and -NIGHT leave only
+    /// LATE, EARLY and LATE close the day), through <see cref="ScheduleCommandKeywordCombiner.CombinePerDay"/>.
     /// </summary>
     internal static Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> ExtractKeywordDays(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands,
         IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap)
-    {
-        var keywordsByDay = new Dictionary<(Guid AgentId, DateOnly Date), List<ScheduleCommandKeyword>>();
-        foreach (var cmd in commands)
-        {
-            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
-            {
-                continue;
-            }
-
-            var key = (cmd.ClientId, cmd.CurrentDate);
-            if (!keywordsByDay.TryGetValue(key, out var list))
-            {
-                list = [];
-                keywordsByDay[key] = list;
-            }
-            list.Add(keyword);
-        }
-
-        // Several commands on one day restrict cumulatively, as in Wizard 1 (e.g. -EARLY and -NIGHT leave only
-        // LATE, EARLY and LATE close the day); the result does not depend on the order the rows came back in.
-        var keywordDays = new Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword>();
-        foreach (var (key, keywords) in keywordsByDay)
-        {
-            if (ScheduleCommandKeywordCombiner.Combine(keywords) is { } combined)
-            {
-                keywordDays[key] = combined;
-            }
-        }
-        return keywordDays;
-    }
+        => ScheduleCommandKeywordCombiner.CombinePerDay(commands, keywordMap)
+            .ToDictionary(entry => (entry.Key.ClientId, entry.Key.Date), entry => entry.Value);
 
     /// <summary>
     /// Applies the precedence Keyword over Availability to the two ineligibility sources: every
