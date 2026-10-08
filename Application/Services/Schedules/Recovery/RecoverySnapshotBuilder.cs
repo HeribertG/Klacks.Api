@@ -8,6 +8,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleRecovery.Model;
@@ -25,10 +26,11 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 /// availability-window conflicts and missing qualifications both collapse into the ineligible gate.
 /// The schedule precedence Break &gt; Keyword &gt; Availability is enforced for the availability layer:
 /// on any (agent, date) carrying a schedule-command keyword the availability constraint is dropped
-/// (mirroring the wizard context builders), while qualification stays sharp on every day. Recovery does
-/// not yet enforce the keyword itself (FREE / category restrictions) — that pre-existing keyword-blindness
-/// is documented and out of scope for the availability precedence fix. Breaks are split by absence type:
-/// an on-call break does not block, it marks the agent as the preferred replacement for that day.
+/// (mirroring the wizard context builders), while qualification stays sharp on every day. Keywords themselves
+/// close or narrow the day (FREE / category restrictions, several commands combined cumulatively). Breaks are split by
+/// absence type: an on-call break does not block, it marks the agent as the preferred replacement for that day. Days
+/// outside the agent's company membership (Membership.ValidFrom / ValidUntil, inclusive) are closed, on-call or not (M6),
+/// and shift preferences are read handed down the order tree, so a blacklist on an order bars its cut pieces (K16).
 /// </summary>
 public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 {
@@ -45,6 +47,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IMembershipWindowReader _membershipWindowReader;
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
 
     public RecoverySnapshotBuilder(
@@ -61,6 +64,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IScheduleCommandKeywordProvider keywordProvider,
         IAbsenceRepository absenceRepository,
         ISealedDayRepository sealedDayRepository,
+        IMembershipWindowReader membershipWindowReader,
         ILogger<RecoverySnapshotBuilder> logger)
     {
         _clientRepository = clientRepository;
@@ -76,6 +80,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _keywordProvider = keywordProvider;
         _absenceRepository = absenceRepository;
         _sealedDayRepository = sealedDayRepository;
+        _membershipWindowReader = membershipWindowReader;
         _logger = logger;
     }
 
@@ -109,7 +114,9 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(memberIds, referenceDate);
         var (periodFrom, periodUntil) = await _periodHoursService.GetPeriodBoundariesAsync(referenceDate);
         var periodHours = await _periodHoursService.GetPeriodHoursAsync(memberIds, periodFrom, periodUntil, null);
-        var (preferred, blacklisted) = await LoadPreferencesAsync(memberIds, cancellationToken);
+        var (preferred, blacklisted) = PreferenceSets(
+            await _preferenceRepository.GetScopedByClientIdsAsync(memberIds, null, cancellationToken));
+        var membershipWindows = await _membershipWindowReader.GetWindowsAsync(memberIds, cancellationToken);
 
         var cells = await _scheduleEntriesService
             .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], null)
@@ -120,7 +127,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         breakDays.Blocking.UnionWith(
             await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken));
         var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
-        var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd);
+        var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd, membershipWindows);
         var ineligible = await BuildIneligibleAsync(
             memberIds, dates, works, keywordDays, windowStart, windowEnd, cancellationToken);
 
@@ -168,30 +175,29 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return inGroup.Concat(crossGroup).ToList();
     }
 
-    private async Task<(Dictionary<Guid, HashSet<Guid>> Preferred, Dictionary<Guid, HashSet<Guid>> Blacklisted)>
-        LoadPreferencesAsync(IReadOnlyList<Guid> memberIds, CancellationToken cancellationToken)
+    /// <summary>
+    /// Splits the agents' preferences into preferred and blacklisted shift ids per agent. The preferences come handed
+    /// down the order tree (K16), so a blacklist on an order or a cut piece also bars the cut pieces below it, exactly
+    /// like in Wizard 1 and the harmonizer; an inherited conflict resolves to Blacklist there already.
+    /// </summary>
+    /// <param name="preferences">Explicit and inherited preferences of the candidate pool</param>
+    internal static (Dictionary<Guid, HashSet<Guid>> Preferred, Dictionary<Guid, HashSet<Guid>> Blacklisted)
+        PreferenceSets(IEnumerable<ScopedShiftPreference> preferences)
     {
         var preferred = new Dictionary<Guid, HashSet<Guid>>();
         var blacklisted = new Dictionary<Guid, HashSet<Guid>>();
-        // One read per member: the candidate pool is a single group (bounded), and the preference
-        // repository exposes no batch-by-clients accessor. Promote to a batch query if the pool grows large.
-        foreach (var id in memberIds)
+        foreach (var preference in preferences)
         {
-            var prefs = await _preferenceRepository.GetByClientIdAsync(id, cancellationToken);
-            foreach (var pref in prefs)
+            var target = preference.PreferenceType == ShiftPreferenceType.Blacklist ? blacklisted : preferred;
+            if (!target.TryGetValue(preference.ClientId, out var set))
             {
-                var target = pref.PreferenceType == ShiftPreferenceType.Blacklist ? blacklisted : preferred;
-                if (!target.TryGetValue(id, out var set))
-                {
-                    set = [];
-                    target[id] = set;
-                }
-                set.Add(pref.ShiftId);
+                set = [];
+                target[preference.ClientId] = set;
             }
+            set.Add(preference.ShiftId);
         }
         return (preferred, blacklisted);
     }
-
     /// <summary>
     /// Collects the occupancy works per (agent, date) and classifies every break day: a break whose absence
     /// type is on-call (its EntryId is in <paramref name="onCallAbsenceIds"/>) lands in
@@ -346,7 +352,8 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         RecoveryBreakDays breakDays,
         IReadOnlyDictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> keywordDays,
         DateOnly windowStart,
-        DateOnly windowEnd)
+        DateOnly windowEnd,
+        IReadOnlyDictionary<Guid, MembershipWindow>? membershipWindows = null)
     {
         var availability = new Dictionary<CellKey, DayAvailability>();
         foreach (var id in memberIds)
@@ -358,9 +365,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 // off-days (mirroring the Wizard-2 WorksOnDay rule), so recovery will not place a candidate
                 // on a contractual day off. find_replacement has no day-of-week gate; members without an
                 // active contract are not gated here either, matching it for that case.
+                var isMember = membershipWindows is null || !membershipWindows.TryGetValue(id, out var window) || window.Contains(date);
                 var hasBlockingBreak = breakDays.Blocking.Contains((id, date));
-                var isOnCall = !hasBlockingBreak && breakDays.OnCall.Contains((id, date));
-                var worksOnDay = isOnCall || !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek);
+                var isOnCall = isMember && !hasBlockingBreak && breakDays.OnCall.Contains((id, date));
+                var worksOnDay = isMember && (isOnCall || !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek));
                 var keyword = keywordDays.TryGetValue((id, date), out var found) ? found : (ScheduleCommandKeyword?)null;
 
                 availability[new CellKey(id, date)] = new DayAvailability(

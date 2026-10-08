@@ -3,7 +3,7 @@
 /// <summary>
 /// Loads the shift preferences (Preferred / Blacklist) of the planning agents for one scenario (AnalyseToken, null =
 /// real plan) and hands them down the order tree with <see cref="ShiftScopeExpander"/>, so a preference set on an order
-/// or a cut piece also reaches the cut pieces the wizards actually staff. Single source of Wizard 1 and the harmonizer.
+/// or a cut piece also reaches the cut pieces the wizards actually staff. Single source of Wizard 1, the harmonizer and the recovery snapshot.
 /// </summary>
 /// <param name="context">EF Core context holding the preferences and shifts</param>
 /// <param name="agentIds">Planning agents</param>

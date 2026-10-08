@@ -5,6 +5,8 @@
 /// </summary>
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +43,10 @@ public class ClientShiftPreferenceRepository : BaseRepository<ClientShiftPrefere
             .FirstOrDefaultAsync(
                 csp => csp.ClientId == clientId && csp.ShiftId == shiftId && csp.AnalyseToken == null, ct);
     }
+
+    public Task<IReadOnlyList<ScopedShiftPreference>> GetScopedByClientIdsAsync(
+        IReadOnlyCollection<Guid> clientIds, Guid? analyseToken, CancellationToken ct = default)
+        => ShiftPreferenceScopeQuery.LoadAsync(context, clientIds, analyseToken, ct);
 
     public async Task DeleteAllByClientIdAsync(Guid clientId, CancellationToken ct = default)
     {
