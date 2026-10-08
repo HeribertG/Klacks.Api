@@ -87,13 +87,10 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     private async Task<IReadOnlyList<CoreShiftPreference>> BuildShiftPreferencesAsync(
         List<Guid> agentIds, Guid? analyseToken, CancellationToken ct)
     {
-        var rawPreferences = await _context.ClientShiftPreference
-            .AsNoTracking()
-            .Where(p => agentIds.Contains(p.ClientId)
-                        && (p.AnalyseToken == analyseToken || (p.AnalyseToken == null && analyseToken == null)))
-            .ToListAsync(ct);
+        // A preference set on an order or a cut piece also holds for the pieces cut from it (K16).
+        var preferences = await ShiftPreferenceScopeQuery.LoadAsync(_context, agentIds, analyseToken, ct);
 
-        return rawPreferences
+        return preferences
             .Select(p => new CoreShiftPreference(
                 p.ClientId.ToString(),
                 p.ShiftId,

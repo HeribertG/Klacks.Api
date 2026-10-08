@@ -25,7 +25,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <summary>
 /// Loads the saved schedule plus everything the domain-aware validator needs: per-agent
 /// contract caps, the contractual target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag, FREE keywords, break
-/// blockers), and ClientShiftPreference Blacklist sets. Uses the same data sources as
+/// blockers), and ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery). Uses the same data sources as
 /// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken.
 /// </summary>
 /// <param name="context">EF Core database context</param>
@@ -72,8 +72,10 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var works = await LoadWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var clients = await LoadClientsAsync(agentIds, ct);
         var firstDayContracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, request.PeriodFrom);
-        var preferredSymbols = await LoadPreferredSymbolsAsync(agentIds, ct);
-        var blacklistByAgent = await LoadBlacklistByAgentAsync(agentIds, ct);
+        // A preference set on an order or a cut piece also holds for the pieces cut from it (K16), same source as Wizard 1.
+        var preferences = await ShiftPreferenceScopeQuery.LoadAsync(_context, agentIds, request.AnalyseToken, ct);
+        var preferredSymbols = await LoadPreferredSymbolsAsync(preferences, ct);
+        var blacklistByAgent = BlacklistByAgent(preferences);
         var keywordDays = await LoadKeywordDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var freeCommandDates = keywordDays.FreeDates;
         var keywordRestrictions = keywordDays.Restrictions;
@@ -307,44 +309,39 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     }
 
     private async Task<Dictionary<Guid, HashSet<CellSymbol>>> LoadPreferredSymbolsAsync(
-        List<Guid> agentIds,
+        IReadOnlyList<ScopedShiftPreference> preferences,
         CancellationToken ct)
     {
-        var preferredPairs = await _context.ClientShiftPreference
+        var preferred = preferences.Where(p => p.PreferenceType == ShiftPreferenceType.Preferred).ToList();
+        var shiftIds = preferred.Select(p => p.ShiftId).Distinct().ToList();
+        var spans = await _context.Shift
             .AsNoTracking()
-            .Where(p => agentIds.Contains(p.ClientId) && p.PreferenceType == ShiftPreferenceType.Preferred)
-            .Join(
-                _context.Shift.AsNoTracking(),
-                p => p.ShiftId,
-                s => s.Id,
-                (p, s) => new { p.ClientId, StartTime = s.StartShift, EndTime = s.EndShift })
-            .ToListAsync(ct);
+            .Where(s => shiftIds.Contains(s.Id))
+            .Select(s => new { s.Id, s.StartShift, s.EndShift })
+            .ToDictionaryAsync(s => s.Id, ct);
 
         var result = new Dictionary<Guid, HashSet<CellSymbol>>();
-        foreach (var pair in preferredPairs)
+        foreach (var preference in preferred)
         {
-            if (!result.TryGetValue(pair.ClientId, out var set))
+            if (!spans.TryGetValue(preference.ShiftId, out var span))
+            {
+                continue;
+            }
+
+            if (!result.TryGetValue(preference.ClientId, out var set))
             {
                 set = [];
-                result[pair.ClientId] = set;
+                result[preference.ClientId] = set;
             }
-            set.Add(SymbolOfSpan(pair.StartTime, pair.EndTime));
+            set.Add(SymbolOfSpan(span.StartShift, span.EndShift));
         }
         return result;
     }
 
-    private async Task<Dictionary<Guid, HashSet<Guid>>> LoadBlacklistByAgentAsync(
-        List<Guid> agentIds,
-        CancellationToken ct)
+    private static Dictionary<Guid, HashSet<Guid>> BlacklistByAgent(IReadOnlyList<ScopedShiftPreference> preferences)
     {
-        var blacklisted = await _context.ClientShiftPreference
-            .AsNoTracking()
-            .Where(p => agentIds.Contains(p.ClientId) && p.PreferenceType == ShiftPreferenceType.Blacklist)
-            .Select(p => new { p.ClientId, p.ShiftId })
-            .ToListAsync(ct);
-
         var result = new Dictionary<Guid, HashSet<Guid>>();
-        foreach (var entry in blacklisted)
+        foreach (var entry in preferences.Where(p => p.PreferenceType == ShiftPreferenceType.Blacklist))
         {
             if (!result.TryGetValue(entry.ClientId, out var set))
             {
