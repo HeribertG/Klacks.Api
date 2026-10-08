@@ -23,7 +23,8 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// (<c>ScheduleTimelineBackgroundService</c>) surface it into the error list like any other finding. A
 /// placement against a day directive of the employee (<see cref="ScheduleValidationKeys.DayDirective"/>, FREE / EARLY / -NIGHT ...)
 /// is treated the same way since 2026-10-08: an Error, so find_replacement excludes the candidate and place_work and the
-/// plan partition refuse it, but not hard-blocking, so a planner's direct write may knowingly go against a wish. A
+/// plan partition refuse it, but not hard-blocking, so a planner's direct write may knowingly go against a wish. Unlike a
+/// collision, the post-commit check does not evaluate directives yet, so such a direct write currently gets no signal. A
 /// missing mandatory qualification remains hard-blocking under that property - it is the only
 /// remaining structural Error that is never overridable and never silently accepted.
 /// <see cref="HasNonOverridableBlocking"/> is the pre-2026-08-22 "hard" definition (collision included)

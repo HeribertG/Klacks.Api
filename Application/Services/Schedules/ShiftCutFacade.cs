@@ -280,11 +280,11 @@ public class ShiftCutFacade : IShiftCutFacade
     /// </summary>
     /// <param name="parentId">Shift the piece is cut from</param>
     /// <param name="pieceId">The new piece</param>
-    /// <param name="requirementsOfCreated">Rows of the pieces created so far in this batch</param>
+    /// <param name="requirementsOfCreated">Rows of the pieces created so far in this batch; a resolved stored parent is cached here too, so a batch resolves each parent once</param>
     private async Task<List<ShiftRequiredQualification>> RequirementsForNewPieceAsync(
         Guid parentId,
         Guid pieceId,
-        IReadOnlyDictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
+        Dictionary<Guid, List<ShiftRequiredQualification>> requirementsOfCreated)
     {
         if (requirementsOfCreated.TryGetValue(parentId, out var batchRows))
         {
@@ -292,9 +292,9 @@ public class ShiftCutFacade : IShiftCutFacade
         }
 
         var effective = await _requirementRepository.GetEffectiveByShiftIdsAsync([parentId]);
-        return ShiftRequirementMaterializer.CopyAll(
-            effective.Where(entry => entry.ShiftId == parentId).Select(entry => entry.Requirement),
-            pieceId);
+        var parentRows = effective.Where(entry => entry.ShiftId == parentId).Select(entry => entry.Requirement).ToList();
+        requirementsOfCreated[parentId] = parentRows;
+        return ShiftRequirementMaterializer.CopyAll(parentRows, pieceId);
     }
 
     private Guid ResolveParentId(string parentId)

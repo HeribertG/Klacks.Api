@@ -56,10 +56,13 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
     {
-        var currentHours = await LoadCurrentHoursAsync(request, ct);
+        var (payPeriodStart, payPeriodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(request.PeriodFrom);
+        var currentHours = await LoadCurrentHoursAsync(request, payPeriodStart, ct);
 
+        var targetFrom = payPeriodStart < request.PeriodFrom ? payPeriodStart : request.PeriodFrom;
+        var targetUntil = payPeriodEnd > request.PeriodUntil ? payPeriodEnd : request.PeriodUntil;
         var agentSnapshot = await _agentBuilder.BuildAsync(
-            request.AgentIds, request.PeriodFrom, request.PeriodUntil, currentHours, ct);
+            request.AgentIds, request.PeriodFrom, request.PeriodUntil, targetFrom, targetUntil, currentHours, ct);
 
         var shifts = await _shiftBuilder.BuildAsync(
             request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
@@ -239,10 +242,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     }
 
     private async Task<IReadOnlyDictionary<Guid, double>> LoadCurrentHoursAsync(
-        WizardContextRequest request, CancellationToken ct)
+        WizardContextRequest request, DateOnly periodStart, CancellationToken ct)
     {
-        var (periodStart, _) = await _periodHoursService.GetPeriodBoundariesAsync(request.PeriodFrom);
-
         // Extend the prior-load range with the boundary days BEFORE PeriodFrom when the request asks
         // for boundary context. This lets MaxWeeklyHours-style validators see hours an agent already
         // accumulated in an adjacent payment period that share the same ISO week as PeriodFrom — e.g.

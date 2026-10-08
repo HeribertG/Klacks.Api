@@ -29,7 +29,14 @@ public partial class AnalyseScenarioService
         var cloneByRealShift = new Dictionary<Guid, Guid>();
         foreach (var shift in shifts)
         {
-            cloneByRealShift[shift.ScenarioSourceShiftId ?? shift.Id] = idMap[shift.Id];
+            if (shift.ScenarioSourceShiftId is null)
+            {
+                cloneByRealShift[shift.Id] = idMap[shift.Id];
+            }
+            else
+            {
+                cloneByRealShift.TryAdd(shift.ScenarioSourceShiftId.Value, idMap[shift.Id]);
+            }
         }
 
         var unresolvedTargets = shifts

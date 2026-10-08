@@ -17,8 +17,10 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// day one. Days without an active contract, and days outside the agent's company membership
 /// (Membership.ValidFrom / ValidUntil, inclusive), are marked WorksOnDay=false; agents without any active
 /// contract day inside their membership in the whole period are excluded. An agent without a membership
-/// row is unrestricted, like in the schedule view. When the membership starts or ends inside the period, the targets are
-/// prorated by member days (<see cref="MembershipTargetProration"/>); MaximumHours is not.
+/// row is unrestricted, like in the schedule view. When the membership starts or ends inside the target period, the
+/// targets are prorated by member days (<see cref="MembershipTargetProration"/>); MaximumHours is not. The target period
+/// is the pay period the targets refer to (CurrentHours carries the hours before the planning range), so planning only
+/// the last week of a month still prorates against the whole month.
 /// </summary>
 /// <param name="contractProvider">Source of effective contract data per client and date</param>
 /// <param name="membershipWindowReader">Source of the company membership window per client</param>
@@ -39,6 +41,8 @@ public sealed class WizardAgentSnapshotBuilder
         IReadOnlyList<Guid> agentIds,
         DateOnly from,
         DateOnly until,
+        DateOnly targetFrom,
+        DateOnly targetUntil,
         IReadOnlyDictionary<Guid, double> currentHoursPerAgent,
         CancellationToken ct)
     {
@@ -97,7 +101,7 @@ public sealed class WizardAgentSnapshotBuilder
                 id,
                 contractBasis[id],
                 currentHoursPerAgent.GetValueOrDefault(id, 0),
-                MembershipTargetProration.FactorFor(membershipWindows.GetValueOrDefault(id), from, until)))
+                MembershipTargetProration.FactorFor(membershipWindows.GetValueOrDefault(id), targetFrom, targetUntil)))
             .ToList();
 
         return new AgentSnapshotResult(agents, contractDays);
