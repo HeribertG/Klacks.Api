@@ -155,6 +155,7 @@ internal static class RepositoryServiceCollectionExtensions
         services.AddScoped<IClientShiftPreferenceRepository, ClientShiftPreferenceRepository>();
         services.AddScoped<IClientQualificationRepository, ClientQualificationRepository>();
         services.AddScoped<IShiftRequiredQualificationRepository, ShiftRequiredQualificationRepository>();
+        services.AddScoped<IMembershipWindowReader, MembershipWindowReader>();
         services.AddScoped<IQualificationRepository, QualificationRepository>();
         services.AddScoped<IGroupVisibilityRepository, GroupVisibilityRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();

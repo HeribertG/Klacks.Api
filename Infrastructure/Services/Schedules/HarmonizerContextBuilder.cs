@@ -13,6 +13,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
+using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.ScheduleOptimizer.Constraints.Rules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
@@ -24,7 +25,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 /// <summary>
 /// Loads the saved schedule plus everything the domain-aware validator needs: per-agent
-/// contract caps, the contractual target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag, FREE keywords, break
+/// contract caps, the contractual target prorated to the bitmap date range, per-(agent, date) availability (WorksOnDay flag closed outside the company membership, FREE keywords, break
 /// blockers), and ClientShiftPreference Blacklist sets handed down the order tree (ShiftPreferenceScopeQuery). Uses the same data sources as
 /// Wizard 1 and the same scenario-isolation semantics for the AnalyseToken.
 /// </summary>
@@ -85,7 +86,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         breakDates.UnionWith(sealedDays);
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds, request.PeriodFrom, request.PeriodUntil);
-        var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, ct);
+        var membershipWindows = await MembershipWindowQuery.LoadAsync(_context, agentIds, ct);
+        var contractDays = BuildContractDays(agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, membershipWindows, ct);
         var individualPeriods = await LoadIndividualPeriodsAsync(contractDataByDate, ct);
         var periodTargetHours = ComputePeriodTargetHours(
             agentIds, request.PeriodFrom, request.PeriodUntil, contractDataByDate, individualPeriods);
@@ -403,6 +405,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         DateOnly from,
         DateOnly until,
         IReadOnlyDictionary<DateOnly, Dictionary<Guid, EffectiveContractData>> contractDataByDate,
+        IReadOnlyDictionary<Guid, MembershipWindow> membershipWindows,
         CancellationToken ct)
     {
         var result = new Dictionary<(Guid, DateOnly), bool>();
@@ -413,7 +416,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var perDay = contractDataByDate[date];
             foreach (var agentId in agentIds)
             {
-                if (!perDay.TryGetValue(agentId, out var data))
+                // A day outside the company membership is closed like a day without contract (M6).
+                var isMember = !membershipWindows.TryGetValue(agentId, out var window) || window.Contains(date);
+                if (!isMember || !perDay.TryGetValue(agentId, out var data))
                 {
                     result[(agentId, date)] = false;
                     continue;

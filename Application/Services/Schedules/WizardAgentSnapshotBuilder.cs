@@ -13,17 +13,24 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// effective contract data. Handles mid-period contract switches by querying the provider per date.
 /// The agent master data comes from the FIRST day inside the period that has an active contract —
 /// a contract starting mid-period must not leave the agent stuck on the contract-less defaults of
-/// day one. Days without an active contract are marked WorksOnDay=false; agents without any active
-/// contract in the whole period are excluded.
+/// day one. Days without an active contract, and days outside the agent's company membership
+/// (Membership.ValidFrom / ValidUntil, inclusive), are marked WorksOnDay=false; agents without any active
+/// contract day inside their membership in the whole period are excluded. An agent without a membership
+/// row is unrestricted, like in the schedule view.
 /// </summary>
 /// <param name="contractProvider">Source of effective contract data per client and date</param>
+/// <param name="membershipWindowReader">Source of the company membership window per client</param>
 public sealed class WizardAgentSnapshotBuilder
 {
     private readonly IClientContractDataProvider _contractProvider;
+    private readonly IMembershipWindowReader _membershipWindowReader;
 
-    public WizardAgentSnapshotBuilder(IClientContractDataProvider contractProvider)
+    public WizardAgentSnapshotBuilder(
+        IClientContractDataProvider contractProvider,
+        IMembershipWindowReader membershipWindowReader)
     {
         _contractProvider = contractProvider;
+        _membershipWindowReader = membershipWindowReader;
     }
 
     public async Task<AgentSnapshotResult> BuildAsync(
@@ -38,6 +45,7 @@ public sealed class WizardAgentSnapshotBuilder
 
         var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
             agentIds.ToList(), from, until);
+        var membershipWindows = await _membershipWindowReader.GetWindowsAsync(agentIds, ct);
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
@@ -46,19 +54,27 @@ public sealed class WizardAgentSnapshotBuilder
 
             foreach (var agentId in agentIds)
             {
+                var isMember = !membershipWindows.TryGetValue(agentId, out var window) || window.Contains(date);
                 if (!perDay.TryGetValue(agentId, out var data))
                 {
+                    // Outside the membership the day is explicitly closed: without a contract day the engine would
+                    // fall back to the static weekday flags and could plan the agent there.
+                    if (!isMember)
+                    {
+                        contractDays.Add(ClosedDay(agentId, date));
+                    }
+
                     continue;
                 }
 
-                if (data.HasActiveContract && !contractBasis.ContainsKey(agentId))
+                if (isMember && data.HasActiveContract && !contractBasis.ContainsKey(agentId))
                 {
                     contractBasis[agentId] = data;
                 }
 
-                // Days before/after the agent's contract are hard non-working days regardless
+                // Days before/after the agent's contract or membership are hard non-working days regardless
                 // of the weekday flags — the fallback data must never make them plannable.
-                var worksOnDay = data.HasActiveContract && GetWorkOnDayFlag(data, date.DayOfWeek);
+                var worksOnDay = isMember && data.HasActiveContract && GetWorkOnDayFlag(data, date.DayOfWeek);
                 contractDays.Add(new CoreContractDay(
                     AgentId: agentId.ToString(),
                     Date: date,
@@ -80,6 +96,15 @@ public sealed class WizardAgentSnapshotBuilder
 
         return new AgentSnapshotResult(agents, contractDays);
     }
+
+    private static CoreContractDay ClosedDay(Guid agentId, DateOnly date) => new(
+        AgentId: agentId.ToString(),
+        Date: date,
+        WorksOnDay: false,
+        PerformsShiftWork: false,
+        FullTimeShare: 0,
+        MaximumHoursPerDay: 0,
+        ContractId: Guid.Empty);
 
     private static bool GetWorkOnDayFlag(EffectiveContractData data, DayOfWeek dayOfWeek) => dayOfWeek switch
     {
