@@ -18,6 +18,7 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -84,10 +85,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
             var workChangeResource = _scheduleMapper.ToWorkChangeResource(existingWorkChange);
 
             var parentWork = await _workRepository.GetNoTracking(workId);
-            var clientIds = new[] { parentWork?.ClientId, replaceClientId }
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .ToList();
+            var clientIds = WorkChangeTouchedClients.Of(parentWork, replaceClientId);
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
             {
                 return null;

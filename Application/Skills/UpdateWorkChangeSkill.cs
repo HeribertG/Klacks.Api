@@ -2,11 +2,13 @@
 
 /// <summary>
 /// Updates an existing WorkChange (correction / replacement / travel / briefing on a Work entry). Only
-/// fields supplied as parameters are changed. Loads the entry via GetQuery&lt;WorkChangeResource&gt;,
-/// mutates it and saves via PutCommand&lt;WorkChangeResource&gt; so notifications and period-hour
-/// recalculation fire.
+/// fields supplied as parameters are changed. Loads the entry via GetWorkChangeInScopeQuery in the selected
+/// scope (main plan, or the scenario named by analyseToken), mutates it and saves via
+/// PutCommand&lt;WorkChangeResource&gt; so notifications and period-hour recalculation fire; the scenario token
+/// stays server-side.
 /// </summary>
 /// <param name="workChangeId">Required. UUID of the WorkChange to update.</param>
+/// <param name="analyseToken">Optional. Scenario UUID the WorkChange belongs to; omitted = main plan.</param>
 /// <param name="type">Optional. New WorkChangeType (CorrectionEnd / ReplacementStart / TravelStart / Briefing etc.).</param>
 /// <param name="startTime">Optional. New start time HH:mm.</param>
 /// <param name="endTime">Optional. New end time HH:mm.</param>
@@ -17,7 +19,7 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -42,11 +44,15 @@ public class UpdateWorkChangeSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var workChangeId = GetRequiredGuid(parameters, "workChangeId");
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
+        {
+            return SkillResult.Error(scopeError!);
+        }
 
         WorkChangeResource workChange;
         try
         {
-            workChange = await _mediator.Send(new GetQuery<WorkChangeResource>(workChangeId), cancellationToken);
+            workChange = await _mediator.Send(new GetWorkChangeInScopeQuery(workChangeId, analyseToken), cancellationToken);
         }
         catch (KeyNotFoundException)
         {

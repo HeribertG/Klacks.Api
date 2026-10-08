@@ -39,7 +39,6 @@ public class DetectConflictsSkill : BaseSkillImplementation
         var groupId = GetRequiredGuid(parameters, "groupId");
         var fromStr = GetRequiredString(parameters, "fromDate");
         var untilStr = GetRequiredString(parameters, "untilDate");
-        var analyseTokenStr = GetParameter<string>(parameters, "analyseToken");
 
         if (!DateOnly.TryParse(fromStr, out var fromDate))
         {
@@ -54,14 +53,9 @@ public class DetectConflictsSkill : BaseSkillImplementation
             return SkillResult.Error("untilDate must be on or after fromDate.");
         }
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenStr))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            if (!Guid.TryParse(analyseTokenStr, out var parsedToken))
-            {
-                return SkillResult.Error($"Invalid analyseToken: {analyseTokenStr}.");
-            }
-            analyseToken = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
 
         var issues = await _validationLoader.LoadAsync(

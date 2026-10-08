@@ -46,11 +46,9 @@ public class AddScheduleNoteSkill : BaseSkillImplementation
             return SkillResult.Error("Required parameter 'content' must not be empty.");
         }
 
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw) && Guid.TryParse(analyseTokenRaw, out var parsedToken))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
 
         var resource = new ScheduleNoteResource

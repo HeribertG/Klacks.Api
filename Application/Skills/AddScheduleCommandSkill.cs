@@ -53,7 +53,6 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
         var date = GetParameter<DateOnly?>(parameters, "date")
             ?? throw new ArgumentException("Required parameter 'date' is missing");
         var rawKeyword = GetRequiredString(parameters, "commandKeyword").Trim();
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
         if (!configuredKeywords.TryResolveToken(rawKeyword, out var keyword))
@@ -67,10 +66,9 @@ public class AddScheduleCommandSkill : BaseSkillImplementation
             return SkillResult.Error($"Client {clientId} not found.");
         }
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw) && Guid.TryParse(analyseTokenRaw, out var atParsed))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = atParsed;
+            return SkillResult.Error(scopeError!);
         }
 
         var entity = new ScheduleCommand

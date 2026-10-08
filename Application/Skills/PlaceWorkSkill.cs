@@ -70,7 +70,6 @@ public class PlaceWorkSkill : BaseSkillImplementation
         var endTimeRaw = GetParameter<string>(parameters, "endTime");
         var workTimeRaw = GetParameter<decimal?>(parameters, "workTime");
         var information = GetParameter<string>(parameters, "information");
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
         if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
@@ -96,10 +95,9 @@ public class PlaceWorkSkill : BaseSkillImplementation
             : shift.EndShift;
         var workTime = workTimeRaw ?? CalculateWorkTime(startTime, endTime);
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw) && Guid.TryParse(analyseTokenRaw, out var atParsed))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = atParsed;
+            return SkillResult.Error(scopeError!);
         }
 
         var plannedRow = new PlannedWorkRow(clientId, date, startTime, endTime, shiftId);

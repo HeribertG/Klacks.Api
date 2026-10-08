@@ -13,6 +13,9 @@
 /// A group or an absent employee outside the caller's group visibility is refused exactly like one that does
 /// not exist, before any scenario, plan clone or absence is written; repair options that would write for a replacement or swap partner
 /// outside the caller's visibility are dropped and reported as uncovered (no eligible candidate).
+/// All writes of one cover (scenario, plan clone, absence breaks, memberships, replacement WorkChanges, request-book
+/// rows) run in a single IUnitOfWork.ExecuteInTransactionAsync, so a failure leaves no half-filled scenario; the
+/// messenger call-list starts only after that commit.
 /// </summary>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
 /// <param name="scenarioService">Clones the real schedule under the scenario token (with the work id map)</param>
@@ -148,9 +151,41 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         var dates = Enumerable.Range(0, totalDays).Select(offset => date.AddDays(offset)).ToList();
 
-        var token = Guid.NewGuid();
         var name = await _scenarioNameGenerator.GenerateAsync(
             ScenarioNameKind.AbsenceCover, date, untilDate, groupId, request.Language, cancellationToken);
+
+        // One transaction for everything the cover writes - scenario, plan clone, absence breaks, memberships,
+        // replacement WorkChanges and the request-book rows: a failure anywhere leaves no half-filled scenario.
+        // The messenger call-list is NOT part of it - a sent message cannot be rolled back, so it starts only
+        // after the commit, from the snapshot and absence days the committed run produced.
+        var run = await _unitOfWork.ExecuteInTransactionAsync(
+            () => WriteCoverScenarioAsync(request, name, dates, cancellationToken));
+
+        if (request.NotifyEscalationRoster)
+        {
+            await StartEscalationChainsAsync(clientId, groupId, run.Snapshot, run.AbsenceDays, cancellationToken);
+        }
+
+        return run.Outcome;
+    }
+
+    private async Task<(
+        CoverAbsenceOutcome Outcome,
+        Rec.RecoverySnapshot Snapshot,
+        IReadOnlyList<(DateOnly Date, Guid? WorkId, DateTime? ShiftStartUtc, Guid? BreakId)> AbsenceDays)>
+        WriteCoverScenarioAsync(
+            CoverAbsenceCommand request,
+            string name,
+            IReadOnlyList<DateOnly> dates,
+            CancellationToken cancellationToken)
+    {
+        var clientId = request.ClientId;
+        var date = request.Date;
+        var untilDate = request.UntilDate ?? request.Date;
+        var groupId = request.GroupId;
+        var absenceId = request.AbsenceId;
+
+        var token = Guid.NewGuid();
         var scenario = new AnalyseScenario
         {
             Name = name,
@@ -171,10 +206,6 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
 
         var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
-        if (request.NotifyEscalationRoster)
-        {
-            await StartEscalationChainsAsync(clientId, groupId, snapshot, absenceDays, cancellationToken);
-        }
 
         var (visibleDeltas, hiddenOptions) = await SplitByAgentVisibilityAsync(
             proposal.Deltas, clientId, cancellationToken);
@@ -199,8 +230,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
         var highestTier = (int)HighestTierOf(materializable, uncovered.Count > 0);
 
-        return new CoverAbsenceOutcome(
+        var outcome = new CoverAbsenceOutcome(
             scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier);
+        return (outcome, snapshot, absenceDays);
     }
 
     /// <summary>

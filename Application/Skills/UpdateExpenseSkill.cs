@@ -1,18 +1,20 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Updates an existing expense entry: loads it via GetQuery&lt;ExpensesResource&gt;, patches only
-/// the supplied fields (amount, description, taxable) and persists via PutCommand. Fields that are
-/// not supplied keep their current value; a call without changes is a successful no-op.
+/// Updates an existing expense entry: loads it via GetExpenseInScopeQuery in the selected scope (main plan, or
+/// the scenario named by analyseToken), patches only the supplied fields (amount, description, taxable) and
+/// persists via PutCommand, which keeps the scenario token server-side. Fields that are not supplied keep their
+/// current value; a call without changes is a successful no-op.
 /// </summary>
 /// <param name="expenseId">UUID of the expense entry to update (required).</param>
+/// <param name="analyseToken">Optional scenario UUID the expense belongs to; omitted = main plan.</param>
 /// <param name="amount">Optional new amount.</param>
 /// <param name="description">Optional new description.</param>
 /// <param name="taxable">Optional new flag; false = Spese (non-taxable reimbursement), true = Vergütung (taxable wage supplement).</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -36,11 +38,15 @@ public class UpdateExpenseSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var expenseId = GetRequiredGuid(parameters, "expenseId");
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
+        {
+            return SkillResult.Error(scopeError!);
+        }
 
         ExpensesResource existing;
         try
         {
-            existing = await _mediator.Send(new GetQuery<ExpensesResource>(expenseId), cancellationToken);
+            existing = await _mediator.Send(new GetExpenseInScopeQuery(expenseId, analyseToken), cancellationToken);
         }
         catch (KeyNotFoundException)
         {

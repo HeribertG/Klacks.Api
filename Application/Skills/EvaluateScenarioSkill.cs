@@ -36,7 +36,6 @@ public class EvaluateScenarioSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var scenarioIdRaw = GetParameter<string>(parameters, "scenarioId");
-        var tokenRaw = GetParameter<string>(parameters, "analyseToken");
 
         Guid? scenarioId = null;
         if (!string.IsNullOrWhiteSpace(scenarioIdRaw))
@@ -48,14 +47,9 @@ public class EvaluateScenarioSkill : BaseSkillImplementation
             scenarioId = parsedId;
         }
 
-        Guid? token = null;
-        if (!string.IsNullOrWhiteSpace(tokenRaw))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var token, out var scopeError))
         {
-            if (!Guid.TryParse(tokenRaw, out var parsedToken))
-            {
-                return SkillResult.Error($"Invalid analyseToken: {tokenRaw}.");
-            }
-            token = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
 
         if (!scenarioId.HasValue && !token.HasValue)

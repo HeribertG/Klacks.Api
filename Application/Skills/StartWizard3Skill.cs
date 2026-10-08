@@ -37,7 +37,6 @@ public class StartWizard3Skill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'periodFrom' is missing");
         var periodUntil = GetParameter<DateOnly?>(parameters, "periodUntil")
             ?? throw new ArgumentException("Required parameter 'periodUntil' is missing");
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
         var language = GetParameter<string>(parameters, "language");
 
         if (periodFrom > periodUntil)
@@ -45,10 +44,9 @@ public class StartWizard3Skill : BaseSkillImplementation
             return SkillResult.Error($"periodFrom ({periodFrom}) must be on or before periodUntil ({periodUntil}).");
         }
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw) && Guid.TryParse(analyseTokenRaw, out var atParsed))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = atParsed;
+            return SkillResult.Error(scopeError!);
         }
 
         var agentIds = await _planningAgentRepository.GetAgentIdsAsync(

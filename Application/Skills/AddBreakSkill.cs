@@ -63,7 +63,6 @@ public class AddBreakSkill : BaseSkillImplementation
         var endTimeRaw = GetParameter<string>(parameters, "endTime");
         var workTimeRaw = GetParameter<decimal?>(parameters, "workTime");
         var information = GetParameter<string>(parameters, "information");
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
         if (!await ClientResolver.ExistsVisibleAsync(_clientRepository, _clientVisibilityGuard, clientId, cancellationToken))
         {
@@ -81,10 +80,9 @@ public class AddBreakSkill : BaseSkillImplementation
             ? eParsed : new TimeOnly(23, 59);
         var workTime = workTimeRaw ?? 8m;
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw) && Guid.TryParse(analyseTokenRaw, out var atParsed))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = atParsed;
+            return SkillResult.Error(scopeError!);
         }
 
         var request = new BulkAddBreaksRequest

@@ -1,13 +1,14 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Lists all expense entries via ListQuery&lt;ExpensesResource&gt;. Each expense belongs to a Work
-/// entry (workId) and carries amount, description and the taxable flag (false = Spese, true = Vergütung). Use this to find expense
-/// IDs before update_expense / delete_expense.
+/// Lists the expense entries of one scope via ListExpensesInScopeQuery: the main plan by default, or the scenario
+/// named by analyseToken - never both mixed. Each expense belongs to a Work entry (workId) and carries amount,
+/// description and the taxable flag (false = Spese, true = Vergütung). Use this to find expense IDs before
+/// update_expense / delete_expense (pass the same analyseToken to update_expense).
 /// </summary>
+/// <param name="analyseToken">Optional scenario UUID; omitted = main plan.</param>
 
-using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -30,14 +31,19 @@ public class ListExpensesSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var expenses = await _mediator.Send(new ListQuery<ExpensesResource>(), cancellationToken);
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
+        {
+            return SkillResult.Error(scopeError!);
+        }
+
+        var expenses = await _mediator.Send(new ListExpensesInScopeQuery(analyseToken), cancellationToken);
 
         var projected = expenses
             .Select(e => new { e.Id, e.WorkId, e.Amount, e.Description, e.Taxable })
             .ToList();
 
         return SkillResult.SuccessResult(
-            new { Count = projected.Count, Expenses = projected },
+            new { Count = projected.Count, AnalyseToken = analyseToken, Expenses = projected },
             $"Found {projected.Count} expense entries.");
     }
 }

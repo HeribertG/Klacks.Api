@@ -24,7 +24,18 @@ public class ExpensesRepository : BaseRepository<Expenses>, IExpensesRepository
     public async Task<Expenses?> GetWithWorkInAnyScope(Guid id)
     {
         return await context.Set<Expenses>()
+            .AsNoTracking()
             .Include(e => e.Work)
             .FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    public async Task<List<Expenses>> ListInScopeAsync(Guid? analyseToken, CancellationToken cancellationToken = default)
+    {
+        var query = context.Set<Expenses>().AsNoTracking();
+        query = analyseToken.HasValue
+            ? query.Where(e => e.Work!.AnalyseToken == analyseToken.Value)
+            : query.Where(e => e.Work!.AnalyseToken == null);
+
+        return await query.ToListAsync(cancellationToken);
     }
 }

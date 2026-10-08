@@ -46,16 +46,9 @@ public class GetPeriodHoursSkill : BaseSkillImplementation
                 $"endDate {endDate:yyyy-MM-dd} must not be before startDate {startDate:yyyy-MM-dd}.");
         }
 
-        Guid? analyseToken = null;
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            if (!Guid.TryParse(analyseTokenRaw, out var parsedToken))
-            {
-                return SkillResult.Error($"Invalid analyseToken format: {analyseTokenRaw}");
-            }
-
-            analyseToken = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
 
         var request = new PeriodHoursRequest

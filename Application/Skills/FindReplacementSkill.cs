@@ -59,16 +59,10 @@ public class FindReplacementSkill : BaseSkillImplementation
         var date = GetParameter<DateOnly?>(parameters, "date")
             ?? throw new ArgumentException("Required parameter 'date' is missing");
         var groupId = GetRequiredGuid(parameters, "groupId");
-        var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenRaw))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            if (!Guid.TryParse(analyseTokenRaw, out var parsedToken))
-            {
-                return SkillResult.Error($"Invalid analyseToken: {analyseTokenRaw}.");
-            }
-            analyseToken = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
         var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
 

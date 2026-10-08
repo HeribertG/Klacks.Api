@@ -23003,7 +23003,16 @@
       "requiredPermissions": [
         "CanViewShifts"
       ],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario UUID; omit for the main plan. Lists only the expenses of that scenario (never mixed with the main plan); pass the same token to update_expense.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
       "handlerConfig": null,
       "handlerType": null,
       "effect": "Read",
@@ -23059,7 +23068,7 @@
         "fr": "Lister les dépenses",
         "it": "Elenca le spese"
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "add_expense",
@@ -23199,6 +23208,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario UUID the expense belongs to; omit for the main plan. Pass it when editing an expense of a scenario (e.g. one created by cover_absence or a wizard run).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -23246,7 +23263,7 @@
         "fr": "Modifier une dépense",
         "it": "Modifica una spesa"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_expense",
@@ -29790,6 +29807,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario UUID the WorkChange belongs to; omit for the main plan. Pass it when editing a change of a scenario (e.g. a replacement created by cover_absence).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -29839,7 +29864,7 @@
         "fr": "Mettre à jour une modification d'affectation",
         "it": "Aggiorna una modifica all'assegnazione"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "delete_workchange",

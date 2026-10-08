@@ -90,7 +90,6 @@ public class StartAutoWizardSkill : BaseSkillImplementation
         var groupName = GetParameter<string>(parameters, GroupNameParameter);
         var agentIdsRaw = GetParameter<string>(parameters, "agentIds");
         var shiftIdsRaw = GetParameter<string>(parameters, "shiftIds");
-        var analyseTokenStr = GetParameter<string>(parameters, "analyseToken");
         var language = GetParameter<string>(parameters, "language");
 
         Guid? groupId = null;
@@ -122,10 +121,9 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             return SkillResult.Error(groupError);
         }
 
-        Guid? analyseToken = null;
-        if (!string.IsNullOrWhiteSpace(analyseTokenStr) && Guid.TryParse(analyseTokenStr, out var parsedToken))
+        if (!ScenarioScopeParameter.TryRead(parameters, out var analyseToken, out var scopeError))
         {
-            analyseToken = parsedToken;
+            return SkillResult.Error(scopeError!);
         }
 
         var agentIds = await ResolveAgentIdsAsync(agentIdsRaw, group!.Id, periodFrom, periodUntil, cancellationToken);

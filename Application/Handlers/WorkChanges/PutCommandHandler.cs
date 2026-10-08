@@ -20,6 +20,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -98,17 +99,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 return null;
             }
 
-            var clientIds = new[]
-                {
-                    parentWork.ClientId,
-                    oldParentWork.ClientId,
-                    existingWorkChange.ReplaceClientId,
-                    workChange.ReplaceClientId
-                }
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .Distinct()
-                .ToList();
+            var clientIds = WorkChangeTouchedClients.Collect(
+                parentWork.ClientId,
+                oldParentWork.ClientId,
+                existingWorkChange.ReplaceClientId,
+                workChange.ReplaceClientId);
             if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
             {
                 return null;

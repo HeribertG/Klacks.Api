@@ -3,7 +3,8 @@
 /// <summary>
 /// Creates a WorkChange (correction or replacement) on an existing Work after the day-lock and replacement
 /// guards have passed. A change on a Work owned by a client outside the caller's group visibility, or one
-/// that moves a hidden client in as replacement, is refused exactly like a change on a missing Work. A sealed parent
+/// that moves a hidden client in as replacement, is refused exactly like a change on a missing or deleted Work:
+/// KeyNotFoundException (404) with the same message, so the response is no existence oracle. A sealed parent
 /// Work refuses the change as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
 /// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
@@ -17,9 +18,9 @@ using Klacks.Api.Application.Helpers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
-using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -87,9 +88,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
             if (parentWork == null || !await IsEveryClientVisibleAsync(parentWork, workChange, cancellationToken))
             {
-                throw new InvalidRequestException(
-                    $"WorkChange references Work {workChange.WorkId}, which does not exist or is deleted. " +
-                    "A change cannot be attached to a missing shift entry.");
+                throw new KeyNotFoundException($"Work with ID {workChange.WorkId} not found");
             }
 
             // A WorkChange belongs to the same scenario as its parent Work. The resource carries
@@ -154,10 +153,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         Domain.Models.Schedules.WorkChange workChange,
         CancellationToken cancellationToken)
     {
-        var clientIds = workChange.ReplaceClientId.HasValue
-            ? new[] { parentWork.ClientId, workChange.ReplaceClientId.Value }
-            : new[] { parentWork.ClientId };
-        return _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken);
+        return _clientVisibilityGuard.AreAllVisibleAsync(
+            WorkChangeTouchedClients.Of(parentWork, workChange.ReplaceClientId), cancellationToken);
     }
 
     /// <summary>
