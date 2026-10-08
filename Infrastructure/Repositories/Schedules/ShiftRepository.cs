@@ -73,21 +73,13 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     private async Task<Shift?> PutCoreAsync(Shift shift, bool syncOwnedCollections)
     {
-        var query = context.Shift
+        var existingShift = await context.Shift
             .Include(s => s.Client)
                 .ThenInclude(c => c!.Addresses)
             .Include(s => s.GroupItems)
                 .ThenInclude(gi => gi.Group)
-            .AsQueryable();
-
-        if (syncOwnedCollections)
-        {
-            query = query
-                .Include(s => s.ShiftExpenses)
-                .Include(s => s.RequiredQualifications);
-        }
-
-        var existingShift = await query
+            .Include(s => s.ShiftExpenses)
+            .Include(s => s.RequiredQualifications)
             .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == shift.Id);
 
@@ -102,6 +94,8 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             throw new InvalidOperationException(
                 $"Shift {existingShift.Id} cannot be edited while in scenario mode (AnalyseToken={existingShift.AnalyseToken}).");
         }
+
+        KeepFieldsSetOnlyAtCreation(existingShift, shift);
 
         var entry = context.Entry(existingShift);
         entry.CurrentValues.SetValues(shift);
@@ -139,6 +133,23 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         Logger.LogInformation("Shift updated: {ShiftId}, GroupItems count: {Count}, ShiftExpenses count: {ExpenseCount}, RequiredQualifications count: {QualificationCount}",
             shift.Id, existingShift.GroupItems.Count, existingShift.ShiftExpenses.Count, existingShift.RequiredQualifications.Count);
         return existingShift;
+    }
+
+    /// <summary>
+    /// The ERP reference and the scenario clone tracking are written when the row is created (ERP import,
+    /// order supersession, scenario clone) and ShiftResource does not carry them, so a shift mapped from the
+    /// edit form or the cut dialog brings them as null. An update keeps the stored values instead of
+    /// overwriting them; the internal callers that pass a loaded entity hold the same values anyway.
+    /// </summary>
+    /// <param name="stored">The tracked shift as stored.</param>
+    /// <param name="incoming">The shift whose values are about to be copied onto the stored one.</param>
+    private static void KeepFieldsSetOnlyAtCreation(Shift stored, Shift incoming)
+    {
+        incoming.SourceSystemId = stored.SourceSystemId;
+        incoming.ExternalOrderReference = stored.ExternalOrderReference;
+        incoming.SupersedesOrderId = stored.SupersedesOrderId;
+        incoming.ScenarioSourceShiftId = stored.ScenarioSourceShiftId;
+        incoming.SourceChildCountSnapshot = stored.SourceChildCountSnapshot;
     }
 
     public override async Task<Shift?> Delete(Guid id)
