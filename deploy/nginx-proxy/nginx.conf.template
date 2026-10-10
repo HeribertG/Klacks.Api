@@ -202,6 +202,10 @@ http {
 
         location /docs/ {
             proxy_pass http://klacks-docs;
+            # The docs container is plain nginx on port 80 and builds absolute redirects
+            # (directory without trailing slash) as http://$host/...; without this rewrite a
+            # legacy no-slash URL takes an extra http hop before being upgraded to https.
+            proxy_redirect http://$host/ https://$host/;
             proxy_http_version 1.1;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
