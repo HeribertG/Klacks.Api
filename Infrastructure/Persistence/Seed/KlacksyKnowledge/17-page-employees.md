@@ -203,8 +203,11 @@ Cards plus einer rechten Navigationsspalte:
     überschrieben — über **Neue Adresse erstellen** öffnet sich das Modal **Neue Adresse**
     (de: "Neue Adresse", en: "New Address") mit **Adresse gültig ab** (Datums-Picker
     `newAddressValidFrom`) und **Adressart** (`newAddressType`): **Hauptadresse**,
-    **Geschäftsadresse** oder **Rechnungsadresse**. Die neue Adresse wird zusätzlich
-    angehängt; die alte bleibt als Historie erhalten.
+    **Geschäftsadresse** oder **Rechnungsadresse** — je nach Typ der Person: Mitarbeiter
+    haben nur die Hauptadresse (das Feld Adressart wird dann nicht angezeigt), Externe
+    Hauptadresse und Geschäftsadresse, Kunden alle drei. Der Typ lässt sich nicht
+    wechseln, solange Adressen einer nicht mehr erlaubten Art existieren. Die neue Adresse
+    wird zusätzlich angehängt; die alte bleibt als Historie erhalten.
 - **Registration-Card** (`membership-form`, de: "Registration", en: "Registration", fr:
   "Inscription", it: "Registrazione") — die Mitgliedschaft:
   - **Typ** (`client-type`, Dropdown Mitarbeiter / Externer / Kunde).
@@ -276,7 +279,9 @@ Cards plus einer rechten Navigationsspalte:
 - **Adress-Historisierung**: Da Umzüge als neue Adresse mit „gültig ab" erfasst werden,
   bleibt nachvollziehbar, welche Adresse zu welchem Zeitpunkt galt (aktuelle, zukünftige
   und vergangene Adressen in der rechten Spalte). Die Adressarten Hauptadresse /
-  Geschäftsadresse / Rechnungsadresse erlauben getrennte Anschriften pro Zweck.
+  Geschäftsadresse / Rechnungsadresse erlauben getrennte Anschriften pro Zweck; welche
+  Arten möglich sind, hängt vom Typ ab (Mitarbeiter: Hauptadresse; Extern: zusätzlich
+  Geschäftsadresse; Kunde: zusätzlich Rechnungsadresse).
 - **Geocoding**: Beim Speichern validierte Adressen erhalten Koordinaten — Grundlage für
   die Karten-Buttons (OpenStreetMap/Street View) bei Kunden und für geografische
   Funktionen.

@@ -14,13 +14,16 @@ namespace Klacks.Api.Application.Validation.Clients;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
-    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IShiftRepository shiftRepository)
+    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IShiftRepository shiftRepository, IClientRepository clientRepository)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
             RuleFor(x => x.Resource.Addresses)
                 .SetValidator(new AddressGeocodingValidator(geocodingService, stateResolver, countryResolver, addressRepository));
         });
+
+        RuleFor(x => x.Resource)
+            .SetValidator(new ClientAddressTypeValidator(clientRepository, addressRepository));
 
         When(x => x.Resource.LegalEntity, () =>
         {

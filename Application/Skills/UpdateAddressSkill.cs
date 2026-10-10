@@ -12,12 +12,14 @@
 /// <param name="city">Optional. New city/town.</param>
 /// <param name="country">Optional. New country.</param>
 /// <param name="state">Optional. New state/canton/region.</param>
-/// <param name="type">Optional. New numeric address type code (0 = employee, 1 = workplace, 2 = invoicing).</param>
+/// <param name="type">Optional. New numeric address type code (0 = main address, 1 = business address, 2 = invoicing address; employees may only have 0, external employees 0 and 1, customers 0, 1 and 2).</param>
 /// <param name="validFrom">Optional. New date (yyyy-MM-dd) from which the address is valid — used for relocations, where a future date schedules the move.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Validation.Clients;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -32,11 +34,13 @@ public class UpdateAddressSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
+    private readonly IClientRepository _clientRepository;
 
-    public UpdateAddressSkill(IMediator mediator, ICompanyClock companyClock)
+    public UpdateAddressSkill(IMediator mediator, ICompanyClock companyClock, IClientRepository clientRepository)
     {
         _mediator = mediator;
         _companyClock = companyClock;
+        _clientRepository = clientRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -82,7 +86,14 @@ public class UpdateAddressSkill : BaseSkillImplementation
         var type = GetParameter<int?>(parameters, "type");
         if (type.HasValue && (int)address.Type != type.Value)
         {
-            address.Type = (AddressTypeEnum)type.Value;
+            var newType = (AddressTypeEnum)type.Value;
+            var owner = await _clientRepository.GetTypeAndDisplayNameAsync(address.ClientId, cancellationToken);
+            if (owner != null && !ClientAddressTypeRules.IsAllowed(owner.Type, newType))
+            {
+                return SkillResult.Error(ClientAddressTypeRules.DescribeViolation(owner.Type, newType));
+            }
+
+            address.Type = newType;
             changed.Add("type");
         }
 

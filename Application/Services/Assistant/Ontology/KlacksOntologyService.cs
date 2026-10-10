@@ -147,8 +147,8 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Address always belongs to exactly one Client (clientId).",
             "Address requires street, zip, city, state and country; state+country must be filled (ADDRESS_COMPLETENESS).",
-            "Address.Type (AddressTypeEnum): 0=Employee (employee's address), 1=Workplace (Customer address), 2=InvoicingAddress (Customer address).",
-            "Employees never have an InvoicingAddress; Workplace and InvoicingAddress are Customer addresses.",
+            "Address.Type (AddressTypeEnum): 0=Employee (main address, Hauptadresse), 1=Workplace (business address, Geschäftsadresse), 2=InvoicingAddress (Rechnungsadresse).",
+            "Allowed Address.Type by Client.Type (enforced on save): Employee only 0; ExternEmp 0 and 1; Customer 0, 1 and 2. Other combinations are rejected, and a Client.Type change is blocked while addresses of a no-longer-allowed type exist.",
             "Addresses are time-versioned by ValidFrom: the in-scope address is the newest with ValidFrom <= reference date.",
             "Before saving, an address should be geo-validated (validate_address, openrouteservice); on failure offer suggestions or force-save."
         ],

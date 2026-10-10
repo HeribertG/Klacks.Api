@@ -5,7 +5,8 @@ description: |
   staff, customer), what a person needs at minimum before they can be saved, the three address kinds,
   and why addresses are versioned by date rather than overwritten. Use this when the user asks what
   is mandatory when creating someone, why an old address is still visible, what the difference
-  between a workplace and an invoicing address is, or why a person needs an email address.
+  between a workplace and an invoicing address is, which address kinds a kind of person may have,
+  or why a person needs an email address.
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -54,9 +55,21 @@ recommended rather than enforced, for a practical reason:
 
 ## Three kinds of address
 
-- **Home address** of a member of staff.
-- **Workplace** — where the work happens; belongs to the customer.
-- **Invoicing address** — where the bill goes; belongs to the customer. Staff never have one.
+- **Main address** (Hauptadresse) — the home address of a member of staff, or the main address of a customer.
+- **Business address** (Geschäftsadresse, workplace) — where the work happens.
+- **Invoicing address** (Rechnungsadresse) — where the bill goes.
+
+Which kinds a person may have depends on the kind of person, and Klacks enforces it when saving:
+
+| Kind of person | Allowed address kinds |
+|---|---|
+| Own staff | main address only |
+| External staff | main address and business address |
+| Customer | main, business and invoicing address |
+
+The kind of person cannot be changed while the person still has an address kind that the new kind does
+not allow; those addresses have to be removed first. Addresses saved before this rule existed stay
+editable, but a new address of a disallowed kind is rejected.
 
 An address holds street, postal code, town, region and country. For Swiss postal codes, town and
 canton are filled in automatically.

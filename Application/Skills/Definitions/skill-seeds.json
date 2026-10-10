@@ -29038,7 +29038,7 @@
     {
       "name": "create_address",
       "area": "client",
-      "description": "Creates a new address for an existing employee/customer identified by UUID. Provide the client id plus any of street, zip, city, country, state and a numeric type (0 = employee, 1 = workplace, 2 = invoicing). Use search_employees / get_client_details to resolve the client id first.",
+      "description": "Creates a new address for an existing employee/customer identified by UUID. Provide the client id plus any of street, zip, city, country, state and a numeric type (0 = main address, 1 = business address, 2 = invoicing address). Allowed types depend on the client type: an employee may only have 0, an external employee 0 and 1, a customer 0, 1 and 2; any other type is rejected. Use search_employees / get_client_details to resolve the client id first.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29095,7 +29095,7 @@
         },
         {
           "name": "type",
-          "description": "Numeric address type code (0 = employee, 1 = workplace, 2 = invoicing). Defaults to 0.",
+          "description": "Numeric address type code (0 = main address, 1 = business address, 2 = invoicing address). Employees may only have 0, external employees 0 and 1, customers 0, 1 and 2. Defaults to 0.",
           "type": "Integer",
           "required": false,
           "defaultValue": 0,
@@ -29147,12 +29147,12 @@
         "fr": "Créer une nouvelle adresse pour une personne",
         "it": "Crea un nuovo indirizzo per una persona"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_address",
       "area": "client",
-      "description": "Updates an existing client address by its UUID. Only supplied fields change: street, zip, city, country, state and the numeric type (0 = employee, 1 = workplace, 2 = invoicing). Fails with a clear message if the address does not exist.",
+      "description": "Updates an existing client address by its UUID. Only supplied fields change: street, zip, city, country, state and the numeric type (0 = main address, 1 = business address, 2 = invoicing address). Allowed types depend on the client type: an employee may only have 0, an external employee 0 and 1, a customer 0, 1 and 2; any other type is rejected. Fails with a clear message if the address does not exist.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29209,7 +29209,7 @@
         },
         {
           "name": "type",
-          "description": "New numeric address type code (0 = employee, 1 = workplace, 2 = invoicing).",
+          "description": "New numeric address type code (0 = main address, 1 = business address, 2 = invoicing address). Employees may only have 0, external employees 0 and 1, customers 0, 1 and 2.",
           "type": "Integer",
           "required": false,
           "defaultValue": null,
@@ -29261,7 +29261,7 @@
         "fr": "Mettre à jour une adresse",
         "it": "Aggiorna un indirizzo"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_address",
