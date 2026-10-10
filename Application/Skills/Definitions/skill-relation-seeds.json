@@ -3080,6 +3080,36 @@
       "contradictionCount": 0,
       "provenance": "curated:seealso",
       "status": 1
+    },
+    {
+      "skillAName": "create_contract_from_template",
+      "skillBName": "explain_contract_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_contract_setup",
+      "skillBName": "explain_contracts",
+      "type": 4,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:seealso",
+      "status": 1
+    },
+    {
+      "skillAName": "evaluate_contract_templates",
+      "skillBName": "create_contract_from_template",
+      "type": 3,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:advises",
+      "status": 1
     }
   ]
 }

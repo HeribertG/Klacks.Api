@@ -367,6 +367,12 @@
     "contrato laboral",
     "contrato de trabajo"
   ],
+  "create_contract_from_template": [
+    "crear contrato a partir de una plantilla",
+    "nuevo contrato copiando una plantilla",
+    "contrato basado en plantilla",
+    "crear contrato desde plantilla"
+  ],
   "create_counter_rule": [
     "crea una regla que permita máximo 4 guardias nocturnas al mes",
     "establece un límite de 5 días trabajados por semana",
@@ -875,6 +881,12 @@
     "debería subir el nivel de autonomía",
     "vale la pena más autonomía"
   ],
+  "evaluate_contract_templates": [
+    "qué plantilla de contrato encaja",
+    "comparar plantillas de contrato",
+    "buscar una plantilla adecuada",
+    "qué plantilla se parece a este contrato"
+  ],
   "evaluate_grouping_by_qualification": [
     "qué cualificaciones necesitan su propio grupo",
     "vale la pena un grupo para esta cualificación",
@@ -964,6 +976,12 @@
     "¿por qué se aplica la pausa por calor?",
     "¿tengo que compensar el descanso después?",
     "¿quién puede saltarse la regla?"
+  ],
+  "explain_contract_setup": [
+    "qué contrato necesito",
+    "cómo configurar un contrato nuevo",
+    "asesoramiento para nuevo contrato",
+    "configurar contrato para nuevo empleado"
   ],
   "explain_contracts": [
     "cuántas horas debe trabajar la persona",

@@ -361,6 +361,12 @@
     "työsopimus",
     "työehtosopimus"
   ],
+  "create_contract_from_template": [
+    "luo sopimus pohjasta",
+    "uusi sopimus sopimuspohjasta",
+    "kopioi sopimuspohja",
+    "luo sopimus mallista"
+  ],
   "create_counter_rule": [
     "luo laskentasääntö",
     "aseta enintään neljä yövuoroa kuukaudessa",
@@ -853,6 +859,12 @@
     "pitäisikö minun nostaa autonomiatasoa",
     "kannattaako korkeampi autonomia"
   ],
+  "evaluate_contract_templates": [
+    "mikä sopimuspohja sopii",
+    "vertaa sopimuspohjia",
+    "etsi sopiva sopimuspohja",
+    "mikä pohja vastaa tätä sopimusta"
+  ],
   "evaluate_grouping_by_qualification": [
     "mitkä pätevyydet tarvitsevat oman ryhmän",
     "kannattaako tälle pätevyydelle tehdä ryhmä",
@@ -942,6 +954,12 @@
     "pitääkö minun pitää korvaavaa lepoa?",
     "mitkä säännöt koskevat ylitöitä kuukaudessa?",
     "miksi työvuoroni on estetty?"
+  ],
+  "explain_contract_setup": [
+    "mikä sopimus minulla pitää olla",
+    "miten uusi sopimus määritellään",
+    "uuden sopimuksen asetukset",
+    "mikä sopimus sopii tähän työhön"
   ],
   "explain_contracts": [
     "kuinka monta tuntia työntekijä on velkaa",

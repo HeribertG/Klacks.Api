@@ -358,6 +358,12 @@
     "ansettelseskontrakt",
     "arbeidskontrakt"
   ],
+  "create_contract_from_template": [
+    "opprett kontrakt fra mal",
+    "ny kontrakt basert på mal",
+    "kopier kontraktmal",
+    "lag kontrakt fra en eksisterende mal"
+  ],
   "create_counter_rule": [
     "opprett en telleregel",
     "lag en regel for maks antall nattevakter",
@@ -852,6 +858,12 @@
     "bør jeg øke autonominivået",
     "er et høyere autonominivå verdt det"
   ],
+  "evaluate_contract_templates": [
+    "hvilken kontraktmal passer",
+    "sammenlign kontraktmaler",
+    "finn en passende kontraktmal",
+    "hvilken mal ligner på denne kontrakten"
+  ],
   "evaluate_grouping_by_qualification": [
     "hvilke kvalifikasjoner trenger sin egen gruppe",
     "er en gruppe verdt det for denne kvalifikasjonen",
@@ -940,6 +952,12 @@
     "hvor mange nattskift kan jeg ha i året?",
     "hva er regelen om hvileperiode?",
     "kan jeg jobbe mer enn gjennomsnittet en uke?"
+  ],
+  "explain_contract_setup": [
+    "hvilken kontrakt trenger jeg",
+    "hvordan sette opp ny kontrakt",
+    "hjelp til ny ansettelseskontrakt",
+    "oppsett av ny kontrakt"
   ],
   "explain_contracts": [
     "hvor mange timer skylder den ansatte",

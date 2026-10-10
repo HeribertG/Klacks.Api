@@ -355,6 +355,12 @@
     "thêm hợp đồng làm việc",
     "ký hợp đồng nhân viên"
   ],
+  "create_contract_from_template": [
+    "tạo hợp đồng từ mẫu",
+    "hợp đồng mới theo mẫu có sẵn",
+    "sao chép mẫu hợp đồng",
+    "tạo hợp đồng dựa trên mẫu"
+  ],
   "create_counter_rule": [
     "tạo quy tắc đếm mới",
     "thêm luật giới hạn số lần",
@@ -851,6 +857,12 @@
     "tôi có nên tăng mức độ tự chủ không",
     "mức độ tự chủ cao hơn có đáng không"
   ],
+  "evaluate_contract_templates": [
+    "mẫu hợp đồng nào phù hợp",
+    "so sánh các mẫu hợp đồng",
+    "tìm mẫu hợp đồng phù hợp",
+    "mẫu nào giống hợp đồng này"
+  ],
   "evaluate_grouping_by_qualification": [
     "chuyên môn nào cần nhóm riêng",
     "tạo nhóm cho chuyên môn này có đáng không",
@@ -938,6 +950,12 @@
     "quy tắc trung bình thời gian làm việc",
     "nghỉ bù sau ca ngắn là gì",
     "tại sao không được làm vào giờ này"
+  ],
+  "explain_contract_setup": [
+    "tôi cần hợp đồng nào",
+    "cách thiết lập hợp đồng mới",
+    "giúp tôi thiết lập hợp đồng mới",
+    "cài đặt hợp đồng cho nhân viên mới"
   ],
   "explain_contracts": [
     "nhân viên phải làm bao nhiêu giờ",

@@ -7,6 +7,7 @@
 /// <param name="canton">Optional canton/state code (e.g. "BE") to filter contracts by CalendarSelection</param>
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -52,11 +53,8 @@ public class ListContractsSkill : BaseSkillImplementation
 
         if (!string.IsNullOrWhiteSpace(canton))
         {
-            var defaultCountry = await _countryResolver.GetDefaultAsync(cancellationToken);
-            var countryCode = defaultCountry?.Abbreviation ?? string.Empty;
-
-            var calendarSelectionIds = await _calendarSelectionRepository
-                .GetIdsByStateAsync(countryCode, canton.Trim().ToUpperInvariant(), cancellationToken);
+            var calendarSelectionIds = await ContractRegionCalendarResolver.ResolveCalendarSelectionIdsAsync(
+                _countryResolver, _calendarSelectionRepository, canton, cancellationToken);
 
             if (calendarSelectionIds.Count > 0)
             {

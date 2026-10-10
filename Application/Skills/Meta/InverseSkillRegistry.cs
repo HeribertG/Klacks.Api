@@ -59,6 +59,7 @@ public static class InverseSkillRegistry
             ["add_client_to_group"] = new(ManualMarker, "remove_client_from_group skill TODO."),
             ["create_branch"] = new("delete_branch", "Take branchId from the original execution's result."),
             ["create_contract"] = new("delete_contract", "Take contractId from the original execution's result."),
+            ["create_contract_from_template"] = new("delete_contract", "Take contractId from the original execution's result (its Id)."),
             ["create_employee"] = new(ManualMarker, "delete_employee / mark inactive skill TODO."),
             ["create_user"] = new("delete_system_user", "Take userId."),
             ["create_shift"] = new(ManualMarker, "delete_shift skill TODO."),

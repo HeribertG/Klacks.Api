@@ -354,6 +354,12 @@
     "buat templat kontrak",
     "daftar kontrak pekerjaan"
   ],
+  "create_contract_from_template": [
+    "cipta kontrak daripada templat",
+    "kontrak baharu berdasarkan templat",
+    "salin templat kontrak untuk pekerja baharu",
+    "buat kontrak guna templat"
+  ],
   "create_counter_rule": [
     "buat peraturan kiraan baharu",
     "tetapkan had maksimum 4 malam sebulan",
@@ -847,6 +853,12 @@
     "patutkah saya naikkan tahap autonomi",
     "berbaloikah tahap autonomi yang lebih tinggi"
   ],
+  "evaluate_contract_templates": [
+    "templat kontrak mana yang sesuai",
+    "bandingkan templat kontrak",
+    "cari templat kontrak yang padan",
+    "templat mana yang serupa dengan kontrak ini"
+  ],
   "evaluate_grouping_by_qualification": [
     "kelayakan mana perlukan kumpulan sendiri",
     "berbaloikah kumpulan untuk kelayakan ini",
@@ -935,6 +947,12 @@
     "kenapa larangan musim panas dikenakan",
     "apa itu rehat ganti",
     "bagaimana sekatan tempoh berfungsi"
+  ],
+  "explain_contract_setup": [
+    "kontrak apa yang saya perlukan",
+    "cara sediakan kontrak baharu",
+    "bantu tentukan kontrak pekerja baharu",
+    "persediaan kontrak baharu"
   ],
   "explain_contracts": [
     "berapa jam yang perlu dikerjakan pekerja",

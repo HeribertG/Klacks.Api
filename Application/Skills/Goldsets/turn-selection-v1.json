@@ -4977,6 +4977,151 @@
       ],
       "source": "curated",
       "comment": "One date in a named configured calendar; must use the calendar, not a raw country."
+    },
+    {
+      "id": "curated-contract-evaluate-de",
+      "message": "Ich brauche einen Vertrag für eine neue Teilzeitstelle mit 80 Prozent im Kanton Zürich. Gibt es dafür schon eine passende Vorlage?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "evaluate_contract_templates",
+      "alternativeTools": [
+        "explain_contract_setup"
+      ],
+      "expectedSlots": [
+        {
+          "name": "percent",
+          "match": "exact",
+          "value": "80"
+        },
+        {
+          "name": "region",
+          "match": "ignore"
+        }
+      ],
+      "source": "curated",
+      "comment": "Wishes with a percent and a region ask for a comparison of the existing contract templates before anything is created."
+    },
+    {
+      "id": "curated-contract-evaluate-en",
+      "message": "Which of our existing contracts comes closest to a 120 hour monthly contract with shift work?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "evaluate_contract_templates",
+      "alternativeTools": [
+        "list_contracts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "guaranteedHours",
+          "match": "exact",
+          "value": "120"
+        },
+        {
+          "name": "performsShiftWork",
+          "match": "exact",
+          "value": "true"
+        }
+      ],
+      "source": "curated",
+      "comment": "Closest existing contract for fixed hours plus shift work is the template comparison, not a plain contract listing."
+    },
+    {
+      "id": "curated-contract-setup-explain-en",
+      "message": "I want to set up a contract for a new employee but I am not sure what kind of contract I need.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "explain_contract_setup",
+      "alternativeTools": [
+        "evaluate_contract_templates"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Open request without any concrete values starts the contract interview instead of a comparison or a creation."
+    },
+    {
+      "id": "curated-contract-setup-explain-de",
+      "message": "Welchen Vertrag brauche ich für eine neue Mitarbeiterin im Schichtbetrieb?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "explain_contract_setup",
+      "alternativeTools": [
+        "evaluate_contract_templates"
+      ],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "German counterpart of the open contract-setup question."
+    },
+    {
+      "id": "curated-contract-from-template-de",
+      "message": "Kopiere die Vertragsvorlage Vollzeit 160 ZH und passe sie an: Name Vollzeit 120 ZH, 120 garantierte Stunden, gültig ab 1. Dezember 2026.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "create_contract_from_template",
+      "alternativeTools": [
+        "evaluate_contract_templates",
+        "list_contracts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "name",
+          "match": "exact",
+          "value": "Vollzeit 120 ZH"
+        },
+        {
+          "name": "guaranteedHours",
+          "match": "exact",
+          "value": "120"
+        },
+        {
+          "name": "templateContractId",
+          "match": "ignore"
+        },
+        {
+          "name": "validFrom",
+          "match": "ignore"
+        }
+      ],
+      "source": "curated",
+      "comment": "Explicit copy-and-adapt request for a named template creates the contract from the template.",
+      "tags": [
+        "crud"
+      ]
+    },
+    {
+      "id": "curated-contract-from-template-en",
+      "message": "Create a new contract from the template Part time 60 BE, call it Part time 50 BE and use 50 percent from the first of January 2027.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "create_contract_from_template",
+      "alternativeTools": [
+        "evaluate_contract_templates",
+        "list_contracts"
+      ],
+      "expectedSlots": [
+        {
+          "name": "name",
+          "match": "exact",
+          "value": "Part time 50 BE"
+        },
+        {
+          "name": "percent",
+          "match": "exact",
+          "value": "50"
+        },
+        {
+          "name": "templateContractId",
+          "match": "ignore"
+        },
+        {
+          "name": "validFrom",
+          "match": "ignore"
+        }
+      ],
+      "source": "curated",
+      "comment": "Contract from a named template with a changed percent is the template-based creation, not creation from scratch.",
+      "tags": [
+        "crud"
+      ]
     }
   ]
 }

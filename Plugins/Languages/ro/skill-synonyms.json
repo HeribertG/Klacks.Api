@@ -363,6 +363,12 @@
     "contract de muncă",
     "contract de angajare"
   ],
+  "create_contract_from_template": [
+    "creează contract din șablon",
+    "contract nou pe baza unui șablon",
+    "copiază șablonul de contract",
+    "contract după șablon"
+  ],
   "create_counter_rule": [
     "creează o regulă pentru maxim patru ture de noapte pe lună",
     "adaugă o restricție de frecvență pentru zilele lucrate",
@@ -858,6 +864,12 @@
     "ar trebui să cresc nivelul de autonomie",
     "merită un nivel de autonomie mai ridicat"
   ],
+  "evaluate_contract_templates": [
+    "ce șablon de contract se potrivește",
+    "compară șabloanele de contract",
+    "caută un șablon potrivit",
+    "ce șablon seamănă cu acest contract"
+  ],
   "evaluate_grouping_by_qualification": [
     "ce calificări au nevoie de un grup propriu",
     "merită un grup pentru această calificare",
@@ -946,6 +958,12 @@
     "ce reguli de conformitate se aplică pentru turele mele?",
     "unde este stabilită severitatea unei reguli?",
     "cine poate depăși o interdicție?"
+  ],
+  "explain_contract_setup": [
+    "ce contract am nevoie",
+    "cum configurez un contract nou",
+    "ajutor pentru contract nou",
+    "configurarea unui contract nou"
   ],
   "explain_contracts": [
     "câte ore trebuie să lucreze angajatul",

@@ -368,6 +368,12 @@
     "tambah kontrak baru",
     "daftarkan perjanjian kerja"
   ],
+  "create_contract_from_template": [
+    "buat kontrak dari templat",
+    "kontrak baru berdasarkan templat",
+    "salin templat kontrak",
+    "buat kontrak dari contoh yang ada"
+  ],
   "create_counter_rule": [
     "buat aturan hitung baru",
     "tambah aturan batas berapa kali",
@@ -860,6 +866,12 @@
     "haruskah saya menaikkan level otonomi",
     "apakah otonomi lebih tinggi sepadan"
   ],
+  "evaluate_contract_templates": [
+    "templat kontrak mana yang cocok",
+    "bandingkan templat kontrak",
+    "cari templat kontrak yang sesuai",
+    "templat mana yang mirip kontrak ini"
+  ],
   "evaluate_grouping_by_qualification": [
     "kualifikasi mana yang perlu grup sendiri",
     "apakah grup layak dibuat untuk kualifikasi ini",
@@ -941,6 +953,12 @@
     "kenapa ada pembatasan jam kerja di musim tertentu",
     "bagaimana cara menghitung jam lembur dalam sebulan",
     "apa itu aturan kompensasi istirahat"
+  ],
+  "explain_contract_setup": [
+    "kontrak apa yang saya butuhkan",
+    "cara menyiapkan kontrak baru",
+    "bantu tentukan kontrak karyawan baru",
+    "pengaturan kontrak baru"
   ],
   "explain_contracts": [
     "berapa jam yang harus dikerjakan karyawan",

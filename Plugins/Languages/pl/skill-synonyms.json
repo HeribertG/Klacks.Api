@@ -368,6 +368,12 @@
     "umowa o pracę",
     "kontrakt"
   ],
+  "create_contract_from_template": [
+    "utwórz umowę na podstawie szablonu",
+    "nowa umowa z szablonu",
+    "skopiuj szablon umowy",
+    "umowa według wzoru"
+  ],
   "create_counter_rule": [
     "ustaw regułę zliczania",
     "dodaj limit, ile razy coś może się zdarzyć",
@@ -880,6 +886,12 @@
     "czy powinienem zwiększyć poziom autonomii",
     "czy warto mieć wyższy poziom autonomii"
   ],
+  "evaluate_contract_templates": [
+    "który szablon umowy pasuje",
+    "porównaj szablony umów",
+    "znajdź pasujący szablon umowy",
+    "który szablon jest podobny do tej umowy"
+  ],
   "evaluate_grouping_by_qualification": [
     "które kwalifikacje potrzebują własnej grupy",
     "czy warto utworzyć grupę dla tej kwalifikacji",
@@ -969,6 +981,12 @@
     "jak działa zakaz pracy w określonych godzinach?",
     "czy muszę odpracować przerwę?",
     "jakie są limity dla okresu rozliczeniowego?"
+  ],
+  "explain_contract_setup": [
+    "jaka umowa jest mi potrzebna",
+    "jak skonfigurować nową umowę",
+    "pomóż wybrać umowę dla nowego pracownika",
+    "konfiguracja nowej umowy"
   ],
   "explain_contracts": [
     "ile godzin pracownik ma przepracować",

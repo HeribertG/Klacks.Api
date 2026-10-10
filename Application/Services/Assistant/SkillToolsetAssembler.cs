@@ -19,6 +19,10 @@
 /// skills drop first. Must exceed (enabled alwaysOn count + DefaultTopK) at the reference tier or
 /// retrieved skills are squeezed out entirely — guarded by SkillToolBudgetGuardTests.
 /// </param>
+/// <param name="previousTurnSkillNames">
+/// Skills the previous turn executed; a KnowHow or Advise skill among them keeps the Act skill it leads to in
+/// this turn's toolset (follow-through guarantee). Null when the caller has no previous turn to offer.
+/// </param>
 /// <param name="applyLearnedPhraseGuarantee">
 /// Whether a wording the learning loop stored in skill_phrase may claim a guarantee slot. True on every
 /// chat path. The routing oracle O1 passes false: it probes with the learned wording itself, so leaving
@@ -82,7 +86,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         AssembleAsync(
             agent, userRights, userMessage, conversationId, currentRoute, userId, language,
             maxToolsForProvider, applyLearnedPhraseGuarantee,
-            excludedSkillNames: null, pinnedSkillNames: null, cancellationToken);
+            excludedSkillNames: null, pinnedSkillNames: null, previousTurnSkillNames: null, cancellationToken);
 
     public async Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
@@ -96,6 +100,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         bool applyLearnedPhraseGuarantee,
         IReadOnlyCollection<string>? excludedSkillNames,
         IReadOnlyCollection<string>? pinnedSkillNames,
+        IReadOnlyCollection<string>? previousTurnSkillNames,
         CancellationToken cancellationToken)
     {
         if (agent == null)
@@ -122,7 +127,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var guaranteeResult = await _guaranteeResolver.ResolveAsync(
             new SkillToolsetGuaranteeRequest(
                 agent.Id, permittedSkills, retrievedSkills, userMessage, conversationId, currentRoute, userId,
-                language, userRights, pinnedSkillNames, applyLearnedPhraseGuarantee),
+                language, userRights, pinnedSkillNames, previousTurnSkillNames, applyLearnedPhraseGuarantee),
             cancellationToken);
         var guaranteedSkills = guaranteeResult.GuaranteedSkills;
         var guaranteedSources = guaranteeResult.GuaranteedSources;
@@ -196,6 +201,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             selectedSkills = selectedSkills
                 .OrderByDescending(s => s.AlwaysOn)
                 .ThenByDescending(s => guaranteedSkills.Contains(s))
+                .ThenByDescending(s => guaranteedSources.TryGetValue(s.Name, out var source) ? source.Priority() : 0)
                 .ThenBy(s => s.SortOrder)
                 .Take(maxToolsForProvider)
                 .ToList();

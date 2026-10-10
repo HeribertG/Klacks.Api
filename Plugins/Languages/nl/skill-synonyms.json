@@ -366,6 +366,12 @@
     "contract toevoegen",
     "arbeidsovereenkomst"
   ],
+  "create_contract_from_template": [
+    "contract maken op basis van sjabloon",
+    "nieuw contract uit sjabloon",
+    "sjabloon kopiëren voor contract",
+    "contract aanmaken via sjabloon"
+  ],
   "create_counter_rule": [
     "maak een telregel aan",
     "stel een regel in dat iemand maximaal vier nachtdiensten per maand mag draaien",
@@ -872,6 +878,12 @@
     "moet ik het autonomieniveau verhogen",
     "is een hoger autonomieniveau de moeite waard"
   ],
+  "evaluate_contract_templates": [
+    "welk contractsjabloon past",
+    "contractsjablonen vergelijken",
+    "passend sjabloon zoeken",
+    "welk sjabloon lijkt op dit contract"
+  ],
   "evaluate_grouping_by_qualification": [
     "welke kwalificaties hebben een eigen groep nodig",
     "is een groep de moeite waard voor deze kwalificatie",
@@ -961,6 +973,12 @@
     "waarom kan ik niet werken in de middag",
     "wanneer krijg ik compenserende rust",
     "wat zijn de regels voor overuren per kwartaal"
+  ],
+  "explain_contract_setup": [
+    "welk contract heb ik nodig",
+    "hoe zet ik een nieuw contract op",
+    "help me een nieuw contract instellen",
+    "instelling nieuw contract"
   ],
   "explain_contracts": [
     "hoeveel uur moet de medewerker werken",

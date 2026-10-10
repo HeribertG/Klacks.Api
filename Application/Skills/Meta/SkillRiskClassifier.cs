@@ -136,6 +136,16 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // still-empty group is in practice as undoable as create_calendar_selection, deliberately NOT
         // listed here for the same reason); the risk is specifically the automated funnel.
         "create_group",
+        // create_contract_from_template is the target evaluate_contract_templates funnels toward, the same
+        // shape as create_group above: the advisory skill's description and the contract-setup knowledge
+        // both promise that nothing is created before the administrator has chosen the template and the
+        // adapted values and the system has asked for the final confirmation, and nothing short of
+        // Sensitive enforces that promise - without it a
+        // vaguely phrased request could chain evaluate_contract_templates straight into creation with no
+        // human turn in between. The new contract is wage-base master data (hours and time-credit basis)
+        // that persons are assigned to afterwards. Its delete_contract inverse stays registered, so the
+        // undo offer for administrators is unchanged; Sensitive outranks a registered inverse.
+        "create_contract_from_template",
         // delete_container_template is the registered inverse of create_container_template, but the REST
         // endpoint it drives is container-scoped: it deletes EVERY weekday template of the container in
         // one call, along with every task configured in them, and the handler does not cascade the items,

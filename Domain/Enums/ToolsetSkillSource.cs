@@ -29,5 +29,10 @@ public enum ToolsetSkillSource
 
     /// <summary>Any other deterministic hint (page explain, concept keyword, workflow pair,
     /// grouping intent, proposal confirmation, plan candidate, planning-profile loop, pending notes).</summary>
-    Hint = 7
+    Hint = 7,
+
+    /// <summary>The previous turn ran a KnowHow or Advise skill and the skill graph leads from it to this
+    /// one (follow-through guarantee). Appended last: the lowest-priority guarantee, so it never evicts the
+    /// current message's own keyword, learned-phrase or recipe guarantees at truncation.</summary>
+    FollowThrough = 8
 }

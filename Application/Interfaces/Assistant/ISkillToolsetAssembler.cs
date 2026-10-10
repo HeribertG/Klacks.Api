@@ -21,7 +21,7 @@ public interface ISkillToolsetAssembler
 
     /// <summary>
     /// Full-arity overload of the call above: every parameter is required, so a caller that omits the
-    /// two new collections binds the short overload instead of silently shifting an argument into them.
+    /// new collections binds the short overload instead of silently shifting an argument into them.
     /// That is the lesson of the 2026-09-14 overload trap - an optional parameter appended to an
     /// existing signature rebinds positional arguments without failing to compile.
     /// </summary>
@@ -33,6 +33,12 @@ public interface ISkillToolsetAssembler
     /// <param name="pinnedSkillNames">
     /// Skills that must be in the toolset regardless of retrieval, i.e. the two options a clarification
     /// question offered on the previous turn. An exclusion beats a pin.
+    /// </param>
+    /// <param name="previousTurnSkillNames">
+    /// Names of the skills the last turn that made tool calls executed (while that record lives), or null
+    /// when the caller has none. A KnowHow (Explain) or Advise skill among them keeps the Act skill it leads
+    /// to in this toolset, because the answer to an interview carries no keyword of that skill. Required, so
+    /// a caller that forgets it fails at compile time instead of silently passing nothing.
     /// </param>
     Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
@@ -46,5 +52,6 @@ public interface ISkillToolsetAssembler
         bool applyLearnedPhraseGuarantee,
         IReadOnlyCollection<string>? excludedSkillNames,
         IReadOnlyCollection<string>? pinnedSkillNames,
+        IReadOnlyCollection<string>? previousTurnSkillNames,
         CancellationToken cancellationToken);
 }

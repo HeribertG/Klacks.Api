@@ -365,6 +365,12 @@
     "ansættelseskontrakt",
     "arbejdskontrakt"
   ],
+  "create_contract_from_template": [
+    "opret kontrakt ud fra skabelon",
+    "ny kontrakt efter skabelon",
+    "kopier kontraktskabelon",
+    "lav kontrakt på baggrund af skabelon"
+  ],
   "create_counter_rule": [
     "opret en tælleregel",
     "tillad maksimalt fire nattjenester om måneden",
@@ -866,6 +872,12 @@
     "skal jeg hæve autonominiveauet",
     "kan det betale sig med mere autonomi"
   ],
+  "evaluate_contract_templates": [
+    "hvilken kontraktskabelon passer",
+    "sammenlign kontraktskabeloner",
+    "find en passende skabelon",
+    "hvilken skabelon matcher"
+  ],
   "evaluate_grouping_by_qualification": [
     "hvilke kvalifikationer har brug for egen gruppe",
     "kan det betale sig med en gruppe for denne kvalifikation",
@@ -954,6 +966,12 @@
     "hvad er reglerne for optjening af afspadsering?",
     "hvordan håndteres overtrædelser af overholdelsesregler?",
     "hvad er en glidende periode i forhold til arbejdstid?"
+  ],
+  "explain_contract_setup": [
+    "hvilken kontrakt har jeg brug for",
+    "opsæt en ny kontrakt",
+    "hjælp til ny ansættelseskontrakt",
+    "sådan opsætter jeg en kontrakt"
   ],
   "explain_contracts": [
     "hvor mange timer skylder medarbejderen",

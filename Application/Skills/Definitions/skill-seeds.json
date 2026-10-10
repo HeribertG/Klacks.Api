@@ -45707,6 +45707,348 @@
         "it": "Applicare il piano dei gruppi"
       },
       "version": 3
+    },
+    {
+      "name": "explain_contract_setup",
+      "area": "contract",
+      "description": "Interview guide for setting up a new employment contract: what to take over from the request first, which questions are still open (payment interval, fixed guaranteed hours or a workload percent, holiday-calendar region, start date, name, working weekdays, shift work), and how a new contract is built as an adapted copy of a fitting existing contract. Use when somebody wants a new contract or asks which contract fits a kind of employment.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "effect": "Explain",
+      "handlerConfig": {
+        "memoryKey": "explain_contract_setup"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "welchen vertrag brauche ich",
+          "vertrag einrichten",
+          "neuen vertrag",
+          "brauche einen vertrag"
+        ],
+        "en": [
+          "which contract do i need",
+          "contract setup",
+          "need a contract",
+          "a new contract"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welchen vertrag brauche ich",
+          "vertrag einrichten",
+          "neuen arbeitsvertrag aufsetzen",
+          "vertragsberatung für neue mitarbeiter"
+        ],
+        "en": [
+          "which contract do I need",
+          "set up a contract",
+          "contract setup advice",
+          "help me define a new employment contract"
+        ],
+        "fr": [
+          "quel contrat me faut-il",
+          "mettre en place un contrat",
+          "aide pour définir un nouveau contrat de travail"
+        ],
+        "it": [
+          "di quale contratto ho bisogno",
+          "impostare un contratto",
+          "aiuto per definire un nuovo contratto di lavoro"
+        ]
+      },
+      "labels": {
+        "de": "Vertragseinrichtung erklären",
+        "en": "Explain contract setup",
+        "fr": "Expliquer la mise en place d'un contrat",
+        "it": "Spiega l'impostazione di un contratto"
+      },
+      "version": 1
+    },
+    {
+      "name": "evaluate_contract_templates",
+      "area": "contract",
+      "description": "Compares the active contract templates with what the administrator wants a new contract to look like (payment interval, fixed guaranteed hours or workload percent, full-time hours, shift work, working weekdays, holiday-calendar region) and ranks the three closest ones with the exact differing fields and a recommendation. Read-only advice: present the best template with its differences and let the administrator choose; nothing is created by this skill.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "paymentInterval",
+          "description": "Wished payment interval of the new contract",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        },
+        {
+          "name": "guaranteedHours",
+          "description": "Wished fixed guaranteed hours per interval (workload path 1); omit when the contract inherits the company-wide workload",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "percent",
+          "description": "Wished workload percent of the company-wide value (workload path 2); omit when fixed guaranteed hours apply",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fullTime",
+          "description": "Wished full-time reference hours; 0 means not configured",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "performsShiftWork",
+          "description": "Whether the employee works late or night shifts",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workdays",
+          "description": "Wished working weekdays as a comma separated list, for example Mon,Tue,Wed,Thu,Fri",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "region",
+          "description": "State, canton or region code of the wished holiday calendar, for example ZH or BE",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Advise",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "passende vertragsvorlage",
+          "vertragsvorlagen vergleichen"
+        ],
+        "en": [
+          "matching contract template",
+          "compare contract templates"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "passende vertragsvorlage finden",
+          "vertragsvorlagen vergleichen",
+          "welche vorlage passt zu diesem vertrag",
+          "ähnlichen vertrag suchen"
+        ],
+        "en": [
+          "find a fitting contract template",
+          "compare contract templates",
+          "which template matches this contract",
+          "look for a similar contract"
+        ],
+        "fr": [
+          "trouver un modèle de contrat adapté",
+          "comparer les modèles de contrat",
+          "chercher un contrat similaire"
+        ],
+        "it": [
+          "trovare un modello di contratto adatto",
+          "confrontare i modelli di contratto",
+          "cercare un contratto simile"
+        ]
+      },
+      "labels": {
+        "de": "Passende Vertragsvorlage finden",
+        "en": "Find a fitting contract template",
+        "fr": "Trouver un modèle de contrat adapté",
+        "it": "Trova un modello di contratto adatto"
+      },
+      "version": 1
+    },
+    {
+      "name": "create_contract_from_template",
+      "area": "contract",
+      "description": "Creates a new contract by copying an existing contract template and adapting only the values the administrator chose: name, start date, fixed guaranteed hours or workload percent, hour band, payment interval, shift work, working weekdays and holiday-calendar region. Surcharge time credits, night window and scheduling rule are copied unchanged. Use when a fitting template exists and the administrator confirmed it. Do NOT use to build a contract from nothing or to only look at contracts.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanCreateContracts"
+      ],
+      "parameters": [
+        {
+          "name": "templateContractId",
+          "description": "UUID of the existing contract to copy; take it from the template the administrator confirmed",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "Name of the new contract; must not equal the name of any existing contract",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Validity start date of the new contract (YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "guaranteedHours",
+          "description": "Fixed guaranteed hours per interval (workload path 1); excludes percent. Never derive it from words like full time",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "percent",
+          "description": "Workload percent of the company-wide value (workload path 2); excludes guaranteedHours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minimumHours",
+          "description": "Minimum hours of the band; defaults to the guaranteed hours (fixed hours) or 0 (percent)",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maximumHours",
+          "description": "Maximum hours of the band; defaults to the guaranteed hours (fixed hours) or 0 (percent)",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fullTime",
+          "description": "Full-time reference hours; 0 means not configured",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "New payment interval; Individual only works when the template has an individual pay period",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual",
+            "MonthlyTargetHours"
+          ]
+        },
+        {
+          "name": "performsShiftWork",
+          "description": "Whether the employee works late or night shifts",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workdays",
+          "description": "Working weekdays as a comma separated list of Mon,Tue,Wed,Thu,Fri,Sat,Sun; unlisted days become not worked",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "region",
+          "description": "State, canton or region code that selects the holiday calendar; must match exactly one calendar",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "effect": "Mutate",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "vertrag aus vorlage",
+          "vertrag nach vorlage",
+          "vorlage kopieren"
+        ],
+        "en": [
+          "contract from template",
+          "copy contract template"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "vertrag aus vorlage erstellen",
+          "vertrag nach vorlage anlegen",
+          "vorlage kopieren und anpassen",
+          "neuen vertrag auf basis eines bestehenden vertrags"
+        ],
+        "en": [
+          "create a contract from a template",
+          "copy a contract template and adapt it",
+          "new contract based on an existing contract",
+          "duplicate contract with changes"
+        ],
+        "fr": [
+          "créer un contrat à partir d'un modèle",
+          "copier un modèle de contrat et l'adapter",
+          "nouveau contrat basé sur un contrat existant"
+        ],
+        "it": [
+          "creare un contratto da un modello",
+          "copiare un modello di contratto e adattarlo",
+          "nuovo contratto basato su un contratto esistente"
+        ]
+      },
+      "labels": {
+        "de": "Vertrag aus Vorlage erstellen",
+        "en": "Create a contract from a template",
+        "fr": "Créer un contrat à partir d'un modèle",
+        "it": "Crea un contratto da un modello"
+      },
+      "version": 1
     }
   ]
 }

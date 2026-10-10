@@ -360,6 +360,12 @@
     "anställningsavtal",
     "arbetsavtal"
   ],
+  "create_contract_from_template": [
+    "skapa avtal från mall",
+    "nytt avtal utifrån mall",
+    "kopiera avtalsmall",
+    "avtal baserat på mall"
+  ],
   "create_counter_rule": [
     "skapa en räkneregel",
     "lägg till en regel som begränsar antal nattpass",
@@ -862,6 +868,12 @@
     "bör jag höja autonominivån",
     "är en högre autonominivå värt det"
   ],
+  "evaluate_contract_templates": [
+    "vilken avtalsmall passar",
+    "jämför avtalsmallar",
+    "hitta passande avtalsmall",
+    "vilken mall liknar det här avtalet"
+  ],
   "evaluate_grouping_by_qualification": [
     "vilka kvalifikationer behöver en egen grupp",
     "är en grupp värd det för den här kvalifikationen",
@@ -950,6 +962,12 @@
     "vad är kompensation för kort vila?",
     "berätta om periodtak och begränsningar",
     "varför får jag inte schemalägga under denna tid?"
+  ],
+  "explain_contract_setup": [
+    "vilket avtal behöver jag",
+    "hur sätter jag upp ett nytt avtal",
+    "hjälp med nytt anställningsavtal",
+    "uppsättning av nytt avtal"
   ],
   "explain_contracts": [
     "hur många timmar ska medarbetaren arbeta",

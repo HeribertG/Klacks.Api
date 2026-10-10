@@ -33,6 +33,7 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -100,61 +101,6 @@ public class CreateContractSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
         }
 
-        var negativeNullable = new (string Key, decimal? Value)[]
-        {
-            ("guaranteedHours", guaranteedHours),
-            ("percent", percent),
-            ("nightRate", nightRate),
-            ("holidayRate", holidayRate),
-            ("saRate", saRate),
-            ("soRate", soRate)
-        };
-        foreach (var (key, value) in negativeNullable)
-        {
-            if (value is < decimal.Zero)
-            {
-                return SkillResult.Error($"Parameter '{key}' must not be negative.");
-            }
-        }
-
-        var negative = new (string Key, decimal Value)[]
-        {
-            ("minimumHours", minimumHours),
-            ("maximumHours", maximumHours),
-            ("fullTime", fullTime)
-        };
-        foreach (var (key, value) in negative)
-        {
-            if (value < decimal.Zero)
-            {
-                return SkillResult.Error($"Parameter '{key}' must not be negative.");
-            }
-        }
-
-        if (minimumHours > maximumHours && maximumHours > decimal.Zero)
-        {
-            return SkillResult.Error("Parameter 'minimumHours' must not exceed 'maximumHours'.");
-        }
-
-        if (guaranteedHours.HasValue && (guaranteedHours.Value < minimumHours || guaranteedHours.Value > maximumHours))
-        {
-            return SkillResult.Error("Parameter 'guaranteedHours' must be between 'minimumHours' and 'maximumHours'.");
-        }
-
-        if (validUntil.HasValue && validUntil.Value <= validFrom.Value)
-        {
-            return SkillResult.Error("Parameter 'validUntil' must be after 'validFrom'.");
-        }
-
-        var paymentIntervalRaw = GetParameter<string>(parameters, "paymentInterval");
-        var paymentInterval = PaymentInterval.Monthly;
-        if (!string.IsNullOrWhiteSpace(paymentIntervalRaw)
-            && (!Enum.TryParse(paymentIntervalRaw, ignoreCase: true, out paymentInterval) || !Enum.IsDefined(paymentInterval)))
-        {
-            return SkillResult.Error(
-                $"Invalid paymentInterval '{paymentIntervalRaw}'. Use one of: {string.Join(", ", Enum.GetNames<PaymentInterval>())}.");
-        }
-
         var resource = new ContractResource
         {
             Name = name.Trim(),
@@ -167,11 +113,27 @@ public class CreateContractSkill : BaseSkillImplementation
             WE1Rate = saRate,
             WE2Rate = soRate,
             PerformsShiftWork = performsShiftWork,
-            PaymentInterval = paymentInterval,
+            PaymentInterval = PaymentInterval.Monthly,
             Percent = percent,
             ValidFrom = validFrom.Value,
             ValidUntil = validUntil
         };
+
+        var violation = ContractResourceValidator.FindViolation(resource);
+        if (violation != null)
+        {
+            return SkillResult.Error(violation);
+        }
+
+        var paymentIntervalRaw = GetParameter<string>(parameters, "paymentInterval");
+        var paymentInterval = PaymentInterval.Monthly;
+        if (!string.IsNullOrWhiteSpace(paymentIntervalRaw)
+            && !ContractPaymentIntervalParser.TryParse(paymentIntervalRaw, out paymentInterval, out var paymentIntervalError))
+        {
+            return SkillResult.Error(paymentIntervalError!);
+        }
+
+        resource.PaymentInterval = paymentInterval;
 
         var created = await _mediator.Send(new PostCommand<ContractResource>(resource), cancellationToken);
         if (created == null)

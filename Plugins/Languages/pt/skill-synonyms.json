@@ -372,6 +372,12 @@
     "adicionar contrato",
     "contrato de trabalho"
   ],
+  "create_contract_from_template": [
+    "criar contrato a partir de modelo",
+    "novo contrato com base num modelo",
+    "copiar modelo de contrato",
+    "contrato baseado em modelo"
+  ],
   "create_counter_rule": [
     "criar regra para no máximo 4 noites por mês",
     "limitar o número de dias trabalhados na semana",
@@ -879,6 +885,12 @@
     "devo aumentar o nível de autonomia",
     "vale a pena um nível de autonomia mais alto"
   ],
+  "evaluate_contract_templates": [
+    "qual modelo de contrato serve",
+    "comparar modelos de contrato",
+    "encontrar modelo adequado",
+    "qual modelo é parecido com este contrato"
+  ],
   "evaluate_grouping_by_qualification": [
     "quais qualificações precisam de grupo próprio",
     "vale a pena um grupo para esta qualificação",
@@ -968,6 +980,12 @@
     "por que meu turno foi bloqueado",
     "me explica a proibição de trabalho em horário",
     "preciso de descanso compensatório"
+  ],
+  "explain_contract_setup": [
+    "qual contrato preciso",
+    "como configurar um contrato novo",
+    "ajuda para definir contrato novo",
+    "configuração de novo contrato"
   ],
   "explain_contracts": [
     "quantas horas o colaborador deve trabalhar",

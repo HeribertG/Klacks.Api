@@ -373,6 +373,12 @@
     "přidat smlouvu",
     "pracovní smlouva"
   ],
+  "create_contract_from_template": [
+    "vytvořit smlouvu ze šablony",
+    "nová smlouva podle šablony",
+    "smlouva zkopírovaná ze šablony",
+    "založit smlouvu podle vzoru"
+  ],
   "create_counter_rule": [
     "vytvoř pravidlo, že může být maximálně 4 noční služby za měsíc",
     "nastav limit na počet odpracovaných dnů v týdnu",
@@ -882,6 +888,12 @@
     "mám zvýšit úroveň autonomie",
     "vyplatí se vyšší autonomie"
   ],
+  "evaluate_contract_templates": [
+    "která šablona smlouvy sedí",
+    "porovnat šablony smluv",
+    "najít vhodnou šablonu smlouvy",
+    "která šablona odpovídá"
+  ],
   "evaluate_grouping_by_qualification": [
     "které kvalifikace potřebují vlastní skupinu",
     "vyplatí se skupina pro tuto kvalifikaci",
@@ -970,6 +982,12 @@
     "jak funguje omezení přesčasů za měsíc",
     "kdy nesmím pracovat v létě",
     "co je náhradní odpočinek"
+  ],
+  "explain_contract_setup": [
+    "jakou smlouvu potřebuji",
+    "jak nastavit novou smlouvu",
+    "poradit s novou smlouvou",
+    "nastavení smlouvy pro nového zaměstnance"
   ],
   "explain_contracts": [
     "kolik hodin má zaměstnanec odpracovat",

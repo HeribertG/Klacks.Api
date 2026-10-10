@@ -248,6 +248,7 @@ public class TurnReplayService : ITurnReplayService
             applyLearnedPhraseGuarantee: true,
             excludedSkillNames: correctionPlan?.ExcludedSkillNames,
             pinnedSkillNames: null,
+            previousTurnSkillNames: lastAction?.Calls.Where(call => call.Success).Select(call => call.SkillName).Distinct().ToList(),
             cancellationToken: cancellationToken);
 
         var correction = correctionPlan == null

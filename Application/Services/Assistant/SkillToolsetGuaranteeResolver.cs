@@ -38,6 +38,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
+    private readonly ISkillRelationRepository _skillRelationRepository;
     private readonly ILogger<SkillToolsetGuaranteeResolver> _logger;
 
     public SkillToolsetGuaranteeResolver(
@@ -46,6 +47,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         IPendingConfirmationStore pendingConfirmationStore,
         IPendingPlanningProfileDraftStore planningProfileDraftStore,
         ISkillPhraseRepository skillPhraseRepository,
+        ISkillRelationRepository skillRelationRepository,
         ILogger<SkillToolsetGuaranteeResolver> logger)
     {
         _pendingUserNoteRepository = pendingUserNoteRepository;
@@ -53,6 +55,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         _pendingConfirmationStore = pendingConfirmationStore;
         _planningProfileDraftStore = planningProfileDraftStore;
         _skillPhraseRepository = skillPhraseRepository;
+        _skillRelationRepository = skillRelationRepository;
         _logger = logger;
     }
 
@@ -165,8 +168,151 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             }
         }
 
+        // Follow-through guarantee: the previous turn ran a KnowHow (Explain) or Advise skill, and the user's
+        // answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no keyword of the skill that is
+        // meant to act on it. Same class of gap as the planning-profile loop above, but derived from the
+        // skill graph instead of a hand-kept list. Visibility only, like every guarantee.
+        await ApplyFollowThroughGuaranteeAsync(
+            guaranteedSkills, guaranteedSources, permittedSkills, request, cancellationToken);
+
         return new SkillToolsetGuaranteeResult(guaranteedSkills, guaranteedSources);
     }
+
+    /// <summary>
+    /// Keeps, for the skills the previous turn executed, what they lead to: for an Explain skill K the Act
+    /// skills A with an active ExplainedBy edge A to K, plus the Advise skills with an active AdvisesFor edge to
+    /// those A; for an Advise skill its active AdvisesFor targets. The class of a previous skill is its
+    /// curated Effect, never IsReadOnly. Only permitted skills qualify and the claim is capped. It is filled
+    /// pairwise (PickFollowThrough), so the cap never drops an Act skill whose adviser was kept, and the order
+    /// is by name, so the result is deterministic. Its source is FollowThrough, the weakest guarantee. The
+    /// relation read happens only when the previous turn actually contains an Explain or Advise skill, and a
+    /// failing read degrades to no guarantee.
+    /// </summary>
+    private async Task ApplyFollowThroughGuaranteeAsync(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        SkillToolsetGuaranteeRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.PreviousTurnSkillNames is not { Count: > 0 } previousNames)
+        {
+            return;
+        }
+
+        var previousSkills = permittedSkills
+            .Where(s => previousNames.Contains(s.Name, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+        var explainNames = NamesWithEffect(previousSkills, SkillEffect.Explain);
+        var adviseNames = NamesWithEffect(previousSkills, SkillEffect.Advise);
+
+        if (explainNames.Count == 0 && adviseNames.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var activeEdges = (await _skillRelationRepository.GetByAgentAsync(request.AgentId, cancellationToken))
+                .Where(edge => edge.Status == SkillRelationStatus.Active)
+                .ToList();
+
+            var skillsByName = permittedSkills
+                .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+            var actNames = activeEdges
+                .Where(edge => edge.Type == SkillRelationType.ExplainedBy && explainNames.Contains(edge.SkillBName))
+                .Select(edge => edge.SkillAName)
+                .Concat(activeEdges
+                    .Where(edge => edge.Type == SkillRelationType.AdvisesFor && adviseNames.Contains(edge.SkillAName))
+                    .Select(edge => edge.SkillBName))
+                .Where(skillsByName.ContainsKey)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var advisersByAct = explainNames.Count == 0
+                ? new Dictionary<string, List<AgentSkill>>(StringComparer.OrdinalIgnoreCase)
+                : activeEdges
+                    .Where(edge => edge.Type == SkillRelationType.AdvisesFor
+                        && actNames.Contains(edge.SkillBName)
+                        && skillsByName.ContainsKey(edge.SkillAName))
+                    .GroupBy(edge => edge.SkillBName, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(edge => skillsByName[edge.SkillAName])
+                            .DistinctBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+                            .OrderBy(s => s.SortOrder)
+                            .ThenBy(s => s.Name, StringComparer.Ordinal)
+                            .ToList(),
+                        StringComparer.OrdinalIgnoreCase);
+
+            foreach (var skill in PickFollowThrough(actNames, advisersByAct, skillsByName))
+            {
+                AddPermittedSkillByName(
+                    guaranteedSkills, permittedSkills, skill.Name, ToolsetSkillSource.FollowThrough, guaranteedSources);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Follow-through guarantee failed; continuing without it.");
+        }
+    }
+
+    /// <summary>
+    /// Fills the follow-through claim pairwise so the cap can never separate an Act skill from the Advise
+    /// skills in front of it: Act skills that have an adviser come first (then by name); each Act is added,
+    /// then its advisers, while the claim is under its cap. An adviser is only ever added together with a
+    /// picked Act, never on its own.
+    /// </summary>
+    private static List<AgentSkill> PickFollowThrough(
+        IReadOnlySet<string> actNames,
+        IReadOnlyDictionary<string, List<AgentSkill>> advisersByAct,
+        IReadOnlyDictionary<string, AgentSkill> skillsByName)
+    {
+        var picked = new List<AgentSkill>();
+        var acts = actNames
+            .Select(name => skillsByName[name])
+            .OrderBy(act => advisersByAct.ContainsKey(act.Name) ? 0 : 1)
+            .ThenBy(act => act.Name, StringComparer.Ordinal);
+
+        foreach (var act in acts)
+        {
+            if (picked.Count >= SkillFollowThroughDefaults.MaxGuaranteedSkills)
+            {
+                break;
+            }
+
+            if (picked.Contains(act))
+            {
+                continue;
+            }
+
+            picked.Add(act);
+
+            if (!advisersByAct.TryGetValue(act.Name, out var advisers))
+            {
+                continue;
+            }
+
+            foreach (var adviser in advisers)
+            {
+                if (picked.Count >= SkillFollowThroughDefaults.MaxGuaranteedSkills)
+                {
+                    break;
+                }
+
+                if (!picked.Contains(adviser))
+                {
+                    picked.Add(adviser);
+                }
+            }
+        }
+
+        return picked;
+    }
+
+    private static HashSet<string> NamesWithEffect(IEnumerable<AgentSkill> skills, SkillEffect effect) =>
+        skills.Where(s => s.Effect == effect).Select(s => s.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// The guarantees resolvable from the message and permitted skills alone, without any store or
@@ -368,7 +514,7 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // One source per candidate keeps the W5 provenance distribution additive, so the strongest
         // deterministic reason wins: RecipeStep > LearnedPhrase > Keyword > Hint.
         if (guaranteedSources.TryGetValue(skill.Name, out var existing) &&
-            SourcePriority(existing) >= SourcePriority(source))
+            existing.Priority() >= source.Priority())
         {
             guaranteedSkills.Add(skill);
             return;
@@ -377,15 +523,6 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         guaranteedSources[skill.Name] = source;
         guaranteedSkills.Add(skill);
     }
-
-    private static int SourcePriority(ToolsetSkillSource source) => source switch
-    {
-        ToolsetSkillSource.RecipeStep => 5,
-        ToolsetSkillSource.LearnedPhrase => 4,
-        ToolsetSkillSource.Keyword => 3,
-        ToolsetSkillSource.Hint => 2,
-        _ => 1
-    };
 
     private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)
     {

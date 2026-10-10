@@ -109,6 +109,7 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
                 maxToolsForProvider, applyLearnedPhraseGuarantee: true,
                 excludedSkillNames: correctionPlan?.ExcludedSkillNames,
                 pinnedSkillNames: lastAction?.ClarificationSkillNames,
+                previousTurnSkillNames: PreviousTurnSkillNames(lastAction),
                 cancellationToken: cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -174,6 +175,15 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
 
         return new CorrectionTurnPreparation(toolset, correction, undoWasHeld);
     }
+
+    /// <summary>
+    /// The skills of the last turn that made tool calls, while that record lives (its TTL): the successful
+    /// calls only. A record a later tool-free turn superseded still counts - an interview often needs
+    /// several turns without a call - so the guarantee is bounded by the record's TTL, not by the turn
+    /// immediately before this one.
+    /// </summary>
+    private static IReadOnlyCollection<string>? PreviousTurnSkillNames(AssistantLastAction? lastAction) =>
+        lastAction?.Calls.Where(call => call.Success).Select(call => call.SkillName).Distinct().ToList();
 
     /// <summary>
     /// Whether this account may release the inverse skill the correction would offer to run. Asked HERE,
