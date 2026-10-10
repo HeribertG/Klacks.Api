@@ -2921,7 +2921,11 @@
     "změnit hodiny ve smlouvě",
     "přejmenovat kontrakt",
     "modifikovat příplatky smlouvy",
-    "editovat podmínky smlouvy"
+    "editovat podmínky smlouvy",
+    "změnit smlouvu",
+    "upravit smlouvu",
+    "pracovní dny smlouvy",
+    "kalendář svátků smlouvy"
   ],
   "update_counter_rule": [
     "změň počítací pravidlo",

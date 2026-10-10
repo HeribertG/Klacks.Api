@@ -2920,7 +2920,11 @@
     "modificar contrato",
     "alterar horas do contrato",
     "ajustar taxas do contrato",
-    "renomear contrato"
+    "renomear contrato",
+    "alterar o contrato",
+    "editar o contrato",
+    "dias de trabalho do contrato",
+    "calendário de feriados do contrato"
   ],
   "update_counter_rule": [
     "alterar a regra de contagem para 5 noites",

@@ -168,10 +168,11 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
             }
         }
 
-        // Follow-through guarantee: the previous turn ran a KnowHow (Explain) or Advise skill, and the user's
-        // answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no keyword of the skill that is
-        // meant to act on it. Same class of gap as the planning-profile loop above, but derived from the
-        // skill graph instead of a hand-kept list. Visibility only, like every guarantee.
+        // Follow-through guarantee: the previous turn ran a KnowHow (Explain) or Advise skill that opens an
+        // advisory chain, and the user's answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no
+        // keyword of the skill that is meant to act on it. Same class of gap as the planning-profile loop above,
+        // but derived from the skill graph instead of a hand-kept list. Explain skills without an advised Act
+        // skill guarantee nothing. Visibility only, like every guarantee.
         await ApplyFollowThroughGuaranteeAsync(
             guaranteedSkills, guaranteedSources, permittedSkills, request, cancellationToken);
 
@@ -179,14 +180,17 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
     }
 
     /// <summary>
-    /// Keeps, for the skills the previous turn executed, what they lead to: for an Explain skill K the Act
-    /// skills A with an active ExplainedBy edge A to K, plus the Advise skills with an active AdvisesFor edge to
-    /// those A; for an Advise skill its active AdvisesFor targets. The class of a previous skill is its
-    /// curated Effect, never IsReadOnly. Only permitted skills qualify and the claim is capped. It is filled
-    /// pairwise (PickFollowThrough), so the cap never drops an Act skill whose adviser was kept, and the order
-    /// is by name, so the result is deterministic. Its source is FollowThrough, the weakest guarantee. The
-    /// relation read happens only when the previous turn actually contains an Explain or Advise skill, and a
-    /// failing read degrades to no guarantee.
+    /// Keeps, for the skills the previous turn executed, what they lead to - advisory chains only. For an
+    /// Explain skill K that is the Act skills A with an active ExplainedBy edge A to K that ALSO have at least one
+    /// permitted Advise skill with an active AdvisesFor edge to A, plus those Advise skills. An Act skill without
+    /// an adviser is not pulled in: a KnowHow answer is often just curiosity, and a guaranteed Mutate skill would
+    /// outrank retrieved skills at truncation and tempt a weak model into an action nobody asked for. For an
+    /// Advise skill it keeps its active AdvisesFor targets. The class of a previous skill is its curated Effect,
+    /// never IsReadOnly. Only permitted skills qualify and the claim is capped. It is filled pairwise
+    /// (PickFollowThrough), so the cap never drops an Act skill whose adviser was kept, and the order is by name,
+    /// so the result is deterministic. Its source is FollowThrough, the weakest guarantee. The relation read
+    /// happens only when the previous turn actually contains an Explain or Advise skill, and a failing read
+    /// degrades to no guarantee.
     /// </summary>
     private async Task ApplyFollowThroughGuaranteeAsync(
         HashSet<AgentSkill> guaranteedSkills,
@@ -221,30 +225,26 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
                 .GroupBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-            var actNames = activeEdges
+            var explainedActNames = activeEdges
                 .Where(edge => edge.Type == SkillRelationType.ExplainedBy && explainNames.Contains(edge.SkillBName))
                 .Select(edge => edge.SkillAName)
-                .Concat(activeEdges
-                    .Where(edge => edge.Type == SkillRelationType.AdvisesFor && adviseNames.Contains(edge.SkillAName))
-                    .Select(edge => edge.SkillBName))
+                .Where(skillsByName.ContainsKey)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var advisedActNames = activeEdges
+                .Where(edge => edge.Type == SkillRelationType.AdvisesFor && adviseNames.Contains(edge.SkillAName))
+                .Select(edge => edge.SkillBName)
                 .Where(skillsByName.ContainsKey)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             var advisersByAct = explainNames.Count == 0
                 ? new Dictionary<string, List<AgentSkill>>(StringComparer.OrdinalIgnoreCase)
-                : activeEdges
-                    .Where(edge => edge.Type == SkillRelationType.AdvisesFor
-                        && actNames.Contains(edge.SkillBName)
-                        && skillsByName.ContainsKey(edge.SkillAName))
-                    .GroupBy(edge => edge.SkillBName, StringComparer.OrdinalIgnoreCase)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(edge => skillsByName[edge.SkillAName])
-                            .DistinctBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
-                            .OrderBy(s => s.SortOrder)
-                            .ThenBy(s => s.Name, StringComparer.Ordinal)
-                            .ToList(),
-                        StringComparer.OrdinalIgnoreCase);
+                : AdvisersByAct(activeEdges, explainedActNames.Union(advisedActNames, StringComparer.OrdinalIgnoreCase), skillsByName);
+
+            var actNames = explainedActNames
+                .Where(advisersByAct.ContainsKey)
+                .Union(advisedActNames, StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             foreach (var skill in PickFollowThrough(actNames, advisersByAct, skillsByName))
             {
@@ -256,6 +256,28 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         {
             _logger.LogError(ex, "Follow-through guarantee failed; continuing without it.");
         }
+    }
+
+    private static Dictionary<string, List<AgentSkill>> AdvisersByAct(
+        IReadOnlyList<SkillRelation> activeEdges,
+        IEnumerable<string> candidateActNames,
+        IReadOnlyDictionary<string, AgentSkill> skillsByName)
+    {
+        var candidates = candidateActNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return activeEdges
+            .Where(edge => edge.Type == SkillRelationType.AdvisesFor
+                && candidates.Contains(edge.SkillBName)
+                && skillsByName.ContainsKey(edge.SkillAName))
+            .GroupBy(edge => edge.SkillBName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(edge => skillsByName[edge.SkillAName])
+                    .DistinctBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(s => s.SortOrder)
+                    .ThenBy(s => s.Name, StringComparer.Ordinal)
+                    .ToList(),
+                StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

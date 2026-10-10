@@ -4709,7 +4709,7 @@
         "fr": "Configurer le calendrier global des jours fériés de l'entreprise pour la planification.",
         "it": "Configurare il calendario festivo globale dell'azienda per la pianificazione."
       },
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 65,
       "trigger": {
@@ -4864,7 +4864,11 @@
               "auswahl",
               "selection",
               "sélection",
-              "selezione"
+              "selezione",
+              "vertrag",
+              "contract",
+              "contrat",
+              "contratto"
             ]
           }
         ]

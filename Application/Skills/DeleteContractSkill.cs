@@ -5,12 +5,14 @@
 /// assignments are not touched by this skill; use list_contracts / get_contract_details to
 /// inspect the contract before removal.
 /// </summary>
-/// <param name="contractId">Required. UUID of the contract to delete.</param>
+/// <param name="contractId">Required. UUID of the contract to delete; a name is deliberately not accepted for this destructive skill.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -32,7 +34,14 @@ public class DeleteContractSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var contractId = GetRequiredGuid(parameters, "contractId");
+        var (parsedId, idError) = ContractReferenceResolver.ParseStrictId(
+            GetParameter<string>(parameters, ContractFieldNames.ContractId), ContractFieldNames.ContractId);
+        if (parsedId == null)
+        {
+            return SkillResult.Error(idError!);
+        }
+
+        var contractId = parsedId.Value;
 
         ContractResource contract;
         try

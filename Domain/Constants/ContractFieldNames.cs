@@ -9,6 +9,8 @@ namespace Klacks.Api.Domain.Constants;
 
 public static class ContractFieldNames
 {
+    public const string ContractId = "contractId";
+
     public const string TemplateContractId = "templateContractId";
 
     public const string Name = "name";
@@ -34,6 +36,8 @@ public static class ContractFieldNames
     public const string Workdays = "workdays";
 
     public const string Region = "region";
+
+    public const string ClearRegion = "clearRegion";
 
     public const string NightRate = "nightRate";
 

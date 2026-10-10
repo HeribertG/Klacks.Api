@@ -2856,7 +2856,11 @@
     "endre kontrakt",
     "justere kontraktstimer",
     "endre satser i kontrakt",
-    "gi nytt navn til kontrakt"
+    "gi nytt navn til kontrakt",
+    "endre kontrakten",
+    "rediger kontrakten",
+    "kontraktens arbeidsdager",
+    "kontraktens helligdagskalender"
   ],
   "update_counter_rule": [
     "endre en telleregel",

@@ -2890,7 +2890,10 @@
     "muokkaa sopimusta",
     "vaihda sopimuksen tuntimäärää",
     "muuta sopimuslisää",
-    "säädä sopimuksen voimassaoloa"
+    "säädä sopimuksen voimassaoloa",
+    "muuta sopimusta",
+    "sopimuksen työpäivät",
+    "sopimuksen pyhäpäiväkalenteri"
   ],
   "update_counter_rule": [
     "muuta laskentasääntöä",

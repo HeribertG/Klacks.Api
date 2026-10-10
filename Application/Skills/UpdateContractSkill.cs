@@ -6,7 +6,7 @@
 /// does NOT assign a contract to an employee — use assign_contract_by_name or
 /// assign_contract_to_client for that.
 /// </summary>
-/// <param name="contractId">Required. UUID of the contract to update.</param>
+/// <param name="contractId">Required. Contract id (UUID) or exact contract name of the contract to update.</param>
 /// <param name="name">Optional. New contract name.</param>
 /// <param name="guaranteedHours">Optional. New guaranteed hours.</param>
 /// <param name="clearGuaranteedHours">Optional. If true, clears the guaranteed hours so the contract inherits the company-wide value (monthly target hours or settings default), scaled by percent.</param>
@@ -28,11 +28,17 @@
 /// <param name="validFrom">Optional. New validity start date (YYYY-MM-DD).</param>
 /// <param name="validUntil">Optional. New validity end date (YYYY-MM-DD).</param>
 /// <param name="clearValidUntil">Optional. If true, removes the validity end date.</param>
+/// <param name="workdays">Optional. Working weekdays as a comma separated list of Mon,Tue,Wed,Thu,Fri,Sat,Sun; listed days are worked, all others are not.</param>
+/// <param name="region">Optional. State, canton or region code that selects the holiday calendar; must match exactly one calendar unless the contract's current calendar is among several matches.</param>
+/// <param name="clearRegion">Optional. If true, removes the contract's own holiday calendar so the company-wide calendar applies.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -43,13 +49,30 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_contract")]
 public class UpdateContractSkill : BaseSkillImplementation
 {
+    private const string ContractCalendarOwner = "contract's";
+
+    private const string SchedulingRuleWorkdaysWarning =
+        "The contract has a scheduling rule that may override the working weekdays: a value the rule sets wins " +
+        "over the contract's own value, so check the rule in the contract settings page.";
+
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
+    private readonly ICalendarSelectionRepository _calendarSelectionRepository;
+    private readonly ICountryResolver _countryResolver;
+    private readonly IContractRepository _contractRepository;
 
-    public UpdateContractSkill(IMediator mediator, ICompanyClock companyClock)
+    public UpdateContractSkill(
+        IMediator mediator,
+        ICompanyClock companyClock,
+        ICalendarSelectionRepository calendarSelectionRepository,
+        ICountryResolver countryResolver,
+        IContractRepository contractRepository)
     {
         _mediator = mediator;
         _companyClock = companyClock;
+        _calendarSelectionRepository = calendarSelectionRepository;
+        _countryResolver = countryResolver;
+        _contractRepository = contractRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -57,17 +80,14 @@ public class UpdateContractSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var contractId = GetRequiredGuid(parameters, "contractId");
+        var (contract, loadError) = await LoadContractAsync(parameters, cancellationToken);
+        if (contract == null)
+        {
+            return SkillResult.Error(loadError!);
+        }
 
-        ContractResource contract;
-        try
-        {
-            contract = await _mediator.Send(new GetQuery<ContractResource>(contractId), cancellationToken);
-        }
-        catch (KeyNotFoundException)
-        {
-            return SkillResult.Error($"Contract '{contractId}' not found.");
-        }
+        var contractId = contract.Id;
+        var resolvedName = contract.Name;
 
         var changed = new List<string>();
 
@@ -119,6 +139,12 @@ public class UpdateContractSkill : BaseSkillImplementation
             return SkillResult.Error(standardResetError);
         }
 
+        var workdaysRegionError = await ApplyWorkdaysAndRegionAsync(parameters, contract, changed, cancellationToken);
+        if (workdaysRegionError != null)
+        {
+            return SkillResult.Error(workdaysRegionError);
+        }
+
         var today = await _companyClock.GetTodayAsync(cancellationToken);
 
         var validFromStr = GetParameter<string>(parameters, "validFrom");
@@ -148,29 +174,10 @@ public class UpdateContractSkill : BaseSkillImplementation
             changed.Add("percent");
         }
 
-        var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
-        if (clearValidUntil)
+        var validUntilError = ApplyValidUntil(parameters, contract, changed, today, context.UserLanguage);
+        if (validUntilError != null)
         {
-            if (contract.ValidUntil != null)
-            {
-                contract.ValidUntil = null;
-                changed.Add("validUntil");
-            }
-        }
-        else
-        {
-            var validUntilStr = GetParameter<string>(parameters, "validUntil");
-            var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, context.UserLanguage);
-            if (invalidValidUntil)
-            {
-                return SkillResult.Error(SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!));
-            }
-
-            if (validUntil.HasValue && validUntil.Value != contract.ValidUntil)
-            {
-                contract.ValidUntil = validUntil.Value;
-                changed.Add("validUntil");
-            }
+            return SkillResult.Error(validUntilError);
         }
 
         if (changed.Count == 0)
@@ -196,6 +203,12 @@ public class UpdateContractSkill : BaseSkillImplementation
             return SkillResult.Error($"Updating contract '{contractId}' failed.");
         }
 
+        var warnings = new List<string>();
+        if (changed.Contains(ContractFieldNames.Workdays) && updated.SchedulingRuleId.HasValue)
+        {
+            warnings.Add(SchedulingRuleWorkdaysWarning);
+        }
+
         return SkillResult.SuccessResult(
             new
             {
@@ -207,9 +220,150 @@ public class UpdateContractSkill : BaseSkillImplementation
                 updated.MinimumHours,
                 updated.MaximumHours,
                 updated.ValidFrom,
-                updated.ValidUntil
+                updated.ValidUntil,
+                Workdays = ContractWorkdays.Format(ContractWorkdays.Of(updated)),
+                updated.CalendarSelectionId,
+                Warnings = warnings
             },
-            $"Contract '{updated.Name}' updated ({string.Join(", ", changed)}).");
+            $"Contract '{resolvedName}' (id {contractId}) updated ({string.Join(", ", changed)})." +
+            (warnings.Count > 0 ? " Warning: " + string.Join(" ", warnings) : string.Empty));
+    }
+
+    private async Task<(ContractResource? Contract, string? Error)> LoadContractAsync(
+        Dictionary<string, object> parameters, CancellationToken cancellationToken)
+    {
+        var (contractId, referenceError) = await ContractReferenceResolver.ResolveIdAsync(
+            _contractRepository, GetParameter<string>(parameters, ContractFieldNames.ContractId),
+            ContractFieldNames.ContractId, ContractNameMatchMode.ExactOrUniquePartial, cancellationToken);
+        if (contractId == null)
+        {
+            return (null, referenceError);
+        }
+
+        try
+        {
+            return (await _mediator.Send(new GetQuery<ContractResource>(contractId.Value), cancellationToken), null);
+        }
+        catch (KeyNotFoundException)
+        {
+            return (null, $"Contract '{contractId}' not found.");
+        }
+    }
+
+    private string? ApplyValidUntil(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed, DateTime today, string? language)
+    {
+        var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
+        if (clearValidUntil)
+        {
+            if (contract.ValidUntil != null)
+            {
+                contract.ValidUntil = null;
+                changed.Add("validUntil");
+            }
+
+            return null;
+        }
+
+        var validUntilStr = GetParameter<string>(parameters, "validUntil");
+        var (validUntil, invalidValidUntil) = SkillDateParser.ParseOptionalUtcDate(validUntilStr, today, language);
+        if (invalidValidUntil)
+        {
+            return SkillDateParser.InvalidDateMessageFor("validUntil", validUntilStr!);
+        }
+
+        if (validUntil.HasValue && validUntil.Value != contract.ValidUntil)
+        {
+            contract.ValidUntil = validUntil.Value;
+            changed.Add("validUntil");
+        }
+
+        return null;
+    }
+
+    private async Task<string?> ApplyWorkdaysAndRegionAsync(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed, CancellationToken cancellationToken)
+    {
+        return ApplyWorkdays(parameters, contract, changed)
+            ?? await ApplyRegionAsync(parameters, contract, changed, cancellationToken);
+    }
+
+    private static string? ApplyWorkdays(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed)
+    {
+        var raw = GetParameter<string>(parameters, ContractFieldNames.Workdays);
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        if (!ContractWorkdays.TryParse(raw, out var days, out var error))
+        {
+            return error;
+        }
+
+        if (days.SetEquals(ContractWorkdays.Of(contract)))
+        {
+            return null;
+        }
+
+        ContractWorkdays.Apply(contract, days);
+        changed.Add(ContractFieldNames.Workdays);
+        return null;
+    }
+
+    // A null calendar selection is a real state, not "unknown": the holiday resolution then falls back to the
+    // company-wide calendar, so clearRegion resets to that fallback. Supplying a region together with
+    // clearRegion is contradictory and rejected.
+    private async Task<string?> ApplyRegionAsync(
+        Dictionary<string, object> parameters, ContractResource contract, List<string> changed, CancellationToken cancellationToken)
+    {
+        if (!ContractSkillInput.TryReadBool(parameters, ContractFieldNames.ClearRegion, out var clearRegion, out var readError))
+        {
+            return readError;
+        }
+
+        var region = GetParameter<string>(parameters, ContractFieldNames.Region)?.Trim();
+        var regionSupplied = !string.IsNullOrEmpty(region);
+
+        if (clearRegion == true)
+        {
+            if (regionSupplied)
+            {
+                return $"Parameter '{ContractFieldNames.Region}' must not be combined with '{ContractFieldNames.ClearRegion}'.";
+            }
+
+            SetCalendar(contract, null, changed);
+            return null;
+        }
+
+        if (!regionSupplied)
+        {
+            return null;
+        }
+
+        var (calendarId, error) = await ContractRegionCalendarResolver.ChooseAsync(
+            _countryResolver, _calendarSelectionRepository, region!, contract.CalendarSelectionId,
+            ContractCalendarOwner, cancellationToken);
+
+        if (error != null)
+        {
+            return error;
+        }
+
+        SetCalendar(contract, calendarId, changed);
+        return null;
+    }
+
+    private static void SetCalendar(ContractResource contract, Guid? calendarId, List<string> changed)
+    {
+        if (contract.CalendarSelectionId == calendarId)
+        {
+            return;
+        }
+
+        contract.CalendarSelectionId = calendarId;
+        changed.Add(ContractFieldNames.Region);
     }
 
     private string? ApplyNullableDecimalFields(

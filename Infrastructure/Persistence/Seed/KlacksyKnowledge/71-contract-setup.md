@@ -95,9 +95,10 @@ The template's valid-until date is **not** copied, so the new contract is open-e
 template works but is reported.
 
 Surcharges are **time credits, never money**, and never overtime: call them time credits for night,
-holiday, Saturday and Sunday work. Afterwards the night, holiday, Saturday and Sunday credits
-and the valid-until date can be changed with `update_contract`. The WE3 credit, the night window and the
-scheduling rule can only be changed in the contract settings page.
+holiday, Saturday and Sunday work. Afterwards the night, holiday, Saturday and Sunday credits, the
+valid-until date, the working weekdays and the holiday calendar (by region) can be changed with
+`update_contract`. The WE3 credit, the night window and the scheduling rule can only be changed in the
+contract settings page.
 
 If the copied contract keeps a scheduling rule and the administrator adapted guaranteed, minimum, maximum
 or full-time hours or the working weekdays, the result warns that the rule may override those values:
@@ -108,8 +109,9 @@ contract settings page.
 
 If no template is close, or there are no contracts yet, create the contract from scratch with
 `create_contract`, using the values gathered in the interview. That skill cannot set the working weekdays
-or the holiday calendar: tell the administrator that both must be completed in the contract settings
-page afterwards.
+or the holiday calendar; set them right afterwards with `update_contract` (weekdays as a list such as
+Mon,Tue,Wed,Thu,Fri, the calendar by region code). The WE3 credit, the night window and the scheduling
+rule still need the contract settings page.
 
 ## Step 6 — giving it to a person
 

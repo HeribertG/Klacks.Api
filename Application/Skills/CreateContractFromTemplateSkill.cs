@@ -11,7 +11,7 @@
 /// fall back to 0). It never derives hours from contract-type words and does NOT assign the contract to an
 /// employee.
 /// </summary>
-/// <param name="templateContractId">Required. UUID of the existing contract to copy.</param>
+/// <param name="templateContractId">Required. Contract id (UUID) or exact contract name of the existing contract to copy.</param>
 /// <param name="name">Required. Name of the new contract; must not equal the name of any existing contract.</param>
 /// <param name="validFrom">Required. Validity start date of the new contract (YYYY-MM-DD).</param>
 /// <param name="guaranteedHours">Optional. Fixed guaranteed hours per interval (workload path 1); excludes percent.</param>
@@ -42,6 +42,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_contract_from_template")]
 public class CreateContractFromTemplateSkill : BaseSkillImplementation
 {
+    private const string TemplateCalendarOwner = "template's";
+
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
     private readonly IContractRepository _contractRepository;
@@ -67,12 +69,15 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var templateIdRaw = GetParameter<string>(parameters, ContractFieldNames.TemplateContractId);
-        if (!Guid.TryParse(templateIdRaw, out var templateId))
+        var (resolvedTemplateId, templateError) = await ContractReferenceResolver.ResolveIdAsync(
+            _contractRepository, GetParameter<string>(parameters, ContractFieldNames.TemplateContractId),
+            ContractFieldNames.TemplateContractId, ContractNameMatchMode.ExactOrUniquePartial, cancellationToken);
+        if (resolvedTemplateId == null)
         {
-            return SkillResult.Error(
-                $"Missing or invalid required parameter '{ContractFieldNames.TemplateContractId}' (UUID of an existing contract).");
+            return SkillResult.Error(templateError!);
         }
+
+        var templateId = resolvedTemplateId.Value;
 
         var name = GetParameter<string>(parameters, ContractFieldNames.Name)?.Trim();
         if (string.IsNullOrEmpty(name))
@@ -258,33 +263,17 @@ public class CreateContractFromTemplateSkill : BaseSkillImplementation
     private async Task<string?> ApplyRegionAsync(
         ContractResource resource, string region, CancellationToken cancellationToken)
     {
-        var ids = await ContractRegionCalendarResolver.ResolveCalendarSelectionIdsAsync(
-            _countryResolver, _calendarSelectionRepository, region, cancellationToken);
+        var (calendarId, error) = await ContractRegionCalendarResolver.ChooseAsync(
+            _countryResolver, _calendarSelectionRepository, region, resource.CalendarSelectionId,
+            TemplateCalendarOwner, cancellationToken);
 
-        if (ids.Count == 1)
+        if (error != null)
         {
-            resource.CalendarSelectionId = ids[0];
-            return null;
+            return error;
         }
 
-        if (ids.Count > 1 && resource.CalendarSelectionId is { } templateCalendarId && ids.Contains(templateCalendarId))
-        {
-            return null;
-        }
-
-        var calendars = await _calendarSelectionRepository.List();
-
-        if (ids.Count == 0)
-        {
-            var existing = calendars.Count > 0 ? string.Join(", ", calendars.Select(c => c.Name)) : "none";
-            return $"No holiday calendar is configured for region '{region}'. Existing calendars: {existing}. " +
-                   $"Ask the administrator which calendar is meant or leave '{ContractFieldNames.Region}' out to keep the " +
-                   "template's calendar.";
-        }
-
-        var matching = string.Join(", ", calendars.Where(c => ids.Contains(c.Id)).Select(c => c.Name));
-        return $"Region '{region}' matches several holiday calendars: {matching}. Ask the administrator which one " +
-               "is meant — do not guess.";
+        resource.CalendarSelectionId = calendarId;
+        return null;
     }
 
     private static SkillResult BuildResult(

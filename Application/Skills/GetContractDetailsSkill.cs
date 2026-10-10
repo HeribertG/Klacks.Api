@@ -7,13 +7,17 @@
 /// rule decides, then the installation settings; 0 is an explicit "no credit". Use list_contracts first
 /// to find the contract ID.
 /// </summary>
-/// <param name="contractId">Required. UUID of the contract to load.</param>
+/// <param name="contractId">Required. Contract id (UUID) or exact contract name of the contract to load.</param>
+/// <param name="contractRepository">Lists the contracts a name reference is resolved against</param>
 /// <param name="holidayCalendarSourceResolver">Names the effective holiday calendar and its source</param>
 
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Services.Contracts;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -29,10 +33,16 @@ public class GetContractDetailsSkill : BaseSkillImplementation
     private readonly IMediator _mediator;
     private readonly IHolidayCalendarSourceResolver _holidayCalendarSourceResolver;
 
-    public GetContractDetailsSkill(IMediator mediator, IHolidayCalendarSourceResolver holidayCalendarSourceResolver)
+    private readonly IContractRepository _contractRepository;
+
+    public GetContractDetailsSkill(
+        IMediator mediator,
+        IHolidayCalendarSourceResolver holidayCalendarSourceResolver,
+        IContractRepository contractRepository)
     {
         _mediator = mediator;
         _holidayCalendarSourceResolver = holidayCalendarSourceResolver;
+        _contractRepository = contractRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -40,7 +50,15 @@ public class GetContractDetailsSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var contractId = GetRequiredGuid(parameters, "contractId");
+        var (resolvedId, referenceError) = await ContractReferenceResolver.ResolveIdAsync(
+            _contractRepository, GetParameter<string>(parameters, ContractFieldNames.ContractId),
+            ContractFieldNames.ContractId, ContractNameMatchMode.WithFuzzy, cancellationToken);
+        if (resolvedId == null)
+        {
+            return SkillResult.Error(referenceError!);
+        }
+
+        var contractId = resolvedId.Value;
 
         ContractResource contract;
         try

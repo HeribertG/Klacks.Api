@@ -2943,7 +2943,11 @@
     "zmień dane kontraktu",
     "edytuj godziny w umowie",
     "zmień stawki w kontrakcie",
-    "modyfikuj umowę"
+    "modyfikuj umowę",
+    "zmień umowę",
+    "edytuj umowę",
+    "dni robocze umowy",
+    "kalendarz świąt umowy"
   ],
   "update_counter_rule": [
     "zmień regułę zliczania",

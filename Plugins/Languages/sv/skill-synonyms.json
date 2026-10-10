@@ -2883,7 +2883,11 @@
     "uppdatera kontrakt",
     "justera kontraktstimmar",
     "ändra tillägg",
-    "byt namn på kontrakt"
+    "byt namn på kontrakt",
+    "redigera kontraktet",
+    "ändra i kontraktet",
+    "kontraktets arbetsdagar",
+    "kontraktets helgdagskalender"
   ],
   "update_counter_rule": [
     "ändra en räkneregel",

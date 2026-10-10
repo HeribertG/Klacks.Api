@@ -2858,7 +2858,11 @@
     "thay đổi giờ làm trong hợp đồng",
     "điều chỉnh phụ cấp hợp đồng",
     "sửa tên hợp đồng",
-    "cập nhật hợp đồng theo id"
+    "cập nhật hợp đồng theo id",
+    "thay đổi hợp đồng",
+    "chỉnh sửa hợp đồng",
+    "ngày làm việc của hợp đồng",
+    "lịch nghỉ lễ của hợp đồng"
   ],
   "update_counter_rule": [
     "sửa quy tắc đếm",

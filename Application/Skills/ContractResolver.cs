@@ -16,12 +16,12 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class ContractResolver
 {
+    public const int MaxListedContractNames = 20;
+
     public static (Contract? Contract, string? Error) Resolve(
         IReadOnlyList<Contract> contracts, string? contractName)
     {
-        var active = contracts
-            .Where(c => !c.IsDeleted && !string.IsNullOrWhiteSpace(c.Name))
-            .ToList();
+        var active = ActiveContracts(contracts);
         var query = (contractName ?? string.Empty).Trim();
 
         var resolution = NameResolution.Resolve(active, c => c.Name, query);
@@ -30,21 +30,58 @@ internal static class ContractResolver
             return (resolution.Match, null);
         }
 
-        if (resolution.Candidates.Count > 1)
-        {
-            var names = string.Join(", ", resolution.Candidates.Select(c => $"'{c.Name}'"));
-            return (null,
-                $"Multiple contracts match '{query}': {names}. Ask the user which exact contract " +
-                "they mean, then call this skill again with that exact name — do not guess.");
-        }
+        return (null, resolution.Candidates.Count > 1
+            ? AmbiguousMessage(query, resolution.Candidates)
+            : NotFoundMessage(query, active));
+    }
 
+    public static (Contract? Contract, string? Error) ResolveExactOrUniquePartial(
+        IReadOnlyList<Contract> contracts, string? contractName)
+    {
+        var active = ActiveContracts(contracts);
+        var query = (contractName ?? string.Empty).Trim();
+
+        var exact = active.Where(c => string.Equals(c.Name.Trim(), query, StringComparison.OrdinalIgnoreCase)).ToList();
+        var matches = exact.Count > 0
+            ? exact
+            : query.Length == 0
+                ? []
+                : active.Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        return matches.Count switch
+        {
+            1 => (matches[0], null),
+            > 1 => (null, AmbiguousMessage(query, matches)),
+            _ => (null, NotFoundMessage(query, active))
+        };
+    }
+
+    private static List<Contract> ActiveContracts(IReadOnlyList<Contract> contracts) =>
+        contracts.Where(c => !c.IsDeleted && !string.IsNullOrWhiteSpace(c.Name)).ToList();
+
+    private static string AmbiguousMessage(string query, IReadOnlyList<Contract> candidates)
+    {
+        var names = string.Join(", ", candidates.Select(c => $"'{c.Name}'"));
+        return $"Multiple contracts match '{query}': {names}. Ask the user which exact contract " +
+               "they mean, then call this skill again with that exact name — do not guess.";
+    }
+
+    private static string NotFoundMessage(string query, IReadOnlyList<Contract> active)
+    {
         var available = active.Count > 0
-            ? "Available contracts: " + string.Join(", ", active.Select(c => c.Name)) + "."
+            ? "Available contracts: " + ListNames(active) + "."
             : "There are no contracts yet.";
-        return (null,
-            $"No contract found matching '{query}'. {available} " +
-            "Do not call this skill again with the same value — pick the exact contract name from " +
-            "this list or ask the user which one to assign. Offer the user only these real " +
-            "contract names — do not invent contracts.");
+        return $"No contract found matching '{query}'. {available} " +
+               "Do not call this skill again with the same value — pick the exact contract name from " +
+               "this list or ask the user which one is meant. Offer the user only these real " +
+               "contract names — do not invent contracts.";
+    }
+
+    private static string ListNames(IReadOnlyList<Contract> contracts)
+    {
+        var shown = string.Join(", ", contracts.Take(MaxListedContractNames).Select(c => c.Name));
+        return contracts.Count > MaxListedContractNames
+            ? $"{shown} and {contracts.Count - MaxListedContractNames} more"
+            : shown;
     }
 }

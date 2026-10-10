@@ -2895,7 +2895,11 @@
     "modifică orele contractuale",
     "schimbă tariful",
     "redenumeste contractul",
-    "ajustează clauzele contractului"
+    "ajustează clauzele contractului",
+    "modifică contractul",
+    "editează contractul",
+    "zilele lucrătoare ale contractului",
+    "calendarul sărbătorilor legale al contractului"
   ],
   "update_counter_rule": [
     "schimbă regula de numărare pentru turele de noapte",

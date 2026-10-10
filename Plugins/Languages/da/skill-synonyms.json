@@ -2884,7 +2884,11 @@
     "ændr kontrakttimer",
     "justér tillæg",
     "redigér kontrakt",
-    "omdøb kontrakt"
+    "omdøb kontrakt",
+    "ændr kontrakten",
+    "redigér kontrakten",
+    "kontraktens arbejdsdage",
+    "kontraktens helligdagskalender"
   ],
   "update_counter_rule": [
     "ændr tællereglen",

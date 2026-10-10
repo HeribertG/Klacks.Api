@@ -2913,7 +2913,11 @@
     "modificar contrato",
     "cambiar horas del contrato",
     "ajustar tarifas del contrato",
-    "editar plantilla de contrato"
+    "editar plantilla de contrato",
+    "cambiar el contrato",
+    "editar el contrato",
+    "días laborables del contrato",
+    "calendario de festivos del contrato"
   ],
   "update_counter_rule": [
     "cambia el máximo de guardias nocturnas a 5",

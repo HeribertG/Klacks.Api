@@ -2850,7 +2850,10 @@
     "edit jam kontrak",
     "sesuaikan tarif kontrak",
     "perbarui kontrak",
-    "ganti nama kontrak"
+    "ganti nama kontrak",
+    "mengubah kontrak",
+    "hari kerja kontrak",
+    "kalender hari libur kontrak"
   ],
   "update_counter_rule": [
     "ubah aturan hitung",

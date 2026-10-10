@@ -2925,7 +2925,12 @@
     "pas de toeslagen van het contract aan",
     "verander de naam van het contract",
     "werk de contractgegevens bij",
-    "pas de geldigheidsdatum van het contract aan"
+    "pas de geldigheidsdatum van het contract aan",
+    "wijzig het contract",
+    "bewerk het contract",
+    "bij het contract",
+    "werkdagen van het contract",
+    "feestdagenkalender van het contract"
   ],
   "update_counter_rule": [
     "pas de telregel aan",

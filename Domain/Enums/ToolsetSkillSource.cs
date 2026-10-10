@@ -31,8 +31,8 @@ public enum ToolsetSkillSource
     /// grouping intent, proposal confirmation, plan candidate, planning-profile loop, pending notes).</summary>
     Hint = 7,
 
-    /// <summary>The previous turn ran a KnowHow or Advise skill and the skill graph leads from it to this
-    /// one (follow-through guarantee). Appended last: the lowest-priority guarantee, so it never evicts the
+    /// <summary>The previous turn ran an Advise skill, or a KnowHow skill that opens an advisory chain, and the
+    /// skill graph leads from it to this one (follow-through guarantee). Appended last: the lowest-priority guarantee, so it never evicts the
     /// current message's own keyword, learned-phrase or recipe guarantees at truncation.</summary>
     FollowThrough = 8
 }

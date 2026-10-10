@@ -22418,7 +22418,7 @@
       "parameters": [
         {
           "name": "contractId",
-          "description": "UUID of the contract to load",
+          "description": "Contract id (GUID) or exact contract name",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -22477,12 +22477,12 @@
         "fr": "Détails du contrat",
         "it": "Dettagli del contratto"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "update_contract",
       "area": "contract",
-      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates, shift-work flag and validity dates; clear* flags reset a value to the standard. Only supplied fields change; hour values must not be negative, minimumHours must not exceed maximumHours and validUntil must not be before validFrom. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
+      "description": "Updates a contract template (master data): name, guaranteed/minimum/maximum/full-time hours, night/holiday/Saturday/Sunday time-credit rates, shift-work flag, validity dates, working weekdays and holiday calendar by region; clear* flags reset a value to the standard. Only supplied fields change; hours must not be negative and minimumHours must not exceed maximumHours. Use when the user wants to change an existing record. Do NOT use when they only want to see, list, or check existing data.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -22491,7 +22491,7 @@
       "parameters": [
         {
           "name": "contractId",
-          "description": "UUID of the contract to update",
+          "description": "Contract id (GUID) or exact contract name",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -22664,6 +22664,30 @@
           "required": false,
           "defaultValue": false,
           "enumValues": null
+        },
+        {
+          "name": "workdays",
+          "description": "Working weekdays as a comma separated list of Mon,Tue,Wed,Thu,Fri,Sat,Sun; listed days are worked, all others are not. Map spoken day names to these tokens (for example Samstag or Saturday to Sat)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "region",
+          "description": "State, canton or region code that selects the public-holiday calendar (for example ZH or BE); it must match exactly one calendar of the installation",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clearRegion",
+          "description": "If true, removes the contract's own holiday calendar so the company-wide calendar applies",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -22690,26 +22714,47 @@
           "vertrag anpassen",
           "vertragsstunden ändern",
           "zuschlag ändern",
-          "vertrag umbenennen"
+          "vertrag umbenennen",
+          "ändere den vertrag",
+          "beim vertrag",
+          "bei dem vertrag",
+          "vertrag soll",
+          "arbeitstage des vertrags",
+          "feiertagskalender des vertrags"
         ],
         "en": [
           "update contract",
           "modify contract",
           "change contract hours",
           "adjust rate",
-          "rename contract"
+          "rename contract",
+          "change the contract",
+          "edit the contract",
+          "on the contract",
+          "working days of the contract",
+          "holiday calendar of the contract"
         ],
         "fr": [
           "modifier contrat",
           "ajuster contrat",
           "changer heures contractuelles",
-          "renommer contrat"
+          "renommer contrat",
+          "modifier le contrat",
+          "changer le contrat",
+          "sur le contrat",
+          "jours de travail du contrat",
+          "calendrier des jours fériés du contrat"
         ],
         "it": [
           "modificare contratto",
           "adeguare contratto",
           "cambiare ore contrattuali",
-          "rinominare contratto"
+          "rinominare contratto",
+          "modificare il contratto",
+          "cambiare il contratto",
+          "sul contratto",
+          "giorni lavorativi del contratto",
+          "calendario festivo del contratto"
         ]
       },
       "labels": {
@@ -22718,7 +22763,7 @@
         "fr": "Modifier un modèle de contrat",
         "it": "Modifica un modello di contratto"
       },
-      "version": 6
+      "version": 9
     },
     {
       "name": "delete_contract",
@@ -45901,7 +45946,7 @@
       "parameters": [
         {
           "name": "templateContractId",
-          "description": "UUID of the existing contract to copy; take it from the template the administrator confirmed",
+          "description": "Contract id (GUID) or exact contract name of the existing contract to copy; take it from the template the administrator confirmed",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -46048,7 +46093,7 @@
         "fr": "Créer un contrat à partir d'un modèle",
         "it": "Crea un contratto da un modello"
       },
-      "version": 1
+      "version": 2
     }
   ]
 }

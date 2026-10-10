@@ -2857,7 +2857,11 @@
     "edit kontrak",
     "tukar waktu kontrak",
     "ubah kadar kontrak",
-    "kemas kini kontrak"
+    "kemas kini kontrak",
+    "tukar kontrak",
+    "ubah suai kontrak",
+    "hari bekerja kontrak",
+    "kalendar cuti umum kontrak"
   ],
   "update_counter_rule": [
     "ubah peraturan kiraan ini",
