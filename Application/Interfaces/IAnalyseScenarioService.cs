@@ -88,6 +88,14 @@ public interface IAnalyseScenarioService
     Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Ids of the live (not deleted) breaks that belong to the scenario. Must be read BEFORE
+    /// <see cref="PromoteScenarioWorksAsync"/>, which clears the scenario token on them.
+    /// </summary>
+    /// <param name="token">Scenario isolation token.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<IReadOnlyList<Guid>> GetScenarioBreakIdsAsync(Guid token, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Soft-deletes the movable (LockLevel.None) cloned works on the <paramref name="plannedSlots"/>
     /// (shift, date) pairs the planner fills, plus their WorkChange/Expense/sub-Break children, so the
     /// planner's works REPLACE the incumbent on those slots instead of double-booking them on accept

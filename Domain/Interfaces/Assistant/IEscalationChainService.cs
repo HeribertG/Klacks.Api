@@ -43,4 +43,9 @@ public interface IEscalationChainService
     /// question somebody has already answered elsewhere (a delegation). Returns whether a chain was
     /// superseded by THIS call; false when none is running or another instance ended it first.</summary>
     Task<bool> SupersedeConditionApprovalChainAsync(Guid conditionId, string reason, CancellationToken cancellationToken = default);
+
+    /// <summary>Ends every Running absence-coverage chain whose absence break is one of <paramref name="breakIds"/>
+    /// as Superseded and cancels its remaining stages; used once the scenario that covers the absence has been
+    /// accepted, so nobody keeps being called for an absence that is already covered. Returns how many chains ended.</summary>
+    Task<int> SupersedeAbsenceChainsForBreaksAsync(IReadOnlyCollection<Guid> breakIds, string reason, CancellationToken cancellationToken = default);
 }

@@ -51,6 +51,11 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
     private const string AcceptedDetailFormat = "accepted scenario {0}";
 
+    private const string AbsenceCoveredReason = "the scenario that covers the absence was accepted";
+
+    private const string AbsenceChainsNotEndedMessage =
+        "Ending the escalation chains of accepted scenario {ScenarioId} failed; the scenario acceptance itself is stored";
+
     private const string PeriodHoursRefreshFailedMessage =
         "Refreshing the real plan's period hours after accepting scenario {ScenarioId} failed; the scenario acceptance itself is stored";
 
@@ -66,6 +71,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
+    private readonly IEscalationChainService _escalationChainService;
 
     public AcceptAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
@@ -80,6 +86,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         IHttpContextAccessor httpContextAccessor,
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
+        IEscalationChainService escalationChainService,
         ILogger<AcceptAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
@@ -95,6 +102,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         _httpContextAccessor = httpContextAccessor;
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
+        _escalationChainService = escalationChainService;
     }
 
     public async Task<bool> Handle(AcceptAnalyseScenarioCommand command, CancellationToken cancellationToken)
@@ -110,6 +118,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
 
+            var scenarioBreakIds = await _scenarioService.GetScenarioBreakIdsAsync(scenario.Token, cancellationToken);
+
             await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
             await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
 
@@ -124,10 +134,32 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await RefreshRealPeriodHoursAsync(scenario.Id, scenario.FromDate, scenario.UntilDate);
 
+            await EndAbsenceCoverageChainsAsync(scenario.Id, scenarioBreakIds, cancellationToken);
+
             await ExecuteLedgerConditionAsync(command, cancellationToken);
 
             return true;
         }, nameof(Handle), new { command.ScenarioId });
+    }
+
+    /// <summary>
+    /// Ends the running "who covers this absence" call lists of the absences this scenario covers: once the
+    /// scenario is accepted the absence is covered, so nobody should keep being called for it. Runs AFTER
+    /// CompleteAsync because the chain repository commits on its own (ExecuteUpdate) and must not fire for an
+    /// accept that is still undone; best-effort for the same reason as the other write-backs - the accept is
+    /// durable at this point and a failure here must not tell the user their accept did not happen.
+    /// </summary>
+    private async Task EndAbsenceCoverageChainsAsync(
+        Guid scenarioId, IReadOnlyCollection<Guid> breakIds, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _escalationChainService.SupersedeAbsenceChainsForBreaksAsync(breakIds, AbsenceCoveredReason, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, AbsenceChainsNotEndedMessage, scenarioId);
+        }
     }
 
     /// <summary>

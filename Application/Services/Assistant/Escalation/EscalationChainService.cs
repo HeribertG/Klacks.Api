@@ -431,6 +431,33 @@ public class EscalationChainService : IEscalationChainService
         return true;
     }
 
+    public async Task<int> SupersedeAbsenceChainsForBreaksAsync(
+        IReadOnlyCollection<Guid> breakIds, string reason, CancellationToken cancellationToken = default)
+    {
+        if (breakIds.Count == 0)
+        {
+            return 0;
+        }
+
+        var breakIdSet = breakIds.ToHashSet();
+        var running = await _chainRepository.GetRunningChainsWithAbsenceBreakAsync(cancellationToken);
+        var superseded = 0;
+
+        foreach (var chain in running.Where(c =>
+                     c.Purpose == EscalationChainPurpose.AbsenceCoverage && breakIdSet.Contains(c.AbsenceBreakId!.Value)))
+        {
+            if (!await _chainRepository.TrySupersedeChainAsync(chain.Id, reason, cancellationToken))
+            {
+                continue;
+            }
+
+            await _chainRepository.CancelRemainingStagesAsync(chain.Id, Guid.Empty, cancellationToken);
+            superseded++;
+        }
+
+        return superseded;
+    }
+
     private static bool IsUndeliverable(OfflineMessengerDeliveryOutcome outcome) =>
         outcome is OfflineMessengerDeliveryOutcome.NoContact
             or OfflineMessengerDeliveryOutcome.Failed

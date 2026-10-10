@@ -323,6 +323,14 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         }
     }
 
+    public async Task<IReadOnlyList<Guid>> GetScenarioBreakIdsAsync(Guid token, CancellationToken ct)
+    {
+        return await _context.Break.IgnoreQueryFilters()
+            .Where(b => b.AnalyseToken == token && !b.IsDeleted)
+            .Select(b => b.Id)
+            .ToListAsync(ct);
+    }
+
     public async Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
         var cloneShifts = await _context.Shift.IgnoreQueryFilters()
