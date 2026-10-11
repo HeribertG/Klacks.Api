@@ -13376,7 +13376,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -15485,7 +15485,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
