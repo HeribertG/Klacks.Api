@@ -166,6 +166,20 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
 
     public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
+        var (shiftIds, clientIds) = await ResolveRealAcceptScopeAsync(groupId, token, fromDate, untilDate, ct);
+
+        await SoftDeleteRealWorks(shiftIds, fromDate, untilDate, ct);
+        await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, ct);
+        await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, ct);
+    }
+
+    /// <summary>
+    /// The real shifts whose works and the real clients whose breaks and notes an accept replaces. Shared by the
+    /// accept delete and the staleness check, so both always look at exactly the same rows.
+    /// </summary>
+    private async Task<(List<Guid>? ShiftIds, List<Guid>? ClientIds)> ResolveRealAcceptScopeAsync(
+        Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    {
         List<Guid>? shiftIds;
         List<Guid>? clientIds;
 
@@ -220,9 +234,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 .ToList();
         }
 
-        await SoftDeleteRealWorks(shiftIds, fromDate, untilDate, ct);
-        await SoftDeleteRealBreaks(clientIds, fromDate, untilDate, ct);
-        await SoftDeleteRealScheduleNotes(clientIds, fromDate, untilDate, ct);
+        return (shiftIds, clientIds);
     }
 
     public async Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken ct)

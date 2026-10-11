@@ -11,6 +11,10 @@
 /// can never override its own identity with it: the handler prefers the NameIdentifier claim whenever
 /// one exists. Null (the default) keeps the request-driven behaviour unchanged.
 /// </param>
+/// <param name="OverrideStale">
+/// The caller acknowledged that the original plan changed after the scenario was created and that accepting
+/// overwrites those changes. Independent of OverrideBlock: neither flag ever passes the other check.
+/// </param>
 
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -19,4 +23,5 @@ namespace Klacks.Api.Application.Commands.AnalyseScenarios;
 public record AcceptAnalyseScenarioCommand(
     Guid ScenarioId,
     bool OverrideBlock = false,
-    Guid? ActingUserId = null) : IRequest<bool>;
+    Guid? ActingUserId = null,
+    bool OverrideStale = false) : IRequest<bool>;

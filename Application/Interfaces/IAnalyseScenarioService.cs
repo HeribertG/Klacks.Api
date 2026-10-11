@@ -6,6 +6,9 @@
 /// group hierarchy resolution). Keeps command handlers free of DataBaseContext.
 /// </summary>
 
+using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Models.Schedules;
+
 namespace Klacks.Api.Application.Interfaces;
 
 public interface IAnalyseScenarioService
@@ -85,6 +88,16 @@ public interface IAnalyseScenarioService
     /// clients it touches); otherwise the scope is limited to the group hierarchy. Locked rows are never deleted.
     /// </summary>
     Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Read-only staleness check before an accept: the real rows (works, work changes, expenses, breaks, schedule
+    /// notes) inside exactly the scope <see cref="SoftDeleteRealScheduleDataAsync"/> replaces that were created,
+    /// updated or deleted after the scenario was created. Null when there are none (the accept overwrites nothing
+    /// newer than the scenario) or when the scenario has no creation time to compare against.
+    /// </summary>
+    /// <param name="scenario">The scenario about to be accepted (group, token, range and creation time are read)</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<ScenarioStaleness?> FindRealPlanChangesSinceCreationAsync(AnalyseScenario scenario, CancellationToken cancellationToken);
 
     /// <summary>
     /// Validates that no real-side conflict prevents accepting the scenario.

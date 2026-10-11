@@ -328,6 +328,10 @@ public class ErrorHandlingMiddleware
         else if (exception.ConflictCode is { } conflictCode)
         {
             problem.Extensions["errorCode"] = conflictCode;
+            foreach (var (field, value) in exception.ConflictDetails ?? new Dictionary<string, object?>())
+            {
+                problem.Extensions[field] = value;
+            }
         }
 
         await context.Response.WriteAsJsonAsync(problem);

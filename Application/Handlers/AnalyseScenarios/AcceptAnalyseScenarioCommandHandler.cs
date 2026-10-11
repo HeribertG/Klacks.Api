@@ -18,8 +18,12 @@
 /// overlapping the accepted range are recomputed afterwards and open schedules are told to reload them.
 /// A scenario outside the caller's group visibility is answered like a missing one, before the status check, so a
 /// hidden decided scenario does not reveal itself through a 409.
+/// Before the compliance gate a staleness gate runs: when the original plan changed inside the accept scope after the
+/// scenario was created (another scenario accepted, edits by hand), the accept would overwrite those changes and is refused
+/// with a SCENARIO_STALE conflict unless the caller acknowledged it with OverrideStale - independent of OverrideBlock.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
+/// <param name="OverrideStale">Acknowledges that accepting overwrites real-plan changes made after the scenario was created</param>
 /// <param name="groupVisibilityGuard">Decides whether the caller may see the scenario's group</param>
 
 using System.Globalization;
@@ -36,6 +40,7 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
 
@@ -54,6 +59,9 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         "Writing the acceptance of scenario {ScenarioId} back onto its condition failed; the scenario acceptance itself is stored";
 
     private const string AcceptedDetailFormat = "accepted scenario {0}";
+
+    private const string StaleOverrideMessage =
+        "Stale scenario override: user {User} accepted scenario {ScenarioId} although {ChangeCount} real entries in its scope changed after it was created (last change {LastChangeUtc:O} UTC); those changes are overwritten";
 
     private const string AbsenceCoveredReason = "the scenario that covers the absence was accepted";
 
@@ -122,6 +130,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             AnalyseScenarioStatusGuard.EnsureActive(scenario);
 
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
+
+            await EnforceNotStaleAsync(scenario, command.OverrideStale, cancellationToken);
 
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
 
@@ -260,6 +270,36 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
         return command.ActingUserId is Guid actingUserId && actingUserId != Guid.Empty ? actingUserId : null;
     }
+
+    /// <summary>
+    /// Read-only staleness gate, before the (more expensive) compliance gate and before any mutation: when the
+    /// original plan changed inside the accept scope after the scenario was created, the accept would silently
+    /// overwrite those changes, so it is refused unless the caller acknowledged exactly that (overrideStale). A plain
+    /// user acknowledgement, not a supervisor right; OverrideBlock never passes it.
+    /// </summary>
+    private async Task EnforceNotStaleAsync(AnalyseScenario scenario, bool overrideStale, CancellationToken cancellationToken)
+    {
+        var staleness = await _scenarioService.FindRealPlanChangesSinceCreationAsync(scenario, cancellationToken);
+        if (staleness is null)
+        {
+            return;
+        }
+
+        if (!overrideStale)
+        {
+            throw new ScenarioStaleException(staleness);
+        }
+
+        _logger.LogWarning(
+            StaleOverrideMessage,
+            AcceptingUserName(),
+            scenario.Id,
+            staleness.ChangedEntryCount,
+            staleness.LastChangeUtc);
+    }
+
+    private string AcceptingUserName()
+        => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? UnknownUserName;
 
     /// <summary>
     /// Read-only accept gate: evaluates the end-state compliance diff of the scenario versus the

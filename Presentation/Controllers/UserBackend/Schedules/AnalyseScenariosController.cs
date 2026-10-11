@@ -2,6 +2,9 @@
 
 /// <summary>
 /// Controller for CRUD operations and status changes of AnalyseScenarios.
+/// Accept takes two independent acknowledgements: overrideBlock (supervisor override of Block-mode compliance
+/// violations) and overrideStale (accept although the original plan changed after the scenario was created, 409
+/// errorCode SCENARIO_STALE otherwise).
 /// </summary>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
@@ -64,9 +67,10 @@ public class AnalyseScenariosController : BaseController
     }
 
     [HttpPost("{id}/Accept")]
-    public async Task<ActionResult<bool>> Accept(Guid id, [FromQuery] bool overrideBlock = false)
+    public async Task<ActionResult<bool>> Accept(
+        Guid id, [FromQuery] bool overrideBlock = false, [FromQuery] bool overrideStale = false)
     {
-        var result = await _mediator.Send(new AcceptAnalyseScenarioCommand(id, overrideBlock));
+        var result = await _mediator.Send(new AcceptAnalyseScenarioCommand(id, overrideBlock, OverrideStale: overrideStale));
         return Ok(result);
     }
 
