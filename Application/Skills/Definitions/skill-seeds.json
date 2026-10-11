@@ -12991,7 +12991,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13113,7 +13113,7 @@
         "fr": "Planifier une affectation",
         "it": "Pianifica un'assegnazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_work",
@@ -13122,7 +13122,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13183,7 +13183,7 @@
         "fr": "Supprimer une affectation",
         "it": "Elimina un'assegnazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_work",
@@ -13192,7 +13192,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13279,7 +13279,7 @@
         "fr": "Modifier une affectation",
         "it": "Modifica un'assegnazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_period_hours",
@@ -13443,7 +13443,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13504,7 +13504,7 @@
         "fr": "Confirmer et verrouiller une affectation",
         "it": "Conferma e blocca un'assegnazione"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "unconfirm_work",
@@ -13513,7 +13513,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13571,7 +13571,7 @@
         "fr": "Annuler la confirmation d'une affectation",
         "it": "Annulla la conferma di un'assegnazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_schedule_command",
@@ -13912,7 +13912,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "Admin"
       ],
       "parameters": [
         {
@@ -14002,7 +14002,7 @@
         "fr": "Clôturer une période de paie",
         "it": "Chiudi un periodo di pagamento"
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "reopen_period",
@@ -14011,7 +14011,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "Admin"
       ],
       "parameters": [
         {
@@ -14098,7 +14098,7 @@
         "fr": "Rouvrir une période de paie",
         "it": "Riapri un periodo di pagamento"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_period_status",
@@ -14492,7 +14492,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -14546,7 +14546,7 @@
         "fr": "Supprimer une entrée d'absence",
         "it": "Elimina una voce di assenza"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "verify_my_last_action",
@@ -14731,7 +14731,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts",
+        "CanEditSchedule",
         "CanViewGroups"
       ],
       "parameters": [
@@ -14824,7 +14824,7 @@
         "fr": "Enregistrer une absence pour tout un groupe",
         "it": "Registra un'assenza per l'intero gruppo"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_break",
@@ -14833,7 +14833,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -14958,7 +14958,7 @@
         "fr": "Enregistrer une absence pour une personne",
         "it": "Registra un'assenza per una persona"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_workchange",
@@ -14967,7 +14967,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -15121,7 +15121,7 @@
         "fr": "Ajouter une modification d'affectation",
         "it": "Aggiungi una modifica all'assegnazione"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "start_wizard1",
@@ -17963,7 +17963,7 @@
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -18048,7 +18048,7 @@
         "fr": "Proposer des affectations sous forme de scénario",
         "it": "Proponi assegnazioni come scenario"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "cover_absence",
@@ -18057,7 +18057,7 @@
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -18160,7 +18160,7 @@
         "fr": "Enregistrer une absence imprévue et proposer un remplacement",
         "it": "Registra un'assenza improvvisa e proponi una copertura"
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "evaluate_scenario",
@@ -29670,7 +29670,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -29777,7 +29777,7 @@
         "fr": "Modifier une entrée d'absence",
         "it": "Modifica una voce di assenza"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_workchange",
@@ -29786,7 +29786,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -29909,7 +29909,7 @@
         "fr": "Mettre à jour une modification d'affectation",
         "it": "Aggiorna una modifica all'assegnazione"
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "delete_workchange",
@@ -29918,7 +29918,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -29977,7 +29977,7 @@
         "fr": "Supprimer une modification d'affectation",
         "it": "Elimina una modifica all'assegnazione"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "get_weather",
@@ -30897,7 +30897,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -30988,7 +30988,7 @@
         "fr": "Préréserver un souhait d'absence",
         "it": "Prenota una richiesta di assenza"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_schedule_commands_range",
@@ -31105,7 +31105,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -31212,7 +31212,7 @@
         "fr": "Modifier un souhait d'absence",
         "it": "Modifica una richiesta di assenza"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_break_placeholder",
@@ -31221,7 +31221,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -31291,7 +31291,7 @@
         "fr": "Supprimer un souhait d'absence",
         "it": "Elimina una richiesta di assenza"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "check_absence_conflicts",
