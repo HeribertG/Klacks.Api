@@ -315,6 +315,7 @@ public class LLMFunctionExecutor
         }
 
         call.ContainsExternalContent = result.ContainsExternalContent;
+        call.ReplayedSkillName = result.ReplayedSkillName;
         call.RequiresConfirmation =
             result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);
 

@@ -7,6 +7,10 @@
 /// token represents the user's explicit confirmation. A call that already arrives with the gate bypassed comes from a
 /// background path (scheduled task, plan step, goal plan, proactive or inbound automation), where nobody can have
 /// confirmed anything; it is refused before the token is consumed, so the token stays redeemable by the user.
+/// The replayed skill's result is returned with the replayed skill name added to its metadata
+/// (SkillResultMetadataKeys.ReplayedSkillName), so the previous-action record can name the skill that actually ran.
+/// A redeemed correction undo (PendingConfirmationPurposes.CorrectionUndo) carries no replayed name: the inverse skill it
+/// ran is not something the user asked to continue with, so it must not be re-offered on the next turn.
 /// </summary>
 /// <param name="confirmation_token">The one-time token from the confirmation request.</param>
 
@@ -77,6 +81,23 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
         };
         var bypassContext = context with { BypassAutonomyGate = true };
 
-        return await _skillExecutor.ExecuteAsync(invocation, bypassContext, cancellationToken);
+        var result = await _skillExecutor.ExecuteAsync(invocation, bypassContext, cancellationToken);
+
+        if (string.Equals(pending.Purpose, PendingConfirmationPurposes.CorrectionUndo, StringComparison.OrdinalIgnoreCase))
+        {
+            return result;
+        }
+
+        return WithReplayedSkillName(result, pending.SkillName);
+    }
+
+    private static SkillResult WithReplayedSkillName(SkillResult result, string replayedSkillName)
+    {
+        var metadata = result.Metadata == null
+            ? new Dictionary<string, object>()
+            : new Dictionary<string, object>(result.Metadata);
+        metadata[SkillResultMetadataKeys.ReplayedSkillName] = replayedSkillName;
+
+        return result with { Metadata = metadata };
     }
 }

@@ -14,7 +14,8 @@
 /// <param name="Language">UI language used for engine-recipe matching.</param>
 /// <param name="UserRights">Permissions the engine-recipe guarantee scopes its match against.</param>
 /// <param name="PinnedSkillNames">Skills a prior clarification question offered, guaranteed regardless of retrieval.</param>
-/// <param name="PreviousTurnSkillNames">Skills the previous turn executed, so the follow-through guarantee can keep what a KnowHow or Advise skill leads to.</param>
+/// <param name="PreviousTurnSkillNames">Skills the last tool-calling turn's successful calls ran while its record lives, most recent last, so the follow-through guarantee can keep what a KnowHow or Advise skill leads to.</param>
+/// <param name="ContinuationSkillNames">Skills the immediately preceding turn ran (a confirmed held action named by the skill it replayed), most recent last; null when that record was superseded or this turn is a correction. Feeds the same-skill continuation.</param>
 /// <param name="ApplyLearnedPhraseGuarantee">Whether a learning-loop wording may claim a guarantee slot.</param>
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -29,5 +30,6 @@ public sealed record SkillToolsetGuaranteeRequest(
     string? Language,
     List<string> UserRights,
     IReadOnlyCollection<string>? PinnedSkillNames,
-    IReadOnlyCollection<string>? PreviousTurnSkillNames,
+    IReadOnlyList<string>? PreviousTurnSkillNames,
+    IReadOnlyList<string>? ContinuationSkillNames,
     bool ApplyLearnedPhraseGuarantee);

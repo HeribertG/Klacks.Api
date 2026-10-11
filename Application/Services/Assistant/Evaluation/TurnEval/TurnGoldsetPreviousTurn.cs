@@ -16,6 +16,12 @@ public class TurnGoldsetPreviousTurn
     /// <summary>Name of the skill the assistant called on that turn.</summary>
     public string CalledSkill { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The skill a wrapper call replayed, when CalledSkill is confirm_pending_action redeeming a held invocation.
+    /// Optional; null on every other item, so existing goldset files stay valid.
+    /// </summary>
+    public string? ReplayedSkill { get; set; }
+
     /// <summary>Arguments of that call, verbatim as the model produced them. Empty when irrelevant.</summary>
     public Dictionary<string, string> Arguments { get; set; } = new();
 

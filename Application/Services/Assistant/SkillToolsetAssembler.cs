@@ -21,7 +21,13 @@
 /// </param>
 /// <param name="previousTurnSkillNames">
 /// Skills the previous turn executed; a KnowHow or Advise skill among them keeps the Act skill it leads to in
-/// this turn's toolset (follow-through guarantee). Null when the caller has no previous turn to offer.
+/// this turn's toolset (follow-through guarantee). Ordered, most recent last. Null when the caller has no previous
+/// turn to offer.
+/// </param>
+/// <param name="continuationSkillNames">
+/// Skills the immediately preceding turn ran, a confirmed held action named by the skill it replayed, most recent
+/// last; null when that record was superseded or the turn is a correction. Its last Mutate skill is kept
+/// (same-skill continuation) and is the first guaranteed skill dropped when the provider cap truncates.
 /// </param>
 /// <param name="applyLearnedPhraseGuarantee">
 /// Whether a wording the learning loop stored in skill_phrase may claim a guarantee slot. True on every
@@ -86,7 +92,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         AssembleAsync(
             agent, userRights, userMessage, conversationId, currentRoute, userId, language,
             maxToolsForProvider, applyLearnedPhraseGuarantee,
-            excludedSkillNames: null, pinnedSkillNames: null, previousTurnSkillNames: null, cancellationToken);
+            excludedSkillNames: null, pinnedSkillNames: null, previousTurnSkillNames: null,
+            continuationSkillNames: null, cancellationToken);
 
     public async Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
@@ -100,7 +107,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         bool applyLearnedPhraseGuarantee,
         IReadOnlyCollection<string>? excludedSkillNames,
         IReadOnlyCollection<string>? pinnedSkillNames,
-        IReadOnlyCollection<string>? previousTurnSkillNames,
+        IReadOnlyList<string>? previousTurnSkillNames,
+        IReadOnlyList<string>? continuationSkillNames,
         CancellationToken cancellationToken)
     {
         if (agent == null)
@@ -127,7 +135,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         var guaranteeResult = await _guaranteeResolver.ResolveAsync(
             new SkillToolsetGuaranteeRequest(
                 agent.Id, permittedSkills, retrievedSkills, userMessage, conversationId, currentRoute, userId,
-                language, userRights, pinnedSkillNames, previousTurnSkillNames, applyLearnedPhraseGuarantee),
+                language, userRights, pinnedSkillNames, previousTurnSkillNames, continuationSkillNames,
+                applyLearnedPhraseGuarantee),
             cancellationToken);
         var guaranteedSkills = guaranteeResult.GuaranteedSkills;
         var guaranteedSources = guaranteeResult.GuaranteedSources;
@@ -198,13 +207,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         if (truncated)
         {
-            selectedSkills = selectedSkills
-                .OrderByDescending(s => s.AlwaysOn)
-                .ThenByDescending(s => guaranteedSkills.Contains(s))
-                .ThenByDescending(s => guaranteedSources.TryGetValue(s.Name, out var source) ? source.Priority() : 0)
-                .ThenBy(s => s.SortOrder)
-                .Take(maxToolsForProvider)
-                .ToList();
+            selectedSkills = TruncateToBudget(selectedSkills, guaranteeResult, maxToolsForProvider);
         }
 
         LogToolBudget(
@@ -221,6 +224,24 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             AssemblyMs = assemblyWatch.ElapsedMilliseconds
         };
     }
+
+    /// <summary>
+    /// Cuts the selection to the provider cap in survival order: always-on skills, then guaranteed skills by the
+    /// strength of their source, with the same-skill continuation last within its source, then by SortOrder.
+    /// </summary>
+    /// <param name="selectedSkills">The selection after expansion and exclusion</param>
+    /// <param name="guarantees">This turn's guaranteed skills, their sources and the lowest-ranked among them</param>
+    /// <param name="maxToolsForProvider">The provider cap</param>
+    private static List<AgentSkill> TruncateToBudget(
+        List<AgentSkill> selectedSkills, SkillToolsetGuaranteeResult guarantees, int maxToolsForProvider) =>
+        selectedSkills
+            .OrderByDescending(s => s.AlwaysOn)
+            .ThenByDescending(s => guarantees.GuaranteedSkills.Contains(s))
+            .ThenByDescending(s => guarantees.GuaranteedSources.TryGetValue(s.Name, out var source) ? source.Priority() : 0)
+            .ThenBy(s => guarantees.LowestRankedSkillNames.Contains(s.Name))
+            .ThenBy(s => s.SortOrder)
+            .Take(maxToolsForProvider)
+            .ToList();
 
     /// <summary>
     /// Retrieves the candidate skills for this turn and the domain-context signal for the world-model

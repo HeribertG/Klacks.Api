@@ -9,4 +9,11 @@ public static class SkillResultMetadataKeys
 {
     /// <summary>The one-time token of a confirmation result; written by SkillResult.Confirmation, read by the chat bridge and the MCP handler.</summary>
     public const string ConfirmationToken = "confirmationToken";
+
+    /// <summary>
+    /// Name of the skill a wrapper replayed under its own name (confirm_pending_action redeeming a held invocation);
+    /// written by ConfirmPendingActionSkill, carried by the chat bridge into the previous-action record, so the next
+    /// turn knows which skill actually ran.
+    /// </summary>
+    public const string ReplayedSkillName = "replayedSkillName";
 }

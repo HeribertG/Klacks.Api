@@ -172,11 +172,62 @@ public class SkillToolsetGuaranteeResolver : ISkillToolsetGuaranteeResolver
         // advisory chain, and the user's answer to it ("80 Prozent, monatlich, Kanton Zürich ...") carries no
         // keyword of the skill that is meant to act on it. Same class of gap as the planning-profile loop above,
         // but derived from the skill graph instead of a hand-kept list. Explain skills without an advised Act
-        // skill guarantee nothing. Visibility only, like every guarantee.
+        // skill guarantee nothing. Visibility only, like every guarantee. The same-skill continuation after it
+        // keeps the Mutate skill the immediately preceding turn last ran, including one a confirm_pending_action
+        // replayed, ranked below the advised skills at truncation.
         await ApplyFollowThroughGuaranteeAsync(
             guaranteedSkills, guaranteedSources, permittedSkills, request, cancellationToken);
 
-        return new SkillToolsetGuaranteeResult(guaranteedSkills, guaranteedSources);
+        var lowestRankedNames = ApplySameSkillContinuationGuarantee(
+            guaranteedSkills, guaranteedSources, permittedSkills, request.ContinuationSkillNames);
+
+        return new SkillToolsetGuaranteeResult(guaranteedSkills, guaranteedSources, lowestRankedNames);
+    }
+
+    /// <summary>
+    /// Keeps the Mutate skill the immediately preceding turn last ran successfully, so a follow-up on the same object ("and set
+    /// its holiday calendar to Zurich as well") finds the skill the user just used, whatever its wording. A skill a
+    /// confirm_pending_action replayed counts as run: the caller names that call by the replayed skill. The class
+    /// is the curated Effect, never IsReadOnly, so Read, Explain and Advise skills are not continued here. Always-on
+    /// skills are skipped because they are in every toolset anyway; only permitted (and therefore enabled) skills
+    /// qualify, and the claim is capped at MaxContinuationSkills, most recent first. Its source is FollowThrough,
+    /// the weakest guarantee, and a skill that no other guarantee claimed is returned as lowest-ranked, so at
+    /// truncation it is dropped before the advised follow-through skills of the same source. Only the immediately
+    /// preceding turn counts: the caller passes null once that record was superseded. Visibility only: the
+    /// autonomy gate and a sensitive skill's confirmation are untouched.
+    /// </summary>
+    /// <param name="continuationSkillNames">Skills the immediately preceding turn's successful calls ran, most recent last</param>
+    private static HashSet<string> ApplySameSkillContinuationGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IDictionary<string, ToolsetSkillSource> guaranteedSources,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        IReadOnlyList<string>? continuationSkillNames)
+    {
+        var lowestRankedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (continuationSkillNames is not { Count: > 0 })
+        {
+            return lowestRankedNames;
+        }
+
+        var continuedSkills = Enumerable.Reverse(continuationSkillNames)
+            .Where(name => !string.Equals(name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase))
+            .Select(name => permittedSkills.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase)))
+            .Where(skill => skill is { Effect: SkillEffect.Mutate, AlwaysOn: false })
+            .Take(SkillFollowThroughDefaults.MaxContinuationSkills)
+            .ToList();
+
+        foreach (var skill in continuedSkills)
+        {
+            if (!guaranteedSources.ContainsKey(skill!.Name))
+            {
+                lowestRankedNames.Add(skill.Name);
+            }
+
+            AddPermittedSkillByName(
+                guaranteedSkills, permittedSkills, skill.Name, ToolsetSkillSource.FollowThrough, guaranteedSources);
+        }
+
+        return lowestRankedNames;
     }
 
     /// <summary>

@@ -5,7 +5,9 @@
 /// KnowHow (Explain) skill whose Act skills are fronted by Advise skills (an advisory chain), the Act skills the
 /// advice leads to (and the Advise skills in front of them) are kept in the next turn's toolset. A KnowHow skill
 /// without such a chain guarantees nothing. MaxGuaranteedSkills caps how many such skills one turn may claim, so the
-/// guarantee can never crowd out the rest of the toolset.
+/// guarantee can never crowd out the rest of the toolset. MaxContinuationSkills caps the same-skill continuation: the
+/// Mutate skill the previous turn last ran successfully (directly or replayed by confirm_pending_action) stays in the
+/// next turn's toolset, only the most recent one.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -13,4 +15,6 @@ namespace Klacks.Api.Domain.Constants;
 public static class SkillFollowThroughDefaults
 {
     public const int MaxGuaranteedSkills = 3;
+
+    public const int MaxContinuationSkills = 1;
 }

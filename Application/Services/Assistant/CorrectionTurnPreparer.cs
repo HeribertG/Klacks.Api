@@ -25,9 +25,10 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
     /// <summary>
     /// Holds the one-time token of an undo offer. Written HERE ONLY, never in ITurnPreparationService: a
     /// headless replay resolves the same undo as data and must leave no redeemable token behind. The
-    /// token carries PendingConfirmationPurposes.GateReplay because it is redeemed exactly like any other
-    /// held invocation - an affirmation narrows the next turn to confirm_pending_action, which replays
-    /// these arguments. Known limitation, not introduced here: PeekLatestForUser looks up the latest
+    /// token carries PendingConfirmationPurposes.CorrectionUndo and is redeemed like any other held
+    /// invocation - an affirmation narrows the next turn to confirm_pending_action, which replays these
+    /// arguments; the purpose keeps the redeemed inverse out of the next turn's same-skill continuation.
+    /// Known limitation, not introduced here: PeekLatestForUser looks up the latest
     /// token PER USER, not per conversation, so an affirmation in another conversation of the same user
     /// that is open at the same time can redeem this one. TP1 narrows the window (the token exists only
     /// on the non-ambiguous path and only when an offer was actually made); conversation-scoped
@@ -109,7 +110,8 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
                 maxToolsForProvider, applyLearnedPhraseGuarantee: true,
                 excludedSkillNames: correctionPlan?.ExcludedSkillNames,
                 pinnedSkillNames: lastAction?.ClarificationSkillNames,
-                previousTurnSkillNames: PreviousTurnSkillNames(lastAction),
+                previousTurnSkillNames: lastAction?.SuccessfulSkillNames(resolveReplayedSkills: false),
+                continuationSkillNames: correctionPlan == null ? lastAction?.ContinuationSkillNames() : null,
                 cancellationToken: cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -175,15 +177,6 @@ public class CorrectionTurnPreparer : ICorrectionTurnPreparer
 
         return new CorrectionTurnPreparation(toolset, correction, undoWasHeld);
     }
-
-    /// <summary>
-    /// The skills of the last turn that made tool calls, while that record lives (its TTL): the successful
-    /// calls only. A record a later tool-free turn superseded still counts - an interview often needs
-    /// several turns without a call - so the guarantee is bounded by the record's TTL, not by the turn
-    /// immediately before this one.
-    /// </summary>
-    private static IReadOnlyCollection<string>? PreviousTurnSkillNames(AssistantLastAction? lastAction) =>
-        lastAction?.Calls.Where(call => call.Success).Select(call => call.SkillName).Distinct().ToList();
 
     /// <summary>
     /// Whether this account may release the inverse skill the correction would offer to run. Asked HERE,

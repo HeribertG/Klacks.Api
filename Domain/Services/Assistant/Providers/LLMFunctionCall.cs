@@ -45,4 +45,10 @@ public class LLMFunctionCall
     /// untrusted in addition to the skills listed by name in UntrustedSkillOutputs.
     /// </summary>
     public bool ContainsExternalContent { get; set; }
+
+    /// <summary>
+    /// The skill a wrapper call (confirm_pending_action) actually ran. FunctionName stays the wrapper's own name,
+    /// so the correction and undo paths keep treating the call as the wrapper. Null for every other call.
+    /// </summary>
+    public string? ReplayedSkillName { get; set; }
 }

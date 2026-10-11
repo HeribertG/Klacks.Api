@@ -73,4 +73,12 @@ public sealed class AssistantLastActionCall
     /// producing an undo offer for something that never happened.
     /// </summary>
     public bool Success { get; set; }
+
+    /// <summary>
+    /// The skill a wrapper call actually ran: for confirm_pending_action the held invocation it replayed, null for
+    /// every other call and for records written before the field existed. Deliberately a field of its own rather
+    /// than a rewrite of SkillName: the correction and undo paths keep seeing the wrapper, so a confirmed write
+    /// never becomes undoable through this record. Read only by the same-skill continuation of the next toolset.
+    /// </summary>
+    public string? ReplayedSkillName { get; set; }
 }

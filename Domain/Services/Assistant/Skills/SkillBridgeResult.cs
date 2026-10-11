@@ -17,4 +17,9 @@ public class SkillBridgeResult
     /// The one-time token of a confirmation result, whichever skill minted it. Null for every other result.
     /// </summary>
     public string? ConfirmationToken { get; set; }
+
+    /// <summary>
+    /// The skill a wrapper (confirm_pending_action) replayed under its own name. Null for every other result.
+    /// </summary>
+    public string? ReplayedSkillName { get; set; }
 }

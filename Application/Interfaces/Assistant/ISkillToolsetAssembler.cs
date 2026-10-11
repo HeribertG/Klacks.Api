@@ -37,8 +37,15 @@ public interface ISkillToolsetAssembler
     /// <param name="previousTurnSkillNames">
     /// Names of the skills the last turn that made tool calls executed (while that record lives), or null
     /// when the caller has none. A KnowHow (Explain) or Advise skill among them keeps the Act skill it leads
-    /// to in this toolset, because the answer to an interview carries no keyword of that skill. Required, so
+    /// to in this toolset, because the answer to an interview carries no keyword of that skill. Ordered, most
+    /// recent last. Required, so
     /// a caller that forgets it fails at compile time instead of silently passing nothing.
+    /// </param>
+    /// <param name="continuationSkillNames">
+    /// Skills the IMMEDIATELY preceding turn's successful calls ran (a confirmed held action named by the skill it
+    /// replayed), most recent last, or null when that record was superseded, the turn is a correction, or there is
+    /// none. The last Mutate skill among them stays in this toolset (same-skill continuation), ranked below every
+    /// other guarantee at truncation.
     /// </param>
     Task<SkillToolsetResult> AssembleAsync(
         Agent? agent,
@@ -52,6 +59,7 @@ public interface ISkillToolsetAssembler
         bool applyLearnedPhraseGuarantee,
         IReadOnlyCollection<string>? excludedSkillNames,
         IReadOnlyCollection<string>? pinnedSkillNames,
-        IReadOnlyCollection<string>? previousTurnSkillNames,
+        IReadOnlyList<string>? previousTurnSkillNames,
+        IReadOnlyList<string>? continuationSkillNames,
         CancellationToken cancellationToken);
 }

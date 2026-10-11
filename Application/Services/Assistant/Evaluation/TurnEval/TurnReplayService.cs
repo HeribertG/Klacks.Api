@@ -248,7 +248,8 @@ public class TurnReplayService : ITurnReplayService
             applyLearnedPhraseGuarantee: true,
             excludedSkillNames: correctionPlan?.ExcludedSkillNames,
             pinnedSkillNames: null,
-            previousTurnSkillNames: lastAction?.Calls.Where(call => call.Success).Select(call => call.SkillName).Distinct().ToList(),
+            previousTurnSkillNames: lastAction?.SuccessfulSkillNames(resolveReplayedSkills: false),
+            continuationSkillNames: correctionPlan == null ? lastAction?.ContinuationSkillNames() : null,
             cancellationToken: cancellationToken);
 
         var correction = correctionPlan == null
@@ -423,11 +424,24 @@ public class TurnReplayService : ITurnReplayService
                     ArgumentsJson = JsonSerializer.Serialize(item.PreviousTurn.Arguments),
                     ResultDataJson = JsonSerializer.Serialize(item.PreviousTurn.ResultData),
                     IsReadOnly = ReadOnlySkillPrefixes.HasReadOnlyPrefix(item.PreviousTurn.CalledSkill),
-                    Success = true
+                    Success = true,
+                    ReplayedSkillName = ReplayedSkillOf(item.PreviousTurn)
                 }
             ]
         };
     }
+
+    /// <summary>
+    /// The replayed skill of a goldset previous turn, honoured only when the called skill is confirm_pending_action -
+    /// the one wrapper the live path accepts a replayed name from - so an item cannot declare a continuation
+    /// production would never produce.
+    /// </summary>
+    /// <param name="previousTurn">The goldset item's previous turn</param>
+    private static string? ReplayedSkillOf(TurnGoldsetPreviousTurn previousTurn) =>
+        !string.IsNullOrWhiteSpace(previousTurn.ReplayedSkill)
+        && string.Equals(previousTurn.CalledSkill, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase)
+            ? previousTurn.ReplayedSkill
+            : null;
 
     /// <summary>
     /// The goldset authors ONE label per item, in the item's own locale, so the replay presents it as the

@@ -75,9 +75,23 @@ public class LLMSkillBridge : ILLMSkillBridge
             ConfirmationToken = result.Type == SkillResultType.Confirmation
                 && result.Metadata?.GetValueOrDefault(SkillResultMetadataKeys.ConfirmationToken) is string token
                     ? token
-                    : null
+                    : null,
+            ReplayedSkillName = ReplayedSkillNameOf(functionCall.FunctionName, result)
         };
     }
+
+    /// <summary>
+    /// The replayed skill a wrapper reported, accepted only from confirm_pending_action: no other skill may name a
+    /// skill as "actually run", or it could steer the next turn's same-skill continuation.
+    /// </summary>
+    /// <param name="functionName">Name of the skill the model called</param>
+    /// <param name="result">Result of that call</param>
+    private static string? ReplayedSkillNameOf(string functionName, SkillResult result) =>
+        string.Equals(functionName, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase)
+        && result.Metadata?.GetValueOrDefault(SkillResultMetadataKeys.ReplayedSkillName) is string replayed
+        && !string.IsNullOrWhiteSpace(replayed)
+            ? replayed
+            : null;
 
     public IReadOnlyList<object> GetSkillsForProvider(
         LLMProviderType providerType,

@@ -149,7 +149,8 @@ public class PersistentAssistantLastActionStore : IAssistantLastActionStore
                 ArgumentsJson = Cap(call.ArgumentsJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 ResultDataJson = Cap(call.ResultDataJson, GracefulCorrectionDefaults.CallJsonMaxLength),
                 IsReadOnly = call.IsReadOnly,
-                Success = call.Success
+                Success = call.Success,
+                ReplayedSkillName = call.ReplayedSkillName
             });
         }
 

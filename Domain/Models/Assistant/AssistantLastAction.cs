@@ -45,4 +45,46 @@ public sealed class AssistantLastAction
         Calls.Count > 0
         && SupersededAtUtc == null
         && nowUtc - CreateTimeUtc <= TimeSpan.FromMinutes(Constants.GracefulCorrectionDefaults.CorrectionWindowMinutes);
+
+    /// <summary>
+    /// The skills the successful calls of this record ran, in call order with every name at its LAST occurrence,
+    /// so the final entry is the most recent skill. Failed calls never count. A superseded record still answers,
+    /// which bounds the advisory follow-through by the record's TTL rather than by the immediately preceding turn
+    /// (an interview often needs several tool-free turns). With resolveReplayedSkills a
+    /// wrapper call (confirm_pending_action) contributes the skill it replayed instead of its own name; the
+    /// live chat and the headless replay both read the previous turn through this one method, so they cannot
+    /// diverge.
+    /// </summary>
+    /// <param name="resolveReplayedSkills">Whether a wrapper call is named by the skill it replayed</param>
+    public IReadOnlyList<string> SuccessfulSkillNames(bool resolveReplayedSkills)
+    {
+        var names = Calls
+            .Where(call => call.Success)
+            .Select(call => resolveReplayedSkills && !string.IsNullOrWhiteSpace(call.ReplayedSkillName)
+                ? call.ReplayedSkillName!
+                : call.SkillName)
+            .ToList();
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var lastOccurrences = new List<string>(names.Count);
+        for (var index = names.Count - 1; index >= 0; index--)
+        {
+            if (seen.Add(names[index]))
+            {
+                lastOccurrences.Add(names[index]);
+            }
+        }
+
+        lastOccurrences.Reverse();
+        return lastOccurrences;
+    }
+
+    /// <summary>
+    /// The skills the same-skill continuation may keep: the successful calls of this record with a wrapper call named
+    /// by the skill it replayed, most recent last - but only while the record still describes the IMMEDIATELY
+    /// preceding turn. Once a tool-free turn or a clarification superseded it, the user has moved on and nothing is
+    /// continued. Callers pass null instead on a correction turn, which must not get the corrected skill back.
+    /// </summary>
+    public IReadOnlyList<string>? ContinuationSkillNames() =>
+        SupersededAtUtc == null ? SuccessfulSkillNames(resolveReplayedSkills: true) : null;
 }

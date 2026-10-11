@@ -161,7 +161,8 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             row.UserId,
             row.SkillName,
             DeserializeParameters(row.ParametersJson),
-            row.ExpiresAtUtc);
+            row.ExpiresAtUtc,
+            NormalizedPurpose(row));
     }
 
     public PendingConfirmationHandle? PeekLatestForUser(
@@ -204,14 +205,11 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         return latestToken == null ? null : new PendingConfirmationHandle(latestToken, latestSkillName!);
     }
 
-    private static bool HasPurpose(PendingConfirmationRow row, string purpose)
-    {
-        var rowPurpose = string.IsNullOrWhiteSpace(row.Purpose)
-            ? PendingConfirmationPurposes.GateReplay
-            : row.Purpose;
+    private static bool HasPurpose(PendingConfirmationRow row, string purpose) =>
+        string.Equals(NormalizedPurpose(row), purpose, StringComparison.OrdinalIgnoreCase);
 
-        return string.Equals(rowPurpose, purpose, StringComparison.OrdinalIgnoreCase);
-    }
+    private static string NormalizedPurpose(PendingConfirmationRow row) =>
+        string.IsNullOrWhiteSpace(row.Purpose) ? PendingConfirmationPurposes.GateReplay : row.Purpose;
 
     private static IReadOnlyDictionary<string, object> DeserializeParameters(string? parametersJson)
     {

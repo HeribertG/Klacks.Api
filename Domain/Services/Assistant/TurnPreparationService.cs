@@ -564,7 +564,8 @@ public class TurnPreparationService : ITurnPreparationService
             ArgumentsJson = System.Text.Json.JsonSerializer.Serialize(call.Parameters),
             ResultDataJson = call.DataJson.Count > 0 ? call.DataJson[0] : GracefulCorrectionDefaults.EmptyJsonObject,
             IsReadOnly = ReadOnlySkillPrefixes.HasReadOnlyPrefix(call.FunctionName),
-            Success = call.Success
+            Success = call.Success,
+            ReplayedSkillName = call.ReplayedSkillName
         };
     }
 
