@@ -3,9 +3,10 @@
 /// <summary>
 /// Wizard 1 slot replacement in a scenario clone: the planner's works replace the movable incumbent on exactly the
 /// (shift, date) slots it fills (grill H2). Expenses of a displaced work are never dropped: they move to the planner's
-/// work on the same slot (replacing the shift default expenses BulkAdd staged there). A slot that received no planner work
-/// (placement blocked or without clone) is emptied; the expenses then follow the employee's own new work that day, and
-/// only without one does the displaced work carrying expenses stay with its children.
+/// work on the same slot (replacing the shift default expenses BulkAdd staged there); with several works on one slot each
+/// displaced work keeps its own employee's new work first, the rest are matched one to one and only leftovers share a work.
+/// A slot that received no planner work (placement blocked or without clone) is emptied; the expenses then follow the
+/// employee's own new work that day, and only without one does the displaced work carrying expenses stay with its children.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -95,22 +96,34 @@ public partial class AnalyseScenarioService
             .GroupBy(e => e.WorkId)
             .ToDictionary(g => g.Key, g => g.ToList());
 
+        var slotSuccessors = new Dictionary<Guid, Work>();
+        var oneToOne = new HashSet<Guid>();
+        foreach (var slot in displacedWorks.GroupBy(w => (w.ShiftId, w.CurrentDate)))
+        {
+            if (createdBySlot.TryGetValue(slot.Key, out var slotWorks))
+            {
+                MatchSlotSuccessors(slot.ToList(), slotWorks, slotSuccessors, oneToOne);
+            }
+        }
+
         var claimed = new HashSet<Guid>();
         var expensesChangingEmployee = 0;
-        foreach (var displaced in displacedWorks)
+        var processingOrder = displacedWorks
+            .OrderBy(w => oneToOne.Contains(w.Id) ? 0 : 1)
+            .ThenBy(w => w.StartTime)
+            .ThenBy(w => w.Id)
+            .ToList();
+        foreach (var displaced in processingOrder)
         {
-            Work? successor;
-            if (createdBySlot.TryGetValue((displaced.ShiftId, displaced.CurrentDate), out var slotWorks))
-            {
-                successor = slotWorks.FirstOrDefault(w => w.ClientId == displaced.ClientId)
-                    ?? slotWorks.FirstOrDefault(w => !claimed.Contains(w.Id))
-                    ?? slotWorks[0];
-            }
-            else
+            if (!slotSuccessors.TryGetValue(displaced.Id, out var successor))
             {
                 // Slot left empty (placement blocked): the slot is emptied. Expenses must survive, so they follow the
                 // employee's own new work that day; without one, the incumbent carrying expenses stays with its children.
-                successor = createdWorks.FirstOrDefault(w => w.ClientId == displaced.ClientId && w.CurrentDate == displaced.CurrentDate);
+                successor = createdWorks
+                    .Where(w => w.ClientId == displaced.ClientId && w.CurrentDate == displaced.CurrentDate)
+                    .OrderBy(w => w.StartTime)
+                    .ThenBy(w => w.Id)
+                    .FirstOrDefault();
                 if (successor is null)
                 {
                     if (expensesByWork.ContainsKey(displaced.Id))
@@ -120,6 +133,13 @@ public partial class AnalyseScenarioService
 
                     continue;
                 }
+            }
+
+            // Lineage only follows a successor on the displaced work's own slot; a work on another shift that day is a
+            // different work, not a continuation of the displaced work's origin.
+            if (successor.ShiftId == displaced.ShiftId && successor.CurrentDate == displaced.CurrentDate)
+            {
+                successor.ClonedFromWorkId ??= displaced.ClonedFromWorkId;
             }
 
             if (!expensesByWork.TryGetValue(displaced.Id, out var expenses))
@@ -136,8 +156,6 @@ public partial class AnalyseScenarioService
                 foreach (var template in templates) { template.IsDeleted = true; template.DeletedTime = now; }
             }
 
-            successor.ClonedFromWorkId ??= displaced.ClonedFromWorkId;
-
             foreach (var expense in expenses)
             {
                 expense.WorkId = successor.Id;
@@ -152,6 +170,54 @@ public partial class AnalyseScenarioService
         return expensesChangingEmployee;
     }
 
+    /// <summary>
+    /// Assigns the displaced works of one (shift, date) slot to the planner's works of that slot (Shift.Quantity can put
+    /// several of each on one slot), independent of which displaced works carry expenses and of load order: first every
+    /// displaced work takes the new work of its own employee, then the remaining displaced works take the remaining new
+    /// works one to one, and only displaced works left over after that are spread round-robin over the slot's works.
+    /// Both lists are ordered by start time and id, so the assignment is deterministic.
+    /// </summary>
+    /// <param name="displaced">Displaced works of the slot</param>
+    /// <param name="created">Planner's works of the slot (at least one)</param>
+    /// <param name="successors">Receives displaced work id -> successor</param>
+    /// <param name="oneToOne">Receives the displaced work ids that got a successor of their own (not a leftover)</param>
+    private static void MatchSlotSuccessors(
+        IReadOnlyList<Work> displaced, IReadOnlyList<Work> created, IDictionary<Guid, Work> successors, ISet<Guid> oneToOne)
+    {
+        var orderedDisplaced = displaced.OrderBy(w => w.StartTime).ThenBy(w => w.Id).ToList();
+        var orderedCreated = created.OrderBy(w => w.StartTime).ThenBy(w => w.Id).ToList();
+        var free = new List<Work>(orderedCreated);
+
+        foreach (var work in orderedDisplaced)
+        {
+            var own = free.FirstOrDefault(c => c.ClientId == work.ClientId);
+            if (own is not null)
+            {
+                successors[work.Id] = own;
+                oneToOne.Add(work.Id);
+                free.Remove(own);
+            }
+        }
+
+        foreach (var work in orderedDisplaced.Where(w => !successors.ContainsKey(w.Id)))
+        {
+            if (free.Count == 0)
+            {
+                break;
+            }
+
+            successors[work.Id] = free[0];
+            oneToOne.Add(work.Id);
+            free.RemoveAt(0);
+        }
+
+        var next = 0;
+        foreach (var work in orderedDisplaced.Where(w => !successors.ContainsKey(w.Id)))
+        {
+            successors[work.Id] = orderedCreated[next % orderedCreated.Count];
+            next++;
+        }
+    }
     /// <summary>
     /// Undoes the slot replacement of one displaced work that carries expenses: the work and the sub-breaks and WorkChanges soft-deleted
     /// together with it (same deletion stamp) come back; its expenses were never deleted.
