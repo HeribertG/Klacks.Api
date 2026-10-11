@@ -134,6 +134,8 @@ public class TurnPreparationService : ITurnPreparationService
                 userGuid, forceWindow, PendingConfirmationPurposes.CorrectionUndo);
 
         pending ??= _pendingConfirmationStore.PeekLatestForUser(
+            userGuid, forceWindow, PendingConfirmationPurposes.StaleScenarioOverwrite);
+        pending ??= _pendingConfirmationStore.PeekLatestForUser(
             userGuid, forceWindow, PendingConfirmationPurposes.GateReplay);
         if (pending == null)
         {

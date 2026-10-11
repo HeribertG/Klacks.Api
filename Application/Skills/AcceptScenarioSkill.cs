@@ -7,9 +7,12 @@
 /// group visibility is refused by the command handler and reported exactly like a missing one.
 /// When the original plan changed after the scenario was created (another scenario accepted, edits by hand), the
 /// accept would overwrite those changes: the skill then stores the call under a one-time confirmation token and asks
-/// the model to get the user's explicit consent first; only the confirmed replay (confirm_pending_action) accepts with
-/// the stale override. The override is honoured only on a gate-bypassing replay, never on a direct model call, and the
-/// token is marked as issued for a sensitive action this turn, so it cannot be redeemed in the same turn (as create_plan).
+/// the model to get the user's explicit consent first. The token has its own purpose (StaleScenarioOverwrite) and keeps
+/// the staleness the user is shown; only redeeming it sets SkillExecutionContext.StaleScenarioOverwriteAcknowledgement,
+/// the sole source of the stale override - no parameter and no gate bypass (plan step, scheduled task, inbound,
+/// proactive) can supply it. The accept re-checks the staleness against that acknowledgement and asks again when the
+/// plan changed further meanwhile. The token is marked as issued for a sensitive action this turn, so it cannot be
+/// redeemed in the same turn (as create_plan).
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 /// <param name="confirmationStore">Mints the one-time token for the stale-scenario confirmation.</param>
@@ -32,7 +35,7 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation(SkillName)]
 public class AcceptScenarioSkill : BaseSkillImplementation
 {
-    private const string SkillName = "accept_scenario";
+    private const string SkillName = ScenarioAcceptDefaults.SkillName;
 
     private const string ScenarioIdParameter = "scenarioId";
 
@@ -61,14 +64,17 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var scenarioId = GetRequiredGuid(parameters, ScenarioIdParameter);
-        var overrideStale = context.BypassAutonomyGate
-            && GetParameter<bool>(parameters, ScenarioAcceptDefaults.StaleConfirmedParameter, false);
+        var acknowledgement = context.StaleScenarioOverwriteAcknowledgement;
 
         bool success;
         try
         {
             success = await _mediator.Send(
-                new AcceptAnalyseScenarioCommand(scenarioId, OverrideStale: overrideStale), cancellationToken);
+                new AcceptAnalyseScenarioCommand(
+                    scenarioId,
+                    OverrideStale: acknowledgement is not null,
+                    AcknowledgedStaleness: acknowledgement),
+                cancellationToken);
         }
         catch (ScenarioStaleException ex)
         {
@@ -99,15 +105,22 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         ScenarioStaleException exception,
         CancellationToken cancellationToken)
     {
-        var pendingParameters = new Dictionary<string, object>(parameters)
+        var staleness = exception.Staleness;
+        var pendingParameters = new Dictionary<string, object>(parameters);
+        foreach (var reserved in ScenarioAcceptDefaults.ReservedParameters)
         {
-            [ScenarioAcceptDefaults.StaleConfirmedParameter] = ScenarioAcceptDefaults.ConfirmedValue
-        };
+            pendingParameters.Remove(reserved);
+        }
 
-        var token = _confirmationStore.Create(context.UserId, SkillName, pendingParameters);
+        pendingParameters[ScenarioAcceptDefaults.AcknowledgedChangedEntryCountParameter] =
+            staleness.ChangedEntryCount.ToString(CultureInfo.InvariantCulture);
+        pendingParameters[ScenarioAcceptDefaults.AcknowledgedLastChangeUtcTicksParameter] =
+            DateTime.SpecifyKind(staleness.LastChangeUtc, DateTimeKind.Utc).Ticks.ToString(CultureInfo.InvariantCulture);
+
+        var token = _confirmationStore.Create(
+            context.UserId, SkillName, pendingParameters, PendingConfirmationPurposes.StaleScenarioOverwrite);
         _turnScope.MarkIssuedForSensitiveSkill(token);
         _turnScope.MarkIssued(token);
-        var staleness = exception.Staleness;
         var companyZone = await _companyClock.GetTimeZoneAsync(cancellationToken);
         var lastChange = TimeZoneInfo.ConvertTimeFromUtc(
             DateTime.SpecifyKind(staleness.LastChangeUtc, DateTimeKind.Utc), companyZone);

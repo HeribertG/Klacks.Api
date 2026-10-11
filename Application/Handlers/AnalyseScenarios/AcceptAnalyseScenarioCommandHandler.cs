@@ -24,12 +24,14 @@
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
 /// <param name="OverrideStale">Acknowledges that accepting overwrites real-plan changes made after the scenario was created</param>
+/// <param name="AcknowledgedStaleness">Staleness the user confirmed; when the plan changed further since, the override does not apply</param>
 /// <param name="groupVisibilityGuard">Decides whether the caller may see the scenario's group</param>
 
 using System.Globalization;
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.PeriodClosing;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -131,7 +133,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
 
-            await EnforceNotStaleAsync(scenario, command.OverrideStale, cancellationToken);
+            await EnforceNotStaleAsync(scenario, command.OverrideStale, command.AcknowledgedStaleness, cancellationToken);
 
             await EnforceComplianceGateAsync(scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, command.OverrideBlock, cancellationToken);
 
@@ -277,7 +279,11 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     /// overwrite those changes, so it is refused unless the caller acknowledged exactly that (overrideStale). A plain
     /// user acknowledgement, not a supervisor right; OverrideBlock never passes it.
     /// </summary>
-    private async Task EnforceNotStaleAsync(AnalyseScenario scenario, bool overrideStale, CancellationToken cancellationToken)
+    private async Task EnforceNotStaleAsync(
+        AnalyseScenario scenario,
+        bool overrideStale,
+        StaleScenarioOverwriteAcknowledgement? acknowledged,
+        CancellationToken cancellationToken)
     {
         var staleness = await _scenarioService.FindRealPlanChangesSinceCreationAsync(scenario, cancellationToken);
         if (staleness is null)
@@ -285,7 +291,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             return;
         }
 
-        if (!overrideStale)
+        if (!overrideStale || ChangedBeyondAcknowledgement(staleness, acknowledged))
         {
             throw new ScenarioStaleException(staleness);
         }
@@ -296,6 +302,18 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             scenario.Id,
             staleness.ChangedEntryCount,
             staleness.LastChangeUtc);
+    }
+
+    /// <summary>
+    /// True when the original plan changed further after the user acknowledged its staleness (more changed entries or
+    /// a newer last change), so the acknowledgement no longer covers what the accept would overwrite.
+    /// </summary>
+    private static bool ChangedBeyondAcknowledgement(
+        ScenarioStaleness staleness, StaleScenarioOverwriteAcknowledgement? acknowledged)
+    {
+        return acknowledged is not null
+            && (staleness.ChangedEntryCount > acknowledged.ChangedEntryCount
+                || staleness.LastChangeUtc > acknowledged.LastChangeUtc);
     }
 
     private string AcceptingUserName()

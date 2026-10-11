@@ -11,9 +11,12 @@
 /// (SkillResultMetadataKeys.ReplayedSkillName), so the previous-action record can name the skill that actually ran.
 /// A redeemed correction undo (PendingConfirmationPurposes.CorrectionUndo) carries no replayed name: the inverse skill it
 /// ran is not something the user asked to continue with, so it must not be re-offered on the next turn.
+/// A redeemed StaleScenarioOverwrite token of accept_scenario is the only source of the stale-scenario consent: its
+/// stored staleness is moved from the parameters onto SkillExecutionContext.StaleScenarioOverwriteAcknowledgement.
 /// </summary>
 /// <param name="confirmation_token">The one-time token from the confirmation request.</param>
 
+using System.Globalization;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -74,12 +77,17 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
                 "Confirmation token is invalid, expired or already used. Trigger the original action again to get a fresh confirmation request.");
         }
 
+        var replayParameters = new Dictionary<string, object>(pending.Parameters);
         var invocation = new SkillInvocation
         {
             SkillName = pending.SkillName,
-            Parameters = new Dictionary<string, object>(pending.Parameters)
+            Parameters = replayParameters
         };
-        var bypassContext = context with { BypassAutonomyGate = true };
+        var bypassContext = context with
+        {
+            BypassAutonomyGate = true,
+            StaleScenarioOverwriteAcknowledgement = TakeStaleOverwriteAcknowledgement(pending, replayParameters)
+        };
 
         var result = await _skillExecutor.ExecuteAsync(invocation, bypassContext, cancellationToken);
 
@@ -89,6 +97,32 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
         }
 
         return WithReplayedSkillName(result, pending.SkillName);
+    }
+
+    /// <summary>
+    /// Removes the stored staleness keys from the replayed parameters and, only for a StaleScenarioOverwrite token of
+    /// accept_scenario, returns them as the user's acknowledgement. Every other token yields none, even when its
+    /// stored parameters happen to carry the same keys.
+    /// </summary>
+    private static StaleScenarioOverwriteAcknowledgement? TakeStaleOverwriteAcknowledgement(
+        PendingConfirmation pending, Dictionary<string, object> replayParameters)
+    {
+        replayParameters.Remove(ScenarioAcceptDefaults.AcknowledgedChangedEntryCountParameter, out var countValue);
+        replayParameters.Remove(ScenarioAcceptDefaults.AcknowledgedLastChangeUtcTicksParameter, out var ticksValue);
+
+        var isStaleOverwrite =
+            string.Equals(pending.Purpose, PendingConfirmationPurposes.StaleScenarioOverwrite, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(pending.SkillName, ScenarioAcceptDefaults.SkillName, StringComparison.OrdinalIgnoreCase);
+        if (!isStaleOverwrite
+            || !int.TryParse(countValue?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var count)
+            || !long.TryParse(ticksValue?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var ticks)
+            || ticks < DateTime.MinValue.Ticks
+            || ticks > DateTime.MaxValue.Ticks)
+        {
+            return null;
+        }
+
+        return new StaleScenarioOverwriteAcknowledgement(count, new DateTime(ticks, DateTimeKind.Utc));
     }
 
     private static SkillResult WithReplayedSkillName(SkillResult result, string replayedSkillName)

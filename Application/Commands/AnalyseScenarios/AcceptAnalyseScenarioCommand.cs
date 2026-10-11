@@ -15,7 +15,13 @@
 /// The caller acknowledged that the original plan changed after the scenario was created and that accepting
 /// overwrites those changes. Independent of OverrideBlock: neither flag ever passes the other check.
 /// </param>
+/// <param name="AcknowledgedStaleness">
+/// With OverrideStale: the staleness the user was shown when they confirmed. When the original plan changed further
+/// since (more changed entries or a newer last change) the override no longer covers it and the accept is refused with
+/// SCENARIO_STALE again. Null (REST override, autonomous commit) keeps the plain override.
+/// </param>
 
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.AnalyseScenarios;
@@ -24,4 +30,5 @@ public record AcceptAnalyseScenarioCommand(
     Guid ScenarioId,
     bool OverrideBlock = false,
     Guid? ActingUserId = null,
-    bool OverrideStale = false) : IRequest<bool>;
+    bool OverrideStale = false,
+    StaleScenarioOverwriteAcknowledgement? AcknowledgedStaleness = null) : IRequest<bool>;

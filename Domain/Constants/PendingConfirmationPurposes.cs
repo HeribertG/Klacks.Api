@@ -15,6 +15,10 @@
 /// keeps a later "ja" — to a question the model asked afterwards — from carrying out a write the user
 /// never confirmed. A row of this purpose is otherwise indistinguishable to Consume, which keys on the
 /// token alone, so confirm_pending_action replays it exactly like any other held invocation.
+/// StaleScenarioOverwrite is written only by accept_scenario when the scenario's original plan changed after it was
+/// created. Redeeming it is the one way to accept a stale scenario from the assistant: confirm_pending_action turns it
+/// into SkillExecutionContext.StaleScenarioOverwriteAcknowledgement (with the staleness the user was shown), never into
+/// a parameter, so no other purpose and no model-supplied argument can carry that consent.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -26,6 +30,8 @@ public static class PendingConfirmationPurposes
     public const string ProposalHint = "ProposalHint";
 
     public const string CorrectionUndo = "CorrectionUndo";
+
+    public const string StaleScenarioOverwrite = "StaleScenarioOverwrite";
 
     public const int MaxLength = 32;
 }

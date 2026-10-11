@@ -107,6 +107,7 @@ public class SkillExecutorService : ISkillExecutor
         var stopwatch = Stopwatch.StartNew();
         SkillDescriptor? descriptor = null;
         using var principal = BeginContextPrincipal(context);
+        invocation = WithoutReservedParameters(invocation);
 
         try
         {
@@ -191,15 +192,7 @@ public class SkillExecutorService : ISkillExecutor
                 }
                 else if (instance is Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl)
                 {
-                    var pluginContext = new Klacks.Plugin.Contracts.Skills.SkillExecutionContext
-                    {
-                        UserId = context.UserId,
-                        TenantId = context.TenantId,
-                        UserName = context.UserName,
-                        UserPermissions = context.UserPermissions
-                    };
-                    var pluginResult = await pluginImpl.ExecuteAsync(pluginContext, invocation.Parameters, cancellationToken);
-                    result = MapPluginSkillResult(pluginResult);
+                    result = await ExecutePluginSkillAsync(pluginImpl, invocation, context, cancellationToken);
                 }
                 else if (instance is ISkill skill)
                 {
@@ -279,6 +272,26 @@ public class SkillExecutorService : ISkillExecutor
     }
 
     /// <summary>
+    /// Runs a plugin skill with the plugin contract's reduced context and maps its result back.
+    /// </summary>
+    private static async Task<SkillResult> ExecutePluginSkillAsync(
+        Klacks.Plugin.Contracts.Skills.ISkillImplementation pluginImpl,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        CancellationToken cancellationToken)
+    {
+        var pluginContext = new Klacks.Plugin.Contracts.Skills.SkillExecutionContext
+        {
+            UserId = context.UserId,
+            TenantId = context.TenantId,
+            UserName = context.UserName,
+            UserPermissions = context.UserPermissions
+        };
+        var pluginResult = await pluginImpl.ExecuteAsync(pluginContext, invocation.Parameters, cancellationToken);
+        return MapPluginSkillResult(pluginResult);
+    }
+
+    /// <summary>
     /// Runs the invocation (gates included) on behalf of the context's user when the async flow has no owner yet.
     /// Every visibility guard reads the ambient user (HTTP claim, else ExecutionPrincipal); skills reached outside a
     /// request (Telegram, inbound automation, proactive remediation) know their acting user only from the context and
@@ -293,6 +306,29 @@ public class SkillExecutorService : ISkillExecutor
         }
 
         return ExecutionPrincipal.Begin(context.UserId);
+    }
+
+    /// <summary>
+    /// Drops the parameter keys that could carry the stale-scenario consent (ScenarioAcceptDefaults.ReservedParameters)
+    /// before anything else sees the invocation - gates, the autonomy hold that stores arguments verbatim, the skill.
+    /// That consent exists only as SkillExecutionContext.StaleScenarioOverwriteAcknowledgement, so no model and no
+    /// background caller can supply it as an argument.
+    /// </summary>
+    /// <param name="invocation">Invocation exactly as the caller sent it.</param>
+    private static SkillInvocation WithoutReservedParameters(SkillInvocation invocation)
+    {
+        if (!ScenarioAcceptDefaults.ReservedParameters.Any(invocation.Parameters.ContainsKey))
+        {
+            return invocation;
+        }
+
+        var parameters = new Dictionary<string, object>(invocation.Parameters);
+        foreach (var reserved in ScenarioAcceptDefaults.ReservedParameters)
+        {
+            parameters.Remove(reserved);
+        }
+
+        return invocation with { Parameters = parameters };
     }
 
     /// <summary>

@@ -73,4 +73,12 @@ public record SkillExecutionContext
     /// (cover_absence) treat a set value as "reported via the inbound channel at this instant". Null everywhere else.
     /// </summary>
     public DateTime? InboundReceivedAtUtc { get; init; }
+
+    /// <summary>
+    /// The user's confirmed consent to overwrite the newer changes of a stale scenario, set ONLY by
+    /// confirm_pending_action when it redeems a token of purpose PendingConfirmationPurposes.StaleScenarioOverwrite
+    /// for accept_scenario. Never filled from the LLM's parameter dictionary, so neither a model nor a background path
+    /// (plan step, scheduled task, inbound, proactive) can claim it. Null everywhere else.
+    /// </summary>
+    public StaleScenarioOverwriteAcknowledgement? StaleScenarioOverwriteAcknowledgement { get; init; }
 }
