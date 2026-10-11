@@ -8,7 +8,7 @@
 /// parent Work (the request carries none), a change cannot be moved between a scenario and the main plan, and a sealed
 /// old or new parent Work refuses the write as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the write when a parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Keeps the ManualReplacement row of the replacement request book in step with the change</param>
 
@@ -33,7 +33,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -47,7 +47,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -62,7 +62,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -104,7 +104,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
                 oldParentWork.ClientId,
                 existingWorkChange.ReplaceClientId,
                 workChange.ReplaceClientId);
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, oldParentWork.AnalyseToken, cancellationToken)
+                || !await _rowAccessGuard.AreAllVisibleAsync([], parentWork.AnalyseToken, cancellationToken))
             {
                 return null;
             }

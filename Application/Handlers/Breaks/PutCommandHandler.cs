@@ -9,7 +9,7 @@
 /// AnalyseToken is taken from the stored row, never from the payload, so a PUT cannot flip a main-plan break into a
 /// scenario and bypass the day lock.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -32,7 +32,7 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakResource>, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly IBreakMacroService _breakMacroService;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
@@ -45,7 +45,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
 
     public PutCommandHandler(
         IBreakRepository breakRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         IBreakMacroService breakMacroService,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
@@ -59,7 +59,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _breakMacroService = breakMacroService;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
@@ -83,7 +83,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
             var ownerIds = existing != null
                 ? new[] { existing.ClientId, entity.ClientId }
                 : new[] { entity.ClientId };
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
+            if (!await _rowAccessGuard.AreAllVisibleAsync(ownerIds, entity.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Break with ID {request.Resource.Id} not found");
             }

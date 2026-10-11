@@ -4,7 +4,7 @@
 /// Reads one schedule note. A note owned by a client outside the caller's group visibility is answered
 /// exactly like a note that does not exist.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -17,18 +17,18 @@ namespace Klacks.Api.Application.Handlers.ScheduleNotes;
 public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ScheduleNoteResource>, ScheduleNoteResource>
 {
     private readonly IScheduleNoteRepository _scheduleNoteRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetQueryHandler(
         IScheduleNoteRepository scheduleNoteRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetQueryHandler> logger)
         : base(logger)
     {
         _scheduleNoteRepository = scheduleNoteRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -39,7 +39,7 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ScheduleNot
             var scheduleNote = await _scheduleNoteRepository.Get(request.Id);
 
             if (scheduleNote == null
-                || !await _clientVisibilityGuard.IsVisibleAsync(scheduleNote.ClientId, cancellationToken))
+                || !await _rowAccessGuard.IsVisibleAsync(scheduleNote.ClientId, scheduleNote.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"ScheduleNote with ID {request.Id} not found");
             }

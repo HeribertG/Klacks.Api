@@ -9,7 +9,7 @@
 /// that does not exist, before either of those checks; nothing is unsealed.
 /// </summary>
 /// <param name="request">Carries the id of the work entry to unseal</param>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Exceptions;
@@ -32,7 +32,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         "Unsealing this entry needs a higher role than yours.";
 
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly ScheduleMapper _scheduleMapper;
@@ -40,7 +40,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
 
     public UnconfirmWorkCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         IUnitOfWork unitOfWork,
         IWorkLockLevelService lockLevelService,
         ScheduleMapper scheduleMapper,
@@ -49,7 +49,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _unitOfWork = unitOfWork;
         _lockLevelService = lockLevelService;
         _scheduleMapper = scheduleMapper;
@@ -61,7 +61,7 @@ public class UnconfirmWorkCommandHandler : BaseHandler, IRequestHandler<Unconfir
         return await ExecuteAsync(async () =>
         {
             var work = await _workRepository.Get(request.WorkId);
-            if (work == null || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+            if (work == null || !await _rowAccessGuard.IsVisibleAsync(work.ClientId, work.AnalyseToken, cancellationToken))
                 throw new KeyNotFoundException($"Work with ID {request.WorkId} not found.");
 
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;

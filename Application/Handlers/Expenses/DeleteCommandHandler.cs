@@ -6,7 +6,7 @@
 /// nothing is deleted. Scenario expenses (AnalyseToken set) are reachable too. A sealed parent Work refuses the
 /// delete as decided by IParentWorkLockGuard.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the delete when the parent Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Commands;
@@ -25,7 +25,7 @@ namespace Klacks.Api.Application.Handlers.Expenses;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ExpensesResource>, ExpensesResource?>
 {
     private readonly IExpensesRepository _expensesRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPeriodHoursService _periodHoursService;
@@ -39,7 +39,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
 
     public DeleteCommandHandler(
         IExpensesRepository expensesRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IPeriodHoursService periodHoursService,
@@ -54,7 +54,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         : base(logger)
     {
         _expensesRepository = expensesRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _periodHoursService = periodHoursService;
@@ -79,7 +79,10 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<E
         }
 
         var work = existingExpenses.Work;
-        if (work != null && !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+        var visible = work != null
+            ? await _rowAccessGuard.IsVisibleAsync(work.ClientId, work.AnalyseToken, cancellationToken)
+            : await _rowAccessGuard.AreAllVisibleAsync([], existingExpenses.AnalyseToken, cancellationToken);
+        if (!visible)
         {
             return null;
         }

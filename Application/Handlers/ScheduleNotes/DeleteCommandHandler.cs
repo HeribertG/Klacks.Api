@@ -4,7 +4,7 @@
 /// Deletes a schedule note. A note owned by a client outside the caller's group visibility is answered
 /// exactly like a note that does not exist; nothing is deleted.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -18,20 +18,20 @@ namespace Klacks.Api.Application.Handlers.ScheduleNotes;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ScheduleNoteResource>, ScheduleNoteResource?>
 {
     private readonly IScheduleNoteRepository _scheduleNoteRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         IScheduleNoteRepository scheduleNoteRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _scheduleNoteRepository = scheduleNoteRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
@@ -40,7 +40,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     {
         var existingScheduleNote = await _scheduleNoteRepository.Get(request.Id);
         if (existingScheduleNote == null
-            || !await _clientVisibilityGuard.IsVisibleAsync(existingScheduleNote.ClientId, cancellationToken))
+            || !await _rowAccessGuard.IsVisibleAsync(existingScheduleNote.ClientId, existingScheduleNote.AnalyseToken, cancellationToken))
         {
             return null;
         }

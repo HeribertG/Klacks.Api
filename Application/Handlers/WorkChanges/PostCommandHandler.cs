@@ -7,7 +7,7 @@
 /// KeyNotFoundException (404) with the same message, so the response is no existence oracle. A sealed parent
 /// Work refuses the change as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the change when the parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Records a manual replacement as an Accepted entry of the replacement request book, staged with the change</param>
 
@@ -32,7 +32,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 {
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
@@ -48,7 +48,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
@@ -65,7 +65,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
@@ -153,8 +153,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         Domain.Models.Schedules.WorkChange workChange,
         CancellationToken cancellationToken)
     {
-        return _clientVisibilityGuard.AreAllVisibleAsync(
-            WorkChangeTouchedClients.Of(parentWork, workChange.ReplaceClientId), cancellationToken);
+        return _rowAccessGuard.AreAllVisibleAsync(
+            WorkChangeTouchedClients.Of(parentWork, workChange.ReplaceClientId), parentWork.AnalyseToken, cancellationToken);
     }
 
     /// <summary>

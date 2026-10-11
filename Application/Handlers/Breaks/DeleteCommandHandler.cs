@@ -4,7 +4,7 @@
 /// Deletes a single break (absence entry) and notifies the schedule. A break owned by a client outside the
 /// caller's group visibility is refused exactly like a break that does not exist; nothing is deleted.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Interfaces;
@@ -22,7 +22,7 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakCommand, BreakResource?>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -34,7 +34,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
 
     public DeleteCommandHandler(
         IBreakRepository breakRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -47,7 +47,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -63,7 +63,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteBreakComm
         return await ExecuteAsync(async () =>
         {
             var breakEntry = await _breakRepository.Get(request.Id);
-            if (breakEntry == null || !await _clientVisibilityGuard.IsVisibleAsync(breakEntry.ClientId, cancellationToken))
+            if (breakEntry == null || !await _rowAccessGuard.IsVisibleAsync(breakEntry.ClientId, breakEntry.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Break with ID {request.Id} not found.");
             }

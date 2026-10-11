@@ -6,7 +6,7 @@
 /// a change that does not exist; nothing is deleted. Scenario changes are reachable too. A sealed parent Work refuses
 /// the delete as decided by IParentWorkLockGuard (same rule as expenses).
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the change touches</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the touched clients and the scenario of the parent Work</param>
 /// <param name="parentWorkLockGuard">Refuses the delete when the parent Work's lock level forbids it for the caller</param>
 /// <param name="replacementRequestRecorder">Soft-deletes the ManualReplacement row of a deleted replacement (it did not happen)</param>
 
@@ -28,7 +28,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
 {
     private readonly IWorkChangeRepository _workChangeRepository;
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
@@ -42,7 +42,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     public DeleteCommandHandler(
         IWorkChangeRepository workChangeRepository,
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
@@ -57,7 +57,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
     {
         _workChangeRepository = workChangeRepository;
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _notificationService = notificationService;
@@ -86,7 +86,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<W
 
             var parentWork = await _workRepository.GetNoTracking(workId);
             var clientIds = WorkChangeTouchedClients.Of(parentWork, replaceClientId);
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+            if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, parentWork?.AnalyseToken ?? existingWorkChange.AnalyseToken, cancellationToken))
             {
                 return null;
             }

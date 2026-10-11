@@ -11,7 +11,7 @@
 /// owned by a client outside the caller's group visibility.
 /// </summary>
 /// <param name="request">Carries the id of the soft-deleted Work</param>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
@@ -32,7 +32,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
     public const string MissingDeleteStampMessage = "The work entry carries no delete time and cannot be restored.";
 
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -49,7 +49,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
 
     public RestoreWorkCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -67,7 +67,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -90,7 +90,7 @@ public class RestoreWorkCommandHandler : BaseHandler, IRequestHandler<RestoreWor
             var work = await _workRepository.GetDeletedAsync(request.Id, cancellationToken);
             if (work == null
                 || _authorizer.Resolve(work) == WorkRestoreAccess.Hidden
-                || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+                || !await _rowAccessGuard.IsVisibleAsync(work.ClientId, work.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Deleted work with ID {request.Id} not found.");
             }

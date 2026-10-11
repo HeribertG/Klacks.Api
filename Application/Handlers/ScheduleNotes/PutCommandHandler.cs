@@ -5,7 +5,7 @@
 /// visibility is answered exactly like a note that does not exist; nothing is written. The AnalyseToken is taken
 /// from the stored row, never from the payload, so a PUT cannot move a note between the main plan and a scenario.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -19,20 +19,20 @@ namespace Klacks.Api.Application.Handlers.ScheduleNotes;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<ScheduleNoteResource>, ScheduleNoteResource?>
 {
     private readonly IScheduleNoteRepository _scheduleNoteRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public PutCommandHandler(
         IScheduleNoteRepository scheduleNoteRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _scheduleNoteRepository = scheduleNoteRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
@@ -50,7 +50,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Schedul
             var scheduleNote = _scheduleMapper.ToScheduleNoteEntity(request.Resource);
             scheduleNote.AnalyseToken = existingScheduleNote.AnalyseToken;
             var ownerIds = new[] { existingScheduleNote.ClientId, scheduleNote.ClientId };
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
+            if (!await _rowAccessGuard.AreAllVisibleAsync(ownerIds, scheduleNote.AnalyseToken, cancellationToken))
             {
                 return null;
             }

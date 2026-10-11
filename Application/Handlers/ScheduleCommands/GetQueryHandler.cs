@@ -5,7 +5,7 @@
 /// group visibility is answered exactly like a command that does not exist.
 /// </summary>
 /// <param name="request">Contains the ID to look up</param>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may see the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -18,18 +18,18 @@ namespace Klacks.Api.Application.Handlers.ScheduleCommands;
 public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ScheduleCommandResource>, ScheduleCommandResource>
 {
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetQueryHandler(
         IScheduleCommandRepository scheduleCommandRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetQueryHandler> logger)
         : base(logger)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -40,7 +40,7 @@ public class GetQueryHandler : BaseHandler, IRequestHandler<GetQuery<ScheduleCom
             var scheduleCommand = await _scheduleCommandRepository.Get(request.Id);
 
             if (scheduleCommand == null
-                || !await _clientVisibilityGuard.IsVisibleAsync(scheduleCommand.ClientId, cancellationToken))
+                || !await _rowAccessGuard.IsVisibleAsync(scheduleCommand.ClientId, scheduleCommand.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"ScheduleCommand with ID {request.Id} not found");
             }

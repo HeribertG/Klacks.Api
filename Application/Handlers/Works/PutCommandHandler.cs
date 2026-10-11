@@ -9,7 +9,7 @@
 /// bypass the day lock and conflict check. The stored Work's lock level is enforced by IParentWorkLockGuard: Closed
 /// refuses everyone, Approved needs Admin or Authorised, Confirmed is open; scenario Works are not checked.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for both owners</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the update when the stored Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Mappers;
@@ -31,7 +31,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkResource>, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -48,7 +48,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
 
     public PutCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -66,7 +66,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -98,7 +98,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }
                 : new[] { work.ClientId };
-            if (!await _clientVisibilityGuard.AreAllVisibleAsync(ownerIds, cancellationToken))
+            if (!await _rowAccessGuard.AreAllVisibleAsync(ownerIds, work.AnalyseToken, cancellationToken))
             {
                 return null;
             }

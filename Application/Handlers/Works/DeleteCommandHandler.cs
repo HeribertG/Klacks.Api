@@ -7,7 +7,7 @@
 /// refuses a Closed Work for everyone, admins included: deleting it would also drop its expenses and WorkChanges
 /// from a closed period.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 /// <param name="workLockGuard">Refuses the delete when the Work's lock level forbids it for the caller</param>
 
 using Klacks.Api.Application.Mappers;
@@ -25,7 +25,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkCommand, WorkResource?>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -41,7 +41,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -58,7 +58,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -78,7 +78,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         return await ExecuteAsync(async () =>
         {
             var work = await _workRepository.Get(request.Id);
-            if (work == null || !await _clientVisibilityGuard.IsVisibleAsync(work.ClientId, cancellationToken))
+            if (work == null || !await _rowAccessGuard.IsVisibleAsync(work.ClientId, work.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }

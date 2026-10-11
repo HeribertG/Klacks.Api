@@ -153,6 +153,7 @@ internal static class DomainServiceCollectionExtensions
         services.AddScoped<IClientVisibilityGuard, ClientVisibilityGuard>();
         services.AddScoped<IGroupVisibilityGuard, GroupVisibilityGuard>();
         services.AddScoped<IScenarioTokenAccessGuard, ScenarioTokenAccessGuard>();
+        services.AddScoped<IScheduleRowAccessGuard, ScheduleRowAccessGuard>();
         services.AddScoped<ISkillScenarioScopeGuard, SkillScenarioScopeGuard>();
         services.AddScoped<IClientMembershipFilterService, ClientMembershipFilterService>();
         services.AddScoped<IClientSearchService, ClientSearchService>();

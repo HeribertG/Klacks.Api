@@ -5,7 +5,7 @@
 /// visibility is answered exactly like a command that does not exist; nothing is deleted.
 /// </summary>
 /// <param name="request">Contains the ID of the command to delete</param>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for the owning client</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client(s) and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
@@ -19,20 +19,20 @@ namespace Klacks.Api.Application.Handlers.ScheduleCommands;
 public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<ScheduleCommandResource>, ScheduleCommandResource?>
 {
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteCommandHandler(
         IScheduleCommandRepository scheduleCommandRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
     }
@@ -40,7 +40,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<S
     public async Task<ScheduleCommandResource?> Handle(DeleteCommand<ScheduleCommandResource> request, CancellationToken cancellationToken)
     {
         var existing = await _scheduleCommandRepository.Get(request.Id);
-        if (existing == null || !await _clientVisibilityGuard.IsVisibleAsync(existing.ClientId, cancellationToken))
+        if (existing == null || !await _rowAccessGuard.IsVisibleAsync(existing.ClientId, existing.AnalyseToken, cancellationToken))
         {
             return null;
         }
