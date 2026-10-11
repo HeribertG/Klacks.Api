@@ -3,7 +3,10 @@
 /// <summary>
 /// SignalR-based notification service for real-time updates of work entries and schedule validations.
 /// Filters recipients based on their active DateRange subscriptions and SelectedGroup via IConnectionDateRangeTracker.
-/// For IsFullRefresh, notifications are filtered per connection group by SelectedGroupId.
+/// For IsFullRefresh, notifications are filtered per connection group by SelectedGroupId. Group visibility is a boundary
+/// as well: a restricted user's connection (with or without a group filter) only receives notifications and entries about
+/// clients of the user's visible groups, read from the visibility cached on the connection state; unrestricted
+/// connections receive everything, and a connection without resolved visibility receives nothing.
 /// </summary>
 /// <param name="hubContext">SignalR Hub context for typed client calls</param>
 /// <param name="dateRangeTracker">Manages which connections observe which date ranges</param>
@@ -56,6 +59,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetDate = notification.CurrentDate;
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(targetDate, targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Where(connection => connection.Visibility.AllowsClient(notification.ClientId))
                 .Select(connection => connection.ConnectionId)
                 .ToList();
 
@@ -86,11 +90,9 @@ public class WorkNotificationService : IWorkNotificationService
             return;
         }
 
-        var targetConnections = (await _dateRangeTracker
+        var targetConnections = await _dateRangeTracker
             .GetConnectionsForDateRangeAsync(
-                notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
-            .Select(connection => connection.ConnectionId)
-            .ToList();
+                notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId);
 
         if (targetConnections.Count == 0)
         {
@@ -100,7 +102,12 @@ public class WorkNotificationService : IWorkNotificationService
             return;
         }
 
-        await _hubContext.Clients.Clients(targetConnections).WorksBulkCreated(notification);
+        await SendByVisibilityAsync(
+            targetConnections,
+            notification,
+            visibility => notification with { Works = notification.Works.Where(w => visibility.AllowsClient(w.ClientId)).ToList() },
+            filtered => filtered.Works.Count > 0,
+            (clients, dto) => clients.WorksBulkCreated(dto));
 
         _logger.LogDebug(
             "Sent WorksBulkCreated with {WorkCount} works to {ConnectionCount} connections",
@@ -113,6 +120,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Where(connection => connection.Visibility.AllowsClient(notification.ClientId))
                 .Select(connection => connection.ConnectionId)
                 .ToList();
 
@@ -152,7 +160,9 @@ public class WorkNotificationService : IWorkNotificationService
             var targetConnections = new List<string>();
             foreach (var connection in candidateConnections)
             {
-                if (connection.SelectedGroupId is null || connection.SelectedGroupId == notification.GroupId)
+                var visibleToUser = connection.Visibility.IsUnrestricted
+                    || (notification.GroupId is { } candidateGroupId && connection.Visibility.AllowsGroup(candidateGroupId));
+                if (visibleToUser && (connection.SelectedGroupId is null || connection.SelectedGroupId == notification.GroupId))
                 {
                     targetConnections.Add(connection.ConnectionId);
                 }
@@ -253,6 +263,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(notification.ChangeDate, notification.ChangeDate, notification.AnalyseToken))
+                .Where(connection => connection.Visibility.AllowsClient(notification.ClientId))
                 .Select(connection => connection.ConnectionId)
                 .ToList();
 
@@ -303,10 +314,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            var targetConnections = (await _dateRangeTracker
-                .GetConnectionsForDatesAsync(dates, notification.AnalyseToken))
-                .Select(connection => connection.ConnectionId)
-                .ToHashSet();
+            var targetConnections = await _dateRangeTracker.GetConnectionsForDatesAsync(dates, notification.AnalyseToken);
 
             if (targetConnections.Count == 0)
             {
@@ -316,7 +324,12 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            await _hubContext.Clients.Clients(targetConnections.ToList()).CollisionsDetected(notification);
+            await SendByVisibilityAsync(
+                targetConnections,
+                notification,
+                visibility => FilterCollisions(notification, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("Sent CollisionsDetected to {Count} connections", targetConnections.Count);
         }
         catch (Exception ex)
@@ -352,10 +365,7 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            var targetConnections = (await _dateRangeTracker
-                .GetConnectionsForDatesAsync(dates, notification.AnalyseToken))
-                .Select(connection => connection.ConnectionId)
-                .ToHashSet();
+            var targetConnections = await _dateRangeTracker.GetConnectionsForDatesAsync(dates, notification.AnalyseToken);
 
             if (targetConnections.Count == 0)
             {
@@ -365,7 +375,12 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            await _hubContext.Clients.Clients(targetConnections.ToList()).ScheduleValidationsDetected(notification);
+            await SendByVisibilityAsync(
+                targetConnections,
+                notification,
+                visibility => FilterValidations(notification, notification.Entries, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.ScheduleValidationsDetected(dto));
             _logger.LogDebug("Sent ScheduleValidationsDetected to {Count} connections", targetConnections.Count);
         }
         catch (Exception ex)
@@ -384,7 +399,12 @@ public class WorkNotificationService : IWorkNotificationService
 
         if (allGroupConnections.Count > 0)
         {
-            await _hubContext.Clients.Clients(allGroupConnections).CollisionsDetected(notification);
+            await SendByVisibilityAsync(
+                grouped.Ungrouped,
+                notification,
+                visibility => FilterCollisions(notification, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("[COLLISION-TRACE] Sent {Count} collisions to {ConnCount} allGroup-connections", notification.Collisions.Count, allGroupConnections.Count);
         }
 
@@ -412,21 +432,16 @@ public class WorkNotificationService : IWorkNotificationService
                 allowedClientIds = [];
             }
 
-            var filtered = new CollisionListNotificationDto
-            {
-                IsFullRefresh = true,
-                CheckedClientId = notification.CheckedClientId,
-                CheckedDate = notification.CheckedDate,
-                AnalyseToken = notification.AnalyseToken,
-                Collisions = notification.Collisions
-                    .Where(c => allowedClientIds.Contains(c.ClientId))
-                    .ToList()
-            };
+            var filtered = FilterCollisions(notification, allowedClientIds.Contains);
 
-            var connectionIds = connections.Select(connection => connection.ConnectionId).ToList();
-            await _hubContext.Clients.Clients(connectionIds).CollisionsDetected(filtered);
+            await SendByVisibilityAsync(
+                connections,
+                filtered,
+                visibility => FilterCollisions(filtered, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("[COLLISION-TRACE] Sent {FilteredCount}/{TotalCount} collisions to group {GroupId} ({ConnCount} connections)",
-                filtered.Collisions.Count, notification.Collisions.Count, groupId, connectionIds.Count);
+                filtered.Collisions.Count, notification.Collisions.Count, groupId, connections.Count);
         }
     }
 
@@ -441,15 +456,13 @@ public class WorkNotificationService : IWorkNotificationService
 
         if (allGroupConnections.Count > 0)
         {
-            var allGroupNotification = new ScheduleValidationListNotificationDto
-            {
-                IsFullRefresh = true,
-                CheckedClientId = notification.CheckedClientId,
-                CheckedDate = notification.CheckedDate,
-                AnalyseToken = notification.AnalyseToken,
-                Entries = entriesWithoutUnderstaffed
-            };
-            await _hubContext.Clients.Clients(allGroupConnections).ScheduleValidationsDetected(allGroupNotification);
+            var allGroupNotification = FilterValidations(notification, entriesWithoutUnderstaffed, _ => true);
+            await SendByVisibilityAsync(
+                grouped.Ungrouped,
+                allGroupNotification,
+                visibility => FilterValidations(notification, entriesWithoutUnderstaffed, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.ScheduleValidationsDetected(dto));
         }
 
         if (grouped.ByGroup.Count == 0) return;
@@ -463,20 +476,53 @@ public class WorkNotificationService : IWorkNotificationService
                 allowedClientIds = [];
             }
 
-            var filtered = new ScheduleValidationListNotificationDto
-            {
-                IsFullRefresh = true,
-                CheckedClientId = notification.CheckedClientId,
-                CheckedDate = notification.CheckedDate,
-                AnalyseToken = notification.AnalyseToken,
-                Entries = entriesWithoutUnderstaffed
-                    .Where(e => allowedClientIds.Contains(e.ClientId))
-                    .ToList()
-            };
+            var groupEntries = entriesWithoutUnderstaffed.Where(e => allowedClientIds.Contains(e.ClientId)).ToList();
 
-            await _hubContext.Clients.Clients(connections.Select(connection => connection.ConnectionId).ToList()).ScheduleValidationsDetected(filtered);
+            await SendByVisibilityAsync(
+                connections,
+                FilterValidations(notification, groupEntries, _ => true),
+                visibility => FilterValidations(notification, groupEntries, visibility.AllowsClient),
+                _ => true,
+                (clients, dto) => clients.ScheduleValidationsDetected(dto));
         }
     }
+
+    /// <summary>
+    /// Sends the full payload once to every unrestricted connection and a payload filtered to the visible clients to each
+    /// restricted connection (skipped when <paramref name="worthSending"/> rejects the filtered payload).
+    /// </summary>
+    private async Task SendByVisibilityAsync<TPayload>(
+        IEnumerable<ScheduleConnectionSnapshot> connections,
+        TPayload full,
+        Func<ConnectionVisibility, TPayload> filterFor,
+        Func<TPayload, bool> worthSending,
+        Func<IScheduleClient, TPayload, Task> send)
+    {
+        var list = connections.ToList();
+        var unrestricted = list.Where(c => c.Visibility.IsUnrestricted).Select(c => c.ConnectionId).ToList();
+        if (unrestricted.Count > 0)
+        {
+            await send(_hubContext.Clients.Clients(unrestricted), full);
+        }
+
+        foreach (var connection in list.Where(c => !c.Visibility.IsUnrestricted))
+        {
+            var filtered = filterFor(connection.Visibility);
+            if (worthSending(filtered))
+            {
+                await send(_hubContext.Clients.Clients([connection.ConnectionId]), filtered);
+            }
+        }
+    }
+
+    private static CollisionListNotificationDto FilterCollisions(CollisionListNotificationDto source, Func<Guid, bool> allowsClient)
+        => source with { Collisions = source.Collisions.Where(c => allowsClient(c.ClientId)).ToList() };
+
+    private static ScheduleValidationListNotificationDto FilterValidations(
+        ScheduleValidationListNotificationDto source,
+        IEnumerable<ScheduleValidationNotificationDto> entries,
+        Func<Guid, bool> allowsClient)
+        => source with { Entries = entries.Where(e => allowsClient(e.ClientId)).ToList() };
 
     private async Task<Dictionary<Guid, HashSet<Guid>>> LoadClientIdsByGroup(List<Guid> groupIds)
     {
@@ -500,6 +546,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetDate = notification.CurrentDate;
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(targetDate, targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Where(connection => connection.Visibility.AllowsClient(notification.ClientId))
                 .Select(connection => connection.ConnectionId)
                 .ToList();
 

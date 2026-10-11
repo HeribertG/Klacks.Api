@@ -10,9 +10,11 @@ namespace Klacks.Api.Infrastructure.Hubs;
 /// <param name="End">Last day of the date range the connection observes</param>
 /// <param name="AnalyseToken">Scenario partition key; null means the original schedule</param>
 /// <param name="SelectedGroupId">Group filter of the connection; null means no group filter</param>
+/// <param name="Visibility">What the connection's user may see, cached when it joined or changed its group filter</param>
 public sealed record ScheduleConnectionSnapshot(
     string ConnectionId,
     DateOnly Start,
     DateOnly End,
     Guid? AnalyseToken,
-    Guid? SelectedGroupId);
+    Guid? SelectedGroupId,
+    ConnectionVisibility Visibility);

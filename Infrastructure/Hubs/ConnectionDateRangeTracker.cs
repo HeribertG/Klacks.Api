@@ -10,6 +10,7 @@
 /// </summary>
 /// <param name="_connectionRanges">Thread-safe map: ConnectionId -> (DateRange, AnalyseToken); a present entry means "registered"</param>
 /// <param name="_selectedGroups">Thread-safe map: ConnectionId -> group filter, written independently of the registration</param>
+/// <param name="_visibilities">Thread-safe map: ConnectionId -> cached visibility of the connection's user; missing means none (fail-closed)</param>
 
 using System.Collections.Concurrent;
 
@@ -19,6 +20,7 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
 {
     private readonly ConcurrentDictionary<string, (DateOnly StartDate, DateOnly EndDate, Guid? AnalyseToken)> _connectionRanges = new();
     private readonly ConcurrentDictionary<string, Guid?> _selectedGroups = new();
+    private readonly ConcurrentDictionary<string, ConnectionVisibility> _visibilities = new();
 
     public Task RegisterConnectionAsync(string connectionId, DateOnly startDate, DateOnly endDate, Guid? analyseToken, CancellationToken cancellationToken = default)
     {
@@ -31,6 +33,7 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
     {
         _connectionRanges.TryRemove(connectionId, out _);
         _selectedGroups.TryRemove(connectionId, out _);
+        _visibilities.TryRemove(connectionId, out _);
 
         return Task.CompletedTask;
     }
@@ -38,6 +41,13 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
     public Task SetSelectedGroupAsync(string connectionId, Guid? selectedGroupId, CancellationToken cancellationToken = default)
     {
         _selectedGroups[connectionId] = selectedGroupId;
+
+        return Task.CompletedTask;
+    }
+
+    public Task SetVisibilityAsync(string connectionId, ConnectionVisibility visibility, CancellationToken cancellationToken = default)
+    {
+        _visibilities[connectionId] = visibility;
 
         return Task.CompletedTask;
     }
@@ -78,7 +88,8 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
                 range.StartDate,
                 range.EndDate,
                 range.AnalyseToken,
-                SelectedGroupOf(connectionId)));
+                SelectedGroupOf(connectionId),
+                VisibilityOf(connectionId)));
         }
 
         return snapshots;
@@ -98,7 +109,13 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
             range.StartDate,
             range.EndDate,
             range.AnalyseToken,
-            SelectedGroupOf(connectionId));
+            SelectedGroupOf(connectionId),
+            VisibilityOf(connectionId));
+    }
+
+    private ConnectionVisibility VisibilityOf(string connectionId)
+    {
+        return _visibilities.TryGetValue(connectionId, out var visibility) ? visibility : ConnectionVisibility.None;
     }
 
     private Guid? SelectedGroupOf(string connectionId)

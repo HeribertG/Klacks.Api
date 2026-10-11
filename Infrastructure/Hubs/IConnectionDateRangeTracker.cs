@@ -10,6 +10,8 @@ public interface IConnectionDateRangeTracker
 
     Task SetSelectedGroupAsync(string connectionId, Guid? selectedGroupId, CancellationToken cancellationToken = default);
 
+    Task SetVisibilityAsync(string connectionId, ConnectionVisibility visibility, CancellationToken cancellationToken = default);
+
     Task<ScheduleConnectionSnapshot?> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForDateRangeAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, string? excludeConnectionId = null, CancellationToken cancellationToken = default);

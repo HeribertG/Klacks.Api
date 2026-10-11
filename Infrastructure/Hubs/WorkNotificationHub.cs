@@ -5,7 +5,10 @@
 /// checked against the caller's visibility; the caller is the connection's own user, never an empty request context.
 /// </summary>
 /// <param name="scenarioTokenAccessGuard">Refuses analyse tokens of scenarios the caller may not see</param>
-/// <param name="groupVisibilityGuard">Refuses a group filter on a group the caller may not see</param>
+/// <param name="groupVisibilityGuard">Refuses a group filter on a group the caller may not see and resolves the caller's
+/// visibility scope, which is cached on the connection state (ConnectionVisibility) when the connection joins a schedule
+/// range or changes its group filter, so the notification sender filters without resolving visibility per message</param>
+/// <param name="groupClients">Maps the caller's visible group trees to their clients for that cache</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Common;
@@ -25,19 +28,22 @@ public class WorkNotificationHub : Hub<IScheduleClient>
     private readonly IScheduleTimelineService _timelineService;
     private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
+    private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClients;
 
     public WorkNotificationHub(
         ILogger<WorkNotificationHub> logger,
         IConnectionDateRangeTracker dateRangeTracker,
         IScheduleTimelineService timelineService,
         IScenarioTokenAccessGuard scenarioTokenAccessGuard,
-        IGroupVisibilityGuard groupVisibilityGuard)
+        IGroupVisibilityGuard groupVisibilityGuard,
+        IGetAllClientIdsFromGroupAndSubgroups groupClients)
     {
         _logger = logger;
         _dateRangeTracker = dateRangeTracker;
         _timelineService = timelineService;
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _groupVisibilityGuard = groupVisibilityGuard;
+        _groupClients = groupClients;
     }
 
     public override async Task OnConnectedAsync()
@@ -68,6 +74,8 @@ public class WorkNotificationHub : Hub<IScheduleClient>
                 "SignalR GROUP JOIN refused: {ConnectionId} asked for a scenario it may not see", Context.ConnectionId);
             return;
         }
+
+        await _dateRangeTracker.SetVisibilityAsync(Context.ConnectionId, await ResolveVisibilityAsync(), Context.ConnectionAborted);
 
         var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
 
@@ -134,6 +142,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
         var previous = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId);
         await _dateRangeTracker.SetSelectedGroupAsync(Context.ConnectionId, parsedGroupId);
+        await _dateRangeTracker.SetVisibilityAsync(Context.ConnectionId, await ResolveVisibilityAsync(), Context.ConnectionAborted);
 
         var groupChanged = previous?.SelectedGroupId != parsedGroupId;
         if (groupChanged && previous is not null)
@@ -155,6 +164,14 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public async Task JoinClientGroup(string clientId)
     {
+        using var caller = BeginCallerPrincipal();
+        if (caller is null || !IsVisibleClient(await CurrentVisibilityAsync(), clientId))
+        {
+            _logger.LogWarning(
+                "SignalR CLIENT GROUP JOIN refused: {ConnectionId} asked for a client it may not see", Context.ConnectionId);
+            return;
+        }
+
         var groupName = GetClientGroupName(clientId);
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         _logger.LogInformation("SignalR CLIENT GROUP JOIN: {ConnectionId} joined '{GroupName}'", Context.ConnectionId, groupName);
@@ -169,8 +186,20 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public async Task JoinClientGroups(IEnumerable<string> clientIds)
     {
-        var ids = clientIds?.ToList() ?? new List<string>();
-        if (ids.Count == 0) return;
+        using var caller = BeginCallerPrincipal();
+        if (caller is null) return;
+
+        var requested = clientIds?.ToList() ?? new List<string>();
+        if (requested.Count == 0) return;
+
+        var visibility = await CurrentVisibilityAsync();
+        var ids = requested.Where(clientId => IsVisibleClient(visibility, clientId)).ToList();
+        if (ids.Count < requested.Count)
+        {
+            _logger.LogWarning(
+                "SignalR CLIENT GROUPS JOIN: {ConnectionId} skipped {Count} clients it may not see",
+                Context.ConnectionId, requested.Count - ids.Count);
+        }
 
         // Process in batches to avoid blocking the connection
         const int batchSize = 50;
@@ -240,6 +269,38 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
         return ExecutionPrincipal.Begin(callerId);
     }
+
+    /// <summary>
+    /// The caller's visibility: unrestricted, or the clients and groups of the caller's visible group trees. Must run
+    /// inside <see cref="BeginCallerPrincipal"/>.
+    /// </summary>
+    private async Task<ConnectionVisibility> ResolveVisibilityAsync()
+    {
+        var scope = await _groupVisibilityGuard.GetScopeAsync(Context.ConnectionAborted);
+        if (scope.IsUnrestricted)
+        {
+            return ConnectionVisibility.Unrestricted;
+        }
+
+        var clientIds = scope.VisibleRootIds.Count == 0
+            ? []
+            : await _groupClients.GetAllClientIdsFromGroupsAndSubgroupsFromList(scope.VisibleRootIds.ToList());
+        return ConnectionVisibility.Restricted(clientIds, scope.VisibleGroupIds);
+    }
+
+    /// <summary>
+    /// The visibility cached on the connection state, or a fresh resolution when the connection has none yet.
+    /// </summary>
+    private async Task<ConnectionVisibility> CurrentVisibilityAsync()
+    {
+        var connection = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId, Context.ConnectionAborted);
+        return connection is not null && !ReferenceEquals(connection.Visibility, ConnectionVisibility.None)
+            ? connection.Visibility
+            : await ResolveVisibilityAsync();
+    }
+
+    private static bool IsVisibleClient(ConnectionVisibility visibility, string clientId)
+        => Guid.TryParse(clientId, out var id) && visibility.AllowsClient(id);
 
     private static Guid? ParseAnalyseToken(string? analyseToken)
     {
