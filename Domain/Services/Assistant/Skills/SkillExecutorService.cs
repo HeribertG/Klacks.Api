@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
@@ -105,6 +106,7 @@ public class SkillExecutorService : ISkillExecutor
     {
         var stopwatch = Stopwatch.StartNew();
         SkillDescriptor? descriptor = null;
+        using var principal = BeginContextPrincipal(context);
 
         try
         {
@@ -274,6 +276,23 @@ public class SkillExecutorService : ISkillExecutor
             await TrackFailureAsync(descriptor?.Name ?? invocation.SkillName, SkillFailureKind.Exception, context, invocation.Parameters, result.Message, stopwatch.Elapsed, descriptor?.Category, CancellationToken.None);
             return MarkExternalContent(descriptor?.Name ?? invocation.SkillName, result);
         }
+    }
+
+    /// <summary>
+    /// Runs the invocation (gates included) on behalf of the context's user when the async flow has no owner yet.
+    /// Every visibility guard reads the ambient user (HTTP claim, else ExecutionPrincipal); skills reached outside a
+    /// request (Telegram, inbound automation, proactive remediation) know their acting user only from the context and
+    /// would otherwise be checked as an unrestricted system job. An owner set further up (plans, scheduled tasks) wins.
+    /// </summary>
+    /// <param name="context">Execution context whose UserId becomes the ambient owner.</param>
+    private static IDisposable? BeginContextPrincipal(SkillExecutionContext context)
+    {
+        if (ExecutionPrincipal.CurrentUserId != null || context.UserId == Guid.Empty)
+        {
+            return null;
+        }
+
+        return ExecutionPrincipal.Begin(context.UserId);
     }
 
     /// <summary>
