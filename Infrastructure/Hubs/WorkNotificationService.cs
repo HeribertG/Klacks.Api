@@ -106,7 +106,7 @@ public class WorkNotificationService : IWorkNotificationService
             targetConnections,
             notification,
             visibility => notification with { Works = notification.Works.Where(w => visibility.AllowsClient(w.ClientId)).ToList() },
-            filtered => filtered.Works.Count > 0,
+            (_, filtered) => filtered.Works.Count > 0,
             (clients, dto) => clients.WorksBulkCreated(dto));
 
         _logger.LogDebug(
@@ -328,7 +328,7 @@ public class WorkNotificationService : IWorkNotificationService
                 targetConnections,
                 notification,
                 visibility => FilterCollisions(notification, visibility.AllowsClient),
-                _ => true,
+                (visibility, filtered) => filtered.Collisions.Count > 0 || IsCheckedClientVisible(visibility, filtered.CheckedClientId),
                 (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("Sent CollisionsDetected to {Count} connections", targetConnections.Count);
         }
@@ -379,7 +379,7 @@ public class WorkNotificationService : IWorkNotificationService
                 targetConnections,
                 notification,
                 visibility => FilterValidations(notification, notification.Entries, visibility.AllowsClient),
-                _ => true,
+                (visibility, filtered) => filtered.Entries.Count > 0 || IsCheckedClientVisible(visibility, filtered.CheckedClientId),
                 (clients, dto) => clients.ScheduleValidationsDetected(dto));
             _logger.LogDebug("Sent ScheduleValidationsDetected to {Count} connections", targetConnections.Count);
         }
@@ -403,7 +403,7 @@ public class WorkNotificationService : IWorkNotificationService
                 grouped.Ungrouped,
                 notification,
                 visibility => FilterCollisions(notification, visibility.AllowsClient),
-                _ => true,
+                (_, _) => true,
                 (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("[COLLISION-TRACE] Sent {Count} collisions to {ConnCount} allGroup-connections", notification.Collisions.Count, allGroupConnections.Count);
         }
@@ -438,7 +438,7 @@ public class WorkNotificationService : IWorkNotificationService
                 connections,
                 filtered,
                 visibility => FilterCollisions(filtered, visibility.AllowsClient),
-                _ => true,
+                (_, _) => true,
                 (clients, dto) => clients.CollisionsDetected(dto));
             _logger.LogDebug("[COLLISION-TRACE] Sent {FilteredCount}/{TotalCount} collisions to group {GroupId} ({ConnCount} connections)",
                 filtered.Collisions.Count, notification.Collisions.Count, groupId, connections.Count);
@@ -461,7 +461,7 @@ public class WorkNotificationService : IWorkNotificationService
                 grouped.Ungrouped,
                 allGroupNotification,
                 visibility => FilterValidations(notification, entriesWithoutUnderstaffed, visibility.AllowsClient),
-                _ => true,
+                (_, _) => true,
                 (clients, dto) => clients.ScheduleValidationsDetected(dto));
         }
 
@@ -482,7 +482,7 @@ public class WorkNotificationService : IWorkNotificationService
                 connections,
                 FilterValidations(notification, groupEntries, _ => true),
                 visibility => FilterValidations(notification, groupEntries, visibility.AllowsClient),
-                _ => true,
+                (_, _) => true,
                 (clients, dto) => clients.ScheduleValidationsDetected(dto));
         }
     }
@@ -495,7 +495,7 @@ public class WorkNotificationService : IWorkNotificationService
         IEnumerable<ScheduleConnectionSnapshot> connections,
         TPayload full,
         Func<ConnectionVisibility, TPayload> filterFor,
-        Func<TPayload, bool> worthSending,
+        Func<ConnectionVisibility, TPayload, bool> worthSending,
         Func<IScheduleClient, TPayload, Task> send)
     {
         var list = connections.ToList();
@@ -508,12 +508,15 @@ public class WorkNotificationService : IWorkNotificationService
         foreach (var connection in list.Where(c => !c.Visibility.IsUnrestricted))
         {
             var filtered = filterFor(connection.Visibility);
-            if (worthSending(filtered))
+            if (worthSending(connection.Visibility, filtered))
             {
                 await send(_hubContext.Clients.Clients([connection.ConnectionId]), filtered);
             }
         }
     }
+
+    private static bool IsCheckedClientVisible(ConnectionVisibility visibility, Guid? checkedClientId)
+        => checkedClientId is not { } clientId || visibility.AllowsClient(clientId);
 
     private static CollisionListNotificationDto FilterCollisions(CollisionListNotificationDto source, Func<Guid, bool> allowsClient)
         => source with { Collisions = source.Collisions.Where(c => allowsClient(c.ClientId)).ToList() };
