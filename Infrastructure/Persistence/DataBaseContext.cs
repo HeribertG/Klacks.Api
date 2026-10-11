@@ -512,6 +512,28 @@ public class DataBaseContext : IdentityDbContext
         }
     }
 
+    /// <summary>
+    /// The actor name written to the CurrentUserCreated/Updated/Deleted audit columns: the caller's NameIdentifier
+    /// claim, or AuditActorNames.Anonymous outside a request. Bulk ExecuteUpdate statements bypass OnBeforeSaving and
+    /// use this to stamp the same actor.
+    /// </summary>
+    public string CurrentAuditActorName()
+    {
+        try
+        {
+            var claimValue = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(claimValue))
+            {
+                return claimValue;
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+
+        return AuditActorNames.Anonymous;
+    }
+
     private void OnBeforeSaving()
     {
         _hasPendingSettingsChange = ChangeTracker.Entries<Klacks.Api.Domain.Models.Settings.Settings>()
@@ -526,20 +548,7 @@ public class DataBaseContext : IdentityDbContext
             }
 
             var now = DateTime.UtcNow;
-            string currentUserName = AuditActorNames.Anonymous;
-
-            try
-            {
-                var claimValue = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                if (!string.IsNullOrEmpty(claimValue))
-                {
-                    currentUserName = claimValue;
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            var currentUserName = CurrentAuditActorName();
 
             switch (entry.State)
             {

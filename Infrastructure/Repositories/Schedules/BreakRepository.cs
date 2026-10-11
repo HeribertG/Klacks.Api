@@ -64,18 +64,24 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
+        var actor = _context.CurrentAuditActorName();
         return await _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate == date && b.LockLevel < level)
             .WhereReopenableByGroup(_context, groupId)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(b => b.LockLevel, level)
-                .SetProperty(b => b.SealedAt, DateTime.UtcNow)
+                .SetProperty(b => b.SealedAt, now)
                 .SetProperty(b => b.SealedBy, sealedBy)
-                .SetProperty(b => b.SealedByGroupId, groupId), cancellationToken);
+                .SetProperty(b => b.SealedByGroupId, groupId)
+                .SetProperty(b => b.UpdateTime, now)
+                .SetProperty(b => b.CurrentUserUpdated, actor), cancellationToken);
     }
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
+        var actor = _context.CurrentAuditActorName();
         return await _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate == date && b.LockLevel == level)
             .WhereReopenableByGroup(_context, groupId)
@@ -83,7 +89,9 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
                 .SetProperty(b => b.LockLevel, WorkLockLevel.None)
                 .SetProperty(b => b.SealedAt, (DateTime?)null)
                 .SetProperty(b => b.SealedBy, (string?)null)
-                .SetProperty(b => b.SealedByGroupId, (Guid?)null), cancellationToken);
+                .SetProperty(b => b.SealedByGroupId, (Guid?)null)
+                .SetProperty(b => b.UpdateTime, now)
+                .SetProperty(b => b.CurrentUserUpdated, actor), cancellationToken);
     }
 
     public Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
@@ -92,6 +100,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
             MainScheduleBreaksIn(startDate, endDate),
             level,
             sealedBy,
+            _context.CurrentAuditActorName(),
             cancellationToken,
             s => s
                 .SetProperty(b => b.PreSealSealedByGroupId, b => b.SealedByGroupId)
@@ -100,7 +109,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
 
     public Task<PeriodUnsealCounts> UnsealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        return PeriodSealUpdates.UnsealAsync(MainScheduleBreaksIn(startDate, endDate), level, cancellationToken, RestoreSealingGroup(level));
+        return PeriodSealUpdates.UnsealAsync(MainScheduleBreaksIn(startDate, endDate), level, _context.CurrentAuditActorName(), cancellationToken, RestoreSealingGroup(level));
     }
 
     public async Task<int> SealByPeriodAndGroup(DateOnly startDate, DateOnly endDate, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
@@ -110,6 +119,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
             groupBreaks,
             level,
             sealedBy,
+            _context.CurrentAuditActorName(),
             cancellationToken,
             s => s
                 .SetProperty(b => b.PreSealSealedByGroupId, b => b.SealedByGroupId)
@@ -153,6 +163,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         return await PeriodSealUpdates.UnsealAsync(
             reopenableBreaks.Where(b => !retainedBreakIds.Contains(b.Id)),
             level,
+            _context.CurrentAuditActorName(),
             cancellationToken,
             RestoreSealingGroup(level));
     }

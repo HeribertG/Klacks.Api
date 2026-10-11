@@ -10,6 +10,8 @@
 /// </summary>
 /// <param name="entries">Entries of one period (and optionally one group), already filtered by the caller</param>
 /// <param name="level">Seal level; the seal raises entries below it, the unseal reopens entries at it</param>
+/// <param name="updatedBy">Audit actor stamped into CurrentUserUpdated together with UpdateTime: a bulk UPDATE bypasses
+/// the context's audit stamping, and readers such as the scenario staleness check rely on UpdateTime</param>
 /// <param name="additionalSetters">Entity-specific columns the same UPDATE sets as well (the sealing group of a Break)</param>
 
 using Klacks.Api.Domain.Enums;
@@ -25,6 +27,7 @@ internal static class PeriodSealUpdates
         IQueryable<TEntry> entries,
         WorkLockLevel level,
         string sealedBy,
+        string updatedBy,
         CancellationToken cancellationToken,
         Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
@@ -40,7 +43,9 @@ internal static class PeriodSealUpdates
                     .SetProperty(e => e.PreSealSealedBy, e => e.SealedBy)
                     .SetProperty(e => e.LockLevel, level)
                     .SetProperty(e => e.SealedAt, sealedAt)
-                    .SetProperty(e => e.SealedBy, sealedBy);
+                    .SetProperty(e => e.SealedBy, sealedBy)
+                    .SetProperty(e => e.UpdateTime, sealedAt)
+                    .SetProperty(e => e.CurrentUserUpdated, updatedBy);
                 additionalSetters?.Invoke(s);
             }, cancellationToken);
     }
@@ -53,10 +58,12 @@ internal static class PeriodSealUpdates
     public static async Task<PeriodUnsealCounts> UnsealAsync<TEntry>(
         IQueryable<TEntry> entries,
         WorkLockLevel level,
+        string updatedBy,
         CancellationToken cancellationToken,
         Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
     {
+        var updatedAt = DateTime.UtcNow;
         var sealedEntries = entries.Where(e => e.LockLevel == level);
 
         var countsByPreSealLevel = await sealedEntries
@@ -77,7 +84,9 @@ internal static class PeriodSealUpdates
                     e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedBy : null)
                 .SetProperty(e => e.PreSealLockLevel, (WorkLockLevel?)null)
                 .SetProperty(e => e.PreSealSealedAt, (DateTime?)null)
-                .SetProperty(e => e.PreSealSealedBy, (string?)null);
+                .SetProperty(e => e.PreSealSealedBy, (string?)null)
+                .SetProperty(e => e.UpdateTime, updatedAt)
+                .SetProperty(e => e.CurrentUserUpdated, updatedBy);
             additionalSetters?.Invoke(s);
         }, cancellationToken);
 
