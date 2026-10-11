@@ -7,12 +7,15 @@
 /// When the rejected scenario was a remediation Klacksy prepared, the rejection also flows back onto
 /// the condition-ledger row it was prepared for - otherwise the finding would stay Prepared for ever,
 /// still pointing at a proposal that has just been thrown away.
+/// A scenario outside the caller's group visibility is answered like a missing one, before the status check.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to reject</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may see the scenario's group</param>
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -37,6 +40,7 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAgentConditionRepository _conditionRepository;
     private readonly IAgentConditionLedgerService _ledgerService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public RejectAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
@@ -46,9 +50,11 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         IAgentConditionRepository conditionRepository,
         IAgentConditionLedgerService ledgerService,
         IHttpContextAccessor httpContextAccessor,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<RejectAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _repository = repository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
@@ -62,8 +68,8 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     {
         return await ExecuteAsync(async () =>
         {
-            var scenario = await _repository.Get(command.ScenarioId)
-                ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
+            var scenario = await _groupVisibilityGuard.EnsureScenarioVisibleAsync(
+                await _repository.Get(command.ScenarioId), command.ScenarioId, cancellationToken);
 
             AnalyseScenarioStatusGuard.EnsureActive(scenario);
 

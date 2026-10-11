@@ -12,6 +12,7 @@ using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -112,8 +113,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
+    public async Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
     {
+        await EnsureStartScopeVisibleAsync(request, chainCt);
+
         _startGuard.EnsureWithinLimits(
             AutofillFamily.AutoWizard, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
             request.PeriodFrom, request.PeriodUntil);
@@ -128,7 +131,19 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         _ = Task.Run(() => RunOrchestrationAsync(jobId, request, cts.Token));
 
-        return Task.FromResult(jobId);
+        return jobId;
+    }
+
+    /// <summary>
+    /// Refuses a start the caller may not see: a hidden source scenario like a missing one, a hidden target group like a
+    /// missing one and - for a restricted caller - a run without a group, whose stage scenarios would be group-less and
+    /// therefore refused by the next stage's own scenario check part-way through the chain.
+    /// </summary>
+    private async Task EnsureStartScopeVisibleAsync(StartAutoWizardRequest request, CancellationToken ct)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<IScenarioTokenAccessGuard>().EnsureVisibleAsync(request.AnalyseToken, ct);
+        await scope.ServiceProvider.GetRequiredService<IGroupVisibilityGuard>().EnsureScenarioScopeWritableAsync(request.GroupId, ct);
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);

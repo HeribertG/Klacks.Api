@@ -10,6 +10,7 @@
 /// <param name="repository">Reads the request book</param>
 /// <param name="clientVisibilityGuard">Narrows the rows to visible employees</param>
 /// <param name="settingsReader">Short-notice threshold</param>
+/// <param name="scenarioTokenAccessGuard">Answers a scenario token the caller may not see with an empty list</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -33,21 +34,29 @@ public sealed class ListReplacementRequestsQueryHandler
     private readonly IReplacementRequestRepository _repository;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
     private readonly ISettingsReader _settingsReader;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
 
     public ListReplacementRequestsQueryHandler(
         IReplacementRequestRepository repository,
         IClientVisibilityGuard clientVisibilityGuard,
-        ISettingsReader settingsReader)
+        ISettingsReader settingsReader,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard)
     {
         _repository = repository;
         _clientVisibilityGuard = clientVisibilityGuard;
         _settingsReader = settingsReader;
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
     }
 
     public async Task<IReadOnlyList<ReplacementRequestResource>> Handle(
         ListReplacementRequestsQuery request, CancellationToken cancellationToken)
     {
         EnsureBounded(request);
+
+        if (!await _scenarioTokenAccessGuard.IsVisibleAsync(request.AnalyseToken, cancellationToken))
+        {
+            return [];
+        }
 
         var rows = await _repository.ListAsync(
             new ReplacementRequestFilter(request.AbsentClientId, request.FromDate, request.UntilDate, request.AnalyseToken),

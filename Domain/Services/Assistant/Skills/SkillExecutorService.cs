@@ -23,6 +23,7 @@ public class SkillExecutorService : ISkillExecutor
     private readonly IServiceProvider _serviceProvider;
     private readonly IGenericSkillDispatcher _genericDispatcher;
     private readonly IAutonomyGate _autonomyGate;
+    private readonly ISkillScenarioScopeGuard _scenarioScopeGuard;
     private readonly IEntityChangeNotifier _entityChangeNotifier;
     private readonly IRecentEntityRegistrar _recentEntityRegistrar;
     private readonly ILogger<SkillExecutorService> _logger;
@@ -35,8 +36,10 @@ public class SkillExecutorService : ISkillExecutor
         IAutonomyGate autonomyGate,
         IEntityChangeNotifier entityChangeNotifier,
         IRecentEntityRegistrar recentEntityRegistrar,
+        ISkillScenarioScopeGuard scenarioScopeGuard,
         ILogger<SkillExecutorService> logger)
     {
+        _scenarioScopeGuard = scenarioScopeGuard;
         _registry = registry;
         _usageTracker = usageTracker;
         _serviceProvider = serviceProvider;
@@ -64,6 +67,35 @@ public class SkillExecutorService : ISkillExecutor
                 _ => SkillResultType.Data
             }
         };
+    }
+
+    /// <summary>
+    /// Runs the gates that may stop an otherwise valid invocation, in order: the scenario scope (an analyseToken of a
+    /// scenario the caller cannot see is refused like an unknown one), then the autonomy gate. Returns the refusal
+    /// (already tracked as a failure) or null when the skill may run.
+    /// </summary>
+    private async Task<SkillResult?> CheckPreExecutionGatesAsync(
+        SkillDescriptor descriptor,
+        SkillInvocation invocation,
+        SkillExecutionContext context,
+        TimeSpan elapsed,
+        CancellationToken cancellationToken)
+    {
+        var scopeResult = await _scenarioScopeGuard.CheckAsync(invocation.Parameters, cancellationToken);
+        if (scopeResult != null)
+        {
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.ParameterInvalid, context, invocation.Parameters, scopeResult.Message, elapsed, descriptor.Category, cancellationToken);
+            return scopeResult;
+        }
+
+        var gateResult = await _autonomyGate.CheckAsync(descriptor, context, invocation.Parameters, cancellationToken);
+        if (gateResult != null)
+        {
+            await TrackFailureAsync(descriptor.Name, SkillFailureKind.GateHold, context, invocation.Parameters, gateResult.Message, elapsed, descriptor.Category, cancellationToken);
+            return gateResult;
+        }
+
+        return null;
     }
 
     public async Task<SkillResult> ExecuteAsync(
@@ -108,10 +140,9 @@ public class SkillExecutorService : ISkillExecutor
                 return uiContextError;
             }
 
-            var gateResult = await _autonomyGate.CheckAsync(descriptor, context, invocation.Parameters, cancellationToken);
+            var gateResult = await CheckPreExecutionGatesAsync(descriptor, invocation, context, stopwatch.Elapsed, cancellationToken);
             if (gateResult != null)
             {
-                await TrackFailureAsync(descriptor.Name, SkillFailureKind.GateHold, context, invocation.Parameters, gateResult.Message, stopwatch.Elapsed, descriptor.Category, cancellationToken);
                 return gateResult;
             }
 

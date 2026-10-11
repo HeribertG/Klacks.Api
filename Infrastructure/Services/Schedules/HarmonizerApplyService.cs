@@ -62,6 +62,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
     private readonly ICompanyClock _companyClock;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -77,8 +78,10 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IScheduleSnapshotMarkerService snapshotMarkerService,
         ICompanyClock companyClock,
         IScenarioNameGenerator scenarioNameGenerator,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         ILogger<HarmonizerApplyService> logger)
     {
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _resultCache = resultCache;
         _mediator = mediator;
         _scenarioRepository = scenarioRepository;
@@ -701,6 +704,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         {
             return null;
         }
+        await _scenarioTokenAccessGuard.EnsureVisibleAsync(token, ct);
         return await _scenarioRepository.GetByTokenAsync(token, ct);
     }
 }

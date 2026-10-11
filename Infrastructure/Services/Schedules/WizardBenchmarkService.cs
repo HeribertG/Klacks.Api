@@ -53,6 +53,8 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             AutofillFamily.Benchmark, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
             request.PeriodFrom, request.PeriodUntil);
 
+        await _scopeFactory.EnsureScenarioTokenVisibleAsync(request.AnalyseToken, ct);
+
         var benchmarkId = Guid.NewGuid();
         _startGuard.AcquireRunLock(
             AutofillFamily.Benchmark, request.PeriodFrom, request.PeriodUntil,

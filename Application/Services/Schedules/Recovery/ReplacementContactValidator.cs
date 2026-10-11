@@ -19,6 +19,7 @@
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -142,14 +143,7 @@ public sealed class ReplacementContactValidator : IReplacementContactValidator
     private async Task EnsureScenarioVisibleAsync(Guid token, CancellationToken cancellationToken)
     {
         var scenario = await _scenarioRepository.GetByTokenAsync(token, cancellationToken);
-        var visible = scenario switch
-        {
-            null => false,
-            { GroupId: { } scenarioGroupId } => await _groupVisibilityGuard.IsGroupVisibleAsync(scenarioGroupId, cancellationToken),
-            _ => await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken)
-        };
-
-        if (!visible)
+        if (!await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken))
         {
             throw new KeyNotFoundException(ScenarioNotFoundMessage);
         }

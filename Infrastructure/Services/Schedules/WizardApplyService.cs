@@ -59,6 +59,7 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly IScheduleTimelineService _timelineService;
     private readonly ICompanyClock _companyClock;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
@@ -74,8 +75,10 @@ public sealed class WizardApplyService : IWizardApplyService
         IScheduleTimelineService timelineService,
         ICompanyClock companyClock,
         IScenarioNameGenerator scenarioNameGenerator,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         ILogger<WizardApplyService> logger)
     {
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _resultCache = resultCache;
         _mediator = mediator;
         _scenarioRepository = scenarioRepository;
@@ -346,10 +349,20 @@ public sealed class WizardApplyService : IWizardApplyService
                 s.ReasonKey))
             .ToList();
 
+    /// <summary>
+    /// The source scenario of a run started from a scenario. A source the caller may not see is refused like a missing
+    /// one (404) rather than ignored: the cached result was already built from that scenario's data.
+    /// </summary>
     private async Task<AnalyseScenario?> LoadSourceScenarioAsync(Guid? sourceAnalyseToken, CancellationToken ct)
-        => sourceAnalyseToken is Guid token
-            ? await _scenarioRepository.GetByTokenAsync(token, ct)
-            : null;
+    {
+        if (sourceAnalyseToken is not Guid token)
+        {
+            return null;
+        }
+
+        await _scenarioTokenAccessGuard.EnsureVisibleAsync(token, ct);
+        return await _scenarioRepository.GetByTokenAsync(token, ct);
+    }
 
     /// <summary>
     /// Best-effort run-protocol capture for the (deferred) preference-learner. A capture failure must never

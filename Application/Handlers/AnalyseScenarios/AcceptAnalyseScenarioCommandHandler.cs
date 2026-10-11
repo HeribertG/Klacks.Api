@@ -16,8 +16,11 @@
 /// ever, still pointing at a proposal that has already been applied to the real plan.
 /// The promote bypasses the per-work period-hours hooks, so the real plan's cached period hours
 /// overlapping the accepted range are recomputed afterwards and open schedules are told to reload them.
+/// A scenario outside the caller's group visibility is answered like a missing one, before the status check, so a
+/// hidden decided scenario does not reveal itself through a 409.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>
+/// <param name="groupVisibilityGuard">Decides whether the caller may see the scenario's group</param>
 
 using System.Globalization;
 using System.Security.Claims;
@@ -26,6 +29,7 @@ using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
@@ -72,6 +76,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IWorkNotificationService _notificationService;
     private readonly IEscalationChainService _escalationChainService;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public AcceptAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
@@ -87,9 +92,11 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         IPeriodHoursService periodHoursService,
         IWorkNotificationService notificationService,
         IEscalationChainService escalationChainService,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<AcceptAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _repository = repository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
@@ -109,8 +116,8 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     {
         return await ExecuteAsync(async () =>
         {
-            var scenario = await _repository.Get(command.ScenarioId)
-                ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
+            var scenario = await _groupVisibilityGuard.EnsureScenarioVisibleAsync(
+                await _repository.Get(command.ScenarioId), command.ScenarioId, cancellationToken);
 
             AnalyseScenarioStatusGuard.EnsureActive(scenario);
 

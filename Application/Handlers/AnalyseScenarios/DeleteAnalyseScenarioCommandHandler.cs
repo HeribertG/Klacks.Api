@@ -6,9 +6,11 @@
 /// <see cref="IAnalyseScenarioService"/> before removing the scenario row.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to delete</param>
+/// <param name="groupVisibilityGuard">Answers a scenario outside the caller's group visibility like a missing one</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -21,12 +23,14 @@ public class DeleteAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public DeleteAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
         IWizardRunCaptureRepository captureRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<DeleteAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
@@ -34,14 +38,15 @@ public class DeleteAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
         _scenarioService = scenarioService;
         _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<bool> Handle(DeleteAnalyseScenarioCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var scenario = await _repository.Get(command.ScenarioId)
-                ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
+            var scenario = await _groupVisibilityGuard.EnsureScenarioVisibleAsync(
+                await _repository.Get(command.ScenarioId), command.ScenarioId, cancellationToken);
 
             await _scenarioService.SoftDeleteScenarioDataAsync(scenario.Token, cancellationToken);
             await _repository.Delete(command.ScenarioId);

@@ -7,7 +7,9 @@
 /// of groups inside that scope (group-less scenarios span all groups and are therefore left out for them).
 /// By default only open (Active) scenarios are returned so already accepted/rejected ones do not show as
 /// pending proposals; pass onlyOpen=false to include the full history. All filters run in the database. A
-/// groupId outside the caller's scope is answered with "not accessible", never with an empty list.
+/// groupId outside the caller's scope is answered with "not accessible", never with an empty list. The scope comes
+/// from IGroupVisibilityGuard - the same decision as the AnalyseScenarios HTTP handlers - so a non-admin without any
+/// visibility row sees no scenarios here either (fail-closed), while a background call without a user is unrestricted.
 /// </summary>
 /// <param name="groupId">Optional group UUID; if omitted, lists scenarios across all visible groups.</param>
 /// <param name="onlyOpen">Optional; defaults to true. When true only Active (open) scenarios are returned.</param>
@@ -28,16 +30,16 @@ public class ListScenariosSkill : BaseSkillImplementation
 
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IGroupRepository _groupRepository;
-    private readonly IGroupScopeGuard _groupScopeGuard;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public ListScenariosSkill(
         IAnalyseScenarioRepository scenarioRepository,
         IGroupRepository groupRepository,
-        IGroupScopeGuard groupScopeGuard)
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _scenarioRepository = scenarioRepository;
         _groupRepository = groupRepository;
-        _groupScopeGuard = groupScopeGuard;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -62,7 +64,7 @@ public class ListScenariosSkill : BaseSkillImplementation
             || !bool.TryParse(onlyOpenRaw, out var parsedOpen)
             || parsedOpen;
 
-        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var scope = await _groupVisibilityGuard.GetScopeAsync(cancellationToken);
 
         string? groupName = null;
         if (groupId.HasValue)
@@ -73,10 +75,10 @@ public class ListScenariosSkill : BaseSkillImplementation
                 return SkillResult.Error($"Group with ID {groupId} not found.");
             }
 
-            if (!scope.IsInScope(group))
+            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(group.Id, cancellationToken))
             {
                 return SkillResult.Error(
-                    $"The scenarios of group '{group.Name}' are not accessible to you. {scope.BuildOutOfScopeError(group.Name)}");
+                    $"The scenarios of group '{group.Name}' are not accessible to you.");
             }
 
             groupName = group.Name;

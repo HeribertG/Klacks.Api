@@ -39,8 +39,9 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
         IScheduleSnapshotMarkerService snapshotMarkerService,
         ICompanyClock companyClock,
         IScenarioNameGenerator scenarioNameGenerator,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         ILogger<HarmonizerApplyService> logger)
-        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, companyClock, scenarioNameGenerator, logger)
+        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, snapshotMarkerService, companyClock, scenarioNameGenerator, scenarioTokenAccessGuard, logger)
     {
     }
 }

@@ -6,7 +6,8 @@
 /// chooses the placements (e.g. via read_schedule_state + find_replacement); for bulk auto-fill use
 /// start_autowizard. The real schedule is cloned under the scenario token first, the pre-commit
 /// guardrail keeps the written scenario collision-free, and any placement that would collide is skipped
-/// and returned in the rejected list (it never silently drops work or corrupts real data).
+/// and returned in the rejected list (it never silently drops work or corrupts real data). A group outside the
+/// caller's visibility is reported exactly like a missing group.
 /// </summary>
 /// <param name="groupId">Required. UUID of the group / planning blade the scenario belongs to.</param>
 /// <param name="fromDate">Required. ISO date yyyy-MM-dd (scenario period start).</param>
@@ -96,8 +97,16 @@ public class ProposePlanSkill : BaseSkillImplementation
             placements.Add(new PlacementInput(clientId, shiftId, date));
         }
 
-        var outcome = await _mediator.Send(
-            new ProposePlanCommand(groupId, fromDate, untilDate, placements, Language: context.UserLanguage), cancellationToken);
+        ProposePlanOutcome outcome;
+        try
+        {
+            outcome = await _mediator.Send(
+                new ProposePlanCommand(groupId, fromDate, untilDate, placements, Language: context.UserLanguage), cancellationToken);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         var data = new
         {

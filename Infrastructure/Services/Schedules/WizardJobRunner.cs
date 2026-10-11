@@ -68,8 +68,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(WizardContextRequest request, CancellationToken chainCt)
+    public async Task<Guid> StartAsync(WizardContextRequest request, CancellationToken chainCt)
     {
+        await _scopeFactory.EnsureScenarioTokenVisibleAsync(request.AnalyseToken, chainCt);
+
         _startGuard.EnsureWithinLimits(
             AutofillFamily.Wizard1, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
             request.PeriodFrom, request.PeriodUntil);
@@ -87,7 +89,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
         _ = Task.Run(() => RunJobAsync(jobId, request, cts.Token));
 
-        return Task.FromResult(jobId);
+        return jobId;
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);

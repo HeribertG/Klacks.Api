@@ -14,15 +14,18 @@ public class WorkNotificationHub : Hub<IScheduleClient>
     private readonly ILogger<WorkNotificationHub> _logger;
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
     private readonly IScheduleTimelineService _timelineService;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
 
     public WorkNotificationHub(
         ILogger<WorkNotificationHub> logger,
         IConnectionDateRangeTracker dateRangeTracker,
-        IScheduleTimelineService timelineService)
+        IScheduleTimelineService timelineService,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard)
     {
         _logger = logger;
         _dateRangeTracker = dateRangeTracker;
         _timelineService = timelineService;
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
     }
 
     public override async Task OnConnectedAsync()
@@ -46,6 +49,13 @@ public class WorkNotificationHub : Hub<IScheduleClient>
     public async Task JoinScheduleGroup(string startDate, string endDate, string? analyseToken)
     {
         var token = ParseAnalyseToken(analyseToken);
+        if (!await _scenarioTokenAccessGuard.IsVisibleAsync(token, Context.ConnectionAborted))
+        {
+            _logger.LogWarning(
+                "SignalR GROUP JOIN refused: {ConnectionId} asked for a scenario it may not see", Context.ConnectionId);
+            return;
+        }
+
         var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
 
         var previous = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId);

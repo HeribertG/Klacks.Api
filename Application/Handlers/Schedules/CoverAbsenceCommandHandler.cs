@@ -46,6 +46,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Constants;
@@ -268,13 +269,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         }
 
         var scenario = await _scenarioRepository.GetByTokenAsync(token, cancellationToken);
-        var visible = scenario switch
-        {
-            null => false,
-            { GroupId: { } scenarioGroupId } => await _groupVisibilityGuard.IsGroupVisibleAsync(scenarioGroupId, cancellationToken),
-            _ => await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken)
-        };
-        if (!visible)
+        if (!await _groupVisibilityGuard.IsScenarioVisibleAsync(scenario, cancellationToken))
         {
             throw new KeyNotFoundException(string.Format(SourceScenarioNotFoundMessage, token));
         }

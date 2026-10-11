@@ -88,8 +88,10 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 Seed: seed,
                 MaxRuntime: remainingBudget);
 
-    public Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
+    public async Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
     {
+        await _scopeFactory.EnsureScenarioTokenVisibleAsync(request.AnalyseToken, chainCt);
+
         _startGuard.EnsureWithinLimits(
             AutofillFamily.Harmonizer, request.AgentIds.Count, 0, request.PeriodFrom, request.PeriodUntil);
 
@@ -106,7 +108,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 
         _ = Task.Run(() => RunJobAsync(jobId, request, cts.Token));
 
-        return Task.FromResult(jobId);
+        return jobId;
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);

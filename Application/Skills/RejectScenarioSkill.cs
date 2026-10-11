@@ -3,7 +3,8 @@
 /// <summary>
 /// Skill that rejects an AnalyseScenario — discards its proposed works via the existing
 /// RejectAnalyseScenarioCommand pipeline. Used when AutoWizard output is unacceptable or supersedes
-/// a prior scenario.
+/// a prior scenario. A scenario outside the caller's group visibility is refused by the command handler and
+/// reported exactly like a missing one.
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to reject.</param>
 
@@ -40,6 +41,10 @@ public class RejectScenarioSkill : BaseSkillImplementation
         catch (ConflictException ex)
         {
             return SkillResult.Error($"Failed to reject scenario {scenarioId}: {ex.Message}");
+        }
+        catch (KeyNotFoundException)
+        {
+            success = false;
         }
 
         if (!success)

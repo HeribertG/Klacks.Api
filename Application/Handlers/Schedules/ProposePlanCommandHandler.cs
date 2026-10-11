@@ -17,11 +17,13 @@
 /// <param name="unitOfWork">Flushes the scenario + clone before the guardrail check</param>
 /// <param name="scenarioNameGenerator">Builds the localized, per-group unique scenario name</param>
 /// <param name="sealedDayRepository">Tells which (client, date) pairs are sealed</param>
+/// <param name="groupVisibilityGuard">Refuses a hidden target group like a missing one and a group-less proposal for restricted callers</param>
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -44,6 +46,7 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScenarioNameGenerator _scenarioNameGenerator;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
@@ -53,8 +56,10 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         IMediator mediator,
         IUnitOfWork unitOfWork,
         IScenarioNameGenerator scenarioNameGenerator,
-        ISealedDayRepository sealedDayRepository)
+        ISealedDayRepository sealedDayRepository,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
+        _groupVisibilityGuard = groupVisibilityGuard;
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
@@ -71,6 +76,8 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
         var fromDate = request.FromDate;
         var untilDate = request.UntilDate;
         var placements = request.Placements;
+
+        await _groupVisibilityGuard.EnsureScenarioScopeWritableAsync(groupId, cancellationToken);
 
         var rejected = new List<RejectedPlacement>();
 

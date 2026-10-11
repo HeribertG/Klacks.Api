@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+using Klacks.Api.Domain.Models.Associations;
+
 namespace Klacks.Api.Application.Interfaces;
 
 /// <summary>
@@ -16,6 +18,13 @@ public interface IGroupVisibilityGuard
     /// city name), which reorganise clients across the whole tenant.
     /// </summary>
     Task<bool> IsUnrestrictedAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The caller's full visibility scope (visible root and group ids) for queries that filter in the database.
+    /// Unrestricted for admins, installations without groups and callers without a user; a non-admin without any
+    /// visibility row gets an empty restricted scope (fail-closed).
+    /// </summary>
+    Task<GroupVisibilityScope> GetScopeAsync(CancellationToken cancellationToken = default);
 
     /// <param name="groupId">The group a command reads or writes</param>
     Task<bool> IsGroupVisibleAsync(Guid groupId, CancellationToken cancellationToken = default);

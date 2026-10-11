@@ -31,6 +31,11 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
         return scope.IsUnrestricted;
     }
 
+    public Task<GroupVisibilityScope> GetScopeAsync(CancellationToken cancellationToken = default)
+    {
+        return ResolveScopeAsync();
+    }
+
     public Task<bool> IsGroupVisibleAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
         return AreAllGroupsVisibleAsync([groupId], cancellationToken);

@@ -67,9 +67,11 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken chainCt)
+    public async Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken chainCt)
     {
         ArgumentNullException.ThrowIfNull(input);
+
+        await _scopeFactory.EnsureScenarioTokenVisibleAsync(input.AnalyseToken, chainCt);
 
         _startGuard.EnsureWithinLimits(
             AutofillFamily.HolisticHarmonizer, input.AgentIds.Count, 0, input.PeriodFrom, input.PeriodUntil);
@@ -84,7 +86,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
 
         _ = Task.Run(() => RunJobAsync(jobId, input, cts.Token));
 
-        return Task.FromResult(jobId);
+        return jobId;
     }
 
     public bool TryCancel(Guid jobId) => _registry.TryCancel(jobId);

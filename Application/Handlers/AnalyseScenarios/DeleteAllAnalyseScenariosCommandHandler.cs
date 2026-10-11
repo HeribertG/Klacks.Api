@@ -6,10 +6,12 @@
 /// (including orphan sub-work/sub-break sweep) to IAnalyseScenarioService,
 /// then saves everything in a single transaction.
 /// </summary>
-/// <param name="GroupId">Optional group ID to scope the deletion</param>
+/// <param name="GroupId">Group whose scenarios are deleted; null deletes the group-less scenarios</param>
+/// <param name="groupVisibilityGuard">Refuses a hidden group like a missing one and group-less scenarios for restricted callers</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,12 +24,14 @@ public class DeleteAllAnalyseScenariosCommandHandler : BaseHandler, IRequestHand
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public DeleteAllAnalyseScenariosCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
         IWizardRunCaptureRepository captureRepository,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<DeleteAllAnalyseScenariosCommandHandler> logger)
         : base(logger)
     {
@@ -35,12 +39,15 @@ public class DeleteAllAnalyseScenariosCommandHandler : BaseHandler, IRequestHand
         _scenarioService = scenarioService;
         _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<bool> Handle(DeleteAllAnalyseScenariosCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
+            await _groupVisibilityGuard.EnsureScenarioScopeWritableAsync(command.GroupId, cancellationToken);
+
             var scenarios = await _repository.GetByGroupAsync(command.GroupId, cancellationToken);
 
             foreach (var scenario in scenarios)

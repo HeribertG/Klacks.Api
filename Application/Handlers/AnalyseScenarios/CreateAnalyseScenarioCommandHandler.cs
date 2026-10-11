@@ -7,10 +7,12 @@
 /// <see cref="IAnalyseScenarioService"/>.
 /// </summary>
 /// <param name="Request">Contains name, description, optional group and time period</param>
+/// <param name="groupVisibilityGuard">Refuses a hidden target group like a missing one and a group-less scenario for restricted callers</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,17 +24,20 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public CreateAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<CreateAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<AnalyseScenarioResource> Handle(CreateAnalyseScenarioCommand command, CancellationToken cancellationToken)
@@ -43,6 +48,8 @@ public class CreateAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             var fromDate = command.Request.FromDate;
             var untilDate = command.Request.UntilDate;
             var groupId = command.Request.GroupId;
+
+            await _groupVisibilityGuard.EnsureScenarioScopeWritableAsync(groupId, cancellationToken);
 
             var scenario = new AnalyseScenario
             {

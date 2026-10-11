@@ -3,7 +3,8 @@
 /// <summary>
 /// Skill that accepts an AnalyseScenario — promotes its works/breaks to the main schedule via the
 /// existing AcceptAnalyseScenarioCommand pipeline. Used after AutoWizard or any other scenario producer
-/// has run and the user (or planning agent) wants to commit the proposed plan.
+/// has run and the user (or planning agent) wants to commit the proposed plan. A scenario outside the caller's
+/// group visibility is refused by the command handler and reported exactly like a missing one.
 /// </summary>
 /// <param name="scenarioId">UUID of the scenario to accept.</param>
 
@@ -40,6 +41,10 @@ public class AcceptScenarioSkill : BaseSkillImplementation
         catch (ConflictException ex)
         {
             return SkillResult.Error($"Failed to accept scenario {scenarioId}: {ex.Message}");
+        }
+        catch (KeyNotFoundException)
+        {
+            success = false;
         }
 
         if (!success)

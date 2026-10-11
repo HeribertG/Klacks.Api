@@ -6,10 +6,12 @@
 /// </summary>
 /// <param name="Id">ID of the scenario to rename</param>
 /// <param name="Name">New name for the scenario</param>
+/// <param name="groupVisibilityGuard">Answers a scenario outside the caller's group visibility like a missing one</param>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Groups;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -19,23 +21,26 @@ public class RenameAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
 {
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public RenameAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
         IUnitOfWork unitOfWork,
+        IGroupVisibilityGuard groupVisibilityGuard,
         ILogger<RenameAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public async Task<AnalyseScenarioResource> Handle(RenameAnalyseScenarioCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
-            var scenario = await _repository.Get(command.Id)
-                ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.Id} not found");
+            var scenario = await _groupVisibilityGuard.EnsureScenarioVisibleAsync(
+                await _repository.Get(command.Id), command.Id, cancellationToken);
 
             scenario.Name = command.Name;
 

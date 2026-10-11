@@ -36,6 +36,7 @@
 /// <param name="absenceRepository">Resolves which absence types are on-call (not absent, preferred instead)</param>
 /// <param name="groupVisibilityGuard">Decides whether the caller may see the requested group at all</param>
 /// <param name="clientVisibilityGuard">Narrows the candidate pool to the employees the caller may see</param>
+/// <param name="scenarioTokenAccessGuard">Answers a scenario token the caller may not see like an unknown group (empty result)</param>
 /// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance exclusion</param>
 using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -76,6 +77,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IGroupVisibilityGuard _groupVisibilityGuard;
     private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
     private readonly ILogger<FindReplacementQueryHandler> _logger;
 
     public FindReplacementQueryHandler(
@@ -92,8 +94,10 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         IAbsenceRepository absenceRepository,
         IGroupVisibilityGuard groupVisibilityGuard,
         IClientVisibilityGuard clientVisibilityGuard,
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard,
         ILogger<FindReplacementQueryHandler> logger)
     {
+        _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupClientService = groupClientService;
@@ -112,6 +116,11 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
     {
+        if (!await _scenarioTokenAccessGuard.IsVisibleAsync(request.AnalyseToken, cancellationToken))
+        {
+            return new ReplacementSearchResult([], []);
+        }
+
         var members = await ResolveVisibleGroupMembersAsync(request.GroupId, cancellationToken);
         if (members.Count == 0)
         {
