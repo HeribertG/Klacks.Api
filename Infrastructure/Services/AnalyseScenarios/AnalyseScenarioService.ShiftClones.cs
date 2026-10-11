@@ -14,15 +14,14 @@ namespace Klacks.Api.Infrastructure.Services.AnalyseScenarios;
 
 public partial class AnalyseScenarioService
 {
-    private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
 
         var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var preferences = await _context.Set<ClientShiftPreference>()
+        var preferences = await WhereEitherWorld(_context.Set<ClientShiftPreference>()
             .Where(p => !p.IsDeleted
-                && p.AnalyseToken == null
-                && sourceShiftIds.Contains(p.ShiftId))
+                && sourceShiftIds.Contains(p.ShiftId)), source)
             .AsNoTracking()
             .ToListAsync(ct);
 
@@ -66,15 +65,14 @@ public partial class AnalyseScenarioService
         }
     }
 
-    private async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    private async Task CloneShiftExpenses(Dictionary<Guid, Guid> shiftIdMap, Guid token, ScenarioCloneSource source, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
 
         var sourceShiftIds = shiftIdMap.Keys.ToList();
-        var expenses = await _context.Set<ShiftExpenses>()
+        var expenses = await WhereEitherWorld(_context.Set<ShiftExpenses>()
             .Where(e => !e.IsDeleted
-                && e.AnalyseToken == null
-                && sourceShiftIds.Contains(e.ShiftId))
+                && sourceShiftIds.Contains(e.ShiftId)), source)
             .AsNoTracking()
             .ToListAsync(ct);
 

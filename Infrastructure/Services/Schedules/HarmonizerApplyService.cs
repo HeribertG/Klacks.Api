@@ -165,13 +165,17 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         {
             await EnsureSnapshotUnchangedAsync(jobId, snapshotMarker, originalBitmap, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, ct);
 
-            var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
+            var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
+            var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
+            groupId ??= sourceScenario?.GroupId;
 
             var workIds = CollectWorkIds(bestBitmap);
             var originalWorks = await LoadWorksAsync(workIds, ct);
 
             var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : await _companyClock.GetTodayDateAsync(ct);
             var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
+            var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
+                periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
 
             var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
             var shiftIdsToClone = await ResolveShiftIdsToCloneAsync(groupId, sourceAnalyseToken, bitmapShiftIds, ct);
@@ -196,14 +200,15 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 {
                     Name = name,
                     GroupId = groupId,
-                    FromDate = periodFrom,
-                    UntilDate = periodUntil,
+                    FromDate = scenarioFrom,
+                    UntilDate = scenarioUntil,
                     Token = token,
                     RunGroupId = runGroupId,
+                    SourceToken = sourceAnalyseToken,
                 };
 
                 await _scenarioRepository.Add(analyseScenario);
-                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, shiftIdsToClone, ct);
+                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, scenarioFrom, scenarioUntil, token, shiftIdsToClone, sourceAnalyseToken, ct);
                 await _unitOfWork.CompleteAsync();
 
                 // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
@@ -211,8 +216,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
                 //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
                 //    map to the clones via workIdMap (C4 fix).
-                //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
-                //    works the real-data clone does not cover, so re-pointing cannot correlate them).
+                //  - Scenario source: the clone copies the source scenario (its breaks, locked works and replacement
+                //    covers survive); the movable works are still deleted and recreated from the bitmap.
                 // Locked works and absence breaks are left intact either way.
                 IReadOnlyList<Guid> ids;
                 if (sourceAnalyseToken is null)
@@ -255,7 +260,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
 
             // Range checks run on a background context that would read the pre-commit state from inside
             // the transaction; re-queueing after the commit is idempotent and heals that.
-            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
+            _timelineService.QueueRangeCheck(scenarioFrom, scenarioUntil, token);
 
             if (captureRun)
             {
@@ -690,13 +695,12 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         return items;
     }
 
-    private async Task<Guid> ResolveRunGroupIdAsync(Guid? sourceAnalyseToken, CancellationToken ct)
+    private async Task<AnalyseScenario?> LoadSourceScenarioAsync(Guid? sourceAnalyseToken, CancellationToken ct)
     {
         if (sourceAnalyseToken is not Guid token)
         {
-            return Guid.NewGuid();
+            return null;
         }
-        var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
-        return sourceScenario?.RunGroupId ?? Guid.NewGuid();
+        return await _scenarioRepository.GetByTokenAsync(token, ct);
     }
 }

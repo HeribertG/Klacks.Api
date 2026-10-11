@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Hviledagsrotasjon brutt",
   "schedule.compliance.reasonShort.restViolation": "For kort hviletid",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Begrenset tidsvindu brutt",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Vakten finnes ikke i det nye scenariet",
   "schedule.compliance.reasonShort.rollingAverage": "Glidende gjennomsnitt overskredet",
   "schedule.compliance.reasonShort.weeklyOvertime": "Ukentlig overtid",
   "schedule.compliance.skipped.col.client": "Ansatt",

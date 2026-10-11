@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Rotația zilelor de odihnă încălcată",
   "schedule.compliance.reasonShort.restViolation": "Perioadă de odihnă prea scurtă",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Interval orar restricționat încălcat",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Tura nu există în noul scenariu",
   "schedule.compliance.reasonShort.rollingAverage": "Medie glisantă depășită",
   "schedule.compliance.reasonShort.weeklyOvertime": "Ore suplimentare săptămânale",
   "schedule.compliance.skipped.col.client": "Angajat",

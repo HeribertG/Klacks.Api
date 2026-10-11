@@ -38,6 +38,12 @@ public class AnalyseScenario : BaseEntity
     /// </summary>
     public Guid? RunGroupId { get; set; }
 
+    /// <summary>
+    /// Token of the scenario this scenario was built on (scenario from scenario), null when it was cloned from the
+    /// real plan. Lineage only: accepting a scenario always promotes it into the real plan, never into its source.
+    /// </summary>
+    public Guid? SourceToken { get; set; }
+
     public string CreatedByUser { get; set; } = string.Empty;
 
     public AnalyseScenarioStatus Status { get; set; } = AnalyseScenarioStatus.Active;

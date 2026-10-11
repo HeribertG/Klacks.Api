@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Παραβίαση εναλλαγής ημερών ανάπαυσης",
   "schedule.compliance.reasonShort.restViolation": "Πολύ σύντομη ανάπαυση",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Παραβίαση απαγορευμένου χρονικού παραθύρου",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Η βάρδια δεν υπάρχει στο νέο σενάριο",
   "schedule.compliance.reasonShort.rollingAverage": "Υπέρβαση κινητού μέσου όρου",
   "schedule.compliance.reasonShort.weeklyOvertime": "Εβδομαδιαία υπερωρία",
   "schedule.compliance.skipped.col.client": "Εργαζόμενος",

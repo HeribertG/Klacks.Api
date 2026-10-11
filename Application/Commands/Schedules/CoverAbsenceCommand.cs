@@ -31,6 +31,10 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// </param>
 /// <param name="ReportedAtUtc">When the absence was reported (inbound receive time for the messenger); null means now</param>
 /// <param name="Source">Path that started the run; stored on every replacement request the run records</param>
+/// <param name="AnalyseToken">
+/// Scenario to build the cover on (scenario from scenario); null builds it on the real plan. The new scenario is a full
+/// copy of the source scenario inside its range and is accepted straight into the real plan like any other scenario.
+/// </param>
 public record CoverAbsenceCommand(
     Guid ClientId,
     DateOnly Date,
@@ -41,4 +45,5 @@ public record CoverAbsenceCommand(
     string? Language = null,
     bool NotifyEscalationRoster = true,
     DateTime? ReportedAtUtc = null,
-    ReplacementRequestSource Source = ReplacementRequestSource.RecoveryEngine) : IRequest<CoverAbsenceOutcome>;
+    ReplacementRequestSource Source = ReplacementRequestSource.RecoveryEngine,
+    Guid? AnalyseToken = null) : IRequest<CoverAbsenceOutcome>;

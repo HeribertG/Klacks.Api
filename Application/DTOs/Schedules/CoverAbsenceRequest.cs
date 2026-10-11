@@ -14,6 +14,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="Language">The planner's language for the scenario name prefix; null falls back to the installation language.</param>
 /// <param name="ReportedAtUtc">When the absence was reported (e.g. the time of the call); null means now. A future instant is clamped to now.</param>
 /// <param name="NotifyEscalationRoster">Start the planner call list for the affected days; the UI sends false while the planner handles the absence interactively.</param>
+/// <param name="AnalyseToken">Scenario the planner is working in; the cover is built on it instead of the real plan. Null = the real plan.</param>
 public sealed record CoverAbsenceRequest(
     Guid ClientId,
     DateOnly Date,
@@ -23,4 +24,5 @@ public sealed record CoverAbsenceRequest(
     bool OverrideBlock = false,
     string? Language = null,
     bool NotifyEscalationRoster = true,
-    DateTime? ReportedAtUtc = null);
+    DateTime? ReportedAtUtc = null,
+    Guid? AnalyseToken = null);

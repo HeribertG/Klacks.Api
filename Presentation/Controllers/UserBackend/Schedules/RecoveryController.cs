@@ -20,7 +20,8 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// scenario, accepting one is open to every authenticated user anyway (AnalyseScenariosController), the
 /// compliance override is authorised separately by ISupervisorOverrideAuthorizer, and group visibility is
 /// enforced inside the handlers: CoverAbsence refuses an absent employee outside the caller's visibility like
-/// a missing one and drops repair options touching hidden employees; Candidates answers a group outside the
+/// a missing one and drops repair options touching hidden employees, and builds on the scenario the planner works in
+/// (AnalyseToken) only when that scenario is visible to the caller and still active; Candidates answers a group outside the
 /// caller's visibility exactly like an unknown group (empty lists) and limits both the eligible and the
 /// excluded list to employees the caller may see.
 /// </summary>
@@ -48,7 +49,7 @@ public sealed class RecoveryController : ControllerBase
                 new CoverAbsenceCommand(
                     request.ClientId, request.Date, request.GroupId, request.AbsenceId,
                     request.UntilDate, request.OverrideBlock, request.Language, request.NotifyEscalationRoster,
-                    request.ReportedAtUtc, ReplacementRequestSource.PlannerDialog),
+                    request.ReportedAtUtc, ReplacementRequestSource.PlannerDialog, request.AnalyseToken),
                 ct);
 
             return Ok(outcome);

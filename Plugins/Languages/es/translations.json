@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Rotación de días de descanso vulnerada",
   "schedule.compliance.reasonShort.restViolation": "Descanso demasiado corto",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Franja horaria restringida vulnerada",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Turno no presente en el nuevo escenario",
   "schedule.compliance.reasonShort.rollingAverage": "Media móvil superada",
   "schedule.compliance.reasonShort.weeklyOvertime": "Horas extra semanales",
   "schedule.compliance.skipped.col.client": "Empleado",

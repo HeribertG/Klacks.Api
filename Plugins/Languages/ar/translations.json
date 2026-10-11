@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "انتهاك تناوب أيام الراحة",
   "schedule.compliance.reasonShort.restViolation": "فترة الراحة قصيرة جدًا",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "انتهاك النافذة الزمنية المحظورة",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "المناوبة غير موجودة في السيناريو الجديد",
   "schedule.compliance.reasonShort.rollingAverage": "تم تجاوز المتوسط المتحرك",
   "schedule.compliance.reasonShort.weeklyOvertime": "ساعات إضافية أسبوعية",
   "schedule.compliance.skipped.col.client": "موظف",

@@ -25,6 +25,12 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// accepted ones as a <see cref="BulkAddWorksCommand"/> dispatched via mediator. Routing through
 /// the existing Work-Create pipeline ensures PeriodHours, Collision-Pipeline, Notifications and
 /// Container-Expansion side-effects fire correctly.
+/// A scenario apply of a run on a source scenario builds the new scenario on that scenario (scenario from scenario): the
+/// clone copies the source scenario and maps its shift ids to the new clones; a token whose shift has no clone is skipped
+/// and reported as a skipped placement instead of being written onto another scenario's shift, where it would stay
+/// invisible. The new scenario
+/// spans the source scenario's range as well (ScenarioSourceRange), so accepting it never drops the source plan, and
+/// without an own group it inherits the source scenario's group.
 /// </summary>
 /// <param name="resultCache">Cache populated by the wizard runner</param>
 /// <param name="mediator">Mediator used to dispatch BulkAddWorksCommand</param>
@@ -39,6 +45,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="logger">Logger used for best-effort capture warnings</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
+    private const string ShiftNotInScenarioReasonKey = "schedule.error-list.shift-not-in-scenario";
+
     private readonly WizardResultCache _resultCache;
     private readonly IMediator _mediator;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
@@ -189,7 +197,9 @@ public sealed class WizardApplyService : IWizardApplyService
 
         try
         {
-            var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
+            var sourceScenario = await LoadSourceScenarioAsync(sourceAnalyseToken, ct);
+            var runGroupId = sourceScenario?.RunGroupId ?? Guid.NewGuid();
+            groupId ??= sourceScenario?.GroupId;
 
             var items = cachedScenario.Tokens
                 .Where(t => !t.IsLocked)
@@ -205,6 +215,8 @@ public sealed class WizardApplyService : IWizardApplyService
             var name = await _scenarioNameGenerator.GenerateAsync(
                 nameKind ?? ScenarioNameKind.Plan, periodFrom, periodUntil, groupId, language, ct);
             var token = Guid.NewGuid();
+            var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(
+                periodFrom, periodUntil, sourceScenario?.FromDate, sourceScenario?.UntilDate);
 
             // Scenario row, clone, slot cleanup and the planner works must land together - a failure in
             // between used to leave a scenario whose schedule was half-written.
@@ -219,14 +231,15 @@ public sealed class WizardApplyService : IWizardApplyService
                 {
                     Name = name,
                     GroupId = groupId,
-                    FromDate = periodFrom,
-                    UntilDate = periodUntil,
+                    FromDate = scenarioFrom,
+                    UntilDate = scenarioUntil,
                     Token = token,
                     RunGroupId = runGroupId,
+                    SourceToken = sourceAnalyseToken,
                 };
 
                 await _scenarioRepository.Add(analyseScenario);
-                var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
+                var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, scenarioFrom, scenarioUntil, token, additionalShiftIds: null, sourceAnalyseToken, ct);
                 await _unitOfWork.CompleteAsync();
 
                 // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
@@ -253,8 +266,9 @@ public sealed class WizardApplyService : IWizardApplyService
                     .ToList();
                 var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
 
-                var acceptedTokens = partition.AcceptedIndexes.Select(i => items[i]).ToList();
-                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
+                var unplaceable = FindPlacementsWithoutClone(items, partition.AcceptedIndexes, shiftIdMap, sourceAnalyseToken, jobId);
+                var acceptedTokens = partition.AcceptedIndexes.Except(unplaceable).Select(i => items[i]).ToList();
+                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes, unplaceable);
 
                 var bulkItems = acceptedTokens
                     .Select(t => BuildBulkItem(t, token, shiftIdMap))
@@ -280,8 +294,7 @@ public sealed class WizardApplyService : IWizardApplyService
 
             // Range checks run on a background context that would read the pre-commit state from inside
             // the transaction; re-queueing after the commit is idempotent and heals that.
-            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
-
+            _timelineService.QueueRangeCheck(scenarioFrom, scenarioUntil, token);
 
             await CaptureRunAsync(
                 jobId,
@@ -321,24 +334,22 @@ public sealed class WizardApplyService : IWizardApplyService
 
     private static List<SkippedPlacementDto> BuildSkippedPlacements(
         IReadOnlyList<PlannedWorkRow> rows,
-        IReadOnlyList<BlockedRow> blockedRows)
+        IReadOnlyList<BlockedRow> blockedRows,
+        IReadOnlyList<int>? withoutCloneIndexes = null)
         => blockedRows
-            .Select(b => new SkippedPlacementDto(
-                rows[b.Index].ClientId,
-                rows[b.Index].Date,
-                rows[b.Index].ShiftId,
-                b.ReasonKey))
+            .Select(b => (b.Index, b.ReasonKey))
+            .Concat((withoutCloneIndexes ?? []).Select(index => (Index: index, ReasonKey: ShiftNotInScenarioReasonKey)))
+            .Select(s => new SkippedPlacementDto(
+                rows[s.Index].ClientId,
+                rows[s.Index].Date,
+                rows[s.Index].ShiftId,
+                s.ReasonKey))
             .ToList();
 
-    private async Task<Guid> ResolveRunGroupIdAsync(Guid? sourceAnalyseToken, CancellationToken ct)
-    {
-        if (sourceAnalyseToken is not Guid token)
-        {
-            return Guid.NewGuid();
-        }
-        var sourceScenario = await _scenarioRepository.GetByTokenAsync(token, ct);
-        return sourceScenario?.RunGroupId ?? Guid.NewGuid();
-    }
+    private async Task<AnalyseScenario?> LoadSourceScenarioAsync(Guid? sourceAnalyseToken, CancellationToken ct)
+        => sourceAnalyseToken is Guid token
+            ? await _scenarioRepository.GetByTokenAsync(token, ct)
+            : null;
 
     /// <summary>
     /// Best-effort run-protocol capture for the (deferred) preference-learner. A capture failure must never
@@ -467,6 +478,35 @@ public sealed class WizardApplyService : IWizardApplyService
             "WeeklyHours" or "HeavyWeek" => SofteningKind.HeavyWeeklyLoad,
             _ => SofteningKind.Unknown,
         };
+    }
+
+    /// <summary>
+    /// Accepted placements a scenario apply cannot write. From the real plan none: an unmapped shift falls back to the
+    /// token's own (real) shift as before. From a source scenario every placement whose shift has no clone in the new
+    /// scenario, because that shift belongs to the source scenario and a work on it would be invisible in the new scenario
+    /// and promoted onto a foreign scenario shift on accept; they are reported as skipped instead.
+    /// </summary>
+    private List<int> FindPlacementsWithoutClone(
+        IReadOnlyList<CoreToken> items,
+        IReadOnlyList<int> acceptedIndexes,
+        IReadOnlyDictionary<Guid, Guid> shiftIdMap,
+        Guid? sourceAnalyseToken,
+        Guid jobId)
+    {
+        if (sourceAnalyseToken is null)
+        {
+            return [];
+        }
+
+        var withoutClone = acceptedIndexes.Where(i => !shiftIdMap.ContainsKey(items[i].ShiftRefId)).ToList();
+        if (withoutClone.Count > 0)
+        {
+            _logger.LogWarning(
+                "WizardApply job {JobId}: {Count} placements on shifts without a clone in the new scenario were skipped: {ShiftIds}",
+                jobId, withoutClone.Count, string.Join(",", withoutClone.Select(i => items[i].ShiftRefId).Distinct()));
+        }
+
+        return withoutClone;
     }
 
     private static BulkWorkItem BuildBulkItem(CoreToken token, Guid? analyseToken, IReadOnlyDictionary<Guid, Guid>? shiftIdMap = null)

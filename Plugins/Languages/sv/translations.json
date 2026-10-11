@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Vilodagsrotation bruten",
   "schedule.compliance.reasonShort.restViolation": "För kort vilotid",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Förbjudet tidsfönster brutet",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Passet finns inte i det nya scenariot",
   "schedule.compliance.reasonShort.rollingAverage": "Rullande genomsnitt överskridet",
   "schedule.compliance.reasonShort.weeklyOvertime": "Veckovis övertid",
   "schedule.compliance.skipped.col.client": "Medarbetare",

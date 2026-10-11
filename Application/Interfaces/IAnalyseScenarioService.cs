@@ -38,15 +38,38 @@ public interface IAnalyseScenarioService
     /// are the exact set to clone.
     /// Returns the shift ID map (original shift ID → cloned shift ID) so callers
     /// can remap external shift references to the cloned IDs.
+    /// <paramref name="sourceToken"/> builds the new scenario on an existing scenario instead of the real plan:
+    /// inside the source scenario's own range its rows are copied (including its changes, breaks, replacements, temporary
+    /// memberships and open replacement requests), outside that range the real plan's rows. Every clone keeps the real
+    /// root shift in ScenarioSourceShiftId, so the new scenario is accepted straight into the real plan; the source stays
+    /// an independent scenario that can still be accepted like any sibling scenario. The shift map then also maps each
+    /// real root id to the clone that represents it. The source must be an active scenario, and with a grouped source
+    /// the new scenario's group must lie in the source group's hierarchy (otherwise
+    /// <see cref="Klacks.Api.Application.Exceptions.ConflictException"/>); a null group inherits the source's group. An
+    /// unknown token throws <see cref="KeyNotFoundException"/>. Null keeps the real-plan clone unchanged.
+    /// The source token is not checked for visibility here: the caller must have verified that the user may see the
+    /// source scenario's group.
     /// </summary>
-    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
+    Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken);
 
     /// <summary>
     /// Same as <see cref="CloneScenarioDataAsync"/> but also returns the work ID map
     /// (original work ID → cloned work ID), so the apply path can re-point the cloned works
     /// in place (preserving their WorkChange/Expense/sub-Break children) instead of delete+recreate.
     /// </summary>
-    Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
+    Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, Guid? sourceToken, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Maps every scenario clone among <paramref name="shiftIds"/> to the real root shift it stands for
+    /// (ScenarioSourceShiftId). Real shifts and unknown ids are left out, so a caller falls back to the id itself.
+    /// </summary>
+    Task<IReadOnlyDictionary<Guid, Guid>> ResolveRootShiftIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Ids of every live shift of the scenario plus the real root shifts they stand for: the shifts whose works the
+    /// scenario owns, in either id space (scenario rows carry the clone id, real rows the root id).
+    /// </summary>
+    Task<IReadOnlySet<Guid>> GetScenarioShiftIdsWithRootsAsync(Guid token, CancellationToken cancellationToken);
 
     /// <summary>
     /// Materialises a temporary cross-group membership under the scenario token: the client joins the
@@ -67,7 +90,8 @@ public interface IAnalyseScenarioService
     /// Validates that no real-side conflict prevents accepting the scenario.
     /// Throws ConflictException when a source shift was deleted or its
     /// child-count subtree changed since the scenario was created (e.g. a
-    /// concurrent cut by another user).
+    /// concurrent cut by another user), or when scenario works sit on a scenario
+    /// shift that has no real root shift to be promoted onto.
     /// </summary>
     Task ValidateNoAcceptConflictsAsync(Guid token, CancellationToken cancellationToken);
 

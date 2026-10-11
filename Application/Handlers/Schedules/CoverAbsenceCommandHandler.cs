@@ -16,6 +16,12 @@
 /// All writes of one cover (scenario, plan clone, absence breaks, memberships, replacement WorkChanges, request-book
 /// rows) run in a single IUnitOfWork.ExecuteInTransactionAsync, so a failure leaves no half-filled scenario; the
 /// messenger call-list starts only after that commit.
+/// With an AnalyseToken the cover is built on that scenario instead of the real plan (scenario from scenario): the source
+/// must be visible to the caller (a hidden or unknown one answers like a missing one), still active and cover the
+/// requested group; the clone, the snapshot and the absence hours then read the source scenario inside its range, and
+/// the reported/recorded shift ids are mapped to the real root shift so the request book and accept stay keyed alike.
+/// The new scenario then spans the source scenario's range as well (ScenarioSourceRange), so it carries the whole source
+/// plan and accepting it never drops the source's changes outside the absence days.
 /// </summary>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
 /// <param name="scenarioService">Clones the real schedule under the scenario token (with the work id map)</param>
@@ -37,8 +43,10 @@ using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -66,6 +74,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private const int MaxAbsenceDays = 31;
     private const decimal DefaultAbsenceHours = 8m;
     private const string GroupNotFoundMessage = "Group with ID {0} not found";
+    private const string SourceScenarioNotFoundMessage = "Scenario with token {0} not found";
+    private const string SourceScenarioNotActiveMessage =
+        "Scenario {0} is no longer active (status {1}); an absence can only be covered in an active scenario.";
+    private const string SourceScenarioGroupMessage =
+        "Scenario {0} only covers group {1} and its subgroups; group {2} cannot be planned in it.";
     private static readonly TimeOnly DayStart = new(0, 0);
     private static readonly TimeOnly DayEnd = new(23, 59);
 
@@ -149,6 +162,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             throw new KeyNotFoundException($"Client with ID {clientId} not found");
         }
 
+        var source = await ResolveSourceScopeAsync(request.AnalyseToken, groupId, cancellationToken);
+
         var dates = Enumerable.Range(0, totalDays).Select(offset => date.AddDays(offset)).ToList();
 
         var name = await _scenarioNameGenerator.GenerateAsync(
@@ -159,7 +174,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         // The messenger call-list is NOT part of it - a sent message cannot be rolled back, so it starts only
         // after the commit, from the snapshot and absence days the committed run produced.
         var run = await _unitOfWork.ExecuteInTransactionAsync(
-            () => WriteCoverScenarioAsync(request, name, dates, cancellationToken));
+            () => WriteCoverScenarioAsync(request, name, dates, source, cancellationToken));
 
         if (request.NotifyEscalationRoster)
         {
@@ -177,6 +192,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             CoverAbsenceCommand request,
             string name,
             IReadOnlyList<DateOnly> dates,
+            ScenarioSourceScope? source,
             CancellationToken cancellationToken)
     {
         var clientId = request.ClientId;
@@ -186,26 +202,29 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var absenceId = request.AbsenceId;
 
         var token = Guid.NewGuid();
+        var (scenarioFrom, scenarioUntil) = ScenarioSourceRange.Widen(date, untilDate, source?.FromDate, source?.UntilDate);
         var scenario = new AnalyseScenario
         {
             Name = name,
             GroupId = groupId,
-            FromDate = date,
-            UntilDate = untilDate,
+            FromDate = scenarioFrom,
+            UntilDate = scenarioUntil,
             Token = token,
-            RunGroupId = Guid.NewGuid()
+            RunGroupId = Guid.NewGuid(),
+            SourceToken = source?.Token
         };
         await _scenarioRepository.Add(scenario);
 
         var (_, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(
-            groupId, date, untilDate, token, additionalShiftIds: null, cancellationToken);
+            groupId, scenarioFrom, scenarioUntil, token, additionalShiftIds: null, source?.Token, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, cancellationToken);
+        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, source, cancellationToken);
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
+        var rootShiftIds = await ResolveRootShiftIdsAsync(proposal, source, cancellationToken);
 
-        var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
+        var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, source, cancellationToken);
 
         var (visibleDeltas, hiddenOptions) = await SplitByAgentVisibilityAsync(
             proposal.Deltas, clientId, cancellationToken);
@@ -221,11 +240,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         var covered = await _replacementRequestRecorder.RecordProposalsAsync(
             new ReplacementProposalContext(clientId, groupId, absenceId, token, request.Source, request.ReportedAtUtc),
-            BuildCovered(materializable, clientId, snapshot, workIdMap),
+            BuildCovered(materializable, clientId, snapshot, workIdMap, rootShiftIds),
             cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap);
+        var uncovered = BuildUncovered(proposal, blockedOptions, hiddenOptions, clientId, snapshot, workIdMap, rootShiftIds);
 
         // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
         var highestTier = (int)HighestTierOf(materializable, uncovered.Count > 0);
@@ -236,15 +255,80 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     /// <summary>
+    /// The scenario the cover builds on, or null for the real plan. A hidden scenario is refused exactly like an unknown
+    /// one; a decided one and a group outside the scenario's group hierarchy are refused before anything is written,
+    /// because the scenario holds no rows to copy for them.
+    /// </summary>
+    private async Task<ScenarioSourceScope?> ResolveSourceScopeAsync(
+        Guid? analyseToken, Guid groupId, CancellationToken cancellationToken)
+    {
+        if (analyseToken is not { } token)
+        {
+            return null;
+        }
+
+        var scenario = await _scenarioRepository.GetByTokenAsync(token, cancellationToken);
+        var visible = scenario switch
+        {
+            null => false,
+            { GroupId: { } scenarioGroupId } => await _groupVisibilityGuard.IsGroupVisibleAsync(scenarioGroupId, cancellationToken),
+            _ => await _groupVisibilityGuard.IsUnrestrictedAsync(cancellationToken)
+        };
+        if (!visible)
+        {
+            throw new KeyNotFoundException(string.Format(SourceScenarioNotFoundMessage, token));
+        }
+
+        if (scenario!.Status != AnalyseScenarioStatus.Active)
+        {
+            throw new ScenarioNotActiveException(
+                string.Format(SourceScenarioNotActiveMessage, scenario.Id, scenario.Status));
+        }
+
+        if (scenario.GroupId is { } sourceGroupId
+            && !(await _scenarioService.GetGroupHierarchyIdsAsync(sourceGroupId, cancellationToken)).Contains(groupId))
+        {
+            throw new ConflictException(string.Format(SourceScenarioGroupMessage, scenario.Id, sourceGroupId, groupId));
+        }
+
+        var ownedShiftIds = await _scenarioService.GetScenarioShiftIdsWithRootsAsync(scenario.Token, cancellationToken);
+        return new ScenarioSourceScope(scenario.Token, scenario.FromDate, scenario.UntilDate, scenario.GroupId, ownedShiftIds);
+    }
+
+    /// <summary>
+    /// On a source scenario the engine works with that scenario's clone shift ids; the request book, the candidate search
+    /// and accept are keyed by the real root shift, exactly as on the real plan. Empty for the real plan.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<Guid, Guid>> ResolveRootShiftIdsAsync(
+        Rec.RecoveryProposal proposal, ScenarioSourceScope? source, CancellationToken cancellationToken)
+    {
+        if (source is null)
+        {
+            return new Dictionary<Guid, Guid>();
+        }
+
+        var shiftIds = proposal.Deltas.Select(d => d.ShiftId)
+            .Concat(proposal.Uncovered.Select(u => u.ShiftId))
+            .OfType<Guid>()
+            .Distinct()
+            .ToList();
+        return await _scenarioService.ResolveRootShiftIdsAsync(shiftIds, cancellationToken);
+    }
+
+    private static Guid RootShiftIdOf(Guid? shiftId, IReadOnlyDictionary<Guid, Guid> rootShiftIds)
+        => shiftId is { } id ? rootShiftIds.GetValueOrDefault(id, id) : Guid.Empty;
+
+    /// <summary>
     /// One query serves both the Break's WorkTime hours and, from the earliest Work slot that day, the
     /// (WorkId, ShiftStartUtc) StartEscalationChainsAsync needs - an UncoveredSlot from the recovery
     /// engine carries no start time, so this is resolved from the live plan instead of the proposal.
     /// </summary>
     private async Task<(decimal Hours, Guid? WorkId, DateTime? ShiftStartUtc)> ResolveAbsenceDaySlotAsync(
-        Guid clientId, DateOnly date, Guid groupId, CancellationToken cancellationToken)
+        Guid clientId, DateOnly date, Guid groupId, ScenarioSourceScope? source, CancellationToken cancellationToken)
     {
+        var readToken = source is not null && source.OwnsDate(date) ? source.Token : (Guid?)null;
         var slots = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(date, date, [groupId], null)
+            .GetScheduleEntriesQuery(date, date, [groupId], readToken)
             .Where(c => c.EntryType == (int)ScheduleEntryType.Work && c.ClientId == clientId)
             .OrderBy(c => c.StartTime)
             .ToListAsync(cancellationToken);
@@ -445,7 +529,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IReadOnlyList<Rec.CellDelta> deltas,
         Guid absentClientId,
         Rec.RecoverySnapshot snapshot,
-        IReadOnlyDictionary<Guid, Guid> workIdMap)
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        IReadOnlyDictionary<Guid, Guid> rootShiftIds)
     {
         var covered = new List<CoveredSlot>();
         foreach (var delta in deltas)
@@ -456,7 +541,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             }
             var name = snapshot.FindAgent(delta.ToAgentId)?.DisplayName ?? string.Empty;
             covered.Add(new CoveredSlot(
-                delta.ShiftId ?? Guid.Empty,
+                RootShiftIdOf(delta.ShiftId, rootShiftIds),
                 delta.Date,
                 delta.ToAgentId,
                 name,
@@ -474,7 +559,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IReadOnlyList<IReadOnlyList<Rec.CellDelta>> hiddenOptions,
         Guid absentClientId,
         Rec.RecoverySnapshot snapshot,
-        IReadOnlyDictionary<Guid, Guid> workIdMap)
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        IReadOnlyDictionary<Guid, Guid> rootShiftIds)
     {
         var uncovered = new List<UncoveredSlot>();
         foreach (var slot in proposal.Uncovered)
@@ -488,7 +574,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             // The engine's uncovered marker carries no times; the absent agent's own work in the snapshot does.
             var work = FindAbsentWork(snapshot, absentClientId, slot.ShiftId, slot.Date);
             uncovered.Add(new UncoveredSlot(
-                slot.ShiftId ?? Guid.Empty,
+                RootShiftIdOf(slot.ShiftId, rootShiftIds),
                 slot.Date,
                 reason,
                 ClonedWorkIdOf(slot.SourceWorkIds, workIdMap),
@@ -500,20 +586,20 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             // Report the slot that actually stayed uncovered - the cover hop - not the foreign shift the
             // relocation half would have touched.
             var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
-            uncovered.Add(UncoveredFromDelta(cover, BlockedReason, workIdMap));
+            uncovered.Add(UncoveredFromDelta(cover, BlockedReason, workIdMap, rootShiftIds));
         }
         foreach (var option in hiddenOptions)
         {
             var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
-            uncovered.Add(UncoveredFromDelta(cover, NoCandidateReason, workIdMap));
+            uncovered.Add(UncoveredFromDelta(cover, NoCandidateReason, workIdMap, rootShiftIds));
         }
         return uncovered;
     }
 
     private static UncoveredSlot UncoveredFromDelta(
-        Rec.CellDelta cover, string reason, IReadOnlyDictionary<Guid, Guid> workIdMap)
+        Rec.CellDelta cover, string reason, IReadOnlyDictionary<Guid, Guid> workIdMap, IReadOnlyDictionary<Guid, Guid> rootShiftIds)
         => new(
-            cover.ShiftId ?? Guid.Empty,
+            RootShiftIdOf(cover.ShiftId, rootShiftIds),
             cover.Date,
             reason,
             ClonedWorkIdOf(cover.SourceWorkIds, workIdMap),
@@ -537,13 +623,14 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         Guid absenceId,
         Guid groupId,
         Guid token,
+        ScenarioSourceScope? source,
         CancellationToken cancellationToken)
     {
         var breaks = new List<BulkBreakItem>();
         var daySlots = new List<(decimal Hours, Guid? WorkId, DateTime? ShiftStartUtc)>();
         foreach (var day in dates)
         {
-            var slot = await ResolveAbsenceDaySlotAsync(clientId, day, groupId, cancellationToken);
+            var slot = await ResolveAbsenceDaySlotAsync(clientId, day, groupId, source, cancellationToken);
             daySlots.Add(slot);
             breaks.Add(new BulkBreakItem
             {

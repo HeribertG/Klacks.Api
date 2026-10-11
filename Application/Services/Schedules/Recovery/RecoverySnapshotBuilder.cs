@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
@@ -31,6 +32,12 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 /// absence type: an on-call break does not block, it marks the agent as the preferred replacement for that day. Days
 /// outside the agent's company membership (Membership.ValidFrom / ValidUntil, inclusive) are closed, on-call or not (M6),
 /// and shift preferences are read handed down the order tree, so a blacklist on an order bars its cut pieces (K16).
+/// Built on a source scenario (scenario from scenario), the source scenario owns the days of its range for its group's
+/// members and, for every other employee, the works on the shifts it cloned (see <see cref="ScenarioSourceRowMerger"/>);
+/// every other day and every borrowable candidate's home plan and absences are read from the real plan, exactly as the
+/// scenario is cloned. Period hours follow the same split: the real plan over the whole pay period, with the members'
+/// hours on the owned days replaced by the source scenario's. Shift preferences of the source scenario sit on its own
+/// clone shifts and are added to the real ones.
 /// </summary>
 public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 {
@@ -88,6 +95,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         Guid groupId,
         Guid absentClientId,
         IReadOnlyList<DateOnly> absenceDates,
+        ScenarioSourceScope? source,
         CancellationToken cancellationToken)
     {
         var dates = absenceDates.OrderBy(d => d.DayNumber).ToList();
@@ -113,20 +121,17 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 
         var contracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(memberIds, referenceDate);
         var (periodFrom, periodUntil) = await _periodHoursService.GetPeriodBoundariesAsync(referenceDate);
-        var periodHours = await _periodHoursService.GetPeriodHoursAsync(memberIds, periodFrom, periodUntil, null);
-        var (preferred, blacklisted) = PreferenceSets(
-            await _preferenceRepository.GetScopedByClientIdsAsync(memberIds, null, cancellationToken));
+        var coveredClientIds = await LoadSourceCoveredClientIdsAsync(source);
+        var periodHours = await LoadPeriodHoursAsync(memberIds, periodFrom, periodUntil, source, coveredClientIds);
+        var (preferred, blacklisted) = PreferenceSets(await LoadPreferencesAsync(memberIds, source, cancellationToken));
         var membershipWindows = await _membershipWindowReader.GetWindowsAsync(memberIds, cancellationToken);
-
-        var cells = await _scheduleEntriesService
-            .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], null)
-            .ToListAsync(cancellationToken);
+        var cells = await LoadCellsAsync(windowStart, windowEnd, rootGroupId, source, coveredClientIds, cancellationToken);
 
         var onCallAbsenceIds = await _absenceRepository.GetOnCallAbsenceIdsAsync(cancellationToken);
         var works = BuildWorks(cells, onCallAbsenceIds, out var breakDays);
         breakDays.Blocking.UnionWith(
             await _sealedDayRepository.GetLockedClientDaysAsync(memberIds, windowStart, windowEnd, cancellationToken));
-        var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
+        var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, source, coveredClientIds, cancellationToken);
         var availability = BuildAvailability(memberIds, contracts, breakDays, keywordDays, windowStart, windowEnd, membershipWindows);
         var ineligible = await BuildIneligibleAsync(
             memberIds, dates, works, keywordDays, windowStart, windowEnd, cancellationToken);
@@ -151,6 +156,116 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return new RecoverySnapshot(
             EnumerateDays(windowStart, windowEnd), agents, works, availability, ineligible,
             receivingGroupId: groupId);
+    }
+
+    private async Task<IReadOnlyList<ScopedShiftPreference>> LoadPreferencesAsync(
+        IReadOnlyList<Guid> memberIds, ScenarioSourceScope? source, CancellationToken cancellationToken)
+    {
+        var real = await _preferenceRepository.GetScopedByClientIdsAsync(memberIds, null, cancellationToken);
+        if (source is null)
+        {
+            return real;
+        }
+
+        var scenario = await _preferenceRepository.GetScopedByClientIdsAsync(memberIds, source.Token, cancellationToken);
+        return real.Concat(scenario).ToList();
+    }
+
+    private async Task<IReadOnlyCollection<Guid>?> LoadSourceCoveredClientIdsAsync(ScenarioSourceScope? source)
+        => source?.GroupId is { } sourceGroupId
+            ? await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(sourceGroupId)
+            : null;
+
+    private async Task<List<ScheduleCell>> LoadCellsAsync(
+        DateOnly windowStart,
+        DateOnly windowEnd,
+        Guid rootGroupId,
+        ScenarioSourceScope? source,
+        IReadOnlyCollection<Guid>? coveredClientIds,
+        CancellationToken cancellationToken)
+    {
+        var real = await _scheduleEntriesService
+            .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], null)
+            .ToListAsync(cancellationToken);
+        if (source is null)
+        {
+            return real;
+        }
+
+        var scenario = await _scheduleEntriesService
+            .GetScheduleEntriesQuery(windowStart, windowEnd, [rootGroupId], source.Token)
+            .ToListAsync(cancellationToken);
+        return ScenarioSourceRowMerger.Merge(
+            real, scenario, source, coveredClientIds, c => c.ClientId, c => DateOnly.FromDateTime(c.EntryDate),
+            c => c.EntryType != (int)ScheduleEntryType.Break && source.OwnedShiftIds.Contains(c.EntryId));
+    }
+
+    /// <summary>
+    /// Period hours of the candidates. On a source scenario: the real plan over the whole pay period, with the hours of
+    /// the source scenario's members on the days it owns swapped for the source scenario's hours on those days - the
+    /// scenario holds rows only around its own range, so its own whole-period sum would understate everybody.
+    /// </summary>
+    private async Task<Dictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource>> LoadPeriodHoursAsync(
+        List<Guid> memberIds,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        ScenarioSourceScope? source,
+        IReadOnlyCollection<Guid>? coveredClientIds)
+    {
+        var hours = await _periodHoursService.GetPeriodHoursAsync(memberIds, periodFrom, periodUntil, null);
+        if (source is null)
+        {
+            return hours;
+        }
+
+        var ownedFrom = source.FromDate > periodFrom ? source.FromDate : periodFrom;
+        var ownedUntil = source.UntilDate < periodUntil ? source.UntilDate : periodUntil;
+        var covered = coveredClientIds is null
+            ? memberIds
+            : memberIds.Where(coveredClientIds.ToHashSet().Contains).ToList();
+        if (ownedFrom > ownedUntil || covered.Count == 0)
+        {
+            return hours;
+        }
+
+        var realOwned = await _periodHoursService.GetPeriodHoursAsync(covered, ownedFrom, ownedUntil, null);
+        var scenarioOwned = await _periodHoursService.GetPeriodHoursAsync(covered, ownedFrom, ownedUntil, source.Token);
+        return SwapOwnedPeriodHours(hours, realOwned, scenarioOwned, covered);
+    }
+
+    /// <summary>
+    /// Whole-period hours of the real plan with each covered employee's real hours on the owned days replaced by the
+    /// source scenario's hours on those days; everybody else keeps the real figure.
+    /// </summary>
+    /// <param name="wholePeriod">Real plan over the whole pay period</param>
+    /// <param name="realOwnedDays">Real plan over the days the source scenario owns</param>
+    /// <param name="scenarioOwnedDays">Source scenario over the days it owns</param>
+    /// <param name="coveredClientIds">Employees whose plan the source scenario owns on those days</param>
+    internal static Dictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> SwapOwnedPeriodHours(
+        IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> wholePeriod,
+        IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> realOwnedDays,
+        IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> scenarioOwnedDays,
+        IReadOnlyCollection<Guid> coveredClientIds)
+    {
+        var merged = wholePeriod.ToDictionary(entry => entry.Key, entry => entry.Value);
+        foreach (var clientId in coveredClientIds)
+        {
+            if (!wholePeriod.TryGetValue(clientId, out var whole))
+            {
+                continue;
+            }
+
+            var real = realOwnedDays.GetValueOrDefault(clientId);
+            var scenario = scenarioOwnedDays.GetValueOrDefault(clientId);
+            merged[clientId] = new Domain.DTOs.Schedules.PeriodHoursResource
+            {
+                Hours = whole.Hours - (real?.Hours ?? 0m) + (scenario?.Hours ?? 0m),
+                Surcharges = whole.Surcharges - (real?.Surcharges ?? 0m) + (scenario?.Surcharges ?? 0m),
+                GuaranteedHours = whole.GuaranteedHours
+            };
+        }
+
+        return merged;
     }
 
     private async Task<Guid> ResolveRootAsync(Guid groupId)
@@ -473,12 +588,19 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IReadOnlyList<Guid> memberIds,
         DateOnly windowStart,
         DateOnly windowEnd,
+        ScenarioSourceScope? source,
+        IReadOnlyCollection<Guid>? coveredClientIds,
         CancellationToken cancellationToken)
     {
-        // AnalyseToken == null: recovery reads the real plan (GetScheduleEntriesQuery above passes null),
-        // so only real keyword commands govern — scenario commands must not leak into the real snapshot.
-        var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
+        IReadOnlyList<ScheduleCommand> commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
             memberIds, windowStart, windowEnd, null, cancellationToken);
+        if (source is not null)
+        {
+            var scenarioCommands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
+                memberIds, windowStart, windowEnd, source.Token, cancellationToken);
+            commands = ScenarioSourceRowMerger.Merge(
+                commands, scenarioCommands, source, coveredClientIds, c => c.ClientId, c => c.CurrentDate, _ => false);
+        }
         var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(cancellationToken));
         return ExtractKeywordDays(commands, keywordMap);
     }

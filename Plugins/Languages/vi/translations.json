@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Vi phạm luân phiên ngày nghỉ",
   "schedule.compliance.reasonShort.restViolation": "Thời gian nghỉ quá ngắn",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Vi phạm khung giờ hạn chế",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Ca làm không có trong kịch bản mới",
   "schedule.compliance.reasonShort.rollingAverage": "Vượt trung bình trượt",
   "schedule.compliance.reasonShort.weeklyOvertime": "Tăng ca hằng tuần",
   "schedule.compliance.skipped.col.client": "Nhân viên",

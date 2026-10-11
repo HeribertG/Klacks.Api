@@ -8400,6 +8400,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("run_group_id");
 
+                    b.Property<Guid?>("SourceToken")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_token");
+
                     b.Property<int?>("Stage0Violations")
                         .HasColumnType("integer")
                         .HasColumnName("stage0violations");

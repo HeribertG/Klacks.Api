@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "违反休息日轮换",
   "schedule.compliance.reasonShort.restViolation": "休息时间过短",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "违反禁止时间段",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "新场景中没有该班次",
   "schedule.compliance.reasonShort.rollingAverage": "超过滚动平均值",
   "schedule.compliance.reasonShort.weeklyOvertime": "每周加班",
   "schedule.compliance.skipped.col.client": "员工",

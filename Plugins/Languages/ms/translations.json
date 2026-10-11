@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "Putaran hari rehat dilanggar",
   "schedule.compliance.reasonShort.restViolation": "Masa rehat terlalu singkat",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "Tetingkap masa terhad dilanggar",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "Syif tiada dalam senario baharu",
   "schedule.compliance.reasonShort.rollingAverage": "Purata bergerak dilepasi",
   "schedule.compliance.reasonShort.weeklyOvertime": "Kerja lebih masa mingguan",
   "schedule.compliance.skipped.col.client": "Pekerja",

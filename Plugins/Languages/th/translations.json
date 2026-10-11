@@ -1935,6 +1935,7 @@
   "schedule.compliance.reasonShort.restDayRotation": "ละเมิดการหมุนเวียนวันหยุด",
   "schedule.compliance.reasonShort.restViolation": "เวลาพักสั้นเกินไป",
   "schedule.compliance.reasonShort.restrictedTimeWindow": "ละเมิดช่วงเวลาต้องห้าม",
+  "schedule.compliance.reasonShort.shiftNotInScenario": "ไม่มีกะนี้ในสถานการณ์ใหม่",
   "schedule.compliance.reasonShort.rollingAverage": "เกินค่าเฉลี่ยเคลื่อนที่",
   "schedule.compliance.reasonShort.weeklyOvertime": "ชั่วโมงล่วงเวลารายสัปดาห์",
   "schedule.compliance.skipped.col.client": "พนักงาน",
