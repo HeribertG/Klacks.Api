@@ -7,7 +7,9 @@
 /// Registered scoped: the resolved scope is memoised per user id for the lifetime of the scope (one request or hub
 /// invocation), because the scenario filter, handler, runner and apply service check the same caller several times and
 /// each resolution costs several queries. Keyed by user id, not a single field, because the ambient user can change
-/// within one scope (ExecutionPrincipal per skill invocation or approver).
+/// within one scope (ExecutionPrincipal per skill invocation or approver). Only positive answers are served from the
+/// memo: a group outside the cached scope is re-checked against a fresh scope once (a group created earlier in the same
+/// request, e.g. in the assistant's tool loop, must not be reported hidden), and GetScopeAsync always resolves afresh.
 /// </summary>
 /// <param name="groupVisibilityService">Determines admin status and the visible groups including subgroups</param>
 /// <param name="userService">Identifies the caller; no user means a background job, not a restricted user</param>
@@ -39,7 +41,7 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
 
     public Task<GroupVisibilityScope> GetScopeAsync(CancellationToken cancellationToken = default)
     {
-        return ResolveScopeAsync();
+        return ResolveScopeAsync(refresh: true);
     }
 
     public Task<bool> IsGroupVisibleAsync(Guid groupId, CancellationToken cancellationToken = default)
@@ -56,6 +58,17 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
         }
 
         var scope = await ResolveScopeAsync();
+        if (IsEveryGroupInScope(scope, groupIds))
+        {
+            return true;
+        }
+
+        var current = await ResolveScopeAsync(refresh: true);
+        return IsEveryGroupInScope(current, groupIds);
+    }
+
+    private static bool IsEveryGroupInScope(GroupVisibilityScope scope, IReadOnlyCollection<Guid> groupIds)
+    {
         if (scope.IsUnrestricted)
         {
             return true;
@@ -65,7 +78,7 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
         return groupIds.All(visibleIds.Contains);
     }
 
-    private async Task<GroupVisibilityScope> ResolveScopeAsync()
+    private async Task<GroupVisibilityScope> ResolveScopeAsync(bool refresh = false)
     {
         var userId = _userService.GetIdString();
         if (string.IsNullOrEmpty(userId))
@@ -73,7 +86,7 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
             return GroupVisibilityScope.Unrestricted();
         }
 
-        if (_resolvedScopes.TryGetValue(userId, out var cached))
+        if (!refresh && _resolvedScopes.TryGetValue(userId, out var cached))
         {
             return cached;
         }
