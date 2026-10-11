@@ -5,8 +5,6 @@
 /// Accept takes two independent acknowledgements: overrideBlock (supervisor override of Block-mode compliance
 /// violations) and overrideStale (accept although the original plan changed after the scenario was created, 409
 /// errorCode SCENARIO_STALE otherwise).
-/// Accept, Reject, Delete and DeleteAll change or discard plans and demand CanEditShifts (Admin, Authorised), the same
-/// right the accept/reject skills require; a caller without it gets 403 via Forbid on the JWT scheme, never 401.
 /// </summary>
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
@@ -14,9 +12,6 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Summary;
 using Klacks.Api.Application.Queries.AnalyseScenarios;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Presentation.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -75,11 +70,6 @@ public class AnalyseScenariosController : BaseController
     public async Task<ActionResult<bool>> Accept(
         Guid id, [FromQuery] bool overrideBlock = false, [FromQuery] bool overrideStale = false)
     {
-        if (!CanEditShifts())
-        {
-            return Forbid(JwtBearerDefaults.AuthenticationScheme);
-        }
-
         var result = await _mediator.Send(new AcceptAnalyseScenarioCommand(id, overrideBlock, OverrideStale: overrideStale));
         return Ok(result);
     }
@@ -87,11 +77,6 @@ public class AnalyseScenariosController : BaseController
     [HttpPost("{id}/Reject")]
     public async Task<ActionResult<bool>> Reject(Guid id, [FromBody] RejectAnalyseScenarioRequest? request = null)
     {
-        if (!CanEditShifts())
-        {
-            return Forbid(JwtBearerDefaults.AuthenticationScheme);
-        }
-
         var result = await _mediator.Send(new RejectAnalyseScenarioCommand(id, request?.Reason, request?.ReasonText));
         return Ok(result);
     }
@@ -99,11 +84,6 @@ public class AnalyseScenariosController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult<bool>> Delete(Guid id)
     {
-        if (!CanEditShifts())
-        {
-            return Forbid(JwtBearerDefaults.AuthenticationScheme);
-        }
-
         var result = await _mediator.Send(new DeleteAnalyseScenarioCommand(id));
         return Ok(result);
     }
@@ -111,11 +91,6 @@ public class AnalyseScenariosController : BaseController
     [HttpDelete]
     public async Task<ActionResult<bool>> DeleteAll([FromQuery] Guid? groupId)
     {
-        if (!CanEditShifts())
-        {
-            return Forbid(JwtBearerDefaults.AuthenticationScheme);
-        }
-
         if (groupId is null)
             return BadRequest("groupId is required");
 
@@ -129,7 +104,4 @@ public class AnalyseScenariosController : BaseController
         var result = await _mediator.Send(new RenameAnalyseScenarioCommand(id, request.Name));
         return Ok(result);
     }
-
-    private bool CanEditShifts() =>
-        Permissions.HasPermission(User.GetUserRights(), Permissions.CanEditShifts);
 }
