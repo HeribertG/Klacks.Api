@@ -21,10 +21,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 /// <summary>
 /// Materialises a cached harmonizer result into a new AnalyseScenario. The source schedule
-/// stays untouched so the user can compare or roll back. For each non-Free cell in the best
-/// bitmap a new Work is created that carries the harmonised agent assignment but reuses the
-/// original Work's start time, end time, hours and shift reference (mapped through the
-/// scenario clone's shift id map).
+/// stays untouched so the user can compare or roll back. The cloned works are re-pointed in place
+/// to the harmonised agent assignment, so their WorkChange/Expense/sub-Break children survive; only
+/// bitmap works the clone cannot correlate, even through Work.ClonedFromWorkId, are recreated.
 /// </summary>
 /// <param name="resultCache">Cache populated by the harmonizer runner</param>
 /// <param name="mediator">Mediator used to dispatch BulkAddWorksCommand</param>
@@ -49,6 +48,12 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     /// <c>HolisticHarmonizerApplyService</c> overrides this to Wizard 3 (Holistic).
     /// </summary>
     protected virtual WizardEngine CaptureEngine => WizardEngine.Harmonizer;
+
+    /// <summary>
+    /// Upper bound of ClonedFromWorkId hops when correlating a boundary copy (scenario of a scenario of ...); guards
+    /// against a cycle in corrupt data.
+    /// </summary>
+    private const int MaxCloneOriginDepth = 16;
 
     private readonly HarmonizerResultCache _resultCache;
     private readonly IMediator _mediator;
@@ -214,51 +219,34 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, scenarioFrom, scenarioUntil, token, shiftIdsToClone, sourceAnalyseToken, ct);
                 await _unitOfWork.CompleteAsync();
 
-                // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
-                // children) into the new scenario. Materialise the harmonised result:
-                //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
-                //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
-                //    map to the clones via workIdMap (C4 fix).
-                //  - Scenario source: the clone copies the source scenario (its breaks, locked works and replacement
-                //    covers survive); the movable works are still deleted and recreated from the bitmap.
-                // Locked works and absence breaks are left intact either way.
-                IReadOnlyList<Guid> ids;
-                if (sourceAnalyseToken is null)
-                {
-                    ids = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
-                    await _unitOfWork.CompleteAsync();
-                    // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
-                    // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
-                    _logger.LogInformation(
-                        "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
-                        jobId, ids.Count);
-                }
-                else
-                {
-                    await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
-                    await _unitOfWork.CompleteAsync();
+                // CloneScenarioDataAsync clones the source schedule (Works + their WorkChange/Expense/sub-Break
+                // children) into the new scenario; workIdMap maps every cloned source work id to its clone. The
+                // harmonised result is materialised by RE-POINTING the movable clones in place (ClientId/date from
+                // the bitmap), so expenses, corrections and pauses survive (C4; payroll export must never lose an
+                // expense). This holds for a scenario source too: the bitmap holds the source scenario's work ids,
+                // and inside the source scenario's range the clone copies exactly those works.
+                // Outside that range the clone takes the real plan, while the bitmap carries the source scenario's
+                // boundary copies; those are correlated through Work.ClonedFromWorkId (copy -> real work -> clone).
+                // Only works without that link (scenarios cloned before the column existed, or a real work deleted
+                // since) are recreated from the bitmap without their children, with a warning; their real-plan
+                // clones have no re-point target and are removed by the re-point. Locked works, replacement covers
+                // and absence breaks are left intact either way.
+                var correlatedWorkIdMap = sourceAnalyseToken is null
+                    ? workIdMap
+                    : await CorrelateThroughCloneOriginsAsync(bestBitmap, workIdMap, ct);
+                var ids = new List<Guid>(await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, correlatedWorkIdMap, ct));
+                await _unitOfWork.CompleteAsync();
+                _logger.LogInformation(
+                    "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
+                    jobId, ids.Count);
 
-                    var sourceCoveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(
-                        _context, sourceAnalyseToken, periodFrom, periodUntil, ct);
-                    var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token, sourceCoveredWorkIds);
-                    _logger.LogInformation(
-                        "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
-                        jobId, bulkItems.Count);
-
-                    ids = [];
-                    if (bulkItems.Count > 0)
-                    {
-                        var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
-                        {
-                            Works = bulkItems,
-                            PeriodStart = periodFrom,
-                            PeriodEnd = periodUntil,
-                        }));
-                        ids = response.CreatedIds;
-                    }
+                if (sourceAnalyseToken is not null)
+                {
+                    ids.AddRange(await RecreateUncorrelatedWorksAsync(
+                        jobId, bestBitmap, originalWorks, correlatedWorkIdMap, shiftIdMap, token, sourceAnalyseToken, periodFrom, periodUntil, ct));
                 }
 
-                return (ids, token, analyseScenario);
+                return ((IReadOnlyList<Guid>)ids, token, analyseScenario);
             });
 
             // Range checks run on a background context that would read the pre-commit state from inside
@@ -451,45 +439,113 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         return works.ToDictionary(w => w.Id);
     }
 
-    private async Task DeleteClonedScheduleEntriesAsync(Guid token, DateOnly from, DateOnly until, CancellationToken ct)
+    /// <summary>
+    /// Extends the clone's work id map to bitmap works it does not hold: a source scenario's boundary copy (a day outside
+    /// the source range, where the clone took the real plan) follows its ClonedFromWorkId chain until it reaches a work the
+    /// clone copied. A clone already claimed by another bitmap work is never claimed twice, so a work is never re-pointed
+    /// to two targets.
+    /// </summary>
+    /// <param name="workIdMap">Source work id -> clone work id, as returned by the scenario clone</param>
+    /// <returns>The map plus bitmap work id -> clone work id for every correlated boundary copy</returns>
+    private async Task<IReadOnlyDictionary<Guid, Guid>> CorrelateThroughCloneOriginsAsync(
+        HarmonyBitmap bitmap,
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        CancellationToken ct)
     {
-        // Only movable (non-locked) cloned works are replaced by the harmonised result.
-        // Locked works (Confirmed/Approved/Closed) and absence Breaks are immutable — the
-        // harmonizer never moves them, so they must survive into the new scenario untouched.
-        // Deleting them here (and rebuilding works without their LockLevel) would silently
-        // unlock sealed works and drop vacation/sick breaks once the scenario is accepted.
-        var coveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, from, until, ct);
-        var movableWorks = (await _context.Work.IgnoreQueryFilters()
-            .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
-                && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
-            .ToListAsync(ct))
-            .Where(w => !coveredWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && coveredWorkIds.Contains(w.ParentWorkId.Value)))
-            .ToList();
-        var workIds = movableWorks.Select(w => w.Id).ToList();
-
-        var now = DateTime.UtcNow;
-
-        if (workIds.Count > 0)
+        var bitmapWorkIds = CollectWorkIds(bitmap);
+        var pending = bitmapWorkIds.Where(id => !workIdMap.ContainsKey(id)).ToList();
+        if (pending.Count == 0)
         {
-            // Sub-breaks (work pauses) attached to the movable works being replaced.
-            // Standalone absence breaks (ParentWorkId == null) are intentionally left intact.
-            var subBreaks = await _context.Break.IgnoreQueryFilters()
-                .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && workIds.Contains(b.ParentWorkId.Value))
-                .ToListAsync(ct);
-            foreach (var b in subBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
-
-            var clonedWorkChanges = await _context.WorkChange
-                .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
-                .ToListAsync(ct);
-            foreach (var wc in clonedWorkChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
-
-            var clonedExpenses = await _context.Expenses
-                .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
-                .ToListAsync(ct);
-            foreach (var e in clonedExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
+            return workIdMap;
         }
 
-        foreach (var w in movableWorks) { w.IsDeleted = true; w.DeletedTime = now; }
+        var claimedClones = bitmapWorkIds
+            .Where(workIdMap.ContainsKey)
+            .Select(id => workIdMap[id])
+            .ToHashSet();
+        var correlated = new Dictionary<Guid, Guid>(workIdMap);
+        var cursor = pending.ToDictionary(id => id, id => id);
+
+        for (var depth = 0; depth < MaxCloneOriginDepth && cursor.Count > 0; depth++)
+        {
+            var currentIds = cursor.Values.Distinct().ToList();
+            var origins = await _context.Work.IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(w => currentIds.Contains(w.Id) && w.ClonedFromWorkId != null)
+                .ToDictionaryAsync(w => w.Id, w => w.ClonedFromWorkId!.Value, ct);
+
+            var next = new Dictionary<Guid, Guid>();
+            foreach (var (bitmapWorkId, currentId) in cursor)
+            {
+                if (!origins.TryGetValue(currentId, out var originId))
+                {
+                    continue;
+                }
+
+                if (workIdMap.TryGetValue(originId, out var cloneId))
+                {
+                    if (claimedClones.Add(cloneId))
+                    {
+                        correlated[bitmapWorkId] = cloneId;
+                    }
+
+                    continue;
+                }
+
+                next[bitmapWorkId] = originId;
+            }
+
+            cursor = next;
+        }
+
+        return correlated;
+    }
+
+    /// <summary>
+    /// Recreates from the bitmap the works the clone cannot correlate even through ClonedFromWorkId (a source scenario
+    /// cloned before the column existed, or a real work deleted since). Their real-plan clones were removed by the
+    /// re-point (no target), so without this step the harmonised works of those days would be lost. Locked works and
+    /// replacement covers are skipped by BuildBulkItems as before.
+    /// </summary>
+    /// <param name="sourceAnalyseToken">Token of the source scenario whose replacement covers stay fixed</param>
+    /// <returns>Ids of the recreated works</returns>
+    private async Task<IReadOnlyList<Guid>> RecreateUncorrelatedWorksAsync(
+        Guid jobId,
+        HarmonyBitmap bitmap,
+        IReadOnlyDictionary<Guid, Work> originalWorks,
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        IReadOnlyDictionary<Guid, Guid> shiftIdMap,
+        Guid token,
+        Guid? sourceAnalyseToken,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        CancellationToken ct)
+    {
+        var uncorrelatedWorkIds = CollectWorkIds(bitmap).Where(id => !workIdMap.ContainsKey(id)).ToHashSet();
+        if (uncorrelatedWorkIds.Count == 0)
+        {
+            return [];
+        }
+
+        var sourceFixedWorkIds = await CorrectedWorkQuery.LoadFixedWorkIdsAsync(
+            _context, sourceAnalyseToken, periodFrom, periodUntil, ct);
+        var bulkItems = BuildBulkItems(bitmap, originalWorks, shiftIdMap, token, sourceFixedWorkIds, uncorrelatedWorkIds);
+        _logger.LogWarning(
+            "HarmonizerApply jobId={JobId} (scenario source): {Uncorrelated} bitmap works lie outside the source scenario's range without a ClonedFromWorkId link and cannot be re-pointed; recreating {Items} of them without their WorkChange/Expense children.",
+            jobId, uncorrelatedWorkIds.Count, bulkItems.Count);
+
+        if (bulkItems.Count == 0)
+        {
+            return [];
+        }
+
+        var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+        {
+            Works = bulkItems,
+            PeriodStart = periodFrom,
+            PeriodEnd = periodUntil,
+        }));
+        return response.CreatedIds;
     }
 
     /// <summary>
@@ -547,14 +603,14 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             }
         }
 
-        // A work handed to a substitute (replacement WorkChange) is locked in the bitmap and therefore never a
-        // target; without this exclusion it would be soft-deleted together with the cover.
-        var coveredWorkIds = await ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, from, until, ct);
+        // A work handed to a substitute (replacement WorkChange) or carrying a correction is locked in the bitmap and
+        // therefore never a target; without this exclusion it would be soft-deleted together with its children.
+        var fixedWorkIds = await CorrectedWorkQuery.LoadFixedWorkIdsAsync(_context, token, from, until, ct);
         var movableWorks = (await _context.Work.IgnoreQueryFilters()
             .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
             .ToListAsync(ct))
-            .Where(w => !coveredWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && coveredWorkIds.Contains(w.ParentWorkId.Value)))
+            .Where(w => !fixedWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && fixedWorkIds.Contains(w.ParentWorkId.Value)))
             .Where(w => !keptInLockedCells.Contains(w.Id) && !(w.ParentWorkId.HasValue && keptInLockedCells.Contains(w.ParentWorkId.Value)))
             .ToList();
 
@@ -625,7 +681,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IReadOnlyDictionary<Guid, Work> originalWorks,
         IReadOnlyDictionary<Guid, Guid> shiftIdMap,
         Guid analyseToken,
-        IReadOnlySet<Guid> sourceCoveredWorkIds)
+        IReadOnlySet<Guid> sourceFixedWorkIds,
+        IReadOnlySet<Guid> onlyWorkIds)
     {
         var items = new List<BulkWorkItem>();
         var unmappedShifts = new HashSet<Guid>();
@@ -640,20 +697,20 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                     continue;
                 }
 
-                // Locked works are preserved in place by DeleteClonedScheduleEntriesAsync and must not be rebuilt
-                // unlocked; the same holds for replacement covers. An unlocked work that only shares a locked or
-                // absence cell did not move either, so it is re-materialised where it is instead of being lost.
+                // Locked works are kept by the clone and must not be rebuilt unlocked; the same holds for replacement
+                // covers. An unlocked work that only shares a locked or absence cell did not move either, so it is
+                // re-materialised where it is instead of being lost.
                 var fixedCell = cell.IsLocked;
                 foreach (var workId in cell.WorkIds)
                 {
-                    if (!originalWorks.TryGetValue(workId, out var original))
+                    if (!onlyWorkIds.Contains(workId) || !originalWorks.TryGetValue(workId, out var original))
                     {
                         continue;
                     }
 
                     if (fixedCell && (original.LockLevel != WorkLockLevel.None
-                        || sourceCoveredWorkIds.Contains(original.Id)
-                        || (original.ParentWorkId is { } parentId && sourceCoveredWorkIds.Contains(parentId))))
+                        || sourceFixedWorkIds.Contains(original.Id)
+                        || (original.ParentWorkId is { } parentId && sourceFixedWorkIds.Contains(parentId))))
                     {
                         continue;
                     }

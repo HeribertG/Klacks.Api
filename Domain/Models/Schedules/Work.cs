@@ -19,6 +19,13 @@ public class Work : ScheduleEntryBase
     [JsonIgnore]
     public virtual Work? ParentWork { get; set; }
 
+    /// <summary>
+    /// Scenario works only: the work of the clone source (real plan or source scenario) this work stands for. Set by the
+    /// scenario clone and carried over when a Wizard 1 work takes over a displaced work's expenses; null on real works
+    /// (accept clears it). Lets a harmonizer apply correlate a source scenario's boundary copy with a real-plan clone.
+    /// </summary>
+    public Guid? ClonedFromWorkId { get; set; }
+
     public TransportMode? TransportMode { get; set; }
 
     public string? StartBase { get; set; }

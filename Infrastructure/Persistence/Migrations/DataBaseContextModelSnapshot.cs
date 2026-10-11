@@ -10772,6 +10772,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
+                    b.Property<Guid?>("ClonedFromWorkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cloned_from_work_id");
+
                     b.Property<DateTime?>("CreateTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time");

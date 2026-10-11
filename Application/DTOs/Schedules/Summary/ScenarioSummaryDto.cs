@@ -14,6 +14,8 @@ namespace Klacks.Api.Application.DTOs.Schedules.Summary;
 /// <param name="FilledSlots">Slots covered by a work.</param>
 /// <param name="Shifts">Coverage per shift.</param>
 /// <param name="OpenSlotReasons">Open slots grouped by cause, largest first.</param>
+/// <param name="ExpensesWithChangedEmployee">Expenses and reimbursements of the period that now sit on a work of another
+/// employee than the work it was cloned from (a wizard or harmonizer run handed the work, or the slot, to someone else).</param>
 public sealed record ScenarioSummaryDto(
     Guid Token,
     DateOnly FromDate,
@@ -23,7 +25,8 @@ public sealed record ScenarioSummaryDto(
     int DemandedSlots,
     int FilledSlots,
     IReadOnlyList<ScenarioShiftCoverageDto> Shifts,
-    IReadOnlyList<ScenarioOpenSlotReasonDto> OpenSlotReasons)
+    IReadOnlyList<ScenarioOpenSlotReasonDto> OpenSlotReasons,
+    int ExpensesWithChangedEmployee = 0)
 {
     public int OpenSlots => DemandedSlots - FilledSlots;
 }

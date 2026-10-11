@@ -54,8 +54,9 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
             .Concat(sealedDays.Select(d => new CoreBreakBlocker(d.ClientId.ToString(), d.Date, d.Date, SealedDayBlockerReason, 0m)))
             .ToList();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
-        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);
-        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, covers, ct);
+        var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, analyseToken, from, until, agentIdList, ct);
+        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, covers, correctedWorkHours, ct);
+        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, covers, correctedWorkHours, ct);
 
         return new HardConstraintResult(commands, preferences, blockers, lockedWorks, existingBlockers);
     }
@@ -131,9 +132,10 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         Guid? analyseToken,
         DateOnly? replanFrom,
         IReadOnlyList<ReplacementCover> covers,
+        IReadOnlyDictionary<Guid, decimal> correctedWorkHours,
         CancellationToken ct)
     {
-        var coveredWorkIds = covers.Select(c => c.WorkId).ToList();
+        var coveredWorkIds = covers.Select(c => c.WorkId).Concat(correctedWorkHours.Keys).ToList();
         var rawWorks = await _context.Work
             .AsNoTracking()
             .Where(w => agentIds.Contains(w.ClientId)
@@ -198,11 +200,13 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         Guid? analyseToken,
         DateOnly? replanFrom,
         IReadOnlyList<ReplacementCover> covers,
+        IReadOnlyDictionary<Guid, decimal> correctedWorkHours,
         CancellationToken ct)
     {
-        // A work handed to a substitute (replacement WorkChange) is a committed cover and stays fixed like a
-        // sealed work, so the wizard neither plans its slot again nor deletes it.
-        var coveredWorkIds = covers.Select(c => c.WorkId).ToList();
+        // A work handed to a substitute (replacement WorkChange) is a committed cover, and a corrected work carries time
+        // recorded for its own employee; both stay fixed like a sealed work, so the wizard neither plans the slot again
+        // nor deletes the work. A corrected work counts its correction hours like the period hours do.
+        var coveredWorkIds = covers.Select(c => c.WorkId).Concat(correctedWorkHours.Keys).ToList();
         var handedOverHours = covers.GroupBy(c => c.WorkId).ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
         // The frozen-prefix cut treats every work before replanFrom as locked regardless of its
         // LockLevel: the head of the existing plan becomes immutable genome tokens, so a replanning
@@ -234,7 +238,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                     AgentId: w.ClientId.ToString(),
                     Date: w.CurrentDate,
                     ShiftTypeIndex: ShiftTypeInference.FromSpan(w.StartTime, w.EndTime),
-                    TotalHours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id)),
+                    TotalHours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id) + correctedWorkHours.GetValueOrDefault(w.Id)),
                     StartAt: startAt,
                     EndAt: endAt,
                     ShiftRefId: w.ShiftId,

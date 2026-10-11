@@ -97,7 +97,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var agentIdSet = agentIds.ToHashSet();
         var covers = await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
-        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays);
+        var correctedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, request.PeriodFrom, request.PeriodUntil, agentIds, ct);
+        var assignments = BuildAssignments(works, breaks, covers, agentIdSet, sealedDays, correctedWorkHours);
         var hints = BuildSofteningHints(softenings);
 
         // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
@@ -153,7 +154,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             var boundaryCovers = (await ReplacementCoverQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct))
                 .Where(c => c.Date < request.PeriodFrom || c.Date > request.PeriodUntil)
                 .ToList();
-            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet);
+            var boundaryCorrectedWorkHours = await CorrectedWorkQuery.LoadAsync(_context, request.AnalyseToken, contextFrom, contextUntil, agentIds, ct);
+            boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks, boundaryCovers, agentIdSet, correctedWorkHours: boundaryCorrectedWorkHours);
         }
 
         // K16 restricted time windows: resolved once per run from the active rule set and the period's shift
@@ -594,16 +596,19 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     /// handed-over hours (no work ids, so apply never re-points it). Without this the wizards would move or delete the
     /// cover, count its hours twice and see the substitute as free that day. A day sealed for an agent (sealedDays) is a
     /// locked zero-hour cell; it is appended last so BitmapBuilder.Merge keeps the lock over an incoming Free cell, and
-    /// works on that day are locked too.
+    /// works on that day are locked too. A corrected work (correctedWorkHours) is locked like a sealed work and adds its
+    /// correction hours, so the time recorded for its employee is never moved to someone else.
     /// </summary>
     internal static List<BitmapAssignment> BuildAssignments(
         IReadOnlyList<Work> works,
         IReadOnlyList<Break> breaks,
         IReadOnlyList<ReplacementCover> covers,
         IReadOnlySet<Guid> agentIds,
-        IReadOnlySet<(Guid ClientId, DateOnly Date)>? sealedDays = null)
+        IReadOnlySet<(Guid ClientId, DateOnly Date)>? sealedDays = null,
+        IReadOnlyDictionary<Guid, decimal>? correctedWorkHours = null)
     {
         sealedDays ??= new HashSet<(Guid ClientId, DateOnly Date)>();
+        correctedWorkHours ??= new Dictionary<Guid, decimal>();
         var handedOverHours = covers
             .GroupBy(c => c.WorkId)
             .ToDictionary(g => g.Key, g => g.Sum(c => c.Hours));
@@ -618,10 +623,11 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 WorkIds: [w.Id],
                 IsLocked: w.LockLevel != WorkLockLevel.None
                     || handedOverHours.ContainsKey(w.Id)
+                    || correctedWorkHours.ContainsKey(w.Id)
                     || sealedDays.Contains((w.ClientId, w.CurrentDate)),
                 StartAt: startAt,
                 EndAt: endAt,
-                Hours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id)));
+                Hours: Math.Max(0m, w.WorkTime - handedOverHours.GetValueOrDefault(w.Id) + correctedWorkHours.GetValueOrDefault(w.Id)));
         });
 
         var breakAssignments = breaks.Select(b => new BitmapAssignment(

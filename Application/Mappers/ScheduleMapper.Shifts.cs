@@ -35,6 +35,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Work.LockLevel))]
     [MapperIgnoreTarget(nameof(Work.SealedAt))]
     [MapperIgnoreTarget(nameof(Work.SealedBy))]
+    [MapperIgnoreTarget(nameof(Work.ClonedFromWorkId))]
     [MapperIgnoreSource(nameof(WorkResource.LockLevel))]
     [MapperIgnoreSource(nameof(WorkResource.SealedAt))]
     [MapperIgnoreSource(nameof(WorkResource.SealedBy))]

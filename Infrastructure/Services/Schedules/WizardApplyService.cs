@@ -252,7 +252,7 @@ public sealed class WizardApplyService : IWizardApplyService
                 var plannedSlots = items
                     .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
                     .ToHashSet();
-                await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
+                var displacedWorkIds = await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
                 await _unitOfWork.CompleteAsync();
 
                 // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
@@ -288,6 +288,18 @@ public sealed class WizardApplyService : IWizardApplyService
                         PeriodEnd = periodUntil,
                     }));
                     ids = response.CreatedIds;
+                }
+
+                // Expenses of a displaced incumbent are payroll data and must never be dropped: they follow the
+                // planner's work on the same slot; a slot left empty (blocked placement) is emptied, except for an
+                // incumbent carrying expenses that have no other work of its employee to go to.
+                var expensesChangingEmployee = await _scenarioService.ResolveDisplacedWorksAsync(token, displacedWorkIds, ids, ct);
+                await _unitOfWork.CompleteAsync();
+                if (expensesChangingEmployee > 0)
+                {
+                    _logger.LogInformation(
+                        "Wizard job {JobId}: {Count} expenses of replaced works moved to a work of another employee in scenario {Token}",
+                        jobId, expensesChangingEmployee, token);
                 }
 
                 await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);

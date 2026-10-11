@@ -83,6 +83,7 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
 
         var agentIds = await LoadAgentIdsAsync(scenario.GroupId, token, from, until, ct);
         var reasons = await ClassifyAsync(openSlots, agentIds, from, until);
+        var expensesWithChangedEmployee = await CountExpensesWithChangedEmployeeAsync(token, from, until, ct);
 
         return new ScenarioSummaryDto(
             token,
@@ -93,8 +94,28 @@ public sealed class ScenarioSummaryBuilder : IScenarioSummaryBuilder
             coverage.Sum(c => c.DemandedSlots),
             coverage.Sum(c => c.FilledSlots),
             coverage.OrderBy(c => c.ShiftName, StringComparer.CurrentCulture).ToList(),
-            reasons);
+            reasons,
+            expensesWithChangedEmployee);
     }
+
+    /// <summary>
+    /// Expenses of the scenario period whose work now belongs to another employee than the work it was cloned from
+    /// (Work.ClonedFromWorkId), so a reviewer sees e.g. a train ticket that followed a reassigned shift.
+    /// </summary>
+    private async Task<int> CountExpensesWithChangedEmployeeAsync(Guid token, DateOnly periodFrom, DateOnly periodUntil, CancellationToken ct)
+        => await (
+                from expense in _context.Expenses.IgnoreQueryFilters()
+                join work in _context.Work.IgnoreQueryFilters() on expense.WorkId equals work.Id
+                join origin in _context.Work.IgnoreQueryFilters() on work.ClonedFromWorkId equals (Guid?)origin.Id
+                where expense.AnalyseToken == token
+                    && !expense.IsDeleted
+                    && work.AnalyseToken == token
+                    && !work.IsDeleted
+                    && work.CurrentDate >= periodFrom
+                    && work.CurrentDate <= periodUntil
+                    && origin.ClientId != work.ClientId
+                select expense.Id)
+            .CountAsync(ct);
 
     private async Task<List<Shift>> LoadPlannedShiftsAsync(Guid token, DateOnly from, DateOnly until, CancellationToken ct)
         => await _context.Shift.IgnoreQueryFilters()

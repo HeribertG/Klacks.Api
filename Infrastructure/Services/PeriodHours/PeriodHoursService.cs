@@ -408,9 +408,7 @@ public class PeriodHoursService : IPeriodHoursService
                 var isOriginalClient = wc.OriginalClientId == clientId;
                 var isReplacementClient = wc.ReplaceClientId == clientId;
 
-                if (wc.Type == WorkChangeType.CorrectionEnd || wc.Type == WorkChangeType.CorrectionStart
-                    || wc.Type == WorkChangeType.TravelStart || wc.Type == WorkChangeType.TravelEnd
-                    || wc.Type == WorkChangeType.TravelWithin)
+                if (CorrectionWorkChangeTypes.IsHourBearing(wc.Type))
                 {
                     if (isOriginalClient)
                     {

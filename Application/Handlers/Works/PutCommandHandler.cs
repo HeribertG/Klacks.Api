@@ -93,6 +93,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
             ScheduleEntrySealState.CarryOver(work, existingWork);
             work.AnalyseToken = existingWork?.AnalyseToken;
+            work.ClonedFromWorkId = existingWork?.ClonedFromWorkId;
 
             var ownerIds = existingWork != null
                 ? new[] { existingWork.ClientId, work.ClientId }

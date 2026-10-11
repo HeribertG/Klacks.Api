@@ -121,11 +121,25 @@ public interface IAnalyseScenarioService
 
     /// <summary>
     /// Soft-deletes the movable (LockLevel.None) cloned works on the <paramref name="plannedSlots"/>
-    /// (shift, date) pairs the planner fills, plus their WorkChange/Expense/sub-Break children, so the
-    /// planner's works REPLACE the incumbent on those slots instead of double-booking them on accept
-    /// (grill H2). Movable works on slots the planner did NOT plan are preserved (the wizard run can cover
-    /// a narrower agent/shift set than the group-scoped clone). Locked works (Confirmed/Approved/Closed)
-    /// and standalone absence breaks (ParentWorkId == null) are always left intact.
+    /// (shift, date) pairs the planner fills, plus their WorkChange/sub-Break children, so the planner's
+    /// works REPLACE the incumbent on those slots instead of double-booking them on accept (grill H2).
+    /// Expenses stay attached until <see cref="ResolveDisplacedWorksAsync"/> moves them. Movable works on
+    /// slots the planner did NOT plan are preserved (the wizard run can cover a narrower agent/shift set
+    /// than the group-scoped clone). Locked works (Confirmed/Approved/Closed), replacement covers and
+    /// standalone absence breaks (ParentWorkId == null) are always left intact.
     /// </summary>
-    Task SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken cancellationToken);
+    /// <returns>Ids of the displaced works</returns>
+    Task<IReadOnlyList<Guid>> SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Completes the slot replacement once the planner's works exist: a displaced work's expenses (taxable and not)
+    /// move to the planner's work on the same slot (preferably the same employee), replacing the shift default expenses
+    /// BulkAdd staged on it. A slot that received no planner work is emptied: its expenses follow the employee's own new
+    /// work that day, and only without one does a displaced work carrying expenses stay with its children.
+    /// WorkChanges of a replaced work are not moved (they are the displaced employee's own time).
+    /// </summary>
+    /// <param name="displacedWorkIds">Result of <see cref="SoftDeleteClonedWorksOnSlotsAsync"/></param>
+    /// <param name="createdWorkIds">Works the planner created in the same scenario</param>
+    /// <returns>Number of expenses that moved to a work of another employee</returns>
+    Task<int> ResolveDisplacedWorksAsync(Guid token, IReadOnlyList<Guid> displacedWorkIds, IReadOnlyList<Guid> createdWorkIds, CancellationToken cancellationToken);
 }

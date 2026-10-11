@@ -164,56 +164,6 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
         return (workShiftIdMap, workIdMap);
     }
 
-    public async Task SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken ct)
-    {
-        // Removes ONLY the movable (LockLevel.None) cloned works on the (shift, date) slots the planner
-        // actually fills, so its freshly materialised works REPLACE the incumbent on those slots instead
-        // of double-booking them (grill H2). A movable work on a slot the planner did NOT plan (the wizard
-        // run can cover a narrower agent/shift set than the group-scoped clone) is preserved — deleting it
-        // would silently drop it on accept (the over-broad variant the grill caught). Locked works
-        // (Confirmed/Approved/Closed) and standalone absence breaks (ParentWorkId == null) are always
-        // immutable. Mirrors the targeted nature of HarmonizerApplyService's bitmap-scoped delete.
-        if (plannedSlots.Count == 0)
-        {
-            return;
-        }
-
-        var candidateWorks = await _context.Work.IgnoreQueryFilters()
-            .Where(w => w.AnalyseToken == token && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate
-                && !w.IsDeleted && w.LockLevel == WorkLockLevel.None && w.ParentWorkId == null)
-            .ToListAsync(ct);
-        var coveredWorkIds = await Schedules.ReplacementCoverQuery.LoadCoveredWorkIdsAsync(_context, token, fromDate, untilDate, ct);
-        var movableWorks = candidateWorks
-            .Where(w => plannedSlots.Contains((w.ShiftId, w.CurrentDate)) && !coveredWorkIds.Contains(w.Id))
-            .ToList();
-        if (movableWorks.Count == 0)
-        {
-            return;
-        }
-
-        var workIds = movableWorks.Select(w => w.Id).ToList();
-        var now = DateTime.UtcNow;
-
-        // Sub-breaks (work pauses) attached to the movable works; standalone absence breaks
-        // (ParentWorkId == null) are intentionally left intact.
-        var subBreaks = await _context.Break.IgnoreQueryFilters()
-            .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && workIds.Contains(b.ParentWorkId.Value))
-            .ToListAsync(ct);
-        foreach (var b in subBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
-
-        var workChanges = await _context.WorkChange
-            .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
-            .ToListAsync(ct);
-        foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
-
-        var expenses = await _context.Expenses
-            .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
-            .ToListAsync(ct);
-        foreach (var e in expenses) { e.IsDeleted = true; e.DeletedTime = now; }
-
-        foreach (var w in movableWorks) { w.IsDeleted = true; w.DeletedTime = now; }
-    }
-
     public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
         List<Guid>? shiftIds;
@@ -371,6 +321,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
             else
             {
                 w.AnalyseToken = null;
+                w.ClonedFromWorkId = null;
                 if (cloneToSource.TryGetValue(w.ShiftId, out var sourceShiftId))
                 {
                     w.ShiftId = sourceShiftId;
@@ -672,6 +623,7 @@ public partial class AnalyseScenarioService : IAnalyseScenarioService
                 ParentWorkId = work.ParentWorkId.HasValue && workIdMap.TryGetValue(work.ParentWorkId.Value, out var newParentId)
                     ? newParentId
                     : null,
+                ClonedFromWorkId = work.Id,
                 TransportMode = work.TransportMode
             };
 
