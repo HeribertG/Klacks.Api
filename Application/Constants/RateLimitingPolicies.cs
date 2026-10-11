@@ -27,7 +27,7 @@ public static class RateLimitingPolicies
     public const int BotQueryPermitLimit = 20;
     public const int ConnectionTestPermitLimit = 10;
     public const int ClientImportPermitLimit = 120;
-    public const int GeoProxyPermitLimit = 60;
+    public const int GeoProxyPermitLimit = 20;
     public const int MaxBulkOperationItems = 500;
     public const int MaxFunctionBatchSize = 20;
 

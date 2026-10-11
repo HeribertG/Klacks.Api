@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Tampilkan semua",
   "geoServices.notice.mapDisabled": "Peta dinonaktifkan oleh operator untuk instalasi ini.",
   "geoServices.notice.geocodingDisabled": "Pencarian alamat dinonaktifkan oleh operator untuk instalasi ini.",
-  "geoServices.notice.routingDisabled": "Perhitungan rute dinonaktifkan oleh operator untuk instalasi ini; garis lurus ditampilkan sebagai gantinya.",
   "geoServices.notice.loadFailed": "Pengaturan peta tidak dapat dimuat. Peta dan pencarian alamat tetap nonaktif sampai tersedia.",
   "geoServices.notice.retry": "Coba lagi",
   "geoServices.search.unavailable": "Pencarian alamat saat ini tidak tersedia.",

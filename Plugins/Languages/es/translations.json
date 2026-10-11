@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Mostrar todos",
   "geoServices.notice.mapDisabled": "El mapa ha sido desactivado por el operador para esta instalación.",
   "geoServices.notice.geocodingDisabled": "La búsqueda de direcciones ha sido desactivada por el operador para esta instalación.",
-  "geoServices.notice.routingDisabled": "El cálculo de rutas ha sido desactivado por el operador para esta instalación; en su lugar se muestran líneas rectas.",
   "geoServices.notice.loadFailed": "No se pudo cargar la configuración del mapa. Los mapas y la búsqueda de direcciones permanecerán desactivados hasta que estén disponibles.",
   "geoServices.notice.retry": "Reintentar",
   "geoServices.search.unavailable": "La búsqueda de direcciones no está disponible en este momento.",

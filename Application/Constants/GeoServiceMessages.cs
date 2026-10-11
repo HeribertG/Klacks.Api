@@ -12,6 +12,9 @@ public static class GeoServiceMessages
         "Geocoding is disabled by operator configuration, so no address or place can be resolved to coordinates. " +
         "This says nothing about whether the address or place is correct.";
 
+    public const string GroupLocationGeocodingDisabled =
+        GeocodingDisabled + " Provide explicit latitude and longitude to set the group location instead.";
+
     public const string GroupGeocodingDisabled =
         "Geocoding is disabled by operator configuration, so groups cannot receive coordinates automatically. " +
         "Groups that were not processed yet stay pending and are processed after geocoding is switched back on.";

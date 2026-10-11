@@ -355,9 +355,7 @@ public class RouteOptimizationController : BaseController
     {
         if (!_geocodingService.IsEnabled)
         {
-            var pending = await _dbContext.Address
-                .CountAsync(a => (a.Latitude == null || a.Longitude == null) && !a.IsDeleted && a.City != "", cancellationToken);
-            return Ok(new { total = pending, geocoded = 0, failed = 0, geocodingDisabled = true });
+            return Ok(new { geocoded = 0, failed = 0, geocodingDisabled = true });
         }
 
         var addresses = await _dbContext.Address

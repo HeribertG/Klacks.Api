@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Vis alle",
   "geoServices.notice.mapDisabled": "Kortet er slået fra for denne installation af den driftsansvarlige.",
   "geoServices.notice.geocodingDisabled": "Adressesøgning er slået fra for denne installation af den driftsansvarlige.",
-  "geoServices.notice.routingDisabled": "Ruteberegning er slået fra for denne installation af den driftsansvarlige; i stedet vises rette linjer.",
   "geoServices.notice.loadFailed": "Kortindstillingerne kunne ikke indlæses. Kort og adressesøgning forbliver slået fra, indtil de er tilgængelige.",
   "geoServices.notice.retry": "Prøv igen",
   "geoServices.search.unavailable": "Adressesøgning er i øjeblikket ikke tilgængelig.",

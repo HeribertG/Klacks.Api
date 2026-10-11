@@ -4,6 +4,8 @@
 /// Registers the geo service policy and the HTTP clients for the OpenStreetMap-based services (Nominatim
 /// geocoding, OSRM routing, OpenRouteService). Every client carries the Klacks User-Agent, without which the
 /// public servers answer 403, and the central outbound lock that only lets requests to enabled endpoints pass.
+/// Redirects are never followed automatically, otherwise a 3xx answer could lead the request past the lock to
+/// a host that is not a configured endpoint.
 /// </summary>
 /// <param name="services">Service collection the clients and the policy are added to</param>
 using Klacks.Api.Domain.Constants;
@@ -26,8 +28,10 @@ public static class ExternalHttpClientServiceCollectionExtensions
         services.AddSingleton<IGeoServicesPolicy, GeoServicesPolicy>();
 
         services.AddHttpClient(ExternalHttpClientConstants.NominatimClientName, ApplyUserAgent)
+            .ConfigurePrimaryHttpMessageHandler(CreatePrimaryHandler)
             .AddHttpMessageHandler(sp => CreateGuard(sp, NominatimClientKinds));
         services.AddHttpClient(ExternalHttpClientConstants.RoutingClientName, ApplyUserAgent)
+            .ConfigurePrimaryHttpMessageHandler(CreatePrimaryHandler)
             .AddHttpMessageHandler(sp => CreateGuard(sp, RoutingClientKinds));
         return services;
     }
@@ -36,7 +40,13 @@ public static class ExternalHttpClientServiceCollectionExtensions
     {
         return builder
             .ConfigureHttpClient(ApplyUserAgent)
+            .ConfigurePrimaryHttpMessageHandler(CreatePrimaryHandler)
             .AddHttpMessageHandler(sp => CreateGuard(sp, OpenRouteServiceClientKinds));
+    }
+
+    private static HttpMessageHandler CreatePrimaryHandler()
+    {
+        return new SocketsHttpHandler { AllowAutoRedirect = false };
     }
 
     private static GeoServiceOutboundGuardHandler CreateGuard(IServiceProvider serviceProvider, GeoServiceKind[] kinds)

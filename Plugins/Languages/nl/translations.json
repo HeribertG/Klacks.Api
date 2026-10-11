@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Alles tonen",
   "geoServices.notice.mapDisabled": "De kaart is voor deze installatie door de beheerder uitgeschakeld.",
   "geoServices.notice.geocodingDisabled": "Het zoeken naar adressen is voor deze installatie door de beheerder uitgeschakeld.",
-  "geoServices.notice.routingDisabled": "De routeberekening is voor deze installatie door de beheerder uitgeschakeld; in plaats daarvan worden rechte lijnen weergegeven.",
   "geoServices.notice.loadFailed": "De kaartinstellingen konden niet worden geladen. Kaarten en adreszoeken blijven uitgeschakeld totdat ze beschikbaar zijn.",
   "geoServices.notice.retry": "Opnieuw proberen",
   "geoServices.search.unavailable": "Adreszoeken is momenteel niet beschikbaar.",

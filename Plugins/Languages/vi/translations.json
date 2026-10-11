@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Hiển thị tất cả",
   "geoServices.notice.mapDisabled": "Bên vận hành đã tắt bản đồ cho bản cài đặt này.",
   "geoServices.notice.geocodingDisabled": "Bên vận hành đã tắt tính năng tìm kiếm địa chỉ cho bản cài đặt này.",
-  "geoServices.notice.routingDisabled": "Bên vận hành đã tắt tính năng tính toán lộ trình cho bản cài đặt này; thay vào đó sẽ hiển thị đường thẳng.",
   "geoServices.notice.loadFailed": "Không thể tải cài đặt bản đồ. Bản đồ và tính năng tìm kiếm địa chỉ sẽ vẫn tắt cho đến khi khả dụng.",
   "geoServices.notice.retry": "Thử lại",
   "geoServices.search.unavailable": "Hiện chưa thể tìm kiếm địa chỉ.",

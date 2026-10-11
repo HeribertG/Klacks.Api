@@ -113,7 +113,7 @@ services:
       - KnowledgeIndex__IdleUnloadMinutes=${KLACKS_API_IDLE_UNLOAD_MINUTES:-0}
       # Geo services (geocoding, routing, OpenRouteService, map tiles). true = no client address,
       # coordinate or map tile request leaves this installation; every service without an own
-      # base URL is off and public hosts are blocked even as own URL. See README.md.
+      # base URL is off and the known public OpenStreetMap hosts are blocked even as own URL. See README.md.
       - GeoServices__NoOutboundTraffic=${GEO_NO_OUTBOUND_TRAFFIC:-false}
       - GeoServices__Geocoding__BaseUrl=${GEO_GEOCODING_BASE_URL:-}
       - GeoServices__Routing__BaseUrl=${GEO_ROUTING_BASE_URL:-}

@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "すべて表示",
   "geoServices.notice.mapDisabled": "このインストールでは、地図は運用管理者によって無効にされています。",
   "geoServices.notice.geocodingDisabled": "このインストールでは、住所検索は運用管理者によって無効にされています。",
-  "geoServices.notice.routingDisabled": "このインストールでは、ルート計算は運用管理者によって無効にされています。代わりに直線が表示されます。",
   "geoServices.notice.loadFailed": "地図の設定を読み込めませんでした。利用可能になるまで、地図と住所検索は無効のままです。",
   "geoServices.notice.retry": "再試行",
   "geoServices.search.unavailable": "住所検索は現在ご利用いただけません。",

@@ -6,7 +6,10 @@
 /// @param httpClientFactory - Factory for the Nominatim HTTP client
 /// @param geoServicesPolicy - Effective geo service configuration (on/off and Nominatim base URL)
 /// @param cache - In-memory cache for geocoding results (30 days positive, 1 hour negative)
-/// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (500ms)
+/// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (1100ms)
+/// @param SearchSlotWaitTimeout - Longest time the interactive search waits for the shared Nominatim slot before
+/// answering Unavailable, so searches never pile up in front of address validation on save
+/// @param SearchRequestTimeout - Longest time the interactive search holds the slot for its Nominatim request
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -31,6 +34,9 @@ public class GeocodingService : IGeocodingService
     private const int REQUEST_DELAY_MS = 1100;
     private const string MATCH_TYPE_ERROR = "error";
     private const string MATCH_TYPE_DISABLED = "geocoding_disabled";
+
+    public static readonly TimeSpan SearchSlotWaitTimeout = TimeSpan.FromSeconds(3);
+    public static readonly TimeSpan SearchRequestTimeout = TimeSpan.FromSeconds(10);
 
     public GeocodingService(
         IHttpClientFactory httpClientFactory,
@@ -525,7 +531,12 @@ public class GeocodingService : IGeocodingService
             return cached;
         }
 
-        await _rateLimiter.WaitAsync(cancellationToken);
+        if (!await _rateLimiter.WaitAsync(SearchSlotWaitTimeout, cancellationToken))
+        {
+            _logger.LogWarning("Geocoding search gave up waiting for the shared Nominatim slot");
+            return new GeocodingSearchResult(GeocodingSearchOutcome.Unavailable, null, null, null);
+        }
+
         try
         {
             if (_cache.TryGetValue(cacheKey, out cached) && cached != null)
@@ -541,14 +552,17 @@ public class GeocodingService : IGeocodingService
                 url += $"&accept-language={Uri.EscapeDataString(language)}";
             }
 
-            var response = await _httpClient.GetAsync(url, cancellationToken);
+            using var requestTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            requestTimeout.CancelAfter(SearchRequestTimeout);
+
+            using var response = await _httpClient.GetAsync(url, requestTimeout.Token);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Geocoding search failed: {StatusCode}", (int)response.StatusCode);
                 return new GeocodingSearchResult(GeocodingSearchOutcome.Unavailable, null, null, null);
             }
 
-            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            var json = await response.Content.ReadAsStringAsync(requestTimeout.Token);
             var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
             var first = results?.FirstOrDefault();
             var (latitude, longitude) = first != null ? ExtractCoordinates(first) : (null, null);
@@ -564,7 +578,7 @@ public class GeocodingService : IGeocodingService
             _cache.Set(cacheKey, found, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
             return found;
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }

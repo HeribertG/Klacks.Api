@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "عرض الكل",
   "geoServices.notice.mapDisabled": "تم إيقاف الخريطة لهذا التثبيت من قِبل مشغّل النظام.",
   "geoServices.notice.geocodingDisabled": "تم إيقاف البحث عن العناوين لهذا التثبيت من قِبل مشغّل النظام.",
-  "geoServices.notice.routingDisabled": "تم إيقاف حساب المسارات لهذا التثبيت من قِبل مشغّل النظام؛ ويتم عرض خطوط مستقيمة بدلًا من ذلك.",
   "geoServices.notice.loadFailed": "تعذّر تحميل إعدادات الخريطة. ستبقى الخرائط والبحث عن العناوين متوقفة إلى أن تصبح متاحة.",
   "geoServices.notice.retry": "إعادة المحاولة",
   "geoServices.search.unavailable": "البحث عن العناوين غير متاح حاليًا.",

@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Näytä kaikki",
   "geoServices.notice.mapDisabled": "Ylläpitäjä on poistanut kartan käytöstä tässä asennuksessa.",
   "geoServices.notice.geocodingDisabled": "Ylläpitäjä on poistanut osoitehaun käytöstä tässä asennuksessa.",
-  "geoServices.notice.routingDisabled": "Ylläpitäjä on poistanut reittilaskennan käytöstä tässä asennuksessa; sen sijaan näytetään suorat viivat.",
   "geoServices.notice.loadFailed": "Karttaasetuksia ei voitu ladata. Kartat ja osoitehaku pysyvät pois käytöstä, kunnes ne ovat saatavilla.",
   "geoServices.notice.retry": "Yritä uudelleen",
   "geoServices.search.unavailable": "Osoitehaku ei ole tällä hetkellä käytettävissä.",

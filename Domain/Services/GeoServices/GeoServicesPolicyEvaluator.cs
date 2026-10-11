@@ -3,9 +3,9 @@
 /// <summary>
 /// Pure decision rule that turns the operator's GeoServices options into effective endpoints. A service is off
 /// when the operator disabled it, when NoOutboundTraffic is set and no own URL is configured, when an own URL is
-/// not an absolute http(s) URL, or when NoOutboundTraffic is set and the own URL points at a public OpenStreetMap
-/// host. A misconfiguration never throws: the service is switched off instead, so a typo cannot crash-loop an
-/// auto-updating installation.
+/// not an absolute http(s) URL or carries credentials (user:pass@), or when NoOutboundTraffic is set and the own URL
+/// points at a known public OpenStreetMap host (a deny list, not an allow list). A misconfiguration never throws: the
+/// service is switched off instead, so a typo cannot crash-loop an auto-updating installation.
 /// </summary>
 /// <param name="options">Endpoint options of one service as bound from configuration</param>
 /// <param name="noOutboundTraffic">Main privacy switch: nothing may leave the installation</param>
@@ -24,6 +24,7 @@ public static class GeoServicesPolicyEvaluator
     private const char SubdomainSeparator = ',';
     private const char UrlPathSeparator = '/';
     private const string HostLabelSeparator = ".";
+    private const char FullyQualifiedHostSuffix = '.';
 
     public static GeoServiceEndpoint Evaluate(
         GeoServiceEndpointOptions? options,
@@ -53,9 +54,10 @@ public static class GeoServicesPolicyEvaluator
 
     public static bool IsPublicHost(string host)
     {
+        var normalizedHost = host.TrimEnd(FullyQualifiedHostSuffix);
         return GeoServiceDefaults.PublicHostDomains.Any(domain =>
-            string.Equals(host, domain, StringComparison.OrdinalIgnoreCase)
-            || host.EndsWith(HostLabelSeparator + domain, StringComparison.OrdinalIgnoreCase));
+            string.Equals(normalizedHost, domain, StringComparison.OrdinalIgnoreCase)
+            || normalizedHost.EndsWith(HostLabelSeparator + domain, StringComparison.OrdinalIgnoreCase));
     }
 
     public static Uri? TryParseHttpUrl(string? url)
@@ -71,7 +73,8 @@ public static class GeoServicesPolicyEvaluator
             return null;
         }
 
-        return uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps ? uri : null;
+        var isHttp = uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+        return isHttp && string.IsNullOrEmpty(uri.UserInfo) ? uri : null;
     }
 
     private static (bool IsEnabled, string? Url, GeoServiceDisabledReason Reason) Decide(

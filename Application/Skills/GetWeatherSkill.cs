@@ -13,6 +13,7 @@
 
 using System.Globalization;
 using System.Text.Json;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
@@ -69,6 +70,11 @@ public class GetWeatherSkill : BaseSkillImplementation
         }
         else if (!string.IsNullOrWhiteSpace(city))
         {
+            if (!_geocodingService.IsEnabled)
+            {
+                return SkillResult.Error(GeoServiceMessages.GeocodingDisabled);
+            }
+
             var (geoLat, geoLon) = await _geocodingService.GeocodeAsync(city!, country, cancellationToken);
             if (geoLat is null || geoLon is null)
             {
@@ -84,6 +90,11 @@ public class GetWeatherSkill : BaseSkillImplementation
             var companyLocation = await _companyLocationProvider.GetCompanyLocationAsync(cancellationToken);
             if (companyLocation is null)
             {
+                if (!_geocodingService.IsEnabled)
+                {
+                    return SkillResult.Error(GeoServiceMessages.GeocodingDisabled);
+                }
+
                 return SkillResult.Error("No location was provided and no company location is configured. Ask the user which city to check.");
             }
 

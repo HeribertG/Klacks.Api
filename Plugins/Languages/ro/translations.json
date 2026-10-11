@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Afișare toate",
   "geoServices.notice.mapDisabled": "Harta a fost dezactivată de operator pentru această instalare.",
   "geoServices.notice.geocodingDisabled": "Căutarea de adrese a fost dezactivată de operator pentru această instalare.",
-  "geoServices.notice.routingDisabled": "Calculul rutei a fost dezactivat de operator pentru această instalare; în locul lui sunt afișate linii drepte.",
   "geoServices.notice.loadFailed": "Setările hărții nu au putut fi încărcate. Hărțile și căutarea de adrese rămân dezactivate până când devin disponibile.",
   "geoServices.notice.retry": "Încercați din nou",
   "geoServices.search.unavailable": "Căutarea de adrese nu este disponibilă momentan.",

@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Visa alla",
   "geoServices.notice.mapDisabled": "Kartan är avstängd för den här installationen av den driftansvarige.",
   "geoServices.notice.geocodingDisabled": "Adressökning är avstängd för den här installationen av den driftansvarige.",
-  "geoServices.notice.routingDisabled": "Ruttberäkning är avstängd för den här installationen av den driftansvarige; raka linjer visas i stället.",
   "geoServices.notice.loadFailed": "Kartinställningarna kunde inte läsas in. Kartor och adressökning förblir avstängda tills de är tillgängliga.",
   "geoServices.notice.retry": "Försök igen",
   "geoServices.search.unavailable": "Adressökning är inte tillgänglig just nu.",

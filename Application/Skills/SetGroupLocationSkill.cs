@@ -10,6 +10,7 @@
 /// <param name="latitude">Optional explicit latitude (degrees). When omitted the group name is geocoded.</param>
 /// <param name="longitude">Optional explicit longitude (degrees). When omitted the group name is geocoded.</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Application.Interfaces.Grouping;
@@ -88,6 +89,11 @@ public class SetGroupLocationSkill : BaseSkillImplementation
 
         if (!latitude.HasValue)
         {
+            if (!_groupGeocoder.IsEnabled)
+            {
+                return SkillResult.Error(GeoServiceMessages.GroupLocationGeocodingDisabled);
+            }
+
             var (geoLat, geoLon) = await _groupGeocoder.GeocodeAsync(group.Name, cancellationToken);
             if (!geoLat.HasValue || !geoLon.HasValue)
             {

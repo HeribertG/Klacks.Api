@@ -4,7 +4,8 @@
 /// Central outbound lock of the geo HTTP clients. A request only leaves the process when its scheme, host and
 /// port belong to an enabled endpoint of one of the services this client serves; everything else gets a
 /// synthetic 503 without any network access. Callers already fall back on non-success (Haversine, null,
-/// ServiceUnavailable). A warning from here means a caller forgot to check IsEnabled.
+/// ServiceUnavailable). A warning from here means a caller forgot to check IsEnabled. A redirect answer (3xx) of an
+/// allowed endpoint is never followed and also becomes a synthetic 503, so a redirect cannot lead past the lock.
 /// </summary>
 /// <param name="policy">Effective geo service configuration</param>
 /// <param name="kinds">Services whose endpoints this HTTP client may reach</param>
@@ -21,6 +22,8 @@ public class GeoServiceOutboundGuardHandler : DelegatingHandler
 {
     private const string BlockedReasonPhrase = "Blocked by geo service configuration";
     private const string ListSeparator = ",";
+    private const int FirstRedirectStatusCode = 300;
+    private const int LastRedirectStatusCode = 399;
 
     private readonly IGeoServicesPolicy _policy;
     private readonly IReadOnlyList<GeoServiceKind> _kinds;
@@ -36,25 +39,47 @@ public class GeoServiceOutboundGuardHandler : DelegatingHandler
         _logger = logger;
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var target = request.RequestUri;
-        if (target != null && target.IsAbsoluteUri && IsAllowed(target))
+        if (target == null || !target.IsAbsoluteUri || !IsAllowed(target))
         {
-            return base.SendAsync(request, cancellationToken);
+            _logger.LogWarning(
+                "Blocked outbound geo request to {Host} ({Kind}: {Reason})",
+                target?.IsAbsoluteUri == true ? target.Authority : string.Empty,
+                string.Join(ListSeparator, _kinds),
+                DescribeReasons());
+            return Blocked(request);
+        }
+
+        var response = await base.SendAsync(request, cancellationToken);
+        if (!IsRedirect(response.StatusCode))
+        {
+            return response;
         }
 
         _logger.LogWarning(
-            "Blocked outbound geo request to {Host} ({Kind}: {Reason})",
-            target?.IsAbsoluteUri == true ? target.Authority : string.Empty,
-            string.Join(ListSeparator, _kinds),
-            DescribeReasons());
+            "Refused to follow a redirect ({StatusCode}) from geo service host {Host} ({Kind})",
+            (int)response.StatusCode,
+            target.Authority,
+            string.Join(ListSeparator, _kinds));
+        response.Dispose();
+        return Blocked(request);
+    }
 
-        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+    private static HttpResponseMessage Blocked(HttpRequestMessage request)
+    {
+        return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
         {
             ReasonPhrase = BlockedReasonPhrase,
             RequestMessage = request
-        });
+        };
+    }
+
+    private static bool IsRedirect(HttpStatusCode statusCode)
+    {
+        var code = (int)statusCode;
+        return code >= FirstRedirectStatusCode && code <= LastRedirectStatusCode;
     }
 
     private bool IsAllowed(Uri target)

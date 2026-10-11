@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Papar semua",
   "geoServices.notice.mapDisabled": "Peta telah dimatikan oleh operator untuk pemasangan ini.",
   "geoServices.notice.geocodingDisabled": "Carian alamat telah dimatikan oleh operator untuk pemasangan ini.",
-  "geoServices.notice.routingDisabled": "Pengiraan laluan telah dimatikan oleh operator untuk pemasangan ini; garis lurus dipaparkan sebagai gantinya.",
   "geoServices.notice.loadFailed": "Tetapan peta tidak dapat dimuatkan. Peta dan carian alamat kekal dimatikan sehingga tersedia.",
   "geoServices.notice.retry": "Cuba lagi",
   "geoServices.search.unavailable": "Carian alamat tidak tersedia buat masa ini.",

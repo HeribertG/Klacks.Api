@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "전체 보기",
   "geoServices.notice.mapDisabled": "이 설치 환경에서는 운영자가 지도를 비활성화했습니다.",
   "geoServices.notice.geocodingDisabled": "이 설치 환경에서는 운영자가 주소 검색을 비활성화했습니다.",
-  "geoServices.notice.routingDisabled": "이 설치 환경에서는 운영자가 경로 계산을 비활성화했습니다. 대신 직선이 표시됩니다.",
   "geoServices.notice.loadFailed": "지도 설정을 불러오지 못했습니다. 사용할 수 있게 될 때까지 지도와 주소 검색은 꺼진 상태로 유지됩니다.",
   "geoServices.notice.retry": "다시 시도",
   "geoServices.search.unavailable": "현재 주소 검색을 사용할 수 없습니다.",

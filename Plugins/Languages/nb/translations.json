@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Vis alle",
   "geoServices.notice.mapDisabled": "Kartet er slått av for denne installasjonen av driftsansvarlig.",
   "geoServices.notice.geocodingDisabled": "Adressesøk er slått av for denne installasjonen av driftsansvarlig.",
-  "geoServices.notice.routingDisabled": "Ruteberegning er slått av for denne installasjonen av driftsansvarlig; i stedet vises rette linjer.",
   "geoServices.notice.loadFailed": "Kartinnstillingene kunne ikke lastes. Kart og adressesøk forblir av til de er tilgjengelige.",
   "geoServices.notice.retry": "Prøv igjen",
   "geoServices.search.unavailable": "Adressesøk er ikke tilgjengelig for øyeblikket.",

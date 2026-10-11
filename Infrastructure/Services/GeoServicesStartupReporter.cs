@@ -16,12 +16,11 @@ namespace Klacks.Api.Infrastructure.Services;
 
 public class GeoServicesStartupReporter : IHostedService
 {
-    private static readonly GeoServiceKind[] ReportedKinds =
+    private static readonly GeoServiceKind[] ReportedEndpointKinds =
     [
         GeoServiceKind.Geocoding,
         GeoServiceKind.Routing,
-        GeoServiceKind.OpenRouteService,
-        GeoServiceKind.MapTiles
+        GeoServiceKind.OpenRouteService
     ];
 
     private readonly IGeoServicesPolicy _policy;
@@ -40,37 +39,45 @@ public class GeoServicesStartupReporter : IHostedService
             _logger.LogWarning("Geo services: NoOutboundTraffic is active, public geo services are blocked");
         }
 
-        foreach (var kind in ReportedKinds)
+        foreach (var kind in ReportedEndpointKinds)
         {
             var endpoint = _policy.Get(kind);
-            if (endpoint.IsEnabled)
-            {
-                var host = GeoServicesPolicyEvaluator.TryParseHttpUrl(endpoint.BaseUrl)?.Authority ?? string.Empty;
-                if (_policy.NoOutboundTraffic)
-                {
-                    _logger.LogWarning("Geo service {Kind}: enabled, host {Host}", kind, host);
-                }
-                else
-                {
-                    _logger.LogInformation("Geo service {Kind}: enabled, host {Host}", kind, host);
-                }
+            Report(kind, endpoint.IsEnabled, endpoint.BaseUrl, endpoint.DisabledReason);
+        }
 
-                continue;
-            }
+        var mapTiles = _policy.MapTiles;
+        Report(GeoServiceKind.MapTiles, mapTiles.IsEnabled, mapTiles.UrlTemplate, mapTiles.DisabledReason);
 
-            if (endpoint.DisabledReason == GeoServiceDisabledReason.InvalidConfiguration)
+        return Task.CompletedTask;
+    }
+
+    private void Report(GeoServiceKind kind, bool isEnabled, string? url, GeoServiceDisabledReason disabledReason)
+    {
+        if (isEnabled)
+        {
+            var host = GeoServicesPolicyEvaluator.TryParseHttpUrl(url)?.Authority ?? string.Empty;
+            if (_policy.NoOutboundTraffic)
             {
-                _logger.LogError(
-                    "Geo service {Kind}: disabled, the configured URL is not an absolute http(s) URL or the GeoServices section cannot be read",
-                    kind);
+                _logger.LogWarning("Geo service {Kind}: enabled, host {Host}", kind, host);
             }
             else
             {
-                _logger.LogWarning("Geo service {Kind}: disabled ({Reason})", kind, endpoint.DisabledReason);
+                _logger.LogInformation("Geo service {Kind}: enabled, host {Host}", kind, host);
             }
+
+            return;
         }
 
-        return Task.CompletedTask;
+        if (disabledReason == GeoServiceDisabledReason.InvalidConfiguration)
+        {
+            _logger.LogError(
+                "Geo service {Kind}: disabled, the configured URL is not an absolute http(s) URL without credentials or the GeoServices section cannot be read",
+                kind);
+        }
+        else
+        {
+            _logger.LogWarning("Geo service {Kind}: disabled ({Reason})", kind, disabledReason);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

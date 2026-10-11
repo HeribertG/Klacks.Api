@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Zobrazit vše",
   "geoServices.notice.mapDisabled": "Mapa je pro tuto instalaci vypnuta provozovatelem.",
   "geoServices.notice.geocodingDisabled": "Vyhledávání adres je pro tuto instalaci vypnuto provozovatelem.",
-  "geoServices.notice.routingDisabled": "Výpočet tras je pro tuto instalaci vypnut provozovatelem; místo toho se zobrazují přímé čáry.",
   "geoServices.notice.loadFailed": "Nastavení mapy se nepodařilo načíst. Mapy a vyhledávání adres zůstanou vypnuty, dokud nebudou k dispozici.",
   "geoServices.notice.retry": "Zkusit znovu",
   "geoServices.search.unavailable": "Vyhledávání adres momentálně není dostupné.",

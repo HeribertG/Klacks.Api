@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "הצג הכל",
   "geoServices.notice.mapDisabled": "המפה כובתה עבור התקנה זו על ידי מפעיל המערכת.",
   "geoServices.notice.geocodingDisabled": "חיפוש הכתובות כובה עבור התקנה זו על ידי מפעיל המערכת.",
-  "geoServices.notice.routingDisabled": "חישוב המסלולים כובה עבור התקנה זו על ידי מפעיל המערכת; במקומו מוצגים קווים ישרים.",
   "geoServices.notice.loadFailed": "לא ניתן היה לטעון את הגדרות המפה. המפות וחיפוש הכתובות יישארו כבויים עד שיהיו זמינים.",
   "geoServices.notice.retry": "נסו שוב",
   "geoServices.search.unavailable": "חיפוש כתובות אינו זמין כרגע.",

@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "แสดงทั้งหมด",
   "geoServices.notice.mapDisabled": "ผู้ดูแลระบบปิดการใช้งานแผนที่สำหรับการติดตั้งนี้",
   "geoServices.notice.geocodingDisabled": "ผู้ดูแลระบบปิดการค้นหาที่อยู่สำหรับการติดตั้งนี้",
-  "geoServices.notice.routingDisabled": "ผู้ดูแลระบบปิดการคำนวณเส้นทางสำหรับการติดตั้งนี้ จึงแสดงเป็นเส้นตรงแทน",
   "geoServices.notice.loadFailed": "ไม่สามารถโหลดการตั้งค่าแผนที่ได้ แผนที่และการค้นหาที่อยู่จะยังคงปิดอยู่จนกว่าจะพร้อมใช้งาน",
   "geoServices.notice.retry": "ลองอีกครั้ง",
   "geoServices.search.unavailable": "ขณะนี้ไม่สามารถค้นหาที่อยู่ได้",

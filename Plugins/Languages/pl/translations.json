@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "Pokaż wszystkie",
   "geoServices.notice.mapDisabled": "Mapa została wyłączona przez operatora dla tej instalacji.",
   "geoServices.notice.geocodingDisabled": "Wyszukiwanie adresów zostało wyłączone przez operatora dla tej instalacji.",
-  "geoServices.notice.routingDisabled": "Obliczanie tras zostało wyłączone przez operatora dla tej instalacji; zamiast tego wyświetlane są linie proste.",
   "geoServices.notice.loadFailed": "Nie udało się wczytać ustawień mapy. Mapy i wyszukiwanie adresów pozostają wyłączone do czasu, aż będą dostępne.",
   "geoServices.notice.retry": "Spróbuj ponownie",
   "geoServices.search.unavailable": "Wyszukiwanie adresów jest obecnie niedostępne.",

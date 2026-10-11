@@ -76,17 +76,26 @@ Consequences with `GEO_NO_OUTBOUND_TRAFFIC=true` and no own instances:
 - Coordinate gap: addresses created or imported while the switch is on get no coordinates,
   so they have no map marker and route planning only uses coordinates that already exist.
   Addresses stay saveable. After switching back, the authenticated API call
-  `POST api/backend/RouteOptimization/geocode-all` fills in the missing coordinates. Weather by company location also needs stored coordinates.
-- Only these geo services are covered. Weather (Open-Meteo) and public holidays (Nager.Date)
-  are separate services and keep running; so do image pulls and auto-updates (`ghcr.io`,
-  `github.com`), the marketplace (`KLACKS_MARKETPLACE_URL`) and any external LLM provider
-  configured for Klacksy.
+  `POST api/backend/RouteOptimization/geocode-all` fills in the missing coordinates.
+- Weather for the company location (Klacksy, greeting) is derived from the company address
+  by geocoding and is therefore unavailable; weather for explicit coordinates still works.
+- Only these geo services are covered. Other outbound services are separate and keep
+  running: weather (Open-Meteo, receives coordinates), public holidays (Nager.Date),
+  translations (DeepL, receives the texts to translate), web search for Klacksy (Serper or
+  Tavily, receives search terms; the greeting searches for traffic and events in the company's city),
+  image pulls and auto-updates (`ghcr.io`, `github.com`), the marketplace
+  (`KLACKS_MARKETPLACE_URL`) and any external LLM provider configured for Klacksy.
 
 **Own instances instead of switching off:** point `GEO_GEOCODING_BASE_URL` (Nominatim
 compatible), `GEO_ROUTING_BASE_URL` (OSRM), `GEO_OPENROUTESERVICE_BASE_URL` and
 `GEO_MAP_TILE_URL_TEMPLATE` (e.g. `https://tiles.example.local/{z}/{x}/{y}.png`, with
-`GEO_MAP_TILE_ATTRIBUTION`) at your own servers. With `GEO_NO_OUTBOUND_TRAFFIC=true`, public
-hosts are refused even when entered here. An own tile server must also be listed in
+`GEO_MAP_TILE_ATTRIBUTION`) at your own servers. With `GEO_NO_OUTBOUND_TRAFFIC=true`, the
+well-known public OpenStreetMap services (openstreetmap.org, project-osrm.org,
+openrouteservice.org and a few public tile hosts) are refused even when entered here. This is
+a deny list of known hosts, not an allow list: any other host you enter is used, so only enter
+servers you operate. URLs with credentials (`user:password@host`) are rejected. The tile URL
+is sent to every browser, so `GEO_MAP_TILE_URL_TEMPLATE` must not contain credentials or API
+keys. An own tile server must also be listed in
 `MAP_TILE_CSP_SOURCES` (e.g. `MAP_TILE_CSP_SOURCES=https://tiles.example.local`), otherwise
 the browser blocks its tiles, and it must send CORS headers (`Access-Control-Allow-Origin`),
 otherwise the route PDF export fails.

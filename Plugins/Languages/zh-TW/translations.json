@@ -894,7 +894,6 @@
   "dashboard.locations.zoomToAll": "顯示全部",
   "geoServices.notice.mapDisabled": "營運方已為此安裝關閉地圖功能。",
   "geoServices.notice.geocodingDisabled": "營運方已為此安裝關閉地址搜尋功能。",
-  "geoServices.notice.routingDisabled": "營運方已為此安裝關閉路線計算功能，改為顯示直線。",
   "geoServices.notice.loadFailed": "無法載入地圖設定。在設定可用之前，地圖與地址搜尋將維持關閉。",
   "geoServices.notice.retry": "重試",
   "geoServices.search.unavailable": "地址搜尋目前無法使用。",
