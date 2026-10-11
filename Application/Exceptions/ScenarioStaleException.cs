@@ -7,7 +7,7 @@ namespace Klacks.Api.Application.Exceptions;
 
 /// <summary>
 /// An accept was requested for a scenario whose original plan changed after the scenario was created (another
-/// scenario accepted in between, or edits by hand) and the caller did not acknowledge that accepting overwrites those
+/// scenario accepted in between, edits, seals or a background recalculation) and the caller did not acknowledge that accepting overwrites those
 /// changes. Refused as a 409 with its own code so a client can ask for that acknowledgement and retry with
 /// overrideStale; it is deliberately separate from the compliance block and its supervisor override.
 /// </summary>

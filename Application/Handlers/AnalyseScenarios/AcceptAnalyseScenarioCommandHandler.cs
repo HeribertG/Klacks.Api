@@ -19,7 +19,7 @@
 /// A scenario outside the caller's group visibility is answered like a missing one, before the status check, so a
 /// hidden decided scenario does not reveal itself through a 409.
 /// Before the compliance gate a staleness gate runs: when the original plan changed inside the accept scope after the
-/// scenario was created (another scenario accepted, edits by hand), the accept would overwrite those changes and is refused
+/// scenario was created (another scenario accepted, edits, seals or a background recalculation), the accept would overwrite those changes and is refused
 /// with a SCENARIO_STALE conflict unless the caller acknowledged it with OverrideStale - independent of OverrideBlock.
 /// </summary>
 /// <param name="ScenarioId">ID of the scenario to accept</param>

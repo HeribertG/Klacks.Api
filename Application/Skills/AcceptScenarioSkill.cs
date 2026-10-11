@@ -5,7 +5,7 @@
 /// existing AcceptAnalyseScenarioCommand pipeline. Used after AutoWizard or any other scenario producer
 /// has run and the user (or planning agent) wants to commit the proposed plan. A scenario outside the caller's
 /// group visibility is refused by the command handler and reported exactly like a missing one.
-/// When the original plan changed after the scenario was created (another scenario accepted, edits by hand), the
+/// When the original plan changed after the scenario was created (another scenario accepted, edits, seals or a background recalculation), the
 /// accept would overwrite those changes: the skill then stores the call under a one-time confirmation token and asks
 /// the model to get the user's explicit consent first. The token has its own purpose (StaleScenarioOverwrite) and keeps
 /// the staleness the user is shown; only redeeming it sets SkillExecutionContext.StaleScenarioOverwriteAcknowledgement,

@@ -4,7 +4,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
 /// The real plan changed inside the scope an accept replaces after the scenario was created, so accepting the scenario
-/// would silently overwrite those changes (another scenario accepted in between, or edits by hand).
+/// would silently overwrite those changes (another scenario accepted in between, edits, seals, or a background
 /// </summary>
 /// <param name="ChangedEntryCount">Real works, work changes, expenses, breaks and schedule notes in the accept scope that were created, updated or deleted after the scenario was created</param>
 /// <param name="LastChangeUtc">UTC instant of the most recent of those changes</param>
