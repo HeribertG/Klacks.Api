@@ -1,10 +1,19 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// SignalR hub for schedule change notifications. Joining a scenario's schedule group and choosing the group filter are
+/// checked against the caller's visibility; the caller is the connection's own user, never an empty request context.
+/// </summary>
+/// <param name="scenarioTokenAccessGuard">Refuses analyse tokens of scenarios the caller may not see</param>
+/// <param name="groupVisibilityGuard">Refuses a group filter on a group the caller may not see</param>
+
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace Klacks.Api.Infrastructure.Hubs;
 
@@ -15,17 +24,20 @@ public class WorkNotificationHub : Hub<IScheduleClient>
     private readonly IConnectionDateRangeTracker _dateRangeTracker;
     private readonly IScheduleTimelineService _timelineService;
     private readonly IScenarioTokenAccessGuard _scenarioTokenAccessGuard;
+    private readonly IGroupVisibilityGuard _groupVisibilityGuard;
 
     public WorkNotificationHub(
         ILogger<WorkNotificationHub> logger,
         IConnectionDateRangeTracker dateRangeTracker,
         IScheduleTimelineService timelineService,
-        IScenarioTokenAccessGuard scenarioTokenAccessGuard)
+        IScenarioTokenAccessGuard scenarioTokenAccessGuard,
+        IGroupVisibilityGuard groupVisibilityGuard)
     {
         _logger = logger;
         _dateRangeTracker = dateRangeTracker;
         _timelineService = timelineService;
         _scenarioTokenAccessGuard = scenarioTokenAccessGuard;
+        _groupVisibilityGuard = groupVisibilityGuard;
     }
 
     public override async Task OnConnectedAsync()
@@ -48,8 +60,9 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public async Task JoinScheduleGroup(string startDate, string endDate, string? analyseToken)
     {
+        using var caller = BeginCallerPrincipal();
         var token = ParseAnalyseToken(analyseToken);
-        if (!await _scenarioTokenAccessGuard.IsVisibleAsync(token, Context.ConnectionAborted))
+        if (caller is null || !await _scenarioTokenAccessGuard.IsVisibleAsync(token, Context.ConnectionAborted))
         {
             _logger.LogWarning(
                 "SignalR GROUP JOIN refused: {ConnectionId} asked for a scenario it may not see", Context.ConnectionId);
@@ -104,10 +117,19 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public async Task SetSelectedGroup(string selectedGroupId)
     {
+        using var caller = BeginCallerPrincipal();
         Guid? parsedGroupId = null;
         if (!string.IsNullOrEmpty(selectedGroupId) && Guid.TryParse(selectedGroupId, out var gid) && gid != Guid.Empty)
         {
             parsedGroupId = gid;
+        }
+
+        if (caller is null
+            || (parsedGroupId is { } groupId && !await _groupVisibilityGuard.IsGroupVisibleAsync(groupId, Context.ConnectionAborted)))
+        {
+            _logger.LogWarning(
+                "SignalR SetSelectedGroup refused: {ConnectionId} asked for a group it may not see", Context.ConnectionId);
+            return;
         }
 
         var previous = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId);
@@ -200,6 +222,24 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public static string GetClientGroupName(Guid clientId)
         => SignalRConstants.Groups.Client(clientId);
+
+    /// <summary>
+    /// Runs the rest of the invocation on behalf of the connection's own user (NameIdentifier of Context.User), so the
+    /// visibility guards see that user even when IHttpContextAccessor has no request inside the hub invocation (long
+    /// polling); without it they would treat the call as an unrestricted background job. Null when the connection
+    /// carries no valid user id - the caller must then refuse.
+    /// </summary>
+    private IDisposable? BeginCallerPrincipal()
+    {
+        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userId, out var callerId) || callerId == Guid.Empty)
+        {
+            _logger.LogWarning("SignalR call refused: {ConnectionId} carries no user id", Context.ConnectionId);
+            return null;
+        }
+
+        return ExecutionPrincipal.Begin(callerId);
+    }
 
     private static Guid? ParseAnalyseToken(string? analyseToken)
     {
