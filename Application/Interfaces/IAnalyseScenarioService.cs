@@ -92,8 +92,11 @@ public interface IAnalyseScenarioService
     /// <summary>
     /// Read-only staleness check before an accept: the real rows (works, work changes, expenses, breaks, schedule
     /// notes) inside exactly the scope <see cref="SoftDeleteRealScheduleDataAsync"/> replaces that were created,
-    /// updated or deleted after the scenario was created. Null when there are none (the accept overwrites nothing
-    /// newer than the scenario) or when the scenario has no creation time to compare against.
+    /// updated or deleted after the scenario's snapshot (its creation, or the earliest creation along its SourceToken
+    /// chain for a scenario built on another scenario). Real works count whatever their lock level (a seal after the
+    /// snapshot would leave the sealed work next to its promoted clone); their work changes and expenses count only on
+    /// movable works. Null when there are none (the accept overwrites nothing newer than the snapshot) or when the
+    /// scenario has no creation time to compare against.
     /// </summary>
     /// <param name="scenario">The scenario about to be accepted (group, token, range and creation time are read)</param>
     /// <param name="cancellationToken">Cancellation token.</param>
