@@ -32,20 +32,19 @@ internal static class PeriodSealUpdates
         Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
     {
-        var sealedAt = DateTime.UtcNow;
+        var stamp = BulkUpdateAuditStamp.Now(updatedBy);
+        var sealedAt = stamp.At;
 
         return entries
             .Where(e => e.LockLevel < level)
             .ExecuteUpdateAsync(s =>
             {
-                s.SetProperty(e => e.PreSealLockLevel, e => (WorkLockLevel?)e.LockLevel)
+                stamp.ApplyTo(s.SetProperty(e => e.PreSealLockLevel, e => (WorkLockLevel?)e.LockLevel)
                     .SetProperty(e => e.PreSealSealedAt, e => e.SealedAt)
                     .SetProperty(e => e.PreSealSealedBy, e => e.SealedBy)
                     .SetProperty(e => e.LockLevel, level)
                     .SetProperty(e => e.SealedAt, sealedAt)
-                    .SetProperty(e => e.SealedBy, sealedBy)
-                    .SetProperty(e => e.UpdateTime, sealedAt)
-                    .SetProperty(e => e.CurrentUserUpdated, updatedBy);
+                    .SetProperty(e => e.SealedBy, sealedBy));
                 additionalSetters?.Invoke(s);
             }, cancellationToken);
     }
@@ -63,7 +62,7 @@ internal static class PeriodSealUpdates
         Action<UpdateSettersBuilder<TEntry>>? additionalSetters = null)
         where TEntry : ScheduleEntryBase
     {
-        var updatedAt = DateTime.UtcNow;
+        var stamp = BulkUpdateAuditStamp.Now(updatedBy);
         var sealedEntries = entries.Where(e => e.LockLevel == level);
 
         var countsByPreSealLevel = await sealedEntries
@@ -73,7 +72,7 @@ internal static class PeriodSealUpdates
 
         await sealedEntries.ExecuteUpdateAsync(s =>
         {
-            s.SetProperty(
+            stamp.ApplyTo(s.SetProperty(
                     e => e.LockLevel,
                     e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealLockLevel.Value : WorkLockLevel.None)
                 .SetProperty(
@@ -84,9 +83,7 @@ internal static class PeriodSealUpdates
                     e => e.PreSealLockLevel != null && e.PreSealLockLevel < level ? e.PreSealSealedBy : null)
                 .SetProperty(e => e.PreSealLockLevel, (WorkLockLevel?)null)
                 .SetProperty(e => e.PreSealSealedAt, (DateTime?)null)
-                .SetProperty(e => e.PreSealSealedBy, (string?)null)
-                .SetProperty(e => e.UpdateTime, updatedAt)
-                .SetProperty(e => e.CurrentUserUpdated, updatedBy);
+                .SetProperty(e => e.PreSealSealedBy, (string?)null));
             additionalSetters?.Invoke(s);
         }, cancellationToken);
 

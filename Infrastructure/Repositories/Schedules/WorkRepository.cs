@@ -249,32 +249,27 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
-        var actor = context.CurrentAuditActorName();
+        var stamp = BulkUpdateAuditStamp.Now(context);
+        var sealedAt = stamp.At;
         return await context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel < level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
-            .ExecuteUpdateAsync(s => s
+            .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(w => w.LockLevel, level)
-                .SetProperty(w => w.SealedAt, now)
-                .SetProperty(w => w.SealedBy, sealedBy)
-                .SetProperty(w => w.UpdateTime, now)
-                .SetProperty(w => w.CurrentUserUpdated, actor), cancellationToken);
+                .SetProperty(w => w.SealedAt, sealedAt)
+                .SetProperty(w => w.SealedBy, sealedBy)), cancellationToken);
     }
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
-        var actor = context.CurrentAuditActorName();
+        var stamp = BulkUpdateAuditStamp.Now(context);
         return await context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.CurrentDate == date && w.LockLevel == level)
             .Where(w => context.GroupItem.Any(gi => gi.ShiftId == w.ShiftId && gi.GroupId == groupId && !gi.IsDeleted))
-            .ExecuteUpdateAsync(s => s
+            .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(w => w.LockLevel, WorkLockLevel.None)
                 .SetProperty(w => w.SealedAt, (DateTime?)null)
-                .SetProperty(w => w.SealedBy, (string?)null)
-                .SetProperty(w => w.UpdateTime, now)
-                .SetProperty(w => w.CurrentUserUpdated, actor), cancellationToken);
+                .SetProperty(w => w.SealedBy, (string?)null)), cancellationToken);
     }
 
     public Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)

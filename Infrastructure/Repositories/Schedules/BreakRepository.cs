@@ -64,34 +64,29 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
 
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
-        var actor = _context.CurrentAuditActorName();
+        var stamp = BulkUpdateAuditStamp.Now(_context);
+        var sealedAt = stamp.At;
         return await _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate == date && b.LockLevel < level)
             .WhereReopenableByGroup(_context, groupId)
-            .ExecuteUpdateAsync(s => s
+            .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(b => b.LockLevel, level)
-                .SetProperty(b => b.SealedAt, now)
+                .SetProperty(b => b.SealedAt, sealedAt)
                 .SetProperty(b => b.SealedBy, sealedBy)
-                .SetProperty(b => b.SealedByGroupId, groupId)
-                .SetProperty(b => b.UpdateTime, now)
-                .SetProperty(b => b.CurrentUserUpdated, actor), cancellationToken);
+                .SetProperty(b => b.SealedByGroupId, groupId)), cancellationToken);
     }
 
     public async Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
-        var actor = _context.CurrentAuditActorName();
+        var stamp = BulkUpdateAuditStamp.Now(_context);
         return await _context.Break
             .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate == date && b.LockLevel == level)
             .WhereReopenableByGroup(_context, groupId)
-            .ExecuteUpdateAsync(s => s
+            .ExecuteUpdateAsync(s => stamp.ApplyTo(s
                 .SetProperty(b => b.LockLevel, WorkLockLevel.None)
                 .SetProperty(b => b.SealedAt, (DateTime?)null)
                 .SetProperty(b => b.SealedBy, (string?)null)
-                .SetProperty(b => b.SealedByGroupId, (Guid?)null)
-                .SetProperty(b => b.UpdateTime, now)
-                .SetProperty(b => b.CurrentUserUpdated, actor), cancellationToken);
+                .SetProperty(b => b.SealedByGroupId, (Guid?)null)), cancellationToken);
     }
 
     public Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
@@ -149,13 +144,14 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
             .GroupBy(c => stillLocked[(c.CurrentDate, c.ClientId)].FirstOrDefault(owner => owner != null))
             .ToList();
 
+        var ownerMoveStamp = BulkUpdateAuditStamp.Now(_context);
         foreach (var retained in retainedByNewOwner)
         {
             var retainedIds = retained.Select(c => c.Id).ToList();
             var newOwner = retained.Key;
             await _context.Break
                 .Where(b => retainedIds.Contains(b.Id))
-                .ExecuteUpdateAsync(s => s.SetProperty(b => b.SealedByGroupId, newOwner), cancellationToken);
+                .ExecuteUpdateAsync(s => ownerMoveStamp.ApplyTo(s.SetProperty(b => b.SealedByGroupId, newOwner)), cancellationToken);
         }
 
         var retainedBreakIds = retainedByNewOwner.SelectMany(g => g.Select(c => c.Id)).ToList();
