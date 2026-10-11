@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 using System.Text.RegularExpressions;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Enums;
@@ -129,6 +130,11 @@ public class ValidateAddressSkill : BaseSkillImplementation
         try
         {
             var validation = await _geocodingService.ValidateExactAddressAsync(street, postalCode, city, geocodingCountry);
+            if (validation.Disabled)
+            {
+                return CouldNotValidate(fullAddress, GeoServiceMessages.GeocodingDisabled);
+            }
+
             if (validation.ServiceUnavailable)
             {
                 return CouldNotValidate(fullAddress, "The geocoding service is currently unavailable, so the address could not be checked. This says nothing about whether it is correct.");

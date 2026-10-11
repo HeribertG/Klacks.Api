@@ -9,11 +9,15 @@
 /// items are still pending silently loses them — on startup this worker resumes every group that was
 /// never actually run through the resolver (GeocodingAttempted still false, no coordinates yet),
 /// recovering exactly that loss without re-classifying groups that already have a real outcome.
+/// With geocoding switched off by the operator nothing is queued and nothing is resumed: the groups keep
+/// GeocodingAttempted == false and are picked up on the first start after geocoding is switched back on.
 /// </summary>
+/// <param name="geoServicesPolicy">Effective geo service configuration (is geocoding enabled)</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Application.Interfaces.Grouping;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using System.Threading.Channels;
 
 namespace Klacks.Api.Infrastructure.Services;
@@ -23,11 +27,14 @@ public class GroupGeocodingBackgroundService : BackgroundService, IGroupGeocodin
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<GroupGeocodingBackgroundService> _logger;
     private readonly Channel<Guid> _channel;
+    private readonly IGeoServicesPolicy _geoServicesPolicy;
 
     public GroupGeocodingBackgroundService(
         IServiceProvider serviceProvider,
+        IGeoServicesPolicy geoServicesPolicy,
         ILogger<GroupGeocodingBackgroundService> logger)
     {
+        _geoServicesPolicy = geoServicesPolicy;
         _serviceProvider = serviceProvider;
         _logger = logger;
         _channel = Channel.CreateBounded<Guid>(new BoundedChannelOptions(200)
@@ -39,6 +46,12 @@ public class GroupGeocodingBackgroundService : BackgroundService, IGroupGeocodin
 
     public void Queue(Guid groupId)
     {
+        if (!_geoServicesPolicy.Geocoding.IsEnabled)
+        {
+            _logger.LogDebug("Geocoding is disabled, group {GroupId} is not queued", groupId);
+            return;
+        }
+
         if (!_channel.Writer.TryWrite(groupId))
         {
             _logger.LogWarning("Failed to queue group {GroupId} for geocoding", groupId);
@@ -49,7 +62,14 @@ public class GroupGeocodingBackgroundService : BackgroundService, IGroupGeocodin
     {
         _logger.LogInformation("GroupGeocodingBackgroundService started");
 
-        await ResumeUnattemptedGroupsAsync(stoppingToken);
+        if (_geoServicesPolicy.Geocoding.IsEnabled)
+        {
+            await ResumeUnattemptedGroupsAsync(stoppingToken);
+        }
+        else
+        {
+            _logger.LogWarning("Group geocoding is disabled by configuration, groups without coordinates are not resumed");
+        }
 
         try
         {

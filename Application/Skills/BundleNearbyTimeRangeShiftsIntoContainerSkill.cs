@@ -15,7 +15,7 @@
 /// <param name="fromDate">Date from which the container order is valid (YYYY-MM-DD).</param>
 /// <param name="untilDate">Optional end date of validity (YYYY-MM-DD).</param>
 /// <param name="transportMode">Optional: car|bicycle|foot|mix; defaults to car. Non-car modes require a
-/// configured OpenRouteService API key.</param>
+/// configured OpenRouteService API key and OpenRouteService not being switched off by the operator.</param>
 /// <param name="timeRangeTolerance">Optional tolerance for TimeRange window violations (0.0 strict, 1.0
 /// no validation); defaults to 0.5.</param>
 /// <param name="groupIds">Optional comma-separated group UUIDs restricting which candidate services are
@@ -23,6 +23,7 @@
 /// <param name="name">Optional container name; defaults to "Mobile Dienste {location}".</param>
 
 using Klacks.Api.Application.Commands.ContainerTemplates;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -32,6 +33,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -66,6 +68,7 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
     private readonly IContainerAutofillService _containerAutofillService;
     private readonly ISettingsReader _settingsReader;
     private readonly ISettingsEncryptionService _encryptionService;
+    private readonly IGeoServicesPolicy _geoServicesPolicy;
 
     public BundleNearbyTimeRangeShiftsIntoContainerSkill(
         IShiftRepository shiftRepository,
@@ -75,8 +78,10 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         IUserService userService,
         IContainerAutofillService containerAutofillService,
         ISettingsReader settingsReader,
-        ISettingsEncryptionService encryptionService)
+        ISettingsEncryptionService encryptionService,
+        IGeoServicesPolicy geoServicesPolicy)
     {
+        _geoServicesPolicy = geoServicesPolicy;
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _mediator = mediator;
@@ -85,6 +90,32 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
         _containerAutofillService = containerAutofillService;
         _settingsReader = settingsReader;
         _encryptionService = encryptionService;
+    }
+
+    private async Task<SkillResult?> CheckTransportModeAvailableAsync(ContainerTransportMode transportMode, string? transportModeStr)
+    {
+        if (transportMode == ContainerTransportMode.ByCar)
+        {
+            return null;
+        }
+
+        if (!_geoServicesPolicy.OpenRouteService.IsEnabled)
+        {
+            return SkillResult.Error(
+                $"Cannot use transportMode '{transportModeStr}' — {GeoServiceMessages.OpenRouteServiceDisabled}, so only " +
+                "transportMode=car is available. Call this skill again with transportMode=car.");
+        }
+
+        var apiKey = await _settingsReader.GetOpenRouteServiceApiKeyAsync(_encryptionService);
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            return SkillResult.Error(
+                $"Cannot use transportMode '{transportModeStr}' — no OpenRouteService API key is configured, so only " +
+                "transportMode=car (driving times via OSRM/estimation) is available. Configure the OpenRouteService " +
+                "API key in Settings first, or call this skill again with transportMode=car.");
+        }
+
+        return null;
     }
 
     internal sealed record BundleOutcome(Guid ContainerId, string ContainerName, ContainerAutofillResult AutofillResult);
@@ -156,16 +187,10 @@ public class BundleNearbyTimeRangeShiftsIntoContainerSkill : BaseSkillImplementa
             return SkillResult.Error(transportModeError!);
         }
 
-        if (transportMode.Value != ContainerTransportMode.ByCar)
+        var unavailableTransportMode = await CheckTransportModeAvailableAsync(transportMode.Value, transportModeStr);
+        if (unavailableTransportMode != null)
         {
-            var apiKey = await _settingsReader.GetOpenRouteServiceApiKeyAsync(_encryptionService);
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                return SkillResult.Error(
-                    $"Cannot use transportMode '{transportModeStr}' — no OpenRouteService API key is configured, so only " +
-                    "transportMode=car (driving times via OSRM/estimation) is available. Configure the OpenRouteService " +
-                    "API key in Settings first, or call this skill again with transportMode=car.");
-            }
+            return unavailableTransportMode;
         }
 
         var groupItems = new List<GroupItem>();

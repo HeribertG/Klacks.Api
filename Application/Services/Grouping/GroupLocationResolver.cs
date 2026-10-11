@@ -8,7 +8,9 @@
 /// a wrong customer assignment downstream. Idempotent and safe to re-run. Marks GeocodingAttempted on
 /// every outcome that ran to completion (NotAPlace, GeocodeFailed, Resolved) so
 /// GroupGeocodingBackgroundService can distinguish "already classified" from "queued but never actually
-/// processed" (e.g. lost from the in-memory queue by a restart) when it resumes on startup.
+/// processed" (e.g. lost from the in-memory queue by a restart) when it resumes on startup. With geocoding switched
+/// off by the operator it returns GeocodingDisabled before the classifier runs and marks nothing, so the group is
+/// picked up again once geocoding is switched back on.
 /// </summary>
 /// <param name="groupRepository">Loads the group + its parent path and persists the resolved coordinates.</param>
 /// <param name="classifier">Decides whether the group name denotes a place (with confidence).</param>
@@ -61,6 +63,11 @@ public class GroupLocationResolver : IGroupLocationResolver
         {
             return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.AlreadySet,
                 group.Latitude, group.Longitude);
+        }
+
+        if (!_geocoder.IsEnabled)
+        {
+            return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.GeocodingDisabled, null, null);
         }
 
         var path = await _groupRepository.GetPath(groupId);

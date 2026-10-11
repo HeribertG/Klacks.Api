@@ -7,12 +7,14 @@
 /// <param name="_encryptionService">Decrypts encrypted setting values</param>
 /// <param name="_cache">In-memory cache for distance/duration matrices</param>
 /// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
+/// <param name="_geoServicesPolicy">Effective geo service configuration; a disabled OSRM/OpenRouteService falls back to Haversine without any request</param>
 
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Extensions;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,14 +28,17 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     private readonly IMemoryCache _cache;
     private readonly ILogger<DistanceMatrixBuilder> _logger;
     private readonly HttpClient _httpClient;
+    private readonly IGeoServicesPolicy _geoServicesPolicy;
 
     public DistanceMatrixBuilder(
         ISettingsReader settingsReader,
         ISettingsEncryptionService encryptionService,
         IMemoryCache cache,
         ILogger<DistanceMatrixBuilder> logger,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IGeoServicesPolicy geoServicesPolicy)
     {
+        _geoServicesPolicy = geoServicesPolicy;
         _settingsReader = settingsReader;
         _encryptionService = encryptionService;
         _cache = cache;
@@ -48,18 +53,20 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         _logger.LogInformation("=== BuildDistanceMatrixAsync START ===");
         _logger.LogInformation("TransportMode received: {TransportMode} (int value: {IntValue})", transportMode, (int)transportMode);
 
-        var apiKey = await GetOpenRouteServiceApiKeyAsync();
+        var apiKey = _geoServicesPolicy.OpenRouteService.IsEnabled ? await GetOpenRouteServiceApiKeyAsync() : null;
         var isOpenRouteServiceConfigured = !string.IsNullOrEmpty(apiKey);
         _logger.LogInformation("OpenRouteService configured: {IsConfigured}", isOpenRouteServiceConfigured);
-
-        var size = locations.Count;
-        var distanceMatrix = new double[size, size];
-        var durationMatrix = new double[size, size];
 
         if (transportMode == ContainerTransportMode.Mix)
         {
             _logger.LogInformation("TransportMode is Mix - building mixed matrices for all profiles");
             return await BuildMixedDistanceMatrixAsync(locations);
+        }
+
+        if (!isOpenRouteServiceConfigured && !_geoServicesPolicy.Routing.IsEnabled)
+        {
+            _logger.LogInformation("Routing services are disabled by configuration, using Haversine distances with estimated times");
+            return BuildEstimatedDistanceMatrix(locations, transportMode);
         }
 
         var servicePrefix = isOpenRouteServiceConfigured ? "ors" : "osrm";
@@ -96,10 +103,15 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to get routing matrix, falling back to Haversine distances with estimated times");
-            distanceMatrix = BuildHaversineDistanceMatrix(locations);
-            durationMatrix = BuildEstimatedDurationMatrix(distanceMatrix, transportMode);
-            return new DistanceMatrix(locations, distanceMatrix, durationMatrix, IsEstimated: true);
+            return BuildEstimatedDistanceMatrix(locations, transportMode);
         }
+    }
+
+    private DistanceMatrix BuildEstimatedDistanceMatrix(List<Location> locations, ContainerTransportMode transportMode)
+    {
+        var distanceMatrix = BuildHaversineDistanceMatrix(locations);
+        var durationMatrix = BuildEstimatedDurationMatrix(distanceMatrix, transportMode);
+        return new DistanceMatrix(locations, distanceMatrix, durationMatrix, IsEstimated: true);
     }
 
     public async Task<DistanceMatrix> BuildMixedDistanceMatrixAsync(
@@ -130,6 +142,13 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
                 continue;
             }
 
+            if (!_geoServicesPolicy.Routing.IsEnabled)
+            {
+                isEstimated = true;
+                ApplyHaversineFallback(profile);
+                continue;
+            }
+
             try
             {
                 var transportMode = profile switch
@@ -157,27 +176,31 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
             {
                 _logger.LogWarning(ex, "Failed to get OSRM matrix for profile '{Profile}', using fallback", profile);
                 isEstimated = true;
-
-                var haversineMatrix = BuildHaversineDistanceMatrix(locations);
-                var transportMode = profile switch
-                {
-                    "driving" => ContainerTransportMode.ByCar,
-                    "cycling" => ContainerTransportMode.ByBicycle,
-                    "foot" => ContainerTransportMode.ByFoot,
-                    _ => ContainerTransportMode.ByCar
-                };
-                var fallbackDuration = BuildEstimatedDurationMatrix(haversineMatrix, transportMode);
-                durationMatricesByProfile[profile] = fallbackDuration;
-
-                if (profile == "driving")
-                {
-                    distanceMatrix = haversineMatrix;
-                    defaultDurationMatrix = fallbackDuration;
-                }
+                ApplyHaversineFallback(profile);
             }
         }
 
         return new DistanceMatrix(locations, distanceMatrix, defaultDurationMatrix, durationMatricesByProfile, isEstimated);
+
+        void ApplyHaversineFallback(string profile)
+        {
+            var haversineMatrix = BuildHaversineDistanceMatrix(locations);
+            var transportMode = profile switch
+            {
+                "driving" => ContainerTransportMode.ByCar,
+                "cycling" => ContainerTransportMode.ByBicycle,
+                "foot" => ContainerTransportMode.ByFoot,
+                _ => ContainerTransportMode.ByCar
+            };
+            var fallbackDuration = BuildEstimatedDurationMatrix(haversineMatrix, transportMode);
+            durationMatricesByProfile[profile] = fallbackDuration;
+
+            if (profile == "driving")
+            {
+                distanceMatrix = haversineMatrix;
+                defaultDurationMatrix = fallbackDuration;
+            }
+        }
     }
 
     public double[,] BuildEstimatedDurationMatrix(double[,] distanceMatrix, ContainerTransportMode transportMode)
@@ -282,7 +305,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var durationMatrix = new double[size, size];
 
         var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
-        var url = $"{RoutingServiceUrls.OsrmBaseUrl}/table/v1/driving/{coordinates}?annotations=distance,duration";
+        var url = $"{_geoServicesPolicy.Routing.BaseUrl}{GeoServicePaths.OsrmTableDriving}/{coordinates}?annotations=distance,duration";
 
         _logger.LogInformation("Requesting OSRM table API for distances (driving profile): {Url}", url);
 
@@ -351,7 +374,7 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         var durationMatrix = new double[size, size];
 
         var profile = GetOpenRouteServiceProfile(transportMode);
-        var url = $"{RoutingServiceUrls.OpenRouteServiceBaseUrl}/matrix/{profile}";
+        var url = $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{GeoServicePaths.OpenRouteServiceMatrix}/{profile}";
 
         _logger.LogInformation("Requesting OpenRouteService matrix API with profile '{Profile}': {Url}", profile, url);
 

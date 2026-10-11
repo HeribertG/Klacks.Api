@@ -4,7 +4,8 @@
 /// FluentValidation validator for address geocoding in client commands.
 /// Validates addresses with zip+city via the geocoding service and sets coordinates on success.
 /// Addresses that are unchanged compared to their stored version are skipped so that editing
-/// other client data (e.g. qualifications) never re-validates an already-persisted address.
+/// other client data (e.g. qualifications) never re-validates an already-persisted address. An unreachable or
+/// operator-disabled geocoder never blocks a save: the address is kept without coordinates.
 /// </summary>
 /// <param name="geocodingService">Service for address geocoding</param>
 /// <param name="stateResolver">Resolves state abbreviations from geocoding results</param>
@@ -68,7 +69,7 @@ public class AddressGeocodingValidator : AbstractValidator<ICollection<AddressRe
             var result = await _geocodingService.ValidateExactAddressAsync(
                 address.Street, address.Zip, address.City, geocodingCountry);
 
-            if (result.ServiceUnavailable)
+            if (result.ServiceUnavailable || result.Disabled)
             {
                 return true;
             }

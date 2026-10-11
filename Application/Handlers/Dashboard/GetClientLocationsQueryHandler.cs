@@ -1,5 +1,13 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
+/// <summary>
+/// Lists the visible active clients with their current address for the dashboard map. The marker position is the
+/// city-level geocode (only city and country leave the installation); when geocoding is switched off or finds
+/// nothing, the stored address coordinates are used instead, otherwise none.
+/// </summary>
+/// <param name="geocodingService">City-level geocoder, skipped entirely when disabled</param>
+/// <param name="groupVisibilityService">Restricts the clients to the caller's visible groups</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
@@ -74,10 +82,7 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
             foreach (var item in clientsWithAddresses)
             {
                 var address = item.Address!;
-                var (latitude, longitude) = await _geocodingService.GeocodeAsync(
-                    address.City ?? string.Empty,
-                    address.Country ?? string.Empty
-                );
+                var (latitude, longitude) = await ResolveCityCoordinatesAsync(address);
 
                 result.Add(new ClientLocationResource
                 {
@@ -103,5 +108,24 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
             _logger.LogError(ex, "Error fetching client locations");
             throw;
         }
+    }
+
+    private async Task<(double? Latitude, double? Longitude)> ResolveCityCoordinatesAsync(Domain.Models.Staffs.Address address)
+    {
+        if (_geocodingService.IsEnabled)
+        {
+            var (latitude, longitude) = await _geocodingService.GeocodeAsync(
+                address.City ?? string.Empty,
+                address.Country ?? string.Empty);
+
+            if (latitude.HasValue && longitude.HasValue)
+            {
+                return (latitude, longitude);
+            }
+        }
+
+        return address.Latitude.HasValue && address.Longitude.HasValue
+            ? (address.Latitude, address.Longitude)
+            : (null, null);
     }
 }

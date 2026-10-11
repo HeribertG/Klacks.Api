@@ -3,9 +3,12 @@
 /// <summary>
 /// Reports the aggregate progress of the background group-geocoding queue: how many groups already
 /// have coordinates, how many were classified but stayed without one (not a place, or the lookup
-/// failed), and how many were never actually processed yet. Read-only, no parameters.
+/// failed), and how many were never actually processed yet. Read-only, no parameters. With geocoding switched off
+/// by the operator it says so instead of suggesting a re-run that could not make progress.
 /// </summary>
 
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.Queries.Grouping;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
@@ -18,10 +21,12 @@ namespace Klacks.Api.Application.Skills;
 public class CheckGroupGeocodingStatusSkill : BaseSkillImplementation
 {
     private readonly IMediator _mediator;
+    private readonly IGroupGeocoder _geocoder;
 
-    public CheckGroupGeocodingStatusSkill(IMediator mediator)
+    public CheckGroupGeocodingStatusSkill(IMediator mediator, IGroupGeocoder geocoder)
     {
         _mediator = mediator;
+        _geocoder = geocoder;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -35,7 +40,9 @@ public class CheckGroupGeocodingStatusSkill : BaseSkillImplementation
             $"{status.WithCoordinates} of {status.TotalGroups} group(s) have a location. " +
             $"{status.AttemptedNotAPlaceOrFailed} were checked and are not a real place or could not be " +
             $"geocoded — those stay without coordinates on purpose. " +
-            (status.Pending > 0
+            (!_geocoder.IsEnabled
+                ? GeoServiceMessages.GroupGeocodingDisabled
+                : status.Pending > 0
                 ? $"{status.Pending} group(s) have not been processed yet; re-run the bulk geocoding to " +
                   "work through them."
                 : "None are still pending.");

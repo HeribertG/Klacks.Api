@@ -25,6 +25,8 @@ public class GroupGeocoder : IGroupGeocoder
         _countryResolver = countryResolver;
     }
 
+    public bool IsEnabled => _geocodingService.IsEnabled;
+
     public async Task<(double? Latitude, double? Longitude)> GeocodeAsync(
         string placeName, CancellationToken cancellationToken = default)
     {

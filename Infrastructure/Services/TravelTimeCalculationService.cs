@@ -7,10 +7,12 @@
 /// <param name="settingsRepository">Access to app settings (API key)</param>
 /// <param name="encryptionService">Entschlüsselung sensibler Einstellungen</param>
 /// <param name="geocodingService">Coordinate resolution for addresses without lat/lon</param>
+/// <param name="geoServicesPolicy">Effective geo service configuration; disabled OpenRouteService/OSRM stages are skipped without a request</param>
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Extensions;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Models.Staffs;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,6 +28,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     private readonly IMemoryCache _cache;
     private readonly HttpClient _httpClient;
     private readonly ILogger<TravelTimeCalculationService> _logger;
+    private readonly IGeoServicesPolicy _geoServicesPolicy;
 
     private const string API_KEY_CACHE_KEY = "travel_time_api_key_configured";
     private const string TRAVEL_TIME_CACHE_PREFIX = "travel_time_";
@@ -38,8 +41,10 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
         IGeocodingService geocodingService,
         IMemoryCache cache,
         IHttpClientFactory httpClientFactory,
+        IGeoServicesPolicy geoServicesPolicy,
         ILogger<TravelTimeCalculationService> logger)
     {
+        _geoServicesPolicy = geoServicesPolicy;
         _settingsRepository = settingsRepository;
         _encryptionService = encryptionService;
         _geocodingService = geocodingService;
@@ -79,13 +84,20 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
 
         TimeSpan? result = null;
 
-        var apiKey = await GetApiKeyAsync();
-        if (!string.IsNullOrWhiteSpace(apiKey))
+        if (_geoServicesPolicy.OpenRouteService.IsEnabled)
         {
-            result = await TryOpenRouteServiceAsync(fromCoords.Value, toCoords.Value, apiKey, ct);
+            var apiKey = await GetApiKeyAsync();
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                result = await TryOpenRouteServiceAsync(fromCoords.Value, toCoords.Value, apiKey, ct);
+            }
         }
 
-        result ??= await TryOsrmAsync(fromCoords.Value, toCoords.Value, ct);
+        if (_geoServicesPolicy.Routing.IsEnabled)
+        {
+            result ??= await TryOsrmAsync(fromCoords.Value, toCoords.Value, ct);
+        }
+
         result ??= CalculateHaversineTravelTime(fromCoords.Value, toCoords.Value);
 
         if (result.HasValue)
@@ -149,7 +161,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     {
         try
         {
-            var url = $"{RoutingServiceUrls.OpenRouteServiceDirectionsDrivingUrl}?start={from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}&end={to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+            var url = $"{_geoServicesPolicy.OpenRouteService.BaseUrl}{GeoServicePaths.OpenRouteServiceDirectionsDrivingCar}?start={from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}&end={to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.TryAddWithoutValidation("Authorization", apiKey);
@@ -192,7 +204,7 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
     {
         try
         {
-            var url = $"{RoutingServiceUrls.OsrmRouteDrivingUrl}/{from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)};{to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}?overview=false";
+            var url = $"{_geoServicesPolicy.Routing.BaseUrl}{GeoServicePaths.OsrmRouteDriving}/{from.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{from.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)};{to.Lon.ToString(System.Globalization.CultureInfo.InvariantCulture)},{to.Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)}?overview=false";
 
             using var response = await _httpClient.GetAsync(url, ct);
             if (!response.IsSuccessStatusCode)

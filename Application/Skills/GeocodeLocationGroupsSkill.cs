@@ -4,10 +4,12 @@
 /// Auto-resolves group coordinates. With a groupName it classifies and geocodes that one group
 /// synchronously and returns the outcome; without one it queues every group that has no coordinates yet
 /// for background resolution and reports how many were queued. Only groups whose name (with their parent
-/// hierarchy) is confidently a real place get coordinates; everything else is left untouched.
+/// hierarchy) is confidently a real place get coordinates; everything else is left untouched. With geocoding switched
+/// off by the operator it answers that at once and neither resolves nor queues anything.
 /// </summary>
 /// <param name="groupName">Optional. Resolve just this group now; omit to queue all groups without coordinates.</param>
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Application.Interfaces.Grouping;
@@ -23,12 +25,15 @@ public class GeocodeLocationGroupsSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupLocationResolver _resolver;
     private readonly IGroupGeocodingQueue _queue;
+    private readonly IGroupGeocoder _geocoder;
 
     public GeocodeLocationGroupsSkill(
         IGroupRepository groupRepository,
         IGroupLocationResolver resolver,
-        IGroupGeocodingQueue queue)
+        IGroupGeocodingQueue queue,
+        IGroupGeocoder geocoder)
     {
+        _geocoder = geocoder;
         _groupRepository = groupRepository;
         _resolver = resolver;
         _queue = queue;
@@ -39,6 +44,11 @@ public class GeocodeLocationGroupsSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
+        if (!_geocoder.IsEnabled)
+        {
+            return SkillResult.Error(GeoServiceMessages.GroupGeocodingDisabled);
+        }
+
         var groupName = GetParameter<string>(parameters, "groupName");
         var groups = (await _groupRepository.List()).Where(g => !g.IsDeleted).ToList();
 

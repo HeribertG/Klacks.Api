@@ -5,10 +5,12 @@
 /// </summary>
 /// <param name="_httpClient">Named routing HTTP client (carries the User-Agent the public OSRM server requires)</param>
 /// <param name="_logger">Logger for diagnostic output</param>
+/// <param name="_geoServicesPolicy">Effective geo service configuration; with OSRM disabled every segment gets no steps and no request is sent</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.Staffs;
 
 namespace Klacks.Api.Domain.Services.RouteOptimization;
@@ -17,11 +19,14 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
 {
     private readonly ILogger<RouteDirectionsBuilder> _logger;
     private readonly HttpClient _httpClient;
+    private readonly IGeoServicesPolicy _geoServicesPolicy;
 
     public RouteDirectionsBuilder(
         ILogger<RouteDirectionsBuilder> logger,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IGeoServicesPolicy geoServicesPolicy)
     {
+        _geoServicesPolicy = geoServicesPolicy;
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.RoutingClientName);
     }
@@ -45,6 +50,12 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
             var profile = GetOsrmProfileFromTransportMode(transportMode);
             var transportModeText = GetTransportModeText(transportMode);
 
+            if (!_geoServicesPolicy.Routing.IsEnabled)
+            {
+                segmentDirections.Add(EmptySegment(fromLocation, toLocation, transportModeText));
+                continue;
+            }
+
             try
             {
                 var directions = await GetOsrmDirectionsAsync(fromLocation, toLocation, profile);
@@ -59,23 +70,22 @@ public class RouteDirectionsBuilder : IRouteDirectionsBuilder
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to get directions for segment {From} -> {To}", fromLocation.Name, toLocation.Name);
-                segmentDirections.Add(new RouteSegmentDirections(
-                    fromLocation.Name,
-                    toLocation.Name,
-                    transportModeText,
-                    0,
-                    TimeSpan.Zero,
-                    new List<DirectionStep>()));
+                segmentDirections.Add(EmptySegment(fromLocation, toLocation, transportModeText));
             }
         }
 
         return segmentDirections;
     }
 
+    private static RouteSegmentDirections EmptySegment(Location from, Location to, string transportModeText)
+    {
+        return new RouteSegmentDirections(from.Name, to.Name, transportModeText, 0, TimeSpan.Zero, new List<DirectionStep>());
+    }
+
     private async Task<RouteSegmentDirections> GetOsrmDirectionsAsync(Location from, Location to, string profile)
     {
         var coordinates = $"{from.Longitude:F6},{from.Latitude:F6};{to.Longitude:F6},{to.Latitude:F6}";
-        var url = $"{RoutingServiceUrls.OsrmBaseUrl}/route/v1/{profile}/{coordinates}?steps=true&overview=false";
+        var url = $"{_geoServicesPolicy.Routing.BaseUrl}{GeoServicePaths.OsrmRoute}/{profile}/{coordinates}?steps=true&overview=false";
 
         _logger.LogInformation("Requesting OSRM directions: {Url}", url);
 

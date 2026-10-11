@@ -3,7 +3,7 @@
 /// <summary>
 /// Geocodes one stored client address with the acceptance rule the interactive address validation uses
 /// (AddressGeocodingRules). A hit fills latitude and longitude and, when the state is empty, the state;
-/// no hit or an unavailable service leaves the address as it is. Addresses that already have coordinates or lack postcode or city are skipped.
+/// no hit, an unavailable or an operator-disabled service leaves the address as it is. Addresses that already have coordinates or lack postcode or city are skipped.
 /// </summary>
 /// <param name="addressRepository">Loads and tracks the address</param>
 /// <param name="geocodingService">Nominatim-backed geocoder (rate limited)</param>
@@ -57,6 +57,11 @@ public class AddressGeocodingProcessor : IAddressGeocodingProcessor
 
         var result = await _geocodingService.ValidateExactAddressAsync(
             address.Street, address.Zip, address.City, AddressGeocodingRules.CountryQueryName(country));
+        if (result.Disabled)
+        {
+            return;
+        }
+
         if (result.ServiceUnavailable)
         {
             _logger.LogWarning("Geocoding service unavailable for address {AddressId}; left unchanged", addressId);

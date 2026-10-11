@@ -2,12 +2,16 @@
 
 /// <summary>
 /// Service for address geocoding via Nominatim with rate limiting and memory cache.
+/// Does nothing (no HTTP, no cache) when the geo service policy switched geocoding off.
 /// @param httpClientFactory - Factory for the Nominatim HTTP client
+/// @param geoServicesPolicy - Effective geo service configuration (on/off and Nominatim base URL)
 /// @param cache - In-memory cache for geocoding results (30 days positive, 1 hour negative)
 /// @param REQUEST_DELAY_MS - Minimum delay between Nominatim requests (500ms)
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.GeoServices;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.Caching.Memory;
@@ -23,23 +27,34 @@ public class GeocodingService : IGeocodingService
     private readonly IMemoryCache _cache;
     private readonly ILogger<GeocodingService> _logger;
     private readonly SemaphoreSlim _rateLimiter;
-    private const string NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+    private readonly string _searchUrl;
     private const int REQUEST_DELAY_MS = 1100;
     private const string MATCH_TYPE_ERROR = "error";
+    private const string MATCH_TYPE_DISABLED = "geocoding_disabled";
 
     public GeocodingService(
         IHttpClientFactory httpClientFactory,
         IMemoryCache cache,
+        IGeoServicesPolicy geoServicesPolicy,
         ILogger<GeocodingService> logger)
     {
+        IsEnabled = geoServicesPolicy.Geocoding.IsEnabled;
+        _searchUrl = $"{geoServicesPolicy.Geocoding.BaseUrl}{GeoServicePaths.NominatimSearch}";
         _httpClient = httpClientFactory.CreateClient(ExternalHttpClientConstants.NominatimClientName);
         _cache = cache;
         _logger = logger;
         _rateLimiter = new SemaphoreSlim(1, 1);
     }
 
+    public bool IsEnabled { get; }
+
     public async Task<(double? Latitude, double? Longitude)> GeocodeAsync(string city, string country, CancellationToken cancellationToken = default)
     {
+        if (!IsEnabled)
+        {
+            return (null, null);
+        }
+
         var cacheKey = $"geo_{city}_{country}";
 
         if (_cache.TryGetValue(cacheKey, out (double?, double?) cachedCoords))
@@ -58,7 +73,7 @@ public class GeocodingService : IGeocodingService
             await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
 
             var query = $"{city}, {country}";
-            var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1";
+            var url = $"{_searchUrl}?q={Uri.EscapeDataString(query)}&format=json&limit=1";
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
 
@@ -100,6 +115,11 @@ public class GeocodingService : IGeocodingService
 
     public async Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country, CancellationToken cancellationToken = default)
     {
+        if (!IsEnabled)
+        {
+            return (null, null);
+        }
+
         var cacheKey = $"geo_addr_{fullAddress}_{country}";
 
         if (_cache.TryGetValue(cacheKey, out (double?, double?) cachedCoords))
@@ -132,14 +152,14 @@ public class GeocodingService : IGeocodingService
                     "limit=1",
                     "addressdetails=1"
                 };
-                url = $"{NOMINATIM_URL}?{string.Join("&", queryParams)}";
+                url = $"{_searchUrl}?{string.Join("&", queryParams)}";
                 _logger.LogInformation("Geocoding structured: street={Street}, city={City}, zip={Zip}, country={Country}",
                     parsed.Value.Street, parsed.Value.City, parsed.Value.Zip, country);
             }
             else
             {
                 var query = $"{fullAddress}, {country}";
-                url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
+                url = $"{_searchUrl}?q={Uri.EscapeDataString(query)}&format=json&limit=1&addressdetails=1";
                 _logger.LogInformation("Geocoding free-text: {Query}", fullAddress.ForLog());
             }
 
@@ -230,15 +250,15 @@ public class GeocodingService : IGeocodingService
                     $"country={Uri.EscapeDataString(country)}",
                     "format=json", "limit=1"
                 };
-                return $"{NOMINATIM_URL}?{string.Join("&", p)}";
+                return $"{_searchUrl}?{string.Join("&", p)}";
             }));
         }
 
         fallbackSteps.Add(("structured-zip", () =>
-            $"{NOMINATIM_URL}?postalcode={Uri.EscapeDataString(zip)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1"));
+            $"{_searchUrl}?postalcode={Uri.EscapeDataString(zip)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1"));
 
         fallbackSteps.Add(("free-text-city", () =>
-            $"{NOMINATIM_URL}?q={Uri.EscapeDataString($"{city}, {country}")}&format=json&limit=1"));
+            $"{_searchUrl}?q={Uri.EscapeDataString($"{city}, {country}")}&format=json&limit=1"));
 
         foreach (var (type, buildUrl) in fallbackSteps)
         {
@@ -272,6 +292,11 @@ public class GeocodingService : IGeocodingService
 
     public async Task<GeocodingValidationResult> ValidateExactAddressAsync(string? street, string postalCode, string city, string country)
     {
+        if (!IsEnabled)
+        {
+            return new GeocodingValidationResult { Found = false, Disabled = true, MatchType = MATCH_TYPE_DISABLED };
+        }
+
         var cacheKey = $"geo_validate_{street}_{postalCode}_{city}_{country}";
 
         if (_cache.TryGetValue(cacheKey, out GeocodingValidationResult? cachedResult) && cachedResult != null)
@@ -304,7 +329,7 @@ public class GeocodingService : IGeocodingService
                 queryParams.Insert(0, $"street={Uri.EscapeDataString(street)}");
             }
 
-            var url = $"{NOMINATIM_URL}?{string.Join("&", queryParams)}";
+            var url = $"{_searchUrl}?{string.Join("&", queryParams)}";
             _logger.LogInformation("Validating exact address: street={Street}, postalCode={PostalCode}, city={City}, country={Country}", street.ForLog(), postalCode.ForLog(), city.ForLog(), country.ForLog());
 
             var response = await _httpClient.GetAsync(url);
@@ -386,7 +411,7 @@ public class GeocodingService : IGeocodingService
     {
         await Task.Delay(REQUEST_DELAY_MS);
 
-        var url = $"{NOMINATIM_URL}?postalcode={Uri.EscapeDataString(postalCode)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1&addressdetails=1";
+        var url = $"{_searchUrl}?postalcode={Uri.EscapeDataString(postalCode)}&city={Uri.EscapeDataString(city)}&country={Uri.EscapeDataString(country)}&format=json&limit=1&addressdetails=1";
 
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
@@ -418,6 +443,11 @@ public class GeocodingService : IGeocodingService
     public async Task<List<AddressSuggestion>> GetAddressSuggestionsAsync(
         string? street, string postalCode, string city, string country, int limit = 5)
     {
+        if (!IsEnabled)
+        {
+            return [];
+        }
+
         var cacheKey = $"geo_suggest_{street}_{postalCode}_{city}_{country}_{limit}";
 
         if (_cache.TryGetValue(cacheKey, out List<AddressSuggestion>? cached) && cached != null)
@@ -436,7 +466,7 @@ public class GeocodingService : IGeocodingService
             await Task.Delay(REQUEST_DELAY_MS);
 
             var query = BuildSuggestionQuery(street, postalCode, city, country);
-            var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}&addressdetails=1";
+            var url = $"{_searchUrl}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}&addressdetails=1";
 
             _logger.LogInformation("Fetching address suggestions: {Query}", query.ForLog());
 
@@ -482,6 +512,73 @@ public class GeocodingService : IGeocodingService
         }
     }
 
+    public async Task<GeocodingSearchResult> SearchAsync(string query, string? language, CancellationToken cancellationToken = default)
+    {
+        if (!IsEnabled)
+        {
+            return new GeocodingSearchResult(GeocodingSearchOutcome.Disabled, null, null, null);
+        }
+
+        var cacheKey = $"geo_search_{query}_{language}";
+        if (_cache.TryGetValue(cacheKey, out GeocodingSearchResult? cached) && cached != null)
+        {
+            return cached;
+        }
+
+        await _rateLimiter.WaitAsync(cancellationToken);
+        try
+        {
+            if (_cache.TryGetValue(cacheKey, out cached) && cached != null)
+            {
+                return cached;
+            }
+
+            await Task.Delay(REQUEST_DELAY_MS, cancellationToken);
+
+            var url = $"{_searchUrl}?format=json&q={Uri.EscapeDataString(query)}&limit=1";
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                url += $"&accept-language={Uri.EscapeDataString(language)}";
+            }
+
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Geocoding search failed: {StatusCode}", (int)response.StatusCode);
+                return new GeocodingSearchResult(GeocodingSearchOutcome.Unavailable, null, null, null);
+            }
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            var results = JsonSerializer.Deserialize<List<NominatimResult>>(json);
+            var first = results?.FirstOrDefault();
+            var (latitude, longitude) = first != null ? ExtractCoordinates(first) : (null, null);
+
+            if (first == null || !latitude.HasValue || !longitude.HasValue)
+            {
+                var notFound = new GeocodingSearchResult(GeocodingSearchOutcome.NotFound, null, null, null);
+                _cache.Set(cacheKey, notFound, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromHours(1)).SetSize(1));
+                return notFound;
+            }
+
+            var found = new GeocodingSearchResult(GeocodingSearchOutcome.Found, latitude, longitude, first.display_name);
+            _cache.Set(cacheKey, found, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(30)).SetSize(1));
+            return found;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Geocoding search failed");
+            return new GeocodingSearchResult(GeocodingSearchOutcome.Unavailable, null, null, null);
+        }
+        finally
+        {
+            _rateLimiter.Release();
+        }
+    }
+
     private static string BuildSuggestionQuery(string? street, string postalCode, string city, string country)
     {
         var parts = new List<string>();
@@ -498,7 +595,7 @@ public class GeocodingService : IGeocodingService
         await Task.Delay(REQUEST_DELAY_MS);
 
         var query = $"{postalCode} {city}, {country}";
-        var url = $"{NOMINATIM_URL}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}";
+        var url = $"{_searchUrl}?q={Uri.EscapeDataString(query)}&format=json&limit={limit}";
 
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode) return [];

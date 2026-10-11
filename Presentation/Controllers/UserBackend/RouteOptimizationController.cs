@@ -353,6 +353,13 @@ public class RouteOptimizationController : BaseController
     [HttpPost("geocode-all")]
     public async Task<ActionResult> GeocodeAllAddresses(CancellationToken cancellationToken)
     {
+        if (!_geocodingService.IsEnabled)
+        {
+            var pending = await _dbContext.Address
+                .CountAsync(a => (a.Latitude == null || a.Longitude == null) && !a.IsDeleted && a.City != "", cancellationToken);
+            return Ok(new { total = pending, geocoded = 0, failed = 0, geocodingDisabled = true });
+        }
+
         var addresses = await _dbContext.Address
             .Where(a => (a.Latitude == null || a.Longitude == null) && !a.IsDeleted && a.City != "")
             .Select(a => new { a.Id, a.Street, a.Zip, a.City, a.Country })

@@ -447,7 +447,8 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
-        services.AddHttpClient<Domain.Interfaces.Routing.IRoutingService, Services.Routing.OpenRouteServiceRoutingService>();
+        services.AddHttpClient<Domain.Interfaces.Routing.IRoutingService, Services.Routing.OpenRouteServiceRoutingService>()
+            .AddOpenRouteServiceGuard();
 
         services.AddScoped<Application.Interfaces.Exports.IShiftDescendantResolver, Services.Exports.ShiftDescendantResolver>();
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();

@@ -15,6 +15,8 @@ public interface IGeocodingService
     Task<(double? Latitude, double? Longitude)> GeocodeAddressAsync(string fullAddress, string country, CancellationToken cancellationToken = default);
     Task<GeocodingValidationResult> ValidateExactAddressAsync(string? street, string postalCode, string city, string country);
     Task<List<AddressSuggestion>> GetAddressSuggestionsAsync(string? street, string postalCode, string city, string country, int limit = 5);
+    Task<GeocodingSearchResult> SearchAsync(string query, string? language, CancellationToken cancellationToken = default);
+    bool IsEnabled { get; }
 }
 
 public class GeocodingValidationResult
@@ -25,6 +27,10 @@ public class GeocodingValidationResult
     /// false then too, but it means "unknown", not "this address does not exist".
     /// </summary>
     public bool ServiceUnavailable { get; set; }
+    /// <summary>
+    /// True when the operator switched geocoding off. Found is false then too, but the address was never checked.
+    /// </summary>
+    public bool Disabled { get; set; }
     public bool ExactMatch { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

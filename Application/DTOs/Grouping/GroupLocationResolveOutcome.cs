@@ -8,5 +8,6 @@ public enum GroupLocationResolveOutcome
     AlreadySet,
     NotAPlace,
     GeocodeFailed,
-    NotFound
+    NotFound,
+    GeocodingDisabled
 }

@@ -20,6 +20,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
 public class AddressesController : InputBaseController<AddressResource>
 {
     private const string ValidationUnavailableMatchType = "validation_error";
+    private const string GeocodingDisabledMatchType = "geocoding_disabled";
 
     private readonly IGeocodingService _geocodingService;
     private readonly IAddressCoordinateWriter _coordinateWriter;
@@ -118,6 +119,12 @@ public class AddressesController : InputBaseController<AddressResource>
         {
             var validationResult = await _geocodingService.ValidateExactAddressAsync(
                 resource.Street, resource.Zip, resource.City, country);
+
+            if (validationResult.Disabled)
+            {
+                _logger.LogDebug("Geocoding is disabled, address accepted without coordinates");
+                return new AddressValidationResponse { IsValid = true, MatchType = GeocodingDisabledMatchType };
+            }
 
             if (validationResult.ServiceUnavailable)
             {

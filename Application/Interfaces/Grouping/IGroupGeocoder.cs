@@ -4,5 +4,7 @@ namespace Klacks.Api.Application.Interfaces.Grouping;
 
 public interface IGroupGeocoder
 {
+    bool IsEnabled { get; }
+
     Task<(double? Latitude, double? Longitude)> GeocodeAsync(string placeName, CancellationToken cancellationToken = default);
 }

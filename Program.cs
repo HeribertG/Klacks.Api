@@ -84,10 +84,6 @@ if (!builder.Environment.IsDevelopment())
 
 builder.Services.AddSingleton(jwtSettings);
 
-var openRouteServiceSettings = new Klacks.Api.Domain.Models.Settings.OpenRouteServiceSettings();
-builder.Configuration.Bind("OpenRouteService", openRouteServiceSettings);
-builder.Services.AddSingleton(openRouteServiceSettings);
-
 builder.Services.Configure<Klacks.Api.Domain.Models.Settings.PasswordResetSettings>(
     builder.Configuration.GetSection("PasswordReset"));
 
@@ -215,6 +211,9 @@ builder.Services.Configure<HarmonizerOptions>(
     builder.Configuration.GetSection(HarmonizerOptions.SectionName));
 builder.Services.Configure<WizardOptions>(
     builder.Configuration.GetSection(WizardOptions.SectionName));
+builder.Services.Configure<Klacks.Api.Domain.Models.Settings.GeoServices.GeoServicesOptions>(
+    builder.Configuration.GetSection(Klacks.Api.Domain.Models.Settings.GeoServices.GeoServicesOptions.SectionName));
+builder.Services.AddHostedService<GeoServicesStartupReporter>();
 
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
