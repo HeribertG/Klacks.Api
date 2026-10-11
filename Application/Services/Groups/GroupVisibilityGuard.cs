@@ -4,10 +4,15 @@
 /// Group-visibility check for group writes. Resolves the caller's scope from IGroupVisibilityService, but
 /// treats a request without a calling user as unrestricted first: the service reports Restricted([], []) in
 /// that case, which would lock out background jobs (same rule as ClientGroupFilterService).
+/// Registered scoped: the resolved scope is memoised per user id for the lifetime of the scope (one request or hub
+/// invocation), because the scenario filter, handler, runner and apply service check the same caller several times and
+/// each resolution costs several queries. Keyed by user id, not a single field, because the ambient user can change
+/// within one scope (ExecutionPrincipal per skill invocation or approver).
 /// </summary>
 /// <param name="groupVisibilityService">Determines admin status and the visible groups including subgroups</param>
 /// <param name="userService">Identifies the caller; no user means a background job, not a restricted user</param>
 
+using System.Collections.Concurrent;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Associations;
@@ -18,6 +23,7 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
 {
     private readonly IGroupVisibilityService _groupVisibilityService;
     private readonly IUserService _userService;
+    private readonly ConcurrentDictionary<string, GroupVisibilityScope> _resolvedScopes = new(StringComparer.Ordinal);
 
     public GroupVisibilityGuard(IGroupVisibilityService groupVisibilityService, IUserService userService)
     {
@@ -61,11 +67,19 @@ public class GroupVisibilityGuard : IGroupVisibilityGuard
 
     private async Task<GroupVisibilityScope> ResolveScopeAsync()
     {
-        if (string.IsNullOrEmpty(_userService.GetIdString()))
+        var userId = _userService.GetIdString();
+        if (string.IsNullOrEmpty(userId))
         {
             return GroupVisibilityScope.Unrestricted();
         }
 
-        return await _groupVisibilityService.GetVisibilityScopeAsync();
+        if (_resolvedScopes.TryGetValue(userId, out var cached))
+        {
+            return cached;
+        }
+
+        var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
+        _resolvedScopes[userId] = scope;
+        return scope;
     }
 }
