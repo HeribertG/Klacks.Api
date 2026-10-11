@@ -19,4 +19,17 @@ public interface IScheduleRowAccessGuard
     /// <param name="analyseToken">Scenario token of the stored row (or its parent Work); null for the main plan</param>
     Task<bool> AreAllVisibleAsync(
         IReadOnlyCollection<Guid> clientIds, Guid? analyseToken, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Keeps only the rows whose owning client and stored scenario are visible, preserving their order (bulk by-id
+    /// writes treat the others like missing ids).
+    /// </summary>
+    /// <param name="items">Loaded rows</param>
+    /// <param name="clientIdOf">Selects the owning client id of a row</param>
+    /// <param name="analyseTokenOf">Selects the stored scenario token of a row; null for the main plan</param>
+    Task<List<T>> FilterVisibleAsync<T>(
+        IReadOnlyCollection<T> items,
+        Func<T, Guid> clientIdOf,
+        Func<T, Guid?> analyseTokenOf,
+        CancellationToken cancellationToken = default);
 }

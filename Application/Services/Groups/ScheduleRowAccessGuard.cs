@@ -37,4 +37,25 @@ public class ScheduleRowAccessGuard : IScheduleRowAccessGuard
         return await _scenarioTokenAccessGuard.IsVisibleAsync(analyseToken, cancellationToken)
             && await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken);
     }
+
+    public async Task<List<T>> FilterVisibleAsync<T>(
+        IReadOnlyCollection<T> items,
+        Func<T, Guid> clientIdOf,
+        Func<T, Guid?> analyseTokenOf,
+        CancellationToken cancellationToken = default)
+    {
+        var hiddenTokens = new HashSet<Guid>();
+        foreach (var token in items.Select(analyseTokenOf).OfType<Guid>().Distinct())
+        {
+            if (!await _scenarioTokenAccessGuard.IsVisibleAsync(token, cancellationToken))
+            {
+                hiddenTokens.Add(token);
+            }
+        }
+
+        var inVisibleScenarios = items
+            .Where(item => analyseTokenOf(item) is not { } token || !hiddenTokens.Contains(token))
+            .ToList();
+        return await _clientVisibilityGuard.FilterVisibleAsync(inVisibleScenarios, clientIdOf, cancellationToken);
+    }
 }

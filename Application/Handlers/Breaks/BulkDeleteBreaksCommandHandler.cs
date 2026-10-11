@@ -6,7 +6,7 @@
 /// they are not deleted and count as failed. Like the single delete, the whole request is refused when any
 /// visible break lies on a sealed day (IDayLockService), whatever the caller's role.
 /// </summary>
-/// <param name="clientVisibilityGuard">Filters the breaks down to clients the calling user may write for</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
 
 using Klacks.Api.Application.Commands.Breaks;
@@ -24,14 +24,14 @@ namespace Klacks.Api.Application.Handlers.Breaks;
 public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkDeleteBreaksCommand, BulkBreaksResponse>
 {
     private readonly IBreakRepository _breakRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IDayLockService _dayLockService;
 
     public BulkDeleteBreaksCommandHandler(
         IBreakRepository breakRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         IDayLockService dayLockService,
@@ -39,7 +39,7 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
         : base(logger)
     {
         _breakRepository = breakRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
         _dayLockService = dayLockService;
@@ -56,8 +56,8 @@ public class BulkDeleteBreaksCommandHandler : BaseHandler, IRequestHandler<BulkD
             var affectedClients = new HashSet<Guid>();
 
             var foundBreaks = await _breakRepository.GetByIdsAsync(command.Request.BreakIds);
-            var deletedBreaks = await _clientVisibilityGuard.FilterVisibleAsync(
-                foundBreaks, b => b.ClientId, cancellationToken);
+            var deletedBreaks = await _rowAccessGuard.FilterVisibleAsync(
+                foundBreaks, b => b.ClientId, b => b.AnalyseToken, cancellationToken);
             await _dayLockService.EnsureNoneLockedAsync(
                 deletedBreaks.Select(b => (b.CurrentDate, b.ClientId, b.AnalyseToken)).ToList(),
                 cancellationToken);

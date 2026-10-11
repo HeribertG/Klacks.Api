@@ -5,7 +5,7 @@
 /// A container owned by a client outside the caller's group visibility is answered exactly like a container
 /// that does not exist: with an empty result.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may see the container owner</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
@@ -17,18 +17,18 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class GetContainerWorkChildrenQueryHandler : BaseHandler, IRequestHandler<GetContainerWorkChildrenQuery, ContainerWorkChildrenResource>
 {
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
 
     public GetContainerWorkChildrenQueryHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         ILogger<GetContainerWorkChildrenQueryHandler> logger)
         : base(logger)
     {
         _childrenReadRepository = childrenReadRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
     }
 
@@ -37,7 +37,7 @@ public class GetContainerWorkChildrenQueryHandler : BaseHandler, IRequestHandler
         return await ExecuteAsync(async () =>
         {
             var parentWork = await _childrenReadRepository.GetParentWorkNoTracking(request.WorkId, cancellationToken);
-            if (parentWork != null && !await _clientVisibilityGuard.IsVisibleAsync(parentWork.ClientId, cancellationToken))
+            if (parentWork != null && !await _rowAccessGuard.IsVisibleAsync(parentWork.ClientId, parentWork.AnalyseToken, cancellationToken))
             {
                 return new ContainerWorkChildrenResource();
             }

@@ -8,7 +8,7 @@
 /// forbids the delete for the caller (IParentWorkLockGuard: Closed refuses everyone, Approved needs Admin or
 /// Authorised); nothing is deleted then.
 /// </summary>
-/// <param name="clientVisibilityGuard">Filters the Works down to clients the calling user may write for</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 /// <param name="dayLockService">Refuses deletions on days sealed globally or for a group of the client</param>
 /// <param name="workLockGuard">Refuses the batch when a Work's lock level forbids the delete for the caller</param>
 
@@ -29,7 +29,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDeleteWorksCommand, BulkWorksResponse>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
@@ -41,7 +41,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
@@ -54,7 +54,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
@@ -77,8 +77,8 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
             var affectedClients = new HashSet<Guid>();
 
             var foundWorks = await _workRepository.GetByIdsAsync(command.Request.WorkIds);
-            var deletedWorks = await _clientVisibilityGuard.FilterVisibleAsync(
-                foundWorks, w => w.ClientId, cancellationToken);
+            var deletedWorks = await _rowAccessGuard.FilterVisibleAsync(
+                foundWorks, w => w.ClientId, w => w.AnalyseToken, cancellationToken);
             await _dayLockService.EnsureNoneLockedAsync(
                 deletedWorks.Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken)).ToList(),
                 cancellationToken);

@@ -6,7 +6,7 @@
 /// source and target. A Work whose current owner or whose target client is outside the caller's group
 /// visibility is refused exactly like a Work that does not exist; nothing is written.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for both clients</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -25,7 +25,7 @@ namespace Klacks.Api.Application.Handlers.Works;
 public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<ReassignWorkClientCommand, ReassignWorkClientResponse?>
 {
     private readonly IWorkRepository _workRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -40,7 +40,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
 
     public ReassignWorkClientCommandHandler(
         IWorkRepository workRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IPeriodHoursService periodHoursService,
         IScheduleEntriesService scheduleEntriesService,
@@ -56,7 +56,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         : base(logger)
     {
         _workRepository = workRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _periodHoursService = periodHoursService;
         _scheduleEntriesService = scheduleEntriesService;
@@ -76,8 +76,8 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         {
             var existingWork = await _workRepository.GetNoTracking(request.Id);
             if (existingWork == null
-                || !await _clientVisibilityGuard.AreAllVisibleAsync(
-                    new[] { existingWork.ClientId, request.TargetClientId }, cancellationToken))
+                || !await _rowAccessGuard.AreAllVisibleAsync(
+                    new[] { existingWork.ClientId, request.TargetClientId }, existingWork.AnalyseToken, cancellationToken))
             {
                 throw new KeyNotFoundException($"Work with ID {request.Id} not found.");
             }

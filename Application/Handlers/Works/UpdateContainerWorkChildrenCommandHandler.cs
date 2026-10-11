@@ -6,7 +6,7 @@
 /// A container whose owner, any client of its sub-works or any replacement client of its work changes is outside the
 /// caller's group visibility is refused exactly like a container that does not exist; nothing is written.
 /// </summary>
-/// <param name="clientVisibilityGuard">Decides whether the calling user may write for every client the save touches</param>
+/// <param name="rowAccessGuard">Decides whether the calling user may see the owning client and the stored row's scenario</param>
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -25,7 +25,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private const string WorkNotFoundMessageFormat = "Work with ID {0} not found.";
 
     private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
-    private readonly IClientVisibilityGuard _clientVisibilityGuard;
+    private readonly IScheduleRowAccessGuard _rowAccessGuard;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationFacade _notificationFacade;
@@ -36,7 +36,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
-        IClientVisibilityGuard clientVisibilityGuard,
+        IScheduleRowAccessGuard rowAccessGuard,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationFacade notificationFacade,
@@ -48,7 +48,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         : base(logger)
     {
         _childrenReadRepository = childrenReadRepository;
-        _clientVisibilityGuard = clientVisibilityGuard;
+        _rowAccessGuard = rowAccessGuard;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationFacade = notificationFacade;
@@ -139,7 +139,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
             .Append(parentWork.ClientId)
             .Distinct()
             .ToList();
-        if (!await _clientVisibilityGuard.AreAllVisibleAsync(clientIds, cancellationToken))
+        if (!await _rowAccessGuard.AreAllVisibleAsync(clientIds, parentWork.AnalyseToken, cancellationToken))
         {
             throw new KeyNotFoundException(string.Format(WorkNotFoundMessageFormat, workId));
         }
