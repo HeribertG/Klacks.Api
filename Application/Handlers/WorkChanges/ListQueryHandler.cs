@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Lists WorkChanges. Only entries whose parent Work is owned by a client inside the caller's group visibility
-/// are returned; an entry whose parent Work cannot be resolved is left out as well.
+/// are returned; an entry whose parent Work cannot be resolved is left out as well. Only main-plan entries are listed
+/// (AnalyseToken null): this list takes no token, so it must not enumerate the rows of scenarios the caller may not see.
 /// </summary>
 /// <param name="workRepository">Resolves the owning client of each parent Work in one query</param>
 /// <param name="clientVisibilityGuard">Filters the entries down to clients the calling user may see</param>
@@ -40,7 +41,7 @@ public class ListQueryHandler : BaseHandler, IRequestHandler<ListQuery<WorkChang
     {
         _logger.LogInformation("Getting all WorkChanges");
 
-        var allWorkChanges = await _workChangeRepository.List();
+        var allWorkChanges = (await _workChangeRepository.List()).Where(e => e.AnalyseToken == null).ToList();
         var ownerByWorkId = (await _workRepository.GetByIdsAsync(allWorkChanges.Select(e => e.WorkId).Distinct()))
             .ToDictionary(w => w.Id, w => w.ClientId);
         var workChanges = await _clientVisibilityGuard.FilterVisibleAsync(

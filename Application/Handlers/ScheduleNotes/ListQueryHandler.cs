@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Lists all schedule notes. Notes owned by clients outside the caller's group visibility are left out.
+/// Lists the schedule notes of the main plan. Notes owned by clients outside the caller's group visibility are left
+/// out, and so are scenario notes (AnalyseToken set): this list takes no token, so it must not enumerate the rows of
+/// scenarios the caller may not see.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the notes down to clients the calling user may see</param>
 
@@ -33,7 +35,7 @@ public class ListQueryHandler : BaseHandler, IRequestHandler<ListQuery<ScheduleN
 
     public async Task<IEnumerable<ScheduleNoteResource>> Handle(ListQuery<ScheduleNoteResource> request, CancellationToken cancellationToken)
     {
-        var scheduleNotes = await _scheduleNoteRepository.List();
+        var scheduleNotes = (await _scheduleNoteRepository.List()).Where(n => n.AnalyseToken == null).ToList();
 
         var visible = await _clientVisibilityGuard.FilterVisibleAsync(
             scheduleNotes, n => n.ClientId, cancellationToken);

@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Lists all breaks (absence entries). Breaks owned by clients outside the caller's group visibility are
-/// left out, because the absence type is personal (health) data.
+/// Lists the breaks (absence entries) of the main plan. Breaks owned by clients outside the caller's group visibility
+/// are left out, because the absence type is personal (health) data; scenario breaks (AnalyseToken set) are left out
+/// because this list takes no token and must not enumerate the rows of scenarios the caller may not see.
 /// </summary>
 /// <param name="clientVisibilityGuard">Filters the breaks down to clients the calling user may see</param>
 
@@ -36,7 +37,7 @@ public class ListQueryHandler : BaseHandler, IRequestHandler<ListQuery<BreakReso
     {
         return await ExecuteAsync(async () =>
         {
-            var entities = await _breakRepository.List();
+            var entities = (await _breakRepository.List()).Where(b => b.AnalyseToken == null).ToList();
             var visible = await _clientVisibilityGuard.FilterVisibleAsync(entities, b => b.ClientId, cancellationToken);
             return visible.Select(_scheduleMapper.ToBreakResource).ToList();
         }, "ListBreaks");

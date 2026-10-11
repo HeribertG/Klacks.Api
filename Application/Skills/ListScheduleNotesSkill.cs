@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli. SPDX-License-Identifier: AGPL-3.0-only
 
 /// <summary>
-/// Lists schedule notes (per-client/per-day annotations shown in the schedule) via
-/// ListQuery&lt;ScheduleNoteResource&gt;. An optional clientId narrows the result to one
+/// Lists the main plan's schedule notes (per-client/per-day annotations shown in the schedule) via
+/// ListQuery&lt;ScheduleNoteResource&gt;, which leaves out scenario notes. An optional clientId narrows the result to one
 /// client. Use this to find a noteId before delete_schedule_note.
 /// </summary>
 /// <param name="clientId">Optional. UUID of a client to filter the notes by.</param>
