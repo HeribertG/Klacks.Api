@@ -7,7 +7,8 @@
 /// of groups inside that scope (group-less scenarios span all groups and are therefore left out for them).
 /// By default only open (Active) scenarios are returned so already accepted/rejected ones do not show as
 /// pending proposals; pass onlyOpen=false to include the full history. All filters run in the database. A
-/// groupId outside the caller's scope is answered with "not accessible", never with an empty list. The scope comes
+/// groupId outside the caller's scope is answered exactly like a missing group (same text, no name), never with an
+/// empty list, so the skill reveals neither the existence nor the name of a hidden group. The scope comes
 /// from IGroupVisibilityGuard - the same decision as the AnalyseScenarios HTTP handlers - so a non-admin without any
 /// visibility row sees no scenarios here either (fail-closed), while a background call without a user is unrestricted.
 /// </summary>
@@ -27,6 +28,7 @@ public class ListScenariosSkill : BaseSkillImplementation
 {
     private const string GroupIdParameter = "groupId";
     private const string OnlyOpenParameter = "onlyOpen";
+    private const string GroupNotFoundFormat = "Group with ID {0} not found.";
 
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IGroupRepository _groupRepository;
@@ -70,15 +72,11 @@ public class ListScenariosSkill : BaseSkillImplementation
         if (groupId.HasValue)
         {
             var group = await _groupRepository.Get(groupId.Value);
-            if (group == null || group.IsDeleted)
+            if (group == null
+                || group.IsDeleted
+                || !await _groupVisibilityGuard.IsGroupVisibleAsync(group.Id, cancellationToken))
             {
-                return SkillResult.Error($"Group with ID {groupId} not found.");
-            }
-
-            if (!await _groupVisibilityGuard.IsGroupVisibleAsync(group.Id, cancellationToken))
-            {
-                return SkillResult.Error(
-                    $"The scenarios of group '{group.Name}' are not accessible to you.");
+                return SkillResult.Error(string.Format(GroupNotFoundFormat, groupId));
             }
 
             groupName = group.Name;
