@@ -449,6 +449,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<Domain.Interfaces.Routing.IRoutingService, Services.Routing.OpenRouteServiceRoutingService>()
             .AddOpenRouteServiceGuard();
+        services.AddScoped<Domain.Interfaces.Routing.IOsrmRouteGeometryService, Services.Routing.OsrmRouteGeometryService>();
 
         services.AddScoped<Application.Interfaces.Exports.IShiftDescendantResolver, Services.Exports.ShiftDescendantResolver>();
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();

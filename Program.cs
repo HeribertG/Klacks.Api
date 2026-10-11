@@ -433,6 +433,15 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = RateLimitingPolicies.ClientImportPermitLimit,
                 Window = RateLimitingPolicies.DefaultWindow
             }));
+
+    options.AddPolicy(RateLimitingPolicies.GeoProxy, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User?.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.GeoProxyPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 });
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
