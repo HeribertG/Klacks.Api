@@ -32,6 +32,7 @@ fi
 
 gen_secret() { head -c "${1:-48}" /dev/urandom | base64 | tr -d '\n'; }
 set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="$v" || true; }
+set_if_absent() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]+x}" ] && ENVMAP["$k"]="$v" || true; }
 
 set_if_empty COMPOSE_PROJECT_NAME klacks
 # Absolute host path of this directory; the updater mounts it at the same path and uses it as its
@@ -83,6 +84,10 @@ if [ -z "${ENVMAP[DATAPROTECTION_CERT_BASE64]:-}" ]; then
 fi
 set_if_empty KLACKS_UPDATER_TAG latest
 set_if_empty UPDATE_MANIFEST_BASE_URL https://github.com/HeribertG/Klacks.Api/releases/latest/download
+# Geo services: traffic stays on by default, see README.md for the no-outbound mode. The CSP key is
+# only filled when absent, because an empty value is a deliberate operator choice (no tile host).
+set_if_empty GEO_NO_OUTBOUND_TRAFFIC false
+set_if_absent MAP_TILE_CSP_SOURCES "https://tile.openstreetmap.org https://*.tile.openstreetmap.org"
 
 [ -n "${SERVER_NAME:-}" ] && ENVMAP[SERVER_NAME]="$SERVER_NAME"
 set_if_empty SERVER_NAME localhost

@@ -111,6 +111,15 @@ services:
       # allocation churn). Set this to 30 only together with a reduced memory limit - see
       # KLACKS_API_IDLE_UNLOAD_MINUTES in .env.example. Values between 1 and 5 are raised to 5.
       - KnowledgeIndex__IdleUnloadMinutes=${KLACKS_API_IDLE_UNLOAD_MINUTES:-0}
+      # Geo services (geocoding, routing, OpenRouteService, map tiles). true = no client address,
+      # coordinate or map tile request leaves this installation; every service without an own
+      # base URL is off and public hosts are blocked even as own URL. See README.md.
+      - GeoServices__NoOutboundTraffic=${GEO_NO_OUTBOUND_TRAFFIC:-false}
+      - GeoServices__Geocoding__BaseUrl=${GEO_GEOCODING_BASE_URL:-}
+      - GeoServices__Routing__BaseUrl=${GEO_ROUTING_BASE_URL:-}
+      - GeoServices__OpenRouteService__BaseUrl=${GEO_OPENROUTESERVICE_BASE_URL:-}
+      - GeoServices__MapTiles__UrlTemplate=${GEO_MAP_TILE_URL_TEMPLATE:-}
+      - GeoServices__MapTiles__Attribution=${GEO_MAP_TILE_ATTRIBUTION:-}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
@@ -227,7 +236,11 @@ services:
       - "${HTTPS_PORT:-443}:443"
     environment:
       - SERVER_NAME=${SERVER_NAME:-localhost}
-    command: /bin/sh -c "envsubst '$$SERVER_NAME' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+      # Image sources the browser may load map tiles from (img-src of the CSP). Must list the host of
+      # GEO_MAP_TILE_URL_TEMPLATE. Absent means the public OpenStreetMap tiles; set it empty on purpose
+      # to allow no tile host at all (hence "-" and not ":-").
+      - MAP_TILE_CSP_SOURCES=${MAP_TILE_CSP_SOURCES-https://tile.openstreetmap.org https://*.tile.openstreetmap.org}
+    command: /bin/sh -c "envsubst '$$SERVER_NAME $$MAP_TILE_CSP_SOURCES' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     volumes:
       - ./nginx/nginx.onprem.conf.template:/etc/nginx/nginx.conf.template:ro
       - ./nginx/certs:/etc/nginx/certs:ro

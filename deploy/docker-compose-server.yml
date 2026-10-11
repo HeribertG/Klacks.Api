@@ -558,7 +558,8 @@ services:
       - "8443:8443"
     environment:
       - SERVER_IP=${SERVER_IP:-157.180.42.127}
-    command: /bin/sh -c "envsubst '$$SERVER_IP' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+      - MAP_TILE_CSP_SOURCES=${MAP_TILE_CSP_SOURCES-https://tile.openstreetmap.org https://*.tile.openstreetmap.org}
+    command: /bin/sh -c "envsubst '$$SERVER_IP $$MAP_TILE_CSP_SOURCES' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     volumes:
       - ./Klacks.Api/deploy/nginx-proxy/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
       - ./Klacks.Api/deploy/nginx-proxy/certs:/etc/nginx/certs:ro

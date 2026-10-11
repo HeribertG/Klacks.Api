@@ -47,6 +47,7 @@ function New-Secret([int]$bytes = 48) {
     return [Convert]::ToBase64String($buf)
 }
 function Set-IfEmpty($key, $value) { if (-not $envMap[$key]) { $envMap[$key] = $value } }
+function Set-IfAbsent($key, $value) { if (-not $envMap.Contains($key)) { $envMap[$key] = $value } }
 
 # Certificate that wraps the DataProtection key ring. The ring itself lives in the database, so a
 # pg_dump keeps it current even though it rotates every 90 days; this certificate is what stops
@@ -84,6 +85,10 @@ if (-not $envMap['DATAPROTECTION_CERT_BASE64']) {
 }
 Set-IfEmpty 'KLACKS_UPDATER_TAG' 'latest'
 Set-IfEmpty 'UPDATE_MANIFEST_BASE_URL' 'https://github.com/HeribertG/Klacks.Api/releases/latest/download'
+# Geo services: traffic stays on by default, see README.md for the no-outbound mode. The CSP key is
+# only filled when absent, because an empty value is a deliberate operator choice (no tile host).
+Set-IfEmpty 'GEO_NO_OUTBOUND_TRAFFIC' 'false'
+Set-IfAbsent 'MAP_TILE_CSP_SOURCES' 'https://tile.openstreetmap.org https://*.tile.openstreetmap.org'
 
 if ($ServerName) { $envMap['SERVER_NAME'] = $ServerName }
 Set-IfEmpty 'SERVER_NAME' 'localhost'
