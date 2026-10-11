@@ -49,11 +49,6 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     /// </summary>
     protected virtual WizardEngine CaptureEngine => WizardEngine.Harmonizer;
 
-    /// <summary>
-    /// Upper bound of ClonedFromWorkId hops when correlating a boundary copy (scenario of a scenario of ...); guards
-    /// against a cycle in corrupt data.
-    /// </summary>
-    private const int MaxCloneOriginDepth = 16;
 
     private readonly HarmonizerResultCache _resultCache;
     private readonly IMediator _mediator;
@@ -226,15 +221,26 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 // expense). This holds for a scenario source too: the bitmap holds the source scenario's work ids,
                 // and inside the source scenario's range the clone copies exactly those works.
                 // Outside that range the clone takes the real plan, while the bitmap carries the source scenario's
-                // boundary copies; those are correlated through Work.ClonedFromWorkId (copy -> real work -> clone).
-                // Only works without that link (scenarios cloned before the column existed, or a real work deleted
-                // since) are recreated from the bitmap without their children, with a warning; their real-plan
-                // clones have no re-point target and are removed by the re-point. Locked works, replacement covers
-                // and absence breaks are left intact either way.
-                var correlatedWorkIdMap = sourceAnalyseToken is null
-                    ? workIdMap
-                    : await CorrelateThroughCloneOriginsAsync(bestBitmap, workIdMap, ct);
-                var ids = new List<Guid>(await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, correlatedWorkIdMap, ct));
+                // boundary copies; those are correlated through Work.ClonedFromWorkId (copy -> real work -> clone) when
+                // shift and date still match, else the real plan's state wins (ScenarioSourceWorkCorrelator); legacy
+                // copies without the link fall back to a unique key match. Only works correlated neither way are
+                // recreated from the bitmap without their children, with a warning; their real-plan clones have no
+                // re-point target and are removed by the re-point. Locked works, replacement covers and absence
+                // breaks are left intact either way.
+                var correlation = sourceAnalyseToken is null
+                    ? ScenarioSourceWorkCorrelation.Direct(workIdMap)
+                    : await new ScenarioSourceWorkCorrelator(_context, _scenarioService)
+                        .CorrelateAsync(workIds, originalWorks, workIdMap, ct);
+                if (correlation.SupersededBitmapWorkIds.Count > 0)
+                {
+                    _logger.LogWarning(
+                        "HarmonizerApply jobId={JobId} (scenario source): {Count} bitmap works stand for real works that moved to another shift or date since the source scenario was made; the real plan's state is kept for them (not re-pointed, not recreated).",
+                        jobId, correlation.SupersededBitmapWorkIds.Count);
+                }
+
+                var correlatedWorkIdMap = correlation.WorkIdMap;
+                var ids = new List<Guid>(await RepointClonedWorksAsync(
+                    token, periodFrom, periodUntil, bestBitmap, correlatedWorkIdMap, ct, correlation.SupersededCloneIds));
                 await _unitOfWork.CompleteAsync();
                 _logger.LogInformation(
                     "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
@@ -243,7 +249,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 if (sourceAnalyseToken is not null)
                 {
                     ids.AddRange(await RecreateUncorrelatedWorksAsync(
-                        jobId, bestBitmap, originalWorks, correlatedWorkIdMap, shiftIdMap, token, sourceAnalyseToken, periodFrom, periodUntil, ct));
+                        jobId, bestBitmap, originalWorks, correlatedWorkIdMap, correlation.SupersededBitmapWorkIds, shiftIdMap, token, sourceAnalyseToken, periodFrom, periodUntil, ct));
                 }
 
                 return ((IReadOnlyList<Guid>)ids, token, analyseScenario);
@@ -440,73 +446,13 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     }
 
     /// <summary>
-    /// Extends the clone's work id map to bitmap works it does not hold: a source scenario's boundary copy (a day outside
-    /// the source range, where the clone took the real plan) follows its ClonedFromWorkId chain until it reaches a work the
-    /// clone copied. A clone already claimed by another bitmap work is never claimed twice, so a work is never re-pointed
-    /// to two targets.
+    /// Recreates from the bitmap the works the clone cannot correlate, neither through ClonedFromWorkId nor by a unique
+    /// key match (a legacy source scenario with ambiguous keys, or a real work deleted since). Their real-plan clones were
+    /// removed by the re-point (no target), so without this step the harmonised works of those days would be lost. Locked
+    /// works and replacement covers are skipped by BuildBulkItems as before; superseded works (real origin moved) are
+    /// never recreated, the real plan's state wins.
     /// </summary>
-    /// <param name="workIdMap">Source work id -> clone work id, as returned by the scenario clone</param>
-    /// <returns>The map plus bitmap work id -> clone work id for every correlated boundary copy</returns>
-    private async Task<IReadOnlyDictionary<Guid, Guid>> CorrelateThroughCloneOriginsAsync(
-        HarmonyBitmap bitmap,
-        IReadOnlyDictionary<Guid, Guid> workIdMap,
-        CancellationToken ct)
-    {
-        var bitmapWorkIds = CollectWorkIds(bitmap);
-        var pending = bitmapWorkIds.Where(id => !workIdMap.ContainsKey(id)).ToList();
-        if (pending.Count == 0)
-        {
-            return workIdMap;
-        }
-
-        var claimedClones = bitmapWorkIds
-            .Where(workIdMap.ContainsKey)
-            .Select(id => workIdMap[id])
-            .ToHashSet();
-        var correlated = new Dictionary<Guid, Guid>(workIdMap);
-        var cursor = pending.ToDictionary(id => id, id => id);
-
-        for (var depth = 0; depth < MaxCloneOriginDepth && cursor.Count > 0; depth++)
-        {
-            var currentIds = cursor.Values.Distinct().ToList();
-            var origins = await _context.Work.IgnoreQueryFilters()
-                .AsNoTracking()
-                .Where(w => currentIds.Contains(w.Id) && w.ClonedFromWorkId != null)
-                .ToDictionaryAsync(w => w.Id, w => w.ClonedFromWorkId!.Value, ct);
-
-            var next = new Dictionary<Guid, Guid>();
-            foreach (var (bitmapWorkId, currentId) in cursor)
-            {
-                if (!origins.TryGetValue(currentId, out var originId))
-                {
-                    continue;
-                }
-
-                if (workIdMap.TryGetValue(originId, out var cloneId))
-                {
-                    if (claimedClones.Add(cloneId))
-                    {
-                        correlated[bitmapWorkId] = cloneId;
-                    }
-
-                    continue;
-                }
-
-                next[bitmapWorkId] = originId;
-            }
-
-            cursor = next;
-        }
-
-        return correlated;
-    }
-
-    /// <summary>
-    /// Recreates from the bitmap the works the clone cannot correlate even through ClonedFromWorkId (a source scenario
-    /// cloned before the column existed, or a real work deleted since). Their real-plan clones were removed by the
-    /// re-point (no target), so without this step the harmonised works of those days would be lost. Locked works and
-    /// replacement covers are skipped by BuildBulkItems as before.
-    /// </summary>
+    /// <param name="supersededBitmapWorkIds">Bitmap works whose real origin moved since the source scenario was made</param>
     /// <param name="sourceAnalyseToken">Token of the source scenario whose replacement covers stay fixed</param>
     /// <returns>Ids of the recreated works</returns>
     private async Task<IReadOnlyList<Guid>> RecreateUncorrelatedWorksAsync(
@@ -514,6 +460,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         HarmonyBitmap bitmap,
         IReadOnlyDictionary<Guid, Work> originalWorks,
         IReadOnlyDictionary<Guid, Guid> workIdMap,
+        IReadOnlySet<Guid> supersededBitmapWorkIds,
         IReadOnlyDictionary<Guid, Guid> shiftIdMap,
         Guid token,
         Guid? sourceAnalyseToken,
@@ -521,7 +468,9 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         DateOnly periodUntil,
         CancellationToken ct)
     {
-        var uncorrelatedWorkIds = CollectWorkIds(bitmap).Where(id => !workIdMap.ContainsKey(id)).ToHashSet();
+        var uncorrelatedWorkIds = CollectWorkIds(bitmap)
+            .Where(id => !workIdMap.ContainsKey(id) && !supersededBitmapWorkIds.Contains(id))
+            .ToHashSet();
         if (uncorrelatedWorkIds.Count == 0)
         {
             return [];
@@ -531,7 +480,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             _context, sourceAnalyseToken, periodFrom, periodUntil, ct);
         var bulkItems = BuildBulkItems(bitmap, originalWorks, shiftIdMap, token, sourceFixedWorkIds, uncorrelatedWorkIds);
         _logger.LogWarning(
-            "HarmonizerApply jobId={JobId} (scenario source): {Uncorrelated} bitmap works lie outside the source scenario's range without a ClonedFromWorkId link and cannot be re-pointed; recreating {Items} of them without their WorkChange/Expense children.",
+            "HarmonizerApply jobId={JobId} (scenario source): {Uncorrelated} bitmap works lie outside the source scenario's range and could be correlated neither through ClonedFromWorkId nor by a unique key; recreating {Items} of them without their WorkChange/Expense children.",
             jobId, uncorrelatedWorkIds.Count, bulkItems.Count);
 
         if (bulkItems.Count == 0)
@@ -563,7 +512,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         DateOnly until,
         HarmonyBitmap bitmap,
         IReadOnlyDictionary<Guid, Guid> workIdMap,
-        CancellationToken ct)
+        CancellationToken ct,
+        IReadOnlySet<Guid>? keptCloneIds = null)
     {
         var targets = new Dictionary<Guid, (Guid Agent, DateOnly Date)>();
         var keptInLockedCells = new HashSet<Guid>();
@@ -612,6 +562,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             .ToListAsync(ct))
             .Where(w => !fixedWorkIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && fixedWorkIds.Contains(w.ParentWorkId.Value)))
             .Where(w => !keptInLockedCells.Contains(w.Id) && !(w.ParentWorkId.HasValue && keptInLockedCells.Contains(w.ParentWorkId.Value)))
+            .Where(w => keptCloneIds is null
+                || (!keptCloneIds.Contains(w.Id) && !(w.ParentWorkId.HasValue && keptCloneIds.Contains(w.ParentWorkId.Value))))
             .ToList();
 
         // Apply each work's new (agent, date) and remember it so the work's children can follow. Setting
