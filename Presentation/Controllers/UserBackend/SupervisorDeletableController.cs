@@ -11,10 +11,9 @@
 /// Membership of this base is not a convenience. A controller belongs here only with a flow that was
 /// found in the code: GroupItems is removed by remove_client_from_group (CanEditClients) and
 /// remove_shift_from_group (CanEditShifts) through the self API under the caller's own token, and its
-/// sibling action RemoveByClientAndGroup is pinned as a supervisor action by spec 2.3; ScheduleNotes and
-/// ScheduleCommands are deleted from the schedule context menu, which carries no permission gate of its own
-/// and is a supervisor's daily work. Expenses left this base when all their verbs, delete included, were
-/// opened to the planner floor (owner decision 2026-10-12).
+/// sibling action RemoveByClientAndGroup is pinned as a supervisor action by spec 2.3. Expenses, ScheduleNotes
+/// and ScheduleCommands left this base when all their verbs, delete included, were opened to the planner floor
+/// (owner decisions 2026-10-12).
 /// </summary>
 /// <typeparam name="TModel">The resource DTO this controller serves</typeparam>
 

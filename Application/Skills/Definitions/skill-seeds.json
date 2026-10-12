@@ -13580,7 +13580,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -13684,7 +13684,7 @@
         "fr": "Définir une consigne de planification pour un jour",
         "it": "Imposta un vincolo di pianificazione per un giorno"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "list_scenarios",
@@ -21994,7 +21994,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -22077,7 +22077,7 @@
         "fr": "Ajouter une note au planning",
         "it": "Aggiungi una nota al planning"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_schedule_note",
@@ -22086,7 +22086,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -22141,7 +22141,7 @@
         "fr": "Supprimer une note de planning",
         "it": "Elimina una nota del planning"
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_client_memberships",
@@ -29587,7 +29587,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -29661,7 +29661,7 @@
         "fr": "Modifier une note de planning",
         "it": "Modifica una nota del planning"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_break",
@@ -30997,7 +30997,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditShifts"
+        "CanEditSchedule"
       ],
       "parameters": [
         {
@@ -31096,7 +31096,7 @@
         "fr": "Définir une consigne de planification pour une période",
         "it": "Imposta un vincolo di pianificazione per un periodo"
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_break_placeholder",
