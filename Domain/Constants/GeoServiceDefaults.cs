@@ -16,6 +16,7 @@ public static class GeoServiceDefaults
     public const string OsmTileUrlTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
     public const string OsmTileAttribution = "© OpenStreetMap contributors";
     public const int OsmTileMaxZoom = 19;
+    public const string OsmTileCspSources = "https://tile.openstreetmap.org https://*.tile.openstreetmap.org";
 
     public static readonly IReadOnlyList<string> PublicHostDomains =
     [

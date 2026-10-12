@@ -584,7 +584,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // Recover the real client IP from the nginx reverse proxy so the per-IP rate limiter
-// partitions correctly. Only the Docker bridge range is trusted (see ForwardedHeadersConstants).
+// partitions correctly. Only the Docker bridge range is trusted (see ForwardedHeadersConstants); a native
+// installation has no proxy in front, so it trusts nobody unless ForwardedHeaders:KnownNetworks says otherwise.
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
@@ -598,7 +599,7 @@ var trustedNetworks = app.Configuration
     .Get<string[]>();
 if (trustedNetworks is null || trustedNetworks.Length == 0)
 {
-    trustedNetworks = ForwardedHeadersConstants.DefaultTrustedNetworks;
+    trustedNetworks = DataRootPaths.GetDataRoot(app.Configuration) is null ? ForwardedHeadersConstants.DefaultTrustedNetworks : [];
 }
 
 foreach (var cidr in trustedNetworks)
@@ -607,6 +608,7 @@ foreach (var cidr in trustedNetworks)
 }
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
+if (DataRootPaths.GetDataRoot(app.Configuration) is not null) app.UseMiddleware<NativeHostingSecurityMiddleware>();
 
 // global cors policy
 app.UseCors(myAllowSpecificOrigins);
